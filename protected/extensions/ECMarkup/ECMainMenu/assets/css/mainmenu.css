@@ -1,0 +1,70 @@
+.easycast-tab-menu
+{
+
+}
+
+/**
+ * Делаем более толстую рамку для вкладок
+ */
+.easycast-tab-menu > .nav-tabs
+{
+    #border-bottom: 3px solid #8d8585;
+}
+
+/**
+ * Убираем полоску под активной вкладкой
+ */
+.easycast-tab-menu .nav-tabs > li
+{
+    #margin-bottom: -3px;
+}
+
+/**
+ * Делаем более толстую рамку для активной вкладки
+ */
+.easycast-tab-menu > .nav-tabs > .active > a,
+.easycast-tab-menu > .nav-tabs > .active > a:hover
+{
+    #border-color: #8d8585;
+    #border-width: 3px;
+}
+
+.easycast-main-menu
+{
+    #border-color: #8d8585;
+    #border-width: 3px;
+    #border-radius: 5px;
+}
+
+.main-menu-inner-row
+{
+    text-align: center;
+}
+
+.main-menu-item
+{
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.main-menu-item-image
+{
+    max-height: 100px;
+    max-width: 100px;
+}
+.main-menu-item-label
+{
+    text-align: center;
+}
+
+.mainmenu-inner > .table th, .table td
+{
+    border: 0px;
+}
+
+.mainmenu-new-user
+{
+    vertical-align: middle !important; 
+    text-align: center !important; 
+    border: 0px !important; 
+}

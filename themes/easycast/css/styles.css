@@ -1,0 +1,31 @@
+/**
+ * Поля сверху и снизу страницы
+ */
+body{
+    margin-top: 10px !important;
+    margin-bottom: 10px;
+}
+
+#page {
+    padding-top: 0px;
+}
+
+/**
+ * Исправление неправильных цветов в таблице при клике мышкой
+ */
+.grid-view table.items tr.selected td {
+    background: none repeat scroll 0 0 #111111 !important;
+}
+
+/**
+ * Скругленные уголки у аватарок всех пользователей
+ */
+.ec-rounded-avatar {
+    border-radius: 10px;
+}
+/**
+ * Скругленные уголки у любого элемента
+ */
+.ec-round-the-corner {
+    border-radius: 10px;
+}

@@ -1,0 +1,44 @@
+/**
+ * Выравниваем список контактов
+ */
+.easycast-contacts .nav-header
+{
+    padding-bottom: 0px;
+    margin-top: 0px;
+    text-transform: none;
+    font-size: 12px;
+}
+
+.easycast-logo
+{
+    text-align: center;
+}
+
+/**
+ * Общий стиль для всех блоков шапки
+ */
+.easycast-header
+{
+    vertical-align: top;
+}
+
+.easycast-menu-label
+{
+    text-align: center;
+}
+
+.easycast-menu-item
+{
+    text-align: center;
+}
+
+.easycast-social-icon
+{
+    width: 32px;
+    #height: 32px;
+}
+
+.easycast-copyright
+{
+    text-align: center;
+}

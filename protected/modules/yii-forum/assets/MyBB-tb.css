@@ -1,0 +1,81 @@
+/**
+ * Mimic the view of MyBB 1.6
+ */
+
+.MyBB-tb {
+    padding: 10px;
+}
+
+.MyBB-tb div.newthread {
+    text-align:right;
+}
+.MyBB-tb table.items {
+    border-spacing: 1px;
+    background: none repeat scroll 0% 0% #222222;
+    width: 100%;
+    margin: auto;
+    border: 1px solid #333333;
+    #color: rgb(0, 0, 0);
+    font-size: 12px;
+    font-family: Verdana,Arial,Sans-Serif;
+}
+
+.MyBB-tb table.items th.preheader {
+    background-color: #5C5C5C;
+    background-image: linear-gradient(to bottom, #666666, #4D4D4D);
+    background-repeat: repeat-x;
+    color:white;
+}
+.MyBB-tb table.items a {
+    text-decoration:none;
+}
+.MyBB-tb table.items a:hover {
+    text-decoration: underline;
+}
+
+.MyBB-tb table.items th,
+.MyBB-tb table.items td
+{
+    padding:.3em;
+}
+
+.MyBB-tb table.items th {
+    background-color: #5C5C5C;
+    background-image: linear-gradient(to bottom, #666666, #4D4D4D);
+    background-repeat: repeat-x;
+}
+.MyBB-tb table.items td {
+    vertical-align: top;
+}
+
+.MyBB-tb table.items td.extrarow {
+    background-color:#333333;
+    font-weight: bold;
+}
+
+.MyBB-tb table.items tr.odd {
+    background: none repeat scroll 0% 0% #222222;
+}
+
+.MyBB-tb table.items tr.even {
+    background: none repeat scroll 0% 0% #333333;
+}
+
+.MyBB-tb table.items th.preheader {
+    background-color: #5C5C5C;
+    background-image: linear-gradient(to bottom, #666666, #4D4D4D);
+    background-repeat: repeat-x;
+}
+.MyBB-tb table.items th.preheader a {
+    color:white;
+}
+.MyBB-tb table.items div.name {
+    margin:2px 0;
+    font-weight:bold;
+}
+.MyBB-tb table.items div.level2 {
+}
+.MyBB-tb table.items div.level3 {
+    margin-top:3px;
+    font-size:11px;
+}

@@ -1,0 +1,15 @@
+/**
+ * Подписи к разделам каталога
+ */
+.ec-catalog-section-title {
+    text-align: center;
+}
+
+.ec-catalog-section-title a {
+    color: #fff;
+}
+
+.ec-catalog-section-caption {
+    padding: 10px !important;
+    height: 40px;
+}
