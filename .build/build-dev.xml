@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Сборка EasyCast для разработчика (локально) " default="finish" basedir="../">
+    
+	<!-- Указываем путь к Yii -->
+	<property name="yii.dir" value="../yiisoft/yii/"/>
+	<!-- Указываем путь к ядру EasyCast -->
+	<property name="core.dir" value="../easycast-core/"/>
+	<!-- Указываем путь к проекту с плагинами -->
+	<property name="plugins.dir" value="../easycast-plugins/"/>
+	<!-- Путь к папке с файлами для версии разработчика -->
+    <property name="dev.dir" value="."/>
+	
+	<!-- Папка с промежуточными результатами сборки -->
+    <property name="dev_output.dir" value="/home/frost/tmp/release/easycast/DEV/"/>
+	<!-- Папка веб-сервера -->
+    <property name="webserver.dir" value="/home/frost/server/sites/bglance/"/>
+    
+    
+	<target name="clear-webserver-directory">
+        <echo>Очищаем папку веб-сервера</echo>
+        <delete includeemptydirs="true" deleteonexit="false" failonerror="false">
+              <fileset dir="${webserver.dir}" defaultexcludes="false">
+                  <include name="**"/>
+              	  <exclude name="gallery/**"/>
+              </fileset>
+        </delete>
+    </target>
+	
+    <target name="clear-output-directory" depends="clear-webserver-directory">
+        <echo>Очищаем папку от старых файлов</echo>
+        <delete includeemptydirs="true" deleteonexit="false" failonerror="false">
+              <fileset dir="${dev_output.dir}" defaultexcludes="false">
+                  <include name="**"/>
+              </fileset>
+        </delete>
+    </target>
+
+    <target name="copy-yii" depends="clear-output-directory">
+        <echo>Копируем файлы Yii (вариант для разработчика)</echo>      
+        <copy todir="${dev_output.dir}" overwrite="true" includeemptydirs="true">
+            <fileset dir="${yii.dir}">
+                <include name="framework/**"/>
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="adding-core" depends="copy-yii">
+        <echo>Добавляем ядро проекта</echo>
+        <copy todir="${dev_output.dir}" overwrite="true" includeemptydirs="true">
+            <fileset dir="${core.dir}">
+                <include name="**"/>
+            </fileset>
+        </copy>
+    </target>
+	
+	<target name="adding-plugins" depends="adding-core">
+        <echo>Добавляем сторонние плагины</echo>
+        <copy todir="${dev_output.dir}" overwrite="true" includeemptydirs="true">
+            <fileset dir="${plugins.dir}">
+                <include name="**"/>
+            </fileset>
+        </copy>
+    </target>
+	
+	<target name="adding-devstuff" depends="adding-plugins">
+        <echo>Добавляем плагины разработчика</echo>
+        <!--copy  todir="${dev_output.dir}" overwrite="true">
+            <fileset dir="${plugins.dir}">
+                <include name="**"/>
+            </fileset>
+        </copy-->
+    </target>
+	
+	<target name="setup-project-enviroment" depends="adding-devstuff">
+        <echo>Устанавливаем настройки среды исполнения в режим разработчика</echo>
+        <copy todir="${dev_output.dir}" overwrite="true">
+            <fileset dir="${dev.dir}">
+                <include name="**"/>
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="cleanup" depends="setup-project-enviroment">
+        <echo>Удаление мусорных файлов</echo>
+    	<delete includeemptydirs="true" failonerror="false" deleteonexit="false">
+    		<fileset dir="${dev_output.dir}" defaultexcludes="false">
+    		    <include name="**/.*/**"/>
+    		    <include name="**/.*"/>
+    		    <exclude name="**/.htaccess"/>
+            </fileset>
+        </delete>
+    </target>
+	
+	<target name="update-local-webserver" depends="cleanup">
+        <echo>Загружаем сборку разработчика на локальный веб-сервер</echo>
+        <copy todir="${webserver.dir}" overwrite="true">
+            <fileset dir="${dev_output.dir}">
+                <include name="**"/>
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="finish" depends="update-local-webserver">
+        <echo>Development version assembled. Fuck yeah.</echo>
+    </target>
+    
+</project>
