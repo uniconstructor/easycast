@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Сборка EasyCast для production-сервера" default="finish" basedir="../">
+<project name="Сборка EasyCast для production-сервера " default="finish" basedir="../">
     
     <!-- Указываем путь к Yii -->
     <property name="yii.dir" value="../yiisoft/yii/"/>
     <!-- Указываем путь к ядру EasyCast -->
-    <property name="core.dir" value="../easycast-core/"/>
+    <property name="core.dir" value="../easycast/"/>
     <!-- Указываем путь к проекту с плагинами -->
-    <property name="plugins.dir" value="../easycast-plugins/"/>
+    <property name="plugins.dir" value="../easycast(plugins)/"/>
     <!-- Путь к папке с файлами для версии разработчика -->
     <property name="production.dir" value="."/>
     <!-- Репозиторий для  релиза -->
-    <property name="release.dir" value="../easycast-release/"/>
+    <property name="release.dir" value="../easycast(release)/"/>
     <!-- Папка с результатами сборки -->
     <property name="production_output.dir" value="/home/frost/tmp/release/easycast/PRODUCTION"/>
     
@@ -88,12 +88,12 @@
     </target>
 	
 	<target name="release" depends="cleanup">
-        <echo>Загружаем все файлы в проект релизной сборки (DISABLED)</echo>
-        <!--copy todir="${release.dir}" overwrite="true">
+        <echo>Загружаем все файлы в проект релизной сборки</echo>
+        <copy todir="${release.dir}" overwrite="true">
             <fileset dir="${production_output.dir}/">
                 <include name="**"/>
             </fileset>
-        </copy-->
+        </copy>
     </target>
 	
 	<target name="zipzip" depends="release">
