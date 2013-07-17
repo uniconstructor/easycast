@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Сборка EasyCast для разработчика (локально) " default="finish" basedir="../">
+<project name="Сборка EasyCast для разработчика (локально)" default="finish" basedir="../">
     
 	<!-- Указываем путь к Yii -->
 	<property name="yii.dir" value="../yiisoft/yii/"/>
 	<!-- Указываем путь к ядру EasyCast -->
-	<property name="core.dir" value="../easycast-core/"/>
+	<property name="core.dir" value="/home/frost/git/easycast/"/>
 	<!-- Указываем путь к проекту с плагинами -->
-	<property name="plugins.dir" value="../easycast-plugins/"/>
+	<property name="plugins.dir" value="/home/frost/git/easycast(plugins)/"/>
 	<!-- Путь к папке с файлами для версии разработчика -->
     <property name="dev.dir" value="."/>
 	
@@ -63,7 +63,7 @@
     </target>
 	
 	<target name="adding-devstuff" depends="adding-plugins">
-        <echo>Добавляем плагины разработчика</echo>
+        <echo>Добавляем плагины разработчика (skipped)</echo>
         <!--copy  todir="${dev_output.dir}" overwrite="true">
             <fileset dir="${plugins.dir}">
                 <include name="**"/>
@@ -93,7 +93,7 @@
 	
 	<target name="update-local-webserver" depends="cleanup">
         <echo>Загружаем сборку разработчика на локальный веб-сервер</echo>
-        <copy todir="${webserver.dir}" overwrite="true">
+        <copy includeemptydirs="true" todir="${webserver.dir}" overwrite="true">
             <fileset dir="${dev_output.dir}">
                 <include name="**"/>
             </fileset>
