@@ -11,10 +11,6 @@
 
 	<?php echo $form->errorSummary(array($model)); ?>
 
-		<?php //echo $form->textFieldRow($model,'username',array('size'=>20,'maxlength'=>20)); ?>
-
-		<?php //echo $form->passwordFieldRow($model,'password',array('size'=>60,'maxlength'=>128)); ?>
-
 		<?php echo $form->textFieldRow($model,'email',array('size'=>60,'maxlength'=>128)); ?>
 
 		<?php echo $form->dropDownListRow($model,'superuser',User::itemAlias('AdminStatus')); ?>

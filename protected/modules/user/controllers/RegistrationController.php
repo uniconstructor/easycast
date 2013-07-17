@@ -16,6 +16,7 @@ class RegistrationController extends Controller
 			),
 		);
 	}
+	
 	/**
 	 * Registration user
 	 */
@@ -31,28 +32,33 @@ class RegistrationController extends Controller
 				Yii::app()->end();
 			}
 			
-		    if (Yii::app()->user->id) {
+		    if (Yii::app()->user->id)
+		    {
 		    	$this->redirect(Yii::app()->controller->module->profileUrl);
 		    } else {
-		    	if(isset($_POST['RegistrationForm'])) {
-					$model->attributes=$_POST['RegistrationForm'];
-					$profile->attributes=((isset($_POST['Profile'])?$_POST['Profile']:array()));
-					if($model->validate()&&$profile->validate())
+		    	if(isset($_POST['RegistrationForm']))
+		    	{
+					$model->attributes   = $_POST['RegistrationForm'];
+					$profile->attributes = ( (isset($_POST['Profile']) ? $_POST['Profile']:array()) );
+					$soucePassword = $model->password;
+					
+					// если логин или пароль не задан - попробуем автоматически создать их
+					if ( ! trim($soucePassword) )
+					{// password not set - generate it
+					    $soucePassword = $model->generatePassword();
+					}
+					if ( ! trim($model->username) )
+					{// login not set - geterate it
+					    $model->username = $model->getLoginByEmail($model->email);
+					}
+					
+					if ( $model->validate() && $profile->validate() )
 					{
-						$soucePassword = $model->password;
-						if ( ! trim($soucePassword) )
-						{// password not set - generate it
-						    $soucePassword = $model->generatePassword();
-						}
-						if ( ! trim($model->username) )
-						{// login not set - geterate it
-						    $model->username = $model->getLoginByEmail($model->email);
-						}
-						$model->activkey=UserModule::encrypting(microtime().$model->password);
-						$model->password=UserModule::encrypting($model->password);
-						$model->verifyPassword=UserModule::encrypting($model->verifyPassword);
+						$model->activkey = UserModule::encrypting(microtime().$model->password);
+						$model->password = UserModule::encrypting($model->password);
+						$model->verifyPassword = UserModule::encrypting($model->verifyPassword);
 						$model->superuser = 0;
-						$model->status=((Yii::app()->controller->module->activeAfterRegister)?User::STATUS_ACTIVE:User::STATUS_NOACTIVE);
+						$model->status = ((Yii::app()->controller->module->activeAfterRegister)?User::STATUS_ACTIVE:User::STATUS_NOACTIVE);
 						
 						if ($model->save()) {
 							$profile->user_id=$model->id;
