@@ -11,8 +11,11 @@ $this->breadcrumbs=array(
 
 <h1>Мой выбор</h1>
 
-<?php
+<div class="alert alert-block">На этой странице вы можете еще раз просмотреть всю информацию о 
+выбранных вами участниках и оформить заказ.
+</div>
 
+<?php
 // Выводим сообщения или предупреждения
 $this->widget('bootstrap.widgets.TbAlert', array(
     'block' => true, // display a larger alert block?
@@ -43,6 +46,10 @@ if ( ! FastOrder::orderIsEmpty() )
     <div class="span2">&nbsp;</div>
     <div class="span6">
         <h2>Ваши контактные данные</h2>
+        <div class="alert alert-block">
+            Пожалуйста заполните форму, для того чтобы мы могли связаться с вами и подтвердить заказ.<br> 
+            Как только ваш заказ будет подтвержден мы свяжемся с каждым участником и сообщим ему всю необходимую информацию.
+        </div>
         <?php 
             echo Yii::t('coreMessages','form_required_fields', array('{mark}' => '<span class="required">*</span>'));
             // ФИО
@@ -62,8 +69,16 @@ if ( ! FastOrder::orderIsEmpty() )
             // поле с дополнительной информацией о заказе
             echo $form->textAreaRow($order, 'comment', array('style' => 'width:100%;height:100px;'));
         ?>
+        <small>Мы обязуемся использовать ваш телефон и email только для связи с вами и уточнения деталей заказа.
+    	Мы никогда не будем присылать вам рекламу или раскрывать ваши данные третьим лицам.</small>
         <div>
-        <?php $this->widget('bootstrap.widgets.TbButton',
+        <?php 
+        // галочка, которая ни на что не влияет :)
+        //echo '<div style="margin-bottom:15px;">';
+        //echo CHtml::checkBox('cool', false, array('title' => 'Эта галочка ни на что не влияет'));
+        //echo '<small style="margin-top:10px;" title="Эта галочка ни на что не влияет">&nbsp;&nbsp;Здорово, я согласен!</small><br></div>';
+        
+        $this->widget('bootstrap.widgets.TbButton',
             array(
                     'buttonType'  => 'submit',
                     'type'        => 'success',
