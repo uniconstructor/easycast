@@ -70,8 +70,8 @@ $this->breadcrumbs=array(
                     	    Вы также можете использовать адрес электронной почты вместо логина для входа на сайт.
                         </small>
                 	</div>
-                	<?php echo $form->passwordFieldRow($model,'password'); ?>
-                	<?php echo $form->passwordFieldRow($model,'verifyPassword'); ?>
+                	<?php echo $form->passwordFieldRow($model,'password', array('value' => '')); ?>
+                	<?php echo $form->passwordFieldRow($model,'verifyPassword', array('value' => '')); ?>
                 	<div class="alert">
                     	<small>
                     	    Минимальная длина пароля - 6 символов.<br>

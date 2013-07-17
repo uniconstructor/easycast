@@ -40,23 +40,30 @@ class RegistrationController extends Controller
 		    	{
 					$model->attributes   = $_POST['RegistrationForm'];
 					$profile->attributes = ( (isset($_POST['Profile']) ? $_POST['Profile']:array()) );
-					$soucePassword = $model->password;
 					
+					//CVarDumper::dump($model->attributes, 10, true);
+					//CVarDumper::dump($_POST['RegistrationForm'], 10, true);
+					//die;
+					
+					$soucePassword  = $model->password;
+					$verifyPassword = $model->verifyPassword;
 					// если логин или пароль не задан - попробуем автоматически создать их
 					if ( ! trim($soucePassword) )
 					{// password not set - generate it
-					    $soucePassword = $model->generatePassword();
+					    $soucePassword  = $model->generatePassword();
+					    $verifyPassword = $soucePassword;
 					}
 					if ( ! trim($model->username) )
 					{// login not set - geterate it
 					    $model->username = $model->getLoginByEmail($model->email);
 					}
 					
+					
 					if ( $model->validate() && $profile->validate() )
 					{
 						$model->activkey = UserModule::encrypting(microtime().$model->password);
-						$model->password = UserModule::encrypting($model->password);
-						$model->verifyPassword = UserModule::encrypting($model->verifyPassword);
+						$model->password = UserModule::encrypting($soucePassword);
+						$model->verifyPassword = UserModule::encrypting($verifyPassword);
 						$model->superuser = 0;
 						$model->status = ((Yii::app()->controller->module->activeAfterRegister)?User::STATUS_ACTIVE:User::STATUS_NOACTIVE);
 						
@@ -69,7 +76,7 @@ class RegistrationController extends Controller
 							}
 							
 							if ((Yii::app()->controller->module->loginNotActiv||(Yii::app()->controller->module->activeAfterRegister&&Yii::app()->controller->module->sendActivationMail==false))&&Yii::app()->controller->module->autoLogin) {
-									$identity=new UserIdentity($model->username,$soucePassword);
+									$identity=new UserIdentity($model->username, $soucePassword);
 									$identity->authenticate();
 									Yii::app()->user->login($identity,0);
 									$this->redirect(Yii::app()->controller->module->returnUrl);
