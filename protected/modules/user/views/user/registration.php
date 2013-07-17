@@ -40,8 +40,8 @@ $this->breadcrumbs=array(
 	
 
 	<?php if (UserModule::doCaptcha('registration')): ?>
-		<?php echo $form->labelEx($model,'verifyCode'); ?>
 		
+		<br>
 		<?php $this->widget('CCaptcha'); ?>
 		<?php echo $form->textFieldRow($model,'verifyCode'); ?>
 		
@@ -49,13 +49,12 @@ $this->breadcrumbs=array(
 		<br/><?php echo UserModule::t("Letters are not case-sensitive."); ?></p>
 	<?php endif; ?>
 	
-	<div class="form-actions">
-		<?php $this->widget('bootstrap.widgets.TbButton',
-            array('buttonType'=>'submit',
-                  'type'=>'primary',
-                  'label'=>UserModule::t("Register"),
-            )); ?>
-	</div>
+	<?php $this->widget('bootstrap.widgets.TbButton',
+        array('buttonType'=>'submit',
+              'type'  => 'primary',
+              'label' => UserModule::t("Register"),
+              'htmlOptions' => array('class' => 'btn btn-large btn-primary'),
+        )); ?>
 
 <?php $this->endWidget(); ?>
 </div><!-- form -->
