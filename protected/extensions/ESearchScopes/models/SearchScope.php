@@ -15,6 +15,12 @@
  */
 class SearchScope extends CActiveRecord
 {
+    /**
+     * @var int - id модели questionary в таблице search_scope_models
+     *            (взято за константу потому что она там одна и лежит там только для Третьей Нормальной Формы (3NF))
+     */
+    const QMODEL_ID = 1;
+    
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
@@ -64,16 +70,13 @@ class SearchScope extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
-			array('parentid, timecreated, timemodified', 'length', 'max'=>11),
+			array('timecreated, timemodified', 'length', 'max'=>11),
 			array('name', 'length', 'max'=>255),
 			array('shortname', 'length', 'max'=>64),
 			array('modelid, type', 'length', 'max'=>128),
 			// The following rule is used by search().
-			// Please remove those attributes that should not be searched.
-			array('id, parentid, name, shortname, modelid, timecreated, timemodified, type', 'safe', 'on'=>'search'),
+			array('id, name, shortname, modelid, timecreated, timemodified, type', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -82,8 +85,6 @@ class SearchScope extends CActiveRecord
 	 */
 	public function relations()
 	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
 		return array(
 		    // @todo replace with proper method, getting scopes by chain
 		    'scopeConditions' => array(self::HAS_MANY, 'ScopeCondition', 'scopeid', 'order' => '`previousid` ASC, `id` ASC'),
@@ -97,7 +98,6 @@ class SearchScope extends CActiveRecord
 	{
 		return array(
 			'id' => 'ID',
-			'parentid' => Yii::t('ESearchScopes.main', 'parentid_label'),
 			'name' => Yii::t('ESearchScopes.main', 'name_label'),
 			'shortname' => Yii::t('ESearchScopes.main', 'shortname_label'),
 			'model' => Yii::t('ESearchScopes.main', 'model_label'),
@@ -110,16 +110,14 @@ class SearchScope extends CActiveRecord
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.
 	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
+	 * 
+	 * @todo refactoring:delete this metrhod 
 	 */
 	public function search()
 	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
-
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
-		$criteria->compare('parentid',$this->parentid,true);
 		$criteria->compare('name',$this->name,true);
 		$criteria->compare('shortname',$this->shortname,true);
 		$criteria->compare('model',$this->model,true);
