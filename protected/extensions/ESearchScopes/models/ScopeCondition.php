@@ -297,9 +297,6 @@ class ScopeCondition extends CActiveRecord
 	{
 	    if ( $newCriteria = unserialize($this->value) )
 	    {
-	        //$params = $newCriteria->params;
-	        //CVarDumper::dump($params, 10, true);die(121212121);
-	        //return new CDbCriteria($params);
 	        return $newCriteria;
 	    }
 	    
