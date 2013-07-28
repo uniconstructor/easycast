@@ -31,12 +31,20 @@ return CMap::mergeArray(
             // Данные для доступа к кластеру Amazon
             'AWSAccessKey' => 'AKIAISQJ47JQQ2QOGBKA',
             'AWSSecret'    => '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',
-            // использовать хостинг amazon s3 для хранения картинок
+            
+            // S3
+            // Использовать хостинг amazon s3 для хранения картинок
             'useAmazonS3'   => true,
-            // использовать сервисы amazon SES для отправки почты
-            'useAmazonSES'  => true,
             'AWSBucket'     => 'img.easycast.ru',
             'AWSBucketPath' => 'http://img.easycast.ru.s3.amazonaws.com',
+            // SES
+            // использовать сервисы amazon SES для отправки почты
+            'useAmazonSES'  => true,
+            // SQS
+            // использовать Amazon SQS для отправки большого количества почты (через очередь)
+            'useAmazonSQS'      => true,
+            'AWSEmailQueueUrl'  => 'https://sqs.us-east-1.amazonaws.com/507109426938/easycast_mail',
+            'AWSEmailQueueName' => 'easycast_mail',
         ),
     )
 );
