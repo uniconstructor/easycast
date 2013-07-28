@@ -37,21 +37,32 @@ return CMap::mergeArray(
                 'password' => 'root',
             )
         ),
-        'params'=>array(
+        'params' => array(
             // адрес с которого рассылаются все письма
             'adminEmail'=>'admin@easycast.ru',
             // API ID на vkontakte.ru (чтобы работал виджет "мне нравится")
             'vkontakteApiId' => '3534064',
             
+            // Настройки хостинга Amazon
             // Данные для доступа к кластеру Amazon (отключено, чтобы не посылать запросы с машины разработчика)
             'AWSAccessKey' => 'AKIAISQJ47JQQ2QOGBKA',
             'AWSSecret'    => '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',
-            // использовать хостинг amazon s3 для хранения картинок
-            'useAmazonS3'   => true,
-            // использовать сервисы amazon SES для отправки почты
-            'useAmazonSES'  => false,
+            //'AWSAccessKey' => '',
+            //'AWSSecret'    => '',
+            
+            // S3
+            // Использовать хостинг amazon s3 для хранения картинок
+            'useAmazonS3'   => false,
             'AWSBucket'     => 'test.easycast.ru',
             'AWSBucketPath' => 'http://test.easycast.ru.s3.amazonaws.com',
+            // SES
+            // использовать сервисы amazon SES для отправки почты
+            'useAmazonSES'  => false,
+            // SQS
+            // использовать Amazon SES для отправки большого количества почты (через очередь)
+            'useAmazonSQS'      => true,
+            'AWSEmailQueueUrl'  => 'https://sqs.us-east-1.amazonaws.com/507109426938/easycast_mail',
+            'AWSEmailQueueName' => 'easycast_mail',
         ),
     )
 );
