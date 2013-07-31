@@ -111,6 +111,7 @@ class CatalogController extends Controller
 	public function actionSearch()
 	{
 	    Yii::import('application.modules.catalog.extensions.search.QSearchFilters.QSearchFilters');
+	    
 	    $this->render('search');
 	}
 	
@@ -140,16 +141,17 @@ class CatalogController extends Controller
 	    }
 	    // Проверяем наличие всех обязательных параметров
 	    if ( ! $mode = Yii::app()->request->getPost('mode', null) )
-	    {
+	    {// режим поиска (по вильтрам в разделе или по всей базе)
 	        throw new CHttpException(500, 'Request mode required');
 	    }
+	    
 	    $sectionId = Yii::app()->request->getPost('sectionId', 0);
 	    if ( $mode == 'filter' AND ! $section = CatalogSection::model()->findByPk($sectionId) )
-	    {
+	    {// попытка поискать в несуществующем разделе
 	        throw new CHttpException(500, 'Section not found');
 	    }
 	    if ( $data = Yii::app()->request->getPost('data', null) )
-	    {// не переданы данные для поиска
+	    {// переданы данные для поиска - делаем из них нормальный массив
 	        $data = CJSON::decode($data);
 	    }
 	    
@@ -263,7 +265,7 @@ class CatalogController extends Controller
 	    {// очищаем данные внутри раздела каталога
 	        CatalogModule::clearFilterSearchData($namePrefix, $sectionId, array());
 	    }else
-       {// очищаем данные большой формы поиска
+        {// очищаем данные большой формы поиска
 	        CatalogModule::clearFormSearchData($namePrefix, array());
 	    }
 	    

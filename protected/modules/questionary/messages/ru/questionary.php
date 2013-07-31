@@ -315,6 +315,7 @@ return array
     'specialty' => 'Специальность',
     'video' => 'Видео',
     'add_video' => 'Добавить видео',
+        
     // дополнительные строки для отображения информации в анкете
     'foreign_passport_enabled' => 'Есть загранпаспорт',
     'foreign_passport_disabled' => 'Загранпаспорт отсутствует',
@@ -326,6 +327,7 @@ return array
     'nightrecording' => 'Участие&nbsp;в&nbsp;ночных&nbsp;съемках',
     'actor_conditions' => 'Дополнительные условия',
     'canrepainthair_enabled' => 'Могу перекрасить для съемок',
+    'no_new_invites' => 'Нет новых приглашений',
     
     // Заголовки разделов формы
     'experience_jobs_and_skills' => 'Опыт работы, умения и навыки',
@@ -345,6 +347,7 @@ return array
     'userinfo_section_misc' => 'Дополнительно',
     'userinfo_section_conditions' => 'Условия',
     'userinfo_section_personal' => 'Контакты',
+    'userinfo_section_invites' => 'Мои приглашения',
     
     
     //////////////////////////////

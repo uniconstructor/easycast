@@ -1,0 +1,25 @@
+/**
+ * Спрятать отработавшую кнопку принятия/отклонения заявки и вывести сообщение
+ * @param string message - сообщение об успешном принятии или отклонении заявки
+ */
+function ec_quinvites_success(action, inviteId, message)
+{
+    var acceptButtonSelector = '#accept_button' + inviteId;
+    var rejectButtonSelector = '#reject_button' + inviteId;
+    var messageSelector      = '#invite_message' + inviteId;
+    
+    if ( action == 'accept' )
+    {
+        $(acceptButtonSelector).hide();
+        $(rejectButtonSelector).show();
+        $(messageSelector).attr('class', 'alert alert-success');
+    }else
+    {
+        $(rejectButtonSelector).hide();
+        $(acceptButtonSelector).show();
+        $(messageSelector).attr('class', 'alert');
+    }
+    
+    $(messageSelector).fadeIn(100);
+    $(messageSelector).html(message);
+}

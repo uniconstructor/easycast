@@ -24,6 +24,8 @@
  * @todo добавить реакцию на событие "собрать данные только с этого фильтра"
  * @todo прикреплять jQuery-события не к body, а к родительским элементам. Передавать id элемента как параметр виджета
  * @todo перенести общую html-разметку внешнего вида виджета в шаблон (views)
+ * @todo убрать поля section и vacancy - заменить их одним более общим объектом - 
+ *       ("тот у которого есть данные о предыдущем значении в форме")
  * 
  * @todo убрать использование collectDataVar
  */
@@ -35,9 +37,15 @@ class QSearchFilterBase extends CWidget
     public $display;
     
     /**
-     * @var CatalogSection - раздел анкеты в котором отображается фильтр (если используются фильтры)
+     * @var CatalogSection - раздел анкеты в котором отображается фильтр 
+     *                       (если фильтры используются в разделах каталога)
      */
     public $section;
+    
+    /**
+     * @var EventVacancy - вакансия, к которой прикремлен фильтр поиска
+     */
+    public $vacancy;
     
     /**
      * @var CatalogFilter - фильтр в таблице catalog_filters
@@ -85,8 +93,15 @@ class QSearchFilterBase extends CWidget
      *                         Правило: для всех критериев поиска, созданных через форму в объекте SearchScope  
      *                         поле shortname => $this->filter->shortname
      *                         поле type => 'filter'
+     *                         
+     * @todo механизм хранения данных формы в базе изменен - удалить при рефакторинге 
      */
     public $scope;
+    
+    /**
+     * @var string - URL по которому отправляется AJAX-запрос на очистку данных для одного фильтра 
+     */
+    public $clearUrl = '/catalog/catalog/clearSessionSearchData';
     
     /**
      * @var string - название функции, которая проверяет, используется ли фильтр поиска
@@ -137,6 +152,11 @@ class QSearchFilterBase extends CWidget
     protected $inputSelectors = array();
     
     /**
+     * @var array - допустимые режимы отображения виджета
+     */
+    protected $displayModes = array('form', 'filter', 'vacancy');
+    
+    /**
      * @var array - промежуточная переменная для хранения условий поиска 
      * (если условия поиска создаются по данным из формы)
      */
@@ -151,7 +171,9 @@ class QSearchFilterBase extends CWidget
     public function init()
     {
         // Подключаем все необходимые для поиска классы
+        
         // Конструктор поисковых запросов
+        // @todo возможно не используется здесь, в связи со всеми последними изменениями. Удалить при рефакторинге
         Yii::import('application.extensions.ESearchScopes.models.*');
         // виджет "улучшенный выпадающий список" ("select2")
         Yii::import('application.extensions.select2.ESelect2');
@@ -163,7 +185,7 @@ class QSearchFilterBase extends CWidget
         Yii::import('application.modules.catalog.CatalogModule');
         
         // Проверяем правильность всех параметров перед созданием виджета
-        if ( ! in_array($this->display, array('form', 'filter')) )
+        if ( ! in_array($this->display, $this->displayModes) )
         {
             throw new CHttpException('500', 'Неправильный тип отображения');
         }
@@ -218,7 +240,6 @@ class QSearchFilterBase extends CWidget
         $this->registerPageScripts();
         
         // Подключаем стили
-
         // Подключаем CSS для оформления
         $this->_assetUrl = Yii::app()->assetManager->publish(
             Yii::getPathOfAlias('catalog.extensions.search.filters.QSearchFilterBase.assets') .
@@ -261,7 +282,6 @@ class QSearchFilterBase extends CWidget
         
         // Добавляем JS который удаляет все данные из одного фильтра при нажатии на иконку удаления
         $js .= "jQuery('#{$this->clearDataPrefix}').click(function(){jQuery('body').trigger('{$this->clearFilterEvent}');return false;})";
-        
         Yii::app()->clientScript->registerScript('_ecSearchFilteScripts#'.$this->namePrefix, $js, CClientScript::POS_END);
     }
     
@@ -327,6 +347,12 @@ class QSearchFilterBase extends CWidget
             {
                 case 'filter': $data = CatalogModule::getFilterSearchData($this->namePrefix, $this->section->id); break;
                 case 'form':   $data = CatalogModule::getFormSearchData($this->namePrefix); break;
+            }
+        }elseif ( $this->dataSource == 'db' )
+        {// нужно загрузить данные фильтра из базы
+            switch ( $this->display )
+            {
+                case 'vacancy': $data = $this->vacancy->getFilterSearchData($this->namePrefix); break;
             }
         }
         return $data;
@@ -444,7 +470,13 @@ class QSearchFilterBase extends CWidget
     protected function createClearFilterFormJs($eventName)
     {
         $clearFormJs    = $this->createClearFormDataJs();
-        $clearSessionJs = $this->createClearSessionDataJs();
+        if ( $this->dataSource == 'session' )
+        {// нужно очистить данные в сессии
+            $clearDataJs = $this->createClearSessionDataJs();
+        }else
+        {// нужно очистить данные в БД
+            $clearDataJs = $this->createClearVacancyDataJs();
+        }
         $fadeOutJs      = $this->createFadeOutJs();
         // Код, очищающий данные, реагирует на события очистки всей формы и очистки этого элемента
         // общее правило: событие, очищающее этот фрагмент формы всегда называется 
@@ -456,7 +488,7 @@ class QSearchFilterBase extends CWidget
             //console.log('trigger_clear');
             {$clearFormJs}
             {$fadeOutJs}
-            {$clearSessionJs}
+            {$clearDataJs}
         });";
     }
     
@@ -469,6 +501,36 @@ class QSearchFilterBase extends CWidget
     protected function createClearFormDataJs()
     {
         throw new CHttpException('500', 'clearFormJs() должен быть наследован');
+    }
+    
+    /**
+     * Получить JS-код для очистки данных формы поиска для вакансии
+     * 
+     * @return string
+     * 
+     * @todo удалить эту функцию и создать всесто нее более общую, которая 
+     *       послылает AJAX-запрос с любыми данными по любому адресу
+     */
+    protected function createClearVacancyDataJs()
+    {
+        // создаем URL для AJAX-запроса
+        $url = Yii::app()->createUrl($this->clearUrl,
+        array(
+            'namePrefix' => $this->namePrefix,
+            'id' => $this->vacancy->id,
+        ));
+        // Устанавливаем данные для запроса и выполняем его
+        return "var ajaxData = {
+                namePrefix : '{$this->namePrefix}',
+                id  : '{$this->vacancy->id}',
+                ".Yii::app()->request->csrfTokenName." : '".Yii::app()->request->csrfToken."'
+            };
+            var ajaxOptions = {
+                url: '$url',
+                data : ajaxData,
+                type : 'post'
+            };
+        jQuery.ajax(ajaxOptions);";
     }
     
     /**
@@ -558,7 +620,7 @@ class QSearchFilterBase extends CWidget
             $sectionId = $this->section->id;
         }
         // создаем URL для AJAX-запроса
-        $url = Yii::app()->createUrl('/catalog/catalog/clearSessionSearchData', 
+        $url = Yii::app()->createUrl($this->clearUrl,
             array(
                 'namePrefix' => $this->namePrefix,
                 'sectionId'  => $sectionId,
@@ -594,7 +656,7 @@ class QSearchFilterBase extends CWidget
             $sectionId = $this->section->id;
         }
         // создаем URL для AJAX-запроса
-        $url = Yii::app()->createUrl('/catalog/catalog/clearSessionSearchData()',
+        $url = Yii::app()->createUrl('',
         array(
             'namePrefix' => $this->namePrefix,
             'sectionId'  => $sectionId,

@@ -1,7 +1,7 @@
 <?php
 /* @var $this EventController */
 /* @var $model ProjectEvent */
-// @todo языковые строки
+// @todo перенести отсюда код подачи заявки и удалить сам файл
 
 $this->breadcrumbs=array(
     ProjectsModule::t('projects')=>array('/projects'),

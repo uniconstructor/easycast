@@ -38,26 +38,3 @@ $this->menu=array(
 	),
 )); ?>
 <br>
-<br>
-<h3>Условия выборки анкет в раздел</h3>
-<?php $this->widget('application.modules.admin.extensions.ScopesList.ScopesList', array('scope' => $model->scope)); ?>
-<br>
-<br>
-<h3>Вкладки</h3>
-<ul>
-<?php
-// Выводим все вкладки
-Yii::import('catalog.models.*');
-
-foreach ( $model->instances as $tabInstance )
-{
-    echo '<li>'.$tabInstance->tab->name;
-    
-    /*echo '<ul>'
-        echo '<li>'.$this->widget('admin.extensions.ScopesList.ScopesList', array(), true).'</li>';
-    echo '<ul>';*/
-    echo '</li>';
-    $this->widget('application.modules.admin.extensions.ScopesList.ScopesList', array('scope' => $tabInstance->tab->scope));
-}
-?>
-</ul>

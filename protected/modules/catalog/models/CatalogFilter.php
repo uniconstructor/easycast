@@ -7,6 +7,7 @@
  * @property integer $id
  * @property string $widgetclass
  * @property string $handlerclass
+ * @property string $name
  * @property string $shortname
  */
 class CatalogFilter extends CActiveRecord
@@ -34,14 +35,11 @@ class CatalogFilter extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
-			array('shortname', 'required'),
-			array('shortname, widgetclass, handlerclass', 'length', 'max'=>255),
+			array('shortname, widgetclass, handlerclass', 'required'),
+			array('name, shortname, widgetclass, handlerclass', 'length', 'max'=>255),
 			// The following rule is used by search().
-			// Please remove those attributes that should not be searched.
-			array('id, shortname, widgetclass, handlerclass', 'safe', 'on'=>'search'),
+			array('id, name, shortname, widgetclass, handlerclass', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -50,9 +48,8 @@ class CatalogFilter extends CActiveRecord
 	 */
 	public function relations()
 	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
 		return array(
+		    'instances' => array(self::HAS_MANY, 'CatalogFilterInstance', 'filterid'),
 		);
 	}
 
@@ -63,9 +60,10 @@ class CatalogFilter extends CActiveRecord
 	{
 		return array(
 			'id' => 'ID',
-			'field' => 'Field',
 			'name' => 'Name',
-			'lang' => 'Lang',
+			'shortname' => 'Name',
+			'widgetclass' => 'Класс виджета, отображающего этот фильтр',
+			'handlerclass' => 'Класс обработчика для этого фильтра',
 		);
 	}
 
@@ -75,15 +73,13 @@ class CatalogFilter extends CActiveRecord
 	 */
 	public function search()
 	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
-
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
-		$criteria->compare('field',$this->field,true);
 		$criteria->compare('name',$this->name,true);
-		$criteria->compare('lang',$this->lang,true);
+		$criteria->compare('shortname',$this->shortname,true);
+		$criteria->compare('widgetclass',$this->widgetclass,true);
+		$criteria->compare('handlerclass',$this->handlerclass,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

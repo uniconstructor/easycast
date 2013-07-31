@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Контроллер для администрирования вакансий вакансий мероприятия 
+ */
 class EventVacancyController extends Controller
 {
 	/**
@@ -22,24 +25,22 @@ class EventVacancyController extends Controller
 	 * Specifies the access control rules.
 	 * This method is used by the 'accessControl' filter.
 	 * @return array access control rules
+	 * 
+	 * @todo настроить проверку прав на основе ролей
 	 */
 	public function accessRules()
 	{
 		return array(
-			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view'),
-				'users'=>array('@'),
+		    // разрешаем выполнять любые действия только авторизованным пользователям
+		    // проверка на админа происходит в модуле admin
+			array('allow',
+				'actions' => array('index','view', 'create','update','admin','delete','setStatus',
+				    'setSearchData', 'ClearFilterSearchData'),
+				'users'   => array('@'),
 			),
-			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update'),
-				'users'=>array('@'),
-			),
-			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete','setStatus'),
-				'users'=>array('@'),
-			),
-			array('deny',  // deny all users
-				'users'=>array('*'),
+		    // запрещаем все остальное
+			array('deny',
+				'users' => array('*'),
 			),
 		);
 	}
@@ -118,21 +119,28 @@ class EventVacancyController extends Controller
 	 */
 	public function actionDelete($id)
 	{
-		if(Yii::app()->request->isPostRequest)
+		if ( Yii::app()->request->isPostRequest )
 		{
 			// we only allow deletion via POST request
-			$this->loadModel($id)->delete();
+			$vacancy = $this->loadModel($id);
+			$eventId = $vacancy->eventid;
+			$vacancy->delete();
 
 			// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-			if(!isset($_GET['ajax']))
-				$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+			if( ! isset($_GET['ajax']) )
+			{
+			    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('/admin/projectEvent/view', 'id' => $eventId));
+			}
+		}else
+		{
+		    throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
 		}
-		else
-			throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
 	}
 
 	/**
 	 * Lists all models.
+	 * 
+	 * @todo не используется, удалить при рефакторинге
 	 */
 	public function actionIndex()
 	{
@@ -144,6 +152,8 @@ class EventVacancyController extends Controller
 
 	/**
 	 * Manages all models.
+	 * 
+	 * @todo не используется, удалить при рефакторинге
 	 */
 	public function actionAdmin()
 	{
@@ -155,32 +165,6 @@ class EventVacancyController extends Controller
 		$this->render('admin',array(
 			'model'=>$model,
 		));
-	}
-
-	/**
-	 * Returns the data model based on the primary key given in the GET variable.
-	 * If the data model is not found, an HTTP exception will be raised.
-	 * @param integer the ID of the model to be loaded
-	 */
-	public function loadModel($id)
-	{
-		$model=EventVacancy::model()->findByPk($id);
-		if($model===null)
-			throw new CHttpException(404,'The requested page does not exist.');
-		return $model;
-	}
-
-	/**
-	 * Performs the AJAX validation.
-	 * @param CModel the model to be validated
-	 */
-	protected function performAjaxValidation($model)
-	{
-		if(isset($_POST['ajax']) && $_POST['ajax']==='event-vacancy-form')
-		{
-			echo CActiveForm::validate($model);
-			Yii::app()->end();
-		}
 	}
 	
 	/**
@@ -196,10 +180,109 @@ class EventVacancyController extends Controller
 	        throw new CHttpException(404,'Необходимо указать статус');
 	    }
 	    $model->setStatus($status);
-	    
+	     
 	    Yii::app()->user->setFlash('success', 'Статус изменен');
-	    
+	     
 	    $url = Yii::app()->createUrl('/admin/eventVacancy/view', array('id' => $id));
 	    $this->redirect($url);
+	}
+	
+	/**
+	 * Изменить критерии выборки людей, которые подходят под эту вакансию
+	 * 
+	 * @return null
+	 */
+	public function actionSetSearchData()
+	{
+	    if ( ! Yii::app()->request->isAjaxRequest )
+	    {
+	        Yii::app()->end();
+	    }
+	    // id вакансии (обязательно)
+	    $id = Yii::app()->request->getParam('id', 0);
+	    $vacancy = $this->loadModel($id);
+	    
+	    if ( $vacancy->status != EventVacancy::STATUS_DRAFT )
+	    {// менять критерии подбора людей в вакансию можно только в статусе "Черновик"
+	        echo 'Менять критерии подбора людей в вакансию можно только в статусе "Черновик"'; 
+	        Yii::app()->end();
+	    }
+	    
+	    // условия, по которым отбираются люди на вакансию
+	    if ( $data = Yii::app()->request->getPost('data', null) AND ! empty($data) )
+	    {// переданы данные для поиска - делаем из них нормальный массив
+	        $data = CJSON::decode($data);
+	    }else
+	    {// данные для поиска не переданы - завершаем работу
+	        echo 'Не переданы данные для поиска';
+	        Yii::app()->end();
+	    }
+	    
+	    // Сохраняем данные поисковой формы и пересоздаем критерий поиска
+	    $vacancy->setSearchData($data);
+	    
+	    // считаем сколько участников подошло под выбранные критерии
+	    echo 'Подходящих участников: '.$vacancy->countPotentialApplicants();
+	    Yii::app()->end();
+	}
+	
+	/**
+	 * Очистить сохраненные в сессии данные формы поиска
+	 * (Может очистить как данные всей формы поиска так и в отдельном разделе.
+	 * Как все поля - так и отдельное поле, все зависит от настроек)
+	 *
+	 * @return null
+	 * @todo обработать возможные ошибки
+	 */
+	public function actionClearFilterSearchData()
+	{
+	    if ( ! Yii::app()->request->isAjaxRequest )
+	    {
+	        Yii::app()->end();
+	    }
+	    // если название фильтра не задано - мы можем очистить только
+	    if ( ! $namePrefix = Yii::app()->request->getPost('namePrefix', '') )
+	    {
+	        throw new CHttpException(500, 'namePrefix required');
+	    }
+	    
+	    $vacancyId = Yii::app()->request->getPost('id', 0);
+	    if ( $vacancy = EventVacancy::model()->findByPk($vacancyId) )
+	    {// очищаем данные внутри вакансии
+	        $vacancy->clearFilterSearchData($namePrefix);
+	    }
+	     
+	    echo 'OK';
+	    Yii::app()->end();
+	}
+
+	/**
+	 * Returns the data model based on the primary key given in the GET variable.
+	 * If the data model is not found, an HTTP exception will be raised.
+	 * @param integer the ID of the model to be loaded
+	 * 
+	 * @return EventVacancy
+	 */
+	public function loadModel($id)
+	{
+		$model = EventVacancy::model()->findByPk($id);
+		if ( $model === null )
+		{
+		    throw new CHttpException(404,'Vacancy not found (id='.$id.')');
+		}
+		return $model;
+	}
+
+	/**
+	 * Performs the AJAX validation.
+	 * @param CModel the model to be validated
+	 */
+	protected function performAjaxValidation($model)
+	{
+		if(isset($_POST['ajax']) && $_POST['ajax']==='event-vacancy-form')
+		{
+			echo CActiveForm::validate($model);
+			Yii::app()->end();
+		}
 	}
 }

@@ -45,7 +45,6 @@ class QSearchFilterBaseSelect2 extends QSearchFilterBase
             'id'       => $this->s2Selector,
             'multiple' => 'multiple',
             'style'    => 'width:100%;',
-            //'class'    => 'uneditable-input',
             'options'  => $variants,
         ));
     
@@ -108,6 +107,7 @@ class QSearchFilterBaseSelect2 extends QSearchFilterBase
     {
         return array(
             'placeholder' => 'Нажмите чтобы выбрать',
+            // @todo что это за параметр?
             'allowClear'  => true,
             // select не закрывается, чтобы можно было быстро выбрать несколько вариантов
             'closeOnSelect' => false,

@@ -1,5 +1,28 @@
 <?php
 /**
- * отображение информации для заказчика - как правило это корзина
+ * Отображение информации для заказчика - это корзина со списком приглашенных участников
+ * и кнопка оформления заказа
  */
+
+// считаем сколько участников в заказе
+$count = 0;
+if ( is_array($users) AND ! empty($users) )
+{
+    $count = count($users);
+}
 ?>
+<div class="ec_customer_info">
+    <h4>Мой выбор</h4>
+    <div class="ec_customer_info_block">
+        <a href="<?= Yii::app()->createUrl('//catalog/catalog/myChoice'); ?>" target="_blank">
+            Выбрано участников:&nbsp;<?= $count; ?>
+        </a>
+    </div>
+    <div class="ec_customer_info_block">
+        <? if ( $count > 0 ) { ?>
+        <a href="<?= Yii::app()->createUrl('//catalog/catalog/myChoice'); ?>" class="btn btn-primary">
+            Перейти к заказу
+        </a>
+        <? } ?>
+    </div>
+</div>

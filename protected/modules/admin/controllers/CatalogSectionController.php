@@ -35,16 +35,8 @@ class CatalogSectionController extends Controller
 	public function accessRules()
 	{
 		return array(
-			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view'),
-				'users'=>array('@'),
-			),
-			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update'),
-				'users'=>array('@'),
-			),
-			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete'),
+			array('allow',  // все проверки прав производятся в beforeControllerAction
+				'actions'=>array('index','view','create','update','admin','delete'),
 				'users'=>array('@'),
 			),
 			array('deny',  // deny all users
@@ -156,7 +148,9 @@ class CatalogSectionController extends Controller
 			'model'=>$model,
 		));
 	}
-
+	
+    
+	
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.

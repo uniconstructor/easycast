@@ -19,7 +19,7 @@ class QuestionaryController extends Controller
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
 	 */
-	public $layout='//layouts/column2';
+	public $layout='//layouts/column1';
 	
 	/** Initilazes the controller
 	 * (non-PHPdoc)
@@ -37,6 +37,8 @@ class QuestionaryController extends Controller
 	 * Переопределяем viewPath чтобы можно было нормально просматривать и редактировать анкету
 	 * (non-PHPdoc)
 	 * @see CController::getViewPath()
+	 * 
+	 * @todo (создано для сокращения пути в адресной строке) удалить если не понадобится
 	 */
 	public function getViewPath()
 	{
@@ -45,6 +47,7 @@ class QuestionaryController extends Controller
 
 	/**
 	 * @return array action filters
+	 * @todo настроить проверку прав на основе RBAC
 	 */
 	public function filters()
 	{
@@ -84,7 +87,7 @@ class QuestionaryController extends Controller
 
 	/**
 	 * Отображает анкету пользователя
-	 * @param integer $id the ID of the model to be displayed
+	 * @param integer $id - id отображаемой анкеты
 	 */
 	public function actionView($id = null)
 	{
@@ -95,11 +98,16 @@ class QuestionaryController extends Controller
 	        // хочет просмотреть свою страницу и попробуем определить ее самостоятельно
 	        if ( Yii::app()->user->isGuest )
 	        {// У гостя не может быть своей страницы
+	            // @todo сделать redirect на вход/регистрацию здесь
 	            $errorMessage = QuestionaryModule::t('questionary_not_found');
 	            throw new CHttpException(404, $errorMessage);
 	        }
 	        $id = Yii::app()->getModule('user')->user()->questionary->id;
 	    }
+	    // если нужно открыть анкету на конкретной вкладке
+	    $activeTab = Yii::app()->request->getParam('activeTab', 'main');
+	    
+	    // загружаем анкету, которую будем просматривать
 	    $questionary = $this->loadModel($id);
 	    
 	    if ( ! Yii::app()->user->isGuest AND 
@@ -140,7 +148,7 @@ class QuestionaryController extends Controller
         }
 	    
 	    $address = $questionary->address;
-		$this->render('view',array(
+		$this->render('view', array(
 			'questionary'  => $questionary,
 		    'address'      => $address,
 		    'canEdit'      => $canEdit,
@@ -149,6 +157,7 @@ class QuestionaryController extends Controller
 		    'orderMessage'  => $orderMessage,
 		    'orderMessageClass' => $orderMessageClass,
 		    'orderMessageStyle' => $orderMessageStyle,
+		    'activeTab' => $activeTab,
 		));
 	}
 
@@ -160,7 +169,10 @@ class QuestionaryController extends Controller
 	public function actionUpdate($id)
     {
         // Форма анкеты выводится одной колонкой, чтобы ничто не отвлекало и не расползалась верстка
+        // @todo удалить эту строку отсюда и использовать во всех действиях QuestionaryController
+        // верстку в одну колонку по умолчанию
         $this->layout = '//layouts/column1';
+        
         // Загружаем дополнительные стили для формы:
         $assetsUrl = CHtml::asset($this->module->basePath.DIRECTORY_SEPARATOR.'assets');
         Yii::app()->clientScript->registerCssFile($assetsUrl.DIRECTORY_SEPARATOR.
@@ -245,7 +257,7 @@ class QuestionaryController extends Controller
         $validatedVideos = array();
 
 
-        // Uncomment the following line if AJAX validation is needed
+        // @todo сделать AJAX-проверку вводимых значений
         // $this->performAjaxValidation($questionary);
 
 
@@ -383,6 +395,8 @@ class QuestionaryController extends Controller
 	 * Deletes a particular model.
 	 * If deletion is successful, the browser will be redirected to the 'admin' page.
 	 * @param integer $id the ID of the model to be deleted
+	 * 
+	 * @todo заменить реальное удаление на смену статуса в "удален"
 	 */
 	public function actionDelete($id)
 	{
@@ -393,8 +407,10 @@ class QuestionaryController extends Controller
 		$this->loadModel($id)->delete();
 
 		// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-		if(!isset($_GET['ajax']))
-			$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('//admin/questionary'));
+		if ( ! isset($_GET['ajax']) )
+		{
+		    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('//admin/questionary'));
+		}
 	}
 
 	/**
@@ -409,19 +425,21 @@ class QuestionaryController extends Controller
 	 * Функция отображения каталога пользователей.
 	 * Вызывается при действии index и catalog
 	 * 
-	 * return_type
+	 * @return null
+	 * @todo похоже что эта функция вообще нигде не используется - удалить при рефакторинге
 	 */
-	protected function displayCatalog()
+	/*protected function displayCatalog()
 	{
-	    $dataProvider=new CActiveDataProvider('Questionary');
+	    $dataProvider = new CActiveDataProvider('Questionary');
 	    $this->render('catalog.index',array(
 	                    'dataProvider'=>$dataProvider,
 	    ));
-	}
+	}*/
 	
 	/**
-	 * Обработка всех ajax-запросов на получение данных в форме
-	 * @todo уже нет. Переименовать функцию так, чтобы было понятно что она занимается только городами
+	 * Получить список городов по AJAX
+	 * 
+	 * @todo Переименовать функцию так, чтобы было понятно что она занимается только городами
 	 */
     public function actionAjax()
     {
@@ -581,9 +599,11 @@ class QuestionaryController extends Controller
 	 */
 	public function loadModel($id)
 	{
-		$model=Questionary::model()->findByPk($id);
-		if($model===null)
-			throw new CHttpException(404,'The requested page does not exist. (Questionary:'.$id.')');
+		$model = Questionary::model()->findByPk($id);
+		if ( $model === null )
+		{
+		    throw new CHttpException(404, 'Запрошенная анкета не существует. (id='.$id.')');
+		}
 		return $model;
 	}
 
@@ -641,6 +661,7 @@ class QuestionaryController extends Controller
 	 * @return string
 	 * 
 	 * @todo сделать в сообщении ссылку на возврат в каталог
+	 * @todo вынести код этой кнопки из контроллера в отдельный виджет
 	 */
 	protected function createCustomerButton($id, $type)
 	{
@@ -690,6 +711,14 @@ class QuestionaryController extends Controller
         return CHtml::ajaxButton($buttonCaption, $buttonUrl, $ajaxOptions, $htmlOptions);
 	}
 	
+	/**
+	 * Создать JS для отмены приглашения заказчиком
+	 * @param string $messageId - html-id тега с сообщением 
+	 * @param string $buttonId - id кнопки с приглашением
+	 * @return string
+	 * 
+	 * @todo обработка AJAX-ошибок
+	 */
 	protected function createDismissSuccessJS($messageId, $buttonId)
 	{
 	    $afterDismissMessage = QuestionaryModule::t('dismiss_message');
@@ -712,6 +741,16 @@ class QuestionaryController extends Controller
 	    }";
 	}
 	
+	/**
+	 * Создать JS-код который приглашает участника на съемки
+	 * 
+	 * @param string $messageId - id тега с сообщением
+	 * @param string $buttonId - id кнопки с отменой приглашения
+	 * @param string $gender - пол участника (male/female)
+	 * @return string
+	 * 
+	 * @todo обработка AJAX-ошибок
+	 */
 	protected function createInviteSuccessJS($messageId, $buttonId, $gender)
 	{
 	    $afterInviteCaption = QuestionaryModule::t('already_invited(male)');

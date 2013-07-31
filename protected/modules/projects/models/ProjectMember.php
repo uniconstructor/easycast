@@ -15,14 +15,52 @@
  * @property string $timestart
  * @property string $timeend
  * @property string $status
+ * 
+ * Relations:
+ * @property Questionary $member
+ * @property User $manager
+ * @property EventVacancy $vacancy
  */
 class ProjectMember extends CActiveRecord
 {
-    const STATUS_DRAFT = 'draft';
-    const STATUS_ACTIVE = 'active';
+    /**
+     * @var string - статус заявки: черновик. Заявка подана участником и еще не рассмотрена.
+     */
+    const STATUS_DRAFT     = 'draft';
+    /**
+     * @var string - статус заявки: одобрена. Заявка подана участником, рассмотрена и одобрена.
+     *               Все участники с такими заявками считаются участниками проекта.
+     */
+    const STATUS_ACTIVE    = 'active';
+    /**
+     * @var string - статус заявки: заморожена. Заявка подана участником, не рассмотрена и проект
+     *               или мероприятие были приостановлены.
+     */
     const STATUS_SUSPENDED = 'suspended';
-    const STATUS_REJECTED = 'rejected';
-    const STATUS_FINISHED = 'finished';
+    /**
+     * @var string - статус заявки: отклонена. Заявка подана участником, рассмотрена и отклонена.
+     */
+    const STATUS_REJECTED  = 'rejected';
+    /**
+     * @var string - статус заявки: завершена. Заявка подана участником, рассмотрена и одобрена.
+     *               Участник пришел работал на съемках проекта.
+     *               Этот статус нужен для того чтобы хранить историю участников.
+     */
+    const STATUS_FINISHED  = 'finished';
+    
+    /**
+     * (non-PHPdoc)
+     * @see CActiveRecord::init()
+     */
+    public function init()
+    {
+        Yii::import('application.modules.projects.ProjectsModule');
+        
+        // регистрируем обработчики событий
+        // создание нового приглашения (участнику отправляется письмо)
+        $this->attachEventHandler('onApprove', array('ProjectsModule', 'sendApproveMemberNotification'));
+        $this->attachEventHandler('onReject', array('ProjectsModule', 'sendRejectMemberNotification'));
+    }
     
 	/**
 	 * Returns the static model of the specified AR class.
@@ -59,6 +97,20 @@ class ProjectMember extends CActiveRecord
 	
 	/**
 	 * (non-PHPdoc)
+	 * @see CActiveRecord::afterSave()
+	 */
+	protected function afterSave()
+	{
+	    if ( $this->isNewRecord )
+	    {// @todo при создании новой заявки сообщать участнику что она принята
+	        
+	        // автоматически переводим приглашение в статус "принято" если участник подал заявку на это мероприятие
+	        $this->autoConfirmInvite();
+	    }
+	}
+	
+	/**
+	 * (non-PHPdoc)
 	 * @see CActiveRecord::defaultScope()
 	 */
 	public function defaultScope()
@@ -72,8 +124,6 @@ class ProjectMember extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
 			array('memberid, vacancyid, timecreated, timemodified, managerid, timestart, timeend', 'length', 'max'=>11),
 			array('request, responce', 'length', 'max'=>255),
@@ -89,10 +139,8 @@ class ProjectMember extends CActiveRecord
 	 */
 	public function relations()
 	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
 		return array(
-		    'member' => array(self::BELONGS_TO, 'Questionary', 'memberid'),
+		    'member'  => array(self::BELONGS_TO, 'Questionary', 'memberid'),
 		    'manager' => array(self::BELONGS_TO, 'User', 'managerid'),
 		    'vacancy' => array(self::BELONGS_TO, 'EventVacancy', 'vacancyid'),
 		);
@@ -122,11 +170,8 @@ class ProjectMember extends CActiveRecord
 	 * Retrieves a list of models based on the current search/filter conditions.
 	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
 	 */
-	public function search()
+	/*public function search()
 	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
-
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
@@ -144,6 +189,26 @@ class ProjectMember extends CActiveRecord
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
 		));
+	}*/
+	
+	/**
+	 * Событие "заявка подтверждена"
+	 * @param unknown $event
+	 * @return null
+	 */
+	public function onApprove($event)
+	{
+	    $this->raiseEvent('onApprove', $event);
+	}
+	
+	/**
+	 * Событие "заявка подтверждена"
+	 * @param unknown $event
+	 * @return null
+	 */
+	public function onReject($event)
+	{
+	    $this->raiseEvent('onReject', $event);
 	}
 	
 	/**
@@ -182,16 +247,55 @@ class ProjectMember extends CActiveRecord
 	    return ProjectsModule::t('event_status_'.$status);
 	}
 	
+	/**
+	 * Установить новый статус
+	 * 
+	 * @param string $newStatus
+	 * @return boolean
+	 */
     public function setStatus($newStatus)
 	{
+	    if ( $this->status == $newStatus )
+	    {// статус не надо менять
+	        return true;
+	    }
 	    if ( ! in_array($newStatus, $this->getAllowedStatuses()) )
 	    {
 	        return false;
 	    }
-	
+	    
 	    $this->status = $newStatus;
 	    $this->save();
-	
+	    
+	    if ( $newStatus == self::STATUS_ACTIVE )
+	    {// заявка одобрена - отправляем письмо
+	        $event = new CModelEvent($this);
+	        $this->onApprove($event);
+	    }elseif ( $newStatus == self::STATUS_REJECTED )
+	    {// заявка отклонена - отправляем письмо
+	        $event = new CModelEvent($this);
+	        $this->onReject($event);
+	    }
+	    
 	    return true;
+	}
+	
+	/**
+	 * Автоматически подтвердить приглашение на участие в мероприятии.
+	 * Выполняется только в том случае, если участник подал заявку, не просмотрев приглашения
+	 * После подтверждения приглашение удаляется
+	 * 
+	 * @return null
+	 */
+	protected function autoConfirmInvite()
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('eventid', $this->vacancy->event->id);
+	    $criteria->compare('questionaryid', $this->memberid);
+	    
+	    $invite = EventInvite::model()->find($criteria);
+	    $invite->setStatus(EventInvite::STATUS_ACCEPTED);
+	    $invite->deleted = 1;
+	    $invite->save();
 	}
 }

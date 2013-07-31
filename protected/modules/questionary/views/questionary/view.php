@@ -104,6 +104,7 @@ if ( $canEdit )
             // Выводим всю остальную информацию о пользователе
             $this->widget('application.modules.questionary.extensions.widgets.QUserInfo.QUserInfo', array(
                     'questionary' => $questionary,
+                    'activeTab'   => $activeTab,
             ));
             ?>
             </div>

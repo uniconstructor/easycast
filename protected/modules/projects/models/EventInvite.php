@@ -1,17 +1,73 @@
 <?php
 
 /**
- * This is the model class for table "{{event_invites}}".
+ * Модель "приглашение на съемки"
+ * Таблица "{{event_invites}}".
  *
  * The followings are the available columns in table '{{event_invites}}':
  * @property integer $id
  * @property string $questionaryid
  * @property string $eventid
- * @property integer $checked
+ * @property integer $deleted
  * @property string $timecreated
+ * @property string $timemodified
+ * @property string $status
+ * @property string $subscribekey
+ * 
+ * Связи с другими таблицами:
+ * @property Questionsry $questionary - анкета приглашенного участника
+ * @property ProjectEvent $event - мероприятие
+ * 
+ * @todo заменить во всем коде модели текст статусов константами
+ * @todo переписать delete() на мягкое удаление
  */
 class EventInvite extends CActiveRecord
 {
+    /**
+     * @var string - статус приглашения: ждет ответа
+     *               Участник получил приглашение, но пока на него не ответил
+     */
+    const STATUS_PENDING  = 'pending';
+    /**
+     * @var string - статус приглашения: принято
+     *               Участник получил приглашение, и принял согласился на участие в мероприятии
+     *               Приглашение в таком статусе означает только сам факт согласия участвовать в съемках
+     *               Пользователь может и не подать заявку на участие
+     */
+    const STATUS_ACCEPTED = 'accepted';
+    /**
+     * @var string - статус приглашения: отклонено
+     *               Участник получил приглашение, и отказался участвовать в съемках
+     *               Приглашение в таком статусе означает только сам факт отказа от участия в съемках
+     *               Пользователь все равно может подать заявку на участие после отказа
+     */
+    const STATUS_REJECTED = 'rejected';
+    /**
+     * @var string - статус приглашения: время истекло
+     *               Участник получил приглашение, но не успел с ним ознакомиться,
+     *               или слишком долго тупил с подачей заявки на участие
+     */
+    const STATUS_EXPIRED  = 'expired';
+    /**
+     * @var string - статус приглашения: отменено
+     *               Участник получил приглашение, но вакансия была удалена (например из-за того что создана по ошибке)
+     *               Этот статус используется редко
+     */
+    const STATUS_CANCELED = 'canceled';
+    
+    /**
+     * (non-PHPdoc)
+     * @see CActiveRecord::init()
+     */
+    public function init()
+    {
+        Yii::import('application.modules.projects.ProjectsModule');
+        
+        // регистрируем обработчики событий
+        // создание нового приглашения (участнику отправляется письмо)
+        $this->attachEventHandler('onNewInvite', array('ProjectsModule', 'sendNewInviteNotification'));
+    }
+    
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
@@ -31,7 +87,8 @@ class EventInvite extends CActiveRecord
 	}
 	
 	/**
-	 * @see parent::behaviors
+	 * (non-PHPdoc)
+	 * @see CModel::behaviors()
 	 */
 	public function behaviors()
 	{
@@ -40,8 +97,41 @@ class EventInvite extends CActiveRecord
 	        'CTimestampBehavior' => array(
 	            'class' => 'zii.behaviors.CTimestampBehavior',
 	            'createAttribute' => 'timecreated',
+	            'updateAttribute' => 'timemodified',
 	        )
 	    );
+	}
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see CActiveRecord::beforeSave()
+	 */
+	protected function beforeSave()
+	{
+	    if ( $this->isNewRecord )
+	    {// при создании записи установим начальный статус
+	        $this->status = self::STATUS_PENDING;
+	        $this->subscribekey = sha1(microtime().Yii::app()->params['hashSalt']);
+	    }
+	    
+	    return parent::beforeSave();
+	}
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see CActiveRecord::afterSave()
+	 */
+	protected function afterSave()
+	{
+	    if  ( $this->isNewRecord )
+	    {// сразу же после создания приглашения - отсылаем письмо участнику
+	        // этот процесс происходит при помощи события 'onNewInvite',
+	        // которое перехватывается в классе ProjectsModule
+	        $event = new CModelEvent($this);
+	        $this->onNewInvite($event);
+	    }
+	    
+	    parent::afterSave();
 	}
 	
 	/**
@@ -51,22 +141,22 @@ class EventInvite extends CActiveRecord
 	public function defaultScope()
 	{
 	    return array(
-	        'order' => 'timecreated DESC');
+	        'order' => '`timecreated` DESC',
+	    );
 	}
 
 	/**
 	 * @return array validation rules for model attributes.
+	 * 
+	 * @todo проверять что статус находится в списке допустимых
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
-			array('checked', 'numerical', 'integerOnly'=>true),
-			array('questionaryid, eventid, timecreated', 'length', 'max'=>11),
-			// The following rule is used by search().
-			// Please remove those attributes that should not be searched.
-			array('id, questionaryid, eventid, checked, timecreated', 'safe', 'on'=>'search'),
+			array('deleted', 'numerical', 'integerOnly'=>true),
+			array('questionaryid, eventid, timecreated, timemodified', 'length', 'max'=>11),
+		    array('status', 'length', 'max'=>20),
+		    array('subscribekey', 'length', 'max'=>40),
 		);
 	}
 
@@ -75,8 +165,6 @@ class EventInvite extends CActiveRecord
 	 */
 	public function relations()
 	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
 		return array(
 		    'questionary' => array(self::BELONGS_TO, 'Questionary', 'questionaryid'),
 		    'event' => array(self::BELONGS_TO, 'ProjectEvent', 'eventid'),
@@ -92,30 +180,68 @@ class EventInvite extends CActiveRecord
 			'id' => 'ID',
 			'questionaryid' => ProjectsModule::t('user'),
 			'eventid' => ProjectsModule::t('event'),
-			'checked' => 'Checked',
+			'deleted' => Yii::t('coreMessages', 'deleted_sr'),
 			'timecreated' => ProjectsModule::t('invite_timecreated'),
+		    'timemodified' => Yii::t('coreMessages', 'timemodified'),
+		    'status' => Yii::t('coreMessages', 'status'),
 		);
 	}
-
+	
 	/**
-	 * Retrieves a list of models based on the current search/filter conditions.
-	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
+	 * Событие "создано новое приглашение"
+	 * @param CModelEvent $event
+	 * @return null
 	 */
-	public function search()
+	public function onNewInvite($event)
 	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
-
-		$criteria=new CDbCriteria;
-
-		$criteria->compare('id',$this->id);
-		$criteria->compare('questionaryid',$this->questionaryid,true);
-		$criteria->compare('eventid',$this->eventid,true);
-		$criteria->compare('checked',$this->checked);
-		$criteria->compare('timecreated',$this->timecreated,true);
-
-		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
-		));
+	    $this->raiseEvent('onNewInvite', $event);
+	}
+	
+	/**
+	 * Получить список статусов, в которые может перейти объект
+	 * @return array
+	 */
+	public function getAllowedStatuses()
+	{
+	    switch ( $this->status )
+	    {
+	        case self::STATUS_PENDING:
+	            return array(self::STATUS_ACCEPTED, self::STATUS_REJECTED, self::STATUS_EXPIRED, self::STATUS_CANCELED);
+	            break;
+	        case self::STATUS_ACCEPTED:
+	            return array(self::STATUS_REJECTED, self::STATUS_EXPIRED, self::STATUS_CANCELED);
+	            break;
+	        case self::STATUS_REJECTED:
+	            return array(self::STATUS_ACCEPTED, self::STATUS_EXPIRED, self::STATUS_CANCELED);
+	            break;
+	        case self::STATUS_EXPIRED:
+	            return array();
+	            break;
+	        case self::STATUS_CANCELED:
+	            return array();
+	            break;
+	    }
+	
+	    return array();
+	}
+	
+    /**
+	 * Перевести объект из одного статуса в другой, выполнив все необходимые действия
+	 * @param string $newStatus
+	 * @return bool
+	 * 
+	 * @todo вынести в behaviour
+	 */
+	public function setStatus($newStatus)
+	{
+	    if ( ! in_array($newStatus, $this->getAllowedStatuses()) )
+	    {
+	        return false;
+	    }
+	
+	    $this->status = $newStatus;
+	    $this->save();
+	    
+	    return true;
 	}
 }

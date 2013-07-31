@@ -56,6 +56,9 @@ return array(
     'project_type_promo' => 'Промо-акция',
     'project_type_flashmob' => 'Флешмоб',
     'project_type_videoclip' => 'Видеоролик',
+    // типы мероприятия
+    'event_type_event' => 'Нет (обычное мероприятие)',
+    'event_type_group' => 'Группа мероприятий',
     
     // Разделы с информацией о проекте
     'projectinfo_section_main' => 'Описание',
@@ -96,7 +99,8 @@ return array(
     'time' => 'Время',
     'timestart' => 'Начало',
     'timeend' => 'Окончание',
-    'timecreated' => 'Время создания',
+    'timecreated' => 'Дата создания',
+    'timecreated' => 'Дата изменения',
     'description' => 'Описание',
     'status' => 'Статус',
     'statustext' => 'Статус',

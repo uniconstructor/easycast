@@ -3,8 +3,10 @@
 /**
  * Виджет, отображающий всю информацию из анкеты пользователя, разбитую по вкладкам
  * 
+ * @todo добавить возможность использовать html в названиях вкладок
  * @todo сделать метод canViewTab, и вынести в него всю проверку прав
  * @todo переписать с использованием view-файлов
+ * @todo показывать пользователю его условия и контакты, с добавлением сообщения о том что это его анкета и контакты видны только ему
  */
 class QUserInfo extends CWidget
 {
@@ -82,7 +84,16 @@ class QUserInfo extends CWidget
      */
     protected function getDefaultTabNames()
     {
-        return array('main', 'education', 'skills', 'films', 'projects', 'awards', 'conditions', 'personal');
+        return array(
+            'main',
+            'education',
+            'skills',
+            'films',
+            'projects',
+            'awards', 
+            'conditions',
+            'personal',
+            'invites',);
     }
     
     /**
@@ -100,33 +111,25 @@ class QUserInfo extends CWidget
         switch ( $name )
         {
             // "основное" - показывается всегда
-            case 'main':      $content = $this->getMainTabContent(); break;
+            case 'main':       $content = $this->getMainTabContent(); break;
             // "образование" - показывается, если есть хотя бы одни ВУЗ
-            case 'education': $content = $this->getEducationTabContent(); break; 
+            case 'education':  $content = $this->getEducationTabContent(); break; 
             // "умения и навыки" - показывается если есть хотя бы один навык или умение (то есть почти всегда)
-            case 'skills':    $content = $this->getSkillsTabContent(); break;
+            case 'skills':     $content = $this->getSkillsTabContent(); break;
             // "фильмография" - показывается если есть хотя бы один фильм
-            case 'films':     $content = $this->getFilmsTabContent(); break;
+            case 'films':      $content = $this->getFilmsTabContent(); break;
             // "проекты" - показывается, если человек учавствовал хотя бы в одном проекте
-            case 'projects':  $content = $this->getProjectsTabContent(); break;
+            case 'projects':   $content = $this->getProjectsTabContent(); break;
             // "награды" - показывается, если есть хотя бы одна награда
-            case 'awards':    $content = $this->getAwardsTabContent(); break;
+            case 'awards':     $content = $this->getAwardsTabContent(); break;
             // "условия" - показывается всегда, но только админам или модераторам, содержит условия участия в съемках
-            // @todo переделать проверку прав
-            case 'conditions':
-                if ( Yii::app()->user->isSuperuser )
-                {
-                    $content = $this->getConditionsTabContent();
-                }
-            break;
+            case 'conditions': $content = $this->getConditionsTabContent(); break;
             // "Контакты" - показывается только админам, содержит контакты и личную информацию
-            // @todo переделать проверку прав
-            case 'personal':
-                if ( Yii::app()->user->isSuperuser )
-                {
-                    $content = $this->getPersonalTabContent();
-                }
-            break;
+            case 'personal':   $content = $this->getPersonalTabContent(); break;
+            // "Приглашения" - показывается всегда, но только на своей странице
+            case 'invites':    $content = $this->getInvitesTabContent(); break;
+            
+            default: throw new CException('Неизвестный тип вкладки: '.$name);
         }
         
         if ( ! $content )
@@ -136,7 +139,7 @@ class QUserInfo extends CWidget
         
         // во вкладке есть информация - соберем ее
         $tab = array();
-        $tab['label']   = QuestionaryModule::t('userinfo_section_'.$name);
+        $tab['label']   = $this->getTabLabel($name);
         $tab['content'] = $content;
         if ( $name == $this->activeTab )
         {// делаем вкладку активной если нужно
@@ -144,6 +147,24 @@ class QUserInfo extends CWidget
         }
         
         return $tab;
+    }
+    
+    /**
+     * Получить название вкладки по ее короткому имени
+     * 
+     * @param string $name - короткое название вкладки
+     * @return string
+     */
+    protected function getTabLabel($name)
+    {
+        $label = QuestionaryModule::t('userinfo_section_'.$name);
+        
+        if ( $name == 'invites' AND $this->questionary->invites )
+        {// к вкладке c приглашениями добавляем цифру (если есть новые)
+            $label .= ' ('.count($this->questionary->invites).')';
+        }
+        
+        return $label;
     }
     
     /**
@@ -756,6 +777,16 @@ class QUserInfo extends CWidget
         return array($attribute, $data);
     }
     
+    /**
+     * Получить список значений разделенных запятыми для одной строки таблицы
+     * @param string $name - название ряда таблицы (нужно для виджета TbListView)
+     * @param array $values - масив записей для списка
+     * @param string $label - id строки перевода для поясняющей надписи слева
+     * @param string $caption - id строки перевода для поясняющей надписи справа, вверху списка значений
+     * @param string $mainField - поле из которого берется значение элемента списка
+     * @param string $secondaryField - поле из которого берется значение в скобках
+     * @return array - массив для создания одной строки таблицы с информацией о пользователе  
+     */
     protected function getCommaRow($name, $values, $label, $caption=null, $mainField='name', $secondaryField=null)
     {
         $attribute = array('name'=>$name, 'label'=>QuestionaryModule::t($label));
@@ -938,6 +969,11 @@ class QUserInfo extends CWidget
      */
     protected function getConditionsTabContent()
     {
+        if ( ! Yii::app()->user->checkAccess('Admin') )
+        {// условия съемок видны только админам
+            return false;
+        }
+        
         $content = '';
         $questionary = $this->questionary;
         $conditions  = $this->questionary->recordingconditions;
@@ -1093,6 +1129,11 @@ class QUserInfo extends CWidget
      */
     public function getPersonalTabContent()
     {
+        if ( ! Yii::app()->user->checkAccess('Admin') )
+        {// контакты видны только админам
+            return false;
+        }
+        
         $content = '';
         $questionary = $this->questionary;
         $user        = $this->questionary->user;
@@ -1158,5 +1199,46 @@ class QUserInfo extends CWidget
             'attributes' => $attributes), true);
         
         return $content;
+    }
+    
+    /**
+     * Получить содержимое вкладки "мои приглашения"
+     * 
+     * @return string
+     */
+    protected function getInvitesTabContent()
+    {
+        if ( ! $this->isMyQuestionary() )
+        {// приглашения показываются только в своей анкете
+            return false;
+        }
+        
+        $content = '';
+        $content .= '<h3>'.QuestionaryModule::t('userinfo_section_invites').'</h3>';
+        
+        // За отображение приглашений на съемки отвечает отдельный виджет
+        $content .= $this->widget('questionary.extensions.widgets.QUserInvites.QUserInvites', array(
+            'questionary' => $this->questionary,
+        ), true);
+        
+        return $content;
+    }
+    
+    /**
+     * Определить, просматривает пользователь свою или чужую анкету
+     * 
+     * @return boolean
+     */
+    protected function isMyQuestionary()
+    {
+        if ( ! is_object($this->questionary->user) )
+        {// защита на случай если что-то не так с пользователем анкеты
+            return false;
+        }
+        if ( Yii::app()->user->checkAccess('User') AND Yii::app()->user->id == $this->questionary->user->id )
+        {
+            return true;
+        }
+        return false;
     }
 }

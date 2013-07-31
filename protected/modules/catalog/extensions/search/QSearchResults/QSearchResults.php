@@ -11,6 +11,8 @@ class QSearchResults extends CWidget
 {
     /**
      * @var (filter/search) - тип запроса (фильтр каталога или большая форма поиска)
+     * 
+     * @todo заменить на form/filter
      */
     public $mode;
     
@@ -44,6 +46,7 @@ class QSearchResults extends CWidget
     public function init()
     {
         // указываем путь к классу, который занимается сборкой поискового запроса из отдельных частей
+        // @todo сделать полем класса
         $pathToAssembler = 'application.modules.catalog.extensions.search.handlers.QSearchCriteriaAssembler';
         if ( $this->mode == 'filter' AND ! is_object($this->section) )
         {
@@ -73,7 +76,7 @@ class QSearchResults extends CWidget
             $emptyText = $this->getAjaxMessage('noData');
             $dataProvider = new CArrayDataProvider(array());
         }else
-       {// все данные есть, получаем результаты поиска
+        {// все данные есть, получаем результаты поиска
             // @todo переместить статус в критерий раздела
             $criteria->compare('status', 'active');
             $emptyText = $this->getAjaxMessage('noData');
@@ -135,7 +138,7 @@ class QSearchResults extends CWidget
      */
     protected function getMaxSectionItems()
     {
-        return 72;
+        return 350;
     }
     
     protected function getRouteParams()

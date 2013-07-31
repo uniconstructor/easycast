@@ -1347,7 +1347,8 @@ Yii::import('ext.CountryCitySelectorRu.*');
         <?php echo $countrySelector->countryActiveField('countryid', $questionary); ?>
         <?php echo $form->error($questionary,'countryid'); ?>
 
-        <?php // Имеется ли медицинская страховка
+        <?php 
+		// Имеется ли медицинская страховка
         $this->widget('ext.EToggleBox.EToggleBox', array(
             'model'     => $questionary,
             'attribute' => 'hasinshurancecard',
@@ -1355,24 +1356,25 @@ Yii::import('ext.CountryCitySelectorRu.*');
                   'after_on'  => 'js:function () {$("#inshurancecardnum").fadeIn(200);}',
                   'after_off' => 'js:function () {$("#inshurancecardnum").fadeOut(200);}'))
              ));
-        ?>
-        <?php 
-            $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                array('field' => 'hasinshurancecard'));
+        // пояснение про медицинскую страховку
+        $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+            array('field' => 'hasinshurancecard'));
         ?>
 
         <div>
             <div id="inshurancecardnum">
-                <?php echo $form->textFieldRow($questionary,'inshurancecardnum',array('size'=>60,'maxlength'=>128)); ?>
-                <?php echo $form->error($questionary,'inshurancecardnum'); ?>
+                <?php
+                // номер медицинской страховки 
+                echo $form->textFieldRow($questionary,'inshurancecardnum',array('size'=>60,'maxlength'=>128));
+                ?>
             </div>
         </div>
         
-        <?php echo $form->textFieldRow($questionary,'inn',array('size'=>32,'maxlength'=>32)); ?>
+        <?php echo $form->textFieldRow($questionary, 'inn', array('size'=>32,'maxlength'=>32)); ?>
 	
 	<h4><?php echo QuestionaryModule::t('address'); ?></h4>
         
-		<?php echo $form->textFieldRow($address,'postalcode',array('size'=>10,'maxlength'=>10)); ?>
+		<?php echo $form->textFieldRow($address, 'postalcode', array('size'=>10,'maxlength'=>10)); ?>
 
 		<?php echo $form->labelEx($address,'countryid'); ?>
 		<?php echo $countrySelector->countryActiveField('countryid', $address); ?>
@@ -1400,93 +1402,98 @@ Yii::import('ext.CountryCitySelectorRu.*');
 
     <fieldset id="conditions_part">
         <legend id="conditions_part_label"><?php echo QuestionaryModule::t('recording_conditions_label'); ?></legend>
-        
-        <?php  // Ночные съемки
+            <?php  
+		    // Ночные съемки (да/нет)
             $this->widget('ext.EToggleBox.EToggleBox', array(
                 'model'     => $recordingConditions,
                 'attribute' => 'isnightrecording',
                 'options'   => $toggleBoxJsOptions));
-        ?>
-        
-        <?php 
+            // Ночные съемки (пояснение)
             $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
                 array('field' => 'isnightrecording'));
-        ?>
+            ?>
         
-        <?php  // топлесс
+            <?php  
+            // Съемка топлесс
+            // @todo выводить только для женщин и только с возрастом больше 18
             $this->widget('ext.EToggleBox.EToggleBox', array(
                 'model'     => $recordingConditions,
                 'attribute' => 'istoplessrecording',
                 'options'   => $toggleBoxJsOptions));
-        ?>
-        
-        <?php 
+            // Съемка топлесс (пояснение)
             $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
                 array('field' => 'istoplessrecording'));
-        ?>
+            ?>
         
-        <?php  // благотворительные акции
+            <?php
+            // Благотворительные акции
             $this->widget('ext.EToggleBox.EToggleBox', array(
                 'model'     => $recordingConditions,
                 'attribute' => 'isfreerecording',
                 'options'   => $toggleBoxJsOptions));
-        ?>
-        
-        <?php 
+            // Благотворительные акции (пояснение)
             $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
                 array('field' => 'isfreerecording'));
-        ?>
+            ?>
         
-        <?php  // Согласны ли вы ездить в коммандировки
+            <?php
+            // Согласны ли вы ездить в коммандировки
             $this->widget('ext.EToggleBox.EToggleBox', array(
                 'model'     => $recordingConditions,
                 'attribute' => 'wantsbusinesstrips',
                 'options'   => $toggleBoxJsOptions));
-        ?>
+            ?>
 
-        <?php // Имеется ли загранпаспорт
-        $this->widget('ext.EToggleBox.EToggleBox', array(
+            <?php 
+            // Имеется ли загранпаспорт
+            $this->widget('ext.EToggleBox.EToggleBox', array(
                 'model'     => $recordingConditions,
                 'attribute' => 'hasforeignpassport',
                 'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
                       'after_on'  => 'js:function () {$("#passportexpires").fadeIn(200);}',
                       'after_off' => 'js:function () {$("#passportexpires").fadeOut(200);}'))
-           ));
-        ?>
+               ));
+            ?>
     
         <div>
             <div id="passportexpires">
-                <?php echo $form->labelEx($recordingConditions,'passportexpires'); ?>
-                <?php // Срок истечения загранпаспорта
+                <?php 
+                echo $form->labelEx($recordingConditions,'passportexpires');
+                // Срок истечения загранпаспорта
                 $this->widget('ext.ActiveDateSelect',
                     array(
-                         'model'=>$recordingConditions,
-                         'attribute'=>'passportexpires',
-                         'reverse_years'=>false,
-                         'field_order'=>'DMY',
-                         'start_year'=>date("Y", time()),
-                         'end_year'=>date("Y", time()+20*365*24*3600),
+                         'model'     => $recordingConditions,
+                         'attribute' => 'passportexpires',
+                         'reverse_years' => false,
+                         'field_order'   => 'DMY',
+                         'start_year' => date("Y", time()),
+                         'end_year'   => date("Y", time()+20*365*24*3600),
                     )
                 );
+                echo $form->error($recordingConditions,'passportexpires');
                 ?>
-                <?php echo $form->error($recordingConditions,'passportexpires'); ?>
             </div>
         </div>
         
-        <?php // размер оплаты для участия в съемках 
-            echo $form->textFieldRow($recordingConditions,'salary',array('size'=>10,'maxlength'=>10));
-            $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription',
-                array('field' => 'salary'));
+        <?php 
+        // размер оплаты для участия в съемках 
+        echo $form->textFieldRow($recordingConditions, 'salary', array('size'=>10,'maxlength'=>10));
+        // размер оплаты (пояснение)
+        $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription',
+            array('field' => 'salary'));
         ?>
         
-        <?php // дополнительные условия для участия в съемках 
-            echo $form->textAreaRow($recordingConditions,'custom');
+        <?php 
+        // дополнительные условия для участия в съемках 
+        echo $form->textAreaRow($recordingConditions,'custom');
         ?>
     </fieldset>
     
-    <?php // Согласие с политикой сайта
-        // @todo переписать проверку прав
-    if ( ! $user->policyagreed AND ! Yii::app()->user->isSuperuser )
+    <?php
+    // Согласие с политикой сайта
+    // @todo переписать проверку прав
+    // @todo вставить ссылку или текстовый блок с условиями соглашения
+    if ( ! $user->policyagreed AND ! Yii::app()->user->checkAccess('Admin') )
     {// не показывается админам и тем, кто уже согласился с условиями
         $this->widget('ext.EToggleBox.EToggleBox', array(
             'model'     => $user,
@@ -1517,6 +1524,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
             $dropDownStatuses[$allowedStatus] = $questionary->getStatustext($allowedStatus);
         }
         echo $form->dropDownListRow($questionary, 'status', $dropDownStatuses);
+        // Статус анкеты (пояснение)
         $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription',
             array('field' => 'status'));
         
@@ -1526,12 +1534,14 @@ Yii::import('ext.CountryCitySelectorRu.*');
         echo $form->textAreaRow($questionary, 'admincomment');
         $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription',
             array('field' => 'admincomment'));
-     
+        
         // Комментарий к анкете - дополнительная информация об участнике
-        // можно писать все что угодна, участник это поле не видит никогда 
+        // можно писать все что угодна, участник это поле не видит никогда
         // Выделяем его очень ярко, чтобы ни в коем случае не ошибиться
-        echo '<div class="ec-round-the-corner" style="background-color:#000;padding:20px;">';
-        echo '<br><br><br>';
+        ?>
+        <div class="ec-round-the-corner" style="background-color:#000;padding:20px;">
+        <br><br><br>
+        <?php
         echo $form->labelEx($questionary,'privatecomment');
         // Поле длинное, так что мы можем позволить себе RichText редактор
         $this->widget('ext.imperavi-redactor-widget.ImperaviRedactorWidget', array(
@@ -1542,28 +1552,34 @@ Yii::import('ext.CountryCitySelectorRu.*');
             ),
         ));
         echo $form->error($questionary,'privatecomment');
+        // Комментарий к анкете (пояснение)
         $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription',
             array(
                 'field' => 'privatecomment',
                 'type'  => 'info'));
-        echo '<br><br><br>';
-        echo '</div>';
-    }
+        ?>
+        <br><br><br>
+        </div>
+    <?php 
+    }// конец блока полей, доступного только администроторам
     ?>
 
     <div class="form-actions">
-    <?php $this->widget('bootstrap.widgets.TbButton',
-            array('buttonType'=>'submit',
-                  'type'=>'primary',
-                  'label'=>Yii::t('coreMessages','save'),
-                  'htmlOptions'  => array('id' => 'save_questionary')
-            )); ?>
+        <?php
+        // Кнопка сохранения 
+        $this->widget('bootstrap.widgets.TbButton',
+            array(
+                'buttonType'  => 'submit',
+                'type'        => 'primary',
+                'label'       => Yii::t('coreMessages','save'),
+                'htmlOptions' => array('id' => 'save_questionary')
+            ));
+        ?>
 	</div>
 
 <?php $this->endWidget(); ?>
-
 </div><!-- form -->
-
 <?php
+// место для отладки
 
 ?>

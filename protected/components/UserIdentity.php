@@ -4,6 +4,8 @@
  * UserIdentity represents the data needed to identity a user.
  * It contains the authentication method that checks if the provided
  * data can identity the user.
+ * 
+ * @todo удалить этот неиспользуемый класс
  */
 class UserIdentity extends CUserIdentity
 {
@@ -19,9 +21,13 @@ class UserIdentity extends CUserIdentity
 	{
 		$users=array(
 			// username => password
-			'demo'=>'demo',
-			'admin'=>'admin',
+			//'demo'=>'demo',
+			//'admin'=>'admin',
 		);
+		if ( $this->getState('inviteLogin') )
+		{// разрешаем логин по одноразовой ссылке
+		    return true;
+		}
 		if(!isset($users[$this->username]))
 			$this->errorCode=self::ERROR_USERNAME_INVALID;
 		else if($users[$this->username]!==$this->password)

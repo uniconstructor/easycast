@@ -93,7 +93,6 @@ class CatalogSection extends CActiveRecord
 			array('content', 'length', 'max'=>8),
 			array('order', 'length', 'max'=>6),
 			// The following rule is used by search().
-			// Please remove those attributes that should not be searched.
 			array('id, parentid, scopeid, name, shortname, lang, galleryid, content, order, count, visible', 'safe', 'on'=>'search'),
 		);
 	}
@@ -105,13 +104,16 @@ class CatalogSection extends CActiveRecord
 	 */
 	public function relations()
 	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
 		return array(
-		    'scope' => array(self::BELONGS_TO, 'SearchScope', 'scopeid'),
-		    'parent' => array(self::BELONGS_TO, 'CatalogSection', 'parentid'),
+		    // Условия выборки анкет в раздел
+		    'scope'     => array(self::BELONGS_TO, 'SearchScope', 'scopeid'),
+		    // Родительский раздел
+		    'parent'    => array(self::BELONGS_TO, 'CatalogSection', 'parentid'),
+		    // Вкладки в разделе
 		    'instances' => array(self::HAS_MANY, 'CatalogTabInstance', 'sectionid'),
-		    'filterinstances' => array(self::HAS_MANY, 'CatalogFilterInstance', 'sectionid'),
+		    // Фильтры поиска в разделе
+		    'filterinstances' => array(self::HAS_MANY, 'CatalogFilterInstance', 'linkid', 
+		        'condition' => "`linktype` = 'section'"),
 		);
 	}
 
@@ -138,12 +140,11 @@ class CatalogSection extends CActiveRecord
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.
 	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
+	 * 
+	 * @todo удалить все поля, которые не используются при поиске в админке
 	 */
 	public function search()
 	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
-
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
@@ -152,27 +153,27 @@ class CatalogSection extends CActiveRecord
 		$criteria->compare('name',$this->name,true);
 		$criteria->compare('shortname',$this->shortname,true);
 		$criteria->compare('lang',$this->lang,true);
-		$criteria->compare('galleryid',$this->galleryid,true);
 		$criteria->compare('content',$this->content,true);
 		$criteria->compare('order',$this->order,true);
 		$criteria->compare('count',$this->count,true);
 		$criteria->compare('visible',$this->visible);
 
 		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
+			'criteria'   => $criteria,
+		    'pagination' => false,
 		));
 	}
 	
 	/**
 	 * Получить ссылку на картинку с аватаром категории
 	 *
-	 * @return string - url картинки или пустая строка, если у пользователя нет аватара
+	 * @return string - url картинки или пустая строка, если у раздела нет аватара
 	 */
 	public function getAvatarUrl($size='small')
 	{
 	    $nophoto = Yii::app()->createAbsoluteUrl('//images/group.png');
 	    if ( ! $avatar = $this->getGalleryCover() )
-	    {// пользователь еще не загрузил аватар
+	    {// Картинка раздела еще не загружена
 	        return $nophoto;
 	    }
 	

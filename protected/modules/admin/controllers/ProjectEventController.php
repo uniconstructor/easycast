@@ -190,9 +190,15 @@ class ProjectEventController extends Controller
 	    {
 	        throw new CHttpException(404,'Необходимо указать статус');
 	    }
-	    $model->setStatus($status);
-	
-	    Yii::app()->user->setFlash('success', 'Статус изменен');
+	    
+	    if ( $model->setStatus($status) )
+	    {
+	        Yii::app()->user->setFlash('success', 'Статус изменен');
+	    }else
+	    {
+	        Yii::app()->user->setFlash('error', 'Не удалось изменить статус');
+	    }
+	    
 	
 	    $url = Yii::app()->createUrl('/admin/projectEvent/view', array('id' => $id));
 	    $this->redirect($url);

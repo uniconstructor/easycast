@@ -5,8 +5,9 @@
  *
  * The followings are the available columns in table '{{catalog_filter_instances}}':
  * @property integer $id
- * @property string $sectionid
- * @property string $filterid
+ * @property string $linktype
+ * @property integer $linkid
+ * @property integer $filterid
  * @property integer $visible
  */
 class CatalogFilterInstance extends CActiveRecord
@@ -34,14 +35,14 @@ class CatalogFilterInstance extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
 			array('visible', 'numerical', 'integerOnly'=>true),
-			array('sectionid, filterid', 'length', 'max'=>11),
+			array('linkid, filterid', 'length', 'max'=>11),
+		    // @todo прописать здесь все возможные типы связей, когда станет точно ясно сколько их
+			array('linktype', 'length', 'max'=>20),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, sectionid, filterid, visible', 'safe', 'on'=>'search'),
+			array('id, linkid, linktype, filterid, visible', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -50,8 +51,6 @@ class CatalogFilterInstance extends CActiveRecord
 	 */
 	public function relations()
 	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
 		return array(
 		    'filter' => array(self::BELONGS_TO, 'CatalogFilter', 'filterid'),
 		);
@@ -64,12 +63,11 @@ class CatalogFilterInstance extends CActiveRecord
 	{
 		return array(
 			'id' => 'ID',
-			'sectionid' => 'Sectionid',
-			'filterid' => 'Filterid',
-			'type' => 'Type',
-			'visible' => 'Visible',
-			'customvalues' => 'Customvalues',
-			'default' => 'Default',
+			'linktype' => 'Тип объекта к которому прикрепляется фильтр',
+			'linkid' => 'id объекта к которому прикрепляется фильтр',
+			'filterid' => 'Фильтр',
+			'visible' => 'Сделать видимым?',
+			'order' => 'Порядковый номер',
 		);
 	}
 
@@ -79,18 +77,14 @@ class CatalogFilterInstance extends CActiveRecord
 	 */
 	public function search()
 	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
-
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
-		$criteria->compare('sectionid',$this->sectionid,true);
+		$criteria->compare('linktype',$this->linktype,true);
+		$criteria->compare('linkid',$this->linkid,true);
 		$criteria->compare('filterid',$this->filterid,true);
-		$criteria->compare('type',$this->type,true);
 		$criteria->compare('visible',$this->visible);
-		$criteria->compare('customvalues',$this->customvalues);
-		$criteria->compare('default',$this->default,true);
+		$criteria->compare('order',$this->order,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

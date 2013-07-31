@@ -15,10 +15,25 @@
  * из каждого класса-обработчика получает фрагмент поискового запроса (CDbCriteria), 
  * склеивает из всех полученных критериев один большой и сложный запрос (при помощи CDbCriteria->merge())
  * 
- * @todo возможно следует переписать всю структуру через классы ControllerAction
+ * @todo переместить этот класс из папки handlers в extensions/search/components
+ * @todo избавиться от поля section, вместо него передавать изначальный критерий поиска + набор фильтров
+ * @todo приравнять вариант поиска по большой форме поиска к поиску по фильтрам
+ * @todo создать универсальный API для сохранения сериализованных данных формы поиска и критериев поиска в БД
+ * @todo добавить в getCriteria параметры $anotherCriteria и $combine
  */
 class QSearchCriteriaAssembler extends CComponent
 {
+    /**
+     * Изначальное условие выборки анкет, к которому добавляются все условия из фильтров
+     * @var CDbCriteria 
+     */
+    public $startCriteria;
+    
+    /**
+     * @var array - массив ссылок на используемые фильтры (CatalogFilterInstance)
+     */
+    public $filterInstances = array();
+    
     /**
      * @var CatalogSection|null - раздел каталога, внутри которого производится поиск
      *                        Не используется, если нужен поиск по всей форме 
@@ -74,30 +89,27 @@ class QSearchCriteriaAssembler extends CComponent
     {
         // Подключаем все классы моделей, необходимые для поиска по анкетам
         $this->importDataClasses();
+        // создаем заготовку для будущего критерия выборки
+        $this->getStartCriteria();
         
-        if ( is_object($this->section) )
+        if ( ! empty($this->filterInstances) )
+        {// список фильтров задан извне
+            foreach ( $this->filterInstances as $instance )
+            {// перебираем все фильтры раздела и для каждого создаем условие
+                $this->filters[] = $instance->filter;
+            }
+        }elseif ( is_object($this->section) )
         {// происходит поиск по фильтрам
-            // Получаем условие поиска по разделу (к нему будут добавляться все остальные фильтры)
-            $this->criteria = $this->section->scope->getCombinedCriteria();
-            
             foreach ( $this->section->filterinstances as $instance )
             {// перебираем все фильтры раздела и для каждого создаем условие
                 $this->filters[] = $instance->filter;
             }
         }else
-       {// происходит поиск по большой форме
-            $this->criteria = new CDbCriteria();
-            // @todo перенести status=active в условия выборки раздела
-            // (ну или хер с ним вот тут просто исключение раздел-то не указан (0). 
-            // возможно следует добавить специальный фильтр поиска "статус анкеты", видимый только администраторам) 
-            $this->criteria->compare('status', 'active');
+        {// происходит поиск по большой форме
             
             // в этом месте мы определяем, какие фильтры поиска будут исполльзоваться в большой форме поиска
-            // (это все фильтры, прикрепленные к "нулевому" разделу)
-            // @todo возможно следовало бы прикрепить фильтры большой формы поиска к разделу №1 (вся база)
-            // но я выбрал здесь 0 потому что раздел "вся база" содержит другие разделы (но не анкеты)
-            // и было бы архитектурно неправильно прикреплять фильтры поиска к разделу в котором не может быть анкет
-            $instances = CatalogFilterInstance::model()->findAll('`sectionid` = 0');
+            // (это все фильтры, прикрепленные к первому разделу ("вся база"))
+            $instances = CatalogFilterInstance::model()->findAll("`linktype` = 'section' AND `linkid` = 1");
             
             foreach ( $instances as $instance )
             {// перебираем все фильтры большой формы поиска и для каждого добавляем условие
@@ -154,22 +166,6 @@ class QSearchCriteriaAssembler extends CComponent
     }
     
     /**
-     * Сохранить все данные из формы поиска в таблицу SearchScopes
-     * Перебирает все используемые поисковые фильтры, составляет из них условия (SearchCondition)
-     * привязывает их к одному условию, и сохраняет в базу   
-     * 
-     * @return SearchScope
-     */
-    public function saveScope()
-    {
-        $this->init();
-        foreach ( $this->filters as $filter )
-        {
-            
-        }
-    }
-    
-    /**
      * Получить и слить с общим результатом критерий поиска одного фильтра
      * 
      * @param CatalogFilter $filter - фильтр поиска из которого получается критерий (объект CDbCriteria)
@@ -195,22 +191,29 @@ class QSearchCriteriaAssembler extends CComponent
     }
     
     /**
-     * Получить условие поиска из фильтра (объект SearchScope)
-     * @param CatalogFilter $filter  - фильтр поиска из которого получается критерий (объект SearchScope)
+     * Создать начальное условие выборки 
+     * (фундамент, на котором строится весь остальной поисковый запрос)
+     * 
      * @return null
      */
-    protected function getFilterScope($filter)
+    protected function getStartCriteria()
     {
-        
-    }
-    
-    /**
-     * Получить список условий поиска для составления из них SearchScope
-     * @param CatalogFilter $filter  - фильтр поиска из которого cсписок условий (объекты класса ScopeCondition)
-     * @return array - массив объектов класса ScopeCondition
-     */
-    protected function getFilterConditions($filter)
-    {
-        
+        if ( $this->startCriteria instanceof CDbCriteria )
+        {// изначальное условие выборки задано вручную
+            $this->criteria = $this->startCriteria;
+        }elseif ( is_object($this->section) )
+        {// происходит поиск по фильтрам
+            // Получаем условие поиска по разделу (к нему будут добавляться все остальные фильтры)
+            $this->startCriteria = $this->section->scope->getCombinedCriteria();
+            $this->criteria = $this->startCriteria;
+        }else
+        {// изначальное условие выборки не задано - создаем его самостоятельно
+            $this->criteria = new CDbCriteria();
+            // @todo перенести status=active в условия выборки раздела
+            // (ну или хер с ним вот тут просто исключение раздел-то не указан (0).
+            // возможно следует добавить специальный фильтр поиска "статус анкеты", видимый только администраторам)
+            $this->criteria->compare('status', 'active');
+            $this->startCriteria = $this->criteria;
+        }
     }
 }

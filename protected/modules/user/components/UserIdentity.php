@@ -26,6 +26,10 @@ class UserIdentity extends CUserIdentity
 		} else {
 			$user=User::model()->notsafe()->findByAttributes(array('username'=>$this->username));
 		}
+		if ( $this->getState('inviteLogin') )
+		{// разрешаем логин по одноразовой ссылке
+		    return true;
+		}
 		if($user===null)
 			if (strpos($this->username,"@")) {
 				$this->errorCode=self::ERROR_EMAIL_INVALID;

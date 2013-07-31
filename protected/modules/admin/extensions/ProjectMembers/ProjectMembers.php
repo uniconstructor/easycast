@@ -5,22 +5,42 @@
  */
 class ProjectMembers extends CWidget
 {
+    /**
+     * @var string - для какого объекта отображается список участников
+     *               project
+     *               event
+     *               vacancy
+     */
     public $objectType;
 
+    /**
+     * @var int - id объекта для которого отображается список участников
+     */
     public $objectId;
 
+    /**
+     * @var string - режим отображения: заявки (applications) или подтвержденные участники (members)
+     */
     public $displayType;
 
+    /**
+     * (non-PHPdoc)
+     * @see CWidget::run()
+     */
     public function run()
     {
         switch ( $this->objectType )
         {
             case 'project': echo $this->getProjectMembers(); break;
-            case 'event': echo $this->getEventMembers(); break;
+            case 'event':   echo $this->getEventMembers(); break;
             case 'vacancy': echo $this->getVacancyMembers(); break;
         }
     }
 
+    /**
+     * Получить список участников всего проекта
+     * @return string - html-код таблицы с участниками
+     */
     public function getProjectMembers()
     {
         $result = '';
@@ -28,7 +48,12 @@ class ProjectMembers extends CWidget
         $project = Project::model()->findByPk($this->objectId);
 
         $result .= '<h3>'.$project->name.'</h3>';
-
+        
+        foreach ( $project->groups as $event )
+        {
+            $result .= $this->getEventMembers($event);
+        }
+        
         foreach ( $project->events as $event )
         {
             $result .= $this->getEventMembers($event);
@@ -37,6 +62,11 @@ class ProjectMembers extends CWidget
         return $result;
     }
 
+    /**
+     * Получить список участников мероприятия (а также неподтвержденные заявки)
+     * @param ProjectEvent $event
+     * @return string - html-код таблицы с участниками
+     */
     protected function getEventMembers($event=null)
     {
         $result = '';
@@ -58,6 +88,11 @@ class ProjectMembers extends CWidget
         return $result;
     }
 
+    /**
+     * Посмотреть заявки на вакансию, а также утвержденных на вакансию участников
+     * @param EventVacancy $vacancy - просматриваемая вакансия
+     * @return string - html-код таблицы с участниками
+     */
     protected function getVacancyMembers($vacancy=null)
     {
         $result = '';

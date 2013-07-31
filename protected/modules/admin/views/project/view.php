@@ -5,15 +5,19 @@ $this->breadcrumbs=array(
 	$model->name,
 );
 
-$this->menu=array(
+$this->menu = array(
 	array('label'=>'Список проектов','url'=>array('/admin/project/admin')),
 	array('label'=>'Создать проект','url'=>array('/admin/project/create')),
 	array('label'=>'Редактировать проект','url'=>array('/admin/project/update','id'=>$model->id)),
-	array('label'=>'Удалить проект','url'=>'#','linkOptions'=>array('submit'=>array('/admin/project/delete','id'=>$model->id),'confirm'=>'Are you sure you want to delete this item?')),
+	// @todo решить, можно ли удалять проект
+	/*array('label'=>'Удалить проект','url'=>'#','linkOptions'=>
+	    array(
+	        'submit'  => array('/admin/project/delete','id' => $model->id),
+	        'confirm' => 'Вы уверены, что хотите удалить этот проект?',
+	        'csrf' => true),
+    ),*/
     array('label'=>'Добавить мероприятие','url'=>array('/admin/projectEvent/create', 'projectid'=>$model->id)),
     array('label'=>'Заявки на участие','url'=>array('/admin/projectMember/index', 'projectid'=>$model->id, 'type' => 'applications')),
-    
-	//array('label'=>'Manage Project','url'=>array('admin')),
 );
 
 // @todo подтверждение перед сменой статуса

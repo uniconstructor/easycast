@@ -19,6 +19,17 @@
  * @property integer $isfree
  * @property string $memberscount
  * @property string $status
+ * 
+ * Relations:
+ * @property User $leader
+ * @property array $events
+ * @property array $userevents
+ * @property array $activeevents
+ * @property array $finishedevents
+ * @property array $videos
+ * @property array $groups
+ * @property array $opengroups
+ * 
  */
 class Project extends CActiveRecord
 {
@@ -163,31 +174,40 @@ class Project extends CActiveRecord
 	 */
 	public function relations()
 	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
 		return array(
-		    // руководитель проекта
+		    // Руководитель проекта
 		    'leader' => array(self::BELONGS_TO, 'User', 'leaderid'),
+		    
+		    // Все группы проекта
+		    'groups' => array(self::HAS_MANY, 'ProjectEvent', 'projectid', 
+		        'condition' => "`groups`.`type` = 'group'"),
+		    // Открытые группы событий (те в которые можно добавить мероприятия)
+		    'opengroups' => array(self::HAS_MANY, 'ProjectEvent', 'projectid', 
+		        'condition' => "(`opengroups`.`type` = 'group') AND (`opengroups`.`status` IN ('draft', 'active'))"),
+		    
 		    // Все мероприятия проекта
-		    'events' => array(self::HAS_MANY, 'ProjectEvent', 'projectid'),
+		    'events' => array(self::HAS_MANY, 'ProjectEvent', 'projectid', 
+		        'condition' => "`events`.`type` != 'group'"),
 		    // Все видимые пользователю мероприятия
 		    'userevents' => array(self::HAS_MANY, 'ProjectEvent', 'projectid', 
-		        'condition' => "`status` IN ('active', 'finished')",
-		        'order' => "`status` ASC, `timestart` DESC"),
+		        'condition' => "(`userevents`.`status` IN ('active', 'finished')) AND (`userevents`.`type` != 'group')",
+		        'order' => "`userevents`.`status` ASC, `userevents`.`timestart` DESC"),
 		    // Все активные предстоящие мероприятия
 		    'activeevents' => array(self::HAS_MANY, 'ProjectEvent', 'projectid',
-		        'condition' => "`status` = 'active'",
-		        'order' => "`timestart` DESC"),
+		        'condition' => "(`activeevents`.`status` = 'active') AND (`activeevents`.`type` != 'group')",
+		        'order' => "`activeevents`.`timestart` DESC"),
 		    // Все завершенные мероприятия
 		    'finishedevents' => array(self::HAS_MANY, 'ProjectEvent', 'projectid',
-		        'condition' => "`status` = 'finished'",
-		        'order' => "`timeend` DESC"),
+		        'condition' => "`finishedevents`.`status` = 'finished' AND (`finishedevents`.`type` != 'group')",
+		        'order' => "`finishedevents`.`timeend` DESC"),
+		    
 		    // участники проекта
-		    // @todo (пока непонятно как прописывать связь через 3 таблицы)
-		    // 'members' => 
+		    // @todo изучить и применить связь типа "мост"
+		    // 'members' =>
+		     
 		    // Видео проекта
 		    'videos' => array(self::HAS_MANY, 'Video', 'objectid', 
-		        'condition' => "`objecttype`='project'"),
+		        'condition' => "`videos`.`objecttype`='project'"),
 		);
 	}
 
@@ -217,25 +237,24 @@ class Project extends CActiveRecord
 			'memberscount' => ProjectsModule::t('project_memberscount'),
 			'status' => ProjectsModule::t('status'),
 			'statustext' => ProjectsModule::t('status'),
+			'groups' => 'Группы',
 		);
 	}
 
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.
 	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
+	 * 
+	 * @todo убрать отсюда те критерии, которые не используются в админском поиске
 	 */
 	public function search()
 	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
-
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
 		$criteria->compare('name',$this->name,true);
 		$criteria->compare('type',$this->type,true);
 		$criteria->compare('description',$this->description,true);
-		$criteria->compare('galleryid',$this->galleryid,true);
 		$criteria->compare('timestart',$this->timestart,true);
 		$criteria->compare('timeend',$this->timeend,true);
 		$criteria->compare('timecreated',$this->timecreated,true);
@@ -363,6 +382,8 @@ class Project extends CActiveRecord
 	 * Перевести объект из одного статуса в другой, выполнив все необходимые действия
 	 * @param string $newStatus
 	 * @return bool
+	 * 
+	 * @todo вынести разные статусы по разным функциям
 	 */
 	public function setStatus($newStatus)
 	{
@@ -371,31 +392,47 @@ class Project extends CActiveRecord
 	        return false;
 	    }
 	    
+	    // сначала меняем статус самого проекта
 	    $this->status = $newStatus;
 	    $this->save();
 	    
-	    $events = $this->events;
-	    
 	    if ( $newStatus == 'active' )
-	    {// активируем все мероприятия проекта
-	        foreach ( $events as $event )
-	        {
-	            if ( $event->status == 'draft' AND $event->vacancies )
+	    {// проект запускается
+	        foreach ( $this->groups as $group )
+	        {// сначала активируем все группы событий
+	            if ( $group->status == 'draft' )
+	            {
+	                $group->setStatus('active');
+	            }
+	        }
+	        foreach ( $this->events as $event )
+	        {// затем все отдельные мероприятия проекта
+	            if ( $event->status == 'draft' AND ( $event->vacancies OR $event->group ) )
 	            {// активируем только те мероприятия на которые уже созданы вакансии
+	                // или те которые находятся в группе
 	                $event->setStatus('active');
 	            }
 	        }
 	    }
 	    
 	    if ( $newStatus == 'finished' )
-	    {// завершаем все мероприятия проекта
-	        foreach ( $events as $event )
-	        {
+	    {// проект завершается
+	        foreach ( $this->opengroups as $group )
+	        {// сначала завершаем все группы событий
+    	        if ( $group->status == 'active' )
+    	        {
+    	            $group->setStatus('finished');
+    	        }elseif ( $group->status == 'draft' )
+    	        {// не начатые группы событий удаляем
+    	            $group->delete();
+    	        }
+	        }
+	        foreach ( $this->events as $event )
+	        {// завершаем все отдельные мероприятия проекта
 	            if ( $event->status == 'active' )
 	            {
 	                $event->setStatus('finished');
-	            }
-	            if ( $event->status == 'draft' )
+	            }elseif ( $event->status == 'draft' )
 	            {// если проект завершен - удаляем все события которые так и не начались
 	                $event->delete();
 	            }

@@ -127,6 +127,7 @@ class QSearchHandlerBase extends CComponent
         {
             return;
         }
+        
         Yii::import('application.modules.catalog.extensions.search.filters.QSearchFilterBase.QSearchFilterBase');
         // Получаем имя элемента в массиве, в котором должны находится данные из фильтра поиска
         $name = QSearchFilterBase::defaultPrefix().$this->filter->shortname;
@@ -138,7 +139,7 @@ class QSearchHandlerBase extends CComponent
             {
                 CatalogModule::setFilterSearchData($name, $this->section->id, $data);
             }else
-           {
+            {
                 CatalogModule::setFormSearchData($name, $data);
             }
         }

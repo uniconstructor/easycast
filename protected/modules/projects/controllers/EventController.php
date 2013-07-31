@@ -1,23 +1,13 @@
 <?php
 
 /**
- * Класс для отображения информации о событии пользователю
+ * Класс для мероприятия. Отвечает только за обработку AJAX-запросов 
+ * Отображением занимается projectController
+ * 
+ * @todo настроить права доступа
  */
 class EventController extends Controller
 {
-    /**
-     * Отобразить событие
-     * @param int $id
-     */
-    public function actionView($id)
-    {
-        $model = $this->loadModel($id);
-        $this->render('view', array(
-                'model' => $model,
-            )
-        );
-    }
-    
     /**
      * Подать заявку на участие в мероприятии (указав определенную вакансию)
      * Подача заявки происхочить через AJAX-запрос, методом POST
@@ -49,10 +39,22 @@ class EventController extends Controller
         {
             echo 'OR';
         }else
-       {
+        {
             echo 'ERROR';
         }
         Yii::app()->end();
+    }
+    
+    /**
+     * Отобразить событие
+     * @param int $id
+     *
+     * @deprecated
+     * @todo удалить при рефакторинге, не используется
+     */
+    public function actionView($id)
+    {
+        throw new CHttpException('500', 'DEPRECATED');
     }
     
     /**

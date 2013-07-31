@@ -1,4 +1,7 @@
 <?php
+/**
+ * Отображение одного проекта
+ */
 /* @var $this ProjectController */
 
 $this->breadcrumbs=array(

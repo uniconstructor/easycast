@@ -189,10 +189,19 @@ class ProjectMemberController extends Controller
 	        throw new CHttpException(404,'Необходимо указать статус');
 	    }
 	    $model->setStatus($status);
+	    
+	    if ( $status == ProjectMember::STATUS_ACTIVE )
+	    {
+	        Yii::app()->user->setFlash('success', 'Заявка подтверждена');
+	    }elseif ( $status == ProjectMember::STATUS_REJECTED )
+	    {
+	        Yii::app()->user->setFlash('info', 'Заявка отклонена');
+	    }
 	
-	    Yii::app()->user->setFlash('success', 'Заявка подтверждена');
-	
-	    $url = Yii::app()->createUrl('/admin/project/view', array('id' => $model->vacancy->event->project->id));
+	    $url = Yii::app()->createUrl('/admin/projectMember/index/', array(
+	        'projectid' => $model->vacancy->event->project->id,
+	        'type' => 'applications',
+	    ));
 	    $this->redirect($url);
 	}
 }

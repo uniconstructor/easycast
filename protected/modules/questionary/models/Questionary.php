@@ -88,6 +88,9 @@ class Questionary extends CActiveRecord
     // Значение стоящее в select-списках на пункте "выбрать"
     const VALUE_NOT_SET = "";
     
+    // отображаемое количество последних приглашений
+    const LAST_INVITES_COUNT = 20;
+    
     /**
      * (non-PHPdoc)
      * @see CActiveRecord::init()
@@ -95,6 +98,7 @@ class Questionary extends CActiveRecord
     public function init()
     {
         Yii::import('application.modules.questionary.extensions.behaviors.*');
+        Yii::import('application.modules.projects.models.*');
         parent::init();
     }
     
@@ -237,21 +241,29 @@ class Questionary extends CActiveRecord
             
             // Связи с проектами и мероприятиями
             
-            // Приглашения на мероприятия
-            'invites' => array(self::HAS_MANY, 'EventInvite', 'questionaryid'),
+            // Новые (еще не просмотренные) приглашения на мероприятия
+            'invites' => array(self::HAS_MANY, 'EventInvite', 'questionaryid', 
+                'condition' => "`invites`.`status` = 'pending' AND `deleted` = 0",
+                'limit'     => self::LAST_INVITES_COUNT),
+            // Старые (уже просмотренные) приглашения на мероприятия
+            // (все что не в статусе черновик)
+            'oldinvites' => array(self::HAS_MANY, 'EventInvite', 'questionaryid', 
+                'condition' => "`invites`.`status` != 'draft' `deleted` = 0",
+                'limit'     => self::LAST_INVITES_COUNT),
             // Неподтвержденные заявки на участие в мероприятиях
             'requests' => array(self::HAS_MANY, 'MemberRequest', 'memberid'),
             // Участие во всех мероприятиях
             'memberinstances' => array(self::HAS_MANY, 'ProjectMember', 'memberid', 
-                'condition' => "status='active' OR status='finished'"),
+                'condition' => "`memberinstances`.`status`='active' OR status='finished'"),
             // Активность в текущих мероприятиях
             'activememberinstances' => array(self::HAS_MANY, 'ProjectMember', 'memberid', 
-                'condition' => "status='active'"),
+                'condition' => "`activememberinstances`.`status`='active'"),
             // История участия во всех прошедших мероприятиях
             'finishedmemberinstances' => array(self::HAS_MANY, 'ProjectMember', 'memberid', 
-                'condition' => "status='finished'"),
+                'condition' => "`finishedmemberinstances`.`status`='finished'"),
+            // @todo Проекты, (сделать свять типа "мост")
             
-            // Статистика
+            // @todo Статистика
             
         );
     }
@@ -293,19 +305,10 @@ class Questionary extends CActiveRecord
     protected function beforeSave()
     {
         if ( $this->isNewRecord )
-        {// при создании новой анкеты автоматически создаем запись с адресом
-            $address = new Address('questionary');
-            $address->objectid = $this->id;
-            $address->save();
-            
-            // и с условиями участия в съемках
-            $recordingConditions = new QRecordingConditions();
-            $recordingConditions->questionaryid = $this->id;
-            $recordingConditions->save();
-            
+        {
             $this->status = 'draft';
         }else
-       {
+        {
            if ( PHP_SAPI == 'cli' )
            {// @todo это хак, позволяющий обойти ошибку, возникающую при попытке обновить модель
                // анкеты при запуске миграции. Нужно переписать эти проверки так, чтобы
@@ -337,6 +340,20 @@ class Questionary extends CActiveRecord
      */
     protected function afterSave()
     {
+        if ( ! $this->address )
+        {// при создании новой анкеты автоматически создаем запись с адресом
+            $address = new Address('questionary');
+            $address->objectid = $this->id;
+            $address->save();
+        }
+        
+        if ( ! $this->recordingconditions )
+        {// и с условиями участия в съемках
+            $recordingConditions = new QRecordingConditions();
+            $recordingConditions->questionaryid = $this->id;
+            $recordingConditions->save();
+        }
+        
         parent::afterSave();
     }
     
@@ -492,17 +509,14 @@ class Questionary extends CActiveRecord
     /**
      * Retrieves a list of models based on the current search/filter conditions.
      * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
+     * 
+     * @todo удалить при рефакторинге если не понадобится
      */
-    public function search()
+    /*public function search()
     {
-        // Warning: Please modify the following code to remove attributes that
-        // should not be searched.
-
         $criteria=new CDbCriteria;
 
         $criteria->compare('id',$this->id);
-        //$criteria->compare('userid',$this->userid,true);
-        //$criteria->compare('mainpictureid',$this->mainpictureid,true);
         $criteria->compare('firstname',$this->firstname,true);
         $criteria->compare('lastname',$this->lastname,true);
         $criteria->compare('middlename',$this->middlename,true);
@@ -570,7 +584,7 @@ class Questionary extends CActiveRecord
         return new CActiveDataProvider($this, array(
             'criteria'=>$criteria,
         ));
-    }
+    }*/
 
     /**
      * Получить список достижений и умений участника: спортсмен, актер, атлет, и т. д.

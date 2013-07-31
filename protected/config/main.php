@@ -15,13 +15,16 @@ return array(
     'language' => 'ru',
     'sourceLanguage' => 'en_us',
     
-    // preloading components
+    // предварительно загружаемые компоненты
     'preload'=>array('log', 'messages'),
     
-    // Project name
+    // Название проекта 
     'name'=> 'EasyCast',
     
+    // Короткие имена для вызова популярных библиотек
+    // @todo попробовать перенести сюда bootstrap и посмотреть, ничего ли не сломается
     'aliases' => array(
+        
     ),
 
     'controllerMap' => array(
@@ -29,9 +32,6 @@ return array(
             'class'=>'ext.galleryManager.GalleryController',
             'pageTitle'=>'Gallery administration',
         ),
-        /*'questionary' => array(
-            'class' => 'application.modules.questionary.controllers.QuestionaryController',
-        ),*/
     ),
     
 	// autoloading model and component classes
@@ -142,6 +142,11 @@ return array(
         'articles' => array(
             'class' => 'application.modules.articles.ArticlesModule',
         ),
+        
+        // Оповещения
+        'notifyii' => array(
+            'class' => 'application.modules.notifyii.NotifyiiModule'
+        ),
 	),
 
 	// application components
@@ -155,14 +160,14 @@ return array(
 		),
 	    
 		// enable URLs in path-format
-		'urlManager'=>array(
-			'urlFormat'=>'path',
-			'rules'=>array(
+		'urlManager' => array(
+			'urlFormat' => 'path',
+			'rules' => array(
 				'<controller:\w+>/<id:\d+>' => '<controller>/view',
 				'<controller:\w+>/<action:\w+>/<id:\d+>' => '<controller>/<action>',
 				'<controller:\w+>/<action:\w+>' => '<controller>/<action>',
 			),
-		    'showScriptName'=>false
+		    'showScriptName' => false
 		),
 		
 		// MySQL database settings
@@ -170,35 +175,34 @@ return array(
 			// Логин и пароль для базы определяются скриптами сборки проекта
 			// (в зависимости от того где работает приложение: на реальном сервере или локально)
 			// поэтому в основном конфиге эти параметры не указываются
-		    // 'connectionString' => 'mysql:host=localhost;dbname=easycast',
-			// 'username' => 'root',
-			// 'password' => 'root',
-		    'tablePrefix' => 'bgl_',
+		    'tablePrefix'    => 'bgl_',
 		    'emulatePrepare' => true,
-			'charset' => 'utf8',
+			'charset'        => 'utf8',
 		),
 	    
 	    // HTTP request handling
 	    'request' => array(
 	        'class' => 'CHttpRequest',
 	        // prevent XSS
-	        'enableCsrfValidation'=>true,
+	        'enableCsrfValidation'   => true,
 	        // prevent Cookie-based attacks
-	        'enableCookieValidation'=>true,
+	        'enableCookieValidation' => true,
 	    ),
 		
+	    // обработка ошибок
 		'errorHandler'=>array(
 			// use 'site/error' action to display errors
             'errorAction'=>'site/error',
         ),
 	    
+        // логи
 		'log'=>array(
 			'class'=>'CLogRouter',
 			'routes'=>array(
 				array(
-					'class'=>'CDbLogRoute',
+					'class' => 'CDbLogRoute',
 					'connectionID' => 'db',
-					'levels'=>'error, warning, info, application',
+					'levels' => 'error, warning, info, application, AWS',
 				    'autoCreateLogTable' => true,
 				),
 			),
@@ -229,19 +233,38 @@ return array(
         'image'=>array(
             'class'=>'ext.image.CImageComponent',
         ),
-        // настройки виджетов по умолчанию
+        
+        // Настройки сессии
+        'session' => array(
+            'class' => 'CHttpSession',
+            //'connectionID' => 'db',
+            //'autoCreateSessionTable' => true,
+            'autoStart' => true,
+        ),
+        
+        // Настройки менеджера скриптов (подключаем собственную, темную тему jquery)
+        'clientScript' => array(
+            'scriptMap' => array(
+                'jquery-ui.css' => '/css/jqueryui/dot-luv/jquery-ui.css',
+            ),
+        ),
+        
+        // Наша обертка вокруг Amazon Web Services API
+        'ecawsapi' => array(
+            'class' => 'EasyCastAmazonAPI',
+        ),
+        
+        // Настройки виджетов по умолчанию
         'widgetFactory'=>array(
             'widgets'=>array(
                 // Выравнивание верстки для форума
+                // @todo поправить форум, а эту настройку отсюда убрать
                 'CGridView'=>array(
                     'itemsCssClass'=>'',
                     'pagerCssClass'=>'',
                 ),
-                // Формы сложных значений
+                // Формы для сложных значений
                 'MultiModelForm' => array(
-                    // @todo разобраться, почему не работает перевод сообщений в конфиге
-                    // 'addItemText'       => Yii::t('coreMessages','add'),
-                    // 'removeText'        => Yii::t('coreMessages','delete'),
                     'tableView'         => true,
                     'bootstrapLayout'   => true,
                     // все кнопки "удалить" становятся красными
@@ -268,14 +291,6 @@ return array(
                 ),
             ),
         ),
-        
-        // Настройки сессии 
-        'session' => array(
-            'class' => 'CHttpSession',
-            //'connectionID' => 'db',
-            //'autoCreateSessionTable' => true,
-            'autoStart' => true,
-        ),
 	),
 
     // Используем собственную тему оформления для сайта
@@ -284,7 +299,8 @@ return array(
 	// application-level parameters that can be accessed
 	// using Yii::app()->params['paramName']
 	'params'=>array(
-	    
+	    'adminPhone' => '+7(915)066-86-05',
+	    'hashSalt'   => '68xc7mtux0',
 	),
 	
 );

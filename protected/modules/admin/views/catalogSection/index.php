@@ -1,4 +1,8 @@
 <?php
+/**
+ * @todo эта страница не используется - удалить при рефакторинге
+ */
+
 $this->breadcrumbs=array(
 	'Catalog Sections',
 );
@@ -9,9 +13,9 @@ $this->menu=array(
 );
 ?>
 
-<h1>Catalog Sections</h1>
+<h1>Разделы каталога</h1>
 
 <?php $this->widget('bootstrap.widgets.TbListView',array(
-	'dataProvider'=>$dataProvider,
-	'itemView'=>'_view',
+	'dataProvider' => $dataProvider,
+	'itemView'     => '_view',
 )); ?>

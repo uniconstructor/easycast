@@ -4,8 +4,10 @@
  * Виджет для отображения информации о проекте
  * Также отображает информацию по мероприятиям и вакансиям
  * 
- * @todo переписать проверку прав
+ * @todo переписать проверку прав через RBAC с параметрами
  * @todo дать возможность участникам отменять заявки
+ * @todo вынести весь JS во внешние файлы
+ * @todo добавить отображение фото и видео для мероприятия
  */
 class ProjectInfo extends CWidget
 {
@@ -611,6 +613,10 @@ class ProjectInfo extends CWidget
         return $this->getVacanciesTab('event');
     }
     
+    /**
+     * Получить ссылку на просмотр проекта
+     * @return string
+     */
     protected function getProjectUrl()
     {
         return Yii::app()->createUrl('/projects/projects/view', array('id' => $this->project->id));
@@ -630,6 +636,10 @@ class ProjectInfo extends CWidget
         return Yii::app()->createUrl('/projects/projects/view', array('eventid' => $eventId));
     }
     
+    /**
+     * Возвращает true только если страницу просматривает заказчик (обычный или незарегистрированный)
+     * @return boolean
+     */
     protected function customerView()
     {
         if ( ( Yii::app()->user->isGuest OR Yii::app()->user->checkAccess('Customer') ) AND ! $this->adminView() )
@@ -639,11 +649,19 @@ class ProjectInfo extends CWidget
         return false;
     }
     
+    /**
+     * Возвращает true только если страницу просматривает админ
+     * @return bool
+     */
     protected function adminView()
     {
         return Yii::app()->user->checkAccess('Admin');
     }
     
+    /**
+     * Возвращает true только если страницу просматривает участник
+     * @return boolean
+     */
     protected function userView()
     {
         if ( Yii::app()->user->checkAccess('User') AND ! $this->adminView() )
@@ -671,7 +689,7 @@ class ProjectInfo extends CWidget
             $text  = 'Подробнее';
             $class = 'btn btn-primary';
         }else
-       {
+        {
             $text  = 'Участвовать';
             $class = 'btn btn-success';
         }

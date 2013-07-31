@@ -14,6 +14,31 @@
  * @property string $timemodified
  * @property string $addressid
  * @property string $status
+ * @property string $type
+ * @property string $parentid
+ * @property string $memberinfo
+ * @property string $showtimestart
+ * @property string $eta
+ * @property string $salary
+ * @property string $meetingplace
+ * 
+ * 
+ * Связи с другими таблицами:
+ * @property Project $project - проект к которому привязано мероприятие
+ * @property Address $address - адрес, по которому проходит мероприятие 
+ * @property array $vacancies - Вакансии мероприятия 
+ * @property array $activevacancies - опубликованные вакансии мероприятия
+ * @property array $invites - Приглашения на мероприятие
+ * @property array $videos - Видео c мероприятия
+ * @property array $events 
+ * @property ProjectEvent $group 
+ * 
+ * @todo прописать создание адреса в afterSave
+ * @todo убрать поле addressid, прописать связь через condition
+ * @todo языковые строки
+ * @todo документировать все константы типов мероприятия
+ * @todo решить, что делать при удалении группы: удалять все дочерние мероприятия или просто убирать их из группы
+ * @todo прописать все статусы константами 
  */
 class ProjectEvent extends CActiveRecord
 {
@@ -21,6 +46,36 @@ class ProjectEvent extends CActiveRecord
      * @var int - максимальное количество фотогрфвий в галерее мероприятия
      */
     const MAX_GALLERY_PHOTOS = 10;
+    
+    /**
+     * @var string - 
+     */
+    const TYPE_EVENT      = 'event';
+    /**
+     * @var string -
+     */
+    const TYPE_GROUP      = 'group';
+    /**
+     * @var string -
+     */
+    const TYPE_CASTING    = 'casting';
+    /**
+     * @var string -
+     */
+    const TYPE_PHOTO      = 'photo';
+    /**
+     * @var string -
+     */
+    const TYPE_REPETITION = 'repetition';
+    /**
+     * @var string -
+     */
+    const TYPE_PRESHOW    = 'preshow';
+    /**
+     * @var string -
+     */
+    const TYPE_SHOW       = 'show';
+    
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
@@ -45,6 +100,8 @@ class ProjectEvent extends CActiveRecord
 	 */
 	public function beforeSave()
 	{
+	    // @todo перенести это преобразование даты в фильтры модели
+	    // @todo использовать Yii::app()->getDateFormatter()
 	    if ( $timestart = CDateTimeParser::parse($this->timestart,'dd.MM.yyyy HH:mm') )
 	    {
 	        $this->timestart = $timestart;
@@ -54,28 +111,38 @@ class ProjectEvent extends CActiveRecord
 	        $this->timeend = $timeend;
 	    }
 	    
+	    // выполняем служебные действия ActiveRecord
 	    return parent::beforeSave();
 	}
 	
 	/**
 	 * (non-PHPdoc)
-	 * @see CActiveRecord::beforeDelete()
+	 * @see CActiveRecord::afterDelete()
 	 */
-	protected function beforeDelete()
+	protected function afterDelete()
 	{
-	    // При удалении мероприятия удаляем все вакансии и приглашения на него
 	    foreach ( $this->vacancies as $vacancy )
-	    {
+	    {// при удалении мероприятия удаляем все вакансии
 	        $vacancy->delete();
 	    }
-	    
 	    foreach ( $this->invites as $invite )
-	    {
+	    {// и все приглашения на него
 	        $invite->delete();
 	    }
+	    if ( $this->type == 'group' )
+	    {// если удаляется группа - то удаляем и все дочерние мероприятия
+	        foreach ( $this->events as $event )
+	        {
+	            $event->delete();
+	        }
+	    }
+	    if ( $this->address )
+	    {// А также адрес
+	        $this->address->delete();
+	    }
 	    
-	    // А также адрес
-	    $this->address->delete();
+	    // выполняем служебные действия ActiveRecord
+	    parent::afterDelete();
 	}
 	
 	/**
@@ -83,7 +150,7 @@ class ProjectEvent extends CActiveRecord
 	 */
 	public function behaviors()
 	{
-	    // Настройки фотогалереи проекта
+	    // Настройки фотогалереи для мероприятия
 	    $photoGallerySettings = array(
 	        'class' => 'GalleryBehaviorS3',
 	        'idAttribute' => 'photogalleryid',
@@ -118,16 +185,19 @@ class ProjectEvent extends CActiveRecord
 
 	/**
 	 * @return array validation rules for model attributes.
+	 * 
+	 * @todo прописать проверки более четко
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
 			array('name, timestart, timeend, description', 'required'),
-			array('projectid, timestart, timeend, timecreated, timemodified, addressid', 'length', 'max'=>20),
-			array('name, description', 'length', 'max'=>4095),
+			array('eta, showtimestart, parentid, projectid, timestart, timeend, timecreated, timemodified, addressid', 'length', 'max'=>20),
+			array('meetingplace, memberinfo, description', 'length', 'max'=>4095),
 			array('status', 'length', 'max'=>9),
+			array('type', 'length', 'max'=>20),
+			array('salary', 'length', 'max'=>32),
+			array('name', 'length', 'max'=>255),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, projectid, name, description, timestart, timeend, timecreated, timemodified, addressid, status', 'safe', 'on'=>'search'),
@@ -136,25 +206,32 @@ class ProjectEvent extends CActiveRecord
 
 	/**
 	 * @return array relational rules.
+	 * 
+	 * @todo добавить openGroups - те группы, в которые может быть добавлено мероприятие
 	 */
 	public function relations()
 	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
 		return array(
 		    // проект к которому привязано мероприятие
 		    'project' => array(self::BELONGS_TO, 'Project', 'projectid'),
 		    // адрес, по которому проходит мероприятие
-		    'address' => array(self::HAS_ONE, 'Address', 'addressid', 'condition' => "objecttype='event'"),
+		    'address' => array(self::HAS_ONE, 'Address', 'addressid',
+		        'condition' => "`address`.`objecttype`='event'"),
+		    // группа мероприятия (если это мероприятие входит в группу)
+		    'group' => array(self::BELONGS_TO, 'ProjectEvent', 'parentid'),
 		    // Вакансии мероприятия
 		    'vacancies' => array(self::HAS_MANY, 'EventVacancy', 'eventid'),
 		    // активные вакансии мероприятия
-		    'activevacancies' => array(self::HAS_MANY, 'EventVacancy', 'eventid', 'condition' => "status='active'"),
+		    'activevacancies' => array(self::HAS_MANY, 'EventVacancy', 'eventid',
+		        'condition' => "`activevacancies`.`status`='active'"),
 		    // Приглашения на мероприятие
 		    'invites' => array(self::HAS_MANY, 'EventInvite', 'eventid'),
 		    // Видео c мероприятия
 		    'videos' => array(self::HAS_MANY, 'Video', 'objectid',
-		        'condition' => "objecttype='projectevent'"),
+		        'condition' => "`videos`.`objecttype`='projectevent'"),
+		    // дочерние мероприятия группы (если это является группой)
+		    'events' => array(self::HAS_MANY, 'ProjectEvent', 'parentid',
+		        'order' => '`events`.`timestart` ASC'),
 		);
 	}
 
@@ -174,18 +251,24 @@ class ProjectEvent extends CActiveRecord
 			'timemodified' => 'Timemodified',
 			'addressid' => ProjectsModule::t('event_addressid'),
 			'status' => ProjectsModule::t('status'),
+			'type' => 'Тип мероприятия',
+			'parentid' => 'Группа',
+			'memberinfo' => 'Дополнительная информация для участников',
+			'showtimestart' => 'Отображать ли время начала съемок?',
+			'eta' => 'Время сбора',
+			'salary' => 'Размер оплаты',
+			'meetingplace' => 'Место встречи',
 		);
 	}
 
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.
 	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
+	 * 
+	 * @todo удалить, не используется
 	 */
-	public function search()
+	/**public function search()
 	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
-
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
@@ -202,7 +285,7 @@ class ProjectEvent extends CActiveRecord
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
 		));
-	}
+	}*/
 	
 	/**
 	 * Получить список событий для календаря
@@ -292,7 +375,7 @@ class ProjectEvent extends CActiveRecord
 	            }
 	        }
 	    }else
-       {
+        {
            $records = $this->model()->findAll($criteria);
         }
         
@@ -418,6 +501,9 @@ class ProjectEvent extends CActiveRecord
 	 * Перевести объект из одного статуса в другой, выполнив все необходимые действия
 	 * @param string $newStatus
 	 * @return bool
+	 * 
+	 * @todo отдельные статусы разнести по разным функциям
+	 * @todo проверять результат каждой операции
 	 */
 	public function setStatus($newStatus)
 	{
@@ -429,30 +515,48 @@ class ProjectEvent extends CActiveRecord
 	    $this->status = $newStatus;
 	    $this->save();
 	    
-	    $vacancies = $this->vacancies;
-	     
 	    if ( $newStatus == 'active' )
-	    {// активируем все вакансии события
-	        foreach ( $vacancies as $vacancy )
+	    {// событие публикуется на сайте
+	        if ( $this->type == self::TYPE_GROUP )
+	        {// запускается группа - активируем все дочерние события
+	            foreach ( $this->events as $event )
+	            {
+	                $event->setStatus('active');
+	            }
+	        }
+	        foreach ( $this->vacancies as $vacancy )
 	        {
 	            if ( $vacancy->status == 'draft' )
-	            {
+	            {// активируем все вакансии события
 	                $vacancy->setStatus('active');
 	            }
 	        }
 	    }
 	     
 	    if ( $newStatus == 'finished' )
-	    {// закрываем все вакансии события
-	        foreach ( $vacancies as $vacancy )
+	    {// событие завершается
+	        if ( $this->type == self::TYPE_GROUP )
+	        {// завершается группа - завершим все дочерние события
+    	        foreach ( $this->events as $event )
+    	        {
+    	            if ( $event->status == 'active' )
+    	            {// активные мероприятия завершаются
+    	                $event->setStatus('finished');
+    	            }elseif ( $event->status == 'draft' )
+    	            {// не начатые - удаляются
+    	                $event->delete();
+    	            }
+    	        }
+	        }
+	        foreach ( $this->vacancies as $vacancy )
 	        {
 	            if ( $vacancy->status == 'active' )
-	            {
+	            {// закрываем все вакансии события
 	                $vacancy->setStatus('finished');
 	            }
 	            if ( $vacancy->status == 'draft' )
 	            {// если событие завершено - удаляем все не начатые вакансии
-	                $event->delete();
+	                $vacancy->delete();
 	            }
 	        }
 	    }
@@ -478,10 +582,112 @@ class ProjectEvent extends CActiveRecord
 	 */
 	public function getExpired()
 	{
+	    return $this->isExpired();
+	}
+	
+	/**
+	 * Определить, закончилось ли мероприятие
+	 * @return boolean
+	 */
+	public function isExpired()
+	{
 	    if ( $this->timeend < time() OR $this->status == 'finished' )
 	    {
 	        return true;
 	    }
 	    return false;
+	}
+	
+	/**
+	 * Получить дату и время начала мероприятия в удобном читаемом виде
+	 * 
+	 * @return string
+	 */
+	public function getFormattedTimeStart()
+	{
+	    if ( date('Y', $this->timestart) == 1970 )
+	    {// дата не задана - ничего не выводим
+	        return '';
+	    }
+	    return Yii::app()->getDateFormatter()->format('d MMMM HH:mm', $this->timestart);
+	}
+	
+	/**
+	 * Получить дату и время окончания мероприятия в удобном читаемом виде
+	 *
+	 * @return string
+	 */
+	public function getFormattedTimeEnd()
+	{
+	    if ( date('Y', $this->timeend) == 1970 )
+	    {// дата не задана - ничего не выводим
+	        return '';
+	    }
+	    return Yii::app()->getDateFormatter()->format('d MMMM HH:mm', $this->timeend);
+	}
+	
+	/**
+	 * Получить список всех возможных типов мероприятия (для select-списков)
+	 * @return array
+	 */
+	public function getTypes($ignoreRestrictions=false)
+	{
+	    $types = array();
+	    $types[self::TYPE_EVENT] = 'Нет (обычное мероприяте)';
+	    if ( $this->isNewRecord OR $ignoreRestrictions )
+	    {// группу можно указать только при создании новой записи
+	        $types[self::TYPE_GROUP] = 'Группа мероприятий';
+	    }
+	    $types[self::TYPE_CASTING]    = 'Кастинг';
+	    $types[self::TYPE_PHOTO]      = 'Фотосессия';
+	    $types[self::TYPE_REPETITION] = 'Репетиция';
+	    $types[self::TYPE_PRESHOW]    = 'Генеральная репетиция';
+	    $types[self::TYPE_SHOW]       = 'Съемки';
+	    
+	    return $types;
+	}
+	
+	public function getTypeLabel($type=null)
+	{
+	    if ( ! $type )
+	    {
+	        $type = $this->type;
+	    }
+	    $types = $this->getTypes(true);
+	    return $types[$type];
+	}
+	
+	/**
+	 * Получить список тех групп, в которые может быть добавлено это мероприятие
+	 * (для формирования выпадающего списка групп)
+	 * @return array
+	 * 
+	 * @todo запретить добавлять активные события в запланированные группы
+	 */
+	public function getOpenGroups($projectId=null)
+	{
+	    if ( ! $projectId )
+	    {
+	        $projectId = $this->projectid;
+	    }
+	    $result = array('0' => 'Без группы');
+	    
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('type', 'group');
+	    $criteria->compare('status', array('draft', 'active'));
+	    $criteria->compare('projectid', $projectId);
+	    $criteria->select = '`id`, `name`';
+	    $groups = self::model()->findAll($criteria);
+	    
+	    foreach ( $groups as $group )
+	    {
+	        $result[$group->id] = $group->name;
+	    }
+	    if ( $this->id AND isset($result[$this->id]) )
+	    {// группу нельзя запихнуть в саму себя :)
+	        unset($result[$this->id]);
+	    }
+	    
+	    return $result;
 	}
 }

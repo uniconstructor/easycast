@@ -7,6 +7,15 @@ class MemberRequest extends ProjectMember
 {
     /**
      * (non-PHPdoc)
+     * @see ProjectMember::init()
+     */
+    public function init()
+    {
+        parent::init();
+    }
+    
+    /**
+     * (non-PHPdoc)
      * @see CActiveRecord::defaultScope()
      */
     public function defaultScope()
