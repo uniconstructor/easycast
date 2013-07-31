@@ -24,7 +24,8 @@ $this->menu = array(
             'confirm' => 'Вы уверены что хотите удалить эту вакансию?',
             'csrf' => true),
             ),*/
-    array('label'=>'Заявки на участие','url'=>array('/admin/projectMember/index', 'vacancyid'=>$model->id, 'type' => 'applications')),
+    array('label'=>'Заявки','url'=>array('/admin/projectMember/index', 'vacancyid'=>$model->id, 'type' => 'applications')),
+    array('label'=>'Подтвержденные участники','url'=>array('/admin/projectMember/index', 'vacancyid'=>$model->id, 'type' => 'members')),
 );
 
 if ( in_array('active', $model->getAllowedStatuses()) )

@@ -30,7 +30,8 @@ $this->menu=array(
 	        'confirm' =>'Вы уверены, что хотите удалить это мероприятие?',
 	        'csrf' => true)),*/
     array('label'=>'Добавить вакансию','url'=>array('/admin/eventVacancy/create', 'eventid'=>$model->id)),
-    array('label'=>'Заявки на участие','url'=>array('/admin/projectMember/index', 'eventid'=>$model->id, 'type' => 'applications')),
+    array('label'=>'Заявки','url'=>array('/admin/projectMember/index', 'eventid'=>$model->id, 'type' => 'applications')),
+    array('label'=>'Подтвержденные участники','url'=>array('/admin/projectMember/index', 'eventid'=>$model->id, 'type' => 'members')),
 );
 
 if ( in_array('active', $model->getAllowedStatuses()) )

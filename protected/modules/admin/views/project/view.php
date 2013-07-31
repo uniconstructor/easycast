@@ -17,7 +17,8 @@ $this->menu = array(
 	        'csrf' => true),
     ),*/
     array('label'=>'Добавить мероприятие','url'=>array('/admin/projectEvent/create', 'projectid'=>$model->id)),
-    array('label'=>'Заявки на участие','url'=>array('/admin/projectMember/index', 'projectid'=>$model->id, 'type' => 'applications')),
+    array('label'=>'Заявки','url'=>array('/admin/projectMember/index', 'projectid'=>$model->id, 'type' => 'applications')),
+    array('label'=>'Подтвержденные участники','url'=>array('/admin/projectMember/index', 'projectid'=>$model->id, 'type' => 'members')),
 );
 
 // @todo подтверждение перед сменой статуса

@@ -117,8 +117,9 @@ class EasyCastAmazonAPI extends CComponent
     {
         if ( ! Yii::app()->params['useAmazonSES'] )
         {// это тестовый стенд или машина разработчика - не отправляем письма на реальные адреса
+            //return true;
             $email   = 'frost@easycast.ru';
-            $subject = 'TEST[target:'.$email.']'.$subject;
+            //$subject = 'TEST[target:'.$email.']'.$subject;
         }
         $result = true;
         // Подключаем почтовую службу

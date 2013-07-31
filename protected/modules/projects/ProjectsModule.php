@@ -241,11 +241,13 @@ class ProjectsModule extends CWebModule
 	    
 	    $eventName = $event->name;
 	    $startDate = $invite->event->getFormattedTimeStart();
+	    $endDate   = Yii::app()->getDateFormatter()->format('HH:mm', $invite->event->timeend);
+	    
 	    $eventUrl  = Yii::app()->createAbsoluteUrl('/projects/projects/view', array('eventid' => $event->id));
 	    $eventLink = CHtml::link($eventName, $eventUrl, array('target' => '_blank'));
 	    
 	    $message .= '<p>Что планируется: '.$eventLink.'</p>';
-	    $message .= 'Когда: <b>'.$startDate."</b><br>\n<br>\n";
+	    $message .= 'Когда: <b>'.$startDate." - ".$endDate."</b><br>\n<br>\n";
 	    
 	    if ( trim($invite->event->description) )
 	    {// описание мероприятия
@@ -272,10 +274,13 @@ class ProjectsModule extends CWebModule
 	    
 	    $eventName = $event->name;
 	    $startDate = $event->getFormattedTimeStart();
+	    $endDate   = Yii::app()->getDateFormatter()->format('HH:mm', $event->timeend);
 	    $eventUrl  = Yii::app()->createAbsoluteUrl('/projects/projects/view', array('eventid' => $event->id));
 	    $eventLink = CHtml::link($eventName, $eventUrl, array('target' => '_blank'));
 	    
-	    $message .= '<h2>'.$startDate.' - '.$eventName.'</h2>';
+	    $message .= '<h2>'.$startDate.' - '.$endDate.'</h2>';
+	    $message .= '<h3>'.$eventName.'</h3>';
+	    
 	    $message .= '<p>Дополнительная информация: '.$event->description.'</p>';
 	    
 	    return $message;
@@ -368,9 +373,13 @@ class ProjectsModule extends CWebModule
 	
 	protected static function createMailSignature()
 	{
+	    $passwordUrl = Yii::app()->createAbsoluteUrl('/user/recovery');
+	    
 	    $message = '<hr>';
 	    $message .= '<small>Если у вас есть вопросы, то вы можете задать их нам, просто ответив на это письмо
 	                или позвонив по телефону '.Yii::app()->params['adminPhone'].".<br>\n";
+	    $message .= 'Если вы забыли пароль, или он не пришел вам при регистрации - его можно восстановить на этой странице: ';
+	    $message .= CHtml::link($passwordUrl, $passwordUrl, array('target' => '_blank'));
 	    $message .= '</small>';
 	    return $message;
 	}

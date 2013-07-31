@@ -104,7 +104,7 @@ class CronCommand extends CConsoleCommand
         //$vacancy = EventVacancy::model()->findByPk(17);
         //$vacancy->sendInvites();
         
-        $this->ecawsapi->processEmailQueue();
+        $this->ecawsapi->processEmailQueue(1);
         $this->ecawsapi->showEmailQueryInfo();
     }
 }
