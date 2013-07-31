@@ -14,8 +14,8 @@ class m130731_210300_finishOldProjects extends CDbMigration
         $table = '{{project_events}}';
         $this->update($table, array('status' => 'finished'));
         
-        $table = '{{projects}}';
-        $this->update($table, array('status' => 'finished'));
+        //$table = '{{projects}}';
+        //$this->update($table, array('status' => 'active'));
         
         $table = '{{project_members}}';
         $this->update($table, array('status' => 'finished'));
