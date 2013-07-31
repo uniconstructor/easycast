@@ -4,13 +4,13 @@
     <!-- Указываем путь к Yii -->
     <property name="yii.dir" value="../yiisoft/yii/"/>
     <!-- Указываем путь к ядру EasyCast -->
-    <property name="core.dir" value="../easycast/"/>
+    <property name="core.dir" value="/home/frost/git/easycast/"/>
     <!-- Указываем путь к проекту с плагинами -->
-    <property name="plugins.dir" value="../easycast(plugins)/"/>
+    <property name="plugins.dir" value="/home/frost/git/easycast(plugins)/"/>
     <!-- Путь к папке с файлами для версии разработчика -->
     <property name="production.dir" value="."/>
     <!-- Репозиторий для  релиза -->
-    <property name="release.dir" value="../easycast(release)/"/>
+    <property name="release.dir" value="/home/frost/git/easycast(release)/"/>
     <!-- Папка с результатами сборки -->
     <property name="production_output.dir" value="/home/frost/tmp/release/easycast/PRODUCTION"/>
     
@@ -97,16 +97,17 @@
     </target>
 	
 	<target name="zipzip" depends="release">
-	        <echo>Делаем zip-архив с файлами релизной сборки</echo>
-    		<zip destfile="${production_output.dir}/production.zip"
-    		       basedir="${production_output.dir}"
-    			   defaultexcludes="false"
-    		       update="true"
-    		  />
-	    </target>
+        <echo>Делаем zip-архив с файлами релизной сборки</echo>
+		<zip destfile="${production_output.dir}/production.zip"
+		       basedir="${production_output.dir}"
+			   defaultexcludes="false"
+		       update="true"
+		  />
+    </target>
     
     <target name="finish" depends="zipzip">
-        <echo>Release version assembled. Fuck yeah.</echo>
+    	<echo>Release version successfully assembled.</echo>
+        <echo>I'm ready to initiate deploying procedure, Commander</echo>
     </target>
     
 </project>

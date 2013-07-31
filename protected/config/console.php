@@ -35,18 +35,27 @@ $consoleConfig = CMap::mergeArray(
     
         // application components
         'components'=>array(
+            
+            // устанавливаем пареметр hostInfo для того чтобы из консоли могли создаваться абсолютные ссылки
+            // ( http://www.yiiframework.com/forum/index.php/topic/14825-problem-with-createurl-and-createabsoluteurl-in-console-application/ )
+            'request' => array(
+                'hostInfo'  => 'http://easycast.ru',
+                'baseUrl'   => '',
+                'scriptUrl' => '',
+            ),
+            
             'log'=>array(
                 'class'=>'CLogRouter',
                 'routes'=>array(
                     array(
                         'class'=>'CDbLogRoute',
                         'connectionID' => 'db',
-                        'levels'=>'error, warning, info',
+                        'levels'=>'error, warning, info, AWS',
                         'autoCreateLogTable' => true,
                     ),
                     array(
                         'class'=>'CEmailLogRoute',
-                        'levels'=>'error, warning',
+                        'levels'=>'error, warning, AWS',
                         'emails'=>'php1602agregator@gmail.com',
                     ),
                 ),
