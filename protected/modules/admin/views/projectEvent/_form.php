@@ -66,7 +66,15 @@ $dateFormatter = new CDateFormatter('ru');
     echo $form->error($model,'memberinfo');
     ?>
     
+    <?php // нужно создать мероприятие без даты (она пока неизвестна)
+    // @todo выключать даты начала и окончания при установке этой галочки
+    // @todo ставить эту галочку по умолчанию, если тип события - группа, и запрещать ее снимать
+    echo $form->checkBoxRow($model, 'showtimestart');
+    ?>
+    
 	<?php // время начала
+        // @todo заменить даты начала и окончания на более удобный виджет (на вариант с диапазоном): 
+        //       http://jonthornton.github.io/jquery-timepicker/
 	    echo $form->labelEx($model, 'timestart');
 	    $defaultStart = time();
 	    if ( $model->timestart )
@@ -107,6 +115,7 @@ $dateFormatter = new CDateFormatter('ru');
 	?>
 	
 	<?php // время сбора
+	    // @todo заменить этот виджет на более удобный: http://amsul.ca/pickadate.js/time.htm#formats
 	    echo $form->labelEx($model, 'eta');
 	    $this->widget('ext.ETinyTimePicker.ETinyTimePicker', array(
 	        'model'     => $model,
@@ -128,6 +137,7 @@ $dateFormatter = new CDateFormatter('ru');
     ?>
 	
 	<?php // показывать ли время начала съемок?
+        // @todo по умолчанию снять и отключить эту галочку, если тип события - группа
 	    $showTimeStartOptions = array();
 	    if ( $model->isNewRecord )
 	    {

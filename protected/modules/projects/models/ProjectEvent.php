@@ -21,6 +21,7 @@
  * @property string $eta
  * @property string $salary
  * @property string $meetingplace
+ * @property string $nodates
  * 
  * 
  * Связи с другими таблицами:
@@ -97,16 +98,19 @@ class ProjectEvent extends CActiveRecord
 	/**
 	 * (non-PHPdoc)
 	 * @see CActiveRecord::beforeSave()
+	 * 
+	 * @todo устанавливать автоматически поля "nodates", "showtimestart", "timestart", "timeend" 
+	 *       если тип мероприятия - группа
 	 */
 	public function beforeSave()
 	{
-	    // @todo перенести это преобразование даты в фильтры модели
+	    // @todo перенести это преобразование даты в фильтры модели или заменить этот виджет на более удобный
 	    // @todo использовать Yii::app()->getDateFormatter()
-	    if ( $timestart = CDateTimeParser::parse($this->timestart,'dd.MM.yyyy HH:mm') )
+	    if ( $timestart = CDateTimeParser::parse($this->timestart, 'dd.MM.yyyy HH:mm') )
 	    {
 	        $this->timestart = $timestart;
 	    }
-	    if ( $timeend = CDateTimeParser::parse($this->timeend,'dd.MM.yyyy HH:mm') )
+	    if ( $timeend = CDateTimeParser::parse($this->timeend, 'dd.MM.yyyy HH:mm') )
 	    {
 	        $this->timeend = $timeend;
 	    }
@@ -187,12 +191,13 @@ class ProjectEvent extends CActiveRecord
 	 * @return array validation rules for model attributes.
 	 * 
 	 * @todo прописать проверки более четко
+	 * @todo сделать timestart, timeend обязательными если не выставлена галочка nodates
 	 */
 	public function rules()
 	{
 		return array(
-			array('name, timestart, timeend, description', 'required'),
-			array('eta, showtimestart, parentid, projectid, timestart, timeend, timecreated, timemodified, addressid', 'length', 'max'=>20),
+			array('name, description', 'required'),
+			array('nodates, eta, showtimestart, parentid, projectid, timestart, timeend, timecreated, timemodified, addressid', 'length', 'max'=>20),
 			array('meetingplace, memberinfo, description', 'length', 'max'=>4095),
 			array('status', 'length', 'max'=>9),
 			array('type', 'length', 'max'=>20),
@@ -208,6 +213,7 @@ class ProjectEvent extends CActiveRecord
 	 * @return array relational rules.
 	 * 
 	 * @todo добавить openGroups - те группы, в которые может быть добавлено мероприятие
+	 * @todo придумать как в списки вакансий добавить вакансии группы
 	 */
 	public function relations()
 	{
@@ -258,6 +264,7 @@ class ProjectEvent extends CActiveRecord
 			'eta' => 'Время сбора',
 			'salary' => 'Размер оплаты',
 			'meetingplace' => 'Место встречи',
+			'nodates' => 'Создать мероприятие без конкретной даты',
 		);
 	}
 
@@ -305,7 +312,7 @@ class ProjectEvent extends CActiveRecord
 	                                        $userId=null, $projectType=null, $onlyActive=false)
 	{
 	    $criteria = new CDbCriteria();
-	    $criteria->order = 'timestart ASC';
+	    $criteria->order = '`timestart` ASC';
 	    $events = array();
 	    // Защита сервера от перегрузки: не даем запрашивать события бальше чем за 3 месяца
 	    $defaultTimeStart = time();
@@ -346,7 +353,7 @@ class ProjectEvent extends CActiveRecord
 	        {
 	            $criteria->addInCondition('project.type', $projectType);
 	        }else
-	       {
+	        {
 	            $criteria->compare('project.type', $projectType);
 	        }
 	    }
@@ -404,7 +411,7 @@ class ProjectEvent extends CActiveRecord
 	        $instance['allDay'] = false;
 	        $instance['start'] = $event->timestart;
 	        $instance['end'] = $event->timeend;
-	        $instance['url'] =  Yii::app()->createUrl('//projects/event/view', array('id' => $event->id));
+	        $instance['url'] =  Yii::app()->createUrl('//projects/projects/view', array('eventid' => $event->id));
 	        //$instance['className'] = $event->;
 	        $instance['editable'] = false;
 	        
@@ -605,10 +612,15 @@ class ProjectEvent extends CActiveRecord
 	 */
 	public function getFormattedTimeStart()
 	{
+	    if ( $this->nodates )
+	    {// дата мероприятия пока не известна
+	        return '[Дата уточняется]';
+	    }
 	    if ( date('Y', $this->timestart) == 1970 )
 	    {// дата не задана - ничего не выводим
 	        return '';
 	    }
+	    
 	    return Yii::app()->getDateFormatter()->format('d MMMM HH:mm', $this->timestart);
 	}
 	
@@ -619,10 +631,15 @@ class ProjectEvent extends CActiveRecord
 	 */
 	public function getFormattedTimeEnd()
 	{
+	    if ( $this->nodates )
+	    {// дата мероприятия пока не известна
+	        return '';
+	    }
 	    if ( date('Y', $this->timeend) == 1970 )
 	    {// дата не задана - ничего не выводим
 	        return '';
 	    }
+	    
 	    return Yii::app()->getDateFormatter()->format('d MMMM HH:mm', $this->timeend);
 	}
 	
@@ -647,6 +664,11 @@ class ProjectEvent extends CActiveRecord
 	    return $types;
 	}
 	
+	/**
+	 * Получить перевод типа события для пользователя
+	 * @param string $type[optional]
+	 * @return string
+	 */
 	public function getTypeLabel($type=null)
 	{
 	    if ( ! $type )
@@ -689,5 +711,39 @@ class ProjectEvent extends CActiveRecord
 	    }
 	    
 	    return $result;
+	}
+	
+	/**
+	 * Получить списко вакансий, доступных указанному участнику
+	 * 
+	 * @param int $questionaryId - id анкеты участника
+	 * @return array - массив вакансий, доступных участнику или пустой массив,
+	 *                 если ни одной подходящей вакансии нет
+	 * 
+	 * @todo добавить к этому списку вакансии группы 
+	 */
+	public function getAllowedVacancies($questionaryId)
+	{
+	    $vacancies = array();
+	    if ( ! $this->activevacancies )
+	    {
+	        return array();
+	    }
+	    
+	    if ( $this->group )
+	    {// если это мероприятие входит в состав группы, то проверим и вакансии группы
+	        // @todo убрать эту проверку, когда все вакансии будут прописаны через relations 
+	        $vacancies = $this->group->getAllowedVacancies($questionaryId);
+	    }
+	    
+	    foreach ( $this->activevacancies as $vacancy )
+	    {// проверяем каждую вакансию мероприятия, и определяем, подходит ли для нее участник 
+	        if ( $vacancy->isAvailableForUser($questionaryId) )
+	        {
+	            $vacancies[$vacancy->id] = $vacancy;
+	        }
+	    }
+	    
+	    return $vacancies;
 	}
 }
