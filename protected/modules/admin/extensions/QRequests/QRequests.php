@@ -5,6 +5,10 @@
  */
 class QRequests extends CWidget
 {
+    /**
+     * (non-PHPdoc)
+     * @see CWidget::run()
+     */
     public function run()
     {
         $elements = array();

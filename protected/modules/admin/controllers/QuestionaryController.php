@@ -102,7 +102,7 @@ class QuestionaryController extends Controller
         $subject = 'Ваша анкета одобрена';
         $text    = $this->getSuccessMessage($questionary, $message);
         
-        UserModule::sendMail($email,$subject,$text);
+        UserModule::sendMail($email, $subject, $text);
     }
     
     /**
@@ -113,27 +113,27 @@ class QuestionaryController extends Controller
     protected function sendRejectNotification($questionary, $message)
     {
         $email   = $questionary->user->email;
-        $subject = 'Ваша анкета требует доработки';
+        $subject = 'В вашей анкете следует указать дополнительные данные';
         $text    = $this->getRejectMessage($questionary, $message);
         
-        UserModule::sendMail($email,$subject,$text);
+        UserModule::sendMail($email, $subject, $text);
     }
     
     /**
      * Получить сообщение о том что анкета одобрена
      * @param Questionary $questionary - анкета
-     * @param string $message - сообщение от администрато
+     * @param string $comment - сообщение от администратора
      * @return string
      */
-    protected function getSuccessMessage($questionary, $message=null)
+    protected function getSuccessMessage($questionary, $comment=null)
     {
         $link = Yii::app()->createUrl(Yii::app()->getModule('questionary')->profileUrl, array('id' => $questionary->id));
         $message = 'Ваша анкета одобрена. Теперь она видна в поиске, и вы сможете получать приглашения на съемки. <br>
         Посмотреть анкету можно по ссылке: '.$link;
         
-        if ( trim($message) )
+        if ( trim($comment) )
         {
-            $message .= '<br><br>Комментарий администратора: '.$message;
+            $message .= '<br><br>Комментарий администратора: '.$comment;
         }
         
         return $message;
@@ -142,16 +142,16 @@ class QuestionaryController extends Controller
     /**
      * Получить сообщение о том что анкета отклонена
      * @param Questionary $questionary - анкета
-     * @param string $message - сообщение от администрато
+     * @param string $comment - сообщение от администратора
      * @return string
      */
-    protected function getRejectMessage($questionary, $message)
+    protected function getRejectMessage($questionary, $comment=null)
     {
         $link = Yii::app()->createUrl(Yii::app()->getModule('questionary')->profileUrl, array('id' => $questionary->id));
-        $message = 'Ваша анкета была проверена администратором и требует доработки.<br>
+        $message = 'Ваша анкета была проверена администратором и требует указания дополнительных данных.<br>
         <br>Вы можете просмотреть и отредактировать ее по ссылке: '.$link;
         
-        $message .= '<br><br>Комментарий администратора: '.$message;
+        $message .= '<br><br>Комментарий администратора: '.$comment;
         
         return $message;
     }
