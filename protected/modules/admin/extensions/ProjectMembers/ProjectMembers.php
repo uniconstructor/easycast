@@ -120,6 +120,7 @@ class ProjectMembers extends CWidget
             }
 
             $arrayProvider = new CArrayDataProvider($elements);
+            
             $result .= $this->widget('bootstrap.widgets.TbGridView', array(
                 'type'         => 'striped bordered condensed',
                 'dataProvider' => $arrayProvider,

@@ -14,6 +14,7 @@ class EventController extends Controller
      * 
      * @todo языковые строки
      * @todo более подробная проверка прав
+     * @todo переместить в VacancyController, убрать отсюда и переписать весь старый код, посылающий запросы сюда
      */
     public function actionAddApplication()
     {
@@ -28,14 +29,11 @@ class EventController extends Controller
         $vacancyId = Yii::app()->request->getPost('vacancyid', 0);
         if ( ! $vacancy = EventVacancy::model()->findByPk($vacancyId) )
         {
-            throw new CHttpException(500,'Необходимо выбрать вакансию');
+            throw new CHttpException(500, 'Необходимо выбрать вакансию');
         }
         
         // Создаем и сохраняем новый запрос на участие
-        $request = new MemberRequest();
-        $request->vacancyid = $vacancy->id;
-        $request->memberid  = Yii::app()->getModule('user')->user()->questionary->id;
-        if ( $request->save() )
+        if ( $this->createApplication($vacancy) )
         {
             echo 'OR';
         }else
@@ -43,6 +41,28 @@ class EventController extends Controller
             echo 'ERROR';
         }
         Yii::app()->end();
+    }
+    
+    /**
+     * Создать заявку на участии в мероприятии
+     * (выполняется после всех проверок)
+     *  
+     * @param EventVacancy $vacancy
+     * @return null
+     * 
+     * @todo сделать проверку - не является ли текущий участник гостем, если questionaryid не указан
+     * @todo переместить в VacancyController
+     */
+    protected function createApplication($vacancy, $questionaryId=null)
+    {
+        if ( ! $questionaryId )
+        {
+            $questionaryId = Yii::app()->getModule('user')->user()->questionary->id;
+        }
+        $request = new MemberRequest();
+        $request->vacancyid = $vacancy->id;
+        $request->memberid  = $questionaryId;
+        return $request->save();
     }
     
     /**
@@ -64,9 +84,11 @@ class EventController extends Controller
      */
     public function loadModel($id)
     {
-        $model=ProjectEvent::model()->findByPk($id);
-        if($model===null)
+        $model = ProjectEvent::model()->findByPk($id);
+        if ( $model === null )
+        {
             throw new CHttpException(404,'Мероприятие не найдено id='.$id);
+        }
         return $model;
     }
 }

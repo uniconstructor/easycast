@@ -118,9 +118,9 @@ $dateFormatter = new CDateFormatter('ru');
 	    echo '<div>Фотогалерея</div>';
     ?>
     <?php
-            if ($model->photoGalleryBehavior->getGallery() === null)
+            if ( $model->photoGalleryBehavior->getGallery() === null )
             {
-                echo '<p>Нужно сохранить проект перед загрузкой фотографий</p>';
+                echo '<div class="alert">Нужно сохранить проект перед загрузкой фотографий</div>';
             }else
            {
                 $this->widget('GalleryManagerS3', array(
@@ -133,34 +133,37 @@ $dateFormatter = new CDateFormatter('ru');
     <fieldset>
             <legend>Видео</legend>
             <?php
+            if ( ! $model->isNewRecord )
+            {// не показываем добавление видео при создании проекта - оно там не нужно и отвлекает
                 echo $form->errorSummary($validatedVideos);
-            ?>
-            
-            <?php
-            // список видео
-            $videoFormConfig = $video->formConfig();
-            $this->widget('ext.multimodelform.MultiModelForm',array(
-                   'addItemText'   => Yii::t('coreMessages','add'),
-                   'removeText'    => Yii::t('coreMessages','delete'),
-                   'removeConfirm' => 'Удалить это видео?',
-                   'id'            => 'id_video', //the unique widget id
-                   'formConfig'    => $videoFormConfig, //the form configuration array
-                   'model'         => $video, //instance of the form model
-    
-                   'validatedItems' => $validatedVideos,
-    
-                   // ранее сохраненные видео
-                   'data' => $model->videos,
-              ));
+                // список видео
+                $videoFormConfig = $video->formConfig();
+                $this->widget('ext.multimodelform.MultiModelForm',array(
+                    'addItemText'   => Yii::t('coreMessages','add'),
+                    'removeText'    => Yii::t('coreMessages','delete'),
+                    'removeConfirm' => 'Удалить это видео?',
+                    'id'            => 'id_video', //the unique widget id
+                    'formConfig'    => $videoFormConfig, //the form configuration array
+                    'model'         => $video, //instance of the form model
+                
+                    'validatedItems' => $validatedVideos,
+                
+                    // ранее сохраненные видео
+                    'data' => $model->videos,
+                ));
+            }else
+            {
+                echo '<div class="alert">Нужно сохранить проект перед добавлением видео</div>';
+            }
             ?>
     </fieldset>
 
-	<div class="form-actions">
-		<?php $this->widget('bootstrap.widgets.TbButton', array(
-			'buttonType'=>'submit',
-			'type'=>'primary',
-			'label'=>$model->isNewRecord ? 'Создать' : 'Сохранить',
-		)); ?>
-	</div>
+	<?php 
+	$this->widget('bootstrap.widgets.TbButton', array(
+		'buttonType'=>'submit',
+		'type'=>'primary',
+		'label'=>$model->isNewRecord ? 'Создать' : 'Сохранить',
+	)); 
+	?>
 	
 <?php $this->endWidget(); ?>

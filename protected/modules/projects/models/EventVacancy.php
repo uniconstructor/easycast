@@ -18,6 +18,7 @@
  * @property string $status
  * @property string $searchdata
  * @property string $autoconfirm
+ * @property string $salary
  * 
  * @property SearchScope $scope
  * @property array $filterinstances
@@ -204,7 +205,7 @@ class EventVacancy extends CActiveRecord
 	{
 		return array(
 			array('name, limit', 'required'),
-			array('autoconfirm, eventid, scopeid, timecreated, timemodified', 'length', 'max'=>11),
+			array('salary, autoconfirm, eventid, scopeid, timecreated, timemodified', 'length', 'max'=>11),
 			array('name, description', 'length', 'max'=>255),
 			array('limit', 'length', 'max'=>6),
 			array('status', 'length', 'max'=>9),
@@ -256,6 +257,7 @@ class EventVacancy extends CActiveRecord
 			'timemodified' => 'Timemodified',
 			'status' => ProjectsModule::t('status'),
 			'autoconfirm' => 'Автоматически одобрять все заявки',
+			'salary' => 'Размер оплаты за съемочный день',
 		);
 	}
 
@@ -352,11 +354,6 @@ class EventVacancy extends CActiveRecord
 	 */
 	public function isAvailableForUser($questionaryId=null, $ignoreApplication=false)
 	{
-	    if ( ! Yii::app()->user->checkAccess('User') )
-	    {// вакансии могут быть доступны только для участников
-	        return false;
-	    }
-	    
 	    if ( ! $questionaryId )
 	    {// id анкеты не указан - попробуем взять текущий
 	        $questionaryId = $this->getCurrentUserQuestionaryId();
@@ -390,8 +387,8 @@ class EventVacancy extends CActiveRecord
 	        $questionaryId = $this->getCurrentUserQuestionaryId();
 	    }
 	    $criteria = new CDbCriteria();
-	    $criteria->addCondition('memberid=:memberid');
-	    $criteria->addCondition('vacancyid=:vacancyid');
+	    $criteria->addCondition('`memberid` = :memberid');
+	    $criteria->addCondition('`vacancyid` = :vacancyid');
 	    $criteria->params = array(':memberid' => $questionaryId, ':vacancyid' => $this->id);
 	    
 	    if ( is_array($statuses) AND ! empty($statuses) )
@@ -412,7 +409,7 @@ class EventVacancy extends CActiveRecord
 	 */
 	protected function userMatchVacancyConditions($questionaryId)
 	{
-	    if ( $questionary = Questionary::model()->findByPk($questionaryId) )
+	    if ( ! $questionary = Questionary::model()->findByPk($questionaryId) )
 	    {// нет анкеты с таким id
 	        // @todo записать ошибку в лог
 	        return false;
@@ -425,7 +422,6 @@ class EventVacancy extends CActiveRecord
 	    // Получаем полные условия соответствия вакансии
 	    $criteria = $this->scope->getCombinedCriteria();
 	    // сужаем их до единственного человека
-	    //$criteria->compare('id', $questionary->id);
 	    $criteria->addCondition('`t`.`id` = '.$questionary->id);
 	    // и в итоге просто проверяем существование такой записи
 	    return Questionary::model()->exists($criteria);

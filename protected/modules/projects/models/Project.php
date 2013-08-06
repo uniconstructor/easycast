@@ -29,6 +29,7 @@
  * @property array $videos
  * @property array $groups
  * @property array $opengroups
+ * @property array $activegroups
  * 
  */
 class Project extends CActiveRecord
@@ -184,6 +185,9 @@ class Project extends CActiveRecord
 		    // Открытые группы событий (те в которые можно добавить мероприятия)
 		    'opengroups' => array(self::HAS_MANY, 'ProjectEvent', 'projectid', 
 		        'condition' => "(`opengroups`.`type` = 'group') AND (`opengroups`.`status` IN ('draft', 'active'))"),
+		    // Активные группы проекта
+		    'activegroups' => array(self::HAS_MANY, 'ProjectEvent', 'projectid',
+		        'condition' => "(`activegroups`.`type` = 'group') AND (`activegroups`.`status` = 'active')"),
 		    
 		    // Все мероприятия проекта
 		    'events' => array(self::HAS_MANY, 'ProjectEvent', 'projectid', 
@@ -506,18 +510,26 @@ class Project extends CActiveRecord
 	/**
 	 * Получить все вакансии для всех активных событий проекта
 	 * (для админа, используется при просмотре проекта)
+	 * @param bool $withGroups - получить ли вакансии групп мероприятий вместе с вакансиями для отдельных мероприятий?
 	 * 
 	 * @return array
 	 */
-	public function getActiveVacancies()
+	public function getActiveVacancies($withGroups=true)
 	{
 	    $result = array();
 	    
 	    foreach ( $this->activeevents as $event )
-	    {
+	    {// получаем вакансии для отдельных мероприятий 
 	        foreach ( $event->activevacancies as $vacancy )
 	        {
 	            $result[$vacancy->id] = $vacancy;
+	        }
+	        if ( $event->group )
+	        {// если мероприятие входит в группу - то добавим вакансии группы
+	            foreach ( $event->group->activevacancies as $groupVacancy )
+	            {
+	                $result[$groupVacancy->id] = $groupVacancy;
+	            }
 	        }
 	    }
 	    

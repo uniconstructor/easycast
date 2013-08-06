@@ -145,13 +145,12 @@ class ProjectsModule extends CWebModule
 	    $eventName   = $invite->event->name;
 	    
 	    // дата и время начала мероприятия
-	    $dateFormatter = Yii::app()->getDateFormatter();
 	    $startDate = $invite->event->getFormattedTimeStart();
 	    
 	    // дата и время или название мероприятия (если время не указано)
 	    $eventInfo = $eventName;
-	    if ( $startDate )
-	    {
+	    if ( $startDate AND ! $invite->event->nodates )
+	    {// если мероприятие создано на конкретную дату - отобразим ее
 	        $eventInfo = $startDate;
 	    }
 	    
@@ -215,10 +214,10 @@ class ProjectsModule extends CWebModule
 	    // информация о мероприятии
 	    if ( $invite->event->type == 'group' )
 	    {// группа мероприятий - выведем информацию о каждом
-	        $message .= self::createGroupEventDescription($invite->event);
+	        $message .= self::createGroupEventDescription($invite);
 	    }else
 	    {// одно мероприятие
-	        $message .= self::createSingleEventDescription($invite->event);
+	        $message .= self::createSingleEventDescription($invite);
 	    }
 	    
 	    // Ссылка на подачу заявки
@@ -235,35 +234,83 @@ class ProjectsModule extends CWebModule
 	    return $message;
 	}
 	
-	protected static function createSingleEventDescription($event)
+	/**
+	 * Получить информацию об отдельном мероприятии проекта
+	 * @param EventInvite $invite
+	 * @return string
+	 */
+	protected static function createSingleEventDescription($invite)
 	{
-	    $message = 'Вот информация о запланированном событии:'."<br>\n";
+	    $message = 'Информация о запланированном событии:'."<br>\n";
 	    
-	    $eventName = $event->name;
-	    $startDate = $invite->event->getFormattedTimeStart();
-	    $endDate   = Yii::app()->getDateFormatter()->format('HH:mm', $invite->event->timeend);
+	    $eventName = $invite->event->name;
+	    if ( $invite->event->nodates )
+	    {// мероприятие без определенной даты
+	        $dateInfo = $invite->event->getFormattedTimeStart();
+	    }else
+	    {
+	        $startDate = $invite->event->getFormattedTimeStart();
+	        $endDate   = Yii::app()->getDateFormatter()->format('HH:mm', $invite->event->timeend);
+	        $dateInfo  = $startDate." - ".$endDate;
+	    }
 	    
-	    $eventUrl  = Yii::app()->createAbsoluteUrl('/projects/projects/view', array('eventid' => $event->id));
+	    $eventUrl  = Yii::app()->createAbsoluteUrl('/projects/projects/view', array('eventid' => $invite->event->id));
 	    $eventLink = CHtml::link($eventName, $eventUrl, array('target' => '_blank'));
 	    
 	    $message .= '<p>Что планируется: '.$eventLink.'</p>';
-	    $message .= 'Когда: <b>'.$startDate." - ".$endDate."</b><br>\n<br>\n";
+	    $message .= 'Когда: <b>'.$dateInfo."</b><br>\n<br>\n";
 	    
 	    if ( trim($invite->event->description) )
 	    {// описание мероприятия
-	        $message .= '<p>Подробности: '.$event->description."</p><br>\n";
+	        $message .= '<p>Подробности: '.$invite->event->description."</p><br>\n";
 	    }
+	    // выводим список доступных участнику вакансий
+	    $message .= self::createVacancyList($invite);
+	    
 	    return $message;
 	}
 	
-	protected static function createGroupEventDescription($group)
+	/**
+	 * Создать список вакансий, подходящих для участника с описанием каждой
+	 * @param EventInvite $event
+	 * @return string
+	 * 
+	 * @todo переписать механизм получения списка подходящих вакансий (брать из базы)
+	 */
+	protected static function createVacancyList($invite)
+	{
+	    $result = '';
+	    
+	    if ( ! $vacancies = $invite->event->getAllowedVacancies($invite->questionaryid) )
+	    {// нет ни одной подходящий участнику вакансии - ничего не выводим
+	        return '';
+	    }
+	    $result .= '<h4>Предлагаемые роли</h4>';
+	    
+	    foreach ( $vacancies as $vacancy )
+	    {
+	        $result .= "<h5>{$vacancy->name}</h5>\n";
+	        $result .= "<p>Описание: {$vacancy->description}</p>\n";
+	        if ( $vacancy->salary )
+	        {
+	            $result .= "<p>Оплата за съемочный день: {$vacancy->salary}</p>\n";
+	        }
+	    }
+	    
+	    return $result;
+	}
+	
+	protected static function createGroupEventDescription($invite)
 	{
 	    $message = 'Мероприятия будут проходить в следующие дни:'."<br>\n";
 	    
-	    foreach ( $group->events as $event )
+	    foreach ( $invite->event->events as $event )
 	    {
 	        $message .= self::createOneGroupEventDescription($event);
 	    }
+	    
+	    // внизу информация обо всех доступных вакансиях
+	    $message .= self::createVacancyList($invite);
 	    
 	    return $message;
 	}

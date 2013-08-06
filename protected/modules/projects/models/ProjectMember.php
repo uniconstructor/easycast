@@ -43,10 +43,14 @@ class ProjectMember extends CActiveRecord
     const STATUS_REJECTED  = 'rejected';
     /**
      * @var string - статус заявки: завершена. Заявка подана участником, рассмотрена и одобрена.
-     *               Участник пришел работал на съемках проекта.
+     *               Участник пришел и работал на съемках проекта.
      *               Этот статус нужен для того чтобы хранить историю участников.
      */
     const STATUS_FINISHED  = 'finished';
+    /**
+     * @var string - статус заявки: отменена. Участник сам отменил свою заявку 
+     */
+    const STATUS_CANCELED  = 'canceled';
     
     /**
      * (non-PHPdoc)
@@ -220,14 +224,17 @@ class ProjectMember extends CActiveRecord
 	{
 	    switch ( $this->status )
 	    {
-	        case 'draft':
-	            return array('active', 'rejected');
+	        case self::STATUS_DRAFT:
+	            return array(self::STATUS_ACTIVE, self::STATUS_REJECTED, self::STATUS_CANCELED);
             break;
-	        case 'active':
-	            return array('finished', 'rejected');
+	        case self::STATUS_ACTIVE:
+	            return array(self::STATUS_FINISHED, self::STATUS_REJECTED, self::STATUS_CANCELED);
             break;
-            case 'rejected':
-                return array('active');
+            case self::STATUS_REJECTED:
+                return array(self::STATUS_ACTIVE);
+            break;
+            case self::STATUS_CANCELED:
+                return array(self::STATUS_ACTIVE);
             break;
 	    }
 	
@@ -275,6 +282,11 @@ class ProjectMember extends CActiveRecord
 	    {// заявка отклонена - отправляем письмо
 	        $event = new CModelEvent($this);
 	        $this->onReject($event);
+	    }elseif ( $newStatus == self::STATUS_CANCELED )
+	    {// заявка отменена участником - отправляем письмо с подтверждением
+	        // @todo создать письмо и событие для этого случая
+	        //$event = new CModelEvent($this);
+	        //$this->onCancel($event);
 	    }
 	    
 	    return true;

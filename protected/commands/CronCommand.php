@@ -7,7 +7,7 @@
 class CronCommand extends CConsoleCommand
 {
     /**
-     * @var EasyCastAmazonAPI - наш маленький API для работы с сервисами Amazon
+     * @var EasyCastAmazonAPI - наш маленький API для работы с сервисами Amazon :)
      */
     protected $ecawsapi;
     

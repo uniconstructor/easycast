@@ -4,7 +4,7 @@
  */
 ?>
 <div class="row span6">
-    <h4><?= CHtml::encode($event->name); ?></h4>
+    <h4><?= CHtml::encode($event->name); ?> <?= $event->getFormattedTimePeriod(); ?></h4>
     <p><?= $bages; ?></p>
     <p><?= $event->description; ?></p>
     <p><?= $signInButton; ?></p>

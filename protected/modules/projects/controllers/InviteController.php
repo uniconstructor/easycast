@@ -35,7 +35,7 @@ class InviteController extends Controller
     public function accessRules()
     {
         return array(
-            array('allow',  // подписаться через токен можно и без регистрации
+            array('allow',  // подписаться через токен можно и без авторизации
                 'actions' => array('subscribe'),
                 'users'   => array('*'),
             ),
@@ -57,7 +57,9 @@ class InviteController extends Controller
      */
     public function actionAccept()
     {
-        $this->setStatus(EventInvite::STATUS_ACCEPTED);
+        $id = Yii::app()->request->getParam('id', 0);
+        $invite = $this->loadModel($id);
+        $invite->setStatus(EventInvite::STATUS_ACCEPTED);
     }
     
     /**
@@ -67,7 +69,9 @@ class InviteController extends Controller
      */
     public function actionReject()
     {
-        $this->setStatus(EventInvite::STATUS_REJECTED);
+        $id = Yii::app()->request->getParam('id', 0);
+        $invite = $this->loadModel($id);
+        $invite->setStatus(EventInvite::STATUS_REJECTED);
     }
     
     /**
@@ -82,17 +86,23 @@ class InviteController extends Controller
         {
             throw new CHttpException(404, 'Страница не найдена');
         }
+        
         $inviteId = Yii::app()->request->getParam('id', 0);
-        if ( ! $invite = EventInvite::model()->findByPK($inviteId) )
-        {
-            throw new CHttpException(404, 'Страница не найдена');
-        }
+        $invite = $this->loadModel($inviteId);
+        
         if ( $key != $invite->subscribekey )
         {
             throw new CHttpException(404, 'Страница не найдена');
         }
         // ключ подошел - значит участник зашел по ссылке
-        $this->render('subscribe', array('invite' => $invite));
+        // @todo убрать if/else, и отображать оба случая одним виджетом, без ветвления
+        if ( $invite->event->type == ProjectEvent::TYPE_GROUP )
+        {// отобразить мероприятия и вакансии группы событый
+            $this->render('subscribe', array('invite' => $invite));
+        }else
+        {// отобразить вакансии одного события 
+            $this->render('tokenInvite', array('invite' => $invite, 'key' => $key));
+        }
     }
     
     /**

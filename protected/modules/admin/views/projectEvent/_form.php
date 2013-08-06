@@ -69,7 +69,7 @@ $dateFormatter = new CDateFormatter('ru');
     <?php // нужно создать мероприятие без даты (она пока неизвестна)
     // @todo выключать даты начала и окончания при установке этой галочки
     // @todo ставить эту галочку по умолчанию, если тип события - группа, и запрещать ее снимать
-    echo $form->checkBoxRow($model, 'showtimestart');
+    echo $form->checkBoxRow($model, 'nodates');
     ?>
     
 	<?php // время начала

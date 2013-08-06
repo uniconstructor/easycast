@@ -5,6 +5,11 @@
  */
 class CalendarController extends CController
 {
+    /**
+     * Отображение главной страницы календаря событий
+     * 
+     * @return null
+     */
     public function actionIndex()
     {
         $projectType = Yii::app()->request->getParam('type');

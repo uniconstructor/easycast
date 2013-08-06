@@ -106,7 +106,7 @@ return array(
     'statustext' => 'Статус',
     'type' => 'Тип',
     'user' => 'Участник',
-    'application_added' => 'Заявка подана',
+    'application_added' => 'Заявка отправлена',
     'application_approved' => 'Заявка одобрена',
     'application_removed' => 'Заявка отозвана',
     // '' => '',

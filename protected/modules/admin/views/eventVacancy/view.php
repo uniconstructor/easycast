@@ -72,6 +72,7 @@ $this->widget('bootstrap.widgets.TbAlert', array(
                     'label' => ProjectsModule::t('status'),
                     'value' => $model->statustext,
                 ),
+                'salary',
         	),
         ));
         ?>

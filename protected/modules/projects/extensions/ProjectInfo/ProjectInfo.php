@@ -8,6 +8,7 @@
  * @todo дать возможность участникам отменять заявки
  * @todo вынести весь JS во внешние файлы
  * @todo добавить отображение фото и видео для мероприятия
+ * @todo убрать отсюда функции генерации кнопок и заменить их вызовом виджета VacancyActions
  */
 class ProjectInfo extends CWidget
 {
@@ -392,7 +393,6 @@ class ProjectInfo extends CWidget
             return false;
         }
         
-        
         foreach ( $this->project->activeevents as $event )
         {// выводим активные мероприятия
             $bages = '';
@@ -465,8 +465,8 @@ class ProjectInfo extends CWidget
         {
             $vacancies = $this->project->getAvailableVacancies();
         }else
-       {
-           $vacancies = $this->event->activevacancies;
+        {
+            $vacancies  = $this->event->activevacancies;
         }
         
         if ( ! $vacancies )
@@ -490,6 +490,8 @@ class ProjectInfo extends CWidget
      * 
      * @todo разрешить отзывать заявки, причем только не одобренные
      * @todo выводить сообщение если заявка уже подана
+     * @todo если вакансия создана для группы - то выводить специальное сообщение со списком мероприятий
+     *       к которым она принадлежит
      */
     protected function displayVacancyInstance($vacancy)
     {
@@ -503,12 +505,12 @@ class ProjectInfo extends CWidget
         {// у участника уже есть заявка на эту вакансию
             $removeAppllicationButton = $this->createRemoveApplicationButton($vacancy->id);
         }else
-       {// заявки на участие нет
+        {// заявки на участие нет
             if ( $vacancy->isAvailableForUser() )
             {// если участник проходит по указанным в вакансии критериям - покажем ему кнопку подачи заявки
-                $addAppllicationButton    = $this->createAddAppllicationButton($vacancy->id);
+                $addAppllicationButton = $this->createAddAppllicationButton($vacancy->id);
             }else
-          {// а если не подходит - то даже вакансию ему не покажем
+            {// а если не подходит - то даже вакансию ему не покажем
                 return '';
             }
         }
@@ -766,8 +768,8 @@ class ProjectInfo extends CWidget
     
     protected function createAddApplicationSuccessJs($vacancyId)
     {
-        $buttonId = 'add_application_'.$vacancyId;
-        $messageId = 'vacancy_message_'.$vacancyId;
+        $buttonId    = 'add_application_'.$vacancyId;
+        $messageId   = 'vacancy_message_'.$vacancyId;
         $messageText = ProjectsModule::t('application_added');
         return "function (data, status){
             $(#'{$buttonId}').attr('class', 'btn disabled');

@@ -13,3 +13,7 @@
     padding: 10px !important;
     height: 40px;
 }
+
+.thumbnails > li {
+    margin-left: 10px;
+}

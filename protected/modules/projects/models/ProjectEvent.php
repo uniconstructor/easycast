@@ -644,6 +644,21 @@ class ProjectEvent extends CActiveRecord
 	}
 	
 	/**
+	 * Получить дату и время начала и окончания мероприятия в удобном читаемом виде
+	 * 
+	 * @return null
+	 */
+	public function getFormattedTimePeriod($showDuration=false)
+	{
+	    if ( $this->nodates )
+	    {// мероприятие без конкретной даты - так и скажем
+	        return $this->getFormattedTimeStart();
+	    }
+	    
+	    return $this->getFormattedTimeStart().' - '.Yii::app()->getDateFormatter()->format('HH:mm', $this->timeend);
+	}
+	
+	/**
 	 * Получить список всех возможных типов мероприятия (для select-списков)
 	 * @return array
 	 */
@@ -714,27 +729,31 @@ class ProjectEvent extends CActiveRecord
 	}
 	
 	/**
-	 * Получить списко вакансий, доступных указанному участнику
+	 * Получить спискок вакансий, доступных указанному участнику
 	 * 
 	 * @param int $questionaryId - id анкеты участника
+	 * @param bool $showGroup - добавлять ли к вакансиям события вакансии ее группы?
 	 * @return array - массив вакансий, доступных участнику или пустой массив,
 	 *                 если ни одной подходящей вакансии нет
 	 * 
 	 * @todo добавить к этому списку вакансии группы 
 	 */
-	public function getAllowedVacancies($questionaryId)
+	public function getAllowedVacancies($questionaryId, $showGroup=false)
 	{
 	    $vacancies = array();
+	    
 	    if ( ! $this->activevacancies )
 	    {
 	        return array();
 	    }
 	    
-	    if ( $this->group )
+	    // @todo 
+	    /*if ( $this->group )
 	    {// если это мероприятие входит в состав группы, то проверим и вакансии группы
-	        // @todo убрать эту проверку, когда все вакансии будут прописаны через relations 
-	        $vacancies = $this->group->getAllowedVacancies($questionaryId);
-	    }
+    	    // @todo убрать эту проверку, когда все вакансии будут прописаны через relations
+    	    $activeVacancies = $this->group->getAllowedVacancies($questionaryId);
+	    }*/
+	    
 	    
 	    foreach ( $this->activevacancies as $vacancy )
 	    {// проверяем каждую вакансию мероприятия, и определяем, подходит ли для нее участник 

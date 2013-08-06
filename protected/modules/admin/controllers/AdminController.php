@@ -22,10 +22,9 @@ class AdminController extends Controller
 	 */
 	public function actionCron()
 	{
-	    // загрузка картинок на сервер S3
 	    ignore_user_abort(true);
         set_time_limit(0);
-	    
+        // загрузка картинок на сервер S3
         $this->actionUploadImages();
 	    
 	    $this->actionSendMail();
@@ -63,6 +62,11 @@ class AdminController extends Controller
 	    return 0;
 	}
 	
+	/**
+	 * загрузка картинок на сервер S3
+	 * 
+	 * @return null
+	 */
 	public function actionUploadImages()
 	{
 	    // подключаем нужные модели
