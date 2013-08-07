@@ -131,5 +131,8 @@ return array(
     'policyagreed_label' => 'Соглашаюсь с условиями использования сайта',
     'fullname' => 'ФИО',
 	'You may optionally enter a comparison operator (<b>&lt;</b>, <b>&lt;=</b>, <b>&gt;</b>, <b>&gt;=</b>, <b>&lt;&gt;</b> or <b>=</b>) at the beginning of each of your search values to specify how the comparison should be done.'=>'Вы можете использовать операторы сравнения (<b>&lt;</b>, <b>&lt;=</b>, <b>&gt;</b>, <b>&gt;=</b>, <b>&lt;&gt;</b> or <b>=</b>) установив их перед значением.',
+    'Change Password' => 'Сменить пароль',
+    'You have requested the password recovery site {site_name}' => 'Восстановление пароля от сайта {site_name}',
+    'You have requested the password recovery site {site_name}. To receive a new password, go to {activation_url}.' => 'Вы воспользовались функцией восстановления пароля на сайте {site_name}.ru.<br> Для того чтобы задать новый пароль, пройдите по ссылке: {activation_url}.'
 );
 

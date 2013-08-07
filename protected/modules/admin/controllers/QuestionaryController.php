@@ -64,17 +64,16 @@ class QuestionaryController extends Controller
         $model = $this->loadModel($id);
         if ( ! $status = Yii::app()->request->getParam('status') )
         {
-            throw new CHttpException(404,'Необходимо указать статус');
+            throw new CHttpException(500, 'Необходимо указать статус');
         }
-        $model->setStatus($status);
+        if ( ! $model->setStatus($status) )
+        {
+            throw new CHttpException(500, 'Не удалось сменить статус');
+        }
         
-        //var_dump($_POST);die;
-        
-        $message = Yii::app()->request->getParam('message');
+        $message = Yii::app()->request->getParam('message', '');
         if ( $status == 'active' )
         {// Подтверждение анкеты
-            //Yii::app()->user->setFlash('success', 'Анкета одобрена');
-            
             if ( $model->user->firstaccess )
             {// отправляем сообщение о том что анкета одобрена только в том случае если пользователь 
                 // зарегистрировался не сам и еще ни разу не входил (чтобы не приходило 2 письма
@@ -83,7 +82,6 @@ class QuestionaryController extends Controller
             }
         }elseif( $status == 'rejected' )
         {// отправка на доработку
-            //Yii::app()->user->setFlash('warning', 'Анкета отклонена');
             // Сообщаем пользователю по почте о том, что его анкета отправлена на доработку
             $this->sendRejectNotification($model, $message);
         }
@@ -133,8 +131,10 @@ class QuestionaryController extends Controller
         
         if ( trim($comment) )
         {
-            $message .= '<br><br>Комментарий администратора: '.$comment;
+            $message .= '<br><br>Комментарий администратора: '.$comment.'<br><br>';
         }
+        $message .= 'После внесения дополнительных изменений ваша анкета станет доступна в поиске,
+            и вы начнете получать приглашения на съемки.';
         
         return $message;
     }

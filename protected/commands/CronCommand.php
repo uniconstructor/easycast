@@ -12,6 +12,11 @@ class CronCommand extends CConsoleCommand
     protected $ecawsapi;
     
     /**
+     * @var int - сколько пакетов email-сообщений отсылать за 1 запуск крона (1 пакет = 5 сообщений)
+     */
+    const MAIL_PACKAGES_COUNT = 5;
+    
+    /**
      * (non-PHPdoc)
      * @see CConsoleCommand::init()
      */
@@ -49,7 +54,7 @@ class CronCommand extends CConsoleCommand
      * 
      * @return null
      */
-    public function actionSendMail()
+    public function actionSendMail($mailPackegesCount=self::MAIL_PACKAGES_COUNT)
     {
         echo "Sending email...\n";
         if ( $this->ecawsapi->emailQueueIsEmpty() )
@@ -57,8 +62,8 @@ class CronCommand extends CConsoleCommand
             echo "Queue empty.\n";
             return 0;
         }
-        for ( $i = 0; $i < 10; $i++ )
-        {// отправляем по 50 писем за 1 запуск крона
+        for ( $i = 0; $i < $mailPackegesCount; $i++ )
+        {// отправляем по несколько пакетов писем за 1 запуск крона (1 пакет = 5 писем)
             $this->ecawsapi->processEmailQueue();
             if ( $this->ecawsapi->emailQueueIsEmpty() )
             {// все сообщения отправлены

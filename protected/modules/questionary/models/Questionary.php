@@ -1,9 +1,10 @@
 <?php
 
 /**
- * This is the model class for table "{{questionaries}}".
+ * Модель анкеты участника
+ * Таблица "{{questionaries}}".
  *
- * The followings are the available columns in table '{{questionaries}}':
+ * Поля:
  * @property integer $id
  * @property string $userid
  * @property string $mainpictureid
@@ -74,6 +75,13 @@
  * @property integer $encrypted
  * @property integer $rating
  * @property integer $hastatoo
+ * 
+ * Relations:
+ * @property User $user 
+ * 
+ * @todo вынести преобразование скалярных полей в отдельный behaviour
+ * @todo сделать отдельный behaviour для проверок всех типов полей
+ * @todo вынести сохранение простых типов деятельности в отдельный behaviour
  */
 class Questionary extends CActiveRecord
 {
@@ -125,8 +133,6 @@ class Questionary extends CActiveRecord
      */
     public function rules()
     {
-        // NOTE: you should only define rules for those attributes that
-        // will receive user inputs.
         return array(
             array('userid,  birthdate, cityid, isactor, isamateuractor, hasfilms, isemcee, istvshowmen,
                     isstatist, ismassactor
@@ -152,16 +158,15 @@ class Questionary extends CActiveRecord
             
             // @todo добавить проверку сложных значений
             array('voicetimbre, addchar, parodist, twin, vocaltype, sporttype, extremaltype, trick, skill', 'safe'),
-            // The following rule is used by search().
-            // Please remove those attributes that should not be searched.
-            array('id, userid, mainpictureid, firstname, lastname, middlename, birthdate, 
+            // @todo удалить этот список полей, он не пригодился
+            /* array('id, userid, mainpictureid, firstname, lastname, middlename, birthdate, 
                     gender, timecreated, timefilled, timemodified, height, weight, wearsizemin, wearsizemax, 
                     shoessize, city, cityid, mobilephone, homephone, addphone, vkprofile, looktype, haircolor, 
                     eyecolor, physiquetype, isactor, hasfilms, isemcee, isparodist, istwin, ismodel, isphotomodel, ispromomodel, titsize,
                     chestsize, waistsize, hipsize, isdancer, hasawards, isstripper, striptype,
                     striplevel, issinger, singlevel, ismusician, issportsman,
                     isextremal, isathlete, hasskills, hastricks, haslanuages, wantsbusinesstrips,  
-                    countryid, hasinshurancecard, hasforeignpassport, passportexpires, wearsize', 'safe', 'on'=>'search'),
+                    countryid, hasinshurancecard, hasforeignpassport, passportexpires, wearsize', 'safe', 'on'=>'search'),*/
         );
     }
 

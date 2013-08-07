@@ -142,6 +142,10 @@ class FastOrder extends CActiveRecord
 		);
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see CModel::behaviors()
+	 */
 	public function behaviors()
 	{
 	    return array(

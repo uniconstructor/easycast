@@ -231,46 +231,14 @@ class UserModule extends CWebModule
 	/**
 	 * Send mail method
 	 */
-	public static function sendMail($email,$subject,$message) {
-    	$adminEmail = Yii::app()->params['adminEmail'];
-	    $headers = "MIME-Version: 1.0\r\nFrom: $adminEmail\r\nReply-To: $adminEmail\r\nContent-Type: text/html; charset=utf-8";
-	    $message = wordwrap($message, 70);
-	    $message = str_replace("\n.", "\n..", $message);
-	    if ( self::LOG_EMAIL_MESSAGES )
-	    {
-	        Yii::log($email.'|'.$message);
-	    }
-	    // @todo сделать нормальную обертку для отправки почты
-	    if ( Yii::app()->params['useAmazonSES'] )
-	    {// use amazon SES API to send mail
-	        $ses = new A2Ses('easycast.ses');
-	        $sesEmail = array(
-                'Source' => Yii::app()->params['adminEmail'],
-                'Destination' => array(
-                    'ToAddresses' => array($email),
-                ),
-                'Message' => array(
-                    'Subject' => array(
-                        'Data' => $subject,
-                        'Charset' => 'utf-8',
-                    ),
-                    'Body' => array(
-                        'Html' => array(
-                            'Data' => $message,
-                            'Charset' => 'utf-8',
-                        ),
-                    ),
-                ),
-                // 'ReplyToAddresses' => Yii::app()->params['adminEmail'],
-            );
-	        $result = $ses->sendEmail($sesEmail);
-	        // @todo избегаем проблемы с отправкой слишком большого количества писем в секунду.
-	        // Переписать позже, с использованием SQS
-	        sleep(1);
-	        return true;
+	public static function sendMail($email, $subject, $message, $sendNow=false)
+	{
+	    if ( $sendNow )
+	    {// нужно отправить письмо прямо сейчас
+	        Yii::app()->getComponent('ecawsapi')->sendMail($email, $subject, $message);
 	    }else
-	    {
-	        return mail($email,'=?UTF-8?B?'.base64_encode($subject).'?=',$message,$headers);
+	    {// отправить письмо в очередь (через некоторой время)
+	        Yii::app()->getComponent('ecawsapi')->pushMail($email, $subject, $message);
 	    }
 	}
 	
