@@ -125,7 +125,7 @@ class QuestionaryController extends Controller
      */
     protected function getSuccessMessage($questionary, $comment=null)
     {
-        $link = Yii::app()->createUrl(Yii::app()->getModule('questionary')->profileUrl, array('id' => $questionary->id));
+        $link = Yii::app()->createAbsoluteUrl(Yii::app()->getModule('questionary')->profileUrl, array('id' => $questionary->id));
         $message = 'Ваша анкета одобрена. Теперь она видна в поиске, и вы сможете получать приглашения на съемки. <br>
         Посмотреть анкету можно по ссылке: '.$link;
         
@@ -147,7 +147,7 @@ class QuestionaryController extends Controller
      */
     protected function getRejectMessage($questionary, $comment=null)
     {
-        $link = Yii::app()->createUrl(Yii::app()->getModule('questionary')->profileUrl, array('id' => $questionary->id));
+        $link = Yii::app()->createAbsoluteUrl(Yii::app()->getModule('questionary')->profileUrl, array('id' => $questionary->id));
         $message = 'Ваша анкета была проверена администратором и требует указания дополнительных данных.<br>
         <br>Вы можете просмотреть и отредактировать ее по ссылке: '.$link;
         
