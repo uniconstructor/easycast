@@ -20,7 +20,7 @@ $consoleConfig = CMap::mergeArray(
         // preloading 'log' component
         'preload'=>array('log', 'messages'),
     
-        'modules'=>array(
+        /*'modules'=>array(
             'user'=>array(),
             'questionary' => array(),
             'catalog' => array(),
@@ -31,10 +31,18 @@ $consoleConfig = CMap::mergeArray(
             'rights'=>array(
                 'install'=>false,
             ),
-        ),
+        ),*/
     
         // application components
         'components'=>array(
+            // устанавливаем пареметр hostInfo для того чтобы из консоли могли создаваться абсолютные ссылки
+            // ( http://www.yiiframework.com/forum/index.php/topic/14825-problem-with-createurl-and-createabsoluteurl-in-console-application/ )
+            'request' => array(
+                'hostInfo' => 'http://bglance',
+                'baseUrl'   => '',
+                'scriptUrl' => '',
+            ),
+            
             'log'=>array(
                 'class'=>'CLogRouter',
                 'routes'=>array(

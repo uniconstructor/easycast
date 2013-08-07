@@ -60,9 +60,12 @@ return CMap::mergeArray(
             'useAmazonSES'  => false,
             // SQS
             // использовать Amazon SES для отправки большого количества почты (через очередь)
-            'useAmazonSQS'      => true,
-            'AWSEmailQueueUrl'  => 'https://sqs.us-east-1.amazonaws.com/507109426938/easycast_mail',
-            'AWSEmailQueueName' => 'easycast_mail',
+            'useAmazonSQS'      => false,
+            'AWSEmailQueueUrl'  => 'https://sqs.us-east-1.amazonaws.com/507109426938/test_easycast_mail',
+            'AWSEmailQueueName' => 'test_easycast_mail',
+            
+            // Для отладки: отсылать ли вообще хоть какие-нибудь сообщения, даже на тестовые адреса?
+            'AWSSendMessages' => false,
         ),
     )
 );
