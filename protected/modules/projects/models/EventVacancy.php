@@ -231,13 +231,20 @@ class EventVacancy extends CActiveRecord
 		    'requests' => array(self::HAS_MANY, 'MemberRequest', 'vacancyid'),
 		    // одобренные заявки на вакансию
 		    'members' => array(self::HAS_MANY, 'ProjectMember', 'vacancyid', 
-		        'condition' => "status='active' OR status ='finished'"),
+		        'condition' => "`members`.`status`='active' OR `members`.`status` ='finished'"),
 		    // отклоненные заявки на вакансию
 		    'rejectedmembers' => array(self::HAS_MANY, 'ProjectMember', 'vacancyid', 
 		        'condition' => "status='rejected'"),
 		    // доступные фильтры поиска для этой вакансии
 		    'filterinstances' => array(self::HAS_MANY, 'CatalogFilterInstance', 'linkid', 
 		        'condition' => "`linktype` = 'vacancy'"),
+		    
+		    // Статистика
+		    // Количество поданых заявок
+		    'requestsCount' => array(self::STAT, 'MemberRequest', 'vacancyid'),
+		    // Количество подтвержденных заявок
+		    'membersCount' => array(self::STAT, 'ProjectMember', 'vacancyid', 
+		        'condition' => "status='active' OR status ='finished'"),
 		);
 	}
 

@@ -70,7 +70,7 @@ if ( $model->type == 'group' )
 <h1><?php echo $eventTitle; ?></h1>
 <?php 
 
-
+// информация о самом мероприятии
 $this->widget('bootstrap.widgets.TbDetailView',array(
 	'data' => $model,
 	'attributes' => array(
@@ -142,15 +142,19 @@ $vacanciesList = new CActiveDataProvider('EventVacancy', array(
 $this->widget('bootstrap.widgets.TbGridView', array(
     'type'         => 'striped bordered condensed',
     'dataProvider' => $vacanciesList,
-    'template'=>"{summary}{items}",
-    'columns'=>array(
+    'template' => "{summary}{items}",
+    'columns'  => array(
         array(
-            'name'=>'name',
-            'header'=>ProjectsModule::t('name'),
-            'type' => 'html',
-            'value' => 'CHtml::link($data->name, Yii::app()->createUrl("/admin/eventVacancy/view", array("id" => $data->id)));',
+            'name'   => 'name',
+            'header' => ProjectsModule::t('name'),
+            'type'   => 'html',
+            'value'  => 'CHtml::link($data->name, Yii::app()->createUrl("/admin/eventVacancy/view", array("id" => $data->id)));',
         ),
-        array('name'=>'limit', 'header'=>ProjectsModule::t('vacancy_limit')),
+        array(
+            'name'   => 'limit',
+            'header' => ProjectsModule::t('vacancy_limit'),
+            'value'  => '"(".$data->membersCount."/".$data->limit.") [Заявки: ".$data->requestsCount."]"',
+        ),
         array('name'=>'status', 'header'=>ProjectsModule::t('status')),
     ),
 ));
