@@ -52,8 +52,8 @@ class RecoveryController extends Controller
 			    						'{site_name}'=>Yii::app()->name,
 			    						'{activation_url}'=>$activation_url,
 			    					));
-							
-			    			UserModule::sendMail($user->email,$subject,$message);
+							// отсылаем письмо немедленно
+			    			UserModule::sendMail($user->email, $subject, $message, true);
 			    			
 							Yii::app()->user->setFlash('recoveryMessage',UserModule::t("Please check your email. An instructions was sent to your email address."));
 			    			$this->refresh();

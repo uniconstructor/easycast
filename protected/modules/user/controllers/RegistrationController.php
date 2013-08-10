@@ -41,10 +41,6 @@ class RegistrationController extends Controller
 					$model->attributes   = $_POST['RegistrationForm'];
 					$profile->attributes = ( (isset($_POST['Profile']) ? $_POST['Profile']:array()) );
 					
-					//CVarDumper::dump($model->attributes, 10, true);
-					//CVarDumper::dump($_POST['RegistrationForm'], 10, true);
-					//die;
-					
 					$soucePassword  = $model->password;
 					$verifyPassword = $model->verifyPassword;
 					// если логин или пароль не задан - попробуем автоматически создать их
@@ -54,23 +50,23 @@ class RegistrationController extends Controller
 					    $verifyPassword = $soucePassword;
 					}
 					if ( ! trim($model->username) )
-					{// login not set - geterate it
+					{// login not set - generate it
 					    $model->username = $model->getLoginByEmail($model->email);
 					}
 					
-					
 					if ( $model->validate() && $profile->validate() )
-					{
+					{// begin registration
 						$model->activkey = UserModule::encrypting(microtime().$model->password);
 						$model->password = UserModule::encrypting($soucePassword);
 						$model->verifyPassword = UserModule::encrypting($verifyPassword);
 						$model->superuser = 0;
 						$model->status = ((Yii::app()->controller->module->activeAfterRegister)?User::STATUS_ACTIVE:User::STATUS_NOACTIVE);
 						
-						if ($model->save()) {
+						if ( $model->save() )
+						{
 							$profile->user_id=$model->id;
 							$profile->save();
-							if (Yii::app()->controller->module->sendActivationMail)
+							if ( Yii::app()->controller->module->sendActivationMail )
 							{// отправляем письмо с данными о регистрации
 							    $this->sendActivationEmail($model, $soucePassword);
 							}
@@ -133,10 +129,10 @@ class RegistrationController extends Controller
 	    $message .= "\n Логин: ".$model->username."<br>";
 	    $message .= "\n Пароль: ".$password."<br>";
 	    $message .= "<br><br>";
-	    $message .= 'Если вы считаете что получили это письмо по ошибке или у вас возникли вопросы, то вы можете задать их нам, просто ответив на это письмо или позвонив по телефону +7(906)098-32-07 .';
+	    $message .= 'Если вы считаете что получили это письмо по ошибке или у вас возникли другие вопросы, то вы можете задать их нам, просто ответив на это письмо или позвонив по телефону +7(906)098-32-07 .';
 	    $message .= "<br><br>";
 	    $message .= "С уважением, команда проекта EasyCast";
-	    
-	    UserModule::sendMail($model->email, $theme, $message);
+	    // отсылаем письмо немедленно
+	    UserModule::sendMail($model->email, $theme, $message, true);
 	}
 }
