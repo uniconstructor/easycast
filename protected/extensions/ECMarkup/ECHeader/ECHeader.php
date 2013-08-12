@@ -81,7 +81,7 @@ class ECHeader extends CWidget
     {
         echo '<div class="span4 offset2">';
         echo '<div id="logo" class="easycast-logo">';
-        echo CHtml::link(CHtml::image($this->_assetUrl.'/images/logo.png').'', Yii::app()->getBaseUrl(true));
+        echo CHtml::link(CHtml::image('/images/logo-75x330.png').'', Yii::app()->getBaseUrl(true));
         echo '</div>';
         echo '</div>';
     }
