@@ -15,10 +15,26 @@
  * @property string $uploaderid
  * @property string $md5
  * @property string $size
- * @property string $status
+ * @property string $status - статус видеоролика
+ *                         pending - видео загружено участником и ждет проверки
+ *                         approved - видео проверено администратором и одобрено (или загружено администратором)
+ *                         rejected - видео отклонено администратором (нельзя такое публиковать)
  */
 class Video extends CActiveRecord
 {
+    /**
+     * @var string - статус видеоролика: видео загружено участником и ждет проверки
+     */
+    const STATUS_PENDING  = 'pending';
+    /**
+     * @var string - статус видеоролика: видео проверено администратором и одобрено (или загружено администратором)
+     */
+    const STATUS_APPROVED = 'approved';
+    /**
+     * @var string - статус видеоролика: видео отклонено администратором (нельзя такое публиковать)
+     */
+    const STATUS_REJECTED = 'rejected';
+    
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
@@ -54,14 +70,12 @@ class Video extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
 		    array('link, name', 'filter', 'filter'=>'trim'),
 		    array('link, name', 'required'),
 		    
 			array('objecttype, type, status', 'length', 'max'=>20),
-			array('objectid, timecreated, uploaderid, size', 'length', 'max'=>11),
+			array('timemodified, objectid, timecreated, uploaderid, size', 'length', 'max'=>11),
 			array('name, description, link', 'length', 'max'=>255),
 			array('md5', 'length', 'max'=>128),
 			// The following rule is used by search().
@@ -75,10 +89,25 @@ class Video extends CActiveRecord
 	 */
 	public function relations()
 	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
 		return array(
+		    
 		);
+	}
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see CModel::behaviors()
+	 */
+	public function behaviors()
+	{
+	    return array(
+	        // автоматическое заполнение дат создания и изменения
+	        'CTimestampBehavior' => array(
+	            'class' => 'zii.behaviors.CTimestampBehavior',
+	            'createAttribute' => 'timecreated',
+	            'updateAttribute' => 'timemodified',
+	        )
+        );
 	}
 
 	/**
@@ -94,11 +123,12 @@ class Video extends CActiveRecord
 			'type' =>  Yii::t('coreMessages', 'db_video_type'),
 			'description' => Yii::t('coreMessages', 'db_video_description'),
 			'link' => Yii::t('coreMessages', 'db_video_link'),
-			'timecreated' => 'Timecreated',
+			'timecreated' => Yii::t('coreMessages', 'timecreated'),
 			'uploaderid' => 'Uploaderid',
 			'md5' => 'Md5',
 			'size' => Yii::t('coreMessages', 'db_video_size'),
 			'status' => Yii::t('coreMessages', 'db_video_status'),
+		    'timemodified' => Yii::t('coreMessages', 'timemodified'), 
 		);
 	}
 
@@ -108,9 +138,6 @@ class Video extends CActiveRecord
 	 */
 	public function search()
 	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
-
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
@@ -122,7 +149,6 @@ class Video extends CActiveRecord
 		$criteria->compare('link',$this->link,true);
 		$criteria->compare('timecreated',$this->timecreated,true);
 		$criteria->compare('uploaderid',$this->uploaderid,true);
-		$criteria->compare('md5',$this->md5,true);
 		$criteria->compare('size',$this->size,true);
 		$criteria->compare('status',$this->status,true);
 
@@ -166,15 +192,15 @@ class Video extends CActiveRecord
 	    if ( mb_ereg('youtube.com', $link) )
 	    {
 	        return 'youtube';
-	    }elseif ( mb_ereg('vk.com', $link) OR mb_ereg('vkontakte', $link) )
+	    }elseif ( mb_ereg('vk.com', $link) OR mb_ereg('vkontakte.ru', $link) )
 	    {
 	        return 'vkontakte';
-	    }elseif ( mb_ereg('vimeo', $link) )
+	    }elseif ( mb_ereg('vimeo.com', $link) )
 	    {
 	        return 'vimeo';
 	    }else
-       {
-            return false;
+        {
+            return 'link';
         }
 	}
 }
