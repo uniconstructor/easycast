@@ -12,7 +12,7 @@
 	
 	<div class="assignments span-12 first">
 
-		<?php $this->widget('zii.widgets.grid.CGridView', array(
+		<?php $this->widget('bootstrap.widgets.TbGridView', array(
 			'dataProvider'=>$dataProvider,
 			'template'=>'{items}',
 			'hideHeader'=>true,
@@ -23,20 +23,20 @@
     				'name'=>'name',
     				'header'=>Rights::t('core', 'Name'),
     				'type'=>'raw',
-    				'htmlOptions'=>array('class'=>'name-column'),
+    				//'htmlOptions'=>array('class'=>'name-column'),
     				'value'=>'$data->getNameText()',
     			),
     			array(
     				'name'=>'type',
     				'header'=>Rights::t('core', 'Type'),
     				'type'=>'raw',
-    				'htmlOptions'=>array('class'=>'type-column'),
+    				//'htmlOptions'=>array('class'=>'type-column'),
     				'value'=>'$data->getTypeText()',
     			),
     			array(
     				'header'=>'&nbsp;',
     				'type'=>'raw',
-    				'htmlOptions'=>array('class'=>'actions-column'),
+    				//'htmlOptions'=>array('class'=>'actions-column'),
     				'value'=>'$data->getRevokeAssignmentLink()',
     			),
 			)
