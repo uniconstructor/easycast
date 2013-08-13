@@ -103,10 +103,10 @@ class ProjectMembers extends CWidget
         }
 
         if ( $this->displayType == 'applications' )
-        {
+        {// показываем заявки
             $members = $vacancy->requests;
         }else
-        {
+        {// показываем участников
             $members = $vacancy->members;
         }
 
@@ -119,7 +119,7 @@ class ProjectMembers extends CWidget
                 $elements[] = $this->getMemberData($member);
             }
 
-            $arrayProvider = new CArrayDataProvider($elements);
+            $arrayProvider = new CArrayDataProvider($elements, array('pagination' => false));
             
             $result .= $this->widget('bootstrap.widgets.TbGridView', array(
                 'type'         => 'striped bordered condensed',
