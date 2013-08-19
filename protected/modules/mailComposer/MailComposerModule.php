@@ -20,7 +20,19 @@ class MailComposerModule extends CWebModule
      */
     public static function getSubject($action, $params=null)
     {
-        
+        $controller = Yii::app()->createController('/mailComposer/mail/');
+        switch ( $action )
+        {
+            // письмо с приглашением на съемки
+            case 'newInvite':
+                if ( ! isset($params['invite']) )
+                {
+                    throw new CException('Invite for mail subject is not set');
+                }
+                $invite = $params['invite'];
+                return $controller->createNewInviteMailSubject($invite);
+            break;
+        }
     }
     
     /**
@@ -31,7 +43,24 @@ class MailComposerModule extends CWebModule
      */
     public static function getMessage($action, $params=null)
     {
-        
+        $controller = Yii::app()->createController('/mailComposer/mail/');
+        switch ( $action )
+        {
+            // письмо с приглашением на съемки
+            case 'newInvite': 
+                $mailOptions = array();
+                if ( isset($params['mailOptions']) )
+                {
+                    $mailOptions = $params['mailOptions'];
+                }
+                if ( ! isset($params['invite']) )
+                {
+                    throw new CException('Invite for mail is not set');
+                }
+                $invite = $params['invite'];
+                return $controller->createNewInviteMailText($invite, $mailOptions); 
+            break;
+        }
     }
     
     /**

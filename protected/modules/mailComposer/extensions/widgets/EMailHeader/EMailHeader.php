@@ -5,13 +5,14 @@
  */
 class EMailHeader extends CWidget
 {
+    public $header = null;
     /**
      * (non-PHPdoc)
      * @see CWidget::init()
      */
     public function init()
     {
-    
+        $this->header = trim($this->header);
     }
     
     /**
@@ -20,6 +21,10 @@ class EMailHeader extends CWidget
      */
     public function run()
     {
-    
+        if ( ! $this->header )
+        {// заголовок не задан - ничего не отображаем
+            return;
+        }
+        $this->render('header');
     }
 }

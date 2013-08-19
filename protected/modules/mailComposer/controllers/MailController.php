@@ -2,6 +2,9 @@
 
 /**
  * Контроллер, составляющий все письма сайта
+ * 
+ * @todo перенести действие test в функциональные тесты
+ * @todo языковые строки
  */
 class MailController extends Controller
 {
@@ -9,7 +12,7 @@ class MailController extends Controller
      * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
      * using two-column layout. See 'protected/views/layouts/column2.php'.
      */
-    public $layout = 'application.modules.mailComposer.views.layouts.mail';
+    //public $layout = 'application.modules.mailComposer.views.layouts.mail';
     
     /**
      * (non-PHPdoc)
@@ -17,6 +20,7 @@ class MailController extends Controller
      */
     public function init()
     {
+        Yii::import('application.modules.projects.models.*');
         parent::init();
     }
     
@@ -41,12 +45,65 @@ class MailController extends Controller
     {
         return array(
             array('allow',
-                'actions' => array('createSimpleMail',),
+                'actions' => array('createSimpleMail', 'display', 'test'),
                 'users'   => array('@'),
             ),
-            array('deny',
-                'users' => array('*'),
+            array('allow',
+                'actions' => array('test'),
+                'users'   => array('admin'),
             ),
+            /*array('deny',
+                'users' => array('*'),
+            ),*/
+        );
+    }
+    
+    /**
+     * (non-PHPdoc)
+     * @see CController::behaviors()
+     */
+    public function behaviors()
+    {
+        return array(
+            // функции создания писем для модуля "проекты"
+            'ProjectMailsBehavior' => array(
+                'class' => 'application.modules.mailComposer.controllers.behaviors.ProjectMailsBehavior',
+            ),
+        );
+    }
+    
+    public function actionTest()
+    {
+        $invite = EventInvite::model()->findByPk(650);
+        
+        echo $this->createNewInviteMailText($invite);
+    }
+    
+    /**
+     * Отобразить веб-версию письма, пришедшего на почту
+     * 
+     * @return null
+     * @todo переписать
+     */
+    public function actionDisplay()
+    {
+        $segments = array();
+        $segments[] = array(
+            'type' => 'textOnly',
+            'header' => 'Заголовок текста',
+            'text' => 'Сам текст. С <b>разнообразным</b> <i>Форматированием</i><p>И абзацами</p>',
+        );
+        $segments[] = array(
+            'header' => 'ЕЩЕ ЗАГОЛОВОК',
+            'text' => 'Сам текст 2. С <b>разнообразным 2</b> <i>Форматированием 2</i><p>И абзацами</p>',
+            'button' => array('link' => '#', 'caption' => 'Подать заявку'),
+        );
+        $this->widget('application.modules.mailComposer.extensions.widgets.EMailAssembler.EMailAssembler',
+            array(
+                'mainHeader' => 'Test mail subject!',
+                'segments'   => $segments,
+                'signature'  => 'Have a nice day.<br>Goodbye.',
+            )
         );
     }
     
@@ -56,6 +113,8 @@ class MailController extends Controller
      * 
      * @param array $params - массив параметров для составления письма
      * @return string - html-код письма
+     * 
+     * @todo пока только заготовка
      */
     public function actionCreateSimpleMail($params)
     {
@@ -85,6 +144,33 @@ class MailController extends Controller
             'text'    => '',
             // настройки для виджета, собирающего письмо из блоков
             'assemblerOptions' => array(),
+        );
+    }
+    
+    /**
+     * Получить настройки по умолчанию для виджета EMailAssembler
+     * 
+     * @return array
+     * 
+     * @todo брать настройки из специального плагина
+     * @todo а может вообще удалить если не пригодится
+     */
+    public function getMailDefaults()
+    {
+        return array(
+            'showTopServiceLinks'    => false,
+            'showBottomServiceLinks' => false,
+            'showSocialButtons'      => false,
+            'showContactPhone'       => true,
+            'showContactEmail'       => true,
+            'contactPhone'           => Yii::app()->params['adminPhone'],
+            'contactEmail'           => Yii::app()->params['adminEmail'],
+            'mainHeader'             => '',
+            'segments'               => array(),
+            'signature'              => '',
+            'showFeedbackNotification' => true,
+            'showPasswordNotification' => false,
+            'userHasFirstAccess'       => true,
         );
     }
 }
