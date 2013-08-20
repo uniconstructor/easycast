@@ -2,20 +2,25 @@
 
 /**
  * Админская часть сайта
+ * @todo пускать в админку по ключу (только на определенные страницы)
  */
 class AdminModule extends CWebModule
 {
+    /**
+     * @var array
+     */
     public $controllerMap = array(
         'fastOrder' => array(
             'class'=>'application.modules.admin.controllers.FastOrderController',
             ),
         );
     
+    /**
+     * (non-PHPdoc)
+     * @see CModule::init()
+     */
 	public function init()
 	{
-		// this method is called when the module is being created
-		// you may place code here to customize the module or the application
-
 		// import the module-level models and components
 		$this->setImport(array(
 			'admin.models.*',
@@ -30,20 +35,28 @@ class AdminModule extends CWebModule
 		
 		$this->defaultController = 'admin';
 	}
-
+    
+	/**
+	 * (non-PHPdoc)
+	 * @see CWebModule::beforeControllerAction()
+	 */
 	public function beforeControllerAction($controller, $action)
 	{
-	    if ( ! Yii::app()->user->isSuperuser )
-	    {
-	        throw new CHttpException(404,'Страница не найдена');
-	    }
-		if(parent::beforeControllerAction($controller, $action))
+		if( parent::beforeControllerAction($controller, $action) )
 		{
-			// this method is called before any module controller action is performed
-			// you may place customized code here
+    		$user = Yii::app()->getUser();
+            if( $user->isGuest === true )
+            {// просим авторизоваться перед входом в админку
+                $user->loginRequired();
+            }
+            if ( ! Yii::app()->user->checkAccess('Admin') )
+            {// если нет прав доступа - делаем вид что админки здесь нет
+                throw new CHttpException(404, 'Страница не найдена');
+            }
 			return true;
+		}else
+		{
+		    return false;
 		}
-		else
-			return false;
 	}
 }
