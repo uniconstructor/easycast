@@ -25,6 +25,15 @@ class QSearchFilterBaseSlider extends QSearchFilterBase
     }
     
     /**
+     * Получить шаг слайдера (цена деления)
+     * @return number
+     */
+    protected function getStepValue()
+    {
+        return 1;
+    }
+    
+    /**
      * Получить текст, который отображается, когда в слайдере ничего не выбрано
      * @return string
      */
@@ -101,8 +110,9 @@ class QSearchFilterBaseSlider extends QSearchFilterBase
         $content .= $this->widget('zii.widgets.jui.CJuiSlider',array(
             // additional javascript options for the slider plugin
             'options' => array(
-                'min' => $this->getMinValue(),
-                'max' => $this->getMaxValue(),
+                'min'    => $this->getMinValue(),
+                'max'    => $this->getMaxValue(),
+                'step'   => $this->getStepValue(),
                 'range'  => true,
                 'values' => $values,
                 'slide'  => 'js:function( event, ui ) {'.$this->getSlideJs('search_'.$shortname.'_slider_info').'}',
