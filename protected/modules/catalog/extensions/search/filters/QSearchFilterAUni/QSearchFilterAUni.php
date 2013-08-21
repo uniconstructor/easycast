@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Фильтр поиска по полю "Театральное образование"
+ * Фильтр поиска по полю "Театральное образование" (Actor University)
  */
 class QSearchFilterAUni extends QSearchFilterBaseUni
 {
