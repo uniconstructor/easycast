@@ -117,6 +117,7 @@ class EventVacancy extends CActiveRecord
 	        'driver',
 	        'name',
 	        'sections',
+	        'salary',
 	    );
 	    
 	}
