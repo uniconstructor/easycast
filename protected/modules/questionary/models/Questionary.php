@@ -79,9 +79,15 @@
  * Relations:
  * @property User $user 
  * 
+ * Stats:
+ * @property int invitesCount
+ * @property int requestsCount
+ * @property int upcomingEventsCount
+ * 
  * @todo вынести преобразование скалярных полей в отдельный behaviour
  * @todo сделать отдельный behaviour для проверок всех типов полей
  * @todo вынести сохранение простых типов деятельности в отдельный behaviour
+ * @todo запретить редактировать анкету, если участник уже подал заявку
  */
 class Questionary extends CActiveRecord
 {
@@ -268,8 +274,16 @@ class Questionary extends CActiveRecord
                 'condition' => "`finishedmemberinstances`.`status`='finished'"),
             // @todo Проекты, (сделать свять типа "мост")
             
-            // @todo Статистика
             
+            // Статистика
+            // Неподтвержденные заявки на участие в мероприятиях
+            'requestsCount' => array(self::STAT, 'MemberRequest', 'memberid'),
+            // Новые (еще не просмотренные) приглашения на мероприятия
+            'invitesCount' => array(self::STAT, 'EventInvite', 'questionaryid',
+                'condition' => "`status` = 'pending' AND `deleted` = 0"),
+            // Предстоящие съемки (время при выборке не учитываем, они сами завершаться когда нужно)
+            'upcomingEventsCount' => array(self::STAT, 'ProjectMember', 'memberid',
+                'condition' => "`status`='active'",),
         );
     }
 
@@ -805,6 +819,11 @@ class Questionary extends CActiveRecord
                 $this->$field = 0;
             }
         }
+        
+        if ( $this->isactor )
+        {// если участник - профессиональный актер - уберем галочку "непрофессиональный"
+            $this->isamateuractor = 0;
+        }
     }
     
     /**
@@ -837,7 +856,7 @@ class Questionary extends CActiveRecord
         
         $fields = array('isactor', 'hasfilms', 'isemcee', 'isparodist', 'istwin', 'ismodel', 'isdancer', 
             'hasawards', 'isstripper', 'issinger', 'ismusician',  'issportsman',  'isextremal',  'isathlete', 
-            'hastricks',  'hasskills',  'haslanuages', 'isphotomodel', 'ispromomodel', 'isamateuractor',
+            'hastricks',  'hasskills',  /*'haslanuages',*/ 'isphotomodel', 'ispromomodel', 'isamateuractor',
             'istvshowmen');
         
         foreach ( $fields as $field )
