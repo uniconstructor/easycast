@@ -160,7 +160,10 @@ class User extends CActiveRecord
 	 */
 	protected function beforeDelete()
 	{
-	    $this->questionary->delete();
+	    if ( $this->questionary )
+	    {
+	        $this->questionary->delete();
+	    }
 	    
 	    return parent::beforeDelete();
 	}
