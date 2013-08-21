@@ -46,7 +46,10 @@ class QUserInfo extends CWidget
         
         // устанавливаем в объекте анкеты режим "просмотр"
         $this->questionary->setScenario('view');
-        $this->questionary->recordingconditions->setScenario('view');
+        if ( $this->questionary->recordingconditions )
+        {
+            $this->questionary->recordingconditions->setScenario('view');
+        }
         
         // Подключаем нужные для отображения информации классы
         Yii::import('application.modules.questionary.extensions.behaviors.*');
@@ -151,7 +154,7 @@ class QUserInfo extends CWidget
             // "Приглашения" - показывается всегда, но только на своей странице
             case 'invites':    $content = $this->getInvitesTabContent(); break;
             
-            default: throw new CException('Неизвестный тип вкладки: '.$name);
+            default: $content = $this->getMainTabContent();//throw new CException('Неизвестный тип вкладки: '.$name);
         }
         
         if ( ! $content )
