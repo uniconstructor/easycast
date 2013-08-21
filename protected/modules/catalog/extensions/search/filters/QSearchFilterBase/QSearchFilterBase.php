@@ -44,6 +44,9 @@
  * @todo придумать каки не отображать виджет, пока его скрипты не подгрузились и не выполнились
  *       (чтобы недоделанные формы не напрягали пользователя раньше времени). Как вариант - изначально
  *       отображать все div-блоки как display:none 
+ * @todo найти удалить из остального кода все упоминания QSearchFilterBase::defaultPrefix() - этот параметр
+ *       оказался часто нужен в других частях системы, поэтому он
+ *       был перенесен в класс модуля, чтобы его было легче достать
  */
 class QSearchFilterBase extends CWidget
 {
@@ -272,8 +275,8 @@ class QSearchFilterBase extends CWidget
             $this->namePrefix = $this->filter->shortname;
         }
         if ( ! $this->elements )
-        {
-            throw new CHttpException('500', 'Не задан список полей фрагмента формы. $this->internalElements должен быть задан');
+        {// Не задан список полей для поискового виджета
+            throw new CHttpException('500', 'Не задан список полей для поискового виджета. $this->internalElements должен быть задан');
         }
         
         // Устанавливаем одно общее имя массива для всех input-полей формы фрагмента поиска
@@ -469,12 +472,14 @@ class QSearchFilterBase extends CWidget
     }
     
     /**
-     *
+     * Префикс, который добавляется ко всем полям формы поиска, чтобы избежать 
+     * конфликта имен input-полей на странице
+     *  
      * @return string
      */
     public static function defaultPrefix()
     {
-        return 'QSearch';
+        return CatalogModule::SEARCH_FIELDS_PREFIX;
     }
     
     /**

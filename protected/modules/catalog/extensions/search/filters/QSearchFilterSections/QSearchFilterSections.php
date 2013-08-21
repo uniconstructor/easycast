@@ -10,6 +10,11 @@
 class QSearchFilterSections extends QSearchFilterBaseSelect2
 {
     /**
+     * @var string - текст-заглушка, который отображается в поле, когда ничего не выбрано
+     */
+    public $defaultSelect2Placeholder = 'Искать во всех разделах';
+    
+    /**
      * @var array - список имен input-полей, которые содержатся в фрагменте формы
      */
     protected $elements = array('sections');

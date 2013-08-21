@@ -25,6 +25,9 @@
  * 
  * @todo все прямые обращения к статусам заменить на константы
  * @todo запретить редактирование поисковых условий если вакансия - не черновик
+ * @todo всегда автоматически добавлять фильтр по оплате, если в вакансии указана оплата.
+ *       Не давать удалять этот фильтр, пока не будет удалена сумма оплаты
+ * @todo запретить редактирование списка поисковых фильтров если вакансия - не черновик
  */
 class EventVacancy extends CActiveRecord
 {
@@ -33,6 +36,7 @@ class EventVacancy extends CActiveRecord
      *               Условия подбора людей на вакансию можно задавать и менять только в этом статусе.
      */
     const STATUS_DRAFT     = 'draft';
+    
     /**
      * @var string - статус вакансии: опубликована. Вакансия полностью настроена и описана, заданы критерии
      *               подбора людей. На нее можно подавать заявки. При переходе в этот статус всем подходящим
@@ -40,6 +44,7 @@ class EventVacancy extends CActiveRecord
      *               Критерии подбора людей менять нельзя.
      */
     const STATUS_ACTIVE    = 'active';
+    
     /**
      * @var string - статус вакансии: закрыта. Или набрано необходимое количество людей, или мероприятие
      *               уже началось и подавать заявки и вписывать людей больше нельзя - мероприятие
@@ -58,6 +63,7 @@ class EventVacancy extends CActiveRecord
         // подключаем модели, которые понадобятся
         Yii::import('ext.ESearchScopes.models.*');
         Yii::import('application.modules.catalog.models.*');
+        Yii::import('application.modules.catalog.CatalogModule');
     }
     
 	/**
@@ -119,7 +125,6 @@ class EventVacancy extends CActiveRecord
 	        'sections',
 	        'salary',
 	    );
-	    
 	}
 	
 	/**
@@ -134,6 +139,18 @@ class EventVacancy extends CActiveRecord
 	    {
 	        $member->delete();
 	    }
+	    // удаляем ссылки фильтров поиска на эту роль
+	    foreach ( $this->filterinstances as $instance )
+	    {
+	        $instance->delete;
+	    }
+	    // удаляем условия отбора людей на эту вакансию
+	    if ( $this->scope )
+	    {
+	        $this->scope->delete();
+	    }
+	    
+	    return parent::beforeDelete();
 	}
 	
 	/**
@@ -141,11 +158,6 @@ class EventVacancy extends CActiveRecord
 	 */
 	public function behaviors()
 	{
-	    $searchConfig = array(
-                'class' => 'ext.ESearchScopes.behaviors.ESearchScopeBehavior',
-	            'idAttribute' => 'scopeid',
-	            
-            );
 	    return array(
 	        // автоматическое заполнение дат создания и изменения
 	        'CTimestampBehavior' => array(
@@ -153,7 +165,11 @@ class EventVacancy extends CActiveRecord
 	            'createAttribute' => 'timecreated',
 	            'updateAttribute' => 'timemodified',
 	        ),
-	        'ESearchScopeBehavior' => $searchConfig,
+	        // работа с сохраненными критериями поиска
+	        'ESearchScopeBehavior' => array(
+                'class' => 'ext.ESearchScopes.behaviors.ESearchScopeBehavior',
+	            'idAttribute' => 'scopeid',
+            ),
 	    );
 	}
 	
@@ -167,8 +183,7 @@ class EventVacancy extends CActiveRecord
 	protected function beforeSave()
 	{
 	    if ( $this->isNewRecord OR ! $this->scopeid )
-	    {// если группа для условий выборки анкет для вакансии еще не создана - 
-	        // создадим пустую заготовку для нее
+	    {// условия для выборки анкет для вакансии еще не созданы - создадим условия по умолчанию
 	        $this->initVacancyScope();
 	    }
 	    
@@ -521,10 +536,13 @@ class EventVacancy extends CActiveRecord
 	}
 	
 	/**
-	 * Создать пустое условие выбора участников на вакансию.
+	 * Создать стандартную заготовку условия выбора участников на вакансию.
 	 * Используется для новых, только что созданных вакансий.
 	 * Условие создается не полностью пустым - изначально в него добавляется правило 
-	 * "искать только анкеты в активном статусе"
+	 * "искать только анкеты в активном статусе" и несколько других условий, в зависимости от 
+	 * данных с которыми создана роль
+	 * Создает объект SearchScope с серавлизованным критерием выборки на борту и JSON-массив для формы поиска людей
+	 * на вакансию
 	 * 
 	 * @throws CDbException
 	 * @return int - id группы условий (SearchScope) которая содержит один пустой критерий выборки анкет
@@ -537,14 +555,13 @@ class EventVacancy extends CActiveRecord
 	    // создаем группу для условий поиска
 	    $scope = new SearchScope;
 	    $scope->name      = $this->name;
-	    // @todo убрать запись shortname если оно так и не пригодится
-	    //$scope->shortname = 'vacancy'.time();
 	    $scope->modelid   = SearchScope::QMODEL_ID;
 	    $scope->type      = 'vacancy';
 	    $scope->save();
 	    
-	    // создаем основу для критерия выборки
-	    $criteria = $this->createStartCriteria();
+	    // получаем те условия поиска, которые можем сразу же создать из вакансии
+	    $searchData = $this->сreateStartSearchData();
+	    $criteria   = $this->createSearchCriteria($searchData);
 	    
 	    // создаем само условие
 	    $condition = new ScopeCondition();
@@ -554,7 +571,9 @@ class EventVacancy extends CActiveRecord
 	    $condition->combine = 'and';
 	    $condition->save();
 	    
-	    $this->scopeid = $scope->id;
+	    // сохраняем ссылку на поисковый критерий и данные формы поиска
+	    $this->scopeid    = $scope->id;
+	    $this->searchdata = serialize($searchData);
 	    
 	    if ( $saveData )
 	    {// нужно сохранить модель после инициализации поисковых критериев
@@ -575,19 +594,51 @@ class EventVacancy extends CActiveRecord
 	 */
 	protected function createStartCriteria()
 	{
-	    // (по умолчанию - берем только анкеты в активном статусе)
 	    $criteria = new CDbCriteria();
-	    //$criteria->addCondition("`t`.`status` = '".self::STATUS_ACTIVE."'");
-	    $criteria->compare('status', self::STATUS_ACTIVE);
+	    
+	    // (по умолчанию - берем только анкеты в активном статусе)
+	    $criteria->compare('status', 'active');
+	    // $criteria->addCondition("`t`.`status` = 'active'");
+	    // сортируем анкеты по рейтингу (сначала лучшие)
+	    $criteria->order = '`t`.`rating` DESC';
 	    
 	    return $criteria;
 	}
 	
 	/**
-	 * Создать условие поиска (CDbCriteria) по данным из фильтров, прикрепленных к вакансии
+	 * Автоматически создать данные для фильтров поиска анкет при создании вакансии
+	 * Эта функция немного облегчает процесс добавления вакансий, сразу же устанавливая такие параметры как цена
+	 * 
+	 * @return array
+	 * 
+	 * @todo учитывать здесь пожелания актеров: хотят/не хотят сняться в рекламе/сериале/кино/эпизодической роли
+	 *       когда в условиях съемок и вакансии появятся эти поля и когда мы создадим критерии поиска по ним
+	 * @todo более точно округлять сумму, в зависимости от размера оплаты 
+	 */
+	protected function сreateStartSearchData()
+	{
+	    $prefix     = CatalogModule::SEARCH_FIELDS_PREFIX;
+	    $filters    = $this->getDefaultFilters();
+	    $searchData = array();
+	    
+	    if ( in_array('salary', $filters) AND $this->salary )
+	    {// если в вакансии указана сумма оплаты - установим ее сразу же как поисковый критерий 
+	        // (таким образом сразу же отсекаем всех кто дороже)
+	        
+	        // округляем сумму оплаты до 500 в меньшую сторону
+	        $tail      = $this->salary % 500;
+	        $maxSalary = $this->salary - $tail;
+	        $searchData[$prefix.'salary'] = array('maxsalary' => $maxSalary);
+	    }
+	    
+	    return $searchData;
+	}
+	
+	/**
+	 * Создать условие поиска (CDbCriteria) по данным из фильтров, прикрепленных к вакансии (роли)
 	 * По этому условию определяется, подходит участник на вакансию или нет
 	 * Условие никогда не создается полностью пустым - изначально в него всегда добавляется правило 
-	 * "искать только анкеты в активном статусе"
+	 * "искать только анкеты в активном статусе" и другие критерии, в зависимости от данных создаваемой роли
 	 * 
 	 * @param array $data - данные из поисковых фильтров (формы поиска)
 	 * @return CDbCriteria
@@ -597,23 +648,33 @@ class EventVacancy extends CActiveRecord
 	 */
 	protected function createSearchCriteria($data)
 	{
+	    /* @todo удалить эту проверку после тестов
 	    if ( ! $this->id )
 	    {// на всякий случай проверим, что создаем условие поиска для уже существующей вакансии
 	        throw new CDbException('Cannot create new SearchCriteria for non-saved vacancy');
-	    }
+	    }*/
+	    
 	    // указываем путь к классу, который занимается сборкой поискового запроса из отдельных частей
 	    $pathToAssembler = 'application.modules.catalog.extensions.search.handlers.QSearchCriteriaAssembler';
 	    // создаем основу для критерия выборки
 	    $startCriteria = $this->createStartCriteria();
 	    
-	    // Указываем параметры для сборки запроса
+	    // Указываем параметры для сборки поискового запроса по анкетам
 	    $config = array(
-	        'class'   => $pathToAssembler,
-	        'data'    => $data,
+	        'class'           => $pathToAssembler,
+	        'data'            => $data,
 	        'startCriteria'   => $startCriteria,
-	        'filterInstances' => $this->filterinstances,
-	        'saveTo' => 'db',
 	    );
+	    if ( $this->isNewRecord )
+	    {// вакансия создается, она пока еще не сохранена в БД, поэтому
+	        // фильтры к ней еще не добавлены, и сохранять критерий тоже некуда - зададим все руками
+	        $config['filters']  = $this->getDefaultFilters();
+	        $config['saveData'] = false;
+	    }else
+	    {// вакансия редактируется - обновляем критерий выборки
+	        $config['filterInstances'] = $this->filterinstances;
+	        $config['saveTo']          = 'db';
+	    }
 	    
 	    // создаем компонет-сборщик запроса. Он соберет CDbCriteria из отдельных данных формы поиска 
 	    $assembler = Yii::createComponent($config);
@@ -754,7 +815,7 @@ class EventVacancy extends CActiveRecord
 	}
 	
 	/**
-	 * Удалить поисковые даннык одного фильтра из формы поиска людей для вакансии
+	 * Удалить поисковые данные одного фильтра из формы поиска людей для вакансии
 	 * 
 	 * @param string $namePrefix - имя ячейки в массиве данных из формы поиска, 
 	 *                             в которой лежит сохраненное значение фильтра 

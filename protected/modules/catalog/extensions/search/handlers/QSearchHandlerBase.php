@@ -44,7 +44,7 @@ class QSearchHandlerBase extends CComponent
      * 
      * @return boolean
      */
-    protected function enabled()
+    public function enabled()
     {
         return true;
     }

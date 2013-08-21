@@ -2,9 +2,15 @@
 
 /**
  * Базовый класс для всех виджетов-филтров, использующих плагин "select2"
+ * @todo языковые строки
  */
 class QSearchFilterBaseSelect2 extends QSearchFilterBase
 {
+    /**
+     * @var string - текст-заглушка, который отображается в поле, когда ничего не выбрано
+     */
+    public $defaultSelect2Placeholder = 'Нажмите чтобы выбрать';
+    
     /**
      * @var string - селектор для элемента select2
      */
@@ -106,11 +112,11 @@ class QSearchFilterBaseSelect2 extends QSearchFilterBase
     protected function createSelect2Options()
     {
         return array(
-            'placeholder' => 'Нажмите чтобы выбрать',
+            'placeholder'    => $this->defaultSelect2Placeholder,
             // @todo что это за параметр?
-            'allowClear'  => true,
+            'allowClear'     => true,
             // select не закрывается, чтобы можно было быстро выбрать несколько вариантов
-            'closeOnSelect' => false,
+            'closeOnSelect'  => false,
             // отсылать событие change каждый раз при изменении данных
             'triggerChange ' => true,
         );
