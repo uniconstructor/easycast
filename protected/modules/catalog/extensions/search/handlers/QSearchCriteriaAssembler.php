@@ -29,6 +29,10 @@
  * @todo приравнять вариант поиска по большой форме поиска к поиску по фильтрам
  * @todo создать универсальный API для сохранения сериализованных данных формы поиска и критериев поиска в БД
  * @todo добавить в getCriteria параметры $anotherCriteria и $combine
+ * @todo оставить поле filterInstances только для совместимости. Сделать "официальным" способом
+ *       передачи фильтров в этот модуль установку их в поле filters. Поправить связи в моделях,
+ *       сделать возможным извлечение не ссылок yf abkmnhs (filterInstances), а самих фильтров через relations()
+ *       После этого пометить $this->filterInstances как deprecated
  */
 class QSearchCriteriaAssembler extends CComponent
 {
@@ -66,11 +70,14 @@ class QSearchCriteriaAssembler extends CComponent
     public $saveTo = 'session';
     
     /**
-     * @var array - используемые фильтры поиска (массив объектов CatalogFilter)
-     *               Содержит список фильтров каталога, если поиск происходит в каталоге
-     *               Или вообще все возможные фильтры, если поиск происходит через большую форму
+     * @var array - Используемые фильтры поиска.
+     *              Формат: массив объектов CatalogFilter или массив строк с короткими 
+     *              именами фильтров ('age', 'gender')
+     *              Содержит список фильтров поиска, которые могут быть применены к объекту,
+     *              для которого собирается запрос (например раздел каталога, вакансия, и т. п.)
+     *              Фильтры могут быть получены из объекта, которому принадлежит запрос или заданы вручную.
      */
-    protected $filters = array();
+    public $filters = array();
     
     /**
      * @var CDbCriteria - переменная для хранения промежуточного результата конструирования запроса
@@ -101,7 +108,25 @@ class QSearchCriteriaAssembler extends CComponent
         // создаем заготовку для будущего критерия выборки
         $this->getStartCriteria();
         
-        if ( ! empty($this->filterInstances) )
+        // получаем список фильтров
+        if ( ! empty($this->filters) )
+        {// фильтры заданы извне (самый правильный способ, если нет объекта)
+            $loadedFilters = array();
+            foreach ( $this->filters as $key=>$filterElement )
+            {// смотрим каждый переданный фильтр: это уже объект или его надо подгрузить? 
+                if ( ! ($filterElement instanceof CatalogFilter) )
+                {// передано только название фильтра - подгружаем его из базы
+                    $criteria = new CDbCriteria(array('shortname' => $filterElement));
+                    if ( ! $filter = CatalogFilter::model()->find($criteria) )
+                    {
+                        throw new CException(500, "Фильтр с именем '{$filterElement}' не найден");
+                    }
+                    // заменяем строку с названием фильтра на объект
+                    unset($this->filters[$key]);
+                    $this->filters[] = $filter;
+                }
+            }
+        }elseif ( ! empty($this->filterInstances) )
         {// список фильтров задан извне
             foreach ( $this->filterInstances as $instance )
             {// перебираем все фильтры раздела и для каждого создаем условие
@@ -115,11 +140,9 @@ class QSearchCriteriaAssembler extends CComponent
             }
         }else
         {// происходит поиск по большой форме
-            
-            // в этом месте мы определяем, какие фильтры поиска будут исполльзоваться в большой форме поиска
-            // (это все фильтры, прикрепленные к первому разделу ("вся база"))
+            // в этом месте мы определяем, какие фильтры поиска будут использоваться в большой форме поиска
+            // (это все фильтры, прикрепленные к корневому разделу "вся база")
             $instances = CatalogFilterInstance::model()->findAll("`linktype` = 'section' AND `linkid` = 1");
-            
             foreach ( $instances as $instance )
             {// перебираем все фильтры большой формы поиска и для каждого добавляем условие
                 $this->filters[] = $instance->filter;
@@ -190,6 +213,7 @@ class QSearchCriteriaAssembler extends CComponent
             'saveTo'   => $this->saveTo,
             'section'  => $this->section,
         );
+        // для каждого фильтра создается свой обработ чик
         $handler = Yii::createComponent($config);
         if ( ! $handler->enabled() )
         {// пользователю не разрешен поиск по этому критерию - идем дальше, даже не начинаем собирать запрос
