@@ -14,7 +14,7 @@
  * @property integer $inverse
  * @property string $previousid
  * 
- * @todo remove all criteria types e
+ * @todo remove all criteria types except "serialized"
  */
 class ScopeCondition extends CActiveRecord
 {
@@ -62,8 +62,6 @@ class ScopeCondition extends CActiveRecord
 	 */
 	public function relations()
 	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
 		return array(
 		    //'scope' => array(self::BELONGS_TO, 'SearchScope', 'scopeid'),
 		);
@@ -87,31 +85,6 @@ class ScopeCondition extends CActiveRecord
 		);
 	}
 
-	/**
-	 * Retrieves a list of models based on the current search/filter conditions.
-	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
-	 * 
-	 * @todo delete this function
-	 */
-	/*public function search()
-	{
-		$criteria=new CDbCriteria;
-
-		$criteria->compare('id',$this->id);
-		$criteria->compare('scopeid',$this->scopeid,true);
-		$criteria->compare('type',$this->type,true);
-		$criteria->compare('field',$this->field,true);
-		$criteria->compare('value',$this->value,true);
-		$criteria->compare('comparison',$this->comparison,true);
-		$criteria->compare('combine',$this->combine,true);
-		$criteria->compare('inverse',$this->inverse);
-		$criteria->compare('previousid',$this->previousid,true);
-
-		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
-		));
-	}*/
-	
 	/**
 	 * Combine CDbCriteria from one scope condition
 	 * @return CDbCriteria
