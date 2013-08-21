@@ -6,7 +6,11 @@
  * @todo добавить возможность использовать html в названиях вкладок
  * @todo сделать метод canViewTab, и вынести в него всю проверку прав
  * @todo переписать с использованием view-файлов
- * @todo показывать пользователю его условия и контакты, с добавлением сообщения о том что это его анкета и контакты видны только ему
+ * @todo показывать пользователю его условия и контакты, с добавлением сообщения о 
+ *       том что это его анкета и контакты видны только ему. Исправить функции отображения вкладок и функцию
+ *       составления стандартного списка вкладок
+ * @todo добавить проверку прав для случая когда вкладки переданы в виджет параметрами.
+ *       (можно изначально добавить все, а в init() убирать те вкладки, на которые не хватает прав)
  */
 class QUserInfo extends CWidget
 {
@@ -24,6 +28,9 @@ class QUserInfo extends CWidget
      */
     public $activeTab = 'main';
     
+    /**
+     * @var string - путь к папке со стилями и скриптами для виджета
+     */
     protected $_assetUrl;
     
     /**
@@ -50,6 +57,10 @@ class QUserInfo extends CWidget
         if ( ! $this->tabNames )
         {// если явно не указано, какие вкладки отображать - отобразим все которые можно видеть
             $this->tabNames = $this->getDefaultTabNames();
+        }
+        if ( ! in_array($this->activeTab, $this->tabNames) )
+        {// если нужную вкладку по каким-то причинам нельзя отобразить - переправим пользователя на основную
+            $this->activeTab = 'main';
         }
     }
     
@@ -84,16 +95,27 @@ class QUserInfo extends CWidget
      */
     protected function getDefaultTabNames()
     {
-        return array(
+        // эти вкладки видны всем
+        $tabs = array(
             'main',
             'education',
             'skills',
             'films',
             'projects',
             'awards', 
-            'conditions',
-            'personal',
-            'invites',);
+        );
+        if ( Yii::app()->user->checkAccess('Admin') )
+        {// контакты и условия съемок может видеть только админ
+            $tabs[] = 'personal';
+            $tabs[] = 'conditions';
+        }
+        if ( $this->isMyQuestionary() OR Yii::app()->user->checkAccess('Admin') )
+        {// для своей анкеты добавляем вкладки cо съемками
+            $tabs[] = 'invites';
+            $tabs[] = 'requests';
+            $tabs[] = 'events';
+        }
+        return $tabs;
     }
     
     /**
@@ -275,7 +297,6 @@ class QUserInfo extends CWidget
                 'data'       => $data,
                 'attributes' => $attributes), true);
         }
-        
         
         
         // Размеры
@@ -1222,6 +1243,33 @@ class QUserInfo extends CWidget
         ), true);
         
         return $content;
+    }
+    
+    /**
+     * Получить содержимое вкладки "мои заявки"
+     * 
+     * @return string
+     */
+    protected function getRequestsTabContent()
+    {
+        if ( ! $this->isMyQuestionary() )
+        {// заявки показываются только в своей анкете
+            return false;
+        }
+        
+    }
+    
+    /**
+     * Получить содержимое вкладки "мои съемки"
+     * 
+     * @return string
+     */
+    protected function getUpcomingEventsTabContent()
+    {
+        if ( ! $this->isMyQuestionary() )
+        {// съемки показываются только в своей анкете
+            return false;
+        }
     }
     
     /**
