@@ -8,20 +8,25 @@
 class VacancyActions extends CWidget
 {
     /**
-     * @var EventVacancy
+     * @var EventVacancy - вакансия, для которой отображаются кнопки
      */
     public $vacancy;
+    
     /**
      * @var string - режим отображения 
      *               normal - для авторизованнх пользователей
      *               token - для подачи заявки по токену
      */
     public $mode = 'normal';
+    
     /**
-     * @var EventInvite
+     * @var EventInvite - приглашение участника, дающее ему право подавать заявку
      */
     public $invite;
     
+    /**
+     * @var string - ключ по которому происходит подача заявки (если заявка подается из почты, по ключу)
+     */
     public $key;
     
     /**
@@ -97,6 +102,12 @@ class VacancyActions extends CWidget
         return $ajaxOptions;
     }
     
+    /**
+     * Получить адрес для ajax-запроса, отправляемого при клике на кнопку
+     * @param unknown $type
+     * @return string
+     * @return null
+     */
     protected function createButtonAjaxUrl($type)
     {
         $ection = '';
@@ -114,6 +125,11 @@ class VacancyActions extends CWidget
         )*/);
     }
     
+    /**
+     * Получить JS, выполняющийся после успешной подачи заявки
+     * @return string
+     * @return null
+     */
     protected function createAddApplicationSuccessJs()
     {
         $buttonId    = 'add_application_'.$this->vacancy->id;
