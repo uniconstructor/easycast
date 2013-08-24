@@ -116,12 +116,14 @@ class QSearchCriteriaAssembler extends CComponent
             {// смотрим каждый переданный фильтр: это уже объект или его надо подгрузить? 
                 if ( ! ($filterElement instanceof CatalogFilter) )
                 {// передано только название фильтра - подгружаем его из базы
+                    
                     $criteria = new CDbCriteria();
                     $criteria->compare('shortname', $filterElement);
                     if ( ! $filter = CatalogFilter::model()->find($criteria) )
                     {
                         throw new CException(500, "Фильтр с именем '{$filterElement}' не найден");
                     }
+                    
                     // заменяем строку с названием фильтра на объект
                     unset($this->filters[$key]);
                     $this->filters[] = $filter;
