@@ -216,7 +216,7 @@ class EasyCastAmazonAPI extends CComponent
         if ( ! Yii::app()->params['useAmazonSQS'] )
         {// это тестовый стенд или машина разработчика - не отправляем письма на реальные адреса
             // return true;
-            $subject = $subject;
+            //$subject = $subject;
             $email   = 'frost@easycast.ru';
         }
         $result = true;
