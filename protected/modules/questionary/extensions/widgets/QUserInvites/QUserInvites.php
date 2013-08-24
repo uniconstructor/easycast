@@ -3,9 +3,9 @@
 /**
  * Виджет, отображающий все непросмотренные приглашения участника на съемки
  * 
- * @todo сделать ajax-кнопки "принять/отклонить"
  * @todo языковые строки
  * @todo отображать принятые и отклоненные приглашения, отображать в приглашениях их статус
+ * @todo вывести все возможные вакансии с возможностью подать и отозвать заявку
  */
 class QUserInvites extends CWidget
 {
@@ -115,7 +115,7 @@ class QUserInvites extends CWidget
         
         return CHtml::ajaxButton('Отказаться', $url, $ajaxOptions, 
             array(
-                'class' => 'btn btn-danger pull-right',
+                'class' => 'btn btn-primary pull-right',
                 'id'    => 'reject_button'.$invite->id));
     }
     
