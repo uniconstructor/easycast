@@ -34,6 +34,11 @@ class VacancyActions extends CWidget
     public $key;
     
     /**
+     * @var string - id тега, содержащего все AJAX-кнопки
+     */
+    public $containerId;
+    
+    /**
      * @var bool - выдавать ли подтверждение перед подачей заявки?
      */
     public $confirmActions = false;
@@ -65,15 +70,6 @@ class VacancyActions extends CWidget
      */
     protected $buttons = array('addApplication'/*, 'removeApplication'*/);
     
-    /**
-     * @var string - url для AJAX-запроса подачи заявки
-     */
-    //protected $addAplicationUrl;
-    
-    /**
-     * @var array - параметры для POST-запроса подачи заявки
-     */
-    //protected $addApplicationParams;
     
     /**
      * (non-PHPdoc)
@@ -98,23 +94,11 @@ class VacancyActions extends CWidget
      */
     public function run()
     {
-        /*$result = '';
-        
-        if ( ! $this->vacancy->hasApplication($this->invite->questionaryid) )
-        {
-            $result .= $this->createAddApplicationButton();
-        }else
-        {
-            $result .= '(Заявка подана)';
-        }*/
         if ( $this->message )
         {
             $this->messageStyle = 'display:block;';
         }
         $this->render('actions');
-        
-        /*echo $result;
-        echo '<div class="" style="display:none;" id="vacancy_actions_message_'.$this->vacancy->id.'"></div>';*/
     }
     
     /**
