@@ -10,16 +10,16 @@ Yii::setPathOfAlias('bootstrap', dirname(__FILE__).'/../extensions/bootstrap');
 // CWebApplication properties can be configured here.
 return array(
     // general application parameters
-	'basePath'=>dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
+	'basePath' => dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
     // @todo сделать выбор языка в зависимости от региона
     'language' => 'ru',
     'sourceLanguage' => 'en_us',
     
     // предварительно загружаемые компоненты
-    'preload'=>array('log', 'messages'),
+    'preload' => array('log', 'messages'),
     
     // Название проекта 
-    'name'=> 'EasyCast',
+    'name' => 'EasyCast',
     
     // Короткие имена для вызова популярных библиотек
     // @todo попробовать перенести сюда bootstrap и посмотреть, ничего ли не сломается
@@ -28,9 +28,9 @@ return array(
     ),
 
     'controllerMap' => array(
-        'gallery'=>array(
-            'class'=>'ext.galleryManager.GalleryController',
-            'pageTitle'=>'Gallery administration',
+        'gallery' => array(
+            'class'     => 'ext.galleryManager.GalleryController',
+            'pageTitle' => 'Gallery administration',
         ),
     ),
     
@@ -59,9 +59,12 @@ return array(
         'application.extensions.bootstrap.widgets.*',
         // yes/no toogle column widget
 	    'application.extensions.jtogglecolumn.*',
+	    // Import simpleWorkflow extension (for statuses)
+	    'application.extensions.simpleWorkflow.*'
 	),
 
 	'modules'=>array(
+	    // Пользователи
         'user'=>array(
             // encrypting method (php hash function)
             'hash' => 'sha1',
@@ -85,9 +88,14 @@ return array(
             'returnLogoutUrl' => array('//site/index'),
         ),
 	    
+        // Права доступа (RBAC)
 	    'rights'=>array(
-	        // Enables the installer.
-	        'install'=>false,
+	        // установка нам больше не понадобится
+	        'install'           => false,
+	        // разрешаем использовать переменные в правилах доступа
+	        'enableBizRuleData' => true,
+	        // нужно установить разметку страницы в соответствии с нашей темой
+	        'appLayout' => '//layouts/column1',
 	    ),
 	    
 	    // анкета пользователя (реализована отдельным модулем)
@@ -147,22 +155,29 @@ return array(
         'notifyii' => array(
             'class' => 'application.modules.notifyii.NotifyiiModule'
         ),
+        
+        // Письма
+        'mailComposer' => array(
+            'class' => 'application.modules.mailComposer.MailComposerModule'
+        ),
 	),
 
-	// application components
+	// Компоненты приложения
 	'components'=>array(
+	    // пользователь (наследник класса WebUser)
 		'user'=>array(
-		    // enable cookie-based authentication
-		    // Allows super users access implicitly.
-            'class' => 'RWebUser',
+		    // используем класс пользователя из модуля rights чтобы работали права доступа на основе ролей (RBAC)
+            'class'          => 'RWebUser',
+            // сразу же пускаем участника на сайт после регистрации, чтобы сэкономить ему время
             'allowAutoLogin' => true,
-            'loginUrl' => array('/user/login'),
+            // адрес страницы с формой входа
+            'loginUrl'       => array('/user/login'),
 		),
 	    
 		// enable URLs in path-format
 		'urlManager' => array(
 			'urlFormat' => 'path',
-			'rules' => array(
+			'rules'     => array(
 				'<controller:\w+>/<id:\d+>' => '<controller>/view',
 				'<controller:\w+>/<action:\w+>/<id:\d+>' => '<controller>/<action>',
 				'<controller:\w+>/<action:\w+>' => '<controller>/<action>',
@@ -254,6 +269,11 @@ return array(
             'class' => 'EasyCastAmazonAPI',
         ),
         
+        // Компонент "simple Workflow" - для грамотной работы со статусами
+        'swSource'=> array(
+            'class'=>'application.extensions.simpleWorkflow.SWPhpWorkflowSource',
+        ),
+        
         // Настройки виджетов по умолчанию
         'widgetFactory'=>array(
             'widgets'=>array(
@@ -281,6 +301,7 @@ return array(
                             'class' => 'table-striped',
                         ),
                 ),
+                
                 // Выбор даты из календаря
                 'CJuiDatePicker' => array(
                     'language' => 'ru',
@@ -294,12 +315,13 @@ return array(
 	),
 
     // Используем собственную тему оформления для сайта
-    'theme'=>'easycast',
+    'theme' => 'easycast',
 
 	// application-level parameters that can be accessed
 	// using Yii::app()->params['paramName']
 	'params'=>array(
-	    'adminPhone' => '+7(915)066-86-05',
+	    'adminPhone' => '+7(906)098-32-07',
+	    'adminEmail' => 'admin@easycast.ru',
 	    'hashSalt'   => '68xc7mtux0',
 	),
 	
