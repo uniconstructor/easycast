@@ -10,7 +10,8 @@ class EventController extends Controller
 {
     /**
      * @deprecated
-     * @todo перемещено в VacancyController, удалить при рефакторинге
+     * @todo перемещено в VacancyController, удалить при рефакторинге 
+     * @todo удаление не потребуется если здесь можно сделать редирект (проверить)
      */
     public function actionAddApplication()
     {
