@@ -66,15 +66,12 @@ class EventController extends Controller
     }
     
     /**
-     * Отобразить событие
+     * Отобразить событие (редирект для совместимости)
      * @param int $id
-     *
-     * @deprecated
-     * @todo удалить при рефакторинге, не используется
      */
     public function actionView($id)
     {
-        throw new CHttpException('500', 'DEPRECATED');
+        $this->redirect(Yii::app()->createUrl('/projects/projects/view', array('eventid' => $id)));
     }
     
     /**
@@ -87,7 +84,7 @@ class EventController extends Controller
         $model = ProjectEvent::model()->findByPk($id);
         if ( $model === null )
         {
-            throw new CHttpException(404,'Мероприятие не найдено id='.$id);
+            throw new CHttpException(404, 'Мероприятие не найдено id='.$id);
         }
         return $model;
     }
