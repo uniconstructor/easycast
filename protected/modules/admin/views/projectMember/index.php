@@ -1,4 +1,8 @@
 <?php
+/**
+ * Отображение списка заявок или участников
+ */
+
 $breadcrumbs = array();
 if ( $type == 'applications' )
 {
@@ -47,20 +51,16 @@ $breadcrumbs[] = $titleString;
 // составляем верхнее меню навигации
 $this->breadcrumbs=$breadcrumbs;
 
-/*$this->menu=array(
-	array('label'=>'Create ProjectMember','url'=>array('create')),
-	array('label'=>'Manage ProjectMember','url'=>array('admin')),
-);*/
 ?>
 
-<h1>Участники</h1>
+<h1><?= $titleString ?></h1>
 
 <?php
 
 $this->widget('admin.extensions.ProjectMembers.ProjectMembers',array(
-	'objectType'=>$viewMode,
-	'objectId'=>$objectid,
-    'displayType'=>$type,
+	'objectType'  => $viewMode,
+	'objectId'    => $objectid,
+    'displayType' => $type,
 )); 
 
 ?>
