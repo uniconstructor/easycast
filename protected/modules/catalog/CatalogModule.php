@@ -12,31 +12,41 @@
  */
 class CatalogModule extends CWebModule
 {
-    
     /**
-     * @var string - имя типа главных разделов каталога. Используется в объекте DefaultScope
+     * @var string - Nип главных разделов каталога. Используется в объекте DefaultScope,
+     *               при сохранении критериев выборки анкет в раздел.
      *               Все разделы этого типа будут считаться главными разделами каталога и
      *               отображаться в верхнем меню
      */
     const BASE_SECTION_TYPE = 'catalog|section';
     
+    /**
+     * @var string - Тип вкладок каталога. Используется в объекте DefaultScope,
+     *               при сохранении критериев выборки анкет в раздел.
+     */
     const BASE_TAB_TYPE = 'catalog|tab';
     
     /**
-     * @var int - количество анкет на странице
+     * @var int - количество анкет на одной странице или вкладке каталога
      */
     const PAGE_ITEMS_COUNT = 24;
     
     /**
-     * @property string the path to the layout file to use for displaying module
+     * @var string - Префикс, который добавляется ко всем полям формы поиска, чтобы избежать 
+     *               конфликта имен input-полей на странице.
+     *               Этот параметр постоянно нужен в разных модулях, поэтому он вынесен сюда
      */
-    //public $layout = 'application.layouts.main';
+    const SEARCH_FIELDS_PREFIX = 'QSearch';
+    
     /**
      * @var string - путь к расширению "ESearchScopes" (критерии поиска)
      *                предполагается, что расширение уже установлено на момент установки и запуска каталога
      */
     public $searchScopesPath = 'application.extensions.ESearchScopes.';
     
+    /**
+     * @var array
+     */
     public $controllerMap = array(
         'default' => array(
             'class'=>'application.modules.catalog.controllers.CatalogController',
@@ -58,6 +68,10 @@ class CatalogModule extends CWebModule
 		));
 	}
 
+	/**
+	 * (non-PHPdoc)
+	 * @see CWebModule::beforeControllerAction()
+	 */
 	public function beforeControllerAction($controller, $action)
 	{
 		if(parent::beforeControllerAction($controller, $action))
