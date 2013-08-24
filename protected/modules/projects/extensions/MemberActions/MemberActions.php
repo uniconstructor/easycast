@@ -8,6 +8,7 @@
  * 
  * @todo языковые строки
  * @todo сообщения
+ * @todo включить мозг и придумать общий родительский класс для VacancyActions и MemberActions
  */
 class MemberActions extends CWidget
 {
@@ -38,13 +39,6 @@ class MemberActions extends CWidget
     public $messageClass = 'alert alert-info';
     
     /**
-     * @var array - список кнопок, которые нужно отобразить.
-     *              (названия кнопок совпадают с названиями статусов, в которые переходит заявка, так удобнее)
-     *              'canceled', 'draft', 'pending', 'active', 'rejected', 'succeed', 'failed'
-     */
-    protected $buttons = array();
-    
-    /**
      * @var string - id тега, содержащего текст сообщения
      */
     protected $messageId;
@@ -53,6 +47,13 @@ class MemberActions extends CWidget
      * @var string 
      */
     protected $messageStyle = 'display:none;';
+    
+    /**
+     * @var array - список кнопок, которые нужно отобразить.
+     *              (названия кнопок совпадают с названиями статусов, в которые переходит заявка, так удобнее)
+     *              'canceled', 'draft', 'pending', 'active', 'rejected', 'succeed', 'failed'
+     */
+    protected $buttons = array();
     
     /**
      * (non-PHPdoc)
@@ -101,7 +102,7 @@ class MemberActions extends CWidget
         $this->buttons = $this->member->getAllowedStatuses();
         
         foreach ( $this->buttons as $id => $buttonType )
-        {// оставляем только те, на которые есть права
+        {// оставляем только те кнопки, на которые есть права
             if ( ! $this->isAllowed($buttonType) )
             {
                 unset($this->buttons[$id]);

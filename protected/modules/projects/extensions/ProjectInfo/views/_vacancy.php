@@ -2,18 +2,17 @@
 /**
  * Отображение одной вакансии
  */
-$style = 'display:none;';
-if ( $messageText )
-{
-    $style = '';    
-}
 ?>
 <div class="row span6">
     <h4><?= CHtml::encode($vacancy->name); ?></h4>
     <p><?= $vacancy->description; ?></p>
-    <div id="vacancy_message_<?= $vacancy->id; ?>" class="<?= $messageClass; ?>" style="<?= $style; ?>">
-        <?= $messageText; ?>
-    </div>
-    <p><?= $addAppllicationButton; ?></p>
+    <?php
+    // отображаем кнопки "подать заявку" и "отозвать заявку" 
+    $this->widget('application.modules.projects.extensions.VacancyActions.VacancyActions',
+        array(
+            'vacancy' => $vacancy,
+            'mode'    => 'normal',
+        ));
+    ?>
     <hr>
 </div>

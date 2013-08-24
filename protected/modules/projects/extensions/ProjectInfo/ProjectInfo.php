@@ -281,7 +281,7 @@ class ProjectInfo extends CWidget
         }
     
         switch ( $name )
-        {
+        {// определяем, из какой вкладки отображать информацию
             case 'main':      $content = $this->getProjectMainTab(); break;
             case 'photo':     $content = $this->getProjectPhotoTab(); break;
             case 'video':     $content = $this->getProjectVideoTab(); break;
@@ -484,10 +484,10 @@ class ProjectInfo extends CWidget
         }
         
         if ( $type == 'project' )
-        {
+        {// все вакансии проекта
             $vacancies = $this->project->getAvailableVacancies();
         }else
-        {
+        {// все вакансии мероприятия
             $vacancies  = $this->event->activevacancies;
         }
         
@@ -511,38 +511,18 @@ class ProjectInfo extends CWidget
      * @return string
      * 
      * @todo разрешить отзывать заявки, причем только не одобренные
-     * @todo выводить сообщение если заявка уже подана
      * @todo если вакансия создана для группы - то выводить специальное сообщение со списком мероприятий
      *       к которым она принадлежит
      */
     protected function displayVacancyInstance($vacancy)
     {
-        $addAppllicationButton    = '';
-        $removeAppllicationButton = '';
-        $messageClass = '';
-        $messageText  = '';
-        
-         
-        if ( ! $vacancy->hasApplication() )
-        {// у участника уже есть заявка на эту вакансию
-            $removeAppllicationButton = $this->createRemoveApplicationButton($vacancy->id);
-        }else
-        {// заявки на участие нет
-            if ( $vacancy->isAvailableForUser() )
-            {// если участник проходит по указанным в вакансии критериям - покажем ему кнопку подачи заявки
-                $addAppllicationButton = $this->createAddAppllicationButton($vacancy->id);
-            }else
-            {// а если не подходит - то даже вакансию ему не покажем
-                return '';
-            }
+        if ( ! $vacancy->isAvailableForUser(null, true) )
+        {// участник не проходит по критериям вакансии - не покажем ее
+            return '';
         }
         
         return $this->render('_vacancy', array(
             'vacancy' => $vacancy,
-            'messageClass' => $messageClass,
-            'messageText'  => $messageText,
-            'addAppllicationButton'    => $addAppllicationButton,
-            'removeAppllicationButton' => $removeAppllicationButton,
         ), true);
     }
     
