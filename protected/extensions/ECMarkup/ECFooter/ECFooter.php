@@ -35,7 +35,7 @@ class ECFooter extends CWidget
     {
         echo '<div id="footer">';
         // Используем стили Twitter Bootstrap для того чтобы сделать резиновую верстку блоков в подвале
-        echo '<div class="row-fluid show-grid">';
+        echo '<div class="row">';
         // Выводим горизонтальную полоску
         echo '<div class="span12"><hr noshade size="2" style="border-color:white;"></div>';
         echo '</div>';

@@ -74,7 +74,13 @@ class ECHeader extends CWidget
      */
     protected function printLogo()
     {
-        echo '<div class="span4 offset2">';
+        if ( ! $this->displayContacts AND ! $this->displayloginTool AND ! $this->displayInformer )
+        {
+            echo '<div class="span6 offset3">';
+        }else
+        {
+            echo '<div class="span4 offset2">';
+        }
         echo '<div id="logo" class="easycast-logo">';
         echo CHtml::link(CHtml::image('/images/logo-75x330.png').'', Yii::app()->getBaseUrl(true));
         echo '</div>';
@@ -86,12 +92,12 @@ class ECHeader extends CWidget
      */
     public function printContacts()
     {
-        echo '<div class="span2">';
         if ( $this->displayContacts )
         {
+            echo '<div class="span2">';
             $this->widget('application.extensions.ECMarkup.ECContacts.ECContacts');
+            echo '</div>';
         }
-        echo '</div>';
     }
     
     /**
@@ -104,6 +110,9 @@ class ECHeader extends CWidget
         if ( $this->displayInformer )
         {
             $this->widget('application.extensions.ECMarkup.ECMainInformer.ECMainInformer');
+        }else
+        {
+            echo '<div class="offset2"></div>';
         }
     }
 }
