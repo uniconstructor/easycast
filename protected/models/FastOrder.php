@@ -1,7 +1,8 @@
 <?php
 
 /**
- * This is the model class for table "{{fast_orders}}".
+ * Модель для работы с обычными или срочными  заказами
+ * Таблица "{{fast_orders}}".
  *
  * The followings are the available columns in table '{{fast_orders}}':
  * @property integer $id
@@ -134,8 +135,6 @@ class FastOrder extends CActiveRecord
 	 */
 	public function relations()
 	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
 		return array(
 		    'solver'   => array(self::BELONGS_TO, 'User', 'solverid'),
 		    'customer' => array(self::BELONGS_TO, 'User', 'customerid'),
@@ -183,9 +182,6 @@ class FastOrder extends CActiveRecord
 	 */
 	public function search()
 	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
-
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
