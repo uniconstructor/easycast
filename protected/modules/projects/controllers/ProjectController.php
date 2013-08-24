@@ -1,30 +1,32 @@
 <?php
 
 /**
- * Класс для отображения информации о проекте пользователю
- * @todo удалить, действия просмотра, оставить только обработку AJAX-запросов
+ * Контроллер для работы с одним проектом. В основном используется для обработки AJAX-запросов.
  */
 class ProjectController extends Controller
 {
+    /**
+     * Отображение одного проекта
+     * (редирект для совместимости)
+     */
     public function actionView($id)
     {
-        $model = $this->loadModel($id);
-        $this->render('view', array(
-            'model' => $model,
-            )
-        );
+        $this->redirect(Yii::app()->createUrl('/projects/projects/view', array('id' => $id)));
     }
     
     /**
-     * Returns the data model based on the primary key given in the GET variable.
-     * If the data model is not found, an HTTP exception will be raised.
-     * @param integer the ID of the model to be loaded
-     */
+	 * Получить модель проекта или отобразить сообщение о том что проект не найден
+	 * @param int $id
+	 * @throws CHttpException
+	 * @return Project
+	 */
     public function loadModel($id)
     {
-        $model=Project::model()->findByPk($id);
-        if($model===null)
-            throw new CHttpException(404,'The requested page does not exist.');
-        return $model;
+        $model = Project::model()->findByPk($id);
+	    if ( $model === null )
+	    {
+	        throw new CHttpException(404, 'Проект не найден');
+	    }
+	    return $model;
     }
 }
