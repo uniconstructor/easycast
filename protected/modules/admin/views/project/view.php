@@ -1,4 +1,8 @@
 <?php
+/**
+ * Отображение одного проекта в админке
+ */
+
 $this->breadcrumbs=array(
     'Администрирование' =>array('/admin'),
 	'Проекты'=>array('/admin/project/admin'),
