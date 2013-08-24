@@ -39,6 +39,25 @@ class Project extends CActiveRecord
      */
     const MAX_GALLERY_PHOTOS = 10;
     
+    /**
+     * @var string - статус проекта: черновик. Проект только что создан. Необходимая инофрмация еще либо не внесена
+     *               либо вносится в данный момент. Проект в этом статусе можно удалить.
+     */
+    const STATUS_DRAFT    = 'draft';
+    /**
+     * @var string - статус проекта: внесена вся информация (проект готов к запуску).
+     *               Все мероприятия и вакансии (роли) созданы и описаны.
+     */
+    const STATUS_FILLED   = 'filled';
+    /**
+     * @var string - статус проекта: активен. Проект опубликован, идет набор людей или съемки.
+     */
+    const STATUS_ACTIVE   = 'active';
+    /**
+     * @var string - статус проекта: завершен.
+     */
+    const STATUS_FINISHED = 'finished';
+    
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
@@ -269,9 +288,11 @@ class Project extends CActiveRecord
 		$criteria->compare('isfree',$this->isfree);
 		$criteria->compare('memberscount',$this->memberscount,true);
 		$criteria->compare('status',$this->status,true);
+		$criteria->order = 'timecreated DESC';
 
 		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
+			'criteria'   => $criteria,
+		    'pagination' => false,
 		));
 	}
 	
@@ -378,6 +399,10 @@ class Project extends CActiveRecord
 	    if ( ! $status )
 	    {
 	        $status = $this->status;
+	    }
+	    if ( ! in_array($status, array(self::STATUS_ACTIVE, self::STATUS_DRAFT, self::STATUS_FILLED, self::STATUS_FINISHED)) )
+	    {
+	        return '';
 	    }
 	    return ProjectsModule::t('project_status_'.$status);
 	}
@@ -547,7 +572,7 @@ class Project extends CActiveRecord
 	    $nophoto = Yii::app()->getBaseUrl(true).'/images/nophoto.png';
 	    if ( ! $avatar = $this->getGalleryCover() )
 	    {// изображения проекта нет
-	        return $nophoto;
+	        return '';
 	    }
 	
 	    // Изображение загружено - получаем самую маленькую версию
