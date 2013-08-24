@@ -40,42 +40,67 @@
  * @todo документировать все константы типов мероприятия
  * @todo решить, что делать при удалении группы: удалять все дочерние мероприятия или просто убирать их из группы
  * @todo прописать все статусы константами 
+ * @todo перенести defaultTimeStart и defaultTimeEnd, а также функцию получения событий для календаря в модуль календаря
  */
 class ProjectEvent extends CActiveRecord
 {
+    // типы мероприятия
     /**
      * @var int - максимальное количество фотогрфвий в галерее мероприятия
      */
     const MAX_GALLERY_PHOTOS = 10;
     
     /**
-     * @var string - 
+     * @var string - тип мероприятия: отсутствует (обычное мероприятие)
      */
     const TYPE_EVENT      = 'event';
     /**
-     * @var string -
+     * @var string - тип мероприятия: группа мероприятий. Не является съемочным днем, в отличии от остальных типов.
+     *               Мероприятия такого типа служат контейнерами, в которые собираются другие мероприятия.
+     *               Группы не имеют дат начала и окончания.
+     *               Если для группы создается вакансия - то это означает, что участник подавая заявку 
+     *               обязуется присутствовать на всех мероприятиях группы.
+     *               Мероприятия группы активируются только вместе с ней (но завершаться могут отдельно).
      */
     const TYPE_GROUP      = 'group';
     /**
-     * @var string -
+     * @var string - тип мероприятия: кастинг. Вакансии для такого меропритятия могут создаваться без оплаты.
+     *               Итог кастинга для участника определяется конечным статусом заявки:
+     *               успешно завершена (succeed) - участник прошел кастинг
+     *               неуспешно завершена (failed) - участник не прошел кастинг или вообще не пришел на него
      */
     const TYPE_CASTING    = 'casting';
     /**
-     * @var string -
+     * @var string - тип мероприятия: фотосессия (например перед кастингом)
      */
     const TYPE_PHOTO      = 'photo';
     /**
-     * @var string -
+     * @var string - тип мероприятия: репетиция.
      */
     const TYPE_REPETITION = 'repetition';
     /**
-     * @var string -
+     * @var string - тип мероприятия: генеральная репетиция. Присутствие строго обязательно.
      */
     const TYPE_PRESHOW    = 'preshow';
     /**
-     * @var string -
+     * @var string - тип мероприятия: съемки. Главный день группы событий или проекта.
+     *               Присутствие строго обязательно.
      */
     const TYPE_SHOW       = 'show';
+    
+    // статусы мероприятия
+    /**
+     * @var string - 
+     */
+    const STATUS_DRAFT    = 'draft';
+    /**
+     * @var string -
+     */
+    const STATUS_ACTIVE   = 'active';
+    /**
+     * @var string -
+     */
+    const STATUS_FINISHED = 'finished';
     
 	/**
 	 * Returns the static model of the specified AR class.
@@ -205,7 +230,7 @@ class ProjectEvent extends CActiveRecord
 			array('name', 'length', 'max'=>255),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, projectid, name, description, timestart, timeend, timecreated, timemodified, addressid, status', 'safe', 'on'=>'search'),
+			//array('id, projectid, name, description, timestart, timeend, timecreated, timemodified, addressid, status', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -226,10 +251,10 @@ class ProjectEvent extends CActiveRecord
 		    // группа мероприятия (если это мероприятие входит в группу)
 		    'group' => array(self::BELONGS_TO, 'ProjectEvent', 'parentid'),
 		    // Вакансии мероприятия
-		    'vacancies' => array(self::HAS_MANY, 'EventVacancy', 'eventid'),
+		    'vacancies' => array(self::HAS_MANY, 'EventVacancy', 'eventid', 'order' => "`vacancies`.`name` ASC"),
 		    // активные вакансии мероприятия
 		    'activevacancies' => array(self::HAS_MANY, 'EventVacancy', 'eventid',
-		        'condition' => "`activevacancies`.`status`='active'"),
+		        'condition' => "`activevacancies`.`status`='active'", 'order' => "`activevacancies`.`name` ASC"),
 		    // Приглашения на мероприятие
 		    'invites' => array(self::HAS_MANY, 'EventInvite', 'eventid'),
 		    // Видео c мероприятия
@@ -311,43 +336,33 @@ class ProjectEvent extends CActiveRecord
 	public function getCalendarEvents($timeStart=null, $timeEnd=null, $projectId=null, 
 	                                        $userId=null, $projectType=null, $onlyActive=false)
 	{
+	    $events   = array();
 	    $criteria = new CDbCriteria();
+	    // не выводим в календаре мероприятия без дат
+	    $criteria->compare('nodates', 0);
+	    // не выводим группы
+	    $criteria->compare('type', "<>group");
 	    $criteria->order = '`timestart` ASC';
-	    $events = array();
-	    // Защита сервера от перегрузки: не даем запрашивать события бальше чем за 3 месяца
-	    $defaultTimeStart = time();
-	    $defaultTimeEnd   = $timeStart + 3*31*24*3600;
 	    
-	    $timeStart = intval($timeStart);
-	    $timeEnd   = intval($timeEnd);
-	    if ( ! $timeStart )
-	    {
-	        $timeStart = $defaultTimeStart;
-	    }
-	    if ( ! $timeEnd )
-	    {
-	        $timeEnd = $defaultTimeEnd;
-	    }
-	    if ( $timeEnd - $timeStart > 3*31*24*3600 )
-	    {
-	        $timeStart = $defaultTimeStart;
-	        $timeEnd = $defaultTimeEnd;
-	    }
-	    $statuses = array('active', 'finished');
+	    // устанавливаем стандартный интервал времени для запроса событий (если он не указан пользователем)
+	    $timeStart = $this->getDefaultTimeStart($timeStart);
+	    $timeEnd   = $this->getDefaultTimeEnd($timeEnd);
+	    
 	    if ( $onlyActive )
-	    {
-	        $statuses = array('active');
+	    {// нужны только активные мероприятия
+	        $criteria->addInCondition('status', array('active'));
+	    }else
+	    {// нужны все мероприятия
+	        $criteria->addInCondition('status', array('active', 'finished'));
 	    }
 	    
 	    // составляем запрос к базе
-	    // статус мероприятий
-	    $criteria->addInCondition('status', $statuses);
-	    // Временной отрезок (учитываем только время начала чтобы все влезло в календарь)
+	    // Временной отрезок (учитываем только время начала события чтобы все влезло в календарь)
 	    //$criteria->compare('timestart', '>='.$timeStart);
 	    //$criteria->compare('timestart', '<='.$timeEnd);
-	    // тип проекта
+	    
 	    if ( $projectType )
-	    {
+	    {// нужны только мероприятия определенного типа
 	        $criteria->with = 'project';
 	        if ( is_array($projectType) )
 	        {
@@ -357,23 +372,22 @@ class ProjectEvent extends CActiveRecord
 	            $criteria->compare('project.type', $projectType);
 	        }
 	    }
-	    // id проекта
+	    
 	    if ( $projectId )
-	    {
+	    {// выбрать только мероприятия определенного проекта
 	        $criteria->compare('projectid', $projectId);
 	    }
 	    
-	    // id участника
 	    if ( $userId )
-	    {
-	        if ( ! ( Yii::app()->getModule('user')->user()->id == $userId OR Yii::app()->user->isSuperuser ) )
+	    {// выбрать только мероприятия, в которых участвует пользователь
+	        if ( ! ( Yii::app()->getModule('user')->user()->id == $userId OR Yii::app()->user->checkAccess('Admin') ) )
 	        {// разрешаем смотреть календарь пользователя только самому пользователю или админу
-	            return;
+	            return CJSON::encode(array());
 	        }
 	        
 	        // оставляем только те события, в которых участвует пользователь
 	        $recordset = $this->model()->findAll($criteria);
-	        $records = array();
+	        $records   = array();
 	        foreach ( $recordset as $record )
 	        {
 	            if ( $record->hasMember($userId) )
@@ -383,7 +397,7 @@ class ProjectEvent extends CActiveRecord
 	        }
 	    }else
         {
-           $records = $this->model()->findAll($criteria);
+            $records = $this->model()->findAll($criteria);
         }
         
         // Конвертируем события в формат календаря
@@ -397,8 +411,9 @@ class ProjectEvent extends CActiveRecord
 	 * @param array $events
 	 * @return string
 	 * 
-	 * @todo придумать как сделать события на несколько дней
 	 * @todo убрать ссылку когда будет сделано всплывающее окно в календаре
+	 * @todo убрать хак со сдвигом времени в календаре, когда будет понятно как надежно установить
+	 *       временную зону на сервере
 	 */
 	protected function convertEventsToCalendar($events)
 	{
@@ -406,12 +421,13 @@ class ProjectEvent extends CActiveRecord
 	    foreach ( $events as $event )
 	    {
 	        $instance = array();
-	        $instance['id'] = $event->id;
-	        $instance['title'] = $event->name;
+	        $instance['id']     = $event->id;
+	        $instance['title']  = $event->name;
 	        $instance['allDay'] = false;
-	        $instance['start'] = $event->timestart;
-	        $instance['end'] = $event->timeend;
-	        $instance['url'] =  Yii::app()->createUrl('//projects/projects/view', array('eventid' => $event->id));
+	        // FIXME временно подгоняем даты событий под московское время пока не настроим сервер нормально
+	        $instance['start']  = $event->timestart - 4 * 3600;
+	        $instance['end']    = $event->timeend - 4 * 3600;
+	        $instance['url']    =  Yii::app()->createUrl('//projects/projects/view', array('eventid' => $event->id));
 	        //$instance['className'] = $event->;
 	        $instance['editable'] = false;
 	        
@@ -584,6 +600,55 @@ class ProjectEvent extends CActiveRecord
 	}
 	
 	/**
+	 * Получить метку времени, начиная с которой запрашивать события для календаря
+	 * @param string $neededTimeStart
+	 * @return int
+	 */
+	public function getDefaultTimeStart($neededTimeStart=null)
+	{
+	    $defaultTimeStart = time();
+	     
+	    if ( ! $neededTimeStart )
+	    {
+	        $timeStart = $defaultTimeStart;
+	    }else
+	    {
+	        $timeStart = $neededTimeStart;
+	    }
+	    $timeStart = intval($timeStart);
+	    
+	    return $timeStart;
+	}
+	
+	/**
+	 * Получить метку времени, после которой события из календаря запрашивать уже не нужно
+	 * @param string $neededTimeEnd - запрошенное пользователем время окончания мероприятия
+	 * @return int
+	 * 
+	 * @todo сделать интервал запроса настройкой
+	 */
+	public function getDefaultTimeEnd($timeStart, $neededTimeEnd=null)
+	{
+	    $defaultTimeEnd = $timeStart + 3*31*24*3600;
+	    if ( ! $neededTimeStart )
+	    {// пользователь не указал окончание временного периода - устанавливаем по умолчанию
+	        $timeEnd = $defaultTimeEnd;
+	    }else
+	    {
+	        $timeEnd = $neededTimeEnd;
+	    }
+	    
+	    $timeEnd = intval($timeEnd);
+	    // Защита сервера от перегрузки: не даем запрашивать события больше чем за 3 месяца
+	    if ( $timeEnd - $timeStart > 3*31*24*3600 )
+	    {// запрашиваются мероприятия за период больше разрешенного - непорядок
+	        $timeEnd   = $defaultTimeEnd;
+	    }
+	    
+	    return $timeEnd;
+	}
+	
+	/**
 	 * Определить, закончилось ли мероприятие
 	 * @return boolean
 	 */
@@ -666,8 +731,9 @@ class ProjectEvent extends CActiveRecord
 	{
 	    $types = array();
 	    $types[self::TYPE_EVENT] = 'Нет (обычное мероприяте)';
-	    if ( $this->isNewRecord OR $ignoreRestrictions )
+	    if ( $this->isNewRecord OR ! $this->events OR $ignoreRestrictions )
 	    {// группу можно указать только при создании новой записи
+	        // и изменить этот тип, только если в ней еще нет ни одного мероприятия
 	        $types[self::TYPE_GROUP] = 'Группа мероприятий';
 	    }
 	    $types[self::TYPE_CASTING]    = 'Кастинг';

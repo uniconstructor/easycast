@@ -21,8 +21,8 @@ class MemberRequest extends ProjectMember
     public function defaultScope()
     {
         return array(
-            'condition' => 'status="draft"',
-            'order' => 'timecreated DESC');
+            'condition' => "`status`='draft' OR `status`='pending'",
+            'order'     => '`timecreated` DESC');
     }
     
     /**
@@ -33,10 +33,10 @@ class MemberRequest extends ProjectMember
     {
         return array(
             'rejected'=>array(
-                'condition'=>'status='.self::STATUS_REJECTED,
+                'condition'=>"`status` = ".self::STATUS_REJECTED."'",
             ),
             'draft' =>array(
-                'condition'=>'status='.self::STATUS_DRAFT,
+                'condition'=>"`status` = '".self::STATUS_DRAFT."'",
             ),
         );
     }

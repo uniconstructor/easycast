@@ -17,8 +17,8 @@
  * @property string $status
  * 
  * Relations:
- * @property Questionary $member
- * @property User $manager
+ * @property Questionary  $member
+ * @property User         $manager
  * @property EventVacancy $vacancy
  */
 class ProjectMember extends CActiveRecord
@@ -28,29 +28,44 @@ class ProjectMember extends CActiveRecord
      */
     const STATUS_DRAFT     = 'draft';
     /**
+     * @var string - статус заявки: ждет решения режиссера. Заявка рассмотрена нами и предварительно отобрана.
+     *               Этот статус используется в случае, когда актеров на мероприятие отбираем не мы, а другой
+     *               человек (например режиссер).
+     *               Заявка в этом статусе все еще может быть отклонена, но уже не нами, а режиссером.
+     */
+    const STATUS_PENDING   = 'pending';
+    /**
      * @var string - статус заявки: одобрена. Заявка подана участником, рассмотрена и одобрена.
      *               Все участники с такими заявками считаются участниками проекта.
      */
     const STATUS_ACTIVE    = 'active';
-    /**
-     * @var string - статус заявки: заморожена. Заявка подана участником, не рассмотрена и проект
-     *               или мероприятие были приостановлены.
-     */
-    const STATUS_SUSPENDED = 'suspended';
     /**
      * @var string - статус заявки: отклонена. Заявка подана участником, рассмотрена и отклонена.
      */
     const STATUS_REJECTED  = 'rejected';
     /**
      * @var string - статус заявки: завершена. Заявка подана участником, рассмотрена и одобрена.
-     *               Участник пришел и работал на съемках проекта.
-     *               Этот статус нужен для того чтобы хранить историю участников.
+     *               Мероприятие завершилось.
+     *               Этот статус отмечает только сам факт окончания участия в мероприятии.
+     *               После окончания 
      */
     const STATUS_FINISHED  = 'finished';
     /**
      * @var string - статус заявки: отменена. Участник сам отменил свою заявку 
      */
     const STATUS_CANCELED  = 'canceled';
+    /**
+     * @var string - статус заявки: успешно завершена.
+     *               Для кастинга: участник прошел кастинг
+     *               Для остальных типов событий: участник пришел как и обещал (отмечена посещаемость)
+     */
+    const STATUS_SUCCEED   = 'succeed';
+    /**
+     * @var string - статус заявки: неуспешно завершена.
+     *               Для кастинга: участник не прошел кастинг или не пришел на него
+     *               Для остальных типов событий: участник не пришел на съемки
+     */
+    const STATUS_FAILED    = 'failed';
     
     /**
      * (non-PHPdoc)
@@ -196,8 +211,18 @@ class ProjectMember extends CActiveRecord
 	}*/
 	
 	/**
+	 * Событие "заявка предварительно отобрана"
+	 * @param CModelEvent $event
+	 * @return null
+	 */
+	public function onPending($event)
+	{
+	    $this->raiseEvent('onPending', $event);
+	}
+	
+	/**
 	 * Событие "заявка подтверждена"
-	 * @param unknown $event
+	 * @param CModelEvent $event
 	 * @return null
 	 */
 	public function onApprove($event)
@@ -207,12 +232,42 @@ class ProjectMember extends CActiveRecord
 	
 	/**
 	 * Событие "заявка подтверждена"
-	 * @param unknown $event
+	 * @param CModelEvent $event
 	 * @return null
 	 */
 	public function onReject($event)
 	{
 	    $this->raiseEvent('onReject', $event);
+	}
+	
+	/**
+	 * Событие "заявка отменена участником"
+	 * @param CModelEvent $event
+	 * @return null
+	 */
+	public function onCancel($event)
+	{
+	    $this->raiseEvent('onCancel', $event);
+	}
+	
+	/**
+	 * Событие "заявка успешно завершена"
+	 * @param CModelEvent $event
+	 * @return null
+	 */
+	public function onSucceed($event)
+	{
+	    $this->raiseEvent('onSucceed', $event);
+	}
+	
+	/**
+	 * Событие "заявка неуспешно завершена"
+	 * @param CModelEvent $event
+	 * @return null
+	 */
+	public function onFailed($event)
+	{
+	    $this->raiseEvent('onFailed', $event);
 	}
 	
 	/**
@@ -224,17 +279,43 @@ class ProjectMember extends CActiveRecord
 	{
 	    switch ( $this->status )
 	    {
+	        // черновик
 	        case self::STATUS_DRAFT:
-	            return array(self::STATUS_ACTIVE, self::STATUS_REJECTED, self::STATUS_CANCELED);
+	            return array(
+	                self::STATUS_PENDING,
+	                self::STATUS_ACTIVE,
+	                self::STATUS_REJECTED,
+	                self::STATUS_CANCELED,
+	            );
             break;
+            // предварительно одобрена
+            case self::STATUS_PENDING:
+                return array(
+                    self::STATUS_ACTIVE,
+                    self::STATUS_REJECTED,
+                );
+            break;
+            // одобрена
 	        case self::STATUS_ACTIVE:
-	            return array(self::STATUS_FINISHED, self::STATUS_REJECTED, self::STATUS_CANCELED);
+	            return array(
+	                self::STATUS_FINISHED,
+	                self::STATUS_REJECTED,
+	            );
             break;
+            // отклонена
             case self::STATUS_REJECTED:
                 return array(self::STATUS_ACTIVE);
             break;
+            // отменена
             case self::STATUS_CANCELED:
-                return array(self::STATUS_ACTIVE);
+                return array(self::STATUS_DRAFT);
+            break;
+            // завершена
+            case self::STATUS_FINISHED:
+                return array(
+                    self::STATUS_SUCCEED,
+                    self::STATUS_FAILED,
+                );
             break;
 	    }
 	
@@ -251,7 +332,7 @@ class ProjectMember extends CActiveRecord
 	    {
 	        $status = $this->status;
 	    }
-	    return ProjectsModule::t('event_status_'.$status);
+	    return ProjectsModule::t('member_status_'.$status);
 	}
 	
 	/**
@@ -267,14 +348,18 @@ class ProjectMember extends CActiveRecord
 	        return true;
 	    }
 	    if ( ! in_array($newStatus, $this->getAllowedStatuses()) )
-	    {
+	    {// недопустимый статус
 	        return false;
 	    }
 	    
 	    $this->status = $newStatus;
 	    $this->save();
 	    
-	    if ( $newStatus == self::STATUS_ACTIVE )
+	    if ( $newStatus == self::STATUS_PENDING )
+	    {// заявка предварительно одобрена
+	        $event = new CModelEvent($this);
+	        $this->onPending($event);
+	    }elseif ( $newStatus == self::STATUS_ACTIVE )
 	    {// заявка одобрена - отправляем письмо
 	        $event = new CModelEvent($this);
 	        $this->onApprove($event);
@@ -284,9 +369,9 @@ class ProjectMember extends CActiveRecord
 	        $this->onReject($event);
 	    }elseif ( $newStatus == self::STATUS_CANCELED )
 	    {// заявка отменена участником - отправляем письмо с подтверждением
-	        // @todo создать письмо и событие для этого случая
-	        //$event = new CModelEvent($this);
-	        //$this->onCancel($event);
+	        // @todo создать письмо для этого случая
+	        $event = new CModelEvent($this);
+	        $this->onCancel($event);
 	    }
 	    
 	    return true;
