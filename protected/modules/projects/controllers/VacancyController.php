@@ -77,6 +77,39 @@ class VacancyController extends Controller
     }
     
     /**
+     * Подать заявку на участие в мероприятии (указав определенную вакансию)
+     * Подача заявки происхочить через AJAX-запрос, методом POST
+     *
+     * @todo языковые строки
+     * @todo более подробная проверка прав
+     */
+    public function actionAddApplication()
+    {
+        if ( ! Yii::app()->request->isAjaxRequest OR ! Yii::app()->request->isPostRequest )
+        {// разрешаем только POST AJAX-запросы
+            throw new CHttpException(500, 'Only AJAX request allowed');
+        }
+        if ( Yii::app()->user->isGuest )
+        {// проверяем права
+            throw new CHttpException(500, 'Operation not permitted');
+        }
+        // получаем вакансию
+        $vacancyId = Yii::app()->request->getPost('vacancyid', 0);
+        $vacancy   = $this->loadModel($vacancyId);
+    
+        // Создаем и сохраняем новый запрос на участие
+        if ( $this->createApplication($vacancy) )
+        {
+            echo 'OR';
+        }else
+        {
+            echo 'ERROR';
+        }
+        
+        Yii::app()->end();
+    }
+    
+    /**
      * Returns the data model based on the primary key given in the GET variable.
      * If the data model is not found, an HTTP exception will be raised.
      * @param integer the ID of the model to be loaded

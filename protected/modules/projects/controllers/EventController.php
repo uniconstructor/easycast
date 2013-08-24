@@ -9,12 +9,8 @@
 class EventController extends Controller
 {
     /**
-     * Подать заявку на участие в мероприятии (указав определенную вакансию)
-     * Подача заявки происхочить через AJAX-запрос, методом POST
-     * 
-     * @todo языковые строки
-     * @todo более подробная проверка прав
-     * @todo переместить в VacancyController, убрать отсюда и переписать весь старый код, посылающий запросы сюда
+     * @deprecated
+     * @todo перемещено в VacancyController, удалить при рефакторинге
      */
     public function actionAddApplication()
     {
@@ -44,14 +40,8 @@ class EventController extends Controller
     }
     
     /**
-     * Создать заявку на участии в мероприятии
-     * (выполняется после всех проверок)
-     *  
-     * @param EventVacancy $vacancy
-     * @return null
-     * 
-     * @todo сделать проверку - не является ли текущий участник гостем, если questionaryid не указан
-     * @todo переместить в VacancyController
+     * @deprecated
+     * @todo перемещено в VacancyController, удалить при рефакторинге
      */
     protected function createApplication($vacancy, $questionaryId=null)
     {
