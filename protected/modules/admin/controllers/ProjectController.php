@@ -164,11 +164,17 @@ class ProjectController extends Controller
 	 */
 	public function actionIndex()
 	{
-		$dataProvider=new CActiveDataProvider('Project');
-		// @todo исправить вывод страниц, преобразовывать информацию к нужному виду напрямую в провайдере
-		$dataProvider->setPagination(array('pageSize' => 4096));
+		$dataProvider = new CActiveDataProvider('Project', array(
+		    'pagination' => false,
+		    )
+		);
+		// отображаем проекты начиная с самых новых
+		$criteria = new CDbCriteria();
+		$criteria->order = '`timecreated` DESC';
+		$dataProvider->setCriteria($criteria);
+		
 		$this->render('index',array(
-			'dataProvider'=>$dataProvider,
+			'dataProvider' => $dataProvider,
 		));
 	}
 
@@ -177,10 +183,13 @@ class ProjectController extends Controller
 	 */
 	public function actionAdmin()
 	{
-		$model=new Project('search');
+		$model = new Project('search');
 		$model->unsetAttributes();  // clear any default values
-		if(isset($_GET['Project']))
-			$model->attributes=$_GET['Project'];
+		
+		if ( isset($_GET['Project']) )
+		{
+		    $model->attributes = $_GET['Project'];
+		}
 
 		$this->render('admin',array(
 			'model'=>$model,

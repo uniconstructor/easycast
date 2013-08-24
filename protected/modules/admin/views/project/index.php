@@ -33,8 +33,8 @@ $this->widget('bootstrap.widgets.TbGridView', array(
     'dataProvider' => $arrayProvider,
     'template'=>"{items}{pager}",
     'columns'=>array(
-        array('name'=>'name', 'header'=>ProjectsModule::t('name'), 'type' => 'html'),
-        array('name'=>'typetext', 'header'=>ProjectsModule::t('project_type')),
+        array('name'=>'name',       'header'=>ProjectsModule::t('name'), 'type' => 'html'),
+        array('name'=>'typetext',   'header'=>ProjectsModule::t('project_type')),
         array('name'=>'statustext', 'header'=>ProjectsModule::t('status')),
     ),
 ));

@@ -11,8 +11,6 @@
 
 	<?php echo $form->textFieldRow($model,'description',array('class'=>'span5','maxlength'=>1023)); ?>
 
-	<?php echo $form->textFieldRow($model,'galleryid',array('class'=>'span5','maxlength'=>11)); ?>
-
 	<?php echo $form->textFieldRow($model,'timestart',array('class'=>'span5','maxlength'=>11)); ?>
 
 	<?php echo $form->textFieldRow($model,'timeend',array('class'=>'span5','maxlength'=>11)); ?>

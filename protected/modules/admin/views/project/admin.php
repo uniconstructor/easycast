@@ -31,17 +31,17 @@ $('.search-form form').submit(function(){
 или <b>=</b>) в начале строки.
 </p>
 
-<?php echo CHtml::link('Расширенный поиск','#',array('class'=>'search-button btn')); ?>
+<?php // echo CHtml::link('Расширенный поиск','#',array('class'=>'search-button btn')); ?>
 <div class="search-form" style="display:none">
 <?php $this->renderPartial('_search',array(
-	'model'=>$model,
+	'model' => $model,
 )); ?>
 </div><!-- search-form -->
 
 <?php $this->widget('bootstrap.widgets.TbGridView',array(
 	'id'=>'project-grid',
-	'dataProvider'=>$model->search(),
-	'filter'=>$model,
+	'dataProvider' => $model->search(),
+	'filter' => $model,
 	'columns'=>array(
 		//'id',
 		'name',
@@ -50,7 +50,6 @@ $('.search-form form').submit(function(){
 		'description',
 		'galleryid',
 		'timestart',
-		
 		'timeend',
 		'timecreated',
 		'timemodified',
@@ -59,7 +58,6 @@ $('.search-form form').submit(function(){
 		'orderid',
 		'isfree',
 		'memberscount',
-		,
 		*/
 		array(
 			'class'=>'bootstrap.widgets.TbButtonColumn',
