@@ -22,17 +22,23 @@ if ( $model->status == Project::STATUS_DRAFT )
 	        'csrf' => true),
     );
 }
-
-// @todo подтверждение перед сменой статуса
 if ( in_array('active', $model->getAllowedStatuses()) )
-{
+{// ссылка на активацию проекта
     $this->menu[] = array('label'=>'Запустить проект',
-        'url'=>array('/admin/project/setStatus', 'id'=>$model->id, 'status' => 'active'));
+        'url'=>array('/admin/project/setStatus', 'id'=>$model->id, 'status' => 'active'),
+        'linkOptions' => array(
+            'confirm' => 'Запустить проект "'.$model->name.'"? Это действие опубликует все мероприятия проекта и оповестит всех подходящих участников.',
+        ),
+    );
 }
 if ( in_array('finished', $model->getAllowedStatuses()) )
-{
+{// ссылка на завершение проекта
     $this->menu[] = array('label'=>'Завершить проект',
-        'url'=>array('/admin/project/setStatus', 'id'=>$model->id, 'status' => 'finished'));
+        'url'=>array('/admin/project/setStatus', 'id'=>$model->id, 'status' => 'finished'),
+        'linkOptions' => array(
+            'confirm' => 'Завершить проект "'.$model->name.'"? Это действие завершит все оставшиеся мероприятия и закроет все вакансии. Запустить проект заново будет нельзя.',
+        ),
+    );
 }
 
 $this->widget('bootstrap.widgets.TbAlert', array(

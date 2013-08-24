@@ -14,47 +14,60 @@ if ( $model->type == 'group' )
 
 $this->breadcrumbs=array(
     'Администрирование' =>array('/admin'),
-    'Проекты'=>array('/admin/project'),
-    'Проект "'.$model->project->name.'"'=>array('/admin/project/view', 'id' => $model->project->id),
+    'Проекты' => array('/admin/project'),
+    'Проект "'.$model->project->name.'"' => array('/admin/project/view', 'id' => $model->project->id),
 	$model->name,
 );
 
-$this->menu=array(
+$this->menu = array(
 	array('label'=>'Страница проекта','url'=>array('/admin/project/view', 'id' => $model->project->id)),
 	array('label'=>'Создать мероприятие','url'=>array('/admin/projectEvent/create', 'projectid'=>$model->project->id)),
 	array('label'=>'Редактировать','url'=>array('update','id'=>$model->id)),
-	// @todo решить, можно ли удалять мероприятие
-	/*array('label'=>'Удалить мероприятие','url'=>'#',
-	    'linkOptions' => array(
-	        'submit' => array('delete', 'id' => $model->id),
-	        'confirm' =>'Вы уверены, что хотите удалить это мероприятие?',
-	        'csrf' => true)),*/
     array('label'=>'Добавить вакансию','url'=>array('/admin/eventVacancy/create', 'eventid'=>$model->id)),
     array('label'=>'Заявки','url'=>array('/admin/projectMember/index', 'eventid'=>$model->id, 'type' => 'applications')),
     array('label'=>'Подтвержденные участники','url'=>array('/admin/projectMember/index', 'eventid'=>$model->id, 'type' => 'members')),
 );
 
+if ( $model->status == ProjectEvent::STATUS_DRAFT )
+{// разрешаем удалять мероприятие или группу в статусе "черновик"
+    $confirmDeleteText = 'Вы уверены, что хотите удалить это мероприятие?';
+    if ( $model->type == 'group' )
+    {
+        $confirmDeleteText = 'Вы уверены, что хотите удалить эту группу? Все входящие в нее мероприятия также будут удалены.';
+    }
+    $this->menu[] = array('label'=>'Удалить мероприятие','url'=>'#',
+	    'linkOptions' => array(
+	        'submit'  => array('delete', 'id' => $model->id),
+	        'confirm' => $confirmDeleteText,
+	        'csrf' => true)
+    );
+}
+
 if ( in_array('active', $model->getAllowedStatuses()) )
-{
+{// ссылка на активацию мероприятия
     $this->menu[] = array('label'=>'Опубликовать мероприятие',
-        'url'=>array('/admin/projectEvent/setStatus', 'id'=>$model->id, 'status' => 'active'),
+        'url'=>array('/admin/projectEvent/setStatus', 'id' => $model->id, 'status' => 'active'),
         'linkOptions' => array(
             'confirm' => 'Это действие оповестит всех подходящих участников о начале съемок. Все вакансии мероприятия также будут активированы. ВНИМАНИЕ: после публикации мероприятия редактировать критерии отбора людей будет нельзя. На всякий случай проверьте все вакансии. Опубликовать мероприятие "'.$model->name.'"?',
         ),
     );
 }
 if ( in_array('finished', $model->getAllowedStatuses()) )
-{
+{// ссылка на завершение мероприятия
     $this->menu[] = array('label'=>'Завершить мероприятие',
-        'url'=>array('/admin/projectEvent/setStatus', 'id'=>$model->id, 'status' => 'finished'));
+        'url' => array('/admin/projectEvent/setStatus', 'id' => $model->id, 'status' => 'finished'),
+        'linkOptions' => array(
+            'confirm' => 'Завершить мероприятие "'.$model->name.'"?',
+        ),
+    );
 }
-
+// сообщение о смене статуса
 $this->widget('bootstrap.widgets.TbAlert', array(
-    'block'=>true, // display a larger alert block?
-    'fade'=>true, // use transitions?
-    'closeText'=>'&times;', // close link text - if set to false, no close link is displayed
-    'alerts'=>array( // configurations per alert type
-        'success'=>array('block'=>true, 'fade'=>true, 'closeText'=>'&times;'), // success, info, warning, error or danger
+    'block'     => true, // display a larger alert block?
+    'fade'      => true, // use transitions?
+    'closeText' => '&times;', // close link text - if set to false, no close link is displayed
+    'alerts' => array( // configurations per alert type
+        'success' => array('block'=>true, 'fade'=>true, 'closeText'=>'&times;'), // success, info, warning, error or danger
     ),
 ));
 
@@ -122,19 +135,7 @@ if ( $model->type == 'group' )
 <h2><?= $vacanciesTitle; ?></h2>
 <?php 
 
-/*$elements = array();
-foreach ( $model->vacancies as $vacancy )
-{
-    $url = Yii::app()->createUrl("/admin/eventVacancy/view", array("id" => $data->id));
-    $element = array();
-    $element['id'] = $vacancy->id;
-    $element['name'] = CHtml::link($vacancy->name, $url);
-    $element['status'] = $vacancy->statustext;
-    $element['limit'] = $vacancy->limit;
-    $elements[] = $element;
-}
-$arrayProvider = new CArrayDataProvider($elements);
-*/
+// Список всех вакансий
 $vacanciesList = new CActiveDataProvider('EventVacancy', array(
         'data' => $model->vacancies,
         'pagination' => false,
@@ -152,8 +153,13 @@ $this->widget('bootstrap.widgets.TbGridView', array(
         ),
         array(
             'name'   => 'limit',
-            'header' => ProjectsModule::t('vacancy_limit'),
-            'value'  => '"(".$data->membersCount."/".$data->limit.") [Заявки: ".$data->requestsCount."]"',
+            'header' => 'Заполнение',
+            'value'  => '"(".$data->membersCount." из ".$data->limit.") [Заявки: ".$data->requestsCount."]"',
+        ),
+        array(
+            'name'   => 'salary',
+            'header' => 'Оплата за день',
+            'value'  => '$data->salary." р."',
         ),
         array('name'=>'status', 'header'=>ProjectsModule::t('status')),
     ),
@@ -169,6 +175,7 @@ if ( $model->type == 'group' )
         'data' => $model->events,
         'pagination' => false,
     ));
+    
     $this->widget('bootstrap.widgets.TbGridView', array(
         'type'         => 'striped bordered condensed',
         'dataProvider' => $eventsList,
@@ -189,9 +196,12 @@ if ( $model->type == 'group' )
                 'header' => ProjectsModule::t('timeend'),
                 'value' => 'Yii::app()->getDateFormatter()->format("d MMMM yyyy, HH:mm", $data->timeend)',
             ),
-            /*array(
+            /*
+            @todo непонятно как размер оплаты оказался в модели мероприятия. Удалить его оттуда
+            array(
                 'name' => 'salary',
                 'header' => $model->getAttributeLabel('salary'),
+                'value' => '$data->salary',
             ),*/
             array('name'=>'status', 'header'=>ProjectsModule::t('status')),
         ),

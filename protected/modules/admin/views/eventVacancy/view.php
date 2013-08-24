@@ -29,7 +29,6 @@ if ( $model->status == EventVacancy::STATUS_DRAFT )
             'csrf' => true),
         );
 }
-
 if ( in_array('active', $model->getAllowedStatuses()) )
 {// ссылка на активацию вакансии
     $this->menu[] = array('label'=>'Открыть вакансию',
