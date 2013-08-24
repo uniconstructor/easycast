@@ -6,9 +6,9 @@
  */
 
 $this->pageTitle=Yii::app()->name . ' - '.UserModule::t("Registration");
-$this->breadcrumbs = array(
+/*$this->breadcrumbs = array(
 	UserModule::t("Registration"),
-);
+);*/
 // убираем из заголовка все лишнее
 $this->ecHeaderOptions = array(
     'displayContacts'  => false,
@@ -23,8 +23,8 @@ $this->ecHeaderOptions = array(
 </div>
 <?php else: ?>
 
-<div class="form span6">
-    <h1><?php echo UserModule::t("Registration"); ?></h1>
+<div class="form span6 offset3">
+    <h1 style="text-align:center;"><?php echo UserModule::t("Registration"); ?></h1>
     <div class="alert alert-info">
         Для регистрации достаточно ввести только почту и проверочный код.
     </div>
@@ -97,7 +97,7 @@ $this->ecHeaderOptions = array(
         <?php $this->endWidget();?>
     </div>
     <!-- Конец скрытого блока -->
-    
+    <div style="display:block;text-align:center;">
     <?php // кнопка регистрации 
 	    $this->widget('bootstrap.widgets.TbButton',
             array('buttonType'=>'submit',
@@ -106,7 +106,7 @@ $this->ecHeaderOptions = array(
                   'htmlOptions' => array('class' => 'btn btn-large btn-success'),
         ));
     ?>
-    
+    </div>
 <?php
     // конец формы 
     $this->endWidget();
