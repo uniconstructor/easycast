@@ -113,6 +113,7 @@ $this->widget('bootstrap.widgets.TbDetailView',array(
         array(
             'label' => $model->getAttributeLabel('eta'),
             'value' => 'За '.($model->eta / 60).' мин',
+            'visible' => (bool)$model->eta,
         ),
         array(
             'label' => ProjectsModule::t('status'),
@@ -121,6 +122,7 @@ $this->widget('bootstrap.widgets.TbDetailView',array(
         array(
             'label' => $model->getAttributeLabel('salary'),
             'value' => $model->salary.' p.',
+            'visible' => (bool)$model->salary,
         ),
 	),
 )); 
