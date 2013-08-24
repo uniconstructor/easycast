@@ -138,9 +138,10 @@ class ProjectInfo extends CWidget
     {
         if ( $this->eventId )
         {// отображается мероприятие
-            return array('main', /*'photo', 'video',*/ 'vacancies');
+            return array('main', /*'photo', 'video',*/ 'vacancies', 'requests');
         }
-        return array('main', 'photo', 'video', 'events', 'vacancies');
+        // отображается проект
+        return array('main', 'photo', 'video', 'events', 'vacancies', 'requests');
     }
     
     /**
@@ -286,6 +287,7 @@ class ProjectInfo extends CWidget
             case 'video':     $content = $this->getProjectVideoTab(); break;
             case 'events':    $content = $this->getProjectEventsTab(); break;
             case 'vacancies': $content = $this->getProjectVacanciesTab(); break;
+            case 'requests':  $content = $this->getProjectRequestsTab(); break;
         }
         
         if ( ! $content )
@@ -423,7 +425,7 @@ class ProjectInfo extends CWidget
         }
         
         if ( $content )
-        {
+        {// выводим заголовок если есть хотя бы одно мероприятие
             $content = '<h3>'.ProjectsModule::t('projectinfo_section_events').'</h3>'.$content;
         }
         
@@ -444,6 +446,27 @@ class ProjectInfo extends CWidget
     protected function getProjectVacanciesTab()
     {
         return $this->getVacanciesTab('project');
+    }
+    
+    /**
+     * Получить вкладку со списком заявок для всего проекта
+     * (видна только админам)
+     * @return string
+     */
+    protected function getProjectRequestsTab()
+    {
+        if ( ! $this->adminView() )
+        {
+            return;
+        }
+        return $this->widget('admin.extensions.ProjectMembers.ProjectMembers',array(
+            'objectType'  => 'project',
+            'objectId'    => $this->project->id,
+            'displayType' => 'applications',
+            'displayTimeColumn'    => false,
+            'displayVacancyColumn' => false,
+            'displayHeader'        => false,
+        ), true);
     }
     
     /**
@@ -470,7 +493,7 @@ class ProjectInfo extends CWidget
         
         if ( ! $vacancies )
         {// Участнику не подходит ни одна вакансия - сообщим об этом
-            $content .= '<div class="alert alert-info">В этом проекте для вас нет подходящих вакансий</div>';
+            $content .= '<div class="alert alert-info">В этом проекте нет подходящих ролей</div>';
             return $content;
         }
         
@@ -572,6 +595,7 @@ class ProjectInfo extends CWidget
         {
             case 'main':      $content = $this->getEventMainTab(); break;
             case 'vacancies': $content = $this->getEventVacanciesTab(); break;
+            case 'requests':  $content = $this->getEventRequestsTab(); break;
         }
         
         if ( ! $content )
@@ -612,6 +636,27 @@ class ProjectInfo extends CWidget
     protected function getEventVacanciesTab()
     {
         return $this->getVacanciesTab('event');
+    }
+    
+    /**
+     * Получить вкладку со списком заявок мероприятия
+     * (видна только админам)
+     * @return string
+     */
+    protected function getEventRequestsTab()
+    {
+        if ( ! $this->adminView() )
+        {
+            return;
+        }
+        return $this->widget('admin.extensions.ProjectMembers.ProjectMembers',array(
+            'objectType'  => 'event',
+            'objectId'    => $this->event->id,
+            'displayType' => 'applications',
+            'displayTimeColumn'    => false,
+            'displayVacancyColumn' => false,
+            'displayHeader'        => false,
+        ), true);
     }
     
     /**
@@ -771,12 +816,12 @@ class ProjectInfo extends CWidget
         $messageId   = 'vacancy_message_'.$vacancyId;
         $messageText = ProjectsModule::t('application_added');
         return "function (data, status){
-            $(#'{$buttonId}').attr('class', 'btn disabled');
-            $(#'{$buttonId}').attr('disabled', 'disabled');
+            $('#{$buttonId}').attr('class', 'btn disabled');
+            $('#{$buttonId}').attr('disabled', 'disabled');
             
-            $(#'{$messageId}').attr('class', 'alert alert-success');
-            $(#'{$messageId}').text('{$messageText}');
-            $(#'{$messageId}').fadeIn(200);
+            $('#{$messageId}').attr('class', 'alert alert-success');
+            $('#{$messageId}').text('{$messageText}');
+            $('#{$messageId}').fadeIn(200);
         }";
     }
     
