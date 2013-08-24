@@ -430,12 +430,15 @@ Yii::import('ext.CountryCitySelectorRu.*');
         </div>
     </div>
     
-    <?php // медийный актер
+    <?php
+    if ( Yii::app()->user->checkAccess('Admin') )
+    {// медийный актер (проставляется только админами)
         $this->widget('ext.EToggleBox.EToggleBox', array(
           'model'     => $questionary,
           'attribute' => 'ismediaactor',
           'options'   => $toggleBoxJsOptions,
         ));
+    }
     ?>
     
     <div>
