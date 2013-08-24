@@ -9,17 +9,19 @@ $this->menu = array(
 	array('label'=>'Список проектов','url'=>array('/admin/project/admin')),
 	array('label'=>'Создать проект','url'=>array('/admin/project/create')),
 	array('label'=>'Редактировать проект','url'=>array('/admin/project/update','id'=>$model->id)),
-	// @todo решить, можно ли удалять проект
-	/*array('label'=>'Удалить проект','url'=>'#','linkOptions'=>
-	    array(
-	        'submit'  => array('/admin/project/delete','id' => $model->id),
-	        'confirm' => 'Вы уверены, что хотите удалить этот проект?',
-	        'csrf' => true),
-    ),*/
     array('label'=>'Добавить мероприятие','url'=>array('/admin/projectEvent/create', 'projectid'=>$model->id)),
     array('label'=>'Заявки','url'=>array('/admin/projectMember/index', 'projectid'=>$model->id, 'type' => 'applications')),
     array('label'=>'Подтвержденные участники','url'=>array('/admin/projectMember/index', 'projectid'=>$model->id, 'type' => 'members')),
 );
+if ( $model->status == Project::STATUS_DRAFT )
+{// разрешаем удалять черновик проекта
+    $this->menu[] = array('label'=>'Удалить проект','url'=>'#','linkOptions'=>
+	    array(
+	        'submit'  => array('/admin/project/delete','id' => $model->id),
+	        'confirm' => 'Вы уверены, что хотите удалить этот проект? Все входящие в него мероприятия и роли также будут удалены.',
+	        'csrf' => true),
+    );
+}
 
 // @todo подтверждение перед сменой статуса
 if ( in_array('active', $model->getAllowedStatuses()) )
