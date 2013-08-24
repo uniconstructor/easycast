@@ -54,6 +54,7 @@ class QFieldDescription extends CWidget
         $message .= '<li>'.QuestionaryModule::t('photos_caption_photomodel').'</li>';
         $message .= '<li>'.QuestionaryModule::t('photos_caption_dancer').'</li>';
         $message .= '<li>'.QuestionaryModule::t('photos_caption_athlete').'</li>';
+        $message .= '<li>'.QuestionaryModule::t('photos_caption_all').'</li>';
         $message .= '</ul>';
         $message .= QuestionaryModule::t('photos_caption_final');
         
