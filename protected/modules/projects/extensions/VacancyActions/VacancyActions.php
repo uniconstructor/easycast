@@ -2,8 +2,7 @@
 
 /**
  * Отображение кнопок-действий для вакансии
- * 
- * @todo сделать остальные кнопки кроме "подать заявку"
+ * @todo добавить кнопку отмены подачи заявки (кроме заявок, поданных по токену)
  */
 class VacancyActions extends CWidget
 {
@@ -28,15 +27,6 @@ class VacancyActions extends CWidget
      * @var string - ключ по которому происходит подача заявки (если заявка подается из почты, по ключу)
      */
     public $key;
-    
-    /**
-     * (non-PHPdoc)
-     * @see CWidget::init()
-     */
-    public function init()
-    {
-        
-    }
     
     /**
      * (non-PHPdoc)
@@ -106,7 +96,6 @@ class VacancyActions extends CWidget
      * Получить адрес для ajax-запроса, отправляемого при клике на кнопку
      * @param unknown $type
      * @return string
-     * @return null
      */
     protected function createButtonAjaxUrl($type)
     {
@@ -118,11 +107,7 @@ class VacancyActions extends CWidget
             default: return '#';
         }
     
-        return Yii::app()->createUrl('/projects/vacancy/'.$action/*, array(
-            'vacancyId' => $this->vacancy->id,
-            'key'       => $this->key,
-            'inviteId'  => $this->invite->id,
-        )*/);
+        return Yii::app()->createUrl('/projects/vacancy/'.$action);
     }
     
     /**
