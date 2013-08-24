@@ -7,6 +7,10 @@ class m130311_182800_installVideoTable extends CDbMigration
 {
     protected $MySqlOptions = 'ENGINE=InnoDB CHARSET=utf8';
     
+    /**
+     * (non-PHPdoc)
+     * @see CDbMigration::safeUp()
+     */
     public function safeUp()
     {
         $table = '{{video}}';

@@ -8,6 +8,10 @@ class m130506_122400_addUsersToOrder extends CDbMigration
     protected $MySqlOptions = 'ENGINE=InnoDB CHARSET=utf8';
     private $_tableName = "{{fast_orders}}";
     
+    /**
+     * (non-PHPdoc)
+     * @see CDbMigration::safeUp()
+     */
     public function safeUp()
     {
         // добавляем поле для хранения сериализованных данных заказа
