@@ -19,10 +19,23 @@ class ProjectMembers extends CWidget
     public $objectId;
 
     /**
-     * @var string - режим отображения: заявки (applications) или подтвержденные участники (members)
+     * @var string - режим отображения: 
+     *               заявки (applications) 
+     *               подтвержденные участники (members)
+     *               предварительно отобранные (pending)
+     *               отклоненные (rejected)
      */
     public $displayType;
 
+    /**
+     * (non-PHPdoc)
+     * @see CWidget::init()
+     */
+    public function init()
+    {
+        
+    }
+    
     /**
      * (non-PHPdoc)
      * @see CWidget::run()
@@ -118,22 +131,51 @@ class ProjectMembers extends CWidget
             {
                 $elements[] = $this->getMemberData($member);
             }
-
+            // в списке участников разбивка по страницам не нужна
             $arrayProvider = new CArrayDataProvider($elements, array('pagination' => false));
             
             $result .= $this->widget('bootstrap.widgets.TbGridView', array(
                 'type'         => 'striped bordered condensed',
                 'dataProvider' => $arrayProvider,
-                'template'=>"{items}{pager}",
-                'columns'=>array(
-                    array('name'=>'name', 'header'=>'Участник', 'type' => 'html'),
-                    array('name'=>'vacancy', 'header'=>'Вакансия', 'type' => 'html'),
-                    array('name'=>'actions', 'header'=>'Действия', 'type' => 'html'),
-                ),
+                'template'     => "{items}{pager}",
+                'columns' => $this->getMemberColumns(),
             ), true);
         }
 
         return $result;
+    }
+    
+    /**
+     * Определить, какие столбцы должны отображаться в таблице со списком заявок/участников
+     * @return array
+     */
+    protected function getMemberColumns()
+    {
+        $columns = array();
+        $columns[] = array(
+            'name'   => 'name',
+            'header' => 'Участник',
+            'type'   => 'html');
+        $columns[] = array(
+            'name'   => 'vacancy',
+            'header' => 'Вакансия',
+            'type'   => 'html');
+        if ( $this->displayType == 'applications' )
+        {// для заявок покажем время отправки участником
+            $columns[] = array(
+                'name'   => 'timecreated',
+                'header' => 'Отправлена участником',
+                'type'   => 'html');
+        }else
+        {// для подтвержденных участников покажем кто их утвердил
+            
+        }
+        $columns[] = array(
+            'name'   => 'actions',
+            'header' => 'Действия',
+            'type'   => 'raw');
+        
+        return $columns;
     }
 
     /**
@@ -143,38 +185,49 @@ class ProjectMembers extends CWidget
      */
     protected function getMemberData($member)
     {
-        $element = array();
-        $element['id'] = $member->id;
         $memberUrl = Yii::app()->createUrl(Yii::app()->getModule('questionary')->profileUrl, array('id' => $member->member->id));
-        $element['name'] = CHtml::link($member->member->user->fullname, $memberUrl);
+        
+        $element = array();
+        $element['id']      = $member->id;
+        $element['name']    = CHtml::link($member->member->user->fullname, $memberUrl);
         $element['vacancy'] = $member->vacancy->name;
-
         if ( $this->displayType == 'applications' )
-        {// если мы отображаем заявки  - то их можно либо утвердить либо отклонить
-            $approveUrl = Yii::app()->createUrl('/admin/projectMember/setStatus', array('id' => $member->id, 'status' => 'active'));
-            $approveButton = CHtml::link('Подтвердить заявку', $approveUrl, array('class' => 'btn btn-success'));
-            $rejectUrl = Yii::app()->createUrl('/admin/projectMember/setStatus', array('id' => $member->id, 'status' => 'rejected'));
-            $rejectButton = CHtml::link('Отклонить заявку', $rejectUrl, array('class' => 'btn btn-danger'));
-
-            $element['actions'] = $approveButton.' '.$rejectButton;
+        {// для заявок покажем время отправки участником
+            $element['timecreated'] = Yii::app()->getDateFormatter()->format("d MMMM yyyy, HH:mm", $member->timecreated);
         }else
-        {
-            $element['actions'] = '';
+        {// для подтвержденных участников покажем кто их утвердил
+            
         }
+        $element['actions'] = $this->getMemberActions($member);
 
         return $element;
+    }
+    
+    /**
+     * Получить кнопки с действиями для участника
+     * @param ProjectMember $member
+     * @return string
+     */
+    protected function getMemberActions($member)
+    {
+        return $this->widget('application.modules.projects.extensions.MemberActions.MemberActions', array(
+            'member' => $member,
+        ), true);
     }
 
     /**
      * Получить статусы записей, с которыми будут извлекаться участники
      * @return array
+     * 
+     * @todo удалить если так и не понадобится
      */
     protected function getStatuses()
     {
         $statuses = array();
-        if ( $this->displaytype == 'applications' )
+        if ( $this->displayType == 'applications' )
         {
             $statuses[] = 'draft';
+            $statuses[] = 'pending';
         }else
         {
             $statuses[] = 'active';
