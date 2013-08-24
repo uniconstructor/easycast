@@ -26,6 +26,21 @@ class ProjectMembers extends CWidget
      *               отклоненные (rejected)
      */
     public $displayType;
+    
+    /**
+     * @var bool - отображать ли заголовок?
+     */
+    public $displayHeader = true;
+    
+    /**
+     * @var отображать ли столбец "роль" в списке заявок?
+     */
+    public $displayVacancyColumn = true;
+    
+    /**
+     * @var отображать ли столбец "время подачи заявки" в списке заявок?
+     */
+    public $displayTimeColumn = true;
 
     /**
      * (non-PHPdoc)
@@ -60,7 +75,10 @@ class ProjectMembers extends CWidget
 
         $project = Project::model()->findByPk($this->objectId);
 
-        $result .= '<h3>'.$project->name.'</h3>';
+        if ( $this->displayHeader OR $this->objectType != 'project' )
+        {// отображаем заголовок проекта только тогда когда нужно
+            $result .= '<h3>'.$project->name.'</h3>';
+        }
         
         foreach ( $project->groups as $event )
         {
@@ -91,7 +109,11 @@ class ProjectMembers extends CWidget
 
         if ( $event->vacancies )
         {
-            $result .= '<h3>'.$event->name.'</h3>';
+            if ( $this->displayHeader OR $this->objectType != 'event' )
+            {// отображаем заголовок для мероприятия, только если это явно задано при отображании мероприятия
+                // или если отображается проект
+                $result .= '<h3>'.$event->name.'</h3>';
+            }
             foreach ( $event->vacancies as $vacancy )
             {
                 $result .= $this->getVacancyMembers($vacancy);
@@ -156,11 +178,14 @@ class ProjectMembers extends CWidget
             'name'   => 'name',
             'header' => 'Участник',
             'type'   => 'html');
-        $columns[] = array(
-            'name'   => 'vacancy',
-            'header' => 'Вакансия',
-            'type'   => 'html');
-        if ( $this->displayType == 'applications' )
+        if ( $this->displayVacancyColumn )
+        {
+            $columns[] = array(
+                'name'   => 'vacancy',
+                'header' => 'Роль',
+                'type'   => 'html');
+        }
+        if ( $this->displayType == 'applications' AND $this->displayTimeColumn )
         {// для заявок покажем время отправки участником
             $columns[] = array(
                 'name'   => 'timecreated',
@@ -190,8 +215,11 @@ class ProjectMembers extends CWidget
         $element = array();
         $element['id']      = $member->id;
         $element['name']    = CHtml::link($member->member->user->fullname, $memberUrl);
-        $element['vacancy'] = $member->vacancy->name;
-        if ( $this->displayType == 'applications' )
+        if ( $this->displayVacancyColumn )
+        {
+            $element['vacancy'] = $member->vacancy->name;
+        }
+        if ( $this->displayType == 'applications' AND $this->displayTimeColumn )
         {// для заявок покажем время отправки участником
             $element['timecreated'] = Yii::app()->getDateFormatter()->format("d MMMM yyyy, HH:mm", $member->timecreated);
         }else
