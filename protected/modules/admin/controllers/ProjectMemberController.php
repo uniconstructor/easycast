@@ -181,6 +181,14 @@ class ProjectMemberController extends Controller
 		}
 	}
 	
+	/**
+	 * Изменяет статус заявки участника (подтверждает или отклоняет)
+	 * @param int $id - id заявки в таблице {{project_members}}
+	 * @throws CHttpException
+	 * @return null
+	 * 
+	 * @todo убрать весь старый код и обращаться к контроллеру projects/MemberController
+	 */
     public function actionSetStatus($id)
 	{
 	    $model = $this->loadModel($id);
