@@ -9,9 +9,9 @@ return array(
     'invite' => 'Приглашение',
     'invite_timecreated' => 'Время',
     // Вакансии
-    'vacancy' => 'Вакансия',
-    'vacancies' => 'Вакансии',
-    'vacancy_scopeid' => 'Критерии для соискателей',
+    'vacancy' => 'Роль',
+    'vacancies' => 'Роли',
+    'vacancy_scopeid' => 'Критерии отбора',
     'vacancy_limit' => 'Количество человек',
     // Заявки и участники
     'request' => 'Заявка',
@@ -65,15 +65,18 @@ return array(
     'projectinfo_section_photo' => 'Фото',
     'projectinfo_section_video' => 'Видео',
     'projectinfo_section_events' => 'Мероприятия',
-    'projectinfo_section_vacancies' => 'Вакансии',
+    'projectinfo_section_vacancies' => 'Роли',
+    'projectinfo_section_requests' => 'Заявки',
     // Разделы с информацией о мероприятии
     'eventinfo_section_main' => 'Информация',
-    'eventinfo_section_vacancies' => 'Вакансии',
+    'eventinfo_section_vacancies' => 'Роли',
+    'eventinfo_section_requests' => 'Заявки',
     
 
     // Статусы
     // Статусы проекта
     'project_status_draft' => 'Черновик',
+    'project_status_filled' => 'Внесена информация',
     'project_status_active' => 'Идет',
     'project_status_suspended' => 'Приостановлен',
     'project_status_finished' => 'Завершен',
@@ -83,11 +86,16 @@ return array(
     'vacancy_status_suspended' => 'Приостановлена',
     'vacancy_status_finished' => 'Закрыта',
     // Статусы заявки или участника
-    'member_status_draft' => 'Ждет одобрения',
-    'member_status_active' => 'Подтверждено',
-    'member_status_suspended' => 'Приостановлено',
-    'member_status_finished' => 'Завершено',
-    'member_status_rejected' => 'Отклонено',
+    'member_status_draft' => 'Ждет решения',
+    'member_status_pending' => 'Предварительно отобрана',
+    'member_status_active' => 'Подтверждена',
+    'member_status_rejected' => 'Отклонена',
+    'member_status_finished' => 'Завершено мероприятие',
+    'member_status_succeed' => 'Успешно завершено',
+    'member_status_failed' => 'Завершено',
+    'member_status_canceled' => 'Отменена участником',
+    
+    
     // Статусы мероприятия
     'event_status_draft' => 'Черновик',
     'event_status_active' => 'Запущено',
