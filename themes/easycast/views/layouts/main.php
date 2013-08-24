@@ -11,7 +11,7 @@
 
 <body>
 <?php // шапка страницы
-    $this->widget('ext.ECMarkup.ECHeader.ECHeader');
+    $this->widget('ext.ECMarkup.ECHeader.ECHeader', $this->ecHeaderOptions);
 ?>
 
 <div class="container" id="page">

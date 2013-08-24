@@ -31,4 +31,9 @@ class Controller extends RController//CController
 	        //'rights' => array('application.modules.rights.components.RightsFilter'),
 	    );
 	}*/
+    
+    /**
+     * @var array - настройки шапки страницы EasyCast 
+     */
+    public $ecHeaderOptions = array();
 }

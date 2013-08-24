@@ -4,6 +4,13 @@
  */
 class ECHeader extends CWidget
 {
+    public $displayContacts = true;
+    
+    public $displayLogo = true;
+    
+    public $displayloginTool = true;
+    
+    public $displayInformer = true;
     /**
      * @var string - ссылка на папку с ресурсами расширения
      */
@@ -22,6 +29,7 @@ class ECHeader extends CWidget
             'assets'   . DIRECTORY_SEPARATOR);
         Yii::app()->clientScript->registerCssFile($this->_assetUrl.'/css/header.css');
     }
+
     /**
      * Отображает шапку страницы
      */
@@ -48,29 +56,16 @@ class ECHeader extends CWidget
     }
 
     /**
-     * Вывести виджет со списком социальных сетей
-     *        
-     * @deprecated удалить при рефакторинге
-     */
-    public function printSocialBlock()
-    {
-        echo '<div class="span2">';
-        if ( ! YII_DEBUG )
-        {// скрываем социальный блок в режиме разработчика 
-            echo "<div class='pluso pluso-theme-dark pluso-multiline'><div class='pluso-more-container'><a class='pluso-more' href=''></a></div><a class='pluso-twitter'></a><a class='pluso-vkontakte'></a><a class='pluso-facebook'></a><br><a class='pluso-odnoklassniki'></a><a class='pluso-google'></a><a class='pluso-moimir'></a></div>
-                <script type='text/javascript'>if(!window.pluso){pluso={version:'0.9.1',url:'http://share.pluso.ru/'};h=document.getElementsByTagName('head')[0];l=document.createElement('link');l.href=pluso.url+'pluso.css';l.type='text/css';l.rel='stylesheet';s=document.createElement('script');s.src=pluso.url+'pluso.js';s.charset='UTF-8';h.appendChild(l);h.appendChild(s)}</script>";
-        }
-        echo '</div>';
-    }
-
-    /**
      * Отображает виджет входа на сайт, который для зарегистрированых пользователей отображает
      * их фотографию
      */
     public function printLoginTool()
     {
         echo '<div class="span2 easycast-menu-item text-center">';
-        $this->widget('application.extensions.ECMarkup.ECLoginWidget.ECLoginWidget');
+        if ( $this->displayloginTool )
+        {
+            $this->widget('application.extensions.ECMarkup.ECLoginWidget.ECLoginWidget');
+        }
         echo '</div>';
     }
 
@@ -92,7 +87,10 @@ class ECHeader extends CWidget
     public function printContacts()
     {
         echo '<div class="span2">';
-        $this->widget('application.extensions.ECMarkup.ECContacts.ECContacts');
+        if ( $this->displayContacts )
+        {
+            $this->widget('application.extensions.ECMarkup.ECContacts.ECContacts');
+        }
         echo '</div>';
     }
     
@@ -103,6 +101,9 @@ class ECHeader extends CWidget
      */
     protected function printInformer()
     {
-        $this->widget('application.extensions.ECMarkup.ECMainInformer.ECMainInformer');
+        if ( $this->displayInformer )
+        {
+            $this->widget('application.extensions.ECMarkup.ECMainInformer.ECMainInformer');
+        }
     }
 }

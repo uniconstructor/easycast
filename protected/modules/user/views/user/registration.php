@@ -6,8 +6,14 @@
  */
 
 $this->pageTitle=Yii::app()->name . ' - '.UserModule::t("Registration");
-$this->breadcrumbs=array(
+$this->breadcrumbs = array(
 	UserModule::t("Registration"),
+);
+// убираем из заголовка все лишнее
+$this->ecHeaderOptions = array(
+    'displayContacts'  => false,
+    'displayloginTool' => false,
+    'displayInformer'  => false,
 );
 ?>
 
@@ -37,7 +43,14 @@ $this->breadcrumbs=array(
 	
 	<?php if (UserModule::doCaptcha('registration')): ?>
 		<br>
-		<?php $this->widget('CCaptcha'); ?>
+		<?php $this->widget('CCaptcha', array(
+                'buttonOptions' => array(
+                    'style' => 'width:100px;height:45px;',
+                    'class' => 'btn btn-small'
+                    )
+		        )
+		    ); 
+        ?>
 		<?php echo $form->textFieldRow($model,'verifyCode'); ?>
 		<div class="alert">
     		<small>
@@ -67,7 +80,7 @@ $this->breadcrumbs=array(
                     	<small>
                     	    Минимальная длина логина - 2 символа.<br>
                     	    Если логин не задан - то он будет создан из вашего почтового адреса.<br>
-                    	    Вы также можете использовать адрес электронной почты вместо логина для входа на сайт.
+                    	    <!--Вы также можете использовать адрес электронной почты вместо логина для входа на сайт.-->
                         </small>
                 	</div>
                 	<?php echo $form->passwordFieldRow($model,'password', array('value' => '')); ?>
@@ -90,7 +103,7 @@ $this->breadcrumbs=array(
             array('buttonType'=>'submit',
                   'type'  => 'primary',
                   'label' => UserModule::t("Register"),
-                  'htmlOptions' => array('class' => 'btn btn-large btn-primary'),
+                  'htmlOptions' => array('class' => 'btn btn-large btn-success'),
         ));
     ?>
     
