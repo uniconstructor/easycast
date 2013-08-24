@@ -516,7 +516,7 @@ class ProjectInfo extends CWidget
      */
     protected function displayVacancyInstance($vacancy)
     {
-        if ( ! $vacancy->isAvailableForUser(null, true) )
+        if ( ! $vacancy->isAvailableForUser(null, true) AND ! $this->adminView() )
         {// участник не проходит по критериям вакансии - не покажем ее
             return '';
         }
