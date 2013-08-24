@@ -92,6 +92,19 @@ class MailComposerModule extends CWebModule
     }
     
     /**
+     * Создать письмо с самой простой структурой: заголовок и текст
+     * @param string $header
+     * @param string $text
+     * @param array $options
+     * @return string
+     */
+    public function createSimpleMessage($header, $text, $options=array())
+    {
+        list($controller, $action) = Yii::app()->createController('/mailComposer/mail');
+        return $controller->createSimpleMail($header, $text, $options);
+    }
+    
+    /**
      * @param $str
      * @param $params
      * @param $dic

@@ -72,6 +72,10 @@ class MailController extends Controller
         );
     }
     
+    /**
+     * TEST ACTION
+     * @return null
+     */
     public function actionTest()
     {
         $invite = EventInvite::model()->findByPk(650);
@@ -116,17 +120,22 @@ class MailController extends Controller
      * 
      * @todo пока только заготовка
      */
-    public function actionCreateSimpleMail($params)
+    public function createSimpleMail($header, $text, $options=array())
     {
-        $defaults = $this->getSimpleMailDefaults();
-        $options = CMap::mergeArray($defaults, $params);
+        $defaults = $this->getMailDefaults();
+        $options = CMap::mergeArray($defaults, $options);
         
-        // создаем виджет-сборщик письма
+        // составляем текст письма
+        $block = array(
+            'header' => $header,
+            'text'   => $text,
+        );
         
-        // устанавливаем в него значения по умолчанию
-        
-        // получаем от виджета код письма
-        
+        // добавляем все блоки с информацией в массив настроек для виджета EMailAssembler
+        $options['segments'] = array($block);
+        // создаем виджет и получаем из него полный HTML-код письма
+        return $this->owner->widget('application.modules.mailComposer.extensions.widgets.EMailAssembler.EMailAssembler',
+            $options, true);
     }
     
     /**
@@ -136,10 +145,8 @@ class MailController extends Controller
     protected function getSimpleMailDefaults()
     {
         return array(
-            // самый большой заголовок письма
-            'heading' => '',
             // заголовок первого абзаца
-            'subject' => '',
+            'header' => '',
             // первый абзац текста (только текст, html и самая простая разметка)
             'text'    => '',
             // настройки для виджета, собирающего письмо из блоков
