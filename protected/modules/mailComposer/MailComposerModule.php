@@ -43,7 +43,7 @@ class MailComposerModule extends CWebModule
      */
     public static function getMessage($action, $params=null)
     {
-        $controller = Yii::app()->createController('/mailComposer/mail/');
+        list($controller, $action) = Yii::app()->createController('/mailComposer/mail');
         switch ( $action )
         {
             // письмо с приглашением на съемки
