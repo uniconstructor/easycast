@@ -181,28 +181,6 @@ class TokenInvite extends CWidget
     }
     
     /**
-     * Создать кнопку подачи заявки на вакансию
-     * @param EventVacancy $vacancy - вакансия, для которой создается кнопка
-     * 
-     * @return string - html-код для ajax-кнопки подачи заявки по одноразовому токену
-     */
-    protected function createAddApplicationButton($vacancy)
-    {
-        return '(подать заявку)';
-    }
-    
-    /**
-     * Создать кнопку отмены заявки на вакансию
-     * @param EventVacancy $vacancy - вакансия, для которой создается кнопка
-     *
-     * @return string - html-код для ajax-кнопки отмены заявки по одноразовому токену
-     */
-    protected function createCancelApplicationButton($vacancy)
-    {
-        return '';
-    }
-    
-    /**
      * Получить html-код сообщения о результате операции (подана заявка, время истекло и т.п.)
      * 
      * @param string $message
