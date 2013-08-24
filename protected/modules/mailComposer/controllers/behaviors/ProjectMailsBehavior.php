@@ -72,11 +72,11 @@ class ProjectMailsBehavior extends CBehavior
         // список мероприятий и вакансий
         if ( $invite->event->type == 'group' )
         {// группа мероприятий - выведем информацию о каждом (несколько блоков)
-            $groupBlocks = $this->createGroupEventDescription($invite);
+            $groupBlocks = $this->createGroupEventDescription($invite->event);
             $segments->mergeWith($groupBlocks);
         }else
         {// одно мероприятие - информация о нем помещается в один блок
-            $eventBlock = $this->createSingleEventDescription($invite);
+            $eventBlock = $this->createSingleEventDescription($invite->event);
             $segments->add(null, $eventBlock);
         }
         
@@ -98,6 +98,75 @@ class ProjectMailsBehavior extends CBehavior
     }
     
     /**
+     * Получить текст письма с уведомлением о том, что заявка участника принята
+     * @param ProjectMember $projectMember - данные заявки участника
+     * @return string
+     *
+     * @todo добавить обработку поля "дополнительная информация для участников"
+     * @todo писать, на какую именно роль выбрали
+     */
+    public function createApproveMemberMailText($projectMember, $mailOptions=array())
+    {
+        $segments    = new CMap();
+        $mailOptions = $this->getApproveMailOptions($projectMember, $mailOptions);
+        $event       = $projectMember->vacancy->event;
+        
+        // блок с текстом приветствия
+        $greetingBlock = $this->createApproveGreetingBlock($projectMember);
+        $segments->add(null, $greetingBlock);
+        
+        // блок с напоминанием и датами съемок
+        if ( $event->type == 'group' )
+        {// группа мероприятий - выведем информацию о каждом (несколько блоков)
+            $groupBlocks = $this->createGroupEventDescription($invite->event);
+            $segments->mergeWith($groupBlocks);
+        }else
+        {// одно мероприятие - информация о нем помещается в один блок
+            $eventBlock = $this->createSingleEventDescription($invite->event);
+            $segments->add(null, $eventBlock);
+        }
+        // заключение
+        $segments->add(null, array('text' => 'Ждем вас.'."<br>\n"));
+         
+        // добавляем все блоки с информацией в массив настроек для виджета EMailAssembler
+        $mailOptions['segments'] = $segments;
+        // создаем виджет и получаем из него полный HTML-код письма
+        return $this->owner->widget('application.modules.mailComposer.extensions.widgets.EMailAssembler.EMailAssembler',
+            $mailOptions, true);
+    }
+    
+    /**
+     * Получить текст письма с уведомлением о том, что заявка участника отклонена
+     * @param ProjectMember $projectMember - данные заявки участника
+     * @return string
+     *
+     * @todo указывать причины отказа
+     */
+    public function createRejectMemberMailText($projectMember, $mailOptions=array())
+    {
+        $segments    = new CMap();
+        $mailOptions = $this->getRejectMailOptions($projectMember, $mailOptions);
+        $projectName = $projectMember->vacancy->event->project->name;
+        
+        // письмо состоит из одного блока
+        $block = array();
+        $block['text'] = $this->createUserGreeting($projectMember->member);
+        $block['text'] .= 'Некоторое время назад вы подавали заявку на участие в проекте "'.
+            $projectName.'", на роль "'.$projectMember->vacancy->name.'".'."<br>\n";
+        $block['text'] .= 'Мы передали вашу заявку режиссеру, она рассмотрена и отклонена.'."<br>\n";
+        $segments->add(null, $block);
+        
+        //$message .= 'Необходимое количество человек для мероприятия "'.$eventName.'" уже набрано.'."<br>\n<br>\n";
+        //$message .= 'Если у нас появятся другие предложения, то мы обязательно сообщим вам о них.';
+         
+        // добавляем все блоки с информацией в массив настроек для виджета EMailAssembler
+        $mailOptions['segments'] = $segments;
+        // создаем виджет и получаем из него полный HTML-код письма
+        return $this->owner->widget('application.modules.mailComposer.extensions.widgets.EMailAssembler.EMailAssembler',
+            $mailOptions, true);
+    }
+    
+    /**
      * Получить массив для создания раздела письма с приветствием и информацией о том что вообще происходит
      * @param EventInvite $invite - приглашение участника
      *
@@ -111,13 +180,7 @@ class ProjectMailsBehavior extends CBehavior
             array('id' => $invite->event->project->id));
         $projectLink   = CHtml::link($invite->event->project->name, $projectUrl, array('target' => '_blank'));
         
-        if ( trim($userName = $invite->questionary->firstname) )
-        {// обращаемся к участнику по имени, если оно указано
-            $block['text'] = $userName.", добрый день.<br>\n";
-        }else
-        {
-            $block['text'] = "Добрый день.<br>\n";
-        }
+        $block['text'] = $this->createUserGreeting($invite->questionary);
         $block['text'] .= 'Приглашаем вас принять участие в проекте "'.$projectLink.'"'."<br>\n";
         
         return $block;
@@ -163,36 +226,36 @@ class ProjectMailsBehavior extends CBehavior
     
     /**
      * Получить информацию об отдельном мероприятии проекта
-     * @param EventInvite $invite - приглашение участника
+     * @param ProjectEvent $event - отображаемое мероприятие
      * @return array
      * 
      * @todo если съемки заканчиваются на следующий день - добавлять дату ко времени окончания
      * @todo вернуть ссылку на мероприятие
      */
-    protected function createSingleEventDescription($invite)
+    protected function createSingleEventDescription($event)
     {
         $block = array();
         
-        if ( $invite->event->nodates )
+        if ( $event->nodates )
         {// мероприятие без определенной даты - не выводим дату и время начала
-            $dateInfo = $invite->event->getFormattedTimeStart();
+            $dateInfo = $event->getFormattedTimeStart();
         }else
         {// дата мероприятия известна - выводим ее в отформатированном виде
-            $startDate = $invite->event->getFormattedTimeStart();
-            $endDate   = Yii::app()->getDateFormatter()->format('HH:mm', $invite->event->timeend);
+            $startDate = $event->getFormattedTimeStart();
+            $endDate   = Yii::app()->getDateFormatter()->format('HH:mm', $event->timeend);
             $dateInfo  = $startDate." - ".$endDate;
         }
         // создаем ссылку на просмотр мероприятия
-        $eventUrl  = Yii::app()->createAbsoluteUrl('/projects/projects/view', array('eventid' => $invite->event->id));
-        $eventLink = CHtml::link($invite->event->name, $eventUrl, array('target' => '_blank'));
+        $eventUrl  = Yii::app()->createAbsoluteUrl('/projects/projects/view', array('eventid' => $event->id));
+        $eventLink = CHtml::link($event->name, $eventUrl, array('target' => '_blank'));
         
         $block['header'] = $dateInfo;
         //$block['text']   = 'Что планируется: '.$eventLink;
-        $block['text']   = 'Что планируется: '.$invite->event->name.'<br>';
+        $block['text']   = 'Что планируется: '.$event->name.'<br>';
                  
-        if ( trim($invite->event->description) )
+        if ( trim($event->description) )
         {// описание мероприятия
-            $block['text'] .= 'Подробности: '.$invite->event->description;
+            $block['text'] .= 'Подробности: '.$event->description;
         }
          
         return $block;
@@ -200,14 +263,14 @@ class ProjectMailsBehavior extends CBehavior
     
     /**
      * Получить информацию о группе мероприятий
-     * @param EventInvite $invite
-     * @return string
+     * @param ProjectEvent $group - отображаемая группа мероприятий
+     * @return array
      */
-    protected function createGroupEventDescription($invite)
+    protected function createGroupEventDescription($group)
     {
         $blocks = array();
         
-        foreach ( $invite->event->events as $event )
+        foreach ( $group->events as $event )
         {// отображаем все дни(мероприятия) которые включены в группу.
             // одно мероприятие - один блок
             $blocks[] = $this->createOneGroupEventDescription($event);
@@ -359,6 +422,50 @@ class ProjectMailsBehavior extends CBehavior
     }
     
     /**
+     * Получить из массив настроек для письма с одобрением заявки
+     *
+     * @param ProjectMember $projectMember - данные заявки участника
+     * @param array $newOptions
+     * @return array
+     */
+    protected function getApproveMailOptions($projectMember, $newOptions)
+    {
+        // задаем стандартные настройки отображения письма
+        $defaultMailOptions = $this->owner->getMailDefaults();
+        $defaultMailOptions['mainHeader'] = 'Ваша заявка принята';
+    
+        if ( is_array($newOptions) AND ! empty($newOptions) )
+        {// меняем какие-то настройки извне, если нужно
+            return CMap::mergeArray($defaultMailOptions, $newOptions);
+        }else
+        {// ничего не меняем, оставляем все как есть
+            return $defaultMailOptions;
+        }
+    }
+    
+    /**
+     * Получить из массив настроек для письма с отклонением заявки
+     *
+     * @param ProjectMember $projectMember - данные заявки участника
+     * @param array $newOptions
+     * @return array
+     */
+    protected function getRejectMailOptions($projectMember, $newOptions)
+    {
+        // задаем стандартные настройки отображения письма
+        $defaultMailOptions = $this->owner->getMailDefaults();
+        $defaultMailOptions['mainHeader'] = '';
+    
+        if ( is_array($newOptions) AND ! empty($newOptions) )
+        {// меняем какие-то настройки извне, если нужно
+            return CMap::mergeArray($defaultMailOptions, $newOptions);
+        }else
+        {// ничего не меняем, оставляем все как есть
+            return $defaultMailOptions;
+        }
+    }
+    
+    /**
      * Получить пояснение о том, что рассылка пришла из-за того, что данные анкеты подходят выборке 
      * (для подписи внизу)
      * @return string
@@ -367,5 +474,47 @@ class ProjectMailsBehavior extends CBehavior
     {
         return 'Вы получили это приглашение потому что ваши анкетные данные 
             соответствуют критериям отбора на роли для предстоящих съемок.';
+    }
+    
+    /**
+     * Получить первый блок письма о принятии заявки (вступление) 
+     * @param ProjectMember $projectMember - данные заявки участника
+     * @return array
+     */
+    protected function createApproveGreetingBlock($projectMember)
+    {
+        $block = array();
+        $event = $projectMember->vacancy->event;
+        
+        $block['text'] = $this->createUserGreeting($projectMember->member);
+        $block['text'] .= 'Ваша заявка была направлена режиссеру, рассмотрена и подтверждена.'."<br>\n";
+        $block['text'] .= 'Теперь вы участник проекта "'.$event->project->name.'".'."<br>\n";
+        $block['text'] .= 'Роль, на которую вы утверждены: "'.$projectMember->vacancy->name."\"<br>\n";
+        
+        if ( $event->type == 'group' )
+        {
+            $block['text'] .= "<br>\n".'Напоминаем, что съемки будут проходить в следующие дни:';
+        }else
+        {
+            $block['text'] .= "<br>\n".'Напоминаем вам информацию о мероприятии:';
+        }
+        
+        return $block;
+    }
+    
+    /**
+     * Получить строку с приветствием для участника
+     * @param Questionary $questionary
+     * @return string
+     */
+    protected function createUserGreeting($questionary)
+    {
+        if ( is_object($questionary) AND trim($questionary->firstname) )
+        {
+            return $questionary->firstname.", здравствуйте.<br>\n<br>\n";
+        }else
+        {
+            return "Добрый день.<br>\n<br>\n";
+        }
     }
 }

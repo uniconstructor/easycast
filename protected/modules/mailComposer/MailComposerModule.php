@@ -60,6 +60,34 @@ class MailComposerModule extends CWebModule
                 $invite = $params['invite'];
                 return $controller->createNewInviteMailText($invite, $mailOptions); 
             break;
+            // письмо с подтверждением заявки
+            case 'approveMember':
+                $mailOptions = array();
+                if ( isset($params['mailOptions']) )
+                {
+                    $mailOptions = $params['mailOptions'];
+                }
+                if ( ! isset($params['projectMember']) )
+                {
+                    throw new CException('projectMember for mail is not set');
+                }
+                $projectMember = $params['projectMember'];
+                return $controller->createApproveMemberMailText($projectMember, $mailOptions);
+            break;
+            // письмо с отклонением заявки
+            case 'rejectMember':
+                $mailOptions = array();
+                if ( isset($params['mailOptions']) )
+                {
+                    $mailOptions = $params['mailOptions'];
+                }
+                if ( ! isset($params['projectMember']) )
+                {
+                    throw new CException('projectMember for mail is not set');
+                }
+                $projectMember = $params['projectMember'];
+                return $controller->createRejectMemberMailText($projectMember, $mailOptions);
+            break;
         }
     }
     
