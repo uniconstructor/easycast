@@ -10,6 +10,11 @@
 class ECMainInformer extends CWidget
 {
     /**
+     * @var Questionary
+     */
+    protected $questionary;
+    
+    /**
      * (non-PHPdoc)
      * @see CWidget::init()
      */
@@ -33,6 +38,7 @@ class ECMainInformer extends CWidget
             $this->printCustomer();
         }elseif ( $this->isUser() )
         {// участникам показываем сообщения
+            $this->questionary = Yii::app()->getModule('user')->user()->questionary;
             $this->printUser();
         }
     }
@@ -132,35 +138,29 @@ class ECMainInformer extends CWidget
      * Получить количество приглашений на съемки для текущего участника
      * 
      * @return int
-     * 
-     * @todo заглушка, подставить реальные значения
      */
     protected function getInvites()
     {
-        return 0;
+        return $this->questionary->invitesCount;
     }
     
     /**
      * Получить все активные заявки пользователя
      * 
      * @return number
-     * 
-     * @todo заглушка, подставить реальные значения
      */
     protected function getRequests()
     {
-        return 0;
+        return $this->questionary->requestsCount;
     }
     
     /**
      * Получить количество предстоящих съемок
      * 
      * @return number
-     * 
-     * @todo заглушка, подставить реальные значения
      */
     protected function getUpcomingEvents()
     {
-        return 0;
+        return $this->questionary->upcomingEventsCount;
     }
 }
