@@ -235,6 +235,11 @@ class CatalogModule extends CWebModule
 	    return Yii::app()->session->itemAt('searchData');
 	}
 	
+	/**
+	 * Записать в сессию данные поисковой формы
+	 * @param array $searchData - данные поисковой формы
+	 * @return null
+	 */
 	protected static function setSessionSearchData($searchData)
 	{
 	    Yii::app()->session->add('searchData', $searchData);
@@ -341,6 +346,7 @@ class CatalogModule extends CWebModule
 
 	    self::setSessionSearchData($searchData);
 	}
+	
 	/**
 	 * Очистить данные для фрагмента фильтра поиска в текущем разделе каталога
 	 * @param string $namePrefix - название переменной в которой хранятся все значения текущего фрагмента
