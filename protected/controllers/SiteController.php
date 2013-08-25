@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Главный контроллер сайта
+ */
 class SiteController extends Controller
 {
 	/**
@@ -166,5 +169,61 @@ class SiteController extends Controller
 	public function actionKeepAlive()
 	{
 	    echo 'OK';
+	}
+	
+	/**
+	 * Асинхронная загрузка плагинов всех социальных сетей (чтобы не тормозило открытие каждой страницы)
+	 * @return null
+	 * 
+	 * @todo переместить настройки виджета в /config/main.php
+	 */
+	public function actionLoadSocial()
+	{
+	    $this->widget('application.extensions.ESocial.ESocial', array(
+	        'renderAjaxData' => true,
+	        'style' => 'horizontal',
+	        'networks' => array(
+	            // g+
+	            'googleplusone'=>array(
+	                "size"=>"medium",
+	                "annotation"=>"bubble",
+	            ),
+	            // В контакте
+	            'vkontakte' => array(
+	                'apiid' => Yii::app()->params['vkontakteApiId'],
+	                'containerid' => 'vk_like',
+	                'scriptid'    => 'vkontakte-init-script',
+	                'type'        => 'button',
+	            ),
+	            // mail.ru и одноклассники (добавляются одной кнопкой)
+	            'mailru' => array(
+	                'type' => 'combo'
+	            ),
+	            // Твиттер
+	            'twitter'=>array(
+	                'data-via'=>'', //http://twitter.com/#!/YourPageAccount if exists else leave empty
+	            ),
+	            // Facebook
+	            'facebook'=>array(
+	                'href'=>'http://easycast.ru/',//asociate your page http://www.facebook.com/page
+	                'action'=>'recommend',//recommend, like
+	                'colorscheme'=>'light',
+	                'width'=>'140px',
+	            )
+	        )
+	    ));
+	}
+	
+	/**
+	 * Возвращает пустой документ с заголовком connection:close
+	 * Эта функция нужна для того, чтобы обходить баг Safari, связанный с загрузкой файлов
+	 * через AJAX. Подробнее здесь: http://airbladesoftware.com/notes/note-to-self-prevent-uploads-hanging-in-safari
+	 * 
+	 * @return null
+	 */
+	public function actionClose()
+	{
+	    header("Connection: close");
+	    Yii::app()->end();
 	}
 }

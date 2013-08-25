@@ -1,6 +1,6 @@
 <?php
 /**
- *social.php
+ * social.php
  *
  * @author Ovidiu Pop <matricks@webspider.ro>
  * @copyright 2011 Binary Technology
@@ -8,10 +8,20 @@
  * @package social
  * @version 0.1
  */
-
 class ESocial extends CInputWidget
 {
-
+    /**
+     * @var bool
+     */
+    public $lazyLoading = false;
+    /**
+     * @var bool
+     */
+    public $renderAjaxData = false;
+    /**
+     * @var string
+     */
+    public $containerId = 'social_buttons_container';
 	/**
 	 * @var string buttons alignment - horizontal, vertical
 	 */
@@ -54,11 +64,18 @@ class ESocial extends CInputWidget
 	 *
 	 * @return nothing
 	 */
-
 	public function init()
 	{
 		self::registerFiles();
-		self::renderSocial();
+	}
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see CWidget::run()
+	 */
+	public function run()
+	{
+	    self::renderSocial();
 	}
 
 	/**
@@ -68,25 +85,35 @@ class ESocial extends CInputWidget
 	 */
 	private function registerFiles()
 	{
-		$assets = dirname(__FILE__).'/assets';
+		$assets  = dirname(__FILE__).'/assets';
 		$baseUrl = Yii::app()->assetManager->publish($assets);
 
-		if(is_dir($assets))
+		if ( is_dir($assets) )
         {
 			Yii::app()->clientScript->registerCssFile($baseUrl . '/social.css');
 		}else
-			throw new Exception(Yii::t('social - Error: Couldn\'t find assets folder to publish.'));
+		{
+		    throw new Exception(Yii::t('social - Error: Couldn\'t find assets folder to publish.'));
+		}
 
-		if(array_key_exists('googleplusone', $this->networks))
+		if ( array_key_exists('googleplusone', $this->networks) )
         {
-            Yii::app()->clientScript->registerScriptFile('https://apis.google.com/js/plusone.js?parsetags=explicit',CClientScript::POS_HEAD);
+            Yii::app()->clientScript->registerScriptFile('https://apis.google.com/js/plusone.js?parsetags=explicit', CClientScript::POS_HEAD);
         }
 	    
-        if(array_key_exists('vkontakte', $this->networks))
+        if ( array_key_exists('vkontakte', $this->networks) )
         {
-            Yii::app()->clientScript->registerScriptFile('http://vk.com/js/api/openapi.js?87',CClientScript::POS_HEAD);
+            Yii::app()->clientScript->registerScriptFile('http://vk.com/js/api/openapi.js?87', CClientScript::POS_HEAD);
             $vkInitScript = 'VK.init({apiId: "'.$this->networks['vkontakte']['apiid'].'", onlyWidgets: true});';
             Yii::app()->clientScript->registerScript('social', $vkInitScript, CClientScript::POS_HEAD);
+        }
+        
+        if ( $this->lazyLoading )
+        {// load ajax script instread of widgets
+            $lazyLoadingScript = "\$.post('/site/loadSocial', function(data) {
+                \$('#{$this->containerId}').html(data);
+            });"; 
+            Yii::app()->clientScript->registerScript('socialLazyLoading', $lazyLoadingScript, CClientScript::POS_END);
         }
 	}
 
@@ -95,10 +122,19 @@ class ESocial extends CInputWidget
 	 *
 	 * @return nothing
 	 */
-	private function renderSocial(){
+	private function renderSocial()
+	{
 		$rendered = '';
-		foreach($this->networks as $network => $params)
-			$rendered .= $this->render($network, array(), true);
-		echo $this->render('social', array('rendered'=>$rendered));
+		foreach ( $this->networks as $network => $params )
+		{
+		    $rendered .= $this->render($network, array(), true);
+		}
+		if ( $this->renderAjaxData )
+		{
+		    echo $rendered;
+		}else
+		{
+		    echo $this->render('social', array('rendered' => $rendered));
+		}
 	}
 }
