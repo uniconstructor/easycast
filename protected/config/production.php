@@ -23,8 +23,6 @@ return CMap::mergeArray(
             ),
         ),
         'params'=>array(
-            // this is used in contact page
-            'adminEmail'=>'admin@easycast.ru',
             // API ID на vkontakte.ru (чтобы работал виджет "мне нравится")
             'vkontakteApiId' => '3534064',
             
