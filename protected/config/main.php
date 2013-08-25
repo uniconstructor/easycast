@@ -1,18 +1,25 @@
 <?php
 
-// uncomment the following to define a path alias
-// Yii::setPathOfAlias('local','path/to/local-folder');
-
 // Twitter bootstrap path alias
 Yii::setPathOfAlias('bootstrap', dirname(__FILE__).'/../extensions/bootstrap');
 
-// This is the main Web application configuration. Any writable
-// CWebApplication properties can be configured here.
+// Главный файл конфигурации приложения.
+// Здесь задаются все общие параметры, одинаковые для "production"(релиза), "test"(тестового сервера) 
+// и "dev"(версии разработчика).
+// В разных ветках git-репозитория лежат дополнительные config-файлы для каждой версии сайта.
+// Каждая версия сайта собирается отдельным ant-скриптом.
+// Последовательность сборки такова: 
+//                    Yii
+//                    EasyCast (ядро)
+//                    Оригинальные плагины
+//                    Наши изменения в плагинах
+//                    Настройки окружения (для dev, test или production версии)
 return array(
     // general application parameters
 	'basePath' => dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
-    // @todo сделать выбор языка в зависимости от региона
-    'language' => 'ru',
+    
+    // язык приложения
+    'language'       => 'ru',
     'sourceLanguage' => 'en_us',
     
     // предварительно загружаемые компоненты
@@ -26,8 +33,10 @@ return array(
     'aliases' => array(
         
     ),
-
+    
+    // сокращенные пути к контроллерам
     'controllerMap' => array(
+        // загрузка изображений в галерею
         'gallery' => array(
             'class'     => 'ext.galleryManager.GalleryController',
             'pageTitle' => 'Gallery administration',
@@ -101,19 +110,19 @@ return array(
 	    // анкета пользователя (реализована отдельным модулем)
 	    'questionary' => array(
             'controllerMap' => array(
-                'gallery'=>array(
-                    'class'=>'ext.galleryManager.GalleryController',
-                    //'pageTitle'=>'Gallery administration',
+                // задаем путь к контроллеру загрузки изображений (для анкеты)
+                'gallery' => array(
+                    'class' => 'ext.galleryManager.GalleryController',
                 ),
             ),
         ),
 	    
         // Форум
-        'forum'=>array(
-            'class'=>'application.modules.yii-forum.YiiForumModule',
-            'forumTableClass' => 'table',
+        'forum' => array(
+            'class' => 'application.modules.yii-forum.YiiForumModule',
+            'forumTableClass'    => 'table',
             'forumListviewClass' => 'detail-view table table-striped table-condensed',
-            'forumDetailClass' => 'detail-view table table-striped table-condensed',
+            'forumDetailClass'   => 'detail-view table table-striped table-condensed',
         ),
         
         // Календарь событий
@@ -152,11 +161,12 @@ return array(
         ),
         
         // Оповещения
+        // @todo привести в порядок или удалить
         'notifyii' => array(
             'class' => 'application.modules.notifyii.NotifyiiModule'
         ),
         
-        // Письма
+        // Письма (этот модуль отвечает за правильную верстку писем)
         'mailComposer' => array(
             'class' => 'application.modules.mailComposer.MailComposerModule'
         ),
@@ -174,7 +184,7 @@ return array(
             'loginUrl'       => array('/user/login'),
 		),
 	    
-		// enable URLs in path-format
+		// Отображаем все URL в формате /путь/к/странице (на сервере должен быть включен mod_rewrite)
 		'urlManager' => array(
 			'urlFormat' => 'path',
 			'rules'     => array(
@@ -187,7 +197,7 @@ return array(
 		
 		// MySQL database settings
 		'db'=>array(
-			// Логин и пароль для базы определяются скриптами сборки проекта
+			// Логин и пароль для базы определяются ant-скриптами сборки проекта
 			// (в зависимости от того где работает приложение: на реальном сервере или локально)
 			// поэтому в основном конфиге эти параметры не указываются
 		    'tablePrefix'    => 'bgl_',
@@ -207,26 +217,28 @@ return array(
 	    // обработка ошибок
 		'errorHandler'=>array(
 			// use 'site/error' action to display errors
-            'errorAction'=>'site/error',
+            'errorAction' => 'site/error',
         ),
 	    
         // логи
-		'log'=>array(
-			'class'=>'CLogRouter',
-			'routes'=>array(
+		'log' => array(
+			'class' => 'CLogRouter',
+			'routes' => array(
+			    // храним логи в базе
 				array(
-					'class' => 'CDbLogRoute',
+					'class'        => 'CDbLogRoute',
 					'connectionID' => 'db',
-					'levels' => 'error, warning, info, application, AWS',
+					'levels'       => 'error, warning, info, application, AWS',
 				    'autoCreateLogTable' => true,
 				),
 			),
 		),
 	    
 	    // Подключаем библиотеку, позволяющую разграничение доступа на основе ролей (RBAC)
+	    // Класс RDbAuthManager предоставлен модулем rights и находится в /modules/rights/components
 	    'authManager' => array(
 	        // Provides support authorization item sorting.
-	        'class'=>'RDbAuthManager',
+	        'class'      => 'RDbAuthManager',
 	        // Роль по умолчанию. Все, кто не админы, модераторы и юзеры — гости.
 	        //'defaultRoles' => array('guest'),
 	        // показываем ошибки только в режиме отладки
@@ -240,21 +252,24 @@ return array(
 	    ),
 
         // Twitter bootstrap
-        'bootstrap'=>array(
-            'class'=>'bootstrap.components.Bootstrap',
+        'bootstrap' => array(
+            'class' => 'bootstrap.components.Bootstrap',
         ),
 
-        // image manipulation library
-        'image'=>array(
-            'class'=>'ext.image.CImageComponent',
+        // image manipulation library (for galleryManager)
+        'image' => array(
+            'class' => 'ext.image.CImageComponent',
         ),
         
         // Настройки сессии
         'session' => array(
-            'class' => 'CHttpSession',
+            // @todo храним сессию в БД 
+            'class' => 'CHttpSession',//CDbHttpSession
+            'autoStart' => true,
+            // храним сессию 2 месяца
+            'timeout' => 3600 * 24 * 60,
             //'connectionID' => 'db',
             //'autoCreateSessionTable' => true,
-            'autoStart' => true,
         ),
         
         // Настройки менеджера скриптов (подключаем собственную, темную тему jquery)
