@@ -18,7 +18,7 @@
     	    $this->widget('bootstrap.widgets.TbBreadcrumbs', array(
     			'links' => $this->breadcrumbs,
     		)); 
-    	{
+        }
     	?>
     	<!-- breadcrumbs -->
     	<?php // основное содержимое страницы 
