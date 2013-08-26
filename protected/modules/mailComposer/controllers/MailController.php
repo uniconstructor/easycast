@@ -9,12 +9,6 @@
 class MailController extends Controller
 {
     /**
-     * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
-     * using two-column layout. See 'protected/views/layouts/column2.php'.
-     */
-    //public $layout = 'application.modules.mailComposer.views.layouts.mail';
-    
-    /**
      * (non-PHPdoc)
      * @see CController::init()
      */

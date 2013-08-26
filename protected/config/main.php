@@ -16,6 +16,7 @@ Yii::setPathOfAlias('bootstrap', dirname(__FILE__).'/../extensions/bootstrap');
 //                    Настройки окружения (для dev, test или production версии)
 return array(
     // general application parameters
+    // физический путь к папке "protected"
 	'basePath' => dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
     
     // язык приложения

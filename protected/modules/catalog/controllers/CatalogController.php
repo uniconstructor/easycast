@@ -23,6 +23,7 @@ class CatalogController extends Controller
         
         parent::init();
     }
+    
     /**
      * Отобразить главную страницу - список актеров по категориям
      */

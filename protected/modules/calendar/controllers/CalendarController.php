@@ -3,7 +3,7 @@
 /**
  * Контроллер для календаря событий
  */
-class CalendarController extends CController
+class CalendarController extends Controller
 {
     /**
      * Отображение главной страницы календаря событий

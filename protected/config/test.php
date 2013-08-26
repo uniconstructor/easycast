@@ -1,4 +1,5 @@
 <?php
+// @todo перенести этот файл в ветвь "test" и убрать отсюда
 
 return CMap::mergeArray(
 	require(dirname(__FILE__).'/main.php'),

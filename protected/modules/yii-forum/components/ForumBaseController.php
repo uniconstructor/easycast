@@ -5,8 +5,12 @@
  * set the user state "forumuser_id" to a correct value.
  * All controllers in the foum module must extend from this base class.
  */
-class ForumBaseController extends CController
+class ForumBaseController extends Controller
 {
+    /**
+     * (non-PHPdoc)
+     * @see CController::beforeAction()
+     */
 	public function beforeAction($action)
 	{
 		// If user is guest, we have nothing to do, and if it's already

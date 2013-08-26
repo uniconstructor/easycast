@@ -9,7 +9,12 @@
 </head>
 <body>
     <?php // шапка страницы
-        $this->widget('ext.ECMarkup.ECHeader.ECHeader', $this->ecHeaderOptions);
+        $ecHeaderOptions = array();
+        if ( isset($this->ecHeaderOptions) )
+        {
+            $ecHeaderOptions = $this->ecHeaderOptions;
+        }
+        $this->widget('ext.ECMarkup.ECHeader.ECHeader', $ecHeaderOptions);
     ?>
     <div class="container" id="page">
         <?php // Верхняя навигация (хлебные крошки) 
