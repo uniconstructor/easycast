@@ -280,11 +280,16 @@ class CatalogModule extends CWebModule
 	 * Получить данные для фрагмента формы поиска
 	 * @param string $namePrefix - название переменной в которой хранятся все значения текущего фрагмента
 	 * @return array
+	 * 
+	 * @todo не разделять поиск по разделам и большой форме. Оставить для совместимости.
 	 */
 	public static function getFormSearchData($namePrefix)
 	{
-	    self::initFormSearchData($namePrefix);
-	    $searchData = self::getSessionSearchData();
+	    if ( ! $searchData = self::getSessionSearchData() )
+	    {// данные изначально не установлены
+	        self::initFormSearchData($namePrefix);
+	        $searchData = self::getSessionSearchData();
+	    }
 	
 	    return $searchData['form'][$namePrefix];
 	}
