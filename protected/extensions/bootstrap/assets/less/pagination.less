@@ -27,25 +27,27 @@
   padding: 4px 12px;
   line-height: @baseLineHeight;
   text-decoration: none;
-  background-color: @paginationBackground;
-  border: 1px solid @paginationBorder;
+  background-color: #000;
+  border: 1px solid #000;
+  color: @linkColor;
   border-left-width: 0;
 }
 .pagination ul > li > a:hover,
 .pagination ul > .active > a,
 .pagination ul > .active > span {
-  background-color: @paginationActiveBackground;
+  background-color: @brandPrimary;
+  color: @white;
 }
 .pagination ul > .active > a,
 .pagination ul > .active > span {
-  color: @grayLight;
+  color: @white;
   cursor: default;
 }
 .pagination ul > .disabled > span,
 .pagination ul > .disabled > a,
 .pagination ul > .disabled > a:hover {
-  color: @grayLight;
-  background-color: transparent;
+  color: @white;
+  background-color: @brandPrimary;
   cursor: default;
 }
 .pagination ul > li:first-child > a,
