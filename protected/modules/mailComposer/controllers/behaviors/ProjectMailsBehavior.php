@@ -44,7 +44,7 @@ class ProjectMailsBehavior extends CBehavior
      * @todo предлагать посмотреть другие приглашения только если они реально есть
      * @todo добавить отображение лого проекта
      */
-    protected function createNewInviteMailText($invite, $mailOptions=array())
+    public function createNewInviteMailText($invite, $mailOptions=array())
     {
         $segments    = new CMap();
         $mailOptions = $this->getInviteMailOptions($invite, $mailOptions);

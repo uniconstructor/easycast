@@ -20,7 +20,7 @@ class MailComposerModule extends CWebModule
      */
     public static function getSubject($action, $params=null)
     {
-        list($controller, $action) = Yii::app()->createController('/mailComposer/mail');
+        list($controller, $route) = Yii::app()->createController('/mailComposer/mail');
         switch ( $action )
         {
             // письмо с приглашением на съемки
@@ -43,7 +43,7 @@ class MailComposerModule extends CWebModule
      */
     public static function getMessage($action, $params=null)
     {
-        list($controller, $action) = Yii::app()->createController('/mailComposer/mail');
+        list($controller, $route) = Yii::app()->createController('/mailComposer/mail');
         switch ( $action )
         {
             // письмо с приглашением на съемки
@@ -100,7 +100,7 @@ class MailComposerModule extends CWebModule
      */
     public function createSimpleMessage($header, $text, $options=array())
     {
-        list($controller, $action) = Yii::app()->createController('/mailComposer/mail');
+        list($controller, $route) = Yii::app()->createController('/mailComposer/mail');
         return $controller->createSimpleMail($header, $text, $options);
     }
     
