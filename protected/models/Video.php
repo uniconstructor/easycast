@@ -12,6 +12,7 @@
  * @property string $description
  * @property string $link
  * @property string $timecreated
+ * @property string $timemodified
  * @property string $uploaderid
  * @property string $md5
  * @property string $size
@@ -83,7 +84,7 @@ class Video extends CActiveRecord
 			array('id, objecttype, objectid, name, type, description, link, timecreated, uploaderid, md5, size, status', 'safe', 'on'=>'search'),
 		);
 	}
-
+	
 	/**
 	 * @return array relational rules.
 	 */
@@ -106,7 +107,11 @@ class Video extends CActiveRecord
 	            'class' => 'zii.behaviors.CTimestampBehavior',
 	            'createAttribute' => 'timecreated',
 	            'updateAttribute' => 'timemodified',
-	        )
+	        ),
+	        // подключаем расширение для работы со статусами
+	        /*'swBehavior'=>array(
+	            'class' => 'application.extensions.simpleWorkflow.SWActiveRecordBehavior',
+	        ),*/
         );
 	}
 
