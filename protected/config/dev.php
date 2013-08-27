@@ -38,8 +38,6 @@ return CMap::mergeArray(
             )
         ),
         'params' => array(
-            // адрес с которого рассылаются все письма
-            'adminEmail'=>'admin@easycast.ru',
             // API ID на vkontakte.ru (чтобы работал виджет "мне нравится")
             'vkontakteApiId' => '3534064',
             
@@ -65,7 +63,7 @@ return CMap::mergeArray(
             'AWSEmailQueueName' => 'test_easycast_mail',
             
             // Для отладки: отсылать ли вообще хоть какие-нибудь сообщения, даже на тестовые адреса?
-            'AWSSendMessages' => false,
+            'AWSSendMessages' => true,
         ),
     )
 );

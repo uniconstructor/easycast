@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Сборка EasyCast для разработчика (локально)" default="finish" basedir="../">
+<project name="Сборка EasyCast для разработчика (локально) " default="finish" basedir="../">
     
 	<!-- Указываем путь к Yii -->
 	<property name="yii.dir" value="../yiisoft/yii/"/>
@@ -101,7 +101,7 @@
     </target>
     
     <target name="finish" depends="update-local-webserver">
-        <echo>Development version assembled. Fuck yeah.</echo>
+        <echo>Development version assembled. Ready to go.</echo>
     </target>
     
 </project>
