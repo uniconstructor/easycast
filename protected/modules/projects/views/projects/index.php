@@ -7,7 +7,7 @@ $this->breadcrumbs=array(
 ?>
 <!--h1><?php // echo ProjectsModule::t('projects'); ?></h1-->
 
-<div class="row span12">
+<div>
 <?php 
 
 // выводим пользователей в каталоге
