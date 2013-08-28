@@ -144,27 +144,16 @@ class CatalogData extends CWidget
                 )
             );
         }else
-       {// раздел содержит анкеты
+        {// раздел содержит анкеты
             $criteria = $this->section->scope->getCombinedCriteria();
-            /*$criteria->with = array(
-                'actoruniversities' => array(
-                    'joinType' => 'INNER JOIN',
-                    'on' => 'actoruniversities.questionaryid = t.id'
-            ));*/
             
-            //$criteria->params = array();
-            
-            //CVarDumper::dump($criteria, 10, true);
             // @todo прописать активный статус в условиях самих разделов
-            $criteria->addCondition("status = 'active'");
-            
-            //CVarDumper::dump($res, 10, true);die;
+            $criteria->compare('status', 'active');
             $dataProvider = new CActiveDataProvider('Questionary', array(
-                    'criteria' => $criteria,
+                    'criteria'   => $criteria,
                     'pagination' => array('pageSize' => self::MAX_SECTION_ITEMS),
                 )
             );
-            //$dataProvider = $this->createArrayProvider($criteria);
         }
         
         // получаем содержимое раздела в виде плитки с картинками
@@ -203,7 +192,6 @@ class CatalogData extends CWidget
                 'pagination' => array('pageSize' => self::MAX_SECTION_ITEMS),
             )
         );
-        //$dataProvider = $this->createArrayProvider($criteria);
         
         // получаем содержимое раздела в виде плитки с картинками
         $tabData['content'] = $this->getPageContent($dataProvider, 'users', $tab->shortname);
@@ -277,52 +265,24 @@ class CatalogData extends CWidget
     {
         switch ( $type )
         {
-            case 'users':    $view = '/_user'; break;
-            case 'sections': $view = '/_subsection'; break;
+            case 'users':    
+                $view     = '/_user';
+                $template = "{summary}{items}{pager}";
+            break;
+            case 'sections': 
+                $view     = '/_subsection';
+                $template = "{items}{pager}";
+            break;
         }
         
         return $this->widget('bootstrap.widgets.TbThumbnails', array(
             'dataProvider'    => $dataProvider,
-            'template'        => "{summary}{items}{pager}",
+            'template'        => $template,
             'itemView'        => $view,
             'ajaxUpdate'      => $tabName.'_tab',
             'id'              => $tabName.'_tab',
             'afterAjaxUpdate' => $this->getPagerAfterAjaxUpdate(),
         ), true);
-    }
-    
-    /**
-     * @deprecated
-     * @param CDbCriteria $criteria
-     * @return CArrayDataProvider
-     */
-    protected function createArrayProvider($criteria)
-    {
-        // @todo по неизвестной причине удается выполнить запрос
-        // Questionary::model()->findAll($criteria)
-        // но не удается создать CActiveDataProvider по тому же самому критерию
-        // поэтому в этом месте мы используем CArrayDataProvider
-        $records = Questionary::model()->findAll($criteria);
-        
-        $elements = array();
-        foreach ( $records as $record )
-        {
-            $element = array();
-            $element['id']       = $record->id;
-            $element['imageUrl'] = $record->getAvatarUrl('catalog');
-            $element['fullName'] = $record->fullname;
-            $element['age']      = $record->age;
-            if ( $record->user )
-            {
-                $elements[$record->id] = $element;
-            }
-        }
-        $dataProvider = new CArrayDataProvider($elements, array(
-            'pagination' => array('pageSize' => self::MAX_SECTION_ITEMS),
-            )
-        );
-        
-        return $dataProvider;
     }
     
     /**
