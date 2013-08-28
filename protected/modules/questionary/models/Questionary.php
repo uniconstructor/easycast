@@ -263,6 +263,9 @@ class Questionary extends CActiveRecord
                 'limit'     => self::LAST_INVITES_COUNT),
             // Неподтвержденные заявки на участие в мероприятиях
             'requests' => array(self::HAS_MANY, 'MemberRequest', 'memberid'),
+            // Предварительно одобренные заявки на участие
+            'pendingrequests' => array(self::HAS_MANY, 'ProjectMember', 'memberid', 
+                'condition' => "`memberinstances`.`status`='pending'"),
             // Участие во всех мероприятиях
             'memberinstances' => array(self::HAS_MANY, 'ProjectMember', 'memberid', 
                 'condition' => "`memberinstances`.`status`='active' OR status='finished'"),
@@ -272,18 +275,21 @@ class Questionary extends CActiveRecord
             // История участия во всех прошедших мероприятиях
             'finishedmemberinstances' => array(self::HAS_MANY, 'ProjectMember', 'memberid', 
                 'condition' => "`finishedmemberinstances`.`status`='finished'"),
-            // @todo Проекты, (сделать свять типа "мост")
+            // @todo Проекты, (сделать связь типа "мост" + DISTINCT)
             
             
             // Статистика
             // Неподтвержденные заявки на участие в мероприятиях
             'requestsCount' => array(self::STAT, 'MemberRequest', 'memberid'),
+            // Предварительно одобренные заявки на участие
+            'pendingRequestsCount' => array(self::HAS_MANY, 'ProjectMember', 'memberid',
+                'condition' => "`status`='pending'"),
             // Новые (еще не просмотренные) приглашения на мероприятия
             'invitesCount' => array(self::STAT, 'EventInvite', 'questionaryid',
-                'condition' => "`status` = 'pending' AND `deleted` = 0"),
+                'condition' => "`status`='pending' AND `deleted`=0"),
             // Предстоящие съемки (время при выборке не учитываем, они сами завершаться когда нужно)
             'upcomingEventsCount' => array(self::STAT, 'ProjectMember', 'memberid',
-                'condition' => "`status`='active'",),
+                'condition' => "`status`='active'"),
         );
     }
 
@@ -330,7 +336,7 @@ class Questionary extends CActiveRecord
         {
            if ( PHP_SAPI == 'cli' )
            {// @todo это хак, позволяющий обойти ошибку, возникающую при попытке обновить модель
-               // анкеты при запуске миграции. Нужно переписать эти проверки так, чтобы
+               // анкеты при запуске миграции из командной строки. Нужно переписать эти проверки так, чтобы
                // ими можно было управлять при помощи параметра needsValidation в save()
                return parent::beforeSave();
            }
