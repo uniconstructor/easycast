@@ -115,8 +115,8 @@ class QUserInfo extends CWidget
         if ( $this->isMyQuestionary() OR Yii::app()->user->checkAccess('Admin') )
         {// для своей анкеты добавляем вкладки cо съемками
             $tabs[] = 'invites';
-            $tabs[] = 'requests';
-            $tabs[] = 'events';
+            //$tabs[] = 'requests';
+            //$tabs[] = 'events';
         }
         return $tabs;
     }
