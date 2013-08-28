@@ -290,7 +290,10 @@ class CatalogModule extends CWebModule
 	        self::initFormSearchData($namePrefix);
 	        $searchData = self::getSessionSearchData();
 	    }
-	
+	    if ( ! isset($searchData['form'][$namePrefix]) )
+	    {
+	        return array();
+	    }
 	    return $searchData['form'][$namePrefix];
 	}
 	
