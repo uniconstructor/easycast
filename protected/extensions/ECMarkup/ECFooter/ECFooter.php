@@ -66,7 +66,7 @@ class ECFooter extends CWidget
         $easyCast = '&laquo;' . CHtml::link('EasyCast', Yii::app()->getBaseUrl(true)) . '&raquo;';
         echo Yii::t('coreMessages', 'copyright_notice', array('{easycast}' => $easyCast));
         echo '&nbsp;';
-        echo Yii::powered();
+        ///echo Yii::powered();
         echo '</div>';
     }
 
