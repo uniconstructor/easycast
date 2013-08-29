@@ -20,7 +20,7 @@
                         <div id="headline" align="center">
                             <p>
                                 <strong>
-                                <singleline label=""><?= $this->header; ?></singleline>
+                                <singleline label=""><h1><?= $this->header; ?></h1></singleline>
                                 </strong>
                             </p>
                         </div>

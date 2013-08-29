@@ -6,7 +6,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-<title></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=320, target-densitydpi=device-dpi">
 <style type="text/css">
@@ -132,6 +131,7 @@ body {
     background-color: #060606;
     margin: 0;
     padding: 0;
+    color: #ffffff;
 }
 
 img {
@@ -375,7 +375,7 @@ body,td {
                 <td bgcolor="#060606" align="center">
                     <table class="w640" style="margin: 0 10px;"
                         width="640" border="0" cellpadding="0"
-                        cellspacing="0">
+                        cellspacing="0" style="color:#ffffff;">
                         <tbody>
                             <?php
                             // основное содержимое письма идет здесь 

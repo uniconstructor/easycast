@@ -6,7 +6,7 @@
 ?>
 <tr id="simple-content-row">
     <td class="w640" width="640" bgcolor="#121417">
-        <table class="w640" width="640" border="0" cellpadding="0" cellspacing="0">
+        <table class="w640" width="640" border="0" cellpadding="0" cellspacing="0" style="color:#ffffff;">
             <tbody>
                 <tr>
                     <td class="w30" width="30"></td>
