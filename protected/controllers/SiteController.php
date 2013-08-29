@@ -43,12 +43,21 @@ class SiteController extends Controller
 	 */
 	public function actionError()
 	{
-		if($error=Yii::app()->errorHandler->error)
+		if ( $error=Yii::app()->errorHandler->error )
 		{
-			if(Yii::app()->request->isAjaxRequest)
-				echo $error['message'];
-			else
-				$this->render('error', $error);
+			if ( Yii::app()->request->isAjaxRequest )
+			{
+			    if ( defined('YII_DEBUG') AND YII_DEBUG === true )
+			    {
+			        echo $error['message'];
+			    }else
+			    {
+			        Yii::app()->end();
+			    }
+			}else
+			{
+			    $this->render('error', $error);
+			}
 		}
 	}
 
