@@ -118,11 +118,11 @@ class ProjectMailsBehavior extends CBehavior
         // блок с напоминанием и датами съемок
         if ( $event->type == 'group' )
         {// группа мероприятий - выведем информацию о каждом (несколько блоков)
-            $groupBlocks = $this->createGroupEventDescription($invite->event);
+            $groupBlocks = $this->createGroupEventDescription($projectMember->vacancy->event);
             $segments->mergeWith($groupBlocks);
         }else
         {// одно мероприятие - информация о нем помещается в один блок
-            $eventBlock = $this->createSingleEventDescription($invite->event);
+            $eventBlock = $this->createSingleEventDescription($projectMember->vacancy->event);
             $segments->add(null, $eventBlock);
         }
         // заключение
