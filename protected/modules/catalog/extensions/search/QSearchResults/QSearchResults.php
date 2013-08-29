@@ -163,7 +163,7 @@ class QSearchResults extends CWidget
             case 'section':
                 // @todo убрать разделение между поиском по рпзделу и по большой форме
                 $data = CatalogModule::getFormSearchData(CatalogModule::SEARCH_FIELDS_PREFIX);
-                if ( $this->objectId )
+                if ( $this->objectId OR $this->section )
                 {
                     $data = CatalogModule::getFilterSearchData(CatalogModule::SEARCH_FIELDS_PREFIX, $this->objectId);
                 }
@@ -189,8 +189,10 @@ class QSearchResults extends CWidget
             $dataProvider = new CArrayDataProvider(array());
         }else
         {// все данные есть, получаем результаты поиска
-            // @todo переместить статус в критерий раздела
+            // @todo переместить статус и сортировку в критерий раздела
             $criteria->compare('status', 'active');
+            $criteria->order = '`rating` DESC';
+            
             $emptyText = $this->getAjaxMessage('noData');
             $dataProvider = new CActiveDataProvider('Questionary', array(
                 'criteria'   => $criteria,
