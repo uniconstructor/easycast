@@ -113,10 +113,10 @@ class QUserInfo extends CWidget
             $tabs[] = 'conditions';
         }
         if ( $this->isMyQuestionary() OR Yii::app()->user->checkAccess('Admin') )
-        {// для своей анкеты добавляем вкладки cо съемками
+        {// для своей анкеты добавляем вкладки cо съемками и приглашениями
             $tabs[] = 'invites';
-            //$tabs[] = 'requests';
-            //$tabs[] = 'events';
+            $tabs[] = 'requests';
+            $tabs[] = 'events';
         }
         return $tabs;
     }
@@ -151,8 +151,12 @@ class QUserInfo extends CWidget
             case 'conditions': $content = $this->getConditionsTabContent(); break;
             // "Контакты" - показывается только админам, содержит контакты и личную информацию
             case 'personal':   $content = $this->getPersonalTabContent(); break;
-            // "Приглашения" - показывается всегда, но только на своей странице
+            // "Мои приглашения" - показывается всегда, но только на своей странице
             case 'invites':    $content = $this->getInvitesTabContent(); break;
+            // "Мои заявки" - показываются только если есть, только на своей странице
+            case 'requests':   $content = $this->getRequestsTabContent(); break;
+            // "Мои съемки" - показываются только если есть, только на своей странице
+            case 'events':     $content = $this->getEventsTabContent(); break;
             
             default: $content = $this->getMainTabContent();//throw new CException('Неизвестный тип вкладки: '.$name);
         }
@@ -183,13 +187,28 @@ class QUserInfo extends CWidget
     protected function getTabLabel($name)
     {
         $label = QuestionaryModule::t('userinfo_section_'.$name);
-        
-        if ( $name == 'invites' AND $this->questionary->invites )
-        {// к вкладке c приглашениями добавляем цифру (если есть новые)
-            $label .= ' ('.count($this->questionary->invites).')';
+        if ( $count = $this->getTabCount($name) )
+        {// к вкладке добавляем счетчик количества объектов (если предусмотрен)
+            $label .= ' ('.$count.')';
         }
         
         return $label;
+    }
+    
+    /**
+     * Получить счетчик количества объектов во вкладке (если предусмотрен)
+     * @param string $name - короткое название вкладки
+     * @return string
+     */
+    protected function getTabCount($name)
+    {
+        switch ( $name )
+        {
+            case 'invites':  return $this->questionary->invitesCount; break;
+            case 'requests': return $this->questionary->requestsCount; break;
+            case 'events':   return $this->questionary->upcomingEventsCount; break;
+        }
+        return false;
     }
     
     /**
@@ -214,25 +233,25 @@ class QUserInfo extends CWidget
         if ( $questionary->playage )
         {// игровой возраст
             $data['playage']      = $questionary->playage;
-            $attributes[]        = array('name'=>'playage', 'label'=>QuestionaryModule::t('playage_label'));
+            $attributes[]         = array('name'=>'playage', 'label'=>QuestionaryModule::t('playage_label'));
         }
         
         if ( $questionary->Height )
         {// рост
             $data['height']       = $questionary->Height;
-            $attributes[]        = array('name'=>'height', 'label'=>QuestionaryModule::t('height_label'));
+            $attributes[]         = array('name'=>'height', 'label'=>QuestionaryModule::t('height_label'));
         }
         
         if ( $questionary->Weight )
         {// вес
             $data['weight']       = $questionary->Weight;
-            $attributes[]        = array('name'=>'weight', 'label'=>QuestionaryModule::t('weight_label'));
+            $attributes[]         = array('name'=>'weight', 'label'=>QuestionaryModule::t('weight_label'));
         }
         
         if ( $questionary->Physiquetype )
         {// телосложение
             $data['physiquetype'] = $questionary->Physiquetype;
-            $attributes[]        = array('name'=>'physiquetype', 'label'=>QuestionaryModule::t('physiquetype_label'));
+            $attributes[]         = array('name'=>'physiquetype', 'label'=>QuestionaryModule::t('physiquetype_label'));
         }
         
         if ( $questionary->Looktype )
@@ -248,19 +267,19 @@ class QUserInfo extends CWidget
         if ( $questionary->hairlength )
         {// длина волос
             $data['hairlength'] = $questionary->getScalarFieldDisplayValue('hairlength', $questionary->hairlength);
-            $attributes[]      = array('name'=>'hairlength', 'label'=>QuestionaryModule::t('hairlength_label'));
+            $attributes[]       = array('name'=>'hairlength', 'label'=>QuestionaryModule::t('hairlength_label'));
         }
         
         if ( $questionary->Haircolor )
         {// Цвет волос
             $data['haircolor'] = $questionary->Haircolor;
-            $attributes[]     = array('name'=>'haircolor', 'label'=>QuestionaryModule::t('haircolor_label'));
+            $attributes[]      = array('name'=>'haircolor', 'label'=>QuestionaryModule::t('haircolor_label'));
         }
         
         if ( $questionary->Eyecolor )
         {// цвет глаз
             $data['eyecolor']     = $questionary->Eyecolor;
-            $attributes[]        = array('name'=>'eyecolor', 'label'=>QuestionaryModule::t('eyecolor_label'));
+            $attributes[]         = array('name'=>'eyecolor', 'label'=>QuestionaryModule::t('eyecolor_label'));
         }
         
         // дополнительные характеристики внешности
@@ -1216,7 +1235,6 @@ class QUserInfo extends CWidget
             $attributes[] = array('name'=>'okprofile', 'label'=>QuestionaryModule::t('okprofile_label'));
             $data['okprofile'] = $questionary->okprofile;
         }
-                
         
         $content .= $this->widget('bootstrap.widgets.TbDetailView', array(
             'data'       => $data,
@@ -1232,11 +1250,10 @@ class QUserInfo extends CWidget
      */
     protected function getInvitesTabContent()
     {
-        if ( ! $this->isMyQuestionary() )
+        if ( ! $this->isMyQuestionary() AND ! Yii::app()->user->checkAccess('Admin') )
         {// приглашения показываются только в своей анкете
-            return false;
+            return '';
         }
-        
         $content = '';
         $content .= '<h3>'.QuestionaryModule::t('userinfo_section_invites').'</h3>';
         
@@ -1255,11 +1272,13 @@ class QUserInfo extends CWidget
      */
     protected function getRequestsTabContent()
     {
-        if ( ! $this->isMyQuestionary() )
+        if ( ! $this->isMyQuestionary() AND ! Yii::app()->user->checkAccess('Admin') OR ! $this->questionary->requestsCount )
         {// заявки показываются только в своей анкете
             return false;
         }
-        
+        return $this->widget('questionary.extensions.widgets.QUserApplications.QUserApplications', array(
+            'questionary' => $this->questionary,
+        ), true);
     }
     
     /**
@@ -1267,12 +1286,15 @@ class QUserInfo extends CWidget
      * 
      * @return string
      */
-    protected function getUpcomingEventsTabContent()
+    protected function getEventsTabContent()
     {
-        if ( ! $this->isMyQuestionary() )
+        if ( ! $this->isMyQuestionary() AND ! Yii::app()->user->checkAccess('Admin') OR ! $this->questionary->upcomingEventsCount )
         {// съемки показываются только в своей анкете
             return false;
         }
+        return $this->widget('questionary.extensions.widgets.QUserEvents.QUserEvents', array(
+            'questionary' => $this->questionary,
+        ), true);
     }
     
     /**

@@ -349,6 +349,8 @@ return array
     'userinfo_section_conditions' => 'Условия',
     'userinfo_section_personal' => 'Контакты',
     'userinfo_section_invites' => 'Мои приглашения',
+    'userinfo_section_requests' => 'Мои заявки',
+    'userinfo_section_events' => 'Мои съемки',
     
     
     //////////////////////////////

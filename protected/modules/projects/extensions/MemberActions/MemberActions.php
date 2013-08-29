@@ -63,7 +63,7 @@ class MemberActions extends CWidget
     {
         if ( ! is_object($this->member) )
         {
-            throw new CException(500, 'Member not set');
+            throw new CException(500, get_class($this).': Member not set');
         }
         
         $this->messageId   = 'member_actions_message_'.$this->member->id;
@@ -139,6 +139,10 @@ class MemberActions extends CWidget
      */
     protected function isAllowed($type)
     {
+        if ( $type == 'finished' OR $type == 'succeed' OR $type == 'failed' )
+        {// @todo доработать ручную установку этих статусов
+            return false;
+        }
         if ( Yii::app()->user->checkAccess('Admin') AND $type != 'canceled' )
         {// админам можно все кроме отмены заявок (эта функция только для участников)
             return true;
@@ -146,8 +150,8 @@ class MemberActions extends CWidget
         if ( Yii::app()->user->checkAccess('User') )
         {// обычным участникам позволяем только отменять свои заявки
             if ( $type == 'canceled' AND Yii::app()->user->id == $this->member->member->user->id )
-            {
-                return true;
+            {// @todo временно запрещаем отзывать заявки
+                return false;//return true;
             }
         }
         

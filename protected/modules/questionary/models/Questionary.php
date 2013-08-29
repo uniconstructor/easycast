@@ -76,12 +76,17 @@
  * @property integer $rating
  * @property integer $hastatoo
  * 
- * Relations:
+ * Relations (single):
  * @property User $user 
+ * @property Address $address
+ * 
+ * Relations (multi):
+ * @property array $pendingrequests
  * 
  * Stats:
- * @property int invitesCount
- * @property int requestsCount
+ * @property int invitesCount - количество непрочитанных приглашений
+ * @property int requestsCount - количество
+ * @property int pendingRequestsCount
  * @property int upcomingEventsCount
  * 
  * @todo вынести преобразование скалярных полей в отдельный behaviour
@@ -261,14 +266,15 @@ class Questionary extends CActiveRecord
             'oldinvites' => array(self::HAS_MANY, 'EventInvite', 'questionaryid', 
                 'condition' => "`invites`.`status` != 'draft' `deleted` = 0",
                 'limit'     => self::LAST_INVITES_COUNT),
-            // Неподтвержденные заявки на участие в мероприятиях
+            // Все заявки на участие в мероприятиях (неподтвержденные + предварительно отобранные)
             'requests' => array(self::HAS_MANY, 'MemberRequest', 'memberid'),
-            // Предварительно одобренные заявки на участие
+            // @todo Только неподтвержденные заявки на участие
+            // Только предварительно подтвержденные заявки на участие
             'pendingrequests' => array(self::HAS_MANY, 'ProjectMember', 'memberid', 
                 'condition' => "`memberinstances`.`status`='pending'"),
-            // Участие во всех мероприятиях
+            // Участие во всех мероприятиях (подтвержденные заявки)
             'memberinstances' => array(self::HAS_MANY, 'ProjectMember', 'memberid', 
-                'condition' => "`memberinstances`.`status`='active' OR status='finished'"),
+                'condition' => "`memberinstances`.`status` IN ('active', 'finished', 'succeed', 'failed')"),
             // Активность в текущих мероприятиях
             'activememberinstances' => array(self::HAS_MANY, 'ProjectMember', 'memberid', 
                 'condition' => "`activememberinstances`.`status`='active'"),
@@ -279,7 +285,7 @@ class Questionary extends CActiveRecord
             
             
             // Статистика
-            // Неподтвержденные заявки на участие в мероприятиях
+            // Все заявки на участие в мероприятиях
             'requestsCount' => array(self::STAT, 'MemberRequest', 'memberid'),
             // Предварительно одобренные заявки на участие
             'pendingRequestsCount' => array(self::HAS_MANY, 'ProjectMember', 'memberid',

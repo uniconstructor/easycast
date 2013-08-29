@@ -32,11 +32,14 @@ class MemberRequest extends ProjectMember
     public function scopes()
     {
         return array(
-            'rejected'=>array(
+            'rejected' => array(
                 'condition'=>"`status` = ".self::STATUS_REJECTED."'",
             ),
-            'draft' =>array(
+            'draft' => array(
                 'condition'=>"`status` = '".self::STATUS_DRAFT."'",
+            ),
+            'pending' => array(
+                'condition'=>"`status` = '".self::STATUS_PENDING."'",
             ),
         );
     }
