@@ -607,7 +607,6 @@ class ProjectEvent extends CActiveRecord
 	public function getDefaultTimeStart($neededTimeStart=null)
 	{
 	    $defaultTimeStart = time();
-	     
 	    if ( ! $neededTimeStart )
 	    {
 	        $timeStart = $defaultTimeStart;
@@ -630,7 +629,7 @@ class ProjectEvent extends CActiveRecord
 	public function getDefaultTimeEnd($timeStart, $neededTimeEnd=null)
 	{
 	    $defaultTimeEnd = $timeStart + 3*31*24*3600;
-	    if ( ! $neededTimeStart )
+	    if ( ! $neededTimeEnd )
 	    {// пользователь не указал окончание временного периода - устанавливаем по умолчанию
 	        $timeEnd = $defaultTimeEnd;
 	    }else
