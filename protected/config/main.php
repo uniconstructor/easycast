@@ -291,14 +291,16 @@ return array(
         ),
         
         // Настройки виджетов по умолчанию
-        'widgetFactory'=>array(
-            'widgets'=>array(
+        'widgetFactory' => array(
+        
+            'widgets' => array(
                 // Выравнивание верстки для форума
                 // @todo поправить форум, а эту настройку отсюда убрать
-                'CGridView'=>array(
-                    'itemsCssClass'=>'',
-                    'pagerCssClass'=>'',
+                'CGridView' => array(
+                    'itemsCssClass' => '',
+                    'pagerCssClass' => '',
                 ),
+                
                 // Формы для сложных значений
                 'MultiModelForm' => array(
                     'tableView'         => true,
@@ -321,10 +323,17 @@ return array(
                 // Выбор даты из календаря
                 'CJuiDatePicker' => array(
                     'language' => 'ru',
-                    'options'=>array(
+                    'options' => array(
                         'showAnim' => 'fold',
                         'dateFormat' => 'dd/mm/yy',
                     ),
+                ),
+                
+                // Галерея загрузки фотографий
+                'GalleryManager' => array(
+                    'htmlOptions' => array(
+                         'class'=>'dark',
+                    )
                 ),
             ),
         ),
