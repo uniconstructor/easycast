@@ -4,24 +4,28 @@ return CMap::mergeArray(
     require(dirname(__FILE__).'/main.php'),
     array(
         'components' => array(
+            
             'db' => array(
                 // данные для работы сайта в сети (amazon RDS)
-                'connectionString' => 'mysql:easycastmelinda.c3u48hx0c3om.us-east-1.rds.amazonaws.com;dbname=easycast',
+                'connectionString' => 'mysql:aa1ag10r3jn7rqy.c3u48hx0c3om.us-east-1.rds.amazonaws.com;dbname=easycast',
                 'username' => 'root',
 			    'password' => '0uq8zPppAmBsdBR66QmG',
             ),
-            'log'=>array(
-                'class'=>'CLogRouter',
-                'routes'=>array(
+            
+            'log' => array(
+                'class' => 'CLogRouter',
+                'routes' => array(
                     array(
-                        'class'=>'CDbLogRoute',
+                        'class' => 'CDbLogRoute',
+                        // храним логи отдельно ото всех остальных данных для лучшей безопасности
                         'connectionID' => 'db',
-                        'levels'=>'error, warning, info, application',
+                        'levels' => 'error, warning, info, application',
                         'autoCreateLogTable' => false,
                     ),
                 ),
             ),
         ),
+        
         'params'=>array(
             // API ID на vkontakte.ru (чтобы работал виджет "мне нравится")
             'vkontakteApiId' => '3534064',
