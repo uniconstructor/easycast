@@ -113,7 +113,6 @@ class QuestionaryModule extends CWebModule
             'application.modules.catalog.CatalogModule',
 
             // галерея изображений
-            // @todo перенести путь к расширению с изображениями в настройку
             'ext.galleryManager.*',
             'ext.galleryManager.models.*',
         ));
@@ -193,12 +192,12 @@ class QuestionaryModule extends CWebModule
      * @param $dic
      * @return string
      */
-    public static function t($str='',$params=array(),$dic='questionary') {
+    public static function t($str='', $params=array(), $dic='questionary') {
         if (Yii::t("QuestionaryModule", $str)==$str)
         {
             return Yii::t("QuestionaryModule.".$dic, $str, $params);
         }else
-       {
+        {
            return Yii::t("QuestionaryModule", $str, $params);
         }
     }
@@ -207,9 +206,30 @@ class QuestionaryModule extends CWebModule
      * Переопределяем viewPath чтобы можно было нормально просматривать и редактировать анкету
      * (non-PHPdoc)
      * @see CController::getViewPath()
+     * @todo удалить, не пригодилась
      */
     public function getViewPath()
     {
         return Yii::getPathOfAlias('application.modules.questionary.views.questionary');
+    }
+    
+    /**
+     * (non-PHPdoc)
+     * @see CWebModule::beforeControllerAction()
+     */
+    public function beforeControllerAction($controller, $action)
+    {
+        if ( $controller == 'gallery' AND in_array($action,array('delete','ajaxUpload','order','changeData','setCoverId')) )
+        {
+            if ( Yii::app()->user->isGuest )
+            {
+                return false;
+            }
+            if ( Yii::app()->user->checkAccess('Admin') )
+            {
+                return true;
+            }
+            return true;
+        }
     }
 }

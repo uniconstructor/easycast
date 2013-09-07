@@ -25,7 +25,7 @@
     	{
     	    $this->widget('GalleryManagerS3', array(
     	        'gallery' => $model->galleryBehavior->getGallery(),
-    	        'controllerRoute' => '/questionary/gallery'
+    	        'controllerRoute' => '/admin/gallery'
     	    ));
     	}
 	?>

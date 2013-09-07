@@ -38,6 +38,7 @@ return array(
     // сокращенные пути к контроллерам
     'controllerMap' => array(
         // загрузка изображений в галерею
+        // @todo удалить в целях безопасности
         'gallery' => array(
             'class'     => 'ext.galleryManager.GalleryController',
             'pageTitle' => 'Gallery administration',
@@ -140,6 +141,13 @@ return array(
         // админка
         'admin' => array(
             'class' => 'application.modules.admin.AdminModule',
+            'controllerMap' => array(
+                // задаем путь к контроллеру загрузки изображений (для анкеты)
+                'gallery' => array(
+                    'class' => 'ext.galleryManager.GalleryController',
+                    'handlerClass' => 'GmS3Photo',
+                ),
+            ),
         ),
         
         // проекты

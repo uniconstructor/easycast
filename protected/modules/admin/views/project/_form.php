@@ -61,7 +61,7 @@ $dateFormatter = new CDateFormatter('ru');
            {
                 $this->widget('GalleryManagerS3', array(
                                                  'gallery' => $model->galleryBehavior->getGallery(),
-                                                 'controllerRoute' => '/questionary/gallery'
+                                                 'controllerRoute' => '/admin/gallery'
                                             ));
             }
     ?>
@@ -125,7 +125,7 @@ $dateFormatter = new CDateFormatter('ru');
            {
                 $this->widget('GalleryManagerS3', array(
                                                  'gallery' => $model->photoGalleryBehavior->getGallery(),
-                                                 'controllerRoute' => '/questionary/gallery'
+                                                 'controllerRoute' => '/admin/gallery'
                                             ));
             }
     ?>
