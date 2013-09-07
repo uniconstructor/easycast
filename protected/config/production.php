@@ -4,12 +4,12 @@ return CMap::mergeArray(
     require(dirname(__FILE__).'/main.php'),
     array(
         'components' => array(
-            
+            // данные для подключения к серверу БД (используется amazon RDS)
+            // серверные переменные заданы в параметрах Elastic Beanstalk
             'db' => array(
-                // данные для работы сайта в сети (amazon RDS)
-                'connectionString' => 'mysql:aa1ag10r3jn7rqy.c3u48hx0c3om.us-east-1.rds.amazonaws.com;dbname=easycast',
-                'username' => 'root',
-			    'password' => '0uq8zPppAmBsdBR66QmG',
+                'connectionString' => 'mysql:'.$_SERVER['RDS_ENDPOINT'].';dbname=easycast',
+                'username' => $_SERVER['RDS_LOGIN'],
+			    'password' => $_SERVER['RDS_PASS'],
             ),
             
             'log' => array(
@@ -17,7 +17,7 @@ return CMap::mergeArray(
                 'routes' => array(
                     array(
                         'class' => 'CDbLogRoute',
-                        // храним логи отдельно ото всех остальных данных для лучшей безопасности
+                        // @todo хранить логи отдельно ото всех остальных данных для лучшей безопасности
                         'connectionID' => 'db',
                         'levels' => 'error, warning, info, application',
                         'autoCreateLogTable' => false,
