@@ -7,7 +7,7 @@ return CMap::mergeArray(
             // данные для подключения к серверу БД (используется amazon RDS)
             // серверные переменные заданы в параметрах Elastic Beanstalk
             'db' => array(
-                'connectionString' => 'mysql:'.$_SERVER['RDS_ENDPOINT'].';dbname=easycast',
+                'connectionString' => 'mysql:host='.$_SERVER['RDS_ENDPOINT'].';dbname=easycast',
                 'username' => $_SERVER['RDS_LOGIN'],
 			    'password' => $_SERVER['RDS_PASS'],
             ),
