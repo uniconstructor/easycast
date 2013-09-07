@@ -425,8 +425,10 @@ class ProjectEvent extends CActiveRecord
 	        $instance['title']  = $event->name;
 	        $instance['allDay'] = false;
 	        // FIXME временно подгоняем даты событий под московское время пока не настроим сервер нормально
-	        $instance['start']  = $event->timestart - 4 * 3600;
-	        $instance['end']    = $event->timeend - 4 * 3600;
+	        //$instance['start']  = $event->timestart - 4 * 3600;
+	        $instance['start']  = $event->timestart;
+	        //$instance['end']    = $event->timeend - 4 * 3600;
+	        $instance['end']    = $event->timeend;
 	        $instance['url']    =  Yii::app()->createUrl('//projects/projects/view', array('eventid' => $event->id));
 	        //$instance['className'] = $event->;
 	        $instance['editable'] = false;

@@ -39,10 +39,10 @@ return array(
     'controllerMap' => array(
         // загрузка изображений в галерею
         // @todo удалить в целях безопасности
-        'gallery' => array(
+        /*'gallery' => array(
             'class'     => 'ext.galleryManager.GalleryController',
             'pageTitle' => 'Gallery administration',
-        ),
+        ),*/
     ),
     
 	// autoloading model and component classes

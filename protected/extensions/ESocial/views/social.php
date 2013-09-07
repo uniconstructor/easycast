@@ -1,5 +1,4 @@
-
-<div class="social clearfix">
+<div class="social clearfix" id="<?= $this->containerId ?>">
 	<?php echo $rendered;?>
 </div>
 

@@ -39,12 +39,14 @@ class CronCommand extends CConsoleCommand
         echo "Wellcome back, Commander. Starting cron for you...\n\n";
         
         // отправляем запланированную почту
-        $this->actionSendMail();
+        //$this->actionSendMail();
         // загружаем картинки пользователей на Amazon S3
         //$this->actionUploadImages()
         
         // для экспериментов
         //$this->actionTest();
+        
+        $this->actionClearQueue();
         
         echo "Cron finished, waiting orders.\n";
     }
@@ -74,7 +76,6 @@ class CronCommand extends CConsoleCommand
         $this->ecawsapi->showEmailQueryInfo();
         
         echo "Done.\n\n";
-        return 0;
     }
     
     /**
@@ -112,4 +113,10 @@ class CronCommand extends CConsoleCommand
         $this->ecawsapi->processEmailQueue(1);
         $this->ecawsapi->showEmailQueryInfo();
     }
+    
+    public function actionClearQueue()
+    {
+        Yii::app()->params['AWSSendMessages'] = false;
+        $this->actionSendMail(1000);
+    } 
 }
