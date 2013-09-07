@@ -5,8 +5,6 @@
 
 // Подключаем расширения для полей формы
 
-// кнопочки в стиле apple
-//Yii::import('ext.IButton.IButton');
 // Выбор даты по календарю
 Yii::import('ext.ActiveDateSelect');
 // Выбор страны и города
@@ -251,14 +249,13 @@ Yii::import('ext.CountryCitySelectorRu.*');
         <?php // Рекомендации по добавлению фотографий
             $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
                     array('field' => 'photos'));
-        ?>
-        <?php
-            if ($questionary->galleryBehavior->getGallery() === null)
+            
+            if ( $questionary->galleryBehavior->getGallery() === null )
             {
                 echo '<p>Before add photos to  gallery, you need to save the form</p>';
             }else
-           {
-                $this->widget('GalleryManagerS3', array(
+            {
+                $this->widget('GalleryManager', array(
                                                  'gallery' => $questionary->galleryBehavior->getGallery(),
                                                  'controllerRoute' => '/questionary/gallery'
                                             ));

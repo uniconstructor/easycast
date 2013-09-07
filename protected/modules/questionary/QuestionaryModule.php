@@ -1,9 +1,9 @@
 <?php
-/** Модуль для работы с анкетой пользователя
+/** 
+ * Модуль для работы с анкетой участника
  * Позволяет искать, сохранять, просматривать и редактировать анкету, включая все сложные поля
  * 
  * @author frost
- *
  */
 class QuestionaryModule extends CWebModule
 {
@@ -46,11 +46,11 @@ class QuestionaryModule extends CWebModule
     /**
      * @property string the path to the layout file to use for displaying questionary.
      */
-    public $layout = 'application.modules.questionary.views.layouts.main';
+    //public $layout = 'application.modules.questionary.views.layouts.main';
     /**
      * @property string the path to the application layout file.
      */
-    public $appLayout = 'application.views.layouts.main';
+    //public $appLayout = 'application.views.layouts.main';
     /**
      * @property string 
      */
@@ -63,8 +63,9 @@ class QuestionaryModule extends CWebModule
      * @var array настройки галереи изображений анкеты пользователя
      */
     public $gallerySettings = array(
-        'class' => 'GalleryBehaviorS3',
+        'class' => 'GalleryBehavior',
         'idAttribute' => 'galleryid',
+        // максимальное количество картинок участника - 30
         'limit' => 30,
         // картинка масштабируется в трех размерах: аватар,
         // обычное изображение (для списка анкет), большое изображение (посмотреть подробно)
@@ -82,8 +83,7 @@ class QuestionaryModule extends CWebModule
                 'centeredpreview' => array(150, 150),
             ),
         ),
-        // галерея будет без имени
-        'name'        => false,
+        'name'        => true,
         'description' => true,
     );
     
@@ -152,8 +152,6 @@ class QuestionaryModule extends CWebModule
         $cs = Yii::app()->getClientScript();
         $cs->registerCoreScript('jquery');
         $cs->registerCoreScript('jquery.ui');
-        //$cs->registerScriptFile($assetsUrl.'/js/questionary.js');
-        //$cs->registerCssFile($assetsUrl.'/css/core.css');
     
         // Make sure we want to register a style sheet.
         if( $this->cssFile!==false )

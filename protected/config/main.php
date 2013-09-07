@@ -114,6 +114,12 @@ return array(
                 // задаем путь к контроллеру загрузки изображений (для анкеты)
                 'gallery' => array(
                     'class' => 'ext.galleryManager.GalleryController',
+                    'handlerClass' => 'GmS3Photo',
+                    'customBehaviors' => array(
+                        'S3GalleryControllerBehavior' => array(
+	                        'class' => 'application.extensions.galleryManager.behaviors.S3GalleryControllerBehavior',
+	                    ),
+	                ),
                 ),
             ),
         ),
@@ -348,6 +354,9 @@ return array(
 	    'adminPhone' => '+7(906)098-32-07',
 	    'adminEmail' => 'admin@easycast.ru',
 	    'hashSalt'   => '68xc7mtux0',
+	    
+	    // Настройки хостинга Amazon
+	    'AmazonS3Config' => 'easycast.s3',
 	),
 	
 );

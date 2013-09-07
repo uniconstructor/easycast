@@ -306,18 +306,20 @@ class Questionary extends CActiveRecord
     {
         Yii::import('ext.galleryManager.*');
         Yii::import('application.modules.questionary.extensions.behaviors.QManageDefaultValuesBehavior');
+        Yii::import('application.modules.questionary.extensions.behaviors.QManageScalarValueBehavior');
         
         // получаем настройки галереи изображений из модуля
         $gallerySettings = Yii::app()->getModule('questionary')->gallerySettings;
-        // @todo Устанавливаем директорию, чтобы все изображения пользователя хранились в отдельной папке
         
         return array(
             // сохранение и получение скалярных полей анкеты
             'QManageScalarValueBehavior' => array(
                 'class' => 'application.modules.questionary.extensions.behaviors.QManageScalarValueBehavior',
             ),
-            'QManageDefaultValuesBehavior',
-                array('class' => 'application.modules.questionary.extensions.behaviors.QManageDefaultValuesBehavior'),
+            // работа со значениями по умолчанию
+            'QManageDefaultValuesBehavior' => array(
+                'class' => 'application.modules.questionary.extensions.behaviors.QManageDefaultValuesBehavior',
+            ),
             // подключаем behavior для загрузки изображений в анкету актера
             'galleryBehavior' => $gallerySettings,
             // автоматическое заполнение дат создания и изменения
