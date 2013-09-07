@@ -23,7 +23,7 @@
     	    echo '<p>Нужно сохранить категорию перед загрузкой логотипа</p>';
     	}else
     	{
-    	    $this->widget('GalleryManagerS3', array(
+    	    $this->widget('GalleryManager', array(
     	        'gallery' => $model->galleryBehavior->getGallery(),
     	        'controllerRoute' => '/admin/gallery'
     	    ));

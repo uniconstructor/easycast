@@ -231,5 +231,6 @@ class QuestionaryModule extends CWebModule
             }
             return true;
         }
+        return parent::beforeControllerAction($controller,$action);
     }
 }

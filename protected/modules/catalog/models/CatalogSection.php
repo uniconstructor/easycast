@@ -57,7 +57,7 @@ class CatalogSection extends CActiveRecord
 	    Yii::import('ext.galleryManager.models.*');
 	    // настройки сохранения логотипа
 	    $logoSettings = array(
-	        'class' => 'GalleryBehaviorS3',
+	        'class' => 'GalleryBehavior',
 	        'idAttribute' => 'galleryid',
 	        'limit' => 1,
 	        // картинка проекта масштабируется в трех размерах

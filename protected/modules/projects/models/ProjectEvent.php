@@ -181,7 +181,7 @@ class ProjectEvent extends CActiveRecord
 	{
 	    // Настройки фотогалереи для мероприятия
 	    $photoGallerySettings = array(
-	        'class' => 'GalleryBehaviorS3',
+	        'class' => 'GalleryBehavior',
 	        'idAttribute' => 'photogalleryid',
 	        'limit' => self::MAX_GALLERY_PHOTOS,
 	        // картинка проекта масштабируется в трех размерах

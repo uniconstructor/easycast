@@ -118,7 +118,7 @@ class Project extends CActiveRecord
 	    Yii::import('ext.galleryManager.models.*');
 	    // настройки сохранения логотипа
 	    $logoSettings = array(
-            'class' => 'GalleryBehaviorS3',
+            'class' => 'GalleryBehavior',
             'idAttribute' => 'galleryid',
             'limit' => 1,
             // картинка проекта масштабируется в трех размерах
@@ -136,7 +136,7 @@ class Project extends CActiveRecord
         );
 	    // Настройки фотогалереи проекта
 	    $photoGallerySettings = array(
-	        'class' => 'GalleryBehaviorS3',
+	        'class' => 'GalleryBehavior',
 	        'idAttribute' => 'photogalleryid',
 	        'limit' => self::MAX_GALLERY_PHOTOS,
 	        // фотографии проекта масштабируются в трех размерах

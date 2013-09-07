@@ -157,7 +157,7 @@ $dateFormatter = new CDateFormatter('ru');
         echo '<div class="alert">Нужно сохранить мероприятие перед загрузкой фотографий</div>';
     }else
     {
-        $this->widget('GalleryManagerS3', array(
+        $this->widget('GalleryManager', array(
              'gallery' => $model->photoGalleryBehavior->getGallery(),
              'controllerRoute' => '/admin/gallery'
         ));

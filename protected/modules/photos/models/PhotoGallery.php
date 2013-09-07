@@ -43,7 +43,7 @@ class PhotoGallery extends CActiveRecord
 	    Yii::import('ext.galleryManager.models.*');
 	    // настройки сохранения галереи
 	    $photoGallerySettings = array(
-	        'class' => 'GalleryBehaviorS3',
+	        'class' => 'GalleryBehavior',
 	        'idAttribute' => 'galleryid',
 	        // масштабируем картинку
 	        'versions' => array(

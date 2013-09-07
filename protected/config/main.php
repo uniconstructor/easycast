@@ -15,7 +15,8 @@ Yii::setPathOfAlias('bootstrap', dirname(__FILE__).'/../extensions/bootstrap');
 //                    Наши изменения в плагинах
 //                    Настройки окружения (для dev, test или production версии)
 return array(
-    // general application parameters
+    /// general application parameters //
+    
     // физический путь к папке "protected"
 	'basePath' => dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
     
@@ -36,14 +37,14 @@ return array(
     ),
     
     // сокращенные пути к контроллерам
-    'controllerMap' => array(
+    /*'controllerMap' => array(
         // загрузка изображений в галерею
         // @todo удалить в целях безопасности
-        /*'gallery' => array(
+        'gallery' => array(
             'class'     => 'ext.galleryManager.GalleryController',
             'pageTitle' => 'Gallery administration',
-        ),*/
-    ),
+        ),
+    ),*/
     
 	// autoloading model and component classes
 	'import'=>array(
@@ -347,7 +348,7 @@ return array(
                 'GalleryManager' => array(
                     'htmlOptions' => array(
                          'class'=>'dark',
-                    )
+                    ),
                 ),
             ),
         ),

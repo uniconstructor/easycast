@@ -30,7 +30,7 @@
                 echo '<p>Нужно сохранить галерею перед загрузкой изображений</p>';
             }else
            {
-                $this->widget('GalleryManagerS3', array(
+                $this->widget('GalleryManager', array(
                                                  'gallery' => $model->galleryBehavior->getGallery(),
                                                  'controllerRoute' => '/admin/gallery'
                                             ));

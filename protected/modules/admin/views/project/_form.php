@@ -59,7 +59,7 @@ $dateFormatter = new CDateFormatter('ru');
                 echo '<p>Нужно сохранить проект перед загрузкой логотипа</p>';
             }else
            {
-                $this->widget('GalleryManagerS3', array(
+                $this->widget('GalleryManager', array(
                                                  'gallery' => $model->galleryBehavior->getGallery(),
                                                  'controllerRoute' => '/admin/gallery'
                                             ));
@@ -123,7 +123,7 @@ $dateFormatter = new CDateFormatter('ru');
                 echo '<div class="alert">Нужно сохранить проект перед загрузкой фотографий</div>';
             }else
            {
-                $this->widget('GalleryManagerS3', array(
+                $this->widget('GalleryManager', array(
                                                  'gallery' => $model->photoGalleryBehavior->getGallery(),
                                                  'controllerRoute' => '/admin/gallery'
                                             ));
