@@ -31,6 +31,9 @@ class UserIdentity extends CUserIdentity
 		}
 		if ( $this->getState('inviteLogin') )
 		{// разрешаем логин по одноразовой ссылке
+		    $this->_id       = $user->id;
+		    $this->username  = $user->username;
+		    $this->errorCode = self::ERROR_NONE;
 		    return true;
 		}
 		if($user===null)

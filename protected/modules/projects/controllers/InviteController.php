@@ -94,7 +94,8 @@ class InviteController extends Controller
         {
             throw new CHttpException(404, 'Страница не найдена');
         }
-        // ключ подошел - значит участник зашел по ссылке
+        // ключ подошел - значит участник зашел по ссылке. попробуем его залогинить.
+        $this->quickLogin($invite->questionary);
         // @todo убрать if/else, и отображать оба случая одним виджетом, без ветвления
         if ( $invite->event->type == ProjectEvent::TYPE_GROUP )
         {// отобразить мероприятия и вакансии группы событый
@@ -167,9 +168,11 @@ class InviteController extends Controller
         }
                 
         $identity = new UserIdentity($questionary->user->username, null);
+        // хак с Identity для того чтобы залогинить пользователя по токену, не зная его пароля
         $identity->setState('inviteLogin', true);
         $identity->authenticate();
-        $identity->setState('inviteLogin', false);
+        $identity->clearState('inviteLogin');
+        Yii::app()->user->login($identity, 0);
         
         return true;
     }
