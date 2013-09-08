@@ -98,11 +98,10 @@ class ProjectMailsBehavior extends CBehavior
     }
     
     /**
-     * Получить текст письма с уведомлением о том, что заявка участника принята
+     * Получить текст письма с уведомлением о том, что заявка участника одобрена
      * @param ProjectMember $projectMember - данные заявки участника
      * @return string
      *
-     * @todo добавить обработку поля "дополнительная информация для участников"
      * @todo писать, на какую именно роль выбрали
      */
     public function createApproveMemberMailText($projectMember, $mailOptions=array())
@@ -118,11 +117,11 @@ class ProjectMailsBehavior extends CBehavior
         // блок с напоминанием и датами съемок
         if ( $event->type == 'group' )
         {// группа мероприятий - выведем информацию о каждом (несколько блоков)
-            $groupBlocks = $this->createGroupEventDescription($projectMember->vacancy->event);
+            $groupBlocks = $this->createGroupEventDescription($projectMember->vacancy->event, true);
             $segments->mergeWith($groupBlocks);
         }else
         {// одно мероприятие - информация о нем помещается в один блок
-            $eventBlock = $this->createSingleEventDescription($projectMember->vacancy->event);
+            $eventBlock = $this->createSingleEventDescription($projectMember->vacancy->event, true);
             $segments->add(null, $eventBlock);
         }
         // заключение
@@ -227,12 +226,13 @@ class ProjectMailsBehavior extends CBehavior
     /**
      * Получить информацию об отдельном мероприятии проекта
      * @param ProjectEvent $event - отображаемое мероприятие
+     * @param bool $showAddInfo - показывать ли дополнительную информацию? (для подтвержденных участников)
      * @return array
      * 
      * @todo если съемки заканчиваются на следующий день - добавлять дату ко времени окончания
      * @todo вернуть ссылку на мероприятие
      */
-    protected function createSingleEventDescription($event)
+    protected function createSingleEventDescription($event, $showAddInfo=false)
     {
         $block = array();
         
@@ -257,6 +257,10 @@ class ProjectMailsBehavior extends CBehavior
         {// описание мероприятия
             $block['text'] .= 'Подробности: '.$event->description;
         }
+        if ( $showAddInfo )
+        {
+            $block['text'] .= $this->getEvendAddInfo($event);
+        }
          
         return $block;
     }
@@ -264,16 +268,17 @@ class ProjectMailsBehavior extends CBehavior
     /**
      * Получить информацию о группе мероприятий
      * @param ProjectEvent $group - отображаемая группа мероприятий
+     * @param bool $showAddInfo - показывать ли дополнительную информацию? (для подтвержденных участников)
      * @return array
      */
-    protected function createGroupEventDescription($group)
+    protected function createGroupEventDescription($group, $showAddInfo=false)
     {
         $blocks = array();
         
         foreach ( $group->events as $event )
         {// отображаем все дни(мероприятия) которые включены в группу.
             // одно мероприятие - один блок
-            $blocks[] = $this->createOneGroupEventDescription($event);
+            $blocks[] = $this->createOneGroupEventDescription($event, $showAddInfo);
         }
         
         return $blocks;
@@ -285,11 +290,12 @@ class ProjectMailsBehavior extends CBehavior
      * то они не выводятся здесь, а приходят отдельным письмом
      * 
      * @param ProjectEvent $event - отображаемое мероприятие
+     * @param bool $showAddInfo - показывать ли дополнительную информацию? (для подтвержденных участников)
      * @return string
      * 
      * @todo вернуть ссылку на мероприятие
      */
-    protected function createOneGroupEventDescription($event)
+    protected function createOneGroupEventDescription($event, $showAddInfo=false)
     {
         $block = array();
          
@@ -303,10 +309,37 @@ class ProjectMailsBehavior extends CBehavior
         
         if ( trim($event->description) )
         {
-            $block['text'] .= 'Дополнительная информация: '.$event->description;
+            $block['text'] .= 'Описание: '.$event->description;
+        }
+        if ( $showAddInfo )
+        {
+            $block['text'] .= $this->getEvendAddInfo($event);
         }
          
         return $message;
+    }
+    
+    /**
+     * Получить дополнительную информацию для участников
+     * @param ProjectEvent $event
+     * @return string
+     */
+    protected function getEvendAddInfo($event)
+    {
+        $text = '<b>Как подтвержденному участнику вам теперь доступна следующая информация:</b><br>';
+        
+        if ( $event->meetingplace )
+        {
+            $text .= '<b>Время и место встречи:</b><br>';
+            $text .= '<p>'.$event->memberinfo.'</p>';
+        }
+        if ( $event->memberinfo )
+        {
+            $text .= '<b>Информация для участников:</b><br>';
+            $text .= '<p>'.$event->memberinfo.'</p>';
+        }
+        
+        return $text;
     }
     
     /**
