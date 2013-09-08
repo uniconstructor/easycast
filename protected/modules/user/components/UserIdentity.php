@@ -22,9 +22,12 @@ class UserIdentity extends CUserIdentity
 	public function authenticate()
 	{
 		if (strpos($this->username,"@")) {
-			$user=User::model()->notsafe()->findByAttributes(array('email'=>$this->username));
+			if ( $user = User::model()->notsafe()->findByAttributes(array('email'=>$this->username)) )
+			{// если пользователь вошел по email - установим обратно в поле $username имя пользователя
+			    $this->username = $user->username;
+			}
 		} else {
-			$user=User::model()->notsafe()->findByAttributes(array('username'=>$this->username));
+			$user = User::model()->notsafe()->findByAttributes(array('username'=>$this->username));
 		}
 		if ( $this->getState('inviteLogin') )
 		{// разрешаем логин по одноразовой ссылке
