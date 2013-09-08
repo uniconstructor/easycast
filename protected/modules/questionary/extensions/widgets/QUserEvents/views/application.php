@@ -5,7 +5,7 @@
 ?>
 <div class="media">
     <a class="pull-left" href="<?= $eventUrl; ?>" target="_blank">
-        <img class="media-object" data-src="<?= $projectLogo; ?>" style="height:100px;width:100px;">
+        <img class="media-object" data-src="<?= $projectLogo; ?>" src="<?= $projectLogo; ?>" style="height:100px;width:100px;">
     </a>
     <div class="media-body">
         <h4 class="media-heading">
