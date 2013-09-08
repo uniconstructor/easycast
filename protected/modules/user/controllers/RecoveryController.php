@@ -9,7 +9,7 @@ class RecoveryController extends Controller
 	 */
 	public function actionRecovery () {
 		$form = new UserRecoveryForm;
-		if (Yii::app()->user->id) {
+		if ( false ) {
 		    	$this->redirect(Yii::app()->controller->module->returnUrl);
 		    } else {
 				$email = ((isset($_GET['email']))?$_GET['email']:'');
@@ -17,7 +17,7 @@ class RecoveryController extends Controller
 				if ($email&&$activkey) {
 					$form2 = new UserChangePassword;
 		    		$find = User::model()->notsafe()->findByAttributes(array('email'=>$email));
-		    		if(isset($find)&&$find->activkey==$activkey) {
+		    		if( $find && $find->activkey == $activkey ) {
 			    		if(isset($_POST['UserChangePassword'])) {
 							$form2->attributes=$_POST['UserChangePassword'];
 							if($form2->validate()) {

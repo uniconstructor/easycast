@@ -93,12 +93,10 @@ class User extends CActiveRecord
 	 */
 	protected function beforeSave()
 	{
-	    if ( $this->isNewRecord )
-	    {// при создании пользователя автоматически создаем для него пустую анкету
-	        //$questionary = new Questionary();
-	        //$questionary->save();
+	    if ( ! $this->unsubscribekey )
+	    {// автоматически создаем ключ для отписки от рассылок если он еще не создан
+	        $this->unsubscribekey = UserModule::encrypting(microtime().$this->password);
 	    }
-	
 	    return parent::beforeSave();
 	}
 	
@@ -113,9 +111,6 @@ class User extends CActiveRecord
 	        $questionary = new Questionary();
 	        $questionary->userid = $this->id;
 	        $questionary->save();
-	        
-	        // автоматически создаем ключ для отписки от рассылок
-	        $this->unsubscribekey = UserModule::encrypting(microtime().$this->password);
 	    }
 	    // назначаем пользователю роль по умолчанию или меняем ее если она изменилась
 	    $this->setUpRoles();
