@@ -25,7 +25,7 @@ class UserModule extends CWebModule
 	 * @var int
 	 * @desc items on page
 	 */
-	public $user_page_size = 10;
+	public $user_page_size = 50;
 	
 	/**
 	 * @var int
