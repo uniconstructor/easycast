@@ -1,5 +1,7 @@
 <?php
 
+Yii::import('application.commands.RenderReadyConsoleCommand');
+
 /**
  * Класс для выполнения cron-команд (заданий по расписанию) из консоли
  * Все регулярные задачи easycast должны быть собраны здесь
@@ -22,6 +24,7 @@ class CronCommand extends CConsoleCommand
      */
     public function init()
     {
+        Yii::app()->attachBehavior('ConsoleWidgetRenderBehavior', array('class' => 'ConsoleWidgetRenderBehavior'));
         // поскольку почти все cron-команды используют обращение к Amazon, то сразу же подключим наш API
         $this->ecawsapi = Yii::app()->getComponent('ecawsapi');
         $this->ecawsapi->trace = true;
@@ -44,9 +47,9 @@ class CronCommand extends CConsoleCommand
         //$this->actionUploadImages()
         
         // для экспериментов
-        //$this->actionTest();
+        $this->actionTest();
         
-        $this->actionClearQueue();
+        //$this->actionClearQueue();
         
         echo "Cron finished, waiting orders.\n";
     }
@@ -102,10 +105,10 @@ class CronCommand extends CConsoleCommand
     {
         Yii::import('application.modules.projects.models.*');
         
-        /*$invite = new EventInvite;
+        $invite = new EventInvite;
         $invite->questionaryid = 1;
         $invite->eventid = 124;
-        $invite->save();*/
+        $invite->save();
         
         //$vacancy = EventVacancy::model()->findByPk(17);
         //$vacancy->sendInvites();
@@ -114,6 +117,10 @@ class CronCommand extends CConsoleCommand
         $this->ecawsapi->showEmailQueryInfo();
     }
     
+    /**
+     * Очистить очередь сообщений
+     * @return null
+     */
     public function actionClearQueue()
     {
         Yii::app()->params['AWSSendMessages'] = false;

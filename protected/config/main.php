@@ -179,12 +179,15 @@ return array(
         // Оповещения
         // @todo привести в порядок или удалить
         'notifyii' => array(
-            'class' => 'application.modules.notifyii.NotifyiiModule'
+            'class' => 'application.modules.notifyii.NotifyiiModule',
         ),
         
         // Письма (этот модуль отвечает за правильную верстку писем)
         'mailComposer' => array(
-            'class' => 'application.modules.mailComposer.MailComposerModule'
+            'class' => 'application.modules.mailComposer.MailComposerModule',
+            /*'modules' => array(
+                'composer' => 'application.modules.mailComposer.components.MailComposer',
+            ),*/
         ),
 	),
 

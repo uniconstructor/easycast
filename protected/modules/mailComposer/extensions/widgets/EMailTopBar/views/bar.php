@@ -5,7 +5,7 @@
 ?>
 <tr>
     <td class="w640" width="640">
-        <table id="top-bar" class="w640" width="640" bgcolor="#1f011f"
+        <table id="top-bar" class="w640" width="640" bgcolor="#0099cc" style="border-radius:10px 10px 0px 0px;"
             border="0" cellpadding="0" cellspacing="0">
             <tbody>
                 <tr>

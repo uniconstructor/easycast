@@ -13,7 +13,7 @@
                 <p class="article-title" align="center" style="margin-top:6px;margin-bottom:6px;">
                     <strong>
                         <singleline label="">
-                            <a href="<?= $this->link; ?>" target="_blank"><?= $this->caption; ?></a>
+                            <a style="color:#FFFFFF;font-size:14pt;text-decoration:none;" href="<?= $this->link; ?>" target="_blank"><?= $this->caption; ?></a>
                         </singleline>
                     </strong>
                 </p>

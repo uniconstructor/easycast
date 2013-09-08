@@ -7,7 +7,7 @@
 <tr>
     <td class="w640" width="640">
         <table id="footer" class="w640" width="640" bgcolor="#0099cc"
-            border="0" cellpadding="0" cellspacing="0">
+            border="0" cellpadding="0" cellspacing="0" style="border-radius:0px 0px 10px 10px;">
             <tbody>
                 <tr>
                     <td class="w30" width="30"></td>

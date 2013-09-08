@@ -19,9 +19,7 @@
                     <td class="w580" width="580">
                         <div id="headline" align="center">
                             <p>
-                                <strong>
-                                <singleline label=""><h1><?= $this->header; ?></h1></singleline>
-                                </strong>
+                                <singleline label=""><h1 style="color:#ffffff;"><?= $this->header; ?></h1></singleline>
                             </p>
                         </div>
                     </td>

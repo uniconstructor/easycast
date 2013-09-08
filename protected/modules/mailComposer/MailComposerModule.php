@@ -20,7 +20,7 @@ class MailComposerModule extends CWebModule
      */
     public static function getSubject($action, $params=null)
     {
-        list($controller, $route) = Yii::app()->createController('/mailComposer/mail');
+        $mailComposer = self::getMailComposerComponent();
         switch ( $action )
         {
             // письмо с приглашением на съемки
@@ -30,7 +30,7 @@ class MailComposerModule extends CWebModule
                     throw new CException('Invite for mail subject is not set');
                 }
                 $invite = $params['invite'];
-                return $controller->createNewInviteMailSubject($invite);
+                return $mailComposer->createNewInviteMailSubject($invite);
             break;
         }
     }
@@ -43,7 +43,7 @@ class MailComposerModule extends CWebModule
      */
     public static function getMessage($action, $params=null)
     {
-        list($controller, $route) = Yii::app()->createController('/mailComposer/mail');
+        $mailComposer = self::getMailComposerComponent();
         switch ( $action )
         {
             // письмо с приглашением на съемки
@@ -58,7 +58,7 @@ class MailComposerModule extends CWebModule
                     throw new CException('Invite for mail is not set');
                 }
                 $invite = $params['invite'];
-                return $controller->createNewInviteMailText($invite, $mailOptions); 
+                return $mailComposer->createNewInviteMailText($invite, $mailOptions); 
             break;
             // письмо с подтверждением заявки
             case 'approveMember':
@@ -72,7 +72,7 @@ class MailComposerModule extends CWebModule
                     throw new CException('projectMember for mail is not set');
                 }
                 $projectMember = $params['projectMember'];
-                return $controller->createApproveMemberMailText($projectMember, $mailOptions);
+                return $mailComposer->createApproveMemberMailText($projectMember, $mailOptions);
             break;
             // письмо с отклонением заявки
             case 'rejectMember':
@@ -86,9 +86,31 @@ class MailComposerModule extends CWebModule
                     throw new CException('projectMember for mail is not set');
                 }
                 $projectMember = $params['projectMember'];
-                return $controller->createRejectMemberMailText($projectMember, $mailOptions);
+                return $mailComposer->createRejectMemberMailText($projectMember, $mailOptions);
             break;
         }
+    }
+    
+    /**
+     * Получить компонент, составляющий письма
+     * @return MailComposer
+     */
+    protected static function getMailComposerComponent()
+    {
+        $config = array(
+            'class' => 'application.modules.mailComposer.components.MailComposer',
+            /*'behaviors' => array(
+                // функции создания писем для модуля "проекты"
+                'ProjectMailsBehavior' => array('class' => 'application.modules.mailComposer.behaviors.ProjectMailsBehavior'),
+            ),*/
+        );
+        
+        $component = Yii::createComponent($config);
+        if ( ! $component->getIsInitialized() )
+        {
+            $component->init();
+        }
+        return $component;
     }
     
     /**
@@ -100,8 +122,8 @@ class MailComposerModule extends CWebModule
      */
     public function createSimpleMessage($header, $text, $options=array())
     {
-        list($controller, $route) = Yii::app()->createController('/mailComposer/mail');
-        return $controller->createSimpleMail($header, $text, $options);
+        $mailComposer = self::getMailComposerComponent();
+        return $mailComposer->createSimpleMail($header, $text, $options);
     }
     
     /**
@@ -115,7 +137,7 @@ class MailComposerModule extends CWebModule
         {
             return Yii::t("MailComposer.".$dic, $str, $params);
         }else
-       {
+        {
             return Yii::t("MailComposer", $str, $params);
         }
     }

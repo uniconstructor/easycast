@@ -39,29 +39,15 @@ class MailController extends Controller
     {
         return array(
             array('allow',
-                'actions' => array('createSimpleMail', 'display', 'test'),
+                'actions' => array('display'),
                 'users'   => array('@'),
             ),
             array('allow',
                 'actions' => array('test'),
                 'users'   => array('admin'),
             ),
-            /*array('deny',
+            array('deny',
                 'users' => array('*'),
-            ),*/
-        );
-    }
-    
-    /**
-     * (non-PHPdoc)
-     * @see CController::behaviors()
-     */
-    public function behaviors()
-    {
-        return array(
-            // функции создания писем для модуля "проекты"
-            'ProjectMailsBehavior' => array(
-                'class' => 'application.modules.mailComposer.controllers.behaviors.ProjectMailsBehavior',
             ),
         );
     }
@@ -73,7 +59,6 @@ class MailController extends Controller
     public function actionTest()
     {
         $invite = EventInvite::model()->findByPk(650);
-        
         echo $this->createNewInviteMailText($invite);
     }
     
@@ -106,72 +91,29 @@ class MailController extends Controller
     }
     
     /**
-     * Создать самое простое письмо: заголовок, подзаголовок, абзац текста, 
-     * стандартная подпись с контактами, отписка по желанию. Все настраивается.
-     * 
-     * @param array $params - массив параметров для составления письма
-     * @return string - html-код письма
-     * 
-     * @todo пока только заготовка
+     * Creates a widget and initializes it.
+     * This method first creates the specified widget instance.
+     * It then configures the widget's properties with the given initial values.
+     * At the end it calls {@link CWidget::init} to initialize the widget.
+     * Starting from version 1.1, if a {@link CWidgetFactory widget factory} is enabled,
+     * this method will use the factory to create the widget, instead.
+     * @param string $className class name (can be in path alias format)
+     * @param array $properties initial property values
+     * @return CWidget the fully initialized widget instance.
      */
-    public function createSimpleMail($header, $text, $options=array())
+    public function createWidget($className, $properties=array())
     {
-        $defaults = $this->getMailDefaults();
-        $options = CMap::mergeArray($defaults, $options);
+        if ( isset(Yii::app()->controller) )
+        {
+            return parent::createWidget($className, $properties);
+        }
         
-        // составляем текст письма
-        $block = array(
-            'header' => $header,
-            'text'   => $text,
-        );
-        
-        // добавляем все блоки с информацией в массив настроек для виджета EMailAssembler
-        $options['segments'] = array($block);
-        // создаем виджет и получаем из него полный HTML-код письма
-        return $this->owner->widget('application.modules.mailComposer.extensions.widgets.EMailAssembler.EMailAssembler',
-            $options, true);
-    }
-    
-    /**
-     * Получить настройки по умолчанию для составления простого письма
-     * @return array
-     */
-    protected function getSimpleMailDefaults()
-    {
-        return array(
-            // заголовок первого абзаца
-            'header' => '',
-            // первый абзац текста (только текст, html и самая простая разметка)
-            'text'    => '',
-            // настройки для виджета, собирающего письмо из блоков
-            'assemblerOptions' => array(),
-        );
-    }
-    
-    /**
-     * Получить настройки по умолчанию для виджета EMailAssembler
-     * 
-     * @return array
-     * 
-     * @todo брать настройки из специального плагина
-     * @todo а может вообще удалить если не пригодится
-     */
-    public function getMailDefaults()
-    {
-        return array(
-            'showTopServiceLinks'    => false,
-            'showBottomServiceLinks' => false,
-            'showSocialButtons'      => false,
-            'showContactPhone'       => true,
-            'showContactEmail'       => true,
-            'contactPhone'           => Yii::app()->params['adminPhone'],
-            'contactEmail'           => Yii::app()->params['adminEmail'],
-            'mainHeader'             => '',
-            'segments'               => array(),
-            'signature'              => '',
-            'showFeedbackNotification' => true,
-            'showPasswordNotification' => false,
-            'userHasFirstAccess'       => true,
-        );
+        // приложение запущено из консоли - имитируем widgetFactory
+        $className=Yii::import($className,true);
+        $widget=new $className($this);
+        foreach($properties as $name=>$value)
+            $widget->$name=$value;
+        $widget->init();
+        return $widget;
     }
 }
