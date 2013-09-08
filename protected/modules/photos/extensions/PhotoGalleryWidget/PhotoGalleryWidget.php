@@ -159,7 +159,7 @@ class PhotoGalleryWidget extends CWidget
             // Получаем id обложки галереи
             $coverId  = $photoGallery->getGallery()->getcoverid();
             // Получаем саму обложку
-            $cover    = GalleryPhotoS3::model()->findByPk($coverId);
+            $cover    = GalleryPhoto::model()->findByPk($coverId);
             $coverUrl = $cover->getUrl('medium');
             
             // Создаем ссылку на галерею

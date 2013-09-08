@@ -1,15 +1,17 @@
 <?php
 /**
  * Виджет для отображения списка фотографий вместе с маленькой иконкой предпросмотра
+ * @todo убрать вариант с echoScripts, заменить его на создание виджета через createWidget
+ *       и досрочную регистрацию всех скриптов
  */
 class EThumbCarousel extends CWidget
 {
     /**
-     * @var array - список маленьких картинок
+     * @var array - список миниатюр картинок (внизу)
      */
     public $previews;
     /**
-     * @var array - список средних фотографий в галерее
+     * @var array - список средних фотографий в (отображаются в основном разделе, листаются)
      */
     public $photos;
     /**
@@ -21,12 +23,18 @@ class EThumbCarousel extends CWidget
      */
     public $id = 'ethumbcarousel';
     /**
-     * @var bool - вывести скрипты вместе с галереей (используется при AJAX-запросах)
+     * @var bool - как отобразить скрипты
+     *         true  - вывести скрипты вместе с html-кодом галереи (используется при загрузке виджета через AJAX)
+     *         false - подключить скрипты в заголовке страницы (используется при обычном отображении виджета)
      */
     public $echoScripts = false;
-    
+    /**
+     * @var string
+     */
     protected $_assetUrl;
-    
+    /**
+     * @var string
+     */
     protected $_scripts;
     
     /**
@@ -35,13 +43,14 @@ class EThumbCarousel extends CWidget
      */
     public function init()
     {
+        // регистрируем скрипты и стили
         $this->_assetUrl = Yii::app()->assetManager->publish(
                         Yii::app()->extensionPath . DIRECTORY_SEPARATOR .
                         'ECMarkup' . DIRECTORY_SEPARATOR .
                         'EThumbCarousel' . DIRECTORY_SEPARATOR .
                         'assets'   . DIRECTORY_SEPARATOR);
         Yii::app()->clientScript->registerCssFile($this->_assetUrl.'/EThumbCarousel.css');
-        Yii::app()->clientScript->registerScriptFile($this->_assetUrl.'/EThumbCarousel.js');
+        //Yii::app()->clientScript->registerScriptFile($this->_assetUrl.'/EThumbCarousel.js');
         
         $previews = array();
         foreach ( $this->previews as $id=>$preview )
@@ -57,7 +66,7 @@ class EThumbCarousel extends CWidget
             {
                 $this->_scripts .= $setPhotoScript."\n";
             }else
-          {
+            {
                Yii::app()->clientScript->registerScript($setPhotoScriptId, $setPhotoScript, CClientScript::POS_END);
             }
             $preview['baseId'] = $this->id;
@@ -70,6 +79,11 @@ class EThumbCarousel extends CWidget
         {
             $this->photos[$id]['imageOptions'] = array('id' => $this->id.'-photo-'.$photo['id']);
         }
+    }
+    
+    public function registerWigetScripts()
+    {
+        
     }
     
     /**

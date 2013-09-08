@@ -24,6 +24,7 @@ class AdminController extends Controller
 	{
 	    ignore_user_abort(true);
         set_time_limit(0);
+        
         // загрузка картинок на сервер S3
         $this->actionUploadImages();
 	    
@@ -71,6 +72,7 @@ class AdminController extends Controller
 	{
 	    // подключаем нужные модели
 	    Yii::import('application.extensions.galleryManager.models.*');
+	    Yii::import('application.extensions.galleryManager.components.*');
 	    Yii::import('application.extensions.galleryManager.*');
 	     
 	    // выбираем не загруженные фотографии
@@ -78,7 +80,7 @@ class AdminController extends Controller
 	    $criteria->condition = '(`timemodified` > `timeuploaded`) OR (`timeuploaded` = 0)';
 	    $criteria->order = '`timemodified` DESC';
 	    $criteria->limit = 3;
-	    $photos = GalleryPhotoS3::model()->findAll($criteria);
+	    $photos = GalleryPhoto::model()->findAll($criteria);
 	     
 	     
 	    foreach ( $photos as $photo )
@@ -88,7 +90,7 @@ class AdminController extends Controller
 	        ob_flush();
 	        try
 	        {// trying to upload the photo
-	            $photo->setImageS3();
+	            GmS3Photo::setImageS3($photo);
 	        } catch ( Exception $e )
 	        {
 	            echo 'Timeout. Another try...'."<br>";
@@ -98,7 +100,7 @@ class AdminController extends Controller
 	            // In this case we just restart the upload process
 	            try
 	            {
-	                $photo->setImageS3();
+	                GmS3Photo::setImageS3($photo);
 	                echo 'Success.';
 	            }catch ( Exception $e )
 	            {// second error on same file shoud never happen
@@ -107,17 +109,13 @@ class AdminController extends Controller
 	            }
 	        }
 	         
-	        // update upload time
-	        $photo->save();
 	        unset($photo);
-	        // avoiding SlowDown errors
-	        //sleep(1);
 	        ob_end_flush();
 	    }
 	    echo 'Все изображения загружены. Последняя синхронизация '.date('Y-m-d H:i:s', time());
 	     
 	    // Считаем сколько осталось загрузить
-	    $totalCount = GalleryPhotoS3::model()->count($criteria);
+	    $totalCount = GalleryPhoto::model()->count($criteria);
 	    echo '<br>Осталось загрузить '.$totalCount;
 	}
 }
