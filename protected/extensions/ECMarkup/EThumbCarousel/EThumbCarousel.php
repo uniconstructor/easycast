@@ -56,7 +56,6 @@ class EThumbCarousel extends CWidget
         foreach ( $this->previews as $id=>$preview )
         {// создаем скрипты, которые меняют большую картинку при клике на маленькую
             $setPhotoScriptId = '_'.$this->id.'ChangePhoto#'.$preview['num'];
-            //$setPhotoScript   = 'jQuery("#'.$this->id.'-thumbnail-'.$preview['num'].'").click(function (e) {e.preventDefault();jQuery("#'.$this->id.'").carousel('.$preview['num'].');});';
             $setPhotoScript   = 'jQuery("body").delegate("#'.$this->id.'-thumbnail-'.$preview['num'].'", "click", 
                 function (e) {
                     e.preventDefault();
@@ -81,6 +80,10 @@ class EThumbCarousel extends CWidget
         }
     }
     
+    /**
+     * 
+     * @return null
+     */
     public function registerWigetScripts()
     {
         
@@ -107,9 +110,7 @@ class EThumbCarousel extends CWidget
         // Уменьшеные копии
         // @todo сделать так чтобы при включенной разбивки по страницам работал JS
         $dataProvider = new CArrayDataProvider($this->previews, array(
-            'pagination'=>array(
-                'pageSize'=>count($this->previews),
-                )
+            'pagination' => false,
             )
         );
         $this->widget('bootstrap.widgets.TbThumbnails', array(
@@ -122,7 +123,7 @@ class EThumbCarousel extends CWidget
         foreach ( $this->largePhotos as $id=>$photo )
         {
             $this->widget('application.extensions.fancybox.EFancyBox', array(
-                            'target'=>'#'.$this->id.'-photo-'.$photo['id'],
+                            'target'=> '#'.$this->id.'-photo-'.$photo['id'],
                             'config'=>array(
                                 'href'   => $photo['image'],
                                 'margin' => '0',
