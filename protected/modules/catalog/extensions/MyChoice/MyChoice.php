@@ -207,6 +207,10 @@ class MyChoice extends CWidget
             // и появляются только после соответствующих действий
             $options['style'] = 'display:none;';
         }
+        if ( $type == 'fullinfo' )
+        {
+            $options['data-loading-text'] = "<i class='icon-spinner icon-spin icon-large'></i> Загрузка...";
+        }
         
         return $options;
     }
@@ -373,11 +377,16 @@ class MyChoice extends CWidget
     protected function createBeforeSendFullInfoJS($id)
     {
         $containerId = $this->getContainerId($id, 'fullinfo');
+        
+        $fullInfoButtonId  = $this->getButtonId('fullinfo', $id);
+        $shortInfoButtonId = $this->getButtonId('shortinfo', $id);
         return "function(jqXHR, settings){
-            if ( $('#full_info_loaded_{$id}').val() == 0 )
+            if ( $('#full_info_loaded_{$id}').val() == 1 )
             {
-                //$('#{$containerId}').fadeIn(200);
-                //return false;
+                $('#{$containerId}').fadeIn(200);
+                $('#{$fullInfoButtonId}').hide();
+                $('#{$shortInfoButtonId}').show();
+                return false;
             }
             return true;
         }";
@@ -393,12 +402,22 @@ class MyChoice extends CWidget
     {
         return $type.'_order_item_'.$id;
     }
-    
+
+    /**
+     * Получить надпись на кнопке
+     * @param string $type
+     * @return string
+     */
     protected function getButtonCaption($type)
     {
         return CatalogModule::t($type.'_order_item_caption');
     }
     
+    /**
+     * Получить css-класс для отображаемой кнопки
+     * @param string $type
+     * @return string
+     */
     protected function getButtonClass($type)
     {
         switch ( $type )
