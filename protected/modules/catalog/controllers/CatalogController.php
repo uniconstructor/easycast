@@ -131,29 +131,31 @@ class CatalogController extends Controller
 	 */
 	public function actionAjaxSearch()
 	{
-	    //CatalogModule::setFilterSearchData('QSearchheight', 16, array('a'));
-	    //global $_SESSION;
-	    //unset($_SESSION['searchData']);
-	    //Yii::app()->end();
-	    //var_dump( CJSON::decode(Yii::app()->request->getPost('data', null)) );die;
-	    if ( ! Yii::app()->request->isAjaxRequest )
+	    /*if ( ! Yii::app()->request->isAjaxRequest )
 	    {
+	        throw new CHttpException(500, 'This is AJAX action');
 	        Yii::app()->end();
-	    }
+	    }*/
 	    // Проверяем наличие всех обязательных параметров
-	    if ( ! $mode = Yii::app()->request->getPost('mode', null) )
-	    {// режим поиска (по вильтрам в разделе или по всей базе)
-	        throw new CHttpException(500, 'Request mode required');
-	    }
+	    // режим поиска (по фильтрам в разделе или по всей базе)
+	    $mode      = Yii::app()->request->getParam('mode', 'form');
+	    $sectionId = Yii::app()->request->getParam('sectionId', 0);
 	    
-	    $sectionId = Yii::app()->request->getPost('sectionId', 0);
 	    if ( $mode == 'filter' AND ! $section = CatalogSection::model()->findByPk($sectionId) )
 	    {// попытка поискать в несуществующем разделе
 	        throw new CHttpException(500, 'Section not found');
 	    }
-	    if ( $data = Yii::app()->request->getPost('data', null) )
+	    // при первой загрузке страницы попробуем получить данные поиска из сессии
+	    if ( $sectionId > 1 )
+	    {
+	        $data = CatalogModule::getSessionSearchData('filter', $sectionId);
+	    }else
+	    {
+	        $data = CatalogModule::getSessionSearchData('form');
+	    }
+	    if ( $formData = Yii::app()->request->getPost('data', null) )
 	    {// переданы данные для поиска - делаем из них нормальный массив
-	        $data = CJSON::decode($data);
+	        $data = CJSON::decode($formData);
 	    }
 	    
 	    $options = array(

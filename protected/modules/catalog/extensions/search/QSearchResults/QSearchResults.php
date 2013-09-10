@@ -34,7 +34,7 @@ class QSearchResults extends CWidget
     /**
      * @var string - url, по которому должно поисходить обновление данных
      */
-    public $route = '/catalog/catalog/search';
+    public $route = '/catalog/catalog/ajaxSearch';
     
     /**
      * @var array - массив параметров, которые передаются вместе с номером страницы
@@ -85,7 +85,7 @@ class QSearchResults extends CWidget
         }
         
         // загружаем условия поиска, если они не переданы из формы
-        //$this->setDefaultSearchObject();
+        $this->setDefaultSearchObject();
         
         // Указываем параметры для сборки запроса
         $config = array(
@@ -106,7 +106,7 @@ class QSearchResults extends CWidget
         {// объект поиска уже задан - извлекать его не требуется 
             return;
         }
-        if ( $this->objectType XOR $this->objectId )
+        if ( ! $this->objectType OR ! $this->objectId )
         {// тип и id связанного объекта должны быть или заданы одновременно или вообще не заданы
             // @todo выбрасывать исключение в этом случае
             $this->searchObject = $this->section;
@@ -198,23 +198,39 @@ class QSearchResults extends CWidget
                 'criteria'   => $criteria,
                 'pagination' => array(
                     'pageSize' => $this->getMaxSectionItems(),
-                    'route'    => $this->route,
-                    'params'   => array(),//$this->getRouteParams(),
+                    //'route'    => $this->route,
+                    //'params'   => array(),//$this->getRouteParams(),
                 ),
             ));
         }
         
         $this->widget('bootstrap.widgets.TbThumbnails', array(
             'dataProvider' => $dataProvider,
-            //'enablePagination' => false,
-            //'ajaxUpdate'   => 'search_results_data',
-            //'id'           => 'search_results_data',
-            'ajaxUrl'      => Yii::app()->createUrl($this->route),//array('/catalog/catalog/index', 'a'=>'b'),//Yii::app()->createUrl('/catalog/catalog/index'),//
+            'ajaxUpdate'   => 'search_results_data',
+            'id'           => 'search_results_data',
+            //'ajaxType'     => 'POST',
+            'ajaxUrl'      => Yii::app()->createUrl($this->route, $this->routeParams),
             'template'     => "{summary}{items}{pager}",
-            //'template'     => "{summary}{items}",
             'itemView'     => '_user',
             'emptyText'    => $emptyText,
         ));
+    }
+    
+    /**
+     * 
+     * @return array
+     */
+    protected function getRouteParams()
+    {
+        $params = array();
+        
+        if ( $this->section )
+        {
+            $params['mode'] = 'filter';
+            $params['sectionId'] = $this->section->id;
+        }
+        
+        return $params;
     }
      
     /**

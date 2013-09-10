@@ -11,14 +11,7 @@
         <?php
         // Выводим виджет поисковых результатов
         // при первой загрузке страницы попробуем получить данные поиска из сессии
-        $data = CatalogModule::getSessionSearchData();
-        if ( isset($data['form']) )
-        {
-            $data = $data['form'];
-        }else
-        {
-            $data = array();
-        }
+        $data = CatalogModule::getSessionSearchData('form');
         $options = array(
             'mode' => 'search',
             'data' => $data,

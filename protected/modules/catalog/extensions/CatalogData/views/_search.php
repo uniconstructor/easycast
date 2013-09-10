@@ -18,11 +18,10 @@
         // отображение найденных анкет
         // @todo убрать разделение поиска на фильтры и большую форму
         $this->widget('catalog.extensions.search.QSearchResults.QSearchResults', array(
-            'mode'    => 'filter',
+            'mode'         => 'filter',
             'searchObject' => $this->section,
-            'section' => $this->section,
-            'route'   => Yii::app()->createUrl('/catalog/catalog/index/', array('sectionId' => $this->section->id)),
-            'data'    => $data,
+            'section'      => $this->section,
+            'data'         => $data,
         ));
         ?>
     </div>

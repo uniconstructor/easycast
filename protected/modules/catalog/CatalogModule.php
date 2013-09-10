@@ -229,10 +229,25 @@ class CatalogModule extends CWebModule
 	 * Получить из сессии все данные о поиске
 	 * @return array
 	 */
-	public static function getSessionSearchData()
+	public static function getSessionSearchData($type='', $id=0)
 	{
 	    self::initSessionSearchData();
-	    return Yii::app()->session->itemAt('searchData');
+	    $data = Yii::app()->session->itemAt('searchData');
+	    
+	    if ( ! $type )
+	    {
+	        return $data;
+	    }elseif( $type == 'form' )
+	    {
+	        return $data['form'];
+	    }
+	    if ( $type AND $id )
+	    {
+	        if ( isset($data['filter'][$id]) )
+	        {
+	            return $data['filter'][$id];
+	        }
+	    }
 	}
 	
 	/**
