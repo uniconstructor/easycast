@@ -48,7 +48,7 @@ class ProjectMembers extends CWidget
      */
     public function init()
     {
-        
+        parent::init();
     }
     
     /**
@@ -229,6 +229,16 @@ class ProjectMembers extends CWidget
         $element['actions'] = $this->getMemberActions($member);
 
         return $element;
+    }
+    
+    /**
+     * Получить ФИО участника и картинку с его аватаром
+     * @param ProjectMember $member
+     * @return string
+     */
+    protected function getMemberName($member)
+    {
+        
     }
     
     /**

@@ -10,10 +10,11 @@ $this->breadcrumbs=array(
 );
 
 $this->menu = array(
-	array('label'=>'Список проектов','url'=>array('/admin/project/admin')),
+	//array('label'=>'Список проектов','url'=>array('/admin/project/admin')),
 	array('label'=>'Создать проект','url'=>array('/admin/project/create')),
 	array('label'=>'Редактировать проект','url'=>array('/admin/project/update','id'=>$model->id)),
     array('label'=>'Добавить мероприятие','url'=>array('/admin/projectEvent/create', 'projectid'=>$model->id)),
+    array('label'=>'Создать группу мероприятий','url'=>array('/admin/projectEvent/create', 'projectid'=>$model->id, 'type'=>'group')),
     array('label'=>'Заявки','url'=>array('/admin/projectMember/index', 'projectid'=>$model->id, 'type' => 'applications')),
     array('label'=>'Подтвержденные участники','url'=>array('/admin/projectMember/index', 'projectid'=>$model->id, 'type' => 'members')),
 );
@@ -64,9 +65,9 @@ $dateFormatter = new CDateFormatter('ru');
 	'attributes'=>array(
 		'name',
 		'typetext',
-        'shortdescription:html',
-        'description:html',
-        'customerdescription:html',
+        'shortdescription:raw',
+        'description:raw',
+        'customerdescription:raw',
         array(
             'label' => ProjectsModule::t('timestart'),
             'value' => $dateFormatter->format('dd/MM/yyyy', $model->timestart), 
@@ -90,26 +91,38 @@ $dateFormatter = new CDateFormatter('ru');
 <h2>Мероприятия проекта</h2>
 
 <?php 
-
-$elements = array();
-foreach ( $model->events as $event )
-{
-    $url = Yii::app()->createUrl('/admin/projectEvent/view', array('id' => $event->id));
-    $element = array();
-    $element['id'] = $event->id;
-    $element['name'] = CHtml::link($event->name, $url);
-    $element['status'] = $event->statustext;
-    $elements[] = $element;
-}
-
-$arrayProvider = new CArrayDataProvider($elements);
+// таблица со списком мероприятий
+$eventsList = new CActiveDataProvider('ProjectEvent', array(
+    'data' => $model->events,
+    'pagination' => false,
+));
 $this->widget('bootstrap.widgets.TbGridView', array(
     'type'         => 'striped bordered condensed',
-    'dataProvider' => $arrayProvider,
-    'template'=>"{items}{pager}",
-    'columns'=>array(
-        array('name'=>'name', 'header'=>ProjectsModule::t('name'), 'type' => 'html'),
-        array('name'=>'status', 'header'=>ProjectsModule::t('status')),
+    'dataProvider' => $eventsList,
+    'template' => "{summary}{items}",
+    'columns'  => array(
+        array(
+            'name'   => 'name',
+            'header' => ProjectsModule::t('name'),
+            'value'  => 'CHtml::link($data->name, Yii::app()->createUrl("/admin/ProjectEvent/view", array("id" => $data->id)));',
+            'type'   => 'html'
+        ),
+        array(
+            'name'    => 'groupname',
+            'header'  => 'Группа',
+            'value'   => '$data->group ? CHtml::link($data->group->name, Yii::app()->createUrl("/admin/ProjectEvent/view", array("id" => $data->group->id))): "Нет";',
+            'type'    => 'html',
+        ),
+        array(
+            'name'   => 'timestart',
+            'header' => 'Время',
+            'value'  => '$data->getFormattedTimePeriod()',
+        ),
+        array(
+            'name'   => 'status',
+            'header' => ProjectsModule::t('status'),
+            'value'  => 'ProjectsModule::t("event_status_".$data->status)',
+        ),
     ),
 ));
 

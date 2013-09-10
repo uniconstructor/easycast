@@ -5,27 +5,53 @@
  * @var ProjectEvent $model 
  */
 
-$pageTitle = $model->name;
+$pageTitle    = $model->name;
+$addRoleLabel = 'Добавить роль';
+$groupId      = $model->parentid;
+$showDates    = true;
+$showNewGroupEvent = ($model->group AND ($model->group->status != ProjectEvent::STATUS_FINISHED));
 if ( $model->type == 'group' )
 {
-    $pageTitle .= '[Группа мероприятий]';
+    $pageTitle   .= ' [Группа мероприятий]';
+    $addRoleLabel = 'Добавить роль (на все дни группы)';
+    $groupId      = $model->id;
+    // группы событий не имеют продолжительности
+    $showDates    = false;
+    // нельзя добавлять события в завершенную группу
+    $showNewGroupEvent = ($model->status != ProjectEvent::STATUS_FINISHED);
 }
 
 
-$this->breadcrumbs=array(
+$this->breadcrumbs = array(
     'Администрирование' =>array('/admin'),
     'Проекты' => array('/admin/project'),
-    'Проект "'.$model->project->name.'"' => array('/admin/project/view', 'id' => $model->project->id),
-	$model->name,
+    $model->project->name => array('/admin/project/view', 'id' => $model->project->id),
 );
+if ( $model->group )
+{// ссылка на просмотр группы
+    $this->breadcrumbs[$model->group->name] = array('/admin/projectEvent/view', 'id' => $model->group->id);
+}
+$this->breadcrumbs[] = $model->name;
 
 $this->menu = array(
-	array('label'=>'Страница проекта','url'=>array('/admin/project/view', 'id' => $model->project->id)),
-	array('label'=>'Создать мероприятие','url'=>array('/admin/projectEvent/create', 'projectid'=>$model->project->id)),
-	array('label'=>'Редактировать','url'=>array('update','id'=>$model->id)),
-    array('label'=>'Добавить вакансию','url'=>array('/admin/eventVacancy/create', 'eventid'=>$model->id)),
-    array('label'=>'Заявки','url'=>array('/admin/projectMember/index', 'eventid'=>$model->id, 'type' => 'applications')),
-    array('label'=>'Подтвержденные участники','url'=>array('/admin/projectMember/index', 'eventid'=>$model->id, 'type' => 'members')),
+	//array('label'=>'К проекту','url'=>array('/admin/project/view', 'id' => $model->project->id)),
+	array('label' => 'Новое событие в проекте',
+	    'url' => array(
+	        '/admin/projectEvent/create',
+	        'projectid' => $model->project->id),
+	    'visible' => !$showNewGroupEvent,
+    ),
+	array('label' => 'Новое событие в этой группе', 
+	    'url' => array(
+	        '/admin/projectEvent/create',
+	        'projectid' => $model->project->id,
+	        'parentid'  => $groupId),
+	    'visible' => $showNewGroupEvent,
+    ),
+	array('label' => 'Редактировать','url'=>array('update','id'=>$model->id)),
+    array('label' => $addRoleLabel,'url'=>array('/admin/eventVacancy/create', 'eventid'=>$model->id)),
+    array('label' => 'Заявки','url'=>array('/admin/projectMember/index', 'eventid'=>$model->id, 'type' => 'applications')),
+    array('label' => 'Участники','url'=>array('/admin/projectMember/index', 'eventid'=>$model->id, 'type' => 'members')),
 );
 
 if ( $model->status == ProjectEvent::STATUS_DRAFT )
@@ -35,7 +61,7 @@ if ( $model->status == ProjectEvent::STATUS_DRAFT )
     {
         $confirmDeleteText = 'Вы уверены, что хотите удалить эту группу? Все входящие в нее мероприятия также будут удалены.';
     }
-    $this->menu[] = array('label'=>'Удалить мероприятие','url'=>'#',
+    $this->menu[] = array('label'=>'Удалить','url'=>'#',
 	    'linkOptions' => array(
 	        'submit'  => array('delete', 'id' => $model->id),
 	        'confirm' => $confirmDeleteText,
@@ -45,16 +71,16 @@ if ( $model->status == ProjectEvent::STATUS_DRAFT )
 
 if ( in_array('active', $model->getAllowedStatuses()) )
 {// ссылка на активацию мероприятия
-    $this->menu[] = array('label'=>'Опубликовать мероприятие',
-        'url'=>array('/admin/projectEvent/setStatus', 'id' => $model->id, 'status' => 'active'),
+    $this->menu[] = array('label' => 'Активировать',
+        'url' => array('/admin/projectEvent/setStatus', 'id' => $model->id, 'status' => 'active'),
         'linkOptions' => array(
-            'confirm' => 'Это действие оповестит всех подходящих участников о начале съемок. Все вакансии мероприятия также будут активированы. ВНИМАНИЕ: после публикации мероприятия редактировать критерии отбора людей будет нельзя. На всякий случай проверьте все вакансии. Опубликовать мероприятие "'.$model->name.'"?',
+            'confirm' => 'Это действие оповестит всех подходящих участников о начале съемок. Все вакансии мероприятия и группы также будут активированы. ВНИМАНИЕ: после публикации мероприятия редактировать критерии отбора людей будет нельзя. На всякий случай проверьте все вакансии. Опубликовать мероприятие "'.$model->name.'"?',
         ),
     );
 }
 if ( in_array('finished', $model->getAllowedStatuses()) )
 {// ссылка на завершение мероприятия
-    $this->menu[] = array('label'=>'Завершить мероприятие',
+    $this->menu[] = array('label' => 'Завершить',
         'url' => array('/admin/projectEvent/setStatus', 'id' => $model->id, 'status' => 'finished'),
         'linkOptions' => array(
             'confirm' => 'Завершить мероприятие "'.$model->name.'"?',
@@ -70,20 +96,12 @@ $this->widget('bootstrap.widgets.TbAlert', array(
         'success' => array('block'=>true, 'fade'=>true, 'closeText'=>'&times;'), // success, info, warning, error or danger
     ),
 ));
-
-$eventTitle = $model->name;
-$showDates  = true;
-if ( $model->type == 'group' )
-{// группы мероприятий не имеют продолжительности
-    $showDates = false;
-    $eventTitle = $model->name.' [Группа мероприятий]';
-}
-
 ?>
-<h1><?php echo $eventTitle; ?></h1>
-<?php 
 
-// информация о самом мероприятии
+<h1><?= $pageTitle; ?></h1>
+
+<?php 
+// информация о событии или группе
 $this->widget('bootstrap.widgets.TbDetailView',array(
 	'data' => $model,
 	'attributes' => array(
@@ -108,7 +126,7 @@ $this->widget('bootstrap.widgets.TbDetailView',array(
             'value' => Yii::app()->getDateFormatter()->format("d MMMM yyyy, HH:mm", $model->timeend),
             'visible' => $showDates,
         ),
-		'description:html',
+		'description:raw',
 		'memberinfo:html',
         array(
             'label' => $model->getAttributeLabel('eta'),
@@ -117,26 +135,71 @@ $this->widget('bootstrap.widgets.TbDetailView',array(
         ),
         array(
             'label' => ProjectsModule::t('status'),
-            'value' => $model->statustext,
-        ),
-        array(
-            'label' => $model->getAttributeLabel('salary'),
-            'value' => $model->salary.' p.',
-            'visible' => (bool)$model->salary,
+            'value' => ProjectsModule::t("event_status_".$model->status),
         ),
 	),
-)); 
+));
 
-// Список вакансий
-$vacanciesTitle = 'Вакансии';
+// ТОЛЬКО ДЛЯ ГРУПП
+// список событий группы
 if ( $model->type == 'group' )
 {
-    $vacanciesTitle = 'Вакансии [заполняются одновременно для всех мероприятий в группе]';
+    echo '<h2>События в этой группе</h2>';
+
+    $eventsList = new CActiveDataProvider('ProjectEvent', array(
+        'data' => $model->events,
+        'pagination' => false,
+    ));
+
+    $this->widget('bootstrap.widgets.TbGridView', array(
+        'type'         => 'striped bordered condensed',
+        'dataProvider' => $eventsList,
+        'template' => "{summary}{items}",
+        'columns'  => array(
+            array(
+                'name' => 'name',
+                'header' => ProjectsModule::t('name'),
+                'value' => 'CHtml::link($data->name, Yii::app()->createUrl("/admin/ProjectEvent/view", array("id" => $data->id)));',
+                'type' => 'html'),
+            array(
+                'name' => 'timestart',
+                'header' => ProjectsModule::t('timestart'),
+                'value' => 'Yii::app()->getDateFormatter()->format("d MMMM yyyy, HH:mm", $data->timestart)',
+            ),
+            array(
+                'name' => 'timeend',
+                'header' => ProjectsModule::t('timeend'),
+                'value' => 'Yii::app()->getDateFormatter()->format("d MMMM yyyy, HH:mm", $data->timeend)',
+            ),
+            array(
+                'name'   => 'status',
+                'header' => ProjectsModule::t('status'),
+                'value'  => 'ProjectsModule::t("event_status_".$data->status)',
+            ),
+        ),
+    ));
+}
+
+// Список ролей
+$vacanciesTitle = 'Роли';
+$vacanciesInfo  = '';
+if ( $model->group )
+{
+    $vacanciesTitle = 'Роли события';
+}
+if ( $model->type == 'group' )
+{
+    $vacanciesTitle  = 'Роли группы';
+    $vacanciesInfo   = '(создаются и набираются одновременно для всех событий в группе)';
 }
 ?>
-<h2><?= $vacanciesTitle; ?></h2>
-<?php 
 
+
+<h2><?= $vacanciesTitle; ?></h2>
+<h3><?= $vacanciesInfo; ?></h3>
+
+
+<?php 
 // Список всех вакансий
 $vacanciesList = new CActiveDataProvider('EventVacancy', array(
         'data' => $model->vacancies,
@@ -160,52 +223,51 @@ $this->widget('bootstrap.widgets.TbGridView', array(
         ),
         array(
             'name'   => 'salary',
-            'header' => 'Оплата за день',
+            'header' => 'Оплата (за день)',
             'value'  => '$data->salary." р."',
         ),
-        array('name'=>'status', 'header'=>ProjectsModule::t('status')),
+        array(
+            'name'   => 'status',
+            'header' => ProjectsModule::t('status'),
+            'value'  => 'ProjectsModule::t("event_status_".$data->status)',
+        ),
     ),
 ));
 
-// ТОЛЬКО ДЛЯ ГРУПП
-// список событий группы
-if ( $model->type == 'group' )
-{
-    echo '<h2>Мероприятия, включенные в группу</h2>';
+if ( $model->group )
+{// роли из группы
     
-    $eventsList = new CActiveDataProvider('ProjectEvent', array(
-        'data' => $model->events,
+    echo '<h3>Роли группы</h3>';
+    $groupVacanciesList = new CActiveDataProvider('EventVacancy', array(
+        'data' => $model->group->vacancies,
         'pagination' => false,
     ));
-    
     $this->widget('bootstrap.widgets.TbGridView', array(
         'type'         => 'striped bordered condensed',
-        'dataProvider' => $eventsList,
-        'template'=>"{summary}{items}",
-        'columns'=>array(
+        'dataProvider' => $groupVacanciesList,
+        'template' => "{summary}{items}",
+        'columns'  => array(
             array(
-                'name' => 'name',
+                'name'   => 'name',
                 'header' => ProjectsModule::t('name'),
-                'value' => 'CHtml::link($data->name, Yii::app()->createUrl("/admin/ProjectEvent/view", array("id" => $data->id)));',
-                'type' => 'html'),
-            array(
-                'name' => 'timestart',
-                'header' => ProjectsModule::t('timestart'),
-                'value' => 'Yii::app()->getDateFormatter()->format("d MMMM yyyy, HH:mm", $data->timestart)',
+                'type'   => 'html',
+                'value'  => 'CHtml::link($data->name, Yii::app()->createUrl("/admin/eventVacancy/view", array("id" => $data->id)));',
             ),
             array(
-                'name' => 'timeend',
-                'header' => ProjectsModule::t('timeend'),
-                'value' => 'Yii::app()->getDateFormatter()->format("d MMMM yyyy, HH:mm", $data->timeend)',
+                'name'   => 'limit',
+                'header' => 'Заполнение',
+                'value'  => '"(".$data->membersCount." из ".$data->limit.") [Заявки: ".$data->requestsCount."]"',
             ),
-            /*
-            @todo непонятно как размер оплаты оказался в модели мероприятия. Удалить его оттуда
             array(
-                'name' => 'salary',
-                'header' => $model->getAttributeLabel('salary'),
-                'value' => '$data->salary',
-            ),*/
-            array('name'=>'status', 'header'=>ProjectsModule::t('status')),
+                'name'   => 'salary',
+                'header' => 'Оплата (за день)',
+                'value'  => '$data->salary." р."',
+            ),
+            array(
+                'name'   => 'status',
+                'header' => ProjectsModule::t('status'),
+                'value'  => 'ProjectsModule::t("event_status_".$data->status)',
+            ),
         ),
     ));
 }

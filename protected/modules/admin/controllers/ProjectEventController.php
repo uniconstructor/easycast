@@ -61,29 +61,33 @@ class ProjectEventController extends Controller
 	 */
 	public function actionCreate()
 	{
-		$model=new ProjectEvent;
+		$model = new ProjectEvent;
 		
-		if ( ! $projectid = Yii::app()->request->getParam('projectid') )
+		$projectid = Yii::app()->request->getParam('projectid', 0);
+		$groupid   = Yii::app()->request->getParam('parentid', 0);
+		$type      = Yii::app()->request->getParam('type', 'event');
+		if ( ! $project = Project::model()->findByPk($projectid) )
 		{
 		    throw new CHttpException(404,'Необходимо указать id проекта');
 		}
-		
-		$project = Project::model()->findByPk($projectid);
-
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
-		if(isset($_POST['ProjectEvent']))
+		if ( isset($_POST['ProjectEvent']) )
 		{
 		    $_POST['ProjectEvent']['projectid'] = $projectid;
 			$model->attributes = $_POST['ProjectEvent'];
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->id));
+			if ( $model->save() )
+			{
+			    $this->redirect(array('view', 'id'=>$model->id));
+			}
 		}
 
-		$this->render('create',array(
-			'model'=>$model,
+		$this->render('create', array(
+			'model'   => $model,
 		    'project' => $project,
+		    'type'    => $type,
+		    'groupid' => $groupid,
 		));
 	}
 

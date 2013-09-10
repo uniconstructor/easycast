@@ -3,7 +3,7 @@
  * Форма редактирования мероприятия в админке
  */
 
-$form=$this->beginWidget('bootstrap.widgets.TbActiveForm',array(
+$form = $this->beginWidget('bootstrap.widgets.TbActiveForm',array(
 	'id'=>'project-event-form',
 	'enableAjaxValidation'=>false,
 )); 
@@ -15,24 +15,21 @@ $dateFormatter = new CDateFormatter('ru');
 
 	<?php echo $form->errorSummary($model); ?>
 
-	<?php echo $form->textFieldRow($model, 'name',array('class'=>'span5','maxlength'=>255)); ?>
+	<?php echo $form->textFieldRow($model, 'name',array('class'=>'span5', 'maxlength'=>255)); ?>
 	
 	<?php
 	// тип мероприятия
 	$eventTypes = $model->getTypes();
-	if ( /*! $model->isNewRecord AND*/ $model->type == 'group' )
-	{// тип "группа" нельзя ни на что менять после сохранения
-	    $eventTypes[ProjectEvent::TYPE_GROUP] = 'Группа мероприятий';
-	    echo $form->dropDownListRow($model, 'type', $eventTypes, array('disabled' => 'disabled'));
-	}else
-	{// остальные типы менять можно
-	    echo $form->dropDownListRow($model, 'type', $eventTypes);
-	}
+	echo $form->dropDownListRow($model, 'type', $eventTypes);
 	?>
 	
 	<?php 
 	// группа мероприятия
 	$groups = $model->getOpenGroups($project->id);
+	if ( $model->isNewRecord AND $groupid )
+	{// создаем событие в заранее определенной группе
+	    $model->parentid = $groupid;
+	}
 	if ( $model->status != 'draft' )
 	{// нельзя перемещать активные мероприятия между группами
 	    echo $form->dropDownListRow($model, 'parentid', $groups, array('disabled' => 'disabled'));
@@ -43,7 +40,7 @@ $dateFormatter = new CDateFormatter('ru');
 	?>
 
 	<?php // описание мероприятия
-	echo $form->labelEx($model,'description'); 
+	echo $form->labelEx($model, 'description'); 
         $this->widget('ext.imperavi-redactor-widget.ImperaviRedactorWidget', array(
     	'model' => $model,
     	'attribute' => 'description',
@@ -52,6 +49,7 @@ $dateFormatter = new CDateFormatter('ru');
             ),
         ));
     echo $form->error($model,'description');
+    echo '<div class="alert">Видно всем</div>';
     ?>
     
     <?php // Дополнительная информация для участников
@@ -64,11 +62,11 @@ $dateFormatter = new CDateFormatter('ru');
             ),
         ));
     echo $form->error($model,'memberinfo');
+    echo '<div class="alert">Отображается только подтвержденным участникам</div>';
     ?>
     
     <?php // нужно создать мероприятие без даты (она пока неизвестна)
     // @todo выключать даты начала и окончания при установке этой галочки
-    // @todo ставить эту галочку по умолчанию, если тип события - группа, и запрещать ее снимать
     echo $form->checkBoxRow($model, 'nodates');
     ?>
     
@@ -134,20 +132,22 @@ $dateFormatter = new CDateFormatter('ru');
             ),
         ));
     echo $form->error($model, 'meetingplace');
+    echo '<div class="alert">Отображается только подтвержденным участникам</div>';
     ?>
 	
 	<?php // показывать ли время начала съемок?
-        // @todo по умолчанию снять и отключить эту галочку, если тип события - группа
 	    $showTimeStartOptions = array();
 	    if ( $model->isNewRecord )
 	    {
-	        $showTimeStartOptions['checked'] = true;
+	        $showTimeStartOptions['checked'] = false;
 	    }
 	    echo $form->checkBoxRow($model, 'showtimestart');
+	    echo '<div class="alert">Если галочка поставлена - участникам покажется и время встречи, и время съемок.
+                Если снята - только время сбора.</div>';
 	?>
 	
-	<?php // размер оплаты
-	    echo $form->textFieldRow($model, 'salary', array('class'=>'span5','maxlength'=>32));
+	<?php // @todo убрать размер оплаты
+	    //echo $form->textFieldRow($model, 'salary', array('class'=>'span5','maxlength'=>32));
 	?>
 	
 	<?php
