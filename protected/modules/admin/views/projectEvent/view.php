@@ -78,6 +78,7 @@ if ( in_array('active', $model->getAllowedStatuses()) )
         ),
     );
 }
+
 if ( in_array('finished', $model->getAllowedStatuses()) )
 {// ссылка на завершение мероприятия
     $this->menu[] = array('label' => 'Завершить',
@@ -87,6 +88,23 @@ if ( in_array('finished', $model->getAllowedStatuses()) )
         ),
     );
 }
+
+$shareScript = $this->widget('application.modules.admin.extensions.ShareAccessWidget.ShareAccessWidget', array(
+    'selector' => '#shareAccess',
+),true);
+if ( $model->status == ProjectEvent::STATUS_ACTIVE )
+{// ссылка на отправку письма с доступом к отбору участников
+    $this->menu[] = array('label' => 'Предоставить доступ', 'url'=>'#',
+        'linkOptions' => array(
+            //'onclick'  => "alert('hello!');return false;",
+            //'onclick'  => "$('#shareAccess').popover('toggle');return false;',
+            'onclick'  => "$(this).popover('toggle');return false;",
+            'onclick'  => "return false;",
+            'id' => 'shareAccess',
+            )
+    );
+}
+
 // сообщение о смене статуса
 $this->widget('bootstrap.widgets.TbAlert', array(
     'block'     => true, // display a larger alert block?

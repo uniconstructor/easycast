@@ -429,10 +429,8 @@ class QAdminFullDataList extends CWidget
     {
         switch ( $type )
         {
-            case 'delete':    return 'btn btn-large btn-danger'; break;
-            case 'restore':   return 'btn btn-large btn-success'; break;
             case 'fullinfo':  return 'btn btn-inverse'; break;
-            case 'shortinfo': return 'btn btn-inverse'; break;
+            case 'shortinfo': return 'btn btn-general'; break;
         }
     }
     

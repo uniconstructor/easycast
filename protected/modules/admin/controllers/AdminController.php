@@ -118,4 +118,9 @@ class AdminController extends Controller
 	    $totalCount = GalleryPhoto::model()->count($criteria);
 	    echo '<br>Осталось загрузить '.$totalCount;
 	}
+	
+	public function actionShareAccess()
+	{
+	    echo 'OK';
+	}
 }

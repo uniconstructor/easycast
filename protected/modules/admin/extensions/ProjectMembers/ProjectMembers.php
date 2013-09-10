@@ -150,17 +150,18 @@ class ProjectMembers extends CWidget
 
         if ( $members )
         {// есть участники или заявки на участие - отобразим их
-            
             $elements = array();
             if ( $this->displayFullInfo )
             {
-                $result .= '<h4>'.$vacancy->name.'</h4>';
+                $result .= '<h3>Роль: '.$vacancy->name.'</h3>';
+                $result .= '<div class="alert alert-info">'.$vacancy->description.'</div>';
                 $result .= $this->widget('application.modules.admin.extensions.QAdminFullDataList.QAdminFullDataList', array(
                     'members' => $members,
                 ), true);
             }else
             {
-                $result .= '<h4>'.$vacancy->name.'</h4>';
+                $result .= '<h3 class="alert-heading">Роль:'.$vacancy->name.'</h3>';
+                $result .= '<div class="alert alert-info" style="margin-bottom:0px;">'.$vacancy->description.'</div>';
                 foreach ( $members as $member )
                 {
                     $elements[] = $this->getMemberData($member);
@@ -171,7 +172,7 @@ class ProjectMembers extends CWidget
                 $result .= $this->widget('bootstrap.widgets.TbGridView', array(
                     'type'         => 'striped bordered condensed',
                     'dataProvider' => $arrayProvider,
-                    'template'     => "{items}{pager}",
+                    'template'     => "{summary}{items}{pager}",
                     'columns' => $this->getMemberColumns(),
                 ), true);
             }

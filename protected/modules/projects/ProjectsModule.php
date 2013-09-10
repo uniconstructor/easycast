@@ -128,8 +128,9 @@ class ProjectsModule extends CWebModule
     	    // @todo записать ошибку в лог
     	    return false;
 	    }
+	    $mailComposer = Yii::app()->getModule('mailComposer');
 	     
-	    $email = $memberData->member->user->email;
+	    $email   = $memberData->member->user->email;
 	    $subject = 'Ваша заявка на участие в проекте "'.$memberData->vacancy->event->project->name.'" отклонена.';
 	    $message = $mailComposer->getMessage('rejectMember', array('projectMember' => $memberData));
 	    
