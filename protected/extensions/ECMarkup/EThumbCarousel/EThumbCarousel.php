@@ -76,7 +76,10 @@ class EThumbCarousel extends CWidget
         $photos = array();
         foreach ( $this->photos as $id=>$photo )
         {
-            $this->photos[$id]['imageOptions'] = array('id' => $this->id.'-photo-'.$photo['id']);
+            $this->photos[$id]['imageOptions'] = array(
+                'id'    => $this->id.'-photo-'.$photo['id'],
+                'style' => 'margin-left:auto;margin-right:auto;cursor:pointer;border-radius:10px;',
+            );
         }
     }
     
@@ -100,10 +103,10 @@ class EThumbCarousel extends CWidget
             $this->widget('bootstrap.widgets.TbCarousel', array(
                             'items' => $this->photos,
                             'options' => array(
-                                            'interval' => false,
+                                'interval' => false,
                             ),
                             'htmlOptions' => array(
-                                            'id' => $this->id,
+                                'id' => $this->id,
                             ),
             ));
         }
