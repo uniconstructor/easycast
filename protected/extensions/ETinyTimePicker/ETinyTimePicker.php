@@ -31,7 +31,10 @@ class ETinyTimePicker extends CInputWidget
         $attribute  = $this->attribute;
         $modelValue = $model->$attribute;
         
-        //$steps = $this->maxMinutes / $this->step;
+        if ( $this->showEmptyOption )
+        {
+            $variants[0] = 'Не задано';
+        }
         for ( $interval = $this->step; $interval <= $this->maxMinutes; $interval += $this->step )
         {
             $intervalInSeconds = $interval * 60;
