@@ -63,12 +63,12 @@ class ECTopRated extends CWidget
             'target'   => 'big-gallery-item',
             // количество загружаемых анкет всегда берется из настроек 
             'size'     => $this->dataProvider->itemCount,
-            // Пролистываем по 10 актеров за клик
+            // Пролистываем по 8 актеров за клик
             'scroll'   => $this->getDisplayCount(), 
             // Устанавливаем собственное событие при клике на фотографию актера
             // (просто показываем его анкету)
             'clickCallback' => 'return true;',
-            // показываем строго по 10 элементов
+            // показываем строго по 8 элементов
             'visible' => $this->getDisplayCount(),
             // показываем изображения по кругу
             'wrap'    => 'circular',
@@ -102,7 +102,7 @@ class ECTopRated extends CWidget
      */
     protected function getTotalCount()
     {
-        return 30;
+        return 24;
     }
     
     /**
