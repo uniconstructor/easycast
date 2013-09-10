@@ -6,7 +6,7 @@
 
 ?>
 
-<div class="row well well-small" id="<?php echo $data['baseContainerId']; ?>">
+<div class="row well well-small" style="border-radius:10px;" id="<?php echo $data['baseContainerId']; ?>">
     <div class="span2" style="vertical-align:middle;"><?php echo $data["avatar"]; ?></div>
     <div class="span8" id="<?php echo $data['shortInfoContainerId']; ?>">
         <h2><?php echo $data['fullName']; echo $data['age']; ?></h2>

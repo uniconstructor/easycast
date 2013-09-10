@@ -47,9 +47,10 @@ class MyChoice extends CWidget
         }
         
         // Создаем источник данных для вывода краткой информации
-        // @todo отключить разбивку по страницам
-        $dataProvider = new CArrayDataProvider($elements, array(
-            'pagination' => array('pageSize'=>65535))
+        $dataProvider = new CArrayDataProvider($elements, 
+            array(
+                'pagination' => false,
+            )
         );
         
         // отображаем всех добавленных в заказ пользователей
