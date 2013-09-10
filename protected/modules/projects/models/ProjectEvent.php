@@ -139,6 +139,12 @@ class ProjectEvent extends CActiveRecord
 	    {
 	        $this->timeend = $timeend;
 	    }
+	    if ( $this->type == self::TYPE_GROUP )
+	    {// группы мероприятий не имеют продолжительности
+	        $this->timestart = 0;
+	        $this->timeend   = 0;
+	        $this->nodates   = 1;
+	    }
 	    
 	    // выполняем служебные действия ActiveRecord
 	    return parent::beforeSave();
@@ -499,7 +505,10 @@ class ProjectEvent extends CActiveRecord
 	    switch ( $this->status )
 	    {
 	        case 'draft':
-	            return array('active');
+	            if ( $this->project->status != 'finished' )
+	            {
+	                return array('active');
+	            }
             break;
 	        case 'active':
 	            return array('finished');
@@ -537,6 +546,16 @@ class ProjectEvent extends CActiveRecord
 	        return false;
 	    }
 	    
+	    /*if ( $newStatus == 'active' AND $this->group AND $this->group->status == self::STATUS_ACTIVE )
+	    {// если запускается новое мероприятие в уже активированной группе -
+	        // то высылаем дополнительные оповещения по вакансиям группы
+	        // @todo придумать как оповещать вакансии группы о новых мероприятиях в группе
+	    	foreach ( $this->vacancies as $groupVacancy )
+	    	{
+	    	    
+	    	}
+	    }*/
+	    
 	    $this->status = $newStatus;
 	    $this->save();
 	    
@@ -550,9 +569,9 @@ class ProjectEvent extends CActiveRecord
 	            }
 	        }
 	        foreach ( $this->vacancies as $vacancy )
-	        {
+	        {// активируем все вакансии события
 	            if ( $vacancy->status == 'draft' )
-	            {// активируем все вакансии события
+	            {
 	                $vacancy->setStatus('active');
 	            }
 	        }
@@ -582,6 +601,13 @@ class ProjectEvent extends CActiveRecord
 	            if ( $vacancy->status == 'draft' )
 	            {// если событие завершено - удаляем все не начатые вакансии
 	                $vacancy->delete();
+	            }
+	        }
+	        foreach ( $this->invites as $invite )
+	        {// все неотвеченные приглашения сгорают с завершением мероприятия
+	            if ( $invite->status == EventInvite::STATUS_PENDING )
+	            {
+	                $invite->setStatus(EventInvite::STATUS_EXPIRED);
 	            }
 	        }
 	    }
@@ -678,6 +704,10 @@ class ProjectEvent extends CActiveRecord
 	 */
 	public function getFormattedTimeStart()
 	{
+	    if ( $this->type == self::TYPE_GROUP )
+	    {
+	        return '';
+	    }
 	    if ( $this->nodates )
 	    {// дата мероприятия пока не известна
 	        return '[Дата уточняется]';
@@ -697,6 +727,10 @@ class ProjectEvent extends CActiveRecord
 	 */
 	public function getFormattedTimeEnd()
 	{
+	    if ( $this->type == self::TYPE_GROUP )
+	    {
+	        return '';
+	    }
 	    if ( $this->nodates )
 	    {// дата мероприятия пока не известна
 	        return '';
