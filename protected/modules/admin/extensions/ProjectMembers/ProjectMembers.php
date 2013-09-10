@@ -41,6 +41,8 @@ class ProjectMembers extends CWidget
      * @var отображать ли столбец "время подачи заявки" в списке заявок?
      */
     public $displayTimeColumn = true;
+    
+    public $displayFullInfo = false;
 
     /**
      * (non-PHPdoc)
@@ -144,24 +146,35 @@ class ProjectMembers extends CWidget
         {// показываем участников
             $members = $vacancy->members;
         }
+        
 
         if ( $members )
         {// есть участники или заявки на участие - отобразим их
-            $result .= '<h4>'.$vacancy->name.'</h4>';
-            $elements = array();
-            foreach ( $members as $member )
-            {
-                $elements[] = $this->getMemberData($member);
-            }
-            // в списке участников разбивка по страницам не нужна
-            $arrayProvider = new CArrayDataProvider($elements, array('pagination' => false));
             
-            $result .= $this->widget('bootstrap.widgets.TbGridView', array(
-                'type'         => 'striped bordered condensed',
-                'dataProvider' => $arrayProvider,
-                'template'     => "{items}{pager}",
-                'columns' => $this->getMemberColumns(),
-            ), true);
+            $elements = array();
+            if ( $this->displayFullInfo )
+            {
+                $result .= '<h4>'.$vacancy->name.'</h4>';
+                $result .= $this->widget('application.modules.admin.extensions.QAdminFullDataList.QAdminFullDataList', array(
+                    'members' => $members,
+                ), true);
+            }else
+            {
+                $result .= '<h4>'.$vacancy->name.'</h4>';
+                foreach ( $members as $member )
+                {
+                    $elements[] = $this->getMemberData($member);
+                }
+                // в списке участников разбивка по страницам не нужна
+                $arrayProvider = new CArrayDataProvider($elements, array('pagination' => false));
+                
+                $result .= $this->widget('bootstrap.widgets.TbGridView', array(
+                    'type'         => 'striped bordered condensed',
+                    'dataProvider' => $arrayProvider,
+                    'template'     => "{items}{pager}",
+                    'columns' => $this->getMemberColumns(),
+                ), true);
+            }
         }
 
         return $result;

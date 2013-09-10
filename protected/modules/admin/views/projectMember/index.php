@@ -61,6 +61,7 @@ $this->widget('admin.extensions.ProjectMembers.ProjectMembers',array(
 	'objectType'  => $viewMode,
 	'objectId'    => $objectid,
     'displayType' => $type,
+    'displayFullInfo' => true,
 )); 
 
 ?>

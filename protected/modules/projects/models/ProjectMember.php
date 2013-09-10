@@ -165,6 +165,7 @@ class ProjectMember extends CActiveRecord
 	{
 		return array(
 		    'member'  => array(self::BELONGS_TO, 'Questionary', 'memberid'),
+		    'questionary' => array(self::BELONGS_TO, 'Questionary', 'memberid'),
 		    'manager' => array(self::BELONGS_TO, 'User', 'managerid'),
 		    'vacancy' => array(self::BELONGS_TO, 'EventVacancy', 'vacancyid'),
 		);

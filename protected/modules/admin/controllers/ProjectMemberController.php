@@ -127,6 +127,7 @@ class ProjectMemberController extends Controller
 	 */
 	public function actionIndex()
 	{
+	    $this->layout='//layouts/column1';
 	    $projectid = Yii::app()->request->getParam('projectid');
 	    $eventid   = Yii::app()->request->getParam('eventid');
 	    $vacancyid = Yii::app()->request->getParam('vacancyid');
