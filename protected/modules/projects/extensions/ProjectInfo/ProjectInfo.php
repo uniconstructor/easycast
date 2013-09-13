@@ -169,14 +169,13 @@ class ProjectInfo extends CWidget
         {// отображается мероприятие
             $title = CHtml::encode($this->event->name);
             $title .= ' '.date('Y/m/d', $this->event->timestart);
-            $title .= ' '.date('H:i', $this->event->timestart);
-            $title .= ' - '.date('H:i', $this->event->timeend);
+            $title .= ' '.$this->event->getFormattedTimePeriod();
             if ( $this->linkTitle )
             {// показываем название как ссылку
                 $title = CHtml::link($title, $this->getEventUrl());
             }
         }else
-       {// отображается проект
+        {// отображается проект
            $title = CHtml::encode($this->project->name);
            if ( $this->linkTitle )
            {// показываем название как ссылку
@@ -320,10 +319,10 @@ class ProjectInfo extends CWidget
         $content = '<h3>'.ProjectsModule::t('projectinfo_section_main').'</h3>';
         if ( $this->customerView() )
         {// заказчикам показываем описание для заказчика
-            $content .= '<p>'.$this->project->customerdescription.'</p>';
+            $content .= '<p>'.$this->getProjectDescription($this->project).'</p>';
         }elseif ( $this->userView() )
         {// всем остальным - описание для участника
-            $content .= '<p>'.$this->project->description.'</p>';
+            $content .= '<p>'.$this->getProjectDescription($this->project).'</p>';
         }elseif ( $this->adminView() )
         {// Админу показываем и то и другое
             $content .= '<p>(Для заказчика):<br>'.$this->project->customerdescription.'</p>';
@@ -331,6 +330,15 @@ class ProjectInfo extends CWidget
         }
         
         return $content;
+    }
+    
+    protected function getProjectDescription($project)
+    {
+        if ( ! $result = $this->project->description )
+        {
+            $result = $this->project->customerdescription;
+        }
+        return $result;
     }
     
     /**
