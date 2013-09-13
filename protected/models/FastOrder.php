@@ -452,7 +452,7 @@ class FastOrder extends CActiveRecord
 	     
 	    // Отправляем письмо нашей команде, чтобы она знала о заказе
 	    // @todo отправлять SMS команде если заказ срочный
-	    UserModule::sendMail('order@easycast.ru', $subjectTeam, $messageTeam);
+	    UserModule::sendMail('order@easycast.ru', $subjectTeam, $messageTeam, true);
 	     
 	    // Отправляем письмо заказчику (если он оставил email), чтобы он знал что его заказ принят
 	    // @todo отправлять SMS заказчику при получении заказа (если не указан email)
@@ -475,7 +475,7 @@ class FastOrder extends CActiveRecord
 	        $messageCustomer .= '<br>';
 	        $messageCustomer .= 'С уважением, команда проекта EasyCast.';
 	         
-	        UserModule::sendMail($this->email, $subjectCustomer, $messageCustomer);
+	        UserModule::sendMail($this->email, $subjectCustomer, $messageCustomer, true);
 	    }
 	}
 	

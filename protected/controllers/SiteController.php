@@ -142,7 +142,7 @@ class SiteController extends Controller
 	 */
 	public function actionPlaceOrder()
 	{
-	    if ( $formData = Yii::app()->request->getPost('FastOrder') )
+	    if ( $formData = Yii::app()->request->getParam('FastOrder') )
 	    {// данные заказа пришли, создаем заказ
 	        $model = new FastOrder;
 	        $model->attributes = $formData;
