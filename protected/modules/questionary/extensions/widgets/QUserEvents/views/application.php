@@ -1,6 +1,7 @@
 <?php
 /**
  * отображение одной заявки
+ * @var $vacancy EventVacancy
  */
 ?>
 <div class="media">
@@ -12,7 +13,11 @@
             <a href="<?= $eventUrl; ?>" target="_blank"><?= $vacancy->event->name; ?></a>
         </h4>
         <p><b><?= $vacancy->event->getFormattedTimeStart(); ?></b></p>
-        <?= '';// $vacancy->event->description; ?>
+        <?= $vacancy->event->description; ?>
+        <p><b>Место встречи:</b></p>
+        <?= $vacancy->event->meetingplace; ?>
+        <p><b>Дополнительная информация:</b></p>
+        <?= $vacancy->event->memberinfo; ?>
         <p><b>Роль: <?= $vacancy->name; ?></b></p>
         <?= $vacancy->description; ?>
         <?= $actions; ?>
