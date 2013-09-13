@@ -331,7 +331,7 @@ class ProjectMailsBehavior extends CBehavior
         if ( $event->meetingplace )
         {
             $text .= '<b>Время и место встречи:</b><br>';
-            $text .= '<p>'.$event->memberinfo.'</p>';
+            $text .= '<p>'.$event->meetingplace.'</p>';
         }
         if ( $event->memberinfo )
         {
