@@ -76,7 +76,9 @@ class QAdminFullDataList extends CWidget
         $info['fullInfoLoadedId'] = 'full_info_loaded_'.$questionary->id; 
     
         // Имя
-        $info['fullName'] = $questionary->fullname;
+        $qUrl = Yii::app()->createAbsoluteUrl('/questionary/questionary/view', array('id' => $questionary->id));
+        $fullName = CHtml::link($questionary->fullname, $qUrl, array('target' => '_blank'));
+        $info['fullName'] = $fullName;
     
         // Возраст
         $info['age'] = '';
