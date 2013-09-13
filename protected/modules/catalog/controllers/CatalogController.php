@@ -88,7 +88,7 @@ class CatalogController extends Controller
 	                CatalogModule::t('no_users_in_order_message', array('{catalog_link}' => $catalogLink)));
 	        }
 	    }else
-	   {// В заказе есть анкеты - соберем по ним все данные
+	    {// В заказе есть анкеты - соберем по ним все данные
 	        foreach ( FastOrder::getPendingOrderUsers() as $id )
 	        {
 	            $questionaries[$id] = Questionary::model()->findByPk($id);
@@ -104,6 +104,7 @@ class CatalogController extends Controller
     	        'order'         => $order,
     	    )
 	    );
+	    
 	}
 	
 	/**
