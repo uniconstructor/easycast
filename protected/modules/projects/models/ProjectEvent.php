@@ -750,7 +750,7 @@ class ProjectEvent extends CActiveRecord
 	 */
 	public function getFormattedTimePeriod($showDuration=false)
 	{
-	    if ( $this->nodates )
+	    if ( $this->nodates OR ($this->timestart == $this->timeend) )
 	    {// мероприятие без конкретной даты - так и скажем
 	        return $this->getFormattedTimeStart();
 	    }
