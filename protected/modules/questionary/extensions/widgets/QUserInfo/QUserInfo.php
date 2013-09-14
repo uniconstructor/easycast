@@ -27,6 +27,10 @@ class QUserInfo extends CWidget
      * Возможные значения: 'main', 'education', 'skills', 'films', 'model', 'projects', 'awards', 'misc'
      */
     public $activeTab = 'main';
+    /**
+     * @var bool
+     */
+    public $nameAsLink;
     
     /**
      * @var string - путь к папке со стилями и скриптами для виджета
