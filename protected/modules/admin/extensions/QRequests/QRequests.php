@@ -40,13 +40,11 @@ class QRequests extends CWidget
             $rejectText = CHtml::textArea(
                                 'rejectMessage['.$questionary->id.']', '', 
                                 array('id' => 'rejectMessage_'.$questionary->id));
+            
             if ( ! isset($questionary->user->fullname) )
-            {
+            {// битая анкета (не привязана к пользователю)
                 // @todo сделать нормальную обработку таких ошибок
                 continue;
-            }else
-           {
-                $element['name'] = CHtml::link($questionary->user->fullname, $nameUrl);
             }
             
             $actions = '';
@@ -60,6 +58,7 @@ class QRequests extends CWidget
             $actions .= '</tr>';
             $actions .= '</table>';
             
+            $element['name'] = CHtml::link($questionary->user->fullname, $nameUrl, array('target' => '_blank'));
             $element['actions'] = $actions;
             $elements[] = $element;
             unset($actions);
@@ -70,10 +69,18 @@ class QRequests extends CWidget
         $this->widget('bootstrap.widgets.TbGridView', array(
             'type'         => 'striped bordered condensed',
             'dataProvider' => $arrayProvider,
-            'template'=>"{items}{pager}",
-            'columns'=>array(
-                array('name'=>'name', 'header'=>QuestionaryModule::t('name'), 'type' => 'html'),
-                array('name'=>'actions', 'header'=>ProjectsModule::t('status'), 'type' => 'raw'),
+            'template'     => "{items}{pager}",
+            'columns' => array(
+                array(
+                    'name'   => 'name',
+                    'header' => QuestionaryModule::t('name'),
+                    'type'   => 'html',
+                ),
+                array(
+                    'name'   => 'actions',
+                    'header' => ProjectsModule::t('status'),
+                    'type'   => 'raw',
+                ),
             ),
         ));
     }
@@ -97,7 +104,7 @@ class QRequests extends CWidget
         {
             $options['data']['message'] = "js:function() {return $('#approveMessage_{$id}').val();}";
         }else
-       {
+        {
             $options['data']['message'] = "js:function() {return $('#rejectMessage_{$id}').val();}";
         }
         
@@ -110,7 +117,7 @@ class QRequests extends CWidget
         {
             $message = '<div class="alert alert-success">Анкета одобрена</div>';
         }else
-       {
+        {
             $message = '<div class="alert alert-block">Анкета отправлена на доработку</div>';
         }
         return "function(data){
@@ -124,7 +131,7 @@ class QRequests extends CWidget
     {
         return Yii::app()->createUrl('/admin/questionary/setStatus', 
             array(
-                'id' => $id,
+                'id'     => $id,
                 'status' => $status,
                 Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
         ));
