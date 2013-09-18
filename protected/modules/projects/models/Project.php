@@ -100,11 +100,12 @@ class Project extends CActiveRecord
 	 */
 	protected function beforeDelete()
 	{
-	    // При удалении проекта удаляем все его мероприятия
 	    foreach ( $this->events as $event )
-	    {
+	    {// При удалении проекта удаляем все его мероприятия
 	        $event->delete();
 	    }
+	    
+	    return parent::beforeDelete();
 	}
 	
 	/**
