@@ -123,17 +123,6 @@ class QuestionaryModule extends CWebModule
                 'questionary'. DIRECTORY_SEPARATOR .'assets');
         }
     
-        // Set the required components.
-        /*$this->setComponents(array(
-            'authorizer'=>array(
-                'class'=>'RAuthorizer',
-                'superuserName'=>$this->superuserName,
-            ),
-            'generator'=>array(
-                'class'=>'RGenerator',
-            ),
-        ));*/
-    
         // Normally the default controller is questionary.
         $this->defaultController = 'questionary';
     
