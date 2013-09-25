@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Контроллер мероприятия (для администратора)
+ */
 class ProjectEventController extends Controller
 {
 	/**
@@ -26,20 +29,12 @@ class ProjectEventController extends Controller
 	public function accessRules()
 	{
 		return array(
-			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view'),
-				'users'=>array('@'),
+			array('allow',
+				'actions' => array('view', 'create', 'update', 'delete', 'setStatus', 'callList'),
+				'users'   => array('@'),
 			),
-			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update'),
-				'users'=>array('@'),
-			),
-			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete','setStatus'),
-				'users'=>array('@'),
-			),
-			array('deny',  // deny all users
-				'users'=>array('*'),
+			array('deny', // deny all users
+				'users' => array('*'),
 			),
 		);
 	}
@@ -50,8 +45,8 @@ class ProjectEventController extends Controller
 	 */
 	public function actionView($id)
 	{
-		$this->render('view',array(
-			'model'=>$this->loadModel($id),
+		$this->render('view', array(
+			'model' => $this->loadModel($id),
 		));
 	}
 
@@ -136,29 +131,20 @@ class ProjectEventController extends Controller
 	}
 
 	/**
-	 * Lists all models.
+	 * Отобразить вызывной лист
+	 * @return null
 	 */
-	public function actionIndex()
+	public function actionCallList()
 	{
-		$dataProvider=new CActiveDataProvider('ProjectEvent');
-		$this->render('index',array(
-			'dataProvider'=>$dataProvider,
-		));
-	}
-
-	/**
-	 * Manages all models.
-	 */
-	public function actionAdmin()
-	{
-		/*$model=new ProjectEvent('search');
-		$model->unsetAttributes();  // clear any default values
-		if(isset($_GET['ProjectEvent']))
-			$model->attributes=$_GET['ProjectEvent'];
-
-		$this->render('admin',array(
-			'model'=>$model,
-		));*/
+	    $eventId = Yii::app()->request->getParam('eventId', 0);
+	    if ( ! $event = ProjectEvent::model()->findByPk($eventId) )
+	    {
+	        throw new CHttpException(500, 'Невозможно отобразить вызывной лист: мероприятие не найдено');
+	    }
+	    
+	    $this->render('callList', array(
+	        'event' => $event,
+	    ));
 	}
 
 	/**
@@ -187,12 +173,18 @@ class ProjectEventController extends Controller
 		}
 	}
 	
+	/**
+	 * Изменить статус мероприятия
+	 * @param int $id - id мероприятия
+	 * @throws CHttpException
+	 * @return null
+	 */
 	public function actionSetStatus($id)
 	{
 	    $model = $this->loadModel($id);
 	    if ( ! $status = Yii::app()->request->getParam('status') )
 	    {
-	        throw new CHttpException(404,'Необходимо указать статус');
+	        throw new CHttpException(500, 'Необходимо указать статус');
 	    }
 	    
 	    if ( $model->setStatus($status) )
@@ -202,8 +194,6 @@ class ProjectEventController extends Controller
 	    {
 	        Yii::app()->user->setFlash('error', 'Не удалось изменить статус');
 	    }
-	    
-	
 	    $url = Yii::app()->createUrl('/admin/projectEvent/view', array('id' => $id));
 	    $this->redirect($url);
 	}

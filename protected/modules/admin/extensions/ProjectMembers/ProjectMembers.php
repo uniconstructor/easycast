@@ -2,6 +2,11 @@
 
 /**
  * Список участников проекта или заявок на участие в проекте
+ * 
+ * @todo в списке мероприятий не разделять события на группы, вместо этого показывать для каждого события
+ *       отдельный блок с заявками группы (если мероприятие содержит группу)
+ *       Второй вариант: отображать сначала группы (в рамочке), внутри них события, потом отдельные события
+ *       Всегда писать список дней в группах
  */
 class ProjectMembers extends CWidget
 {
@@ -42,6 +47,9 @@ class ProjectMembers extends CWidget
      */
     public $displayTimeColumn = true;
     
+    /**
+     * @var bool - отображать ли полную анкету участника в заявке?
+     */
     public $displayFullInfo = false;
 
     /**
@@ -62,7 +70,7 @@ class ProjectMembers extends CWidget
         switch ( $this->objectType )
         {
             case 'project': echo $this->getProjectMembers(); break;
-            case 'event':   echo $this->getEventMembers(); break;
+            case 'event':   echo $this->getEventMembers();   break;
             case 'vacancy': echo $this->getVacancyMembers(); break;
         }
     }
@@ -74,21 +82,23 @@ class ProjectMembers extends CWidget
     public function getProjectMembers()
     {
         $result = '';
+        if ( ! $project = Project::model()->findByPk($this->objectId) )
+        {
+            throw new UnexpectedValueException('Проект не найден');
+        }
 
-        $project = Project::model()->findByPk($this->objectId);
-
-        if ( $this->displayHeader OR $this->objectType != 'project' )
+        if ( $this->displayHeader )
         {// отображаем заголовок проекта только тогда когда нужно
-            $result .= '<h3>'.$project->name.'</h3>';
+            $result .= $this->getProjectHeader($project);
         }
         
         foreach ( $project->groups as $event )
-        {
+        {// показываем сначала группы проекта
             $result .= $this->getEventMembers($event);
         }
         
         foreach ( $project->events as $event )
-        {
+        {// затем отдельные события
             $result .= $this->getEventMembers($event);
         }
 
@@ -103,7 +113,6 @@ class ProjectMembers extends CWidget
     protected function getEventMembers($event=null)
     {
         $result = '';
-
         if ( ! $event )
         {
             $event = ProjectEvent::model()->findByPk($this->objectId);
@@ -114,7 +123,7 @@ class ProjectMembers extends CWidget
             if ( $this->displayHeader OR $this->objectType != 'event' )
             {// отображаем заголовок для мероприятия, только если это явно задано при отображании мероприятия
                 // или если отображается проект
-                $result .= '<h3>'.$event->name.'</h3>';
+                $result .= $this->getEventHeader($event);
             }
             foreach ( $event->vacancies as $vacancy )
             {
@@ -133,7 +142,6 @@ class ProjectMembers extends CWidget
     protected function getVacancyMembers($vacancy=null)
     {
         $result = '';
-
         if ( ! $vacancy )
         {
             $vacancy = EventVacancy::model()->findByPk($this->objectId);
@@ -146,38 +154,77 @@ class ProjectMembers extends CWidget
         {// показываем участников
             $members = $vacancy->members;
         }
-        
 
         if ( $members )
         {// есть участники или заявки на участие - отобразим их
             $elements = array();
             if ( $this->displayFullInfo )
-            {
-                $result .= '<h3>Роль: '.$vacancy->name.'</h3>';
-                $result .= '<div class="alert alert-info">'.$vacancy->description.'</div>';
+            {// выводим полную анкету участника
+                $result .= $this->getVacancySummary($vacancy);
                 $result .= $this->widget('application.modules.admin.extensions.QAdminFullDataList.QAdminFullDataList', array(
                     'members' => $members,
                 ), true);
             }else
-            {
-                $result .= '<h3 class="alert-heading">Роль:'.$vacancy->name.'</h3>';
-                $result .= '<div class="alert alert-info" style="margin-bottom:0px;">'.$vacancy->description.'</div>';
+            {// выводим краткую таблицу
+                $result .= $this->getVacancySummary($vacancy);
                 foreach ( $members as $member )
                 {
                     $elements[] = $this->getMemberData($member);
                 }
                 // в списке участников разбивка по страницам не нужна
                 $arrayProvider = new CArrayDataProvider($elements, array('pagination' => false));
-                
+                // выводим список участников таблицей
                 $result .= $this->widget('bootstrap.widgets.TbGridView', array(
                     'type'         => 'striped bordered condensed',
                     'dataProvider' => $arrayProvider,
                     'template'     => "{summary}{items}{pager}",
-                    'columns' => $this->getMemberColumns(),
+                    'columns'      => $this->getMemberColumns(),
                 ), true);
             }
         }
 
+        return $result;
+    }
+    
+    /**
+     * 
+     * @param Project $project
+     * @return string
+     */
+    protected function getProjectHeader($project)
+    {
+        return '<h1>'.CHtml::encode($project->name).'</h1>';
+    }
+    
+    /**
+     * 
+     * @param ProjectEvent $event
+     * @return string
+     */
+    protected function getEventHeader($event)
+    {
+        return '<h2>'.CHtml::encode($event->name).'</h2>';
+    }
+    
+    /**
+     * 
+     * @param EventVacancy $vacancy
+     * @return string
+     */
+    protected function getVacancyHeader($vacancy)
+    {
+        return '<h3>Роль: '.CHtml::encode($vacancy->name).'</h3>';
+    }
+    
+    /**
+     * Получить описание роли
+     * @param EventVacancy $vacancy
+     * @return string
+     */
+    protected function getVacancySummary($vacancy)
+    {
+        $result = $this->getVacancyHeader($vacancy);
+        $result .= '<div class="alert alert-info">'.$vacancy->description.'</div>';
         return $result;
     }
     
@@ -206,7 +253,7 @@ class ProjectMembers extends CWidget
                 'header' => 'Отправлена участником',
                 'type'   => 'html');
         }else
-        {// для подтвержденных участников покажем кто их утвердил
+        {// @todo для подтвержденных участников покажем кто их утвердил
             
         }
         $columns[] = array(
@@ -224,20 +271,19 @@ class ProjectMembers extends CWidget
      */
     protected function getMemberData($member)
     {
-        $memberUrl = Yii::app()->createUrl(Yii::app()->getModule('questionary')->profileUrl, array('id' => $member->member->id));
-        
         $element = array();
         $element['id']      = $member->id;
-        $element['name']    = CHtml::link($member->member->user->fullname, $memberUrl);
+        $element['name']    = $this->getMemberName($member);
+        
         if ( $this->displayVacancyColumn )
-        {
+        {// показываем название роли
             $element['vacancy'] = $member->vacancy->name;
         }
         if ( $this->displayType == 'applications' AND $this->displayTimeColumn )
         {// для заявок покажем время отправки участником
             $element['timecreated'] = Yii::app()->getDateFormatter()->format("d MMMM yyyy, HH:mm", $member->timecreated);
         }else
-        {// для подтвержденных участников покажем кто их утвердил
+        {// @todo для подтвержденных участников покажем кто их утвердил
             
         }
         $element['actions'] = $this->getMemberActions($member);
@@ -246,13 +292,14 @@ class ProjectMembers extends CWidget
     }
     
     /**
-     * Получить ФИО участника и картинку с его аватаром
+     * Получить ФИО участника как ссылку
      * @param ProjectMember $member
      * @return string
      */
     protected function getMemberName($member)
     {
-        
+        $memberUrl = Yii::app()->createAbsoluteUrl(Yii::app()->getModule('questionary')->profileUrl, array('id' => $member->member->id));
+        return CHtml::link($member->member->fullname, $memberUrl, array('target' => '_blank'));
     }
     
     /**
@@ -272,6 +319,7 @@ class ProjectMembers extends CWidget
      * @return array
      * 
      * @todo удалить если так и не понадобится
+     * @deprecated
      */
     protected function getStatuses()
     {
