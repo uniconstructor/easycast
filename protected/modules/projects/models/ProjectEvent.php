@@ -1,9 +1,10 @@
 <?php
 
 /**
- * This is the model class for table "{{project_events}}".
+ * Модель для работы с мероприятиями и группами мероприятий проекта 
+ * Таблица "{{project_events}}"
  *
- * The followings are the available columns in table '{{project_events}}':
+ * Колонки таблицы '{{project_events}}':
  * @property integer $id
  * @property string $projectid
  * @property string $name
@@ -31,15 +32,15 @@
  * @property array $activevacancies - опубликованные вакансии мероприятия
  * @property array $invites - Приглашения на мероприятие
  * @property array $videos - Видео c мероприятия
- * @property array $events 
- * @property ProjectEvent $group 
+ * @property array $events - (для групп) мероприятия, входящие в группу
+ * @property ProjectEvent $group - группа, к которой принадлежит мероприятие (если есть)
  * 
  * @todo прописать создание адреса в afterSave
  * @todo убрать поле addressid, прописать связь через condition
  * @todo языковые строки
  * @todo документировать все константы типов мероприятия
  * @todo решить, что делать при удалении группы: удалять все дочерние мероприятия или просто убирать их из группы
- * @todo прописать все статусы константами 
+ * @todo вместо строк везде использовать константы статусов 
  * @todo перенести defaultTimeStart и defaultTimeEnd, а также функцию получения событий для календаря в модуль календаря
  */
 class ProjectEvent extends CActiveRecord
