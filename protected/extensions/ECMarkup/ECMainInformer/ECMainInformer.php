@@ -30,12 +30,12 @@ class ECMainInformer extends CWidget
      */
     public function run()
     {
-        if ( Yii::app()->user->isGuest )
+        if ( $this->isCustomer() )
         {// гостю предлагаем стать участником
-            $this->render('main');
-        }elseif ( $this->isCustomer() )
-        {// заказчикам показываем корзину
             $this->printCustomer();
+        }elseif ( Yii::app()->user->isGuest )
+        {// заказчикам показываем корзину
+            $this->render('main');
         }elseif ( $this->isUser() )
         {// участникам показываем сообщения
             $this->questionary = Yii::app()->getModule('user')->user()->questionary;
@@ -84,7 +84,7 @@ class ECMainInformer extends CWidget
         {// у пользователя есть хотя бы 1 приглашенный человек - значит на сайте заказчик 
             return true;
         }
-        return Yii::app()->user->checkAccess('Customer');
+        return (Yii::app()->user->isGuest OR Yii::app()->user->checkAccess('Customer'));
     }
     
     /**
