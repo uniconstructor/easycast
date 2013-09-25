@@ -19,9 +19,11 @@ class ShareAccessWidget extends CWidget
         $options = array(
             'html' => true,
             'placement' => 'left',
-            //'trigger' => 'click',
-            'title' => 'Предоставить доступ к отбору участников',
+            'title' => '<a class="close pull-right" onclick="return $(\''.$this->selector.'\').popover(\'hide\') && false;" href="#">&times;</a>Предоставить доступ к отбору участников',
             'content' => $this->getForm(),
+            //'content' => $this->getForm(),
+            //'selector' => '#shareAccessPopover',
+            //'content' => "js:function(){return $('#shareAccessPopover').html();}",
         );
         $options = CJSON::encode($options);
         $this->script = "$('{$this->selector}').popover({$options});";
@@ -34,7 +36,8 @@ class ShareAccessWidget extends CWidget
      */
     public function run()
     {
-        echo $this->script;
+        //echo $this->getForm();
+        //echo $this->script;
     }
     
     /**
@@ -43,7 +46,7 @@ class ShareAccessWidget extends CWidget
      */
     protected function getForm()
     {
-        $result = '';
+        $result = '<div id="shareAccessPopover">';
         $result .= CHtml::beginForm('/admin/admin/shareAccess', 'POST', array('class' => 'form-horizontal'));
         //$result .= '<div class="control-group">';
         $result .= CHtml::label('e-mail', 'email');
@@ -65,8 +68,20 @@ class ShareAccessWidget extends CWidget
         	'url' => '/admin/admin/shareAccess',
         	'ajaxOptions' => array(),
         ), true); 
-        
         $result .= CHtml::endForm();
+        $result .= '</div>';
         return $result;
+    }
+    
+    /**
+     * 
+     * @return array
+     */
+    protected function createAjaxOptions()
+    {
+        return array(
+            'url' => '/admin/admin/shareAccess',
+            
+        );
     }
 }

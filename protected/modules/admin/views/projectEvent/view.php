@@ -34,12 +34,11 @@ if ( $model->group )
 $this->breadcrumbs[] = $model->name;
 
 $this->menu = array(
-	//array('label'=>'К проекту','url'=>array('/admin/project/view', 'id' => $model->project->id)),
 	array('label' => 'Новое событие в проекте',
 	    'url' => array(
 	        '/admin/projectEvent/create',
 	        'projectid' => $model->project->id),
-	    'visible' => !$showNewGroupEvent,
+	    'visible' => ! $showNewGroupEvent,
     ),
 	array('label' => 'Новое событие в этой группе', 
 	    'url' => array(
@@ -48,10 +47,10 @@ $this->menu = array(
 	        'parentid'  => $groupId),
 	    'visible' => $showNewGroupEvent,
     ),
-	array('label' => 'Редактировать','url'=>array('update','id'=>$model->id)),
-    array('label' => $addRoleLabel,'url'=>array('/admin/eventVacancy/create', 'eventid'=>$model->id)),
-    array('label' => 'Заявки','url'=>array('/admin/projectMember/index', 'eventid'=>$model->id, 'type' => 'applications')),
-    array('label' => 'Участники','url'=>array('/admin/projectMember/index', 'eventid'=>$model->id, 'type' => 'members')),
+	array('label' => 'Редактировать', 'url'=>array('update','id'=>$model->id)),
+    array('label' => $addRoleLabel, 'url'=>array('/admin/eventVacancy/create', 'eventid'=>$model->id)),
+    array('label' => 'Заявки', 'url'=>array('/admin/projectMember/index', 'eventid'=>$model->id, 'type' => 'applications')),
+    array('label' => 'Участники', 'url'=>array('/admin/projectMember/index', 'eventid'=>$model->id, 'type' => 'members')),
 );
 
 if ( $model->status == ProjectEvent::STATUS_DRAFT )
@@ -68,7 +67,11 @@ if ( $model->status == ProjectEvent::STATUS_DRAFT )
 	        'csrf' => true)
     );
 }
-
+if ( $model->status == ProjectEvent::STATUS_ACTIVE )
+{// для опубликованных мероприятий покажем вызывной лист
+    $this->menu[] = array('label' => 'Вызывной лист',
+        'url'=>array('/admin/projectEvent/callList', 'eventId' => $model->id));
+}
 if ( in_array('active', $model->getAllowedStatuses()) )
 {// ссылка на активацию мероприятия
     $this->menu[] = array('label' => 'Активировать',
@@ -78,7 +81,6 @@ if ( in_array('active', $model->getAllowedStatuses()) )
         ),
     );
 }
-
 if ( in_array('finished', $model->getAllowedStatuses()) )
 {// ссылка на завершение мероприятия
     $this->menu[] = array('label' => 'Завершить',
@@ -88,7 +90,7 @@ if ( in_array('finished', $model->getAllowedStatuses()) )
         ),
     );
 }
-
+/*
 $shareScript = $this->widget('application.modules.admin.extensions.ShareAccessWidget.ShareAccessWidget', array(
     'selector' => '#shareAccess',
 ),true);
@@ -98,12 +100,13 @@ if ( $model->status == ProjectEvent::STATUS_ACTIVE )
         'linkOptions' => array(
             //'onclick'  => "alert('hello!');return false;",
             //'onclick'  => "$('#shareAccess').popover('toggle');return false;',
-            'onclick'  => "$(this).popover('toggle');return false;",
-            'onclick'  => "return false;",
+            'onclick'  => "$('#shareAccess').popover('toggle');return false;",
+            //'onclick'  => "return false;",
+            'return'  => false,
             'id' => 'shareAccess',
             )
     );
-}
+}*/
 
 // сообщение о смене статуса
 $this->widget('bootstrap.widgets.TbAlert', array(
@@ -254,7 +257,6 @@ $this->widget('bootstrap.widgets.TbGridView', array(
 
 if ( $model->group )
 {// роли из группы
-    
     echo '<h3>Роли группы</h3>';
     $groupVacanciesList = new CActiveDataProvider('EventVacancy', array(
         'data' => $model->group->vacancies,
@@ -289,4 +291,3 @@ if ( $model->group )
         ),
     ));
 }
-?>

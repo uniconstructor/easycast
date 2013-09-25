@@ -41,6 +41,8 @@ class ECMainInformer extends CWidget
             $this->questionary = Yii::app()->getModule('user')->user()->questionary;
             $this->printUser();
         }
+        // выводим скрытую форму регистрации для всплывающего окна
+        $this->widget('ext.ECMarkup.ECRegister.ECRegister');
     }
     
     /**

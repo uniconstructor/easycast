@@ -151,20 +151,22 @@ class ECMainMenu extends CWidget
         // Получаем кнопку регистрации (или ссылку на страницу участника)
         $newUser = $this->getNewUserData();
 
-        $items  = array();
-        $rowNum = 0;
+        $items     = array();
+        $rowNum    = 0;
         $itemCount = 0;
+        
         // Получаем все пункты меню участника
         $customerItems = ECMenuItem::model()->findAll('type = :type', array(':type' => 'user'));
         foreach ( $customerItems as $customerItem )
         {// для каждого пункта меню устанавливаем картинку, ссылку и описание
+            $imageOptions = array('id' => 'mainmenu_uitem_'.$customerItem->label.'_image');
             $itemCount++;
             $item = new stdClass();
-            $item->link   = $customerItem->link;
-            $item->image  = CHtml::image($this->_assetUrl.'/images/menuitems/'.$customerItem->image);
-            $item->target = $customerItem->linkTarget;
-            $item->label  = Yii::t('coreMessages', 'mainmenu_item_'.$customerItem->label);
-            $item->linkid = 'mainmenu_item_user_'.$customerItem->label.'_link';
+            $item->link    = $customerItem->link;
+            $item->label   = Yii::t('coreMessages', 'mainmenu_item_'.$customerItem->label);
+            $item->image   = CHtml::image($this->_assetUrl.'/images/menuitems/'.$customerItem->image, $item->label, $imageOptions);
+            $item->target  = $customerItem->linkTarget;
+            $item->linkid  = 'mainmenu_item_user_'.$customerItem->label.'_link';
             $item->imageid = 'mainmenu_item_user_'.$customerItem->label.'_image';
             $item->visible = $customerItem->visible;
             
@@ -239,9 +241,9 @@ class ECMainMenu extends CWidget
             $itemCount++;
             $item = new stdClass();
             $item->link    = $customerItem->link;
-            $item->image   = CHtml::image($this->_assetUrl.'/images/menuitems/'.$customerItem->image, '', $imageOptions);
-            $item->target  = $customerItem->linkTarget;
             $item->label   = Yii::t('coreMessages', 'mainmenu_item_'.$customerItem->label);
+            $item->image   = CHtml::image($this->_assetUrl.'/images/menuitems/'.$customerItem->image, $item->label, $imageOptions);
+            $item->target  = $customerItem->linkTarget;
             $item->linkid  = 'mainmenu_item_'.$customerItem->label.'_link';
             $item->imageid = 'mainmenu_item_'.$customerItem->label.'_image';
             $item->visible = $customerItem->visible;

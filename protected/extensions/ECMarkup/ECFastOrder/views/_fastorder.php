@@ -22,27 +22,16 @@ $form=$this->beginWidget('bootstrap.widgets.TbActiveForm',array(
 ?>
 
 <div class="modal-header">
-
-<a class="close white" data-dismiss="modal">&times;</a>
-<h3><?php echo $data->header; ?></h3>
+    <a class="close white" data-dismiss="modal">&times;</a>
+    <h3><?php echo $data->header; ?></h3>
 </div>
 
 <div class="modal-body">
-
-
-	<?php // echo Yii::t('coreMessages','form_required_fields', array('{mark}' => '<span class="required">*</span>')); ?>
-
 	<?php echo $form->errorSummary($model); ?>
-
 	<?php echo $form->textFieldRow($model,'name',array('class'=>'span5','maxlength'=>128)); ?>
-
 	<?php echo $form->textFieldRow($model,'phone',array('class'=>'span5','maxlength'=>20)); ?>
-
 	<?php echo $form->textFieldRow($model,'email',array('class'=>'span5','maxlength'=>255)); ?>
-
 	<?php echo $form->textAreaRow($model,'comment',array('class'=>'span5','maxlength'=>255)); ?>
-
-
 </div>
 
 <div class="modal-footer">
@@ -72,6 +61,4 @@ $form=$this->beginWidget('bootstrap.widgets.TbActiveForm',array(
 </div>
 
 <?php $this->endWidget($data->formid); //form ?>
-
 <?php $this->endWidget($data->modalid); // modal ?>
-
