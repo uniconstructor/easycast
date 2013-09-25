@@ -101,17 +101,15 @@ class QuestionaryModule extends CWebModule
     {
         // Set required classes for import.
         $this->setImport(array(
-            'questionary.components.*',
-            'questionary.components.behaviors.*',
-            'questionary.components.dataproviders.*',
+            //'questionary.components.*',
+            //'questionary.components.behaviors.*',
+            //'questionary.components.dataproviders.*',
             'questionary.controllers.*',
             'questionary.models.*',
             'questionary.models.complexValues.*',
             'questionary.extensions.*',
-            
             // каталог (тесно связан с анкетой, поэтому импортируем и его)
             'application.modules.catalog.CatalogModule',
-
             // галерея изображений
             'ext.galleryManager.*',
             'ext.galleryManager.models.*',
