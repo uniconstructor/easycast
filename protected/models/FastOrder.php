@@ -71,7 +71,6 @@ class FastOrder extends CActiveRecord
 	    {// Если заказ только что добавлен - оповестим всех об этом
 	        $this->sendNewOrderNotifications();
 	    }
-	    
 	    parent::afterSave();
 	}
 	
@@ -377,6 +376,19 @@ class FastOrder extends CActiveRecord
 	        return false;
 	    }
 	    return $order['users'];
+	}
+	
+	/**
+	 * Подсчитать количество актеров в заказе
+	 * @return number
+	 */
+	public static function countPendingOrderUsers()
+	{
+	    if ( ! $users = self::getPendingOrderUsers() )
+	    {
+	        return 0;
+	    }
+	    return count($users);
 	}
 	
 	/**

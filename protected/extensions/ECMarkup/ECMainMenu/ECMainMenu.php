@@ -231,18 +231,18 @@ class ECMainMenu extends CWidget
                 $imageOptions = array(
                     'id' => 'mainmenu_item_'.$customerItem->label.'_image',
                     'data-toggle' => 'modal',
-                    'data-target' =>"#fastOrderModal");
+                    'data-target' => "#fastOrderModal");
             }else
-           {
+            {
                 $imageOptions = array('id' => 'mainmenu_item_'.$customerItem->label.'_image');
             }
             $itemCount++;
             $item = new stdClass();
-            $item->link   = $customerItem->link;
-            $item->image  = CHtml::image($this->_assetUrl.'/images/menuitems/'.$customerItem->image, '', $imageOptions);
-            $item->target = $customerItem->linkTarget;
-            $item->label  = Yii::t('coreMessages', 'mainmenu_item_'.$customerItem->label);
-            $item->linkid = 'mainmenu_item_'.$customerItem->label.'_link';
+            $item->link    = $customerItem->link;
+            $item->image   = CHtml::image($this->_assetUrl.'/images/menuitems/'.$customerItem->image, '', $imageOptions);
+            $item->target  = $customerItem->linkTarget;
+            $item->label   = Yii::t('coreMessages', 'mainmenu_item_'.$customerItem->label);
+            $item->linkid  = 'mainmenu_item_'.$customerItem->label.'_link';
             $item->imageid = 'mainmenu_item_'.$customerItem->label.'_image';
             $item->visible = $customerItem->visible;
             
@@ -250,6 +250,10 @@ class ECMainMenu extends CWidget
             {
                 $rowNum++;
                 $itemCount = 0;
+            }
+            if ( ($customerItem->label == 'my_choice') AND ($orderUsersCount = FastOrder::countPendingOrderUsers()) )
+            {// если заказчик выбрал актеров для съемки - покажем их количество
+                $item->label .= ' ('.$orderUsersCount.')';
             }
             $items[$rowNum][] = $item;
         }

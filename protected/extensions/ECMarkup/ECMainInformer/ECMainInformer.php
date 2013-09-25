@@ -84,7 +84,7 @@ class ECMainInformer extends CWidget
         {// у пользователя есть хотя бы 1 приглашенный человек - значит на сайте заказчик 
             return true;
         }
-        return (Yii::app()->user->isGuest OR Yii::app()->user->checkAccess('Customer'));
+        return (/*Yii::app()->user->isGuest OR */Yii::app()->user->checkAccess('Customer'));
     }
     
     /**

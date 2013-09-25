@@ -18,11 +18,11 @@ if ( is_array($users) AND ! empty($users) )
             Выбрано участников:&nbsp;<?= $count; ?>
         </a>
     </div>
-    <div class="ec_customer_info_block">
-        <? if ( $count > 0 ) { ?>
-        <a href="<?= Yii::app()->createUrl('//catalog/catalog/myChoice'); ?>" class="btn btn-primary">
+    <? if ( $count > 0 ) { ?>
+    <div class="ec_customer_info_block" style="margin-bottom:5px;">
+        <a href="<?= Yii::app()->createUrl('//catalog/catalog/myChoice'); ?>" class="btn btn-primary btn-small">
             Перейти к заказу
         </a>
-        <? } ?>
     </div>
+    <? } ?>
 </div>
