@@ -95,7 +95,8 @@ return array(
             // login form path
             'loginUrl' => array('/user/login'),
             // page after login
-            'returnUrl' => array('//site/index'),
+            'returnUrl' => array('//questionary/questionary/view'),
+            //'returnUrl' => array('//site/index'),
             // page after logout
             'returnLogoutUrl' => array('//site/index'),
         ),
