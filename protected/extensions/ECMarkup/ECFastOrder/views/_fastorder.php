@@ -5,16 +5,16 @@
  */
 
 // отображаем всплывающее окно
-$this->beginWidget('bootstrap.widgets.TbModal', array('id'=>$data->modalid));
+$this->beginWidget('bootstrap.widgets.TbModal', array('id' => $data->modalid));
 
 // отображаем форму
-$form=$this->beginWidget('bootstrap.widgets.TbActiveForm',array(
+$form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'id'=>$data->formid,
-    'enableAjaxValidation'=>true,
-    'enableClientValidation'=>true,
+    'enableAjaxValidation'   => true,
+    'enableClientValidation' => true,
     'clientOptions' => array(
-        'validateOnSubmit'=>true,
-        'validateOnChange'=>false,
+        'validateOnSubmit' => true,
+        'validateOnChange' => false,
     ),
     'action' => $data->action,
 ));
@@ -28,34 +28,34 @@ $form=$this->beginWidget('bootstrap.widgets.TbActiveForm',array(
 
 <div class="modal-body">
 	<?php echo $form->errorSummary($model); ?>
-	<?php echo $form->textFieldRow($model,'name',array('class'=>'span5','maxlength'=>128)); ?>
-	<?php echo $form->textFieldRow($model,'phone',array('class'=>'span5','maxlength'=>20)); ?>
-	<?php echo $form->textFieldRow($model,'email',array('class'=>'span5','maxlength'=>255)); ?>
-	<?php echo $form->textAreaRow($model,'comment',array('class'=>'span5','maxlength'=>255)); ?>
+	<?php echo $form->textFieldRow($model, 'name',   array('class' => 'span5', 'maxlength' => 128)); ?>
+	<?php echo $form->textFieldRow($model, 'phone',  array('class' => 'span5', 'maxlength' => 20)); ?>
+	<?php echo $form->textFieldRow($model, 'email',  array('class' => 'span5', 'maxlength' => 255)); ?>
+	<?php echo $form->textAreaRow($model, 'comment', array('class' => 'span5', 'maxlength' => 255)); ?>
 </div>
 
 <div class="modal-footer">
     <?php $this->widget('bootstrap.widgets.TbButton', array(
-			'buttonType'=>'ajaxSubmit',
-			'type'=>'primary',
-			'label'=>  Yii::t('coreMessages', 'place_order'),
+			'buttonType'  => 'ajaxSubmit',
+			'type'        => 'primary',
+			'label'       =>  Yii::t('coreMessages', 'place_order'),
             'htmlOptions' => array(
-                'id'=>$data->submitid
+                'id' => $data->submitid
             ),
             'url'     => $data->action,
             'ajaxOptions' => array(
-                'dataType'=>'json',
-                'success' => $data->ajaxSuccessScript,
-                'type'    => 'post',
-                'url'     => $data->action,
-                'data'    => new CJavaScriptExpression('$("#'.$data->formid.'").serialize()'),
+                'dataType' => 'json',
+                'success'  => $data->ajaxSuccessScript,
+                'type'     => 'post',
+                'url'      => $data->action,
+                'data'     => new CJavaScriptExpression('$("#'.$data->formid.'").serialize()'),
             ),
 		)); ?>
     
     <?php 
     $this->widget('bootstrap.widgets.TbButton', array(
-        'label' => Yii::t('coreMessages', 'cancel'),
-        'htmlOptions'=>array('data-dismiss'=>'modal'),
+        'label'       => Yii::t('coreMessages', 'cancel'),
+        'htmlOptions' => array('data-dismiss' => 'modal'),
     )); 
     ?>
 </div>
