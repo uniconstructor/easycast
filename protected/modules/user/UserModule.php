@@ -18,6 +18,7 @@ class UserModule extends CWebModule
     
     /**
      * @var bool - use amazon SES to send email
+     * @deprecated
      */
     const USE_AMAZON_API = false;
     
@@ -98,7 +99,7 @@ class UserModule extends CWebModule
 	/**
 	 * @var boolean
 	 */
-	public $captcha = array('registration'=>true);
+	public $captcha = array('registration' => true);
 	
 	/**
 	 * @var boolean
@@ -110,7 +111,7 @@ class UserModule extends CWebModule
 	public $tableProfileFields = '{{profiles_fields}}';
 
     public $defaultScope = array(
-            'with'=>array('profile'),
+            'with' => array('profile'),
     );
 	
 	static private $_user;
@@ -127,9 +128,6 @@ class UserModule extends CWebModule
 	
 	public function init()
 	{
-		// this method is called when the module is being created
-		// you may place code here to customize the module or the application
-
 		// import the module-level models and components
 		$this->setImport(array(
 			'user.models.*',
@@ -137,7 +135,8 @@ class UserModule extends CWebModule
 		));
 	}
 	
-	public function getBehaviorsFor($componentName){
+	public function getBehaviorsFor($componentName)
+	{
         if (isset($this->componentBehaviors[$componentName])) {
             return $this->componentBehaviors[$componentName];
         } else {
@@ -152,9 +151,10 @@ class UserModule extends CWebModule
 			// this method is called before any module controller action is performed
 			// you may place customized code here
 			return true;
+		}else
+		{
+		    return false;
 		}
-		else
-			return false;
 	}
 	
 	/**
@@ -163,7 +163,8 @@ class UserModule extends CWebModule
 	 * @param $dic
 	 * @return string
 	 */
-	public static function t($str='',$params=array(),$dic='user') {
+	public static function t($str='',$params=array(),$dic='user')
+	{
 		if (Yii::t("UserModule", $str)==$str)
 		    return Yii::t("UserModule.".$dic, $str, $params);
         else
@@ -173,7 +174,8 @@ class UserModule extends CWebModule
 	/**
 	 * @return hash string.
 	 */
-	public static function encrypting($string="") {
+	public static function encrypting($string="")
+	{
 		$hash = Yii::app()->getModule('user')->hash;
 		if ($hash=="md5")
 			return md5($string);
@@ -187,7 +189,8 @@ class UserModule extends CWebModule
 	 * @param $place
 	 * @return boolean 
 	 */
-	public static function doCaptcha($place = '') {
+	public static function doCaptcha($place = '')
+	{
 		if(!extension_loaded('gd'))
 			return false;
 		if (in_array($place, Yii::app()->getModule('user')->captcha))
@@ -198,8 +201,11 @@ class UserModule extends CWebModule
 	/**
 	 * Return admin status.
 	 * @return boolean
+	 * 
+	 * @deprecated эта функция осталась от оригинального модуля. В нашей системе используется RBAC
 	 */
-	public static function isAdmin() {
+	public static function isAdmin()
+	{
 		if(Yii::app()->user->isGuest)
 			return false;
 		else {
@@ -217,8 +223,10 @@ class UserModule extends CWebModule
 	 * Return admins.
 	 * @return array syperusers names
 	 */	
-	public static function getAdmins() {
-		if (!self::$_admins) {
+	public static function getAdmins()
+	{
+		if ( ! self::$_admins )
+		{
 			$admins = User::model()->active()->superuser()->findAll();
 			$return_name = array();
 			foreach ($admins as $admin)
@@ -247,7 +255,8 @@ class UserModule extends CWebModule
 	 * @param user id not required
 	 * @return user object or false
 	 */
-	public static function user($id=0,$clearCache=false) {
+	public static function user($id=0,$clearCache=false)
+	{
         if ( ! $id && ! Yii::app()->user->isGuest )
         {
             $id = Yii::app()->user->id;
@@ -262,11 +271,11 @@ class UserModule extends CWebModule
                 self::$_users[$id] = $user;
                 return self::$_users[$id];
             }else
-          {
+            {
                 return self::$_users[$id];
             }
         }else 
-       {
+        {
             Yii::app()->user->logout();
             return false;
         }
@@ -277,7 +286,8 @@ class UserModule extends CWebModule
 	 * @param user name
 	 * @return user object or false
 	 */
-	public static function getUserByName($username) {
+	public static function getUserByName($username)
+	{
 		if (!isset(self::$_userByName[$username])) {
 			$_userByName[$username] = User::model()->findByAttributes(array('username'=>$username));
 		}
@@ -289,7 +299,32 @@ class UserModule extends CWebModule
 	 * @param user id not required
 	 * @return user object or false
 	 */
-	public function users() {
+	public function users()
+	{
 		return User;
+	}
+	
+	/**
+	 * Получить список админов для выпадающего меню
+	 * @param bool $emptyOption - отображать ли пустое значение
+	 * @return array
+	 */
+	public static function getAdminList($emptyOption=false)
+	{
+	    $result = array();
+	    if ( $emptyOption )
+	    {
+	        $result = array(0 => 'Нет');
+	    }
+	    
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('superuser', '1');
+	    
+	    $users = User::model()->findAll($criteria);
+	    foreach ( $users as $user )
+	    {
+	        $result[$user->id] = $user->fullname.' ['.$user->username.']';
+	    }
+	    return $result;
 	}
 }
