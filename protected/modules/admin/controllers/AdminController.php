@@ -119,8 +119,69 @@ class AdminController extends Controller
 	    echo '<br>Осталось загрузить '.$totalCount;
 	}
 	
+	/**
+	 * @deprecated 
+	 */
 	public function actionShareAccess()
 	{
 	    echo 'OK';
+	}
+	
+	/**
+	 * Отправить заказчику(режиссеру) одноразовую ссылку для доступа к отбору актеров
+	 *
+	 * @return null
+	 */
+	public function actionSendCustomerInvite()
+	{
+	    $model = new CustomerInvite;
+	    
+	    // Uncomment the following line if AJAX validation is needed
+	    $this->performInviteAjaxValidation($model);
+	    
+	    if ( $attributes = Yii::app()->request->getPost('CustomerInvite') )
+	    {
+	        $model->attributes = Yii::app()->request->getPost('CustomerInvite');
+	        if ( $model->save() )
+	        {
+	            $this->redirect(array('view', 'id' => $model->id));
+	        }
+	    }
+	    
+	    $this->render('create',array(
+	        'model' => $model,
+	    ));
+	    /*if ( ! $email = Yii::app()->request->getParam('email', '') )
+	    {
+	        throw new CHttpException(400, 'Не указан email');
+	    }
+	    if ( ! $objectType = Yii::app()->request->getParam('objectType', '') )
+	    {
+	        throw new CHttpException(400, 'Не указан objectType');
+	    }
+	    if ( ! $objectId = Yii::app()->request->getParam('objectId', 0) )
+	    {
+	        throw new CHttpException(400, 'Не указан objectId');
+	    }*/
+        
+	    $invite = new CustomerInvite;
+	    $invite->email = $email;
+	    $invite->objecttype = $objectType;
+	    $invite->objectid   = $objectId;
+	    //$invite->name
+	}
+	
+	/**
+	 * 
+	 * @param CustomerInvite $invite
+	 * @return array
+	 */
+	public function performInviteAjaxValidation($invite)
+	{
+	    if ( isset($_POST['ajax']) && $_POST['ajax']==='customer-invite-form' )
+	    {
+	        echo CActiveForm::validate($model);
+	        Yii::app()->end();
+	    }
 	}
 }
