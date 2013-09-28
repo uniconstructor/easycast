@@ -84,6 +84,7 @@ class ProjectMember extends CActiveRecord
         // создание нового приглашения (участнику отправляется письмо)
         $this->attachEventHandler('onApprove', array('ProjectsModule', 'sendApproveMemberNotification'));
         $this->attachEventHandler('onReject', array('ProjectsModule', 'sendRejectMemberNotification'));
+        //$this->attachEventHandler('onPending', array('ProjectsModule', 'sendPendingMemberNotification'));
     }
     
 	/**

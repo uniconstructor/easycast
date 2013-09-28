@@ -49,7 +49,7 @@ return array(
     
     // Типы проекта
     'project_type_ad' => 'Реклама',
-    'project_type_film' => 'Фильм',
+    'project_type_film' => 'Полный метр',
     'project_type_series' => 'Сериал',
     'project_type_tvshow' => 'Телепроект',
     'project_type_expo' => 'Показ',

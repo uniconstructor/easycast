@@ -105,7 +105,7 @@ class ProjectsModule extends CWebModule
 	    $mailComposer = Yii::app()->getModule('mailComposer');
 	    
 	    $email   = $memberData->member->user->email;
-	    $subject = 'Ваша заявка принята. Теперь вы участник проекта "'.$memberData->vacancy->event->project->name.'"';
+	    $subject = 'Ваша заявка одобрена. Теперь вы участник проекта "'.$memberData->vacancy->event->project->name.'"';
 	    $message = $mailComposer->getMessage('approveMember', array('projectMember' => $memberData));
 	    
 	    // добавляем письмо в очередь
@@ -134,6 +134,29 @@ class ProjectsModule extends CWebModule
 	    $subject = 'Ваша заявка на участие в проекте "'.$memberData->vacancy->event->project->name.'" отклонена.';
 	    $message = $mailComposer->getMessage('rejectMember', array('projectMember' => $memberData));
 	    
+	    // добавляем письмо в очередь
+	    return Yii::app()->getComponent('ecawsapi')->pushMail($email, $subject, $message);
+	}
+	
+	/**
+	 * Отправить письмо участнику о том, что его заявка предварительно одобрена
+	 * @param CModelEvent $event - отправленное заявкой (ProjectMember) событие
+	 * @return bool
+	 */
+	public static function sendPendingMemberNotification($event)
+	{
+	    $memberData = $event->sender;
+	    if ( ! $memberData->member OR ! is_object($memberData->member->user) )
+	    {// проверка на случай нарушения целостности БД
+    	    // @todo записать ошибку в лог
+    	    return false;
+	    }
+	    $mailComposer = Yii::app()->getModule('mailComposer');
+	    
+	    $email   = $memberData->member->user->email;
+	    $subject = 'Ваша заявка в проекте "'.$memberData->vacancy->event->project->name.'" предварительно одобрена.';
+	    $message = $mailComposer->getMessage('pendingMember', array('projectMember' => $memberData));
+	     
 	    // добавляем письмо в очередь
 	    return Yii::app()->getComponent('ecawsapi')->pushMail($email, $subject, $message);
 	}
