@@ -187,6 +187,10 @@ class User extends CActiveRecord
 		);
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see CActiveRecord::scopes()
+	 */
 	public function scopes()
     {
         return array(
@@ -208,20 +212,30 @@ class User extends CActiveRecord
         );
     }
 	
+    /**
+     * (non-PHPdoc)
+     * @see CActiveRecord::defaultScope()
+     */
 	public function defaultScope()
     {
-        return CMap::mergeArray(Yii::app()->getModule('user')->defaultScope,array(
-            'alias'=>'user',
+        return CMap::mergeArray(Yii::app()->getModule('user')->defaultScope, array(
+            'alias'  => 'user',
             'select' => 'user.*',
         ));
     }
 	
+    /**
+     * 
+     * @param string $type
+     * @param string $code
+     * @return boolean|string
+     */
 	public static function itemAlias($type,$code=NULL) {
 		$_items = array(
 			'UserStatus' => array(
-			    self::STATUS_ACTIVE => UserModule::t('Active'),
+			    self::STATUS_ACTIVE   => UserModule::t('Active'),
 			    self::STATUS_NOACTIVE => UserModule::t('Not active'),
-				self::STATUS_BANNED => UserModule::t('Banned'),
+				self::STATUS_BANNED   => UserModule::t('Banned'),
 			),
 			'AdminStatus' => array(
 				'0' => UserModule::t('No'),
@@ -264,20 +278,38 @@ class User extends CActiveRecord
         ));
     }
 
-    public function gettimecreated() {
+    /**
+     * @return number
+     */
+    public function gettimecreated()
+    {
         return strtotime($this->create_at);
     }
-
-    public function settimecreated($value) {
+    
+    /**
+     * @param int $value - Unix timestamp
+     * @return null
+     */
+    public function settimecreated($value)
+    {
         $this->create_at=date('Y-m-d H:i:s',$value);
     }
-
-    public function getLastvisit() {
+    
+    /**
+     * @return number
+     */
+    public function getLastvisit()
+    {
         return strtotime($this->lastaccess);
     }
-
-    public function setLastvisit($value) {
-        $this->lastaccess=date('Y-m-d H:i:s',$value);
+    
+    /**
+     * @param int $value - Unix timestamp
+     * @return null
+     */
+    public function setLastvisit($value)
+    {
+        $this->lastaccess = date('Y-m-d H:i:s',$value);
     }
     
     /** Получить анкету пользователя
@@ -304,13 +336,16 @@ class User extends CActiveRecord
         $fullname = $this->questionary->firstname.' '.$this->questionary->lastname;
         
         if ( ! trim($fullname) )
-        {// Если пользователь еще не заолнил анкету - выводим только его логин
+        {// Если пользователь еще не заполнил анкету - выводим только его логин
             $fullname = $this->username;
         }
         
         return CHtml::encode($fullname);
     }
     
+    /**
+     * @return int
+     */
     public function getpolicyagreed()
     {
         return $this->policyagreed;
