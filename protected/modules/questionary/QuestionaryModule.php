@@ -120,10 +120,8 @@ class QuestionaryModule extends CWebModule
             $this->_assetsUrl = Yii::app()->getAssetManager()->publish(Yii::app()->modulePath . DIRECTORY_SEPARATOR .
                 'questionary'. DIRECTORY_SEPARATOR .'assets');
         }
-    
-        // Normally the default controller is questionary.
+        // Normally the default controller is "questionary".
         $this->defaultController = 'questionary';
-    
     }
     
     /**
