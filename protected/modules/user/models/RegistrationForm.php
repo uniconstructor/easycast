@@ -5,12 +5,17 @@
  * user registration form data. It is used by the 'registration' action of 'UserController'.
  */
 class RegistrationForm extends User {
-	public $verifyPassword;
+	/**
+	 * @var string
+	 */
+    public $verifyPassword;
+    /**
+     * @var string
+     */
 	public $verifyCode;
 	
 	public function rules() {
 		$rules = array(
-			//array('username, password, verifyPassword, email', 'required'),
 			array('email', 'required'),
 			array('username', 'length', 'allowEmpty' => true, 'max'=>40, 'min' => 2,'message' => UserModule::t("Incorrect username (length between 3 and 20 characters).")),
 			array('password', 'length', 'allowEmpty' => true, 'max'=>128, 'min' => 6,'message' => UserModule::t("Incorrect password (minimal length 4 symbols).")),
@@ -20,12 +25,41 @@ class RegistrationForm extends User {
 			array('verifyPassword', 'compare', 'compareAttribute'=>'password', 'message' => UserModule::t("Retype Password is incorrect.")),
 			array('username', 'match', 'pattern' => '/^[A-Za-z0-9_\.()-]+$/u','message' => UserModule::t("Incorrect symbols (A-z0-9).")),
 		);
-		if (!(isset($_POST['ajax']) && $_POST['ajax']==='registration-form')) {
-			array_push($rules,array('verifyCode', 'captcha', 'allowEmpty'=>!UserModule::doCaptcha('registration')));
-		}
+		
+		array_push($rules, array('verifyCode', 'captcha', 
+		    'allowEmpty'    => ! UserModule::doCaptcha('registration'),
+		    'captchaAction' => '//site/captcha',
+		));
 		
 		array_push($rules,array('verifyPassword', 'compare', 'compareAttribute'=>'password', 'message' => UserModule::t("Retype Password is incorrect.")));
 		return $rules;
 	}
 	
+	/**
+	 * Validates one or several models and returns the results in JSON format.
+	 * This is a helper method that simplifies the way of writing AJAX validation code.
+	 * @param mixed $models a single model instance or an array of models.
+	 * @param array $attributes list of attributes that should be validated. Defaults to null,
+	 * meaning any attribute listed in the applicable validation rules of the models should be
+	 * validated. If this parameter is given as a list of attributes, only
+	 * the listed attributes will be validated.
+	 * @param boolean $loadInput whether to load the data from $_POST array in this method.
+	 * If this is true, the model will be populated from <code>$_POST[ModelClass]</code>.
+	 * @return string the JSON representation of the validation error messages.
+	 */
+	public static function ajaxValidate($models, $attributes=null, $loadInput=true)
+	{
+	    $result=array();
+	    if(!is_array($models))
+	        $models=array($models);
+	    foreach($models as $model)
+	    {
+	        if($loadInput && isset($_POST[get_class($model)]))
+	            $model->attributes=$_POST[get_class($model)];
+	        $model->validate($attributes);
+	        foreach($model->getErrors() as $attribute=>$errors)
+	            $result[CHtml::activeId($model,$attribute)]=$errors;
+	    }
+	    return function_exists('json_encode') ? json_encode($result) : CJSON::encode($result);
+	}
 }

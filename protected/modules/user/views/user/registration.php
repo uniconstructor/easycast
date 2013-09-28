@@ -31,7 +31,7 @@ $this->ecHeaderOptions = array(
     <?php $form = $this->beginWidget('UActiveForm', array(
     	'id'=>'registration-form',
     	'enableAjaxValidation'=>true,
-    	'disableAjaxValidationAttributes'=>array('RegistrationForm_verifyCode'),
+    	//'disableAjaxValidationAttributes'=>array('RegistrationForm_verifyCode'),
     	'clientOptions'=>array(
     		'validateOnSubmit'=>true,
     	),
@@ -44,6 +44,7 @@ $this->ecHeaderOptions = array(
 	<?php if (UserModule::doCaptcha('registration')): ?>
 		<br>
 		<?php $this->widget('CCaptcha', array(
+		    'captchaAction' => '//site/captcha',
                 'buttonOptions' => array(
                     'style' => 'width:100px;height:45px;',
                     'class' => 'btn btn-small'
