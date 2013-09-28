@@ -1,26 +1,29 @@
-<?php $form=$this->beginWidget('bootstrap.widgets.TbActiveForm',array(
-	'id'=>'project-form',
-	'enableAjaxValidation'=>false,
+<?php 
+/**
+ * Форма редактирования проекта
+ * @var Project $model
+ */
+
+$form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
+	'id'                   => 'project-form',
+	'enableAjaxValidation' => false,
 )); 
 
 $dateFormatter = new CDateFormatter('ru');
 ?>
-
 	<?php echo Yii::t('coreMessages','form_required_fields', array('{mark}' => '<span class="required">*</span>')); ?>
-
 	<?php echo $form->errorSummary($model); ?>
-
-	<?php echo $form->textFieldRow($model,'name',array('class'=>'span5','maxlength'=>255)); ?>
-
+	
+	<?php echo $form->textFieldRow($model,'name',array('class' => 'span5', 'maxlength' => 255)); ?>
 	<?php echo $form->dropDownListRow($model,'type', $model->getTypeList()); ?>
-
+	
 	<?php echo $form->labelEx($model,'shortdescription'); ?>
     <?php 
         $this->widget('ext.imperavi-redactor-widget.ImperaviRedactorWidget', array(
-    	'model' => $model,
+    	'model'     => $model,
     	'attribute' => 'shortdescription',
-    	'options' => array(
-    		'lang'    => 'ru',
+    	'options'   => array(
+    		'lang' => 'ru',
             ),
         ));
     ?>
@@ -29,10 +32,10 @@ $dateFormatter = new CDateFormatter('ru');
 	<?php echo $form->labelEx($model,'description'); ?>
     <?php 
         $this->widget('ext.imperavi-redactor-widget.ImperaviRedactorWidget', array(
-    	'model' => $model,
+    	'model'     => $model,
     	'attribute' => 'description',
-    	'options' => array(
-    		'lang'    => 'ru',
+    	'options'   => array(
+    		'lang' => 'ru',
             ),
         ));
     ?>
@@ -41,29 +44,27 @@ $dateFormatter = new CDateFormatter('ru');
 	<?php echo $form->labelEx($model,'customerdescription'); ?>
     <?php 
         $this->widget('ext.imperavi-redactor-widget.ImperaviRedactorWidget', array(
-    	'model' => $model,
+    	'model'     => $model,
     	'attribute' => 'customerdescription',
     	'options' => array(
-    		'lang'    => 'ru',
+    		'lang' => 'ru',
             ),
         ));
     ?>
     <?php echo $form->error($model,'customerdescription'); ?>
 
-	<?php
-	    echo '<div>Логотип</div>';
-    ?>
     <?php
-            if ($model->galleryBehavior->getGallery() === null)
-            {
-                echo '<p>Нужно сохранить проект перед загрузкой логотипа</p>';
-            }else
-           {
-                $this->widget('GalleryManager', array(
-                                                 'gallery' => $model->galleryBehavior->getGallery(),
-                                                 'controllerRoute' => '/admin/gallery'
-                                            ));
-            }
+        echo '<div><b>Логотип</b></div>';
+        if ( $model->galleryBehavior->getGallery() === null )
+        {
+            echo '<p>Нужно сохранить проект перед загрузкой логотипа</p>';
+        }else
+        {
+            $this->widget('GalleryManager', array(
+                 'gallery' => $model->galleryBehavior->getGallery(),
+                 'controllerRoute' => '/admin/gallery'
+            ));
+        }
     ?>
     
 	<?php 
@@ -77,10 +78,10 @@ $dateFormatter = new CDateFormatter('ru');
 	        //'model'=>$model,
             //'flat' => true,
 	        //'attribute'=>'timestart',
-            'name' => 'Project[timestart]',
-            'value' => $dateFormatter->format('dd/MM/yyyy', $defaultStart),
-	        'options'=>array(
-	            'showAnim'=>'fold',
+            'name'    => 'Project[timestart]',
+            'value'   => $dateFormatter->format('dd/MM/yyyy', $defaultStart),
+	        'options' => array(
+	            'showAnim' => 'fold',
 	        ),
 	    ));
 	?>
@@ -104,66 +105,58 @@ $dateFormatter = new CDateFormatter('ru');
 	    ));
 	?>
 
-	<?php echo $form->dropDownListRow($model,'leaderid', $model->getManagerList()); ?>
-	
+	<?php echo $form->dropDownListRow($model,'leaderid',  $model->getManagerList()); ?>
 	<?php echo $form->dropDownListRow($model,'supportid', $model->getManagerList(true)); ?>
-
 	<?php // echo $form->textFieldRow($model,'customerid',array('class'=>'span5','maxlength'=>11)); ?>
-
 	<?php // echo $form->textFieldRow($model,'orderid',array('class'=>'span5','maxlength'=>11)); ?>
-
-	<?php echo $form->checkBoxRow($model,'isfree',array('class'=>'span5')); ?>
+	<?php echo $form->checkBoxRow($model, 'isfree', array('class' => 'span5')); ?>
 	
-	<?php
-	    echo '<div>Фотогалерея</div>';
-    ?>
     <?php
-            if ( $model->photoGalleryBehavior->getGallery() === null )
-            {
-                echo '<div class="alert">Нужно сохранить проект перед загрузкой фотографий</div>';
-            }else
-           {
-                $this->widget('GalleryManager', array(
-                                                 'gallery' => $model->photoGalleryBehavior->getGallery(),
-                                                 'controllerRoute' => '/admin/gallery'
-                                            ));
-            }
+        echo '<div>Фотогалерея</div>';
+        if ( $model->photoGalleryBehavior->getGallery() === null )
+        {
+            echo '<div class="alert">Нужно сохранить проект перед загрузкой фотографий</div>';
+        }else
+        {
+            $this->widget('GalleryManager', array(
+                 'gallery' => $model->photoGalleryBehavior->getGallery(),
+                 'controllerRoute' => '/admin/gallery'
+            ));
+        }
     ?>
     
     <fieldset>
-            <legend>Видео</legend>
-            <?php
-            if ( ! $model->isNewRecord )
-            {// не показываем добавление видео при создании проекта - оно там не нужно и отвлекает
-                echo $form->errorSummary($validatedVideos);
-                // список видео
-                $videoFormConfig = $video->formConfig();
-                $this->widget('ext.multimodelform.MultiModelForm',array(
-                    'addItemText'   => Yii::t('coreMessages','add'),
-                    'removeText'    => Yii::t('coreMessages','delete'),
-                    'removeConfirm' => 'Удалить это видео?',
-                    'id'            => 'id_video', //the unique widget id
-                    'formConfig'    => $videoFormConfig, //the form configuration array
-                    'model'         => $video, //instance of the form model
-                
-                    'validatedItems' => $validatedVideos,
-                
-                    // ранее сохраненные видео
-                    'data' => $model->videos,
-                ));
-            }else
-            {
-                echo '<div class="alert">Нужно сохранить проект перед добавлением видео</div>';
-            }
-            ?>
+        <legend>Видео</legend>
+        <?php
+        if ( ! $model->isNewRecord )
+        {// не показываем добавление видео при создании проекта - оно там не нужно и отвлекает
+            echo $form->errorSummary($validatedVideos);
+            // список видео
+            $videoFormConfig = $video->formConfig();
+            $this->widget('ext.multimodelform.MultiModelForm',array(
+                'addItemText'   => Yii::t('coreMessages','add'),
+                'removeText'    => Yii::t('coreMessages','delete'),
+                'removeConfirm' => 'Удалить это видео?',
+                'id'            => 'id_video', //the unique widget id
+                'formConfig'    => $videoFormConfig, //the form configuration array
+                'model'         => $video, //instance of the form model
+                'validatedItems' => $validatedVideos,
+                // ранее сохраненные видео
+                'data' => $model->videos,
+            ));
+        }else
+        {
+            echo '<div class="alert">Нужно сохранить проект перед добавлением видео</div>';
+        }
+        ?>
     </fieldset>
 
 	<?php 
-	$this->widget('bootstrap.widgets.TbButton', array(
-		'buttonType'=>'submit',
-		'type'=>'primary',
-		'label'=>$model->isNewRecord ? 'Создать' : 'Сохранить',
-	)); 
+    	$this->widget('bootstrap.widgets.TbButton', array(
+    		'buttonType' => 'submit',
+    		'type'       => 'primary',
+    		'label'      => $model->isNewRecord ? 'Создать' : 'Сохранить',
+    	)); 
 	?>
 	
 <?php $this->endWidget(); ?>
