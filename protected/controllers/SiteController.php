@@ -44,7 +44,7 @@ class SiteController extends Controller
         {
             if ( Yii::app()->request->isAjaxRequest )
             {
-                if ( defined('YII_DEBUG') and YII_DEBUG === true )
+                if ( ( defined('YII_DEBUG') and YII_DEBUG === true ) OR Yii::app()->user->checkAccess('Admin') )
                 {
                     echo $error['message'];
                 }else

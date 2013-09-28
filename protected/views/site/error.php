@@ -12,7 +12,7 @@ $this->breadcrumbs=array(
 
 <div class="error">
 <?php 
-if ( defined('YII_DEBUG') AND YII_DEBUG === true )
+if ( ( defined('YII_DEBUG') AND YII_DEBUG === true ) OR Yii::app()->user->checkAccess('Admin') )
 {
     echo CHtml::encode($message);
 }
