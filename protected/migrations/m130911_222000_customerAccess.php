@@ -2,6 +2,7 @@
 
 class m130911_222000_customerAccess extends CDbMigration
 {
+    protected $MySqlOptions = 'ENGINE=InnoDB CHARSET=utf8';
     /**
      * (non-PHPdoc)
      * @see CDbMigration::safeUp()
