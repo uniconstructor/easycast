@@ -223,6 +223,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
             $countrySelector->cityActiveField('cityid', $questionary, $cityOptions);
         ?>
         <?php echo $form->error($questionary,'cityid'); ?>
+        <hr>
 	</fieldset>
 
 	<fieldset id="contact_information_part">
@@ -231,16 +232,12 @@ Yii::import('ext.CountryCitySelectorRu.*');
 	    </legend>
     
         <?php echo $form->textFieldRow($questionary,'mobilephone',array('size'=>32,'maxlength'=>32)); ?>
-    
         <?php echo $form->textFieldRow($questionary,'homephone',array('size'=>32,'maxlength'=>32)); ?>
-    
         <?php echo $form->textFieldRow($questionary,'addphone',array('size'=>32,'maxlength'=>32)); ?>
-    
         <?php echo $form->textFieldRow($questionary,'vkprofile',array('size'=>60,'maxlength'=>255)); ?>
-    
         <?php echo $form->textFieldRow($questionary,'fbprofile',array('size'=>60,'maxlength'=>255)); ?>
-    
         <?php echo $form->textFieldRow($questionary,'okprofile',array('size'=>60,'maxlength'=>255)); ?>
+        <hr>
 	</fieldset>
 
 	<fieldset id="looks_part">
@@ -348,15 +345,15 @@ Yii::import('ext.CountryCitySelectorRu.*');
         'options'   => $toggleBoxJsOptions,
     ));
     ?>
-
+    <hr>
 	</fieldset>
 
 	<fieldset id="experience_jobs_and_skills_part">
-    <legend id="experience_jobs_and_skills_part_label">
-        <a class="btn btn-large btn-warning"><i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('experience_jobs_and_skills'); ?></a>
-    </legend>
+        <legend id="experience_jobs_and_skills_part_label">
+            <a class="btn btn-large btn-warning"><i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('experience_jobs_and_skills'); ?></a>
+        </legend>
 
-    <?php // Профессиональный актер
+        <?php // Профессиональный актер
         $this->widget('ext.EToggleBox.EToggleBox', array(
               'model'     => $questionary,
               'attribute' => 'isactor',
@@ -376,7 +373,8 @@ Yii::import('ext.CountryCitySelectorRu.*');
                         $("#amateuractor").fadeIn(200);
                         $("#films_part").fadeOut(200);
                         }'))
-                     ));?>
+                     ));
+         ?>
     
     <div>
         <fieldset id="actoruniversities" class="qform_subsection">
@@ -1263,6 +1261,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
            ?>
        </fieldset>
     </div>
+    <hr>
 	</fieldset>
 
 	<fieldset id="passportdata_part">
@@ -1341,12 +1340,10 @@ Yii::import('ext.CountryCitySelectorRu.*');
 		<?php echo $form->error($address,'cityid'); ?>
 
 		<?php echo $form->textFieldRow($address,'streetname',array('size'=>60,'maxlength'=>255)); ?>
-
 		<?php echo $form->textFieldRow($address,'number',array('size'=>3,'maxlength'=>16)); ?>
-
 		<?php echo $form->textFieldRow($address,'housing',array('size'=>3,'maxlength'=>16)); ?>
-
 		<?php echo $form->textFieldRow($address,'apartment',array('size'=>3,'maxlength'=>16)); ?>
+		<hr>
 	</fieldset><!-- Конец полей паспортных данных -->
 
     <fieldset id="conditions_part">
@@ -1438,6 +1435,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
         // дополнительные условия для участия в съемках 
         echo $form->textAreaRow($recordingConditions,'custom');
         ?>
+        <hr>
     </fieldset>
     
     <?php
@@ -1451,13 +1449,13 @@ Yii::import('ext.CountryCitySelectorRu.*');
             'attribute' => 'policyagreed',
             'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
                 'after_off'  => 'js:function () {
-                                    $("#save_questionary").addClass("disabled");
-                                    $("#save_questionary").attr("disabled", "disabled");
-                                }',
+                        $("#save_questionary").addClass("disabled");
+                        $("#save_questionary").attr("disabled", "disabled");
+                    }',
                 'after_on' => 'js:function () {
-                                    $("#save_questionary").removeClass("disabled");
-                                    $("#save_questionary").removeAttr("disabled");
-                                }'
+                        $("#save_questionary").removeClass("disabled");
+                        $("#save_questionary").removeAttr("disabled");
+                    }'
             ))
         ));
     }
