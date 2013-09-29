@@ -88,6 +88,20 @@ class MailComposerModule extends CWebModule
                 $projectMember = $params['projectMember'];
                 return $mailComposer->createRejectMemberMailText($projectMember, $mailOptions);
             break;
+            // письмо с предварительным одобрением заявки
+            case 'pendingMember':
+                $mailOptions = array();
+                if ( isset($params['mailOptions']) )
+                {
+                    $mailOptions = $params['mailOptions'];
+                }
+                if ( ! isset($params['projectMember']) )
+                {
+                    throw new CException('projectMember for mail is not set');
+                }
+                $projectMember = $params['projectMember'];
+                return $mailComposer->createPendingMemberMailText($projectMember, $mailOptions);
+            break;
         }
     }
     

@@ -154,7 +154,8 @@ class ProjectsModule extends CWebModule
 	    $mailComposer = Yii::app()->getModule('mailComposer');
 	    
 	    $email   = $memberData->member->user->email;
-	    $subject = 'Ваша заявка в проекте "'.$memberData->vacancy->event->project->name.'" предварительно одобрена.';
+	    //$subject = 'Ваша заявка в проекте "'.$memberData->vacancy->event->project->name.'" предварительно одобрена.';
+	    $subject = 'Ваша заявка предварительно одобрена';
 	    $message = $mailComposer->getMessage('pendingMember', array('projectMember' => $memberData));
 	     
 	    // добавляем письмо в очередь

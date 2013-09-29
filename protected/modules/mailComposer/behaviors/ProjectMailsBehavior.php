@@ -101,8 +101,6 @@ class ProjectMailsBehavior extends CBehavior
      * Получить текст письма с уведомлением о том, что заявка участника одобрена
      * @param ProjectMember $projectMember - данные заявки участника
      * @return string
-     *
-     * @todo писать, на какую именно роль выбрали
      */
     public function createApproveMemberMailText($projectMember, $mailOptions=array())
     {
@@ -159,6 +157,32 @@ class ProjectMailsBehavior extends CBehavior
         //$message .= 'Если у нас появятся другие предложения, то мы обязательно сообщим вам о них.';
          
         // добавляем все блоки с информацией в массив настроек для виджета EMailAssembler
+        $mailOptions['segments'] = $segments;
+        // создаем виджет и получаем из него полный HTML-код письма
+        return $this->owner->widget('application.modules.mailComposer.extensions.widgets.EMailAssembler.EMailAssembler',
+            $mailOptions, true);
+    }
+    
+    /**
+     * Получить текст письма для участника, с информацией о том, что его заявка на роль предварительно одобрена
+     * @param ProjectMember $projectMember - данные заявки участника
+     * @return string
+     */
+    public function createPendingMemberMailText($projectMember, $mailOptions=array())
+    {
+        $segments    = new CMap();
+        $mailOptions = $this->owner->getMailDefaults();
+        $mailOptions['showContactPhone'] = false;
+        $vacancyName = $projectMember->vacancy->name;
+        $projectName = $projectMember->vacancy->event->project->name;
+        
+        $text  = $this->createUserGreeting($projectMember->member);
+        $text .= 'Ваша заявка на роль &laquo;'.$vacancyName.'&raquo; в проекте &laquo;'.$projectName.'&raquo; получала статус &laquo;предварительно одобрена&raquo;.<br>';
+        $text .= 'Это означает, что вы прошли первый этап отбора, но окончательное решение пока еще не принято.<br>';
+        $text .= 'Мы свяжемся с вами после того как получим результаты финального отбора. В зависимости от них мы либо пригласим вас на съемки, либо сообщим о том что ваша заявка отклонена.<br>';
+        $text .= '<br><br><i>(Это автоматическое уведомление, отвечать на него не нужно)</i>';
+        
+        $segments->add(null, $this->owner->textBlock($text));
         $mailOptions['segments'] = $segments;
         // создаем виджет и получаем из него полный HTML-код письма
         return $this->owner->widget('application.modules.mailComposer.extensions.widgets.EMailAssembler.EMailAssembler',
@@ -291,7 +315,7 @@ class ProjectMailsBehavior extends CBehavior
         //$eventLink = CHtml::link($event->name, $eventUrl, array('target' => '_blank'));
         $block = array();
         $block['header'] = $event->getFormattedTimePeriod();
-        $block['text']   = '<h4>'.$event->name.'</h4><br>';
+        $block['text']   = '<h4>'.$event->name.'</h4>';
         
         if ( trim($event->description) )
         {
@@ -505,9 +529,10 @@ class ProjectMailsBehavior extends CBehavior
     {
         $block = array();
         $event = $projectMember->vacancy->event;
+        $vacancyName = $projectMember->vacancy->name;
         
         $block['text'] = $this->createUserGreeting($projectMember->member);
-        $block['text'] .= 'Ваша заявка была направлена режиссеру, рассмотрена и подтверждена.'."<br>\n";
+        $block['text'] .= 'Ваша заявка на роль &laquo;'.$vacancyName.'&raquo; была направлена режиссеру, рассмотрена и подтверждена.'."<br>\n";
         $block['text'] .= 'Теперь вы участник проекта "'.$event->project->name.'".'."<br>\n";
         $block['text'] .= 'Роль, на которую вы утверждены: "'.$projectMember->vacancy->name."\"<br>\n";
         
