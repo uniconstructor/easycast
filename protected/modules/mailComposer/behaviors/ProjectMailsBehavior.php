@@ -234,31 +234,20 @@ class ProjectMailsBehavior extends CBehavior
      */
     protected function createSingleEventDescription($event, $showAddInfo=false)
     {
-        $block = array();
-        
-        if ( $event->nodates )
-        {// мероприятие без определенной даты - не выводим дату и время начала
-            $dateInfo = $event->getFormattedTimeStart();
-        }else
-        {// дата мероприятия известна - выводим ее в отформатированном виде
-            $startDate = $event->getFormattedTimeStart();
-            $endDate   = Yii::app()->getDateFormatter()->format('HH:mm', $event->timeend);
-            $dateInfo  = $startDate." - ".$endDate;
-        }
         // создаем ссылку на просмотр мероприятия
-        $eventUrl  = Yii::app()->createAbsoluteUrl('/projects/projects/view', array('eventid' => $event->id));
-        $eventLink = CHtml::link($event->name, $eventUrl, array('target' => '_blank'));
-        
-        $block['header'] = $dateInfo;
-        //$block['text']   = 'Что планируется: '.$eventLink;
-        $block['text']   = 'Что планируется: '.$event->name.'<br>';
+        //$eventUrl  = Yii::app()->createAbsoluteUrl('/projects/projects/view', array('eventid' => $event->id));
+        //$eventLink = CHtml::link($event->name, $eventUrl, array('target' => '_blank'));
+        // дата, время, название мероприятия
+        $block = array();
+        $block['header'] = $event->getFormattedTimePeriod();
+        $block['text']   = '<h4>'.$event->name.'</h4>';
                  
         if ( trim($event->description) )
-        {// описание мероприятия
-            $block['text'] .= 'Подробности: '.$event->description;
+        {// описание
+            $block['text'] .= $event->description;
         }
         if ( $showAddInfo )
-        {
+        {// дополнительная информация для подтвержденных участников
             $block['text'] .= $this->getEvendAddInfo($event);
         }
          
@@ -294,22 +283,19 @@ class ProjectMailsBehavior extends CBehavior
      * @return string
      * 
      * @todo вернуть ссылку на мероприятие
+     * @todo получить дополнительную информацию об участниках отдельным блоком
      */
     protected function createOneGroupEventDescription($event, $showAddInfo=false)
     {
-        $block = array();
-         
-        $startDate = $event->getFormattedTimeStart();
-        $endDate   = Yii::app()->getDateFormatter()->format('HH:mm', $event->timeend);
         //$eventUrl  = Yii::app()->createAbsoluteUrl('/projects/projects/view', array('eventid' => $event->id));
         //$eventLink = CHtml::link($event->name, $eventUrl, array('target' => '_blank'));
-         
-        $block['header'] = $startDate.' - '.$endDate;
-        $block['text'] = '<b>'.$event->name.'</b><br>';
+        $block = array();
+        $block['header'] = $event->getFormattedTimePeriod();
+        $block['text']   = '<h4>'.$event->name.'</h4><br>';
         
         if ( trim($event->description) )
         {
-            $block['text'] .= 'Описание: '.$event->description;
+            $block['text'] .= $event->description;
         }
         if ( $showAddInfo )
         {
@@ -326,17 +312,18 @@ class ProjectMailsBehavior extends CBehavior
      */
     protected function getEvendAddInfo($event)
     {
-        $text = '<b>Как подтвержденному участнику вам теперь доступна следующая информация:</b><br>';
-        
-        if ( $event->meetingplace )
+        $text = '<h3>Как подтвержденному участнику вам теперь доступна следующая информация:</h3>';
+        if ( trim($event->meetingplace) )
         {
-            $text .= '<b>Время и место встречи:</b><br>';
-            $text .= '<p>'.$event->meetingplace.'</p>';
+            $text .= '<h4>Время и место встречи:</h4>';
+            //$text .= '<p>'.$event->meetingplace.'</p>';
+            $text .= $event->meetingplace;
         }
-        if ( $event->memberinfo )
+        if ( trim($event->memberinfo) )
         {
-            $text .= '<b>Информация для участников:</b><br>';
-            $text .= '<p>'.$event->memberinfo.'</p>';
+            $text .= '<h4>Информация для участников:</h4>';
+            //$text .= '<p>'.$event->memberinfo.'</p>';
+            $text .= $event->memberinfo;
         }
         
         return $text;
@@ -359,19 +346,19 @@ class ProjectMailsBehavior extends CBehavior
         }
         
         $infoBlock = array();
-        $infoBlock['header'] = 'Предлагаемые роли';
-        $infoBlock['text']   = 'Здесь перечислены все роли, на которые вы можете подать заявку.<br> ';
-        $infoBlock['text']  .= 'Система выбирает их, основываясь на данных вашей анкеты.<br> ';
+        $infoBlock['header'] = 'Предлагаемые роли:';
+        $infoBlock['text']   = 'Здесь перечислены все роли, на которые вы можете подать заявку.<br>';
+        $infoBlock['text']  .= 'Система выбирает их, основываясь на данных вашей анкеты. ';
         $blocks[] = $infoBlock;
         
         foreach ( $vacancies as $vacancy )
         {
             $vacancyBlock = array();
-            $vacancyBlock['header'] = $vacancy->name;
-            $vacancyBlock['text'] = "Описание: ".$vacancy->description.'<br>';
+            $vacancyBlock['header'] = '&#9658;'.$vacancy->name;
+            $vacancyBlock['text']   = '<b>Описание:</b>'.$vacancy->description;
             if ( $vacancy->salary )
             {
-                $vacancyBlock['text'] .= "Оплата (за съемочный день): {$vacancy->salary} р.";
+                $vacancyBlock['text'] .= "<h5>Оплата (за съемочный день): {$vacancy->salary} р.</h5>";
             }
             $blocks[] = $vacancyBlock;
         }
