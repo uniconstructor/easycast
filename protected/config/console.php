@@ -4,12 +4,12 @@ $basePath = dirname(__FILE__).DIRECTORY_SEPARATOR.'..';
 $consoleConfig = CMap::mergeArray(
     require(dirname(__FILE__).'/dev.php'),
     array(
-        'basePath'=>$basePath,
+        'basePath' => $basePath,
         'language' => 'ru',
         'sourceLanguage' => 'en_us',
     
         // autoloading model and component classes
-        'import'=>array(
+        'import' => array(
             'application.models.*',
             'application.components.*',
             'application.modules.user.models.*',
@@ -18,7 +18,7 @@ $consoleConfig = CMap::mergeArray(
         ),
     
         // preloading 'log' component
-        'preload'=>array('log', 'messages'),
+        'preload' => array('log', 'messages'),
     
         /*'modules'=>array(
             'user'=>array(),
@@ -34,28 +34,29 @@ $consoleConfig = CMap::mergeArray(
         ),*/
     
         // application components
-        'components'=>array(
+        'components' => array(
+            
             // устанавливаем пареметр hostInfo для того чтобы из консоли могли создаваться абсолютные ссылки
             // ( http://www.yiiframework.com/forum/index.php/topic/14825-problem-with-createurl-and-createabsoluteurl-in-console-application/ )
             'request' => array(
-                'hostInfo' => 'http://bglance',
+                'hostInfo'  => 'http://bglance',
                 'baseUrl'   => '',
                 'scriptUrl' => '',
             ),
             
-            'log'=>array(
-                'class'=>'CLogRouter',
-                'routes'=>array(
+            'log' => array(
+                'class'  => 'CLogRouter',
+                'routes' => array(
                     array(
-                        'class'=>'CDbLogRoute',
+                        'class'        => 'CDbLogRoute',
                         'connectionID' => 'db',
-                        'levels'=>'error, warning, info',
+                        'levels'       => 'error, warning, info',
                         'autoCreateLogTable' => true,
                     ),
                     array(
-                        'class'=>'CEmailLogRoute',
-                        'levels'=>'error, warning',
-                        'emails'=>'php1602agregator@gmail.com',
+                        'class'  => 'CEmailLogRoute',
+                        'levels' => 'error, warning',
+                        'emails' => 'php1602agregator@gmail.com',
                     ),
                 ),
             ),

@@ -50,7 +50,7 @@ return CMap::mergeArray(
             
             // S3
             // Использовать хостинг amazon s3 для хранения картинок
-            'useAmazonS3'   => false,
+            'useAmazonS3'   => true,
             'AWSBucket'     => 'test.easycast.ru',
             'AWSBucketPath' => 'http://test.easycast.ru.s3.amazonaws.com',
             // SES
