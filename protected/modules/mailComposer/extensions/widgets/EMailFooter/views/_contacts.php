@@ -6,7 +6,7 @@
 ?>
 <p id="street-address" class="footer-content-right" align="right">
 <small style="color:#ffffff;">
-<span>Кастинговое агентство <a style="color:#ffffff;" href="http://easycast.ru" target="_blank">EasyCast</a></span><br>
+<span>Кастинговое агентство <a style="color:#ffffff;" href="http://easycast.ru" target="_blank">easyCast</a></span><br>
 <?php  
 if ( $this->contactPhone )
 {
@@ -14,7 +14,7 @@ if ( $this->contactPhone )
 }
 if ( $this->contactEmail )
 {
-    echo '<span>email: '.$this->contactEmail.'</span>';
+    echo '<span>email: <a style="color:#ffffff;" href="mailto:'.$this->contactEmail.'">'.$this->contactEmail.'</a></span>';
 }
 ?>
 </small>
