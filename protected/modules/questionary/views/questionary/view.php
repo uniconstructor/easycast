@@ -43,9 +43,10 @@ $editIcon = '';
 if ( $canEdit )
 {// анкету пользователя может редактировать только админ и сам пользователь
     $editIcon = Yii::app()->getModule('questionary')->_assetsUrl.'/images/edit.png';
-    $editIcon = CHtml::image($editIcon, Yii::t('coreMessages', 'edit'));
-    $editIcon = CHtml::link($editIcon, 
-        Yii::app()->createUrl('//questionary/questionary/update', array('id' => $questionary->id)));
+    //$editIcon = CHtml::image($editIcon, Yii::t('coreMessages', 'edit'));
+    $editIcon = CHtml::link('Редактировать', 
+        Yii::app()->createUrl('//questionary/questionary/update', array('id' => $questionary->id)),
+        array('class' => 'btn btn-warning btn-large'));
 }
 
 ?>
@@ -116,6 +117,6 @@ if ( Yii::app()->user->checkAccess('Admin') )
     $newUserLink = CHtml::link('<i class="icon-plus icon-large"></i>&nbsp;Добавить еще анкету', 
         Yii::app()->createUrl('//user/admin/create'/*, array('lastId' => $questionary->id)*/),
         array('class' => 'btn btn-large btn-warning'));
-    echo '<div class="row span12" style="text-align:center;">'.$newUserLink.'</div>';
+    echo '<div class="row span12" style="text-align:center;"><br>'.$newUserLink.'</div>';
 }
 ?>
