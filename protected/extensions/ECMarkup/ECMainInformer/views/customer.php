@@ -12,6 +12,13 @@ if ( is_array($users) AND ! empty($users) )
 }
 ?>
 <div class="ec_customer_info">
+    <? if ( Yii::app()->user->checkAccess('Admin') AND false ) { ?>
+    <div class="ec_customer_info_block" style="margin-bottom:5px;">
+        <a href="<?= Yii::app()->createUrl('//admin/'); ?>">
+            [Администрирование]
+        </a>
+    </div>
+    <? } ?>
     <h4>Мой выбор</h4>
     <div class="ec_customer_info_block">
         <a href="<?= Yii::app()->createUrl('//catalog/catalog/myChoice'); ?>" target="_blank">
