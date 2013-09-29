@@ -28,7 +28,7 @@ return array(
     'preload' => array('log', 'messages'),
     
     // Название проекта 
-    'name' => 'EasyCast',
+    'name' => 'easyCast',
     
     // Короткие имена для вызова популярных библиотек
     // @todo попробовать перенести сюда bootstrap и посмотреть, ничего ли не сломается
