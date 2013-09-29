@@ -19,7 +19,6 @@ jQuery.fn.eslidetoggle = function(options) {
 	$(this).click(function(){
         jQuery(this).parent().children().not(this).fadeToggle(settings.duration,settings.easing);
 	    $(this).toggleClass(settings.classCollapsed);
-        
 		return false; //No jump to the link anchor
 	});
 

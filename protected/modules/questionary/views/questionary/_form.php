@@ -84,15 +84,19 @@ Yii::import('ext.CountryCitySelectorRu.*');
             // По умолчанию сворачиваем все разделы формы
             'collapsed'     => $formPartItem['itemSelector'],
             'duration'      => 400,
+            'arrow'         => false,
         );
         if ( ( ! $questionary->firstname OR ! $questionary->lastname OR ! $questionary->gender ) AND 
             $formPartItem['itemSelector'] == '#base_information_part' )
         {// первый раздел анкеты всегда по умолчанию развернут если не заполнены самые основные поля
             unset($slideToggleOptions['collapsed']);
         }
-        
         // создаем сам виджет
         $this->widget('ext.slidetoggle.ESlidetoggle', $slideToggleOptions);
+        // добавляем всплывающие подсказки к каждому заголовку раздела формы
+        $sectionTooltipJsId = '_qSectionTooltip'.$formPartItem['itemSelector'];
+        $sectionTooltipJs = '$("'.$slideToggleOptions['titleSelector'].' > a").tooltip({title:"Нажмите чтобы развернуть",placement:"top"})';
+        $clientScriptManager->registerScript($sectionTooltipJsId, $sectionTooltipJs, CClientScript::POS_END);
     }
 
     ////////////////////////////////////
@@ -155,15 +159,12 @@ Yii::import('ext.CountryCitySelectorRu.*');
         )
     );
 ?>
-    
 	<p class="note">
         <?php echo Yii::t('coreMessages','form_required_fields', array('{mark}' => '<span class="required">*</span>')); ?>
     </p>
-
 	<?php echo $form->errorSummary($questionary); ?>
     
-	<?php echo $form->hiddenField($questionary,'userid'); ?>
-	
+	<?php // echo $form->hiddenField($questionary,'userid'); ?>
     <?php // рейтинг анкеты (выставляется только администрацией)
         if ( Yii::app()->user->isSuperuser )
         {
@@ -172,10 +173,9 @@ Yii::import('ext.CountryCitySelectorRu.*');
         }
     ?>
 
-
 	<fieldset id="base_information_part">
 	<legend id="base_information_part_label">
-        <?php echo QuestionaryModule::t('base_information'); ?>
+        <a class="btn btn-large btn-warning"><i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('base_information'); ?></a>
     </legend>
 
         <?php echo $form->textFieldRow($questionary,'lastname',array('size'=>60,'maxlength'=>128)); ?>
@@ -188,12 +188,12 @@ Yii::import('ext.CountryCitySelectorRu.*');
         <?php
             $this->widget('ext.ActiveDateSelect',
                 array(
-                    'model'=>$questionary,
-                    'attribute'=>'birthdate',
-                    'reverse_years'=>true,
-                    'field_order'=>'DMY',
-                    'start_year'=>1910,
-                    'end_year'=>date("Y", time()),
+                    'model'         => $questionary,
+                    'attribute'     => 'birthdate',
+                    'reverse_years' => true,
+                    'field_order'   => 'DMY',
+                    'start_year'    => 1910,
+                    'end_year'      => date("Y", time()),
                 )
             );
         ?>
@@ -202,7 +202,6 @@ Yii::import('ext.CountryCitySelectorRu.*');
         <label><?php echo QuestionaryModule::t('playage_label'); ?></label>
         <div class="form-inline qform_subsection">
             <?php echo $form->textFieldRow($questionary,'playagemin', array('maxlength'=>3, 'style'=>'width:30px;')); ?>
-
             <?php echo $form->textFieldRow($questionary,'playagemax', array('maxlength'=>3, 'style'=>'width:30px;')); ?>
         </div>
     
@@ -227,7 +226,9 @@ Yii::import('ext.CountryCitySelectorRu.*');
 	</fieldset>
 
 	<fieldset id="contact_information_part">
-	<legend id="contact_information_part_label"><?php echo QuestionaryModule::t('contact_information'); ?></legend>
+	    <legend id="contact_information_part_label">
+	        <a class="btn btn-large btn-warning"><i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('contact_information'); ?></a>
+	    </legend>
     
         <?php echo $form->textFieldRow($questionary,'mobilephone',array('size'=>32,'maxlength'=>32)); ?>
     
@@ -243,7 +244,9 @@ Yii::import('ext.CountryCitySelectorRu.*');
 	</fieldset>
 
 	<fieldset id="looks_part">
-	<legend id="looks_part_label"><?php echo QuestionaryModule::t('looks'); ?></legend>
+	    <legend id="looks_part_label">
+	        <a class="btn btn-large btn-warning"><i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('looks'); ?></a>
+        </legend>
 
         <?php echo $form->labelEx($questionary,'photos'); ?>
         <?php // Рекомендации по добавлению фотографий
@@ -256,9 +259,9 @@ Yii::import('ext.CountryCitySelectorRu.*');
             }else
             {
                 $this->widget('GalleryManager', array(
-                                                 'gallery' => $questionary->galleryBehavior->getGallery(),
-                                                 'controllerRoute' => '/questionary/gallery'
-                                            ));
+                     'gallery' => $questionary->galleryBehavior->getGallery(),
+                     'controllerRoute' => '/questionary/gallery'
+                ));
             }
         ?>
         
@@ -350,7 +353,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
 
 	<fieldset id="experience_jobs_and_skills_part">
     <legend id="experience_jobs_and_skills_part_label">
-        <?php echo QuestionaryModule::t('experience_jobs_and_skills'); ?>
+        <a class="btn btn-large btn-warning"><i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('experience_jobs_and_skills'); ?></a>
     </legend>
 
     <?php // Профессиональный актер
@@ -572,14 +575,11 @@ Yii::import('ext.CountryCitySelectorRu.*');
 	
     <div>
 	<fieldset id="emceelist" class="qform_subsection">
-
             <?php
             //show errorsummary at the top for all models
             //build an array of all models to check
             echo $form->errorSummary($validatedEmceeList);
             ?>
-
-
             <?php
             $this->widget('ext.multimodelform.MultiModelForm',
                 array(
@@ -598,7 +598,6 @@ Yii::import('ext.CountryCitySelectorRu.*');
                    'data' => $questionary->emceelist,
               ));
             ?>
-
 	</fieldset>
     </div>
     
@@ -610,21 +609,15 @@ Yii::import('ext.CountryCitySelectorRu.*');
               'after_on'  => 'js:function () {$("#tvshows").fadeIn(200);}',
               'after_off' => 'js:function () {$("#tvshows").fadeOut(200);}'))
         ));
-    ?>
-    
-    <?php 
+         
         $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
                 array('field' => 'istvshowmen'));
     ?>
 	
     <div>
 	<fieldset id="tvshows" class="qform_subsection">
-
             <?php
             echo $form->errorSummary($validatedEmceeList);
-            ?>
-
-            <?php
             $this->widget('ext.multimodelform.MultiModelForm',array(
                        'addItemText'   => QuestionaryModule::t('tvshowmen_add_tvshow'),
                        'removeText'    => Yii::t('coreMessages','delete'),
@@ -639,7 +632,6 @@ Yii::import('ext.CountryCitySelectorRu.*');
                        'data' => $questionary->tvshows,
                   ));
             ?>
-
 	</fieldset>
     </div>
 
@@ -651,9 +643,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
               'after_on'  => 'js:function () {$("#parodist").fadeIn(200);}',
               'after_off' => 'js:function () {$("#parodist").fadeOut(200);}'))
         ));
-    ?>
-    
-    <?php 
+        
         $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
                 array('field' => 'isparodist'));
     ?>
@@ -681,9 +671,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
               'after_on'  => 'js:function () {$("#twin").fadeIn(200);}',
               'after_off' => 'js:function () {$("#twin").fadeOut(200);}'))
         ));
-    ?>
-    
-    <?php 
+        
         $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
                 array('field' => 'istwin'));
     ?>
@@ -711,24 +699,16 @@ Yii::import('ext.CountryCitySelectorRu.*');
               'after_on'  => 'js:function () {$("#modelschools").fadeIn(200);$("#modeljobs").fadeIn(200);}',
               'after_off' => 'js:function () {$("#modelschools").fadeOut(200);$("#modeljobs").fadeOut(200);}'))
            ));
-    ?>
-    
-    <?php 
+        
         $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
                 array('field' => 'ismodel'));
     ?>
 	
     <div>
 	<fieldset id="modelschools" class="qform_subsection">
-
         <?php
-        //show errorsummary at the top for all models
-        //build an array of all models to check
+        // Модельные школы
         echo $form->errorSummary($validatedModelSchools);
-        ?>
-
-
-        <?php
         $this->widget('ext.multimodelform.MultiModelForm',
             array(
                'addItemText'   => Yii::t('coreMessages','add'),
@@ -737,7 +717,6 @@ Yii::import('ext.CountryCitySelectorRu.*');
                'id'            => 'id_modelschool', //the unique widget id
                'formConfig'    => $modelSchool->formConfig(), //the form configuration array
                'model'         => $modelSchool, //instance of the form model
-
                //if submitted not empty from the controller,
                //the form will be rendered with validation errors
                'validatedItems' => $validatedModelSchools,
@@ -753,12 +732,8 @@ Yii::import('ext.CountryCitySelectorRu.*');
     <div>
     <fieldset id="modeljobs" class="qform_subsection">
         <?php
-        //show errorsummary at the top for all models
-        //build an array of all models to check
+        // опыт работы моделью
         echo $form->errorSummary($validatedModelJobs);
-        ?>
-
-        <?php
         $this->widget('ext.multimodelform.MultiModelForm', 
             array(
                'addItemText'   => Yii::t('coreMessages','add'),
@@ -767,7 +742,6 @@ Yii::import('ext.CountryCitySelectorRu.*');
                'id'            => 'id_modeljob', //the unique widget id
                'formConfig'    => $modelJob->formConfig(), //the form configuration array
                'model'         => $modelJob, //instance of the form model
-
                //if submitted not empty from the controller,
                //the form will be rendered with validation errors
                'validatedItems' => $validatedModelJobs,
@@ -797,12 +771,8 @@ Yii::import('ext.CountryCitySelectorRu.*');
     <div>
     <fieldset id="photomodeljobs" class="qform_subsection">
         <?php
-        //show errorsummary at the top for all models
-        //build an array of all models to check
+        // опыт работы фотомоделью
         echo $form->errorSummary($validatedPhotoModelJobs);
-        ?>
-
-        <?php
         $this->widget('ext.multimodelform.MultiModelForm', 
             array(
                'addItemText'   => Yii::t('coreMessages','add'),
@@ -811,7 +781,6 @@ Yii::import('ext.CountryCitySelectorRu.*');
                'id'            => 'id_photomodeljob', //the unique widget id
                'formConfig'    => $photoModelJob->formConfig(), //the form configuration array
                'model'         => $photoModelJob, //instance of the form model
-
                //if submitted not empty from the controller,
                //the form will be rendered with validation errors
                'validatedItems' => $validatedPhotoModelJobs,
@@ -831,9 +800,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
               'after_on'  => 'js:function () {$("#promomodeljobs").fadeIn(200);}',
               'after_off' => 'js:function () {$("#promomodeljobs").fadeOut(200);}'))
            ));
-    ?>
-    
-    <?php 
+        
         $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
                 array('field' => 'ispromomodel'));
     ?>
@@ -841,12 +808,8 @@ Yii::import('ext.CountryCitySelectorRu.*');
     <div>
     <fieldset id="promomodeljobs" class="qform_subsection">
         <?php
-        //show errorsummary at the top for all models
-        //build an array of all models to check
+        // опыт работы промо-моделью
         echo $form->errorSummary($validatedPromoModelJobs);
-        ?>
-
-        <?php
         $this->widget('ext.multimodelform.MultiModelForm', 
             array(
                    'addItemText'   => Yii::t('coreMessages','add'),
@@ -855,7 +818,6 @@ Yii::import('ext.CountryCitySelectorRu.*');
                    'id'            => 'id_promomodeljob', //the unique widget id
                    'formConfig'    => $promoModelJob->formConfig(), //the form configuration array
                    'model'         => $promoModelJob, //instance of the form model
-
                    //if submitted not empty from the controller,
                    //the form will be rendered with validation errors
                    'validatedItems' => $validatedPromoModelJobs,
@@ -875,9 +837,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
               'after_on'  => 'js:function () {$("#dancetypes").fadeIn(200);}',
               'after_off' => 'js:function () {$("#dancetypes").fadeOut(200);}'))
            ));
-    ?>
-    
-    <?php 
+        
         $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
                 array('field' => 'isdancer'));
     ?>
@@ -886,14 +846,8 @@ Yii::import('ext.CountryCitySelectorRu.*');
     <fieldset id="dancetypes" class="qform_subsection">
     <legend class="qform_subsection_label"><?php echo QuestionaryModule::t('dancetypes_label'); ?></legend>
         <?php
-        //show errorsummary at the top for all models
-        //build an array of all models to check
-        echo $form->errorSummary($validatedDanceTypes);
-        ?>
-
-
-        <?php
         // список стандартных стилей танца
+        echo $form->errorSummary($validatedDanceTypes);
         $danceTypeFormConfig = $danceType->formConfig();
         $this->widget('ext.multimodelform.MultiModelForm',array(
                 'addItemText'   => Yii::t('coreMessages','add'),
@@ -902,14 +856,11 @@ Yii::import('ext.CountryCitySelectorRu.*');
                 'id'            => 'id_dancetype', //the unique widget id
                 'formConfig'    => $danceType->formConfig(), //the form configuration array
                 'model'         => $danceType, //instance of the form model
-
                 //if submitted not empty from the controller,
                 //the form will be rendered with validation errors
                 'validatedItems' => $validatedDanceTypes,
-
                 // ранее сохраненные стили танца
                 'data' => $questionary->dancetypes,
-                
                 // JS для корректного копирования элементов combobox
                 'jsAfterNewId' => 
                     MultiModelForm::afterNewIdComboBox($danceTypeFormConfig['elements']['dancetype'], 
@@ -946,26 +897,26 @@ Yii::import('ext.CountryCitySelectorRu.*');
               // При выборе пункта "вокал" полявляются дополнительные поля "тип вокала", "тембр голоса",
               // "уровень вокала" и "музыкальные ВУЗы"
               'after_on'  => 'js:function () {
-                                    $("#vocaltypes").fadeIn(200);
-                                    $("#voicetimbres").fadeIn(200);
-                                    $("#singlevel").fadeIn(200);
-                                    $("#musicuniversities").fadeIn(200);}',
+                    $("#vocaltypes").fadeIn(200);
+                    $("#voicetimbres").fadeIn(200);
+                    $("#singlevel").fadeIn(200);
+                    $("#musicuniversities").fadeIn(200);}',
               // При выключении пункта "вокал" убираются все поля, с ним связанные.
               // Поле "Музыкальные ВУЗы" убирается только если ниже в форме не выбран пункт "музыкант"
               // (так как у нас используется один список музыкальных ВУЗов для певцов и для музыкантов)
               'after_off' => 'js:function () {
-                                    $("#vocaltypes").fadeOut(200);
-                                    $("#voicetimbres").fadeOut(200);
-                                    $("#singlevel").fadeOut(200);
-                                    if ($("#Questionary_ismusician").attr("checked") != "checked" &&
-                                        $("#Questionary_ismusician").attr("checked") != true )
-                                        {
-                                            $("#musicuniversities").fadeOut(200);                                                                                  
-                                        }
-                                    }'
-                                                             ))
-                                               ));?>
-	
+                    $("#vocaltypes").fadeOut(200);
+                    $("#voicetimbres").fadeOut(200);
+                    $("#singlevel").fadeOut(200);
+                    if ($("#Questionary_ismusician").attr("checked") != "checked" &&
+                        $("#Questionary_ismusician").attr("checked") != true )
+                        {
+                            $("#musicuniversities").fadeOut(200);                                                                                  
+                        }
+                    }'
+                   ))
+           ));
+    ?>
     <div>
 	<fieldset id="vocaltypes" class="qform_subsection">
 	    <?php echo $form->labelEx($questionary,'type'); ?>
@@ -991,7 +942,6 @@ Yii::import('ext.CountryCitySelectorRu.*');
             	 ));
     	?>
     	<?php echo $form->error($questionary,'voicetimbre'); ?>
-
 	</fieldset>
 
     <div id="singlevel" class="qform_subsection">
@@ -1313,11 +1263,12 @@ Yii::import('ext.CountryCitySelectorRu.*');
            ?>
        </fieldset>
     </div>
-    
 	</fieldset>
 
 	<fieldset id="passportdata_part">
-	<legend id="passportdata_part_label"><?php echo QuestionaryModule::t('passport_data'); ?></legend>
+	    <legend id="passportdata_part_label">
+	        <a class="btn btn-large btn-warning"><i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('passport_data'); ?></a>
+	    </legend>
     	<?php
     	    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription',
     	        array('field' => 'passportdata'));
@@ -1396,12 +1347,12 @@ Yii::import('ext.CountryCitySelectorRu.*');
 		<?php echo $form->textFieldRow($address,'housing',array('size'=>3,'maxlength'=>16)); ?>
 
 		<?php echo $form->textFieldRow($address,'apartment',array('size'=>3,'maxlength'=>16)); ?>
-	</fieldset>
-
-	<!-- Конец полей паспортных данных -->
+	</fieldset><!-- Конец полей паспортных данных -->
 
     <fieldset id="conditions_part">
-        <legend id="conditions_part_label"><?php echo QuestionaryModule::t('recording_conditions_label'); ?></legend>
+        <legend id="conditions_part_label">
+            <a class="btn btn-large btn-warning"><i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('recording_conditions_label'); ?></a>
+        </legend>
             <?php  
 		    // Ночные съемки (да/нет)
             $this->widget('ext.EToggleBox.EToggleBox', array(
