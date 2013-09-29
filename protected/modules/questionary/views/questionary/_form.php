@@ -154,10 +154,14 @@ Yii::import('ext.CountryCitySelectorRu.*');
     // выводим специальный скрытый элемент, который каждую минуту посылает запрос на сайт, чтобы при длительном
     // заполнении анкеты не произошла потеря сессии и все данные не пропали
     $this->widget('ext.EHiddenKeepAlive.EHiddenKeepAlive', array(
-            'url' => Yii::app()->createAbsoluteUrl('//site/keepAlive'),
+            'url'    => Yii::app()->createAbsoluteUrl('//site/keepAlive'),
             'period' => 45,
         )
     );
+    // @todo раскрашиваем все подписи к полям (labels)
+    //$markLabelsJsId = '_qMarkLabelsAsBages';
+    //$markLabelsJs = '$("label")';
+    //$clientScriptManager->registerScript($markLabelsJsId, $markLabelsJs, CClientScript::POS_END);
 ?>
 	<p class="note">
         <?php echo Yii::t('coreMessages','form_required_fields', array('{mark}' => '<span class="required">*</span>')); ?>
