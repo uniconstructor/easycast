@@ -300,6 +300,8 @@ class Project extends CActiveRecord
 	/**
 	 * Получить список возможных менеджеров проекта для выпадающего меню
 	 * @return array
+	 * 
+	 * @todo заменить вызовом метода из модуля User
 	 */
 	public function getManagerList($emptyOption=false)
 	{
@@ -307,10 +309,9 @@ class Project extends CActiveRecord
 	    {
 	        $result = array(0 => 'Нет');
 	    }else
-       {
+        {
             $result = array();
         }
-	    
 	    
 	    $criteria = new CDbCriteria();
 	    $criteria->addCondition('superuser=1');
