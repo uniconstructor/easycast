@@ -16,6 +16,7 @@ class AdminController extends Controller
 			'accessControl', // perform access control for CRUD operations
 		));
 	}
+	
 	/**
 	 * Specifies the access control rules.
 	 * This method is used by the 'accessControl' filter.
@@ -25,14 +26,15 @@ class AdminController extends Controller
 	{
 		return array(
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete','create','update','view'),
-				'users'=>UserModule::getAdmins(),
+				'actions' => array('admin', 'delete', 'create', 'update', 'view'),
+				'users'   => UserModule::getAdmins(),
 			),
 			array('deny',  // deny all users
-				'users'=>array('*'),
+				'users' => array('*'),
 			),
 		);
 	}
+	
 	/**
 	 * Manages all models.
 	 */
@@ -57,7 +59,6 @@ class AdminController extends Controller
 		));//*/
 	}
 
-
 	/**
 	 * Displays a particular model.
 	 */
@@ -75,40 +76,59 @@ class AdminController extends Controller
 	 */
 	public function actionCreate()
 	{
-		$model=new User;
-		$profile=new Profile;
-		$this->performAjaxValidation(array($model,$profile));
-		if(isset($_POST['User']))
-		{
-			$model->attributes=$_POST['User'];
-			$model->activkey=Yii::app()->controller->module->encrypting(microtime().$model->password);
-			// $profile->attributes=$_POST['Profile'];
-			// $profile->user_id=0;
+		$model   = new User;
+		// @todo not create profile
+		$profile = new Profile;
+		
+		// AJAX validation goes first
+		$this->performAjaxValidation(array($model, $profile));
+		
+		if ( $attributes = Yii::app()->request->getPost('User') )
+		{// форма сохранена
+			$model->attributes = $attributes;
+			$model->activkey   = Yii::app()->controller->module->encrypting(microtime().$model->password);
+			
 			if ( ! trim($model->password) )
-			{// password not set - generate it
+			{// password not set - generating...
 			    $model->password = $model->generatePassword();
 			}
+			// store original password (for activation email)
 			$password = $model->password;
+			
 			if ( ! trim($model->username) )
-			{// login not set - geterate it
+			{// login not set - generating...
 			    $model->username = $model->getLoginByEmail($model->email);
 			}
-			if($model->validate()/*&&$profile->validate()*/) {
-			    $this->sendActivationEmail($model, $password);
-				$model->password=Yii::app()->controller->module->encrypting($model->password);
-				if($model->save()) {
-					//$profile->user_id=$model->id;
-					//$profile->save();
+			// узнаем, анкета из нашей базы или предоставлена партнером
+			$ownerId = Yii::app()->request->getPost('ownerId', 1);
+			
+			if ( $model->validate() )
+			{// data validated - creatig user
+				// hashing password
+			    $model->password = Yii::app()->controller->module->encrypting($model->password);
+			    if ( $ownerId AND $ownerId != 1 )
+			    {// анкета из партнерской базы - указываем партнера
+			        $model->setOwnerId($ownerId);
+			    }
+				if ( ! $model->save() )
+				{// error: user not created
+					throw new CHttpException(500, 'Ошибка при создании пользователя');
+					return;
 				}
-				
-				
-				$this->redirect(array('view','id'=>$model->id));
-			} /*else $profile->validate();*/
+				// отсылаем письмо с сылкой активации и паролем
+				$this->sendActivationEmail($model, $password, $ownerId);
+				// перенаправляем админа на страницу редактирования анкеты
+				$this->redirect(array('/questionary/questionary/update', 'id' => $model->questionary->id));
+			}
 		}
-
-		$this->render('create',array(
-			'model'=>$model,
-			'profile'=>$profile,
+		if ( $model->isNewRecord )
+		{// все созданные админом участники активируются автоматически
+		    $model->status = User::STATUS_ACTIVE;
+		}
+		// отрисовка формы
+		$this->render('create', array(
+			'model'   => $model,
+			'profile' => $profile,
 		));
 	}
 
@@ -144,7 +164,6 @@ class AdminController extends Controller
 		));
 	}
 
-
 	/**
 	 * Deletes a particular model.
 	 * If deletion is successful, the browser will be redirected to the 'index' page.
@@ -174,13 +193,12 @@ class AdminController extends Controller
      */
     protected function performAjaxValidation($validate)
     {
-        if(isset($_POST['ajax']) && $_POST['ajax']==='user-form')
+        if( isset($_POST['ajax']) && $_POST['ajax']==='user-form' )
         {
             echo CActiveForm::validate($validate);
             Yii::app()->end();
         }
     }
-	
 	
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.
@@ -188,28 +206,33 @@ class AdminController extends Controller
 	 */
 	public function loadModel()
 	{
-		if($this->_model===null)
+		if ( $this->_model === null )
 		{
-			if(isset($_GET['id']))
-				$this->_model=User::model()->notsafe()->findbyPk($_GET['id']);
-			if($this->_model===null)
-				throw new CHttpException(404,'The requested page does not exist.');
+			if ( isset($_GET['id']) )
+			{
+			    $this->_model = User::model()->notsafe()->findbyPk($_GET['id']);
+			}
+			if( $this->_model === null )
+			{
+			    throw new CHttpException(404, 'The requested page does not exist.');
+			}
 		}
 		return $this->_model;
 	}
 	
 	/**
-	 * @todo избавиться от дублирования кода
 	 * Отправить письмо с уведомлением о регистрации
 	 * @param User $model
 	 * @param string $password
+	 * @param int $ownerId - id пользователя (админа, партнера, или заказчика) который предоставил данные этой анкеты
 	 * @return null
+	 * 
+	 * @todo избавиться от дублирования кода
 	 */
-	public function sendActivationEmail($model, $password=null)
+	public function sendActivationEmail($model, $password=null, $ownerId=1)
 	{
-	    $activation_url = $this->createAbsoluteUrl(
-	    '/user/activation/activation',
-	    array("activkey" => $model->activkey, "email" => $model->email)
+	    $activation_url = $this->createAbsoluteUrl('/user/activation/activation',
+	        array("activkey" => $model->activkey, "email" => $model->email)
 	    );
 	     
 	    if ( Yii::app()->user->isSuperuser )
@@ -223,9 +246,9 @@ class AdminController extends Controller
         	    После этого вы получите доступ к нашему сервису а также сможете уточнить информацию о себе.<br>';
 	    }else
 	    {// Пользователь регистрируется сам - стандартное сообщение
-	        $theme = UserModule::t("You registered from {site_name}",array('{site_name}'=>Yii::app()->name));
+	        $theme   = UserModule::t("You registered from {site_name}",array('{site_name}'=>Yii::app()->name));
 	        $message = UserModule::t("Please activate you account go to {activation_url}",
-	        array('{activation_url}'=>$activation_url)
+	            array('{activation_url}'=>$activation_url)
 	        );
 	    }
 	    $message .= "<br><br>";

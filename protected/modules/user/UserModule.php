@@ -87,7 +87,7 @@ class UserModule extends CWebModule
 	 * @see http://www.yiiframework.com/doc/guide/database.arr
 	 */
 	public $relations = array(
-	        'questionary'=>array(CActiveRecord::HAS_ONE, 'Questionary', 'userid'),
+	        'questionary' => array(CActiveRecord::HAS_ONE, 'Questionary', 'userid'),
 	    );
 	
 	/**
@@ -126,6 +126,10 @@ class UserModule extends CWebModule
 	 */
 	public $componentBehaviors=array();
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see CModule::init()
+	 */
 	public function init()
 	{
 		// import the module-level models and components
@@ -135,18 +139,28 @@ class UserModule extends CWebModule
 		));
 	}
 	
+	/**
+	 * @param string $componentName
+	 * @return array
+	 */
 	public function getBehaviorsFor($componentName)
 	{
-        if (isset($this->componentBehaviors[$componentName])) {
+        if ( isset($this->componentBehaviors[$componentName]) )
+        {
             return $this->componentBehaviors[$componentName];
-        } else {
+        }else
+        {
             return array();
         }
 	}
 
+	/**
+	 * (non-PHPdoc)
+	 * @see CWebModule::beforeControllerAction()
+	 */
 	public function beforeControllerAction($controller, $action)
 	{
-		if(parent::beforeControllerAction($controller, $action))
+		if ( parent::beforeControllerAction($controller, $action) )
 		{
 			// this method is called before any module controller action is performed
 			// you may place customized code here
@@ -163,12 +177,15 @@ class UserModule extends CWebModule
 	 * @param $dic
 	 * @return string
 	 */
-	public static function t($str='',$params=array(),$dic='user')
+	public static function t($str='', $params=array(), $dic='user')
 	{
 		if (Yii::t("UserModule", $str)==$str)
+		{
 		    return Yii::t("UserModule.".$dic, $str, $params);
-        else
-            return Yii::t("UserModule", $str, $params);
+		}else
+		{
+		    return Yii::t("UserModule", $str, $params);
+		}
 	}
 	
 	/**
@@ -255,7 +272,7 @@ class UserModule extends CWebModule
 	 * @param user id not required
 	 * @return user object or false
 	 */
-	public static function user($id=0,$clearCache=false)
+	public static function user($id=0, $clearCache=false)
 	{
         if ( ! $id && ! Yii::app()->user->isGuest )
         {
@@ -306,15 +323,19 @@ class UserModule extends CWebModule
 	
 	/**
 	 * Получить список админов для выпадающего меню
-	 * @param bool $emptyOption - отображать ли пустое значение
+	 * @param bool|array $emptyOption - отображать ли пустое значение?
+	 *                                  Если передан массив - он подставится вместо первого элемента
 	 * @return array
 	 */
 	public static function getAdminList($emptyOption=false)
 	{
 	    $result = array();
-	    if ( $emptyOption )
+	    if ( $emptyOption === true )
 	    {
 	        $result = array(0 => 'Нет');
+	    }elseif ( is_array($emptyOption) )
+	    {
+	        $result = $emptyOption;
 	    }
 	    
 	    $criteria = new CDbCriteria();

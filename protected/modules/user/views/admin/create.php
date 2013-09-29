@@ -5,8 +5,8 @@ $this->breadcrumbs = array(
 );
 
 $this->menu=array(
-    array('label'=>UserModule::t('Manage Users'), 'url' => array('admin')),
-    array('label'=>UserModule::t('List User'), 'url' => array('/user')),
+    array('label'=>UserModule::t('List User'), 'url' => array('admin')),
+    //array('label'=>UserModule::t('List User'), 'url' => array('/user')),
 );
 ?>
 <h2><?php echo 'Новый участник'; ?></h2>

@@ -1,5 +1,11 @@
-<div class="form">
+<?php 
+/**
+ * Форма создания/редактирования пользователя
+ * @var User $model
+ */
 
+?>
+<div class="form">
 <?php 
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 	'id'                   => 'user-form',
@@ -12,10 +18,14 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 	<?php echo $form->textFieldRow($model, 'email', array('autocomplete' => 'off', 'maxlength' => 255)); ?>
 	<?php echo $form->dropDownListRow($model, 'superuser', User::itemAlias('AdminStatus')); ?>
 	<?php echo $form->dropDownListRow($model, 'status', User::itemAlias('UserStatus')); ?>
-	<?php // источник данных (или "владелец анкеты"). Кого указать в качестве "автора" анкеты
+	<?php // источник данных (или "владелец анкеты"). Кого указать в качестве "автора" анкеты?
         // 823 - это номер пользователя Светланы (стоит здесь по умолчанию на время ввода ее базы)
-        echo CHtml::label('Источник данных:', 'ownerId');
-	    echo CHtml::dropDownList('ownerId', 823, UserModule::getAdminList());
+        // используется если мы вводим анкеты не из своей базы, а из чужой (по договоренности)
+        if ( $model->isNewRecord )
+        {// источник данных указывается только при создании
+            echo CHtml::label('Источник данных:', 'ownerId');
+            echo CHtml::dropDownList('ownerId', User::getDefaultOwnerId(), UserModule::getAdminList(array('0' => 'easyCast (наша анкета)')));
+        }
     ?>
     <br>
 	<?php 

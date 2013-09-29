@@ -18,8 +18,8 @@ $this->menu=array(
                     ),
             'confirm'=>UserModule::t('Are you sure to delete this item?'),
             'csrf' => true)),
-    array('label'=>UserModule::t('Manage Users'), 'url'=>array('admin')),
-    array('label'=>UserModule::t('List User'), 'url'=>array('/user')),
+    array('label'=>UserModule::t('List User'), 'url'=>array('admin')),
+    //array('label'=>UserModule::t('List User'), 'url'=>array('/user')),
 );
 ?>
 <h1><?php echo UserModule::t('View User').' "'.Yii::app()->getModule('user')->user($model->id)->fullname.'"'; ?></h1>

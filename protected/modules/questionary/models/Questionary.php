@@ -75,6 +75,7 @@
  * @property integer $encrypted
  * @property integer $rating
  * @property integer $hastatoo
+ * @property integer $ownerid
  * 
  * Relations (single):
  * @property User $user 
@@ -97,6 +98,7 @@
 class Questionary extends CActiveRecord
 {
     // размеры одежды "меньше 36" и "больше 56" (как они хранятся в базе данных) 
+    // @deprecated - оставлено для совместимости
     const WEARSIZE_MIN = 1;
     const WEARSIZE_MAX = 99;
     
@@ -152,7 +154,7 @@ class Questionary extends CActiveRecord
                     ismusician, issportsman, isextremal, isathlete, hasskills, hastricks, 
                     haslanuages, hasinshurancecard, countryid, nativecountryid,
                     shoessize, passportdate, rating, hastatoo, playagemin, playagemax,
-                    istheatreactor, ismediaactor',
+                    istheatreactor, ismediaactor, ownerid',
                    'numerical', 'integerOnly'=>true),
             array('firstname, lastname, middlename, city, inshurancecardnum', 'length', 'max'=>128),
             
@@ -370,6 +372,8 @@ class Questionary extends CActiveRecord
     /**
      * @see CActiveRecord::afterSave()
      * @return null
+     * 
+     * @todo добавить исключения если связанные записи не создались
      */
     protected function afterSave()
     {
@@ -952,7 +956,7 @@ class Questionary extends CActiveRecord
             $filled = true;
         }
         
-        if ( ! Yii::app()->user->isSuperuser OR ! $filled )
+        if ( ! Yii::app()->user->checkAccess('Admin') OR ! $filled )
         {// Эта функция используется только если анкету заполняет админ и только при первом сохранении анкеты
             return;
         }
@@ -960,24 +964,28 @@ class Questionary extends CActiveRecord
         // Тема и текст письма
         $theme = 'Ввод данных завершен';
         $message = 'Добрый день.
-                Мы закончили создание вашей анкеты. Пожалуйства проверьте правильность введенных нами данных.';
+                Мы закончили создание вашей анкеты. Пожалуйста проверьте правильность введенных нами данных.';
         $message .= "<br><br>";
-        $message .= "Вы можете просмотреть свою анкету по адресу: ".$questionaryUrl;
+        $message .= "Вы можете просмотреть и отредактировать свою анкету по адресу: ".$questionaryUrl;
         $message .= "<br><br>";
+        $message .= "Для редактирования анкеты нужно войти на сайт.";
         $message .= "<br><br>";
-        $message .= UserModule::t("Please activate you account go to {activation_url}",
-                array('{activation_url}'=>$activationUrl)
+        if ( $user->status == User::STATUS_NOACTIVE )
+        {// если участник еще не активирован - пришлем ему ссылку активации
+            $message .= UserModule::t("Please activate you account go to {activation_url}",
+                array('{activation_url}' => $activationUrl)
             );
-        $message .= "<br><br>";
+            $message .= "<br><br>";
+        }
         $message .= "С уважением, команда проекта EasyCast";
         
         // отсылаем письмо
         UserModule::sendMail($user->email, $theme, $message);
         // запоминаем кто ввел анкету
         $history = new QCreationHistory();
-        $history->userid = Yii::app()->user->id;
+        $history->userid        = Yii::app()->user->id;
         $history->questionaryid = $this->id;
-        $history->timecreated = time();
+        $history->timecreated   = time();
         $history->save();
     }
     

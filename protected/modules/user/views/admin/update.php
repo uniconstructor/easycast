@@ -7,8 +7,9 @@ $this->breadcrumbs=array(
 $this->menu=array(
     array('label'=>UserModule::t('Create User'), 'url'=>array('create')),
     array('label'=>UserModule::t('View User'), 'url'=>array('view','id'=>$model->id)),
-    array('label'=>UserModule::t('Manage Users'), 'url'=>array('admin')),
-    array('label'=>UserModule::t('List User'), 'url'=>array('/user')),
+    array('label'=>QuestionaryModule::t('edit_questionary'), 'url'=>array('/questionary/questionary/update/id/'.$model->questionary->id)),
+    array('label'=>UserModule::t('List User'), 'url'=>array('admin')),
+    //array('label'=>UserModule::t('List User'), 'url'=>array('/user')),
 );
 ?>
 

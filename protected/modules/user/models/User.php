@@ -20,9 +20,10 @@ class User extends CActiveRecord
 	const STATUS_NOACTIVE=0;
 	const STATUS_ACTIVE=1;
 	const STATUS_BANNED=-1;
-	
 	//TODO: Delete for next version (backward compatibility)
 	const STATUS_BANED=-1;
+	
+	protected $_ownerId = 1;
 	
 	/**
 	 * Returns the static model of the specified AR class.
@@ -55,8 +56,8 @@ class User extends CActiveRecord
 			array('username', 'unique', 'message' => UserModule::t("This user's name already exists.")),
 			array('email', 'unique', 'message' => UserModule::t("This user's email address already exists.")),
 			array('username', 'match', 'pattern' => '/^[A-Za-z0-9_\.()-]+$/u','message' => UserModule::t("Incorrect symbols (A-z0-9).")),
-			array('status', 'in', 'range'=>array(self::STATUS_ACTIVE,self::STATUS_NOACTIVE,self::STATUS_BANNED)),
-			array('superuser', 'in', 'range'=>array(0,1)),
+			array('status', 'in', 'range' => array(self::STATUS_ACTIVE,self::STATUS_NOACTIVE,self::STATUS_BANNED)),
+			array('superuser', 'in', 'range' => array(0,1)),
             array('create_at', 'default', 'value' => date('Y-m-d H:i:s'), 'setOnEmpty' => true, 'on' => 'insert'),
             array('lastaccess', 'default', 'value' => '0000-00-00 00:00:00', 'setOnEmpty' => true, 'on' => 'insert'),
 		    array('firstaccess', 'default', 'value' => '0', 'setOnEmpty' => true, 'on' => 'insert'),
@@ -71,8 +72,8 @@ class User extends CActiveRecord
 			array('username', 'unique', 'message' => UserModule::t("This user's name already exists.")),
 			array('username', 'match', 'pattern' => '/^[A-Za-z0-9_\.()-]+$/u','message' => UserModule::t("Incorrect symbols (A-z0-9).")),
 			array('email', 'unique', 'message' => UserModule::t("This user's email address already exists.")),
-			array('policyagreed', 'in', 'range'=>array(0,1)),
-		):array(array('policyagreed', 'in', 'range'=>array(0,1)))));
+			array('policyagreed', 'in', 'range' => array(0,1)),
+		):array(array('policyagreed', 'in', 'range' => array(0,1)))));
 	}
 
 	/**
@@ -108,9 +109,22 @@ class User extends CActiveRecord
 	{
 	    if ( $this->isNewRecord )
 	    {// при создании пользователя автоматически создаем для него пустую анкету
+	        $ownerId     = $this->getOwnerId();
 	        $questionary = new Questionary();
-	        $questionary->userid = $this->id;
-	        $questionary->save();
+	        $questionary->userid  = $this->id;
+	        // по умолчанию анкету считаем введенными из своей базы (записываем владельцем админа)
+	        $questionary->ownerid = $ownerId;
+	        if ( $ownerId != 1 )
+	        {// вводим анкету из партнерской базы - запомним кому она принадлежит
+	            $questionary->ownerid = $ownerId;
+	        }
+	        if ( ! $questionary->save() )
+	        {// если анкету не удалось сохранить - удалим созданного пользователя, чтобы не
+	            // оставлять в базе битые данные
+	            $this->delete();
+	            throw new CException('Не удалось сохранить сохранить анкету участника');
+	            return;
+	        }
 	    }
 	    // назначаем пользователю роль по умолчанию или меняем ее если она изменилась
 	    $this->setUpRoles();
@@ -397,5 +411,33 @@ class User extends CActiveRecord
         }
         
         return $newLogin;
+    }
+    
+    /**
+     * @param int $value
+     * @return null
+     */
+    public function setOwnerId($value)
+    {
+        $this->_ownerId = $value;
+    }
+    
+    /**
+     * @return number
+     */
+    public function getOwnerId()
+    {
+        return $this->_ownerId;
+    }
+    
+    /**
+     * Получить id источника анкет по умолчанию (userid)
+     * 823 - это номер пользователя (userid) Светланы (он стоит здесь на время ввода ее базы)
+     * используется если мы вводим анкеты не из своей базы, а из чужой (по договоренности)
+     * @return number
+     */
+    public static function getDefaultOwnerId()
+    {
+        return 823;
     }
 }

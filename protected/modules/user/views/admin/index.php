@@ -1,14 +1,14 @@
 <?php
 $this->breadcrumbs=array(
-	UserModule::t('Users')=>array('/user'),
+	UserModule::t('Users') => array('/user'),
 	UserModule::t('Manage'),
 );
 
 $this->menu=array(
-    array('label'=>UserModule::t('Create User'), 'url'=>array('create')),
-    array('label'=>UserModule::t('Manage Users'), 'url'=>array('admin')),
+    array('label'=>UserModule::t('Create'), 'url'=>array('create')),
+    //array('label'=>UserModule::t('Manage Users'), 'url'=>array('admin')),
     //array('label'=>UserModule::t('Manage Profile Field'), 'url'=>array('profileField/admin')),
-    array('label'=>UserModule::t('List User'), 'url'=>array('/user')),
+    //array('label'=>UserModule::t('List User'), 'url'=>array('/user')),
 );
 
 Yii::app()->clientScript->registerScript('search', "
