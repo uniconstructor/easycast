@@ -59,8 +59,10 @@ class EMailSegment extends CWidget
     public function run()
     {
         switch ( $this->type )
-        {// отображаем абзац текста
-            case 'textOnly': $this->displayTextOnly(); break;
+        {// определяем, в каком виде отобразить блок письма
+            // абзац текста
+            case 'textOnly':  $this->displayTextOnly(); break;
+            case 'imageLeft': $this->displayImageLeft(); break;
         }
         if ( ! empty($this->button) )
         {// отображаем кнопку с действием под абзацем
@@ -74,12 +76,21 @@ class EMailSegment extends CWidget
     }
     
     /**
-     * Отобразить фрагмент письма в формате "только текст"
-     * 
+     * Отобразить фрагмент (блок) письма в формате "только текст"
+     * (содержимое фрагмента берется из полей виджета)
      * @return null
      */
     public function displayTextOnly()
     {
         $this->render('textOnly/text');
+    }
+    
+    /**
+     * Отобразить фрагмент (блок) письма в формате "картинка слева"
+     * @return null
+     */
+    public function displayImageLeft()
+    {
+        $this->render('imageLeft/left');
     }
 }
