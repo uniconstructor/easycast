@@ -59,7 +59,7 @@ class MailController extends Controller
     public function actionTest()
     {
         $invite = EventInvite::model()->findByPk(650);
-        echo $this->createNewInviteMailText($invite);
+        echo MailComposerModule::getMessage('newInvite', array('invite' => $invite));
     }
     
     /**
