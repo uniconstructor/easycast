@@ -1,9 +1,10 @@
 <?php
 /**
- * Вывести раздел с изображением слева
+ * Вывести блок письма с изображением слева
+ * @var EMailSegment $this
  */
 ?>
-<layout label="Text with left-aligned image">
+<layout>
 <table class="w580" width="580" border="0" cellpadding="0"
     cellspacing="0">
     <tbody>
@@ -33,7 +34,11 @@
                 </table>
                 <?php 
                 // Выводим параграф текста (align=left)
-                $this->render('misc/_text');
+                $this->render('misc/_text', array(
+                    'align'     => 'left',
+                    'text'      => $this->text,
+                    'textColor' => $this->textColor,
+                ));
                 ?>
             </td>
         </tr>

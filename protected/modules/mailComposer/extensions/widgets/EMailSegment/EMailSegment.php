@@ -39,6 +39,10 @@ class EMailSegment extends CWidget
      * @var array - кнопка с действием (если нужна). Массив, содержащий настройки для создания виджета EMailButton
      */
     public $button = array();
+    /**
+     * @var string - цвет текста в блоке
+     */
+    public $textColor = '#ffffff';
     
     /**
      * (non-PHPdoc)

@@ -4,5 +4,5 @@
  */
 ?>
 <p class="article-title" align="<?= $align; ?>">
-    <singleline label="Title"><h3><?= $title; ?></h3></singleline>
+    <h3 style="color:<?= $this->textColor; ?>;"><?= $title; ?></h3>
 </p>
