@@ -136,4 +136,30 @@ class MailComposer extends CApplicationComponent
             'userHasFirstAccess'       => true,
         );
     }
+    
+    /**
+     * Получить массив для создания текстового блока письма 
+     * @param string $text - текст в блоке
+     * @param string $header - заголовок блока (необязательно)
+     * @param array|nill $editBlock - блок, который нужно дополнить
+     * @return array
+     */
+    public function textBlock($text, $header='', $editBlock=null)
+    {
+        if ( is_array($editBlock) AND ! empty($editBlock) )
+        {
+            $block = $editBlock;
+            $block['text'] .= $text;
+        }else
+        {
+            $block = array('text' => $text);
+        }
+        
+        if ( trim($header) )
+        {// заголовок всегда обновляем
+            $block['header'] = $header;
+        }
+        
+        return $block;
+    }
 }
