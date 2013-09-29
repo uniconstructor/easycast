@@ -82,7 +82,7 @@ if ( $canEdit )
                 'previews'    => $questionary->getBootstrapPhotos('small'),
                 'photos'      => $questionary->getBootstrapPhotos('medium'),
                 'largePhotos' => $questionary->getBootstrapPhotos('large'),
-                ));
+            ));
         ?>
         </div>
     </div>
@@ -92,19 +92,18 @@ if ( $canEdit )
                 <?php 
                 // выводим список умений и достижений участника 
                 $this->widget('application.modules.questionary.extensions.widgets.QUserBages.QUserBages', array(
-                                'bages' => $questionary->bages,
+                    'bages' => $questionary->bages,
                 ));
                 ?>
             </div>
         </div>
-        
         <div class="row">
             <div class="span7">
             <?php 
             // Выводим всю остальную информацию о пользователе
             $this->widget('application.modules.questionary.extensions.widgets.QUserInfo.QUserInfo', array(
-                    'questionary' => $questionary,
-                    'activeTab'   => $activeTab,
+                'questionary' => $questionary,
+                'activeTab'   => $activeTab,
             ));
             ?>
             </div>
@@ -112,7 +111,11 @@ if ( $canEdit )
     </div>
 </div>
 <?php  
-
-//CVarDumper::dump(Yii::app()->session, 10, true);
-//CVarDumper::dump($_SESSION, 10, true);
+if ( Yii::app()->user->checkAccess('Admin') )
+{// если админы вводят много анкет подряд - упростим им задачу, добавив кнопку внизу
+    $newUserLink = CHtml::link('<i class="icon-plus icon-large"></i>&nbsp;Добавить еще анкету', 
+        Yii::app()->createUrl('//user/admin/create'/*, array('lastId' => $questionary->id)*/),
+        array('class' => 'btn btn-large btn-warning'));
+    echo '<div class="row span12" style="text-align:center;">'.$newUserLink.'</div>';
+}
 ?>
