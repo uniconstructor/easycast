@@ -344,9 +344,7 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
     public function setStatus($newStatus)
     {
         $this->owner->status = $newStatus;
-        $this->owner->save();
-        
-        return true;
+        return $this->owner->save();
     }
     
     /**
@@ -363,10 +361,15 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
         return QuestionaryModule::t('status_'.$status);
     }
     
+    /**
+     * Сохранить комментарий админа к анкете 
+     * @param string $comment
+     * @return boolean
+     */
     public function setAdmincomment($comment)
     {
         $this->owner->admincomment = CHtml::encode($comment);
-        $this->owner->save();
+        return $this->owner->save();
     }
     
     /**
