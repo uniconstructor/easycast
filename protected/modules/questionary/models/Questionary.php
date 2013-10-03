@@ -97,19 +97,69 @@
  */
 class Questionary extends CActiveRecord
 {
-    // размеры одежды "меньше 36" и "больше 56" (как они хранятся в базе данных) 
-    // @deprecated - оставлено для совместимости
+    /**
+     * @var string - статус анкеты: черновик
+     *               Анкета только что создана и еще не заполнена
+     */
+    const STATUS_DRAFT    = 'draft';
+    /**
+     * @var string - статус анкеты: проверена
+     *               Анкета проверена и одобрена модератором
+     *               Видна в каталоге и поиске
+     */
+    const STATUS_ACTIVE   = 'active';
+    /**
+     * @var string - статус анкеты: ожидает проверки
+     *               В анкете были изменены какие-то важные данные и она была отправлена на модерацию
+     */
+    const STATUS_PENDING  = 'pending';
+    /**
+     * @var string - статус анкеты: отложена.
+     *               Анкета была не до конца заполнена оператором и отложена, чтобы заполнить ее позднее
+     *               В каталоге и поиске не отображается.
+     */
+    const STATUS_DELAYED  = 'delayed';
+    /**
+     * @var string - статус анкеты: отклонена
+     *               Анкеты была проверена администратором и отправлена на доработку
+     */
+    const STATUS_REJECTED = 'rejected';
+    /**
+     * @var string - статус анкеты: еще не подтверждена участником.
+     *               Используется только если анкеты заводятся без обзвона людей.
+     *               (например, кто-то поделился с нами своей базой и мы отсылаем специальные приглашения,
+     *               в которых нужно подтверлить либо отказаться от созданной анкеты)
+     *               Если анкета находится в этом статусе - это означает, что она уже была введена оператором,
+     *               но мы еще не получили от участника согласие на размещение его данных.
+     */
+    const STATUS_UNCONFIRMED = 'unconfirmed';
+    
+    /**
+     * @var string - размер одежды "меньше 36" (как он хранится в базе данных)
+     */
     const WEARSIZE_MIN = 1;
+    /**
+     * @var string - размер одежды "больше 56" (как он хранится в базе данных)
+     */
     const WEARSIZE_MAX = 99;
     
-    // размеры обуви "меньше 36" и "больше 45" (как они хранятся в базе данных)
+    /**
+     * @var string - размер обуви "меньше 36" (как он хранится в базе данных)
+     */
     const SHOESSIZE_MIN = 1;
+    /**
+     * @var string - размер обуви "больше 45" (как он хранится в базе данных)
+     */
     const SHOESSIZE_MAX = 99;
     
-    // Значение стоящее в select-списках на пункте "выбрать"
+    /**
+     * @var string - значение стоящее в select-списках на пункте "выбрать"
+     */
     const VALUE_NOT_SET = "";
     
-    // отображаемое количество последних приглашений
+    /**
+     * @var string - отображаемое количество последних приглашений
+     */
     const LAST_INVITES_COUNT = 20;
     
     /**
@@ -168,18 +218,26 @@ class Questionary extends CActiveRecord
             array('gender, height, weight, wearsize, looktype, haircolor, eyecolor,
                     physiquetype, titsize, chestsize, waistsize, hipsize, striptype
                     striplevel, singlevel, wearsize, status', 'safe'),
-            
             // @todo добавить проверку сложных значений
             array('voicetimbre, addchar, parodist, twin, vocaltype, sporttype, extremaltype, trick, skill', 'safe'),
-            // @todo удалить этот список полей, он не пригодился
-            /* array('id, userid, mainpictureid, firstname, lastname, middlename, birthdate, 
-                    gender, timecreated, timefilled, timemodified, height, weight, wearsizemin, wearsizemax, 
-                    shoessize, city, cityid, mobilephone, homephone, addphone, vkprofile, looktype, haircolor, 
-                    eyecolor, physiquetype, isactor, hasfilms, isemcee, isparodist, istwin, ismodel, isphotomodel, ispromomodel, titsize,
-                    chestsize, waistsize, hipsize, isdancer, hasawards, isstripper, striptype,
-                    striplevel, issinger, singlevel, ismusician, issportsman,
-                    isextremal, isathlete, hasskills, hastricks, haslanuages, wantsbusinesstrips,  
-                    countryid, hasinshurancecard, hasforeignpassport, passportexpires, wearsize', 'safe', 'on'=>'search'),*/
+        );
+    }
+    
+    /**
+     * Группы условий поиска
+     * @see CActiveRecord::scopes()
+     */
+    public function scopes()
+    {
+        return array(
+            // только подтвержденные (одобренные модератором) анкеты
+            'active' => array(
+                'condition' => "`status` = '".self::STATUS_ACTIVE."'"
+            ),
+            // только те анкеты, которые могут подавать заявки
+            'admitted' => array(
+                'condition' => "`status` IN ('".self::STATUS_ACTIVE."','".self::STATUS_PENDING."','".self::STATUS_REJECTED."')"
+            ),
         );
     }
 
@@ -190,6 +248,7 @@ class Questionary extends CActiveRecord
     {
         return array(
             // Связи обычных значений с другими таблицами
+            
             // ссылка на пользователя системы
             'user'    => array(self::BELONGS_TO, Yii::app()->getModule('questionary')->userClass, 'userid'),
             // город проживания
@@ -277,12 +336,12 @@ class Questionary extends CActiveRecord
             // Участие во всех мероприятиях (подтвержденные заявки)
             'memberinstances' => array(self::HAS_MANY, 'ProjectMember', 'memberid', 
                 'condition' => "`memberinstances`.`status` IN ('active', 'finished', 'succeed', 'failed')"),
-            // Активность в текущих мероприятиях
+            // Активность в текущих мероприятиях (предстоящие съемки)
             'activememberinstances' => array(self::HAS_MANY, 'ProjectMember', 'memberid', 
                 'condition' => "`activememberinstances`.`status`='active'"),
             // История участия во всех прошедших мероприятиях
             'finishedmemberinstances' => array(self::HAS_MANY, 'ProjectMember', 'memberid', 
-                'condition' => "`finishedmemberinstances`.`status`='finished'"),
+                'condition' => "`finishedmemberinstances`.`status` IN ('active', 'finished', 'succeed', 'failed')"),
             // @todo Проекты, (сделать связь типа "мост" + DISTINCT)
             
             
@@ -290,7 +349,7 @@ class Questionary extends CActiveRecord
             // Все заявки на участие в мероприятиях
             'requestsCount' => array(self::STAT, 'MemberRequest', 'memberid'),
             // Предварительно одобренные заявки на участие
-            'pendingRequestsCount' => array(self::HAS_MANY, 'ProjectMember', 'memberid',
+            'pendingRequestsCount' => array(self::STAT, 'ProjectMember', 'memberid',
                 'condition' => "`status`='pending'"),
             // Новые (еще не просмотренные) приглашения на мероприятия
             'invitesCount' => array(self::STAT, 'EventInvite', 'questionaryid',
@@ -542,86 +601,6 @@ class Questionary extends CActiveRecord
             'photos' => QuestionaryModule::t('photos_label'),
         );
     }
-
-    /**
-     * Retrieves a list of models based on the current search/filter conditions.
-     * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
-     * 
-     * @todo удалить при рефакторинге если не понадобится
-     */
-    /*public function search()
-    {
-        $criteria=new CDbCriteria;
-
-        $criteria->compare('id',$this->id);
-        $criteria->compare('firstname',$this->firstname,true);
-        $criteria->compare('lastname',$this->lastname,true);
-        $criteria->compare('middlename',$this->middlename,true);
-        $criteria->compare('birthdate',$this->birthdate);
-        $criteria->compare('gender',$this->gender,true);
-        $criteria->compare('timecreated',$this->timecreated,true);
-        $criteria->compare('timefilled',$this->timefilled,true);
-        $criteria->compare('timemodified',$this->timemodified,true);
-        $criteria->compare('height',$this->height,true);
-        $criteria->compare('weight',$this->weight,true);
-        $criteria->compare('wearsizemin',$this->wearsizemin,true);
-        $criteria->compare('wearsizemax',$this->wearsizemax,true);
-        $criteria->compare('shoessize',$this->shoessize,true);
-        $criteria->compare('city',$this->city,true);
-        $criteria->compare('cityid',$this->city);
-        $criteria->compare('mobilephone',$this->mobilephone,true);
-        $criteria->compare('homephone',$this->homephone,true);
-        $criteria->compare('addphone',$this->addphone,true);
-        $criteria->compare('vkprofile',$this->vkprofile,true);
-        $criteria->compare('looktype',$this->looktype);
-        $criteria->compare('haircolor',$this->haircolor);
-        $criteria->compare('iscoloredhair',$this->iscoloredhair);
-        $criteria->compare('eyecolor',$this->eyecolor);
-        $criteria->compare('physiquetype',$this->physiquetype);
-        $criteria->compare('isactor',$this->isactor);
-        $criteria->compare('hasfilms',$this->hasfilms);
-        $criteria->compare('isemcee',$this->isemcee);
-        $criteria->compare('isparodist',$this->isparodist);
-        $criteria->compare('istwin',$this->istwin);
-        $criteria->compare('ismodel',$this->ismodel);
-        $criteria->compare('titsize',$this->titsize,true);
-        $criteria->compare('chestsize',$this->chestsize,true);
-        $criteria->compare('waistsize',$this->waistsize,true);
-        $criteria->compare('hipsize',$this->hipsize,true);
-        $criteria->compare('isdancer',$this->isdancer);
-        $criteria->compare('hasawards',$this->hasawards);
-        $criteria->compare('isstripper',$this->isstripper);
-        $criteria->compare('striptype',$this->striptype,true);
-        $criteria->compare('striplevel',$this->striplevel,true);
-        $criteria->compare('issinger',$this->issinger);
-        $criteria->compare('singlevel',$this->singlevel,true);
-        $criteria->compare('ismusician',$this->ismusician);
-
-        $criteria->compare('issportsman',$this->issportsman);
-        $criteria->compare('isextremal',$this->isextremal);
-        $criteria->compare('isathlete',$this->isathlete);
-        $criteria->compare('hasskills',$this->hasskills);
-        $criteria->compare('hastricks',$this->hastricks);
-        $criteria->compare('haslanuages',$this->haslanuages);
-        $criteria->compare('wantsbusinesstrips',$this->wantsbusinesstrips);
-        $criteria->compare('countryid',$this->countryid,true);
-        $criteria->compare('hasinshurancecard',$this->hasinshurancecard);
-        $criteria->compare('inshurancecardnum',$this->inshurancecardnum,true);
-        $criteria->compare('hasforeignpassport',$this->hasforeignpassport);
-        $criteria->compare('passportexpires',$this->passportexpires,true);
-        $criteria->compare('passportserial',$this->passportserial,true);
-        $criteria->compare('passportnum',$this->passportnum,true);
-        $criteria->compare('passportdate',$this->passportdate,true);
-        $criteria->compare('passportorg',$this->passportorg,true);
-        $criteria->compare('addressid',$this->addressid,true);
-        $criteria->compare('policyagreed',$this->policyagreed);
-        $criteria->compare('status',$this->status,true);
-        $criteria->compare('encrypted',$this->encrypted);
-
-        return new CActiveDataProvider($this, array(
-            'criteria'=>$criteria,
-        ));
-    }*/
 
     /**
      * Получить список достижений и умений участника: спортсмен, актер, атлет, и т. д.
@@ -1001,10 +980,7 @@ class Questionary extends CActiveRecord
     {
         $old = $this::model()->findByPk($this->id);
         $new = $this;
-        if ( ! $this->timemodified )
-        {// анкета еще ни разу не сохранялась
-            return true;
-        }
+        
         if ( $old->status == 'delayed' AND $old->status != $new->status )
         {// анкета перестает быть отложеной
             return true;
@@ -1013,7 +989,37 @@ class Questionary extends CActiveRecord
         {// сохраняется черновик анкеты, и анкета не откладывается администратором чтобы заполнить позже
             return true;
         }
+        if ( ! $this->timemodified )
+        {// анкета еще ни разу не сохранялась
+            return true;
+        }
         
+        return false;
+    }
+    
+    /**
+     * Подтверждена ли анкета модератором?
+     * @return bool
+     */
+    public function isVerified()
+    {
+        if ( self::STATUS_ACTIVE == $this->status )
+        {
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Разрешено ли участнику подавать заявку на роль? 
+     * @return boolean
+     */
+    public function isAdmitted()
+    {
+        if ( in_array($this->status, array(self::STATUS_ACTIVE, self::STATUS_PENDING, self::STATUS_REJECTED)) )
+        {
+            return true;
+        }
         return false;
     }
     
