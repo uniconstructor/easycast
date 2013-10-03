@@ -22,6 +22,13 @@ class UserModule extends CWebModule
      */
     const USE_AMAZON_API = false;
     
+    /**
+     * @var string - тип восстановления пароля:
+     *               form - на почту приходит ссылка с предложением задать новый пароль
+     *               text - на почту сразу приходит автоматически созданный пароль
+     */
+    public $recoveryType = 'text';
+    
 	/**
 	 * @var int
 	 * @desc items on page
