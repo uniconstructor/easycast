@@ -168,7 +168,6 @@ class ProjectInfo extends CWidget
         if ( $this->eventId )
         {// отображается мероприятие
             $title = CHtml::encode($this->event->name);
-            $title .= ' '.date('Y/m/d', $this->event->timestart);
             $title .= ' '.$this->event->getFormattedTimePeriod();
             if ( $this->linkTitle )
             {// показываем название как ссылку
@@ -332,6 +331,12 @@ class ProjectInfo extends CWidget
         return $content;
     }
     
+    /**
+     * Получить полное описание проекта (для участника или заказчика)
+     * Если нет нужного - подставляет хотя бы какое-нибудь
+     * @param Project $project
+     * @return string
+     */
     protected function getProjectDescription($project)
     {
         if ( ! $result = $this->project->description )
