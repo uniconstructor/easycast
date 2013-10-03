@@ -17,11 +17,11 @@ return CMap::mergeArray(
             ),
             'log' => array(
                 'routes'=> array(
-                        array(
+                        /*array(
                          'class'=>'CEmailLogRoute',
                             'levels'=>'error, warning',
                             'emails'=>'php1602agregator@gmail.com',
-                        ),
+                        ),*/
                         array(
                             'class'=>'ext.yii-debug-toolbar.YiiDebugToolbarRoute',
                             'ipFilters'=>array('127.0.0.1','192.168.1.215'),
@@ -50,7 +50,7 @@ return CMap::mergeArray(
             
             // S3
             // Использовать хостинг amazon s3 для хранения картинок
-            'useAmazonS3'   => true,
+            'useAmazonS3'   => false,
             'AWSBucket'     => 'test.easycast.ru',
             'AWSBucketPath' => 'http://test.easycast.ru.s3.amazonaws.com',
             // SES
