@@ -138,10 +138,11 @@ class ProjectMember extends CActiveRecord
 	 * (non-PHPdoc)
 	 * @see CActiveRecord::defaultScope()
 	 */
-	public function defaultScope()
+    public function defaultScope()
 	{
 	    return array(
-	        'order' => 'timecreated DESC');
+	        'order' => '`timecreated` DESC',
+	    );
 	}
 
 	/**
@@ -155,8 +156,38 @@ class ProjectMember extends CActiveRecord
 			array('status', 'length', 'max'=>9),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, memberid, vacancyid, timecreated, timemodified, managerid, request, responce, timestart, timeend, status', 'safe', 'on'=>'search'),
+			//array('id, memberid, vacancyid, timecreated, timemodified, managerid, request, responce, timestart, timeend, status', 'safe', 'on'=>'search'),
 		);
+	}
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see CActiveRecord::scopes()
+	 */
+	public function scopes()
+	{
+	    return array(
+    	    // только поданные заявки
+    	    'draft' => array(
+    	        'condition' => "`status` = '".self::STATUS_DRAFT."'"
+    	    ),
+    	    // только подтвержденные заявки
+    	    'active' => array(
+    	        'condition' => "`status` = '".self::STATUS_ACTIVE."'"
+    	    ),
+    	    // только предварительно одобренные заявки
+    	    'pending' => array(
+    	        'condition' => "`status` = '".self::STATUS_PENDING."'"
+    	    ),
+    	    // только предварительно одобренные заявки
+    	    'rejected' => array(
+    	        'condition' => "`status` = '".self::STATUS_REJECTED."'"
+    	    ),
+    	    // только ждущие заявки (поданные или предварительно одобренные)
+    	    'waiting' => array(
+    	        'condition' => "`status` IN ('".self::STATUS_DRAFT."', '".self::STATUS_PENDING."')"
+    	    ),
+        );
 	}
 
 	/**
@@ -165,7 +196,9 @@ class ProjectMember extends CActiveRecord
 	public function relations()
 	{
 		return array(
+		    // @todo неудачное название для связи: оставить только для совместимости, а затем удалить
 		    'member'  => array(self::BELONGS_TO, 'Questionary', 'memberid'),
+		    // @todo заменить все использования связи member на questionary
 		    'questionary' => array(self::BELONGS_TO, 'Questionary', 'memberid'),
 		    'manager' => array(self::BELONGS_TO, 'User', 'managerid'),
 		    'vacancy' => array(self::BELONGS_TO, 'EventVacancy', 'vacancyid'),
