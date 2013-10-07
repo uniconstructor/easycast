@@ -31,7 +31,7 @@ if ( $model->status == EventVacancy::STATUS_DRAFT )
 }
 if ( in_array('active', $model->getAllowedStatuses()) )
 {// ссылка на активацию вакансии
-    $this->menu[] = array('label'=>'Открыть вакансию',
+    $this->menu[] = array('label' => 'Открыть вакансию',
         'url' => array('/admin/eventVacancy/setStatus', 'id'=>$model->id, 'status' => 'active'),
         'linkOptions' => array(
             'confirm' => 'Это действие оповестит всех подходящих участников о начале съемок. ВНИМАНИЕ: после открытия вакансии редактировать критерии отбора людей будет нельзя. Открыть вакансию "'.$model->name.'"?',
@@ -40,7 +40,7 @@ if ( in_array('active', $model->getAllowedStatuses()) )
 }
 if ( in_array('finished', $model->getAllowedStatuses()) )
 {// Ссылка на закрытие вакансии
-    $this->menu[] = array('label'=>'Закрыть вакансию',
+    $this->menu[] = array('label' => 'Закрыть вакансию',
         'url' => array('/admin/eventVacancy/setStatus', 'id'=>$model->id, 'status' => 'finished'),
         'linkOptions' => array(
             'confirm' => 'Закрыть вакансию "'.$model->name.'"?',
