@@ -4,10 +4,10 @@
  */
 
 $this->breadcrumbs=array(
-	'Администрирование' =>array('/admin'),
+	'Администрирование' => array('/admin'),
     'Проекты'=>array('/admin/project'),
-    $model->event->project->name=>array('/admin/project/view', 'id' => $model->event->project->id),
-    $model->event->name=>array('/admin/projectEvent/view','id'=>$model->event->id),
+    $model->event->project->name => array('/admin/project/view', 'id' => $model->event->project->id),
+    $model->event->name => array('/admin/projectEvent/view','id'=>$model->event->id),
 	$model->name,
 );
 
