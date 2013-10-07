@@ -4,12 +4,8 @@
 	<?php echo CHtml::link(CHtml::encode($data->id),array('view','id'=>$data->id)); ?>
 	<br />
 
-	<b>Доступ: </b>
+	<b>Цель приглашения: </b>
 	<?php echo CHtml::encode($data->objectid); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('key2')); ?>:</b>
-	<?php echo CHtml::encode($data->key2); ?>
 	<br />
 
 	<b><?php echo CHtml::encode($data->getAttributeLabel('email')); ?>:</b>
