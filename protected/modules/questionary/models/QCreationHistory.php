@@ -1,7 +1,8 @@
 <?php
 
 /**
- * This is the model class for table "{{q_creation_history}}".
+ * История создания анкет администратором
+ * Таблица "{{q_creation_history}}".
  *
  * The followings are the available columns in table '{{q_creation_history}}':
  * @property integer $id
@@ -34,8 +35,6 @@ class QCreationHistory extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
 			array('userid, questionaryid, timecreated', 'length', 'max'=>11),
 			// The following rule is used by search().
@@ -49,9 +48,9 @@ class QCreationHistory extends CActiveRecord
 	 */
 	public function relations()
 	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
 		return array(
+		    'questionary' => array(self::BELONGS_TO, 'Questionary', 'questionaryid'),
+		    'user'        => array(self::BELONGS_TO, 'User', 'userid'),
 		);
 	}
 
@@ -61,10 +60,10 @@ class QCreationHistory extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'id' => 'ID',
-			'userid' => 'Userid',
+			'id'            => 'ID',
+			'userid'        => 'Userid',
 			'questionaryid' => 'Questionaryid',
-			'timecreated' => 'Timecreated',
+			'timecreated'   => 'Timecreated',
 		);
 	}
 
@@ -74,9 +73,6 @@ class QCreationHistory extends CActiveRecord
 	 */
 	public function search()
 	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
-
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
