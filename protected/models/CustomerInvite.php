@@ -2,9 +2,8 @@
 
 /**
  * Модель для работы с приглашениями для заказчиков
- * Таблица "{{customer_invites}}".
+ * Таблица "{{customer_invites}}"
  *
- * The followings are the available columns in table '{{customer_invites}}':
  * @property integer $id
  * @property string $objecttype
  * @property string $objectid
@@ -54,6 +53,7 @@ class CustomerInvite extends CActiveRecord
             array('objecttype, objectid, managerid, timecreated, timeused, userid', 'length', 'max'=>11),
             array('key, key2', 'length', 'max'=>40),
             array('email, name', 'length', 'max'=>255),
+            array('email, name', 'required'),
             array('email', 'email'),
             array('comment', 'length', 'max'=>4095),
             
@@ -72,11 +72,11 @@ class CustomerInvite extends CActiveRecord
             // заказчик
             'customer' => array(self::BELONGS_TO, 'User', 'userid'),
             // проект (отбор людей на весь проект)
-            'project' => array(self::BELONGS_TO, 'Project', 'objectid', 'condition'=>"t.objecttype = 'project'"),
+            'project' => array(self::BELONGS_TO, 'Project', 'objectid'),
             // мероприятие (отбор людей только на мероприятие)
-            'event'   => array(self::BELONGS_TO, 'ProjectEvent', 'objectid', 'condition'=>"t.objecttype = 'event'"),
+            'event'   => array(self::BELONGS_TO, 'ProjectEvent', 'objectid'),
             // роль (разрешен отбор людей только на роль)
-            'vacancy' => array(self::BELONGS_TO, 'EventVacancy', 'objectid', 'condition'=>"t.objecttype = 'vacancy'"),
+            'vacancy' => array(self::BELONGS_TO, 'EventVacancy', 'objectid'),
             // @todo онлайн-кастинг (отбор людей при проведении онлайн-кастинга)
             //'casting' => array(self::BELONGS_TO, '???', 'objectid', 'condition'=>"t.objecttype = 'casting'"),
         );
@@ -104,17 +104,37 @@ class CustomerInvite extends CActiveRecord
     protected function beforeSave()
     {
         if ( $this->isNewRecord )
-        {// создаем ключи одноразовых ссылок при создании записи
-            if ( ! $this->key )
-            {
-                $this->key = $this->generateKey();
-            }
-            if ( ! $this->key2 )
-            {
-                $this->key2 = $this->generateKey();
-            }
+        {
+            // создаем ключи одноразовой ссылки
+            $this->key  = $this->generateKey();
+            $this->key2 = $this->generateKey();
+            // запоминаем кто отправил приглашение
+            $this->managerid = Yii::app()->user->id;
         }
+        
         return parent::beforeSave();
+    }
+    
+    /**
+     * Удаляет запись из базы если возникла ошибка
+     * @see CActiveRecord::afterSave()
+     */
+    protected function afterSave()
+    {
+        try
+        {
+            $this->creatreCustomer();
+        }catch( CException $e )
+        {// не удалось создать заказчика - удаляем запись 
+            $this->delete();
+            throw new CException('Ошибка при создании приглашения: не удалось создать заказчика.
+                Сообщение не было отправлено - попробуйте еще раз.');
+            return;
+        }
+        // отправляем оповещение заказчику
+        $this->sendNotification();
+        
+        parent::afterSave();
     }
 
     /**
@@ -179,10 +199,40 @@ class CustomerInvite extends CActiveRecord
     {
         if ( $this->isNewRecord )
         {
-            throw new CException('Ссылка еще не сохранена');
+            throw new CException('Ссылка еще не сохранена - нельзя пометить ее использованной');
         }
-        
         $this->timeused = time();
+        
         return $this->save();
+    }
+    
+    /**
+     * Создать заказчика, если он еще не зарегистрирован.
+     * Проверяет, есть ли уже заказчик с таким email. Если заказчика нет - создает ему учетную запись.
+     * Вызывается из afterSave(). Данные для создания берутся из текущего объекта.
+     * @return bool
+     * 
+     * @throws CException
+     * 
+     * @todo функция-заглушка: позже дописать функционал
+     */
+    protected function creatreCustomer()
+    {
+        return true;
+    }
+    
+    /**
+     * Отправить письмо с приглашением и доступом заказчику
+     * @return bool
+     * 
+     * @todo функция-заглушка: позже дописать функционал
+     */
+    public function sendNotification()
+    {
+        // проверяем было ли уже отправлено письмо
+        
+        // отправляем письмо (вне очереди)
+        
+        return true;
     }
 } 
