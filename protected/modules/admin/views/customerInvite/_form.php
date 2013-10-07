@@ -15,7 +15,18 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 
 	<?php echo $form->textFieldRow($model, 'email',array('class'=>'span5','maxlength'=>255)); ?>
 	<?php echo $form->textFieldRow($model, 'name',array('class'=>'span5','maxlength'=>255)); ?>
-	<?php echo $form->textFieldRow($model, 'comment', array('class'=>'span5','maxlength'=>4095)); ?>
+	
+	<?php // Наш комментарий для заказчика
+	echo $form->labelEx($model, 'comment'); 
+    $this->widget('ext.imperavi-redactor-widget.ImperaviRedactorWidget', array(
+    	'model' => $model,
+    	'attribute' => 'comment',
+    	'options' => array(
+    		'lang' => 'ru',
+            ),
+    ));
+    echo $form->error($model, 'comment');
+    ?>
 
 	<div class="form-actions">
 		<?php
