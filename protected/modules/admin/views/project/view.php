@@ -4,54 +4,64 @@
  */
 
 $this->breadcrumbs=array(
-    'Администрирование' =>array('/admin'),
-	'Проекты'=>array('/admin/project/admin'),
+    'Администрирование' => array('/admin'),
+	'Проекты' => array('/admin/project/admin'),
 	$model->name,
 );
 
 $this->menu = array(
 	//array('label'=>'Список проектов','url'=>array('/admin/project/admin')),
-	array('label'=>'Создать проект','url'=>array('/admin/project/create')),
-	array('label'=>'Редактировать проект','url'=>array('/admin/project/update','id'=>$model->id)),
-    array('label'=>'Добавить мероприятие','url'=>array('/admin/projectEvent/create', 'projectid'=>$model->id)),
-    array('label'=>'Создать группу мероприятий','url'=>array('/admin/projectEvent/create', 'projectid'=>$model->id, 'type'=>'group')),
-    array('label'=>'Заявки','url'=>array('/admin/projectMember/index', 'projectid'=>$model->id, 'type' => 'applications')),
-    array('label'=>'Подтвержденные участники','url'=>array('/admin/projectMember/index', 'projectid'=>$model->id, 'type' => 'members')),
+	array('label' => 'Создать проект', 'url' => array('/admin/project/create')),
+	array('label' => 'Редактировать проект', 'url' => array('/admin/project/update','id'=>$model->id)),
+    array('label' => 'Добавить мероприятие', 'url' => array('/admin/projectEvent/create', 'projectid'=>$model->id)),
+    array('label' => 'Создать группу мероприятий', 'url' => array('/admin/projectEvent/create', 'projectid'=>$model->id, 'type'=>'group')),
+    array('label' => 'Заявки', 'url' => array('/admin/projectMember/index', 'projectid'=>$model->id, 'type' => 'applications')),
+    array('label' => 'Подтвержденные участники', 'url' => array('/admin/projectMember/index', 'projectid'=>$model->id, 'type' => 'members')),
 );
+
 if ( $model->status == Project::STATUS_DRAFT )
 {// разрешаем удалять черновик проекта
-    $this->menu[] = array('label'=>'Удалить проект','url'=>'#','linkOptions'=>
-	    array(
-	        'submit'  => array('/admin/project/delete','id' => $model->id),
+    $this->menu[] = array(
+        'label' => 'Удалить проект',
+        'url'   => '#',
+        'linkOptions' => array(
+	        'submit' => array('/admin/project/delete', 'id' => $model->id),
 	        'confirm' => 'Вы уверены, что хотите удалить этот проект? Все входящие в него мероприятия и роли также будут удалены.',
-	        'csrf' => true),
+	        'csrf' => true
+        ),
     );
 }
 if ( in_array('active', $model->getAllowedStatuses()) )
 {// ссылка на активацию проекта
-    $this->menu[] = array('label'=>'Запустить проект',
-        'url'=>array('/admin/project/setStatus', 'id'=>$model->id, 'status' => 'active'),
+    $this->menu[] = array('label' => 'Запустить проект',
+        'url' => array('/admin/project/setStatus', 'id' => $model->id, 'status' => 'active'),
         'linkOptions' => array(
-            'confirm' => 'Запустить проект "'.$model->name.'"? Это действие опубликует все мероприятия проекта и оповестит всех подходящих участников.',
+            'confirm' => 'Запустить проект "'.CHtml::encode($model->name).'"? Это действие опубликует все мероприятия проекта и оповестит всех подходящих участников.',
         ),
     );
 }
 if ( in_array('finished', $model->getAllowedStatuses()) )
 {// ссылка на завершение проекта
-    $this->menu[] = array('label'=>'Завершить проект',
-        'url'=>array('/admin/project/setStatus', 'id'=>$model->id, 'status' => 'finished'),
+    $this->menu[] = array('label' => 'Завершить проект',
+        'url' => array('/admin/project/setStatus', 'id' => $model->id, 'status' => 'finished'),
         'linkOptions' => array(
-            'confirm' => 'Завершить проект "'.$model->name.'"? Это действие завершит все оставшиеся мероприятия и закроет все вакансии. Запустить проект заново будет нельзя.',
+            'confirm' => 'Завершить проект "'.CHtml::encode($model->name).'"? Это действие завершит все оставшиеся мероприятия и закроет все вакансии. Запустить проект заново будет нельзя.',
         ),
+    );
+}
+if ( $model->status == Project::STATUS_ACTIVE )
+{// предоставить доступ
+    $this->menu[] = array('label' => 'Предоставить доступ',
+        'url' => array('/admin/customerInvite/create', 'objectId' => $model->id, 'objectType' => 'project'),
     );
 }
 
 $this->widget('bootstrap.widgets.TbAlert', array(
-    'block'=>true, // display a larger alert block?
-    'fade'=>true, // use transitions?
-    'closeText'=>'&times;', // close link text - if set to false, no close link is displayed
-    'alerts'=>array( // configurations per alert type
-        'success'=>array('block'=>true, 'fade'=>true, 'closeText'=>'&times;'), // success, info, warning, error or danger
+    'block' => true, // display a larger alert block?
+    'fade'  => true, // use transitions?
+    'closeText' => '&times;', // close link text - if set to false, no close link is displayed
+    'alerts' => array(
+        'success' => array('block' => true, 'fade' => true, 'closeText' => '&times;'),
     ),
 ));
 

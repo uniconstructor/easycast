@@ -90,23 +90,12 @@ if ( in_array('finished', $model->getAllowedStatuses()) )
         ),
     );
 }
-/*
-$shareScript = $this->widget('application.modules.admin.extensions.ShareAccessWidget.ShareAccessWidget', array(
-    'selector' => '#shareAccess',
-),true);
 if ( $model->status == ProjectEvent::STATUS_ACTIVE )
-{// ссылка на отправку письма с доступом к отбору участников
-    $this->menu[] = array('label' => 'Предоставить доступ', 'url'=>'#',
-        'linkOptions' => array(
-            //'onclick'  => "alert('hello!');return false;",
-            //'onclick'  => "$('#shareAccess').popover('toggle');return false;',
-            'onclick'  => "$('#shareAccess').popover('toggle');return false;",
-            //'onclick'  => "return false;",
-            'return'  => false,
-            'id' => 'shareAccess',
-            )
+{// предоставить доступ
+    $this->menu[] = array('label' => 'Предоставить доступ',
+        'url' => array('/admin/customerInvite/create', 'objectId' => $model->id, 'objectType' => 'event'),
     );
-}*/
+}
 
 // сообщение о смене статуса
 $this->widget('bootstrap.widgets.TbAlert', array(

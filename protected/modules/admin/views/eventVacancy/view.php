@@ -47,6 +47,14 @@ if ( in_array('finished', $model->getAllowedStatuses()) )
         ),
     );
 }
+if ( $model->status == EventVacancy::STATUS_ACTIVE )
+{// предоставить доступ
+    $this->menu[] = array('label' => 'Предоставить доступ',
+        'url' => array('/admin/customerInvite/create', 'objectId' => $model->id, 'objectType' => 'vacancy'),
+    );
+}
+
+
 // отображаение оповещений о смене статуса
 $this->widget('bootstrap.widgets.TbAlert', array(
     'block'     => true, // display a larger alert block?
