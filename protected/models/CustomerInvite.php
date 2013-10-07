@@ -17,6 +17,13 @@
  * @property string $timeused
  * @property string $comment
  * @property string $userid
+ * 
+ * Relations:
+ * @property User $manager
+ * @property User $customer
+ * @property Project $project
+ * @property ProjectEvent $event
+ * @property EventVacancy $vacancy
  */
 class CustomerInvite extends CActiveRecord
 {
@@ -60,7 +67,18 @@ class CustomerInvite extends CActiveRecord
     public function relations()
     {
         return array(
+            // админ, который выслал приглашение
             'manager' => array(self::BELONGS_TO, 'User', 'managerid'),
+            // заказчик
+            'customer' => array(self::BELONGS_TO, 'User', 'userid'),
+            // проект (отбор людей на весь проект)
+            'project' => array(self::BELONGS_TO, 'Project', 'objectid', 'condition'=>"t.objecttype = 'project'"),
+            // мероприятие (отбор людей только на мероприятие)
+            'event'   => array(self::BELONGS_TO, 'ProjectEvent', 'objectid', 'condition'=>"t.objecttype = 'event'"),
+            // роль (разрешен отбор людей только на роль)
+            'vacancy' => array(self::BELONGS_TO, 'EventVacancy', 'objectid', 'condition'=>"t.objecttype = 'vacancy'"),
+            // @todo онлайн-кастинг (отбор людей при проведении онлайн-кастинга)
+            //'casting' => array(self::BELONGS_TO, '???', 'objectid', 'condition'=>"t.objecttype = 'casting'"),
         );
     }
     
