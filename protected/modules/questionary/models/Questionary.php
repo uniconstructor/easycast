@@ -366,6 +366,7 @@ class Questionary extends CActiveRecord
     public function behaviors()
     {
         Yii::import('ext.galleryManager.*');
+        Yii::import('ext.galleryManager.models.*');
         Yii::import('application.modules.questionary.extensions.behaviors.QManageDefaultValuesBehavior');
         Yii::import('application.modules.questionary.extensions.behaviors.QManageScalarValueBehavior');
         
