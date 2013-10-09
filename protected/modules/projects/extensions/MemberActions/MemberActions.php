@@ -328,9 +328,7 @@ class MemberActions extends CWidget
             'url'     => $this->getButtonUrl($type),
             'data'    => $this->getButtonPostData($type),
             'type'    => 'post',
-            //'success' => $this->getButtonSuccessJs($type),
-            //'update'  => '#'.$this->containerId,
-            //'error' =>
+            //'error' => '',
             //'beforeSend' => $this->getButtonBeforeSendJs($type),
         );
         if ( $this->refreshButtons )
