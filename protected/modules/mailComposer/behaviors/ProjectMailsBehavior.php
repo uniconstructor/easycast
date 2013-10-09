@@ -773,7 +773,7 @@ class ProjectMailsBehavior extends CBehavior
         $block  = array();
         $button = array();
         // ссылка на отбор людей
-        $url = Yii::app()->createAbsoluteUrl('/projects/customerInvite/selection',
+        $url = Yii::app()->createAbsoluteUrl('/projects/invite/selection',
             array(
                 'id' => $customerInvite->id,
                 'k1' => $customerInvite->key,

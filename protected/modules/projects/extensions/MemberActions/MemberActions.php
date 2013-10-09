@@ -18,9 +18,25 @@ class MemberActions extends CWidget
     public $member;
     
     /**
+     * @var CustomerInvite - приглашение заказчика для отбора актеров
+     *                       (для случаев, когда происходит отбор актеров по одноразовой ссылке)
+     */
+    public $customerInvite;
+    
+    /**
      * @var bool - выдавать ли подтверждение перед изменением статуса?
      */
     public $confirmActions = true;
+    
+    /**
+     * @var bool - показывать ли доступные кнопки действий заново после изменения статуса заявки
+     */
+    public $refreshButtons = false;
+    
+    /**
+     * @var bool - всегда ли отображать текущий статус заявки над действиями?
+     */
+    public $forceDisplayStatus = false;
     
     /**
      * @var string - id тега, содержащего все AJAX-кнопки
@@ -28,7 +44,7 @@ class MemberActions extends CWidget
     public $containerId;
     
     /**
-     * @var string - Изначально пустая строка.
+     * @var string - Сообщение над кнопками (изначально пустая строка)
      *               Задается только если нужно вывести какое-то сообщение сразу же рядом с кнопкой или вместо кнопки
      */
     public $message = '';
@@ -79,9 +95,9 @@ class MemberActions extends CWidget
      */
     public function run()
     {
-        if ( Yii::app()->user->isGuest )
-        {// виджет никогда не виден гостю
-            return;
+        if ( Yii::app()->user->isGuest AND ! ( $this->customerInvite instanceof CustomerInvite ) )
+        {// виджет никогда не виден гостю, только если он не зашел по одноразовой ссылке
+            return '<!-- MemberActions is empty for guest -->';
         }
         if ( $this->message )
         {
@@ -120,25 +136,47 @@ class MemberActions extends CWidget
         {// сообщение уже задано извне
             return;
         }
-        if ( Yii::app()->user->checkAccess('User') AND Yii::app()->user->id == $this->member->member->user->id )
-        {// информационные сообщения для участников
-            switch ( $this->member->status )
-            {
-                case ProjectMember::STATUS_DRAFT:    $this->message = 'Заявка ожидает рассмотрения'; break;
-                case ProjectMember::STATUS_PENDING:  $this->message = 'Заявка предварительно одобрена'; break;
-                case ProjectMember::STATUS_ACTIVE:   $this->message = 'Заявка одобрена'; break;
-                case ProjectMember::STATUS_REJECTED: $this->message = 'Заявка отклонена'; break;
-            }
+        if ( ! $this->needDisplayStatusMessage() )
+        {// сообщение отображать не нужно
+            return;
+        }
+        switch ( $this->member->status )
+        {// отображаем текущий статус заявки
+            case ProjectMember::STATUS_DRAFT:    $this->message = 'Заявка ожидает рассмотрения'; break;
+            case ProjectMember::STATUS_PENDING:  $this->message = 'Заявка предварительно одобрена'; break;
+            case ProjectMember::STATUS_ACTIVE:   $this->message = 'Заявка одобрена'; break;
+            case ProjectMember::STATUS_REJECTED: $this->message = 'Заявка отклонена'; break;
         }
     }
     
     /**
+     * Определить, нужно ли текущему отображать информацию о том в каком статусе сейчас заявка
+     * @return bool
+     */
+    protected function needDisplayStatusMessage()
+    {
+        if ( $this->forceDisplayStatus )
+        {// отображаем статус, потому что так указано в настройках виджета
+            return true;
+        }
+        if ( Yii::app()->user->checkAccess('User') AND Yii::app()->user->id == $this->member->member->user->id )
+        {// участнику в своей анкете всегда показывается статус заявки
+            return true;
+        }
+        return false;
+    }
+    
+    /**
      * Определить, доступна ли кнопка пользователю
-     * @param string $type - тип кнопки
+     * @param string $type - тип кнопки (совпадает с будущим статусом заявки)
      * @return bool
      */
     protected function isAllowed($type)
     {
+        if ( $this->isAllowedByToken($type) )
+        {// используется одноразовая ссылка
+            return true;
+        }
         if ( $type == 'finished' OR $type == 'succeed' OR $type == 'failed' )
         {// @todo доработать ручную установку этих статусов
             return false;
@@ -153,6 +191,29 @@ class MemberActions extends CWidget
             {// @todo временно запрещаем отзывать заявки
                 return false;//return true;
             }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Определить, доступна ли кнопка по одноразовой ссылке
+     * @param string $type - тип кнопки (совпадает с будущим статусом заявки)
+     * @return bool
+     * 
+     * @todo проверить статус приглашения заказчика
+     */
+    protected function isAllowedByToken($type)
+    {
+        if ( ! ( $this->customerInvite instanceof CustomerInvite ) )
+        {// одноразовая ссылка не используется
+            return false;
+        }
+        // по одноразовой ссылке заказчику разрешено подтверждение, отклонение и предварительное одобрение заявок
+        $types = array(ProjectMember::STATUS_PENDING, ProjectMember::STATUS_ACTIVE, ProjectMember::STATUS_REJECTED);
+        if ( in_array($type, $types) )
+        {
+            return true;
         }
         
         return false;
@@ -263,14 +324,23 @@ class MemberActions extends CWidget
      */
     protected function getButtonAjaxOptions($type)
     {
-        return array(
+        $options = array(
             'url'     => $this->getButtonUrl($type),
             'data'    => $this->getButtonPostData($type),
             'type'    => 'post',
-            'success' => $this->getButtonSuccessJs($type),
+            //'success' => $this->getButtonSuccessJs($type),
+            //'update'  => '#'.$this->containerId,
             //'error' =>
             //'beforeSend' => $this->getButtonBeforeSendJs($type),
         );
+        if ( $this->refreshButtons )
+        {// нужно заново показать доступные кнопки после совершения действия
+            $options['update'] = '#'.$this->containerId;
+        }else
+        {// не показываем кнопки после совершения действия (только после перезагрузки страницы)
+            $options['success'] = $this->getButtonSuccessJs($type);
+        }
+        return $options;
     }
     
     /**
@@ -284,6 +354,16 @@ class MemberActions extends CWidget
         $data['id']     = $this->member->id;
         $data['status'] = $type;
         $data[Yii::app()->request->csrfTokenName] = Yii::app()->request->csrfToken;
+        if ( $this->customerInvite )
+        {// для работы с заявками по токену нужно передавать дополнительные параметры
+            $data['ciid'] = $this->customerInvite->id;
+            $data['k1']   = $this->customerInvite->key;
+            $data['k2']   = $this->customerInvite->key2;
+        }
+        if ( $this->refreshButtons )
+        {
+            $data['refresh'] = 1;
+        }
         
         return $data;
     }

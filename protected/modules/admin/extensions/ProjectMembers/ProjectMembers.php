@@ -38,7 +38,7 @@ class ProjectMembers extends CWidget
     public $displayHeader = true;
     
     /**
-     * @var отображать ли столбец "роль" в списке заявок?
+     * @var отображать ли столбец "роль" в списке заявок? (для краткого вида заявок)
      */
     public $displayVacancyColumn = true;
     
@@ -143,7 +143,7 @@ class ProjectMembers extends CWidget
     {
         $result = '';
         if ( ! $vacancy )
-        {
+        {// отображается одна роль отдельно, а не все роли мероприятия
             $vacancy = EventVacancy::model()->findByPk($this->objectId);
         }
 
@@ -154,36 +154,62 @@ class ProjectMembers extends CWidget
         {// показываем участников
             $members = $vacancy->members;
         }
-
-        if ( $members )
-        {// есть участники или заявки на участие - отобразим их
-            $elements = array();
-            if ( $this->displayFullInfo )
-            {// выводим полную анкету участника
-                $result .= $this->getVacancySummary($vacancy);
-                $result .= $this->widget('application.modules.admin.extensions.QAdminFullDataList.QAdminFullDataList', array(
-                    'members' => $members,
-                ), true);
-            }else
-            {// выводим краткую таблицу
-                $result .= $this->getVacancySummary($vacancy);
-                foreach ( $members as $member )
-                {
-                    $elements[] = $this->getMemberData($member);
-                }
-                // в списке участников разбивка по страницам не нужна
-                $arrayProvider = new CArrayDataProvider($elements, array('pagination' => false));
-                // выводим список участников таблицей
-                $result .= $this->widget('bootstrap.widgets.TbGridView', array(
-                    'type'         => 'striped bordered condensed',
-                    'dataProvider' => $arrayProvider,
-                    'template'     => "{summary}{items}{pager}",
-                    'columns'      => $this->getMemberColumns(),
-                ), true);
-            }
+        // получаем краткое описание вакансии
+        $result .= $this->getVacancySummary($vacancy);
+        if ( ! $members )
+        {// для этой роли нет участников или заявок - так и напишем
+            $result .= '<div class="alert">(Пусто)</div>';
+            return $result;
+        }
+        // участники или заявки есть - отобразим их
+        if ( $this->displayFullInfo )
+        {// выводим полную анкету для каждого участника
+            $result .= $this->getFullMembersList($members);
+        }else
+        {// выводим краткую таблицу
+            $result .= $this->getShortMembersList($members);
         }
 
         return $result;
+    }
+    
+    /**
+     * Получить список заявок на участие с кнопками принятия/отклонения заявки
+     * с краткой информацией о каждом участнике (только ФИО, ссылка на анкету и действия)
+     * 
+     * @param array $members - список заявок (объекты класса ProjectMember) 
+     * @return string
+     */
+    protected function getShortMembersList($members)
+    {
+        $elements = array();
+        foreach ( $members as $member )
+        {
+            $elements[] = $this->getMemberData($member);
+        }
+        // в списке участников разбивка по страницам не нужна
+        $arrayProvider = new CArrayDataProvider($elements, array('pagination' => false));
+        // выводим список участников таблицей
+        return $this->widget('bootstrap.widgets.TbGridView', array(
+            'type'         => 'striped bordered condensed',
+            'dataProvider' => $arrayProvider,
+            'template'     => "{summary}{items}{pager}",
+            'columns'      => $this->getMemberColumns(),
+        ), true);
+    }
+    
+    /**
+     * Получить список заявок на участие с кнопками принятия/отклонения заявки
+     * с подробной информацией о каждом участнике (вся анкета)
+     * 
+     * @param array $members - список заявок (объекты класса ProjectMember) 
+     * @return string
+     */
+    protected function getFullMembersList($members)
+    {
+        return $this->widget('application.modules.admin.extensions.QAdminFullDataList.QAdminFullDataList', array(
+            'members' => $members,
+        ), true);
     }
     
     /**
@@ -309,9 +335,20 @@ class ProjectMembers extends CWidget
      */
     protected function getMemberActions($member)
     {
-        return $this->widget('application.modules.projects.extensions.MemberActions.MemberActions', array(
+        return $this->widget('application.modules.projects.extensions.MemberActions.MemberActions', 
+            $this->getMemberActionsParams($member), true);
+    }
+    
+    /**
+     * Получить параметры для создания кнопок управления одной заявкой при кратком отображении
+     * @param ProjectMember $member - заявка участника
+     * @return array
+     */
+    protected function getMemberActionsParams($member)
+    {
+        return array(
             'member' => $member,
-        ), true);
+        );
     }
 
     /**

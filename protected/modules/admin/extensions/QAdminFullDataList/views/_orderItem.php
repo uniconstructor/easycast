@@ -18,5 +18,5 @@
     <div class="span2"><?php echo $data['actionButtons']; ?></div>
     
     <div id="<?php echo $data['fullInfoContainerId']; ?>"></div>
-    <input type="hidden" id="<?php echo $data['fullInfoLoadedId']; ?>" value="0">
+    <input type="hidden" id="<?php echo $data['fullInfoLoadedId']; ?>" name="<?php echo $data['fullInfoLoadedId']; ?>_flag" value="0">
 </div>

@@ -1,9 +1,9 @@
 <?php
 
 /**
- * This is the model class for table "{{event_vacancies}}".
+ * Роли (вакансии) для мероприятия
  *
- * The followings are the available columns in table '{{event_vacancies}}':
+ * Таблица '{{event_vacancies}}':
  * @property integer $id
  * @property string $eventid
  * @property string $name
@@ -20,8 +20,10 @@
  * @property string $autoconfirm
  * @property string $salary
  * 
+ * Relations:
  * @property SearchScope $scope
  * @property array $filterinstances
+ * @property ProjectEvent $event
  * 
  * @todo все прямые обращения к статусам заменить на константы
  * @todo запретить редактирование поисковых условий если вакансия - не черновик

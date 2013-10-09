@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Контроллер приглашений на мероприятия
- * Отвечает только за AJAX-запросы (принять, отклонить и т. п.)
- * Отображением приглашений занимаются различные виджеты
+ * Контроллер приглашений на мероприятия (для участников) или на отбор актеров (для заказчиков)
+ * Отвечает только за AJAX-запросы (принять, отклонить и т. п.) или вывод страниц
+ * Отображением самих приглашений занимаются различные виджеты
  */
 class InviteController extends Controller
 {
@@ -35,8 +35,8 @@ class InviteController extends Controller
     public function accessRules()
     {
         return array(
-            array('allow',  // подписаться через токен можно и без авторизации
-                'actions' => array('subscribe'),
+            array('allow',  // по одноразовой ссылке подписаться или отбирать актеров можно без авторизации
+                'actions' => array('subscribe', 'selection'),
                 'users'   => array('*'),
             ),
             array('allow',  // принять или отклонить приглашение на съемки могут только участники
@@ -76,7 +76,6 @@ class InviteController extends Controller
     
     /**
      * Подать заявку на вакансию через токен приглашения
-     * @todo залогинить пользователя сразу же как он зажел по токену (время сессии - час)
      * 
      * @return null
      */
@@ -107,7 +106,34 @@ class InviteController extends Controller
     }
     
     /**
-     * Подать заявку на участие в мероприятии (работает один раз)
+     * Отобразить страницу отбора актеров для заказчика
+     * 
+     * @return null
+     * 
+     * @todo сделать защиту от повторного использования и проверку по времени
+     * @todo проверять статус связанного объекта и выводить сообщение, если он уже завершен
+     * @todo заходить под учетной записью заказчика, если она у него есть
+     */
+    public function actionSelection()
+    {
+        $id   = Yii::app()->request->getParam('id', 0);
+        $key  = Yii::app()->request->getParam('k1', '');
+        $key2 = Yii::app()->request->getParam('k2', '');
+        
+        if ( ! $customerInvite = CustomerInvite::model()->findByPk($id) )
+        {
+            throw new CHttpException(404, 'Приглашение не найдено');
+        }
+        if ( $customerInvite->key != $key OR $customerInvite->key2 != $key2 )
+        {// ключи доступа не совпадают
+            throw new CHttpException(400, "Неправильная ссылка с приглашением ({$customerInvite->id})");
+        }
+        
+        $this->render('selection', array('customerInvite' => $customerInvite));
+    }
+    
+    /**
+     * Подать заявку на участие в мероприятии если есть только одна доступная вакансия
      * @param Questionary $questionary
      * @param ProjectEvent $event
      * @throws CHttpException
@@ -115,6 +141,7 @@ class InviteController extends Controller
      * 
      * @todo писать какая именно вакансия закрыта
      * @todo подписывать на точно указанную вакансию, а не не первую попавшуюся
+     * @todo логика работы с приглашениями изменилась: удалить при рефакторинге, если не пригодится
      */
     protected function createMemberRequest($questionary, $event)
     {
@@ -128,9 +155,8 @@ class InviteController extends Controller
                 или истек срок подачи заявок.', 'Вакансия закрыта');
             return false;
         }
-        // @todo 
+        
         $vacancy = current($vacancies);
-        // @todo
         if ( $vacancy->status == EventVacancy::STATUS_FINISHED )
         {
             echo $this->getInfoMessage('Вакансия была закрыта: набрано достаточное количество человек 
@@ -214,6 +240,17 @@ class InviteController extends Controller
         return $model;
     }
     
+    
+    
+    /**
+     * 
+     * @param unknown $message
+     * @param string $header
+     * @param string $class
+     * @return string
+     * 
+     * @todo заменить виджетом
+     */
     protected function getInfoMessage($message, $header='', $class='alert alert-block')
     {
         $result = '';

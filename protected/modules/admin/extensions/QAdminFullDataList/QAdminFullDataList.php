@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Список заявок на участие, в которых отображена полная информация по каждому участнику
+ * 
+ * @todo рефакторинг: сделать этот виджет наследником общего класса отображения информации об участниках
+ *       (совместить с классом MyChoice, сделать возможность гибко настраивать краткий/полный внешний вид)
+ */
 class QAdminFullDataList extends CWidget
 {
     /**
@@ -7,6 +13,9 @@ class QAdminFullDataList extends CWidget
      */
     public $questionaries;
     
+    /**
+     * @var array - массив отображаемых заявок участников
+     */
     public $members;
     
     /**
@@ -21,8 +30,6 @@ class QAdminFullDataList extends CWidget
         // Подключаем виджеты для отображения подробной информации по анкете
         Yii::import('application.modules.questionary.extensions.widgets.QUserInfo.QUserInfo');
         Yii::import('application.modules.questionary.extensions.widgets.QUserBages.QUserBages');
-        
-        
     }
     
     /**
@@ -48,7 +55,7 @@ class QAdminFullDataList extends CWidget
         // отображаем всех добавленных в заказ пользователей
         $this->widget('bootstrap.widgets.TbListView', array(
             'dataProvider' => $dataProvider,
-            'itemView' => '_orderItem',
+            'itemView' => 'application.modules.admin.extensions.QAdminFullDataList.views._orderItem',
         ));
     }
     
@@ -72,7 +79,7 @@ class QAdminFullDataList extends CWidget
         $info['shortInfoContainerId'] = $this->getContainerId($questionary->id, 'shortinfo');
         // id тега с сообщением
         $info['messageContainerId']   = $this->getContainerId($questionary->id, 'message');
-                
+        // id hidden-элемента, в котором хранится состояние данных анкеты актера (подгружены/не подгружены)    
         $info['fullInfoLoadedId'] = 'full_info_loaded_'.$questionary->id; 
     
         // Имя
@@ -82,14 +89,13 @@ class QAdminFullDataList extends CWidget
     
         // Возраст
         $info['age'] = '';
-        
     
         // Аватарка участника (150*150)
-        // (ведет на его анкету, открывается в новом окне)
+        // (ссылка с картинки ведет на его анкету, открывается в новом окне)
         $imageURL   = $questionary->getAvatarUrl();
         $image      = CHtml::image($imageURL, $info['fullName'], array('class' => 'ec-rounded-avatar'));
         $info['profileUrl'] = Yii::app()->createUrl(Yii::app()->getModule('questionary')->profileUrl,
-        array('id' => $questionary->id));
+            array('id' => $questionary->id));
         $info['avatar'] = CHtml::link($image, $info['profileUrl'], array('target' => '_blank'));
     
         // достижения (основные характеристики) участника
