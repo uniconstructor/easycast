@@ -100,6 +100,7 @@ class ProjectMailsBehavior extends CBehavior
     /**
      * Получить текст письма с уведомлением о том, что заявка участника одобрена
      * @param ProjectMember $projectMember - данные заявки участника
+     * @param array $mailOptions - дополнительные настройки для создания письма
      * @return string
      */
     public function createApproveMemberMailText($projectMember, $mailOptions=array())
@@ -135,6 +136,7 @@ class ProjectMailsBehavior extends CBehavior
     /**
      * Получить текст письма с уведомлением о том, что заявка участника отклонена
      * @param ProjectMember $projectMember - данные заявки участника
+     * @param array $mailOptions - дополнительные настройки для создания письма
      * @return string
      *
      * @todo указывать причины отказа
@@ -166,6 +168,7 @@ class ProjectMailsBehavior extends CBehavior
     /**
      * Получить текст письма для участника, с информацией о том, что его заявка на роль предварительно одобрена
      * @param ProjectMember $projectMember - данные заявки участника
+     * @param array $mailOptions - дополнительные настройки для создания письма
      * @return string
      */
     public function createPendingMemberMailText($projectMember, $mailOptions=array())
@@ -183,6 +186,68 @@ class ProjectMailsBehavior extends CBehavior
         $text .= '<br><br><i>(Это автоматическое уведомление, отвечать на него не нужно)</i>';
         
         $segments->add(null, $this->owner->textBlock($text));
+        $mailOptions['segments'] = $segments;
+        // создаем виджет и получаем из него полный HTML-код письма
+        return $this->owner->widget('application.modules.mailComposer.extensions.widgets.EMailAssembler.EMailAssembler',
+            $mailOptions, true);
+    }
+    
+    /**
+     * Создать тему для письма заказчику (предоставление доступа к отбору актеров/проведение онлан-кастинга)
+     * @param CustomerInvite $customerInvite - приглашение заказчика
+     * @return string
+     */
+    public function createCustomerInviteMailSubject($customerInvite)
+    {
+        $subject = 'Вам предоставлен доступ ';
+        switch ( $customerInvite->objecttype )
+        {
+            case 'project':
+                $subject .= 'к отбору актеров в проекте "'.$customerInvite->project->name.'"';
+            break;
+            case 'event':
+                $subject .= 'к отбору актеров на мероприятие "'.$customerInvite->event->name.
+                    '" ('.$customerInvite->event->getFormattedTimePeriod().')';
+            break;
+            case 'vacancy': 
+                $subject .= 'к отбору актеров на роль "'.$customerInvite->vacancy->name.'"';
+            break;
+        }
+        return $subject;
+    }
+    
+    /**
+     * Создать письмо для заказчика, которое предоставляет ему доступ к отбору актеров
+     * @param CustomerInvite $customerInvite - приглашение заказчика
+     * @param array $mailOptions - дополнительные настройки для создания письма
+     * @return string
+     */
+    public function createCustomerInviteMailText($customerInvite, $mailOptions=array())
+    {
+        $segments    = new CMap();
+        $mailOptions = $this->owner->getMailDefaults();
+        
+        // приветствие, объясняем, куда мы дали доступ
+        $text = $this->createCustomerGreeting($customerInvite);
+        $text .= $this->createCustomerAccessDescription($customerInvite);
+        $segments->add(null, $this->owner->textBlock($text));
+        
+        // краткая инструкция 
+        $helpText = $this->createCustomerInviteHelp($customerInvite);
+        $segments->add(null, $this->owner->textBlock($helpText, 'Как пользоваться'));
+        
+        // пишем дополнительные комментарии внизу
+        $infoText = $this->createCustomerInviteInfo($customerInvite);
+        $segments->add(null, $this->owner->textBlock($infoText, 'Особенности работы с заявками'));
+        
+        // наш комментарий к этому приглашению (если есть)
+        $commentText = $this->createCustomerInviteComment($customerInvite);
+        $segments->add(null, $this->owner->textBlock($commentText));
+        
+        // кнопка "начать отбор"
+        $buttonSegment = $this->createCustomerInviteButton($customerInvite);
+        $segments->add(null, $buttonSegment);
+        
         $mailOptions['segments'] = $segments;
         // создаем виджет и получаем из него полный HTML-код письма
         return $this->owner->widget('application.modules.mailComposer.extensions.widgets.EMailAssembler.EMailAssembler',
@@ -561,5 +626,166 @@ class ProjectMailsBehavior extends CBehavior
         {
             return "Добрый день.<br>\n<br>\n";
         }
+    }
+    
+    /**
+     * Получить строку с приветствием для заказчика
+     * @param CustomerInvite $customerInvite - приглашение заказчика
+     * @return string
+     * 
+     * @todo функция-заглушка. Подставлять имя в приветствии.
+     */
+    protected function createCustomerGreeting($customerInvite)
+    {
+        if ( trim($customerInvite->name) )
+        {
+            return "{$customerInvite->name}, здравствуйте.<br>\n<br>\n";
+        }else
+        {
+            return "Добрый день.<br>\n<br>\n";
+        }
+    }
+    
+    /**
+     * Описание того, куда получен доступ: проект, мероприятие, роль или онлайн-кастинг
+     * (фрагмент письма с приглашением для заказчика)
+     * @param CustomerInvite $customerInvite - приглашение заказчика
+     * @return string
+     */
+    protected function createCustomerAccessDescription($customerInvite)
+    {
+        $text = 'По вашей просьбе предоставляем вам доступ к процессу отбора актеров ';
+        
+        switch ( $customerInvite->objecttype )
+        {
+            case 'project': $text .= 'для проекта "'.$customerInvite->project->name.'".'; break;
+            case 'event':
+                $text .= 'на мероприятие "'.$customerInvite->event->name.'"';
+                if ( $customerInvite->event->type != ProjectEvent::TYPE_GROUP AND ! $customerInvite->event->nodates )
+                {// у мероприятия есть конкретная дата, и это не группа событий
+                    $text .= ' , которое состоится '.$customerInvite->event->getFormattedTimeStart();
+                }
+            break;
+            case 'vacancy': 
+                $text .= 'на роль "'.$customerInvite->vacancy->name.'".';
+            break;
+        }
+        
+        return $text;
+    }
+    
+    /**
+     * Краткая справка о том, как пользоваться отбором актеров
+     * (фрагмент письма с приглашением для заказчика)
+     * @param CustomerInvite $customerInvite - приглашение заказчика
+     * @return string
+     */
+    protected function createCustomerInviteHelp($customerInvite)
+    {
+        $text  = 'Для того чтобы начать отбор участников, воспользуйтесь ссылкой "Начать отбор" в конце письма.<br>';
+        $text .= 'Пройдя по ней, вы увидите список заявок';
+        
+        switch ( $customerInvite->objecttype )
+        {
+            case 'project': $text .= ' на участие в этом проекте, который разделен по съемочным дням и ролям.'; break;
+            case 'event':   $text .= ', он разделен по ролям.'; break;
+            case 'vacancy': $text .= ' на эту роль.'; break;
+        }
+        
+        $text .= '<br><br>Каждую заявку можно предварительно одобрить, подтвердить или отклонить.';
+        $text .= '<ul>';
+        $text .= '<li>Подтвердить: взять актера на роль.
+            Вы уверены в том, что этот человек вам подходит, и хотели бы видеть его на съемочной площадке.';
+        $text .= '<li>Предварительно одобрить: вы еще не уверены в том что именно этот человек 
+            подходит для этой роли, или хотите отобрать нескольких лучших претендентов, 
+            чтобы потом выбрать уже из них (удобно при большом количестве заявок на роль). 
+            Предварительное одобрение не закрепляет за актером роль - это делается только кнопкой "подтвердить".';
+        $text .= '<li>Отклонить: этот человек вам не подходит? Отклоните его заявку! 
+            Ваше решение для участника окончательно: повторно подать заявку на эту же роль он не сможет.';
+        $text .= '</ul>';
+        
+        $text .= 'После того как вы закончите подбор актеров, нажмите на большую кнопку "Завершить" внизу страницы.';
+        
+        return $text;
+    }
+    
+    /**
+     * Дополнительная информация с описанием того как происходит отбор актеров
+     * (фрагмент письма с приглашением для заказчика)
+     * @param CustomerInvite $customerInvite - приглашение заказчика
+     * @return string
+     */
+    protected function createCustomerInviteInfo($customerInvite)
+    {
+        $text = '';
+        $text .= '<ul>';
+        $text .= '<li>В процессе работы нет необходимости сверять такие данные как рост, вес или возраст 
+            участника с условиями отбора на роль: наши поисковые алгоритмы уже сделали эту работу за вас. 
+            EasyCast устроен таким образом, что те, кто не проходит по требованиям роли не получает 
+            на нее приглашения и не может подать на нее заявку.';
+        $text .= '<li>Подтверждение или отклонение заявок нельзя отменить (мы обязательно добавим эту функцию позже). 
+            Пожалуйста, будьте внимательны. Пользуйтесь предварительным одобрением заявок.';
+        $text .= '<li>После подтверждения заявки мы связываемся с актером, еще раз просим 
+            его подтвердить свое участие и сообщаем ему всю необходимую информацию (время, место, условия съемок).';
+        $text .= '<li>Когда на роль набирается нужное количество человек - оставшиеся 
+            на нее заявки отклоняются автоматически.';
+        $text .= '<li>Иногда имеет смысл подождать, если текущее количество заявок вас не устраивает. 
+            По нашим правилам участники могут подавать заявки пока роль не будет заполнена - 
+            возможно тот кто вам нужен пока еще не успел этого сделать.';
+        $text .= '</ul>';
+        
+        return $text;
+    }
+    
+    /**
+     * Комментарий и контакты менеджера, по которым заказчик может связатся с нами, 
+     * если у него проблемы с отбором людей
+     * (фрагмент письма с приглашением для заказчика)
+     * @param CustomerInvite $customerInvite - приглашение заказчика
+     * @return string
+     */
+    protected function createCustomerInviteComment($customerInvite)
+    {
+        $text  = '';
+        $phone = Yii::app()->params['adminPhone'];
+        
+        if ( trim(strip_tags($customerInvite->comment)) )
+        {
+            $text .= 'Дополнительная информация: '.$customerInvite->comment;
+        }
+        if ( trim($customerInvite->manager->questionary->mobilephone) )
+        {// стараемся всегда дать телефон того, кто отправлял приглашение 
+            $phone = $customerInvite->manager->questionary->mobilephone;
+        }
+        //$text .= 'Если у вас остались вопросы - то вы можете задать их просто ответив на это письмо,
+        //    или по телефону '.$phone.'.';
+        
+        return $text;
+    }
+    
+    /**
+     * Кнопка "начать отбор" в письме с приглашением для заказчика
+     * @param CustomerInvite $customerInvite - приглашение заказчика
+     * @return array - массив для создания блока письма
+     */
+    protected function createCustomerInviteButton($customerInvite)
+    {
+        $block  = array();
+        $button = array();
+        // ссылка на отбор людей
+        $url = Yii::app()->createAbsoluteUrl('/projects/customerInvite/selection',
+            array(
+                'id' => $customerInvite->id,
+                'k1' => $customerInvite->key,
+                'k2' => $customerInvite->key2,
+        ));
+        //$block['text'] .= '<small>(Ссылка действительна в течении часа после использования)</small>';
+        // сама кнопка 
+        $button['caption'] = 'Начать отбор';
+        $button['link']    = $url;
+        // добавляем кнопку в блок
+        $block['button'] = $button;
+        
+        return $block;
     }
 }

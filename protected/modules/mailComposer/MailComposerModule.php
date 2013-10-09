@@ -32,6 +32,15 @@ class MailComposerModule extends CWebModule
                 $invite = $params['invite'];
                 return $mailComposer->createNewInviteMailSubject($invite);
             break;
+            // приглашение на отбор актеров (для заказчика)
+            case 'customerInvite':
+                if ( ! isset($params['customerInvite']) )
+                {
+                    throw new CException('customerInvite for mail subject is not set');
+                }
+                $customerInvite = $params['customerInvite'];
+                return $mailComposer->createCustomerInviteMailSubject($customerInvite);
+            break;
         }
     }
     
@@ -101,6 +110,20 @@ class MailComposerModule extends CWebModule
                 }
                 $projectMember = $params['projectMember'];
                 return $mailComposer->createPendingMemberMailText($projectMember, $mailOptions);
+            break;
+            // приглашение на отбор актеров (для заказчика)
+            case 'customerInvite':
+                $mailOptions = array();
+                if ( isset($params['mailOptions']) )
+                {
+                    $mailOptions = $params['mailOptions'];
+                }
+                if ( ! isset($params['customerInvite']) )
+                {
+                    throw new CException('customerInvite for mail is not set');
+                }
+                $customerInvite = $params['customerInvite'];
+                return $mailComposer->createCustomerInviteMailText($customerInvite, $mailOptions);
             break;
         }
     }
