@@ -117,6 +117,15 @@ class ProjectEvent extends CActiveRecord
 	{
 		return parent::model($className);
 	}
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see CActiveRecord::init()
+	 */
+	public function init()
+	{
+	    parent::init();
+	}
 
 	/**
 	 * @return string the associated database table name
@@ -191,6 +200,8 @@ class ProjectEvent extends CActiveRecord
 	 */
 	public function behaviors()
 	{
+	    Yii::import('ext.galleryManager.*');
+	    Yii::import('ext.galleryManager.models.*');
 	    // Настройки фотогалереи для мероприятия
 	    $photoGallerySettings = array(
 	        'class' => 'GalleryBehavior',
