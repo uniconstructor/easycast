@@ -891,17 +891,17 @@ class QUserInfo extends CWidget
             
             // @todo отключить разбивку по страницам
             $dataProvider = new CArrayDataProvider($films, array(
-                'pagination' => array('pageSize'=>65535))
+                'pagination' => false)
             );
             $content .= $this->widget('bootstrap.widgets.TbGridView', array(
                 'type'         => 'striped bordered',
                 'dataProvider' => $dataProvider,
-                'template'=>"{items}",
-                'columns'=>array(
-                    array('name'=>'name', 'header'=>QuestionaryModule::t('film_name_label')),
-                    array('name'=>'role', 'header'=>QuestionaryModule::t('film_role_label')),
-                    array('name'=>'year', 'header'=>QuestionaryModule::t('film_year_label')),
-                    array('name'=>'director', 'header'=>QuestionaryModule::t('film_director_label')),
+                'template'     => "{items}",
+                'columns' => array(
+                    array('name' => 'name', 'header' => QuestionaryModule::t('film_name_label')),
+                    array('name' => 'role', 'header' => QuestionaryModule::t('film_role_label')),
+                    array('name' => 'year', 'header' => QuestionaryModule::t('film_year_label')),
+                    array('name' => 'director', 'header' => QuestionaryModule::t('film_director_label')),
                 ),
             ), true);
         }
