@@ -65,7 +65,8 @@ class ECFooter extends CWidget
         echo '&copy; 2005-' . date('Y').'&nbsp;';
         $easyCast = '&laquo;' . CHtml::link('EasyCast', Yii::app()->getBaseUrl(true)) . '&raquo;';
         echo Yii::t('coreMessages', 'copyright_notice', array('{easycast}' => $easyCast));
-        echo '&nbsp;';
+        echo '&nbsp;<br>';
+        echo CHtml::link('<small>Пользовательское соглашение</small>', Yii::app()->createAbsoluteUrl('/site/page/view/license') );
         ///echo Yii::powered();
         echo '</div>';
     }
