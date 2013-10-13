@@ -917,30 +917,64 @@ class Questionary extends CActiveRecord
         $oldStatus = self::model()->findByPk($this->id)->status;
         // новый статус анкеты
         $newStatus = $this->status;
+        
+        if ( $this->ownerid )
+        {// нужно особое письмо с активацией
+            if ( ( $oldStatus == 'draft' OR $oldStatus == 'delayed' ) AND $newStatus == 'unconfirmed' )
+            {
+                $this->sendSSFillingMail();
+            }
+        }else
+        {
+            if ( ( $oldStatus == 'draft' OR $oldStatus == 'delayed' ) AND $newStatus == 'active' )
+            {// если анкета только что перешла из статуса "черновик" в активный статус -
+                // значит пользователя только что зарегистрировали и ввели все данные
+                $filled = true;
+            }
+            if ( ! Yii::app()->user->checkAccess('Admin') OR ! $filled )
+            {// Эта функция используется только если анкету заполняет админ и только при первом сохранении анкеты
+                return;
+            }
+            $this->sendDefaultFillingMail($user);
+        }
+        
+        // запоминаем кто ввел анкету
+        $history = new QCreationHistory();
+        $history->userid        = Yii::app()->user->id;
+        $history->questionaryid = $this->id;
+        $history->timecreated   = time();
+        $history->save();
+    }
+    
+    protected function sendSSFillingMail()
+    {
+        $mailComposer = Yii::app()->getModule('mailComposer');
+         
+        $email   = $this->user->email;
+        $subject = 'Приглашение от проекта easyCast';
+        $message = $mailComposer->getMessage('SSInvite', array('questionary' => $this));
+        
+        UserModule::sendMail($this->user->email, $subject, $message, true);
+    }
+    
+    /**
+     * @todo - переписать с использованием mailComposer
+     * @param unknown $user
+     * @return null
+     */
+    protected function sendDefaultFillingMail($user)
+    {
         // URL для активации учетной записи
         $activationUrl = Yii::app()->createAbsoluteUrl(
-                '/user/activation/activation',
-                array("activkey" => $user->activkey, "email" => $user->email)
-            );
-        
+            '/user/activation/activation',
+            array("activkey" => $user->activkey, "email" => $user->email)
+        );
         // ссылка на просмотр анкеты
         $questionaryUrl = Yii::app()->createAbsoluteUrl(
-                Yii::app()->getModule('questionary')->profileUrl,
-                array("id" => $this->id)
-            );
+            Yii::app()->getModule('questionary')->profileUrl,
+            array("id" => $this->id)
+        );
         $questionaryUrl = CHtml::link($questionaryUrl, $questionaryUrl);
-        
-        if ( $oldStatus == 'draft' AND $newStatus == 'active' )
-        {// если анкета только что перешла из статуса "черновик" в активный статус - 
-            // значит пользователя только что зарегистрировали и ввели все данные
-            $filled = true;
-        }
-        
-        if ( ! Yii::app()->user->checkAccess('Admin') OR ! $filled )
-        {// Эта функция используется только если анкету заполняет админ и только при первом сохранении анкеты
-            return;
-        }
-        
         // Тема и текст письма
         $theme = 'Ввод данных завершен';
         $message = 'Добрый день.
@@ -952,22 +986,16 @@ class Questionary extends CActiveRecord
         $message .= "<br><br>";
         if ( $user->status == User::STATUS_NOACTIVE )
         {// если участник еще не активирован - пришлем ему ссылку активации
-            $message .= UserModule::t("Please activate you account go to {activation_url}",
-                array('{activation_url}' => $activationUrl)
-            );
-            $message .= "<br><br>";
+        $message .= UserModule::t("Please activate you account go to {activation_url}",
+            array('{activation_url}' => $activationUrl)
+        );
+        $message .= "<br><br>";
         }
-        $message .= "С уважением, команда проекта EasyCast";
+        $message .= "С уважением, команда проекта EasyCast.";
         
         // отсылаем письмо
         UserModule::sendMail($user->email, $theme, $message);
-        // запоминаем кто ввел анкету
-        $history = new QCreationHistory();
-        $history->userid        = Yii::app()->user->id;
-        $history->questionaryid = $this->id;
-        $history->timecreated   = time();
-        $history->save();
-    }
+    } 
     
     /**
      * Определить, впервый ли раз сохраняется анкета

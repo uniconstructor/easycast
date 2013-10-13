@@ -35,9 +35,9 @@ Yii::import('ext.CountryCitySelectorRu.*');
     
     // начало виджета формы редактирования анкеты
     $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
-        'id'=>'questionary-form',
-        'enableAjaxValidation'=>false,
-        'htmlOptions'=>array('class'=>'well'),
+        'id' => 'questionary-form',
+        'enableAjaxValidation' => false,
+        'htmlOptions' => array('class' => 'well'),
     ));
 
     // Устанавливаем правила для отображения/скрытия разделов формы

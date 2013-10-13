@@ -231,6 +231,10 @@ class AdminController extends Controller
 	 */
 	public function sendActivationEmail($model, $password=null, $ownerId=1)
 	{
+	    if ( $ownerId AND $ownerId != 1 )
+	    {// анкета из партнерской базы - не высылаем активационное письмо сразу
+	        return;
+	    }
 	    $activation_url = $this->createAbsoluteUrl('/user/activation/activation',
 	        array("activkey" => $model->activkey, "email" => $model->email)
 	    );
@@ -260,6 +264,6 @@ class AdminController extends Controller
 	    $message .= "<br><br>";
 	    $message .= "С уважением, команда проекта EasyCast";
 	     
-	    UserModule::sendMail($model->email, $theme, $message);
+	    UserModule::sendMail($model->email, $theme, $message, true);
 	}
 }

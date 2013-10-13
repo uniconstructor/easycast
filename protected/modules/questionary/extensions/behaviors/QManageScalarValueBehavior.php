@@ -375,6 +375,7 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
     /**
      * Получить список статусов, в которые может перейти анкета
      * @todo добавить статус "suspended"
+     * @todo переписать, используя константы
      * @return array
      */
     public function getAllowedStatuses()
@@ -382,13 +383,28 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
         switch ( $this->owner->status )
         {
             case 'draft':
-                return array('active', 'delayed', 'pending');
+                if ( $this->owner->ownerid )
+                {// первый раз анкета должна активироваться самим участником
+                    return array('unconfirmed', 'delayed');
+                }else
+                {
+                    return array('active', 'delayed', 'pending');
+                }
             break;
             case 'active':
                 return array('active', 'pending');
             break;
             case 'pending':
                 return array('pending', 'active', 'rejected');
+            break;
+            case 'unconfirmed':
+                if ( Yii::app()->user->checkAccess('Admin') )
+                {// первый раз анкета должна активироваться самим участником
+                    return array('unconfirmed');
+                }else
+                {
+                    return array('unconfirmed', 'active');
+                }
             break;
             case 'delayed':
                 return array('active', 'pending', 'delayed');

@@ -79,7 +79,7 @@ class EMailSSNotification extends EMailBase
         }
         if ( ! $this->displayManagerInfo($manager) )
         {
-            //return '';
+            return '';
         }
         return "Меня зовут {$manager->questionary->firstname}, я руководитель проектов кастингового агентства easyCast.<br><br>";
     }

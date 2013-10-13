@@ -610,7 +610,19 @@ class QuestionaryController extends Controller
         {
             throw new CHttpException('400', 'Неправильная ссылка активации');
         }
+        // активируем анкету
         $questionary->setStatus(Questionary::STATUS_ACTIVE);
+        
+        // отсылаем письмо с подтверждением и паролем
+        $password = $questionary->user->generatePassword();
+        $questionary->user->password = Yii::app()->getModule('user')->encrypting($password);
+        $questionary->user->activkey = Yii::app()->getModule('user')->encrypting(microtime().$password);
+        if ( ! $questionary->user->save() )
+        {// @todo языковые строки
+            throw new CHttpException(500, 'Ошибка при активации учетной записи');
+        }
+        $this->sendActivateConirmationEmail($questionary, $password);
+        
         // авторизуем пользователя
         Yii::app()->getModule('user')->forceLogin($questionary->user);
         // отображаем страницу с результатом активации
@@ -809,5 +821,16 @@ class QuestionaryController extends Controller
         	    $('#{$buttonId}').attr('value', '{$afterInviteCaption}');
     	    }
 	    }";
+	}
+	
+	protected function sendActivateConirmationEmail($questionary, $password)
+	{
+	    $message  = 'Ваша учетная запись активирована.<br>';
+	    $message .= 'Ваш логин и пароль для входа на сайт:<br><br>';
+	    $message .= 'Логин:'.$questionary->user->email.'<br>';
+	    $message .= 'Пароль:'.$password.'<br><br>';
+	    $message .= 'C уважением, команда проекта easyCast.';
+	    
+	    UserModule::sendMail($questionary->user->email, 'Учетная запись активирована', $message, true);
 	}
 }

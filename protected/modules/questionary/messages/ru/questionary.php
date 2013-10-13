@@ -517,6 +517,7 @@ return array
     'status_rejected' => 'Отклонена',
     'status_active' => 'Проверена',
     'status_invisible' => 'Скрыта',
+    'status_unconfirmed' => 'Ждет подтверждения участника',
         
         
                     
