@@ -407,7 +407,13 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
                 }
             break;
             case 'delayed':
-                return array('active', 'pending', 'delayed');
+                if ( $this->owner->ownerid )
+                {
+                    return array('delayed', 'unconfirmed');
+                }else
+                {
+                    return array('active', 'pending', 'delayed');
+                }
             break;
             case 'rejected':
                 return array('rejected', 'active', 'pending');
