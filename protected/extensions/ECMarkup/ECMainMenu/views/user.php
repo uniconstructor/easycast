@@ -8,22 +8,20 @@
 <table class="table">
     <tr>
         <td rowspan="2" class="mainmenu-new-user">
-            <div class="main-menu-item">
-                <div class="main-menu-item-image clearfix">
-                    <a href="<?= $newUser->link; ?>" target="<?= $newUser->target; ?>"
-                        data-toggle="modal" data-target="#registration-modal"><?= $newUser->image; ?></a>
-                    <div class="main-menu-item-label"><a href="<?= $newUser->link; ?>" target="<?= $newUser->target; ?>"
-                        data-toggle="modal" data-target="#registration-modal"><?= $newUser->label; ?></a></div>
-                </div>
-            </div>
         <?php
-            
+            if ( Yii::app()->user->isGuest )
+            {
+                $this->render('newUser', array('newUser' => $newUser));
+            }else
+            {
+                $this->render('myPage', array('newUser' => $newUser));
+            }
         ?>
         </td>
         <?php // Выводим пункты для первой строки меню 
             foreach ( $items[0] as $item )
             {
-                $this->render('item', array('item'=>$item));
+                $this->render('item', array('item' => $item));
             }
         ?>
     </tr>
@@ -33,7 +31,7 @@
             {
                 foreach ( $items[1] as $item )
                 {
-                    $this->render('item', array('item'=>$item));
+                    $this->render('item', array('item' => $item));
                 }
             }
         ?>
