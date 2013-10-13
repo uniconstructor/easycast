@@ -1,5 +1,6 @@
 <?php
 
+// подключаем родительский класс (участники проекта)
 Yii::import('application.modules.admin.extensions.ProjectMembers.ProjectMembers');
 
 /**
