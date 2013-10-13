@@ -150,11 +150,11 @@ class EMailSSNotification extends EMailBase
         // ссылка на активацию анкеты
         $url = Yii::app()->createAbsoluteUrl('/questionary/questionary/userActivation',
             array(
-                'id' => $this->questionary->id,
+                'id'  => $this->questionary->id,
                 'key' => $this->questionary->user->activkey,
             ));
         // сама кнопка
-        $button['caption'] = 'Начать работу';
+        $button['caption'] = 'Принять приглашение';
         $button['link']    = $url;
         $button['description'] = 'Нажмите сюда, чтобы добавить свою анкету в каталог, отредактировать информацию о себе или подать заявку на участие в съемках';
         // добавляем кнопку в блок
