@@ -179,6 +179,32 @@ class UserModule extends CWebModule
 	}
 	
 	/**
+	 * Залогинить пользователя (например по одноразовому ключу)
+	 * @param User $user
+	 * @return bool
+	 */
+	public function forceLogin($user)
+	{
+	    if ( ! Yii::app()->user->isGuest )
+	    {
+	        return true;
+	    }
+	    if ( ! ( $user instanceof User) )
+	    {// @todo подробнее обработать ошибку
+	        return false;
+	    }
+	
+	    $identity = new UserIdentity($user->username, null);
+	    // хак с Identity для того чтобы залогинить пользователя, не зная его пароля
+	    $identity->setState('inviteLogin', true);
+	    $identity->authenticate();
+	    $identity->clearState('inviteLogin');
+	    Yii::app()->user->login($identity, 3600*24*60);
+	
+	    return true;
+	}
+	
+	/**
 	 * @param $str
 	 * @param $params
 	 * @param $dic
