@@ -181,6 +181,9 @@ class InviteController extends Controller
      * Залогинить пользователя по одноразовому ключу
      * @param Questionary $user
      * @return null
+     * 
+     * @todo рефакторинг: воспользоваться аналогичным методом из UserModule
+     * @deprecated 
      */
     protected function quickLogin($questionary)
     {
