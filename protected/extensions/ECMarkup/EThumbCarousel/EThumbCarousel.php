@@ -29,6 +29,10 @@ class EThumbCarousel extends CWidget
      */
     public $echoScripts = false;
     /**
+     * @var string - текст, который выводится, когда нет ни одного изображения
+     */
+    public $emptyText;
+    /**
      * @var string
      */
     protected $_assetUrl;
@@ -101,17 +105,16 @@ class EThumbCarousel extends CWidget
         if ( $this->photos )
         {
             $this->widget('bootstrap.widgets.TbCarousel', array(
-                            'items' => $this->photos,
-                            'options' => array(
-                                'interval' => false,
-                            ),
-                            'htmlOptions' => array(
-                                'id' => $this->id,
-                            ),
+                'items' => $this->photos,
+                'options' => array(
+                    'interval' => false,
+                ),
+                'htmlOptions' => array(
+                    'id' => $this->id,
+                ),
             ));
         }
         // Уменьшеные копии
-        // @todo сделать так чтобы при включенной разбивки по страницам работал JS
         $dataProvider = new CArrayDataProvider($this->previews, array(
             'pagination' => false,
             )
@@ -120,6 +123,7 @@ class EThumbCarousel extends CWidget
                         'dataProvider' => $dataProvider,
                         'template'     => "{items}",
                         'itemView'     => '_thumb',
+                        'emptyText'    => $this->emptyText,
                         )
         );
         // fancybox для каждой фотографии, чтобы можно было посмотреть увеличенную копию

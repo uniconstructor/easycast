@@ -256,7 +256,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
             
             if ( $questionary->galleryBehavior->getGallery() === null )
             {
-                echo '<p>Before add photos to  gallery, you need to save the form</p>';
+                echo '<div class="alert">Сохраните анкету перед загрузкой фотографий</div>';
             }else
             {
                 $this->widget('GalleryManager', array(

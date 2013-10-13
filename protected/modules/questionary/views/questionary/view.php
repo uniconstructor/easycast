@@ -49,6 +49,17 @@ if ( $canEdit )
         array('class' => 'btn btn-warning btn-large'));
 }
 
+// создаем сообщение, на случай если ни одной фотографии не загружено
+$noPhotoMessage = '<div class="alert">Фотографии не загружены</div>';
+if ( $questionary->user->id == Yii::app()->user->id )
+{// если участник просматривает свою анкету без фотографий - выведем предупреждение
+    $noPhotoMessage = '<div class="alert alert-danger alert-block"><h4 class="alert-heading">Ни одной фотографии не загружено</h4>
+        В анкете обязательно должна быть хотя бы одна ваша фотография.
+        Без них ваша анкета не будет видна в каталоге или выводиться в поиске.</div>';
+}
+
+
+
 ?>
 <div class="row">
     <div class="span12" style="margin-top:-40px;margin-bottom:-10px;">
@@ -83,7 +94,15 @@ if ( $canEdit )
                 'previews'    => $questionary->getBootstrapPhotos('small'),
                 'photos'      => $questionary->getBootstrapPhotos('medium'),
                 'largePhotos' => $questionary->getBootstrapPhotos('large'),
+                'emptyText'   => $noPhotoMessage,
             ));
+            if ( ! $questionary->getGalleryPhotos() AND $canEdit )
+            {
+                $this->widget('GalleryManager', array(
+                    'gallery' => $questionary->galleryBehavior->getGallery(),
+                    'controllerRoute' => '/questionary/gallery'
+                ));
+            }
         ?>
         </div>
     </div>
