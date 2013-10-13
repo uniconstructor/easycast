@@ -125,6 +125,15 @@ class MailComposerModule extends CWebModule
                 $customerInvite = $params['customerInvite'];
                 return $mailComposer->createCustomerInviteMailText($customerInvite, $mailOptions);
             break;
+            // приглашение активировать анкету для участников из базы Светланы Строиловой
+            case 'SSInvite':
+                if ( ! isset($params['questionary']) )
+                {
+                    throw new CException('questionary for mail is not set');
+                }
+                $questionary = $params['questionary'];
+                return $mailComposer->createSSInviteMailText($questionary);
+                break;
         }
     }
     

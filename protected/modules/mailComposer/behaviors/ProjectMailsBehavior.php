@@ -4,6 +4,10 @@
  * В этот класс вынесены все функции создания писем для модуля "projects"
  * 
  * @todo языковые строки
+ * @todo перенести все стандартные функции (приветствие, и т. д.) 
+ *       отсюда в базовый класс виджета письма (EMailBase)
+ * @todo рефакторинг: изменить принцип формирования писем - вместо функций использовать виджеты.
+ *       Один виджет - одно письмо. Все виджеты должны находиться в папке modules.mailComposer.extensions.mails
  */
 class ProjectMailsBehavior extends CBehavior
 {
@@ -252,6 +256,18 @@ class ProjectMailsBehavior extends CBehavior
         // создаем виджет и получаем из него полный HTML-код письма
         return $this->owner->widget('application.modules.mailComposer.extensions.widgets.EMailAssembler.EMailAssembler',
             $mailOptions, true);
+    }
+    
+    /**
+     * Создать текст письма с приглашением активировать анкету для актеров из базы Светланы Строиловой
+     * @param Questionary $questionary
+     * @return string
+     */
+    public function createSSInviteMailText($questionary)
+    {
+        return $this->owner->widget('application.modules.mailComposer.extensions.mails.EMailSSNotification.EMailSSNotification',
+            array('questionary' => $questionary),
+            true);
     }
     
     /**

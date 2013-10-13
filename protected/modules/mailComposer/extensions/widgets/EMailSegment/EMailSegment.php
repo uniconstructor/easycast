@@ -68,13 +68,10 @@ class EMailSegment extends CWidget
             case 'textOnly':  $this->displayTextOnly(); break;
             case 'imageLeft': $this->displayImageLeft(); break;
         }
-        if ( ! empty($this->button) )
+        if ( is_array($this->button) AND ! empty($this->button) )
         {// отображаем кнопку с действием под абзацем
             $this->widget('application.modules.mailComposer.extensions.widgets.EMailButton.EMailButton',
-                array(
-                    'link'    => $this->button['link'],
-                    'caption' => $this->button['caption'],
-                )
+                $this->button
             );
         }
     }

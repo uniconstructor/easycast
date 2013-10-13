@@ -116,7 +116,6 @@ class MailComposer extends CApplicationComponent
      * @return array
      *
      * @todo брать настройки из специального плагина
-     * @todo а может вообще удалить если не пригодится
      */
     public function getMailDefaults()
     {
@@ -143,6 +142,8 @@ class MailComposer extends CApplicationComponent
      * @param string $header - заголовок блока (необязательно)
      * @param array|nill $editBlock - блок, который нужно дополнить
      * @return array
+     * 
+     * @todo удалить эту функцию при рефакторинге. Вместо нее использовать аналогичную, из класса EMailBase
      */
     public function textBlock($text, $header='', $editBlock=null)
     {

@@ -61,9 +61,12 @@ class MailController extends Controller
         //$invite = EventInvite::model()->findByPk(650);
         //echo MailComposerModule::getMessage('newInvite', array('invite' => $invite));
         
-        $customerInvite = CustomerInvite::model()->findByPk(3);
-        echo MailComposerModule::getSubject('customerInvite', array('customerInvite' => $customerInvite));
-        echo MailComposerModule::getMessage('customerInvite', array('customerInvite' => $customerInvite));
+        //$customerInvite = CustomerInvite::model()->findByPk(3);
+        //echo MailComposerModule::getSubject('customerInvite', array('customerInvite' => $customerInvite));
+        //echo MailComposerModule::getMessage('customerInvite', array('customerInvite' => $customerInvite));
+        
+        $questionary = Questionary::model()->findByPk(9);
+        echo MailComposerModule::getMessage('SSInvite', array('questionary' => $questionary));
     }
     
     /**
