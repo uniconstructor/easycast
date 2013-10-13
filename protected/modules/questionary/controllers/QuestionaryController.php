@@ -68,7 +68,7 @@ class QuestionaryController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index', 'view', 'catalog', 'ajaxGetUserInfo', 'invite', 'dismiss'),
+				'actions'=>array('index', 'view', 'catalog', 'ajaxGetUserInfo', 'invite', 'dismiss', 'userActivation'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -587,6 +587,37 @@ class QuestionaryController extends Controller
         ));
         
         Yii::app()->end();
+    }
+    
+    /**
+     * Активация анкет, созданных без предварительного обзвона участников
+     * @return null
+     */
+    public function actionUserActivation()
+    {
+        // получаем id анкеты
+        $id  = Yii::app()->request->getParam('id');
+        $key = Yii::app()->request->getParam('key');
+        if ( ! $id OR ! $key )
+        {
+            throw new CHttpException('400', 'Не переданы обязательные параметры');
+        }
+        if ( ! $questionary = Questionary::model()->findByPk($id) )
+        {
+            throw new CHttpException('500', 'Анкета на найдена');
+        }
+        if ( $questionary->user->activkey != $key )
+        {
+            throw new CHttpException('400', 'Неправильная ссылка активации');
+        }
+        $questionary->setStatus(Questionary::STATUS_ACTIVE);
+        // авторизуем пользователя
+        Yii::app()->getModule('user')->forceLogin($questionary->user);
+        // отображаем страницу с результатом активации
+        $url = Yii::app()->createUrl(Yii::app()->getModule('questionary')->profileUrl, array('id' => $questionary->id));
+        $this->render('userActivation', array(
+            'url' => $url,
+        ));
     }
     
 	/**

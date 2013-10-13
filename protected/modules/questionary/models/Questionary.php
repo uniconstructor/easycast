@@ -1024,6 +1024,24 @@ class Questionary extends CActiveRecord
         return false;
     }
     
+    /**
+     * Получить администрарора, который ввел анкету
+     * @return User|null - объект из таблицы users или null если участник зарегистрировался сам
+     */
+    public function getQuestionaryAuthor()
+    {
+        if ( ! $creationRecord = QCreationHistory::model()->findByAttributes(array('questionaryid' => $this->id)) )
+        {
+            return null;
+        }
+        if ( ! $user = User::model()->findByPk($creationRecord->userid) )
+        {// создавший анкету администратор не найден в нашей базе
+            // @todo записать ошибку в лог
+            return null;
+        }
+        return $user;
+    }
+    
     /////////////////////////////////////////////////
     // Сохранение и получение сложных полей анкеты //
     /////////////////////////////////////////////////

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * История создания анкет администратором
+ * История создания анкет администраторами
  * Таблица "{{q_creation_history}}".
  *
  * The followings are the available columns in table '{{q_creation_history}}':
