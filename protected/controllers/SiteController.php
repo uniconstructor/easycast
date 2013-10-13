@@ -238,4 +238,23 @@ class SiteController extends Controller
         header("Connection: close");
         Yii::app()->end();
     }
+    
+    /**
+     * Отобразить страницу онлайн-кастинга
+     * @return null
+     */
+    public function actionViewOnlineCasting()
+    {
+        
+    }
+    
+    /**
+     * Отображает форму запроса на проведение онлайн-кастинга (для гостей)
+     * Или форму создания онлайн-кастинга (для зарегистрированных заказчиков или по одноразовой ссылке)
+     * @return null
+     */
+    public function actionCreateOnlineCasting()
+    {
+        
+    }
 }
