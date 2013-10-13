@@ -9,7 +9,7 @@ $this->breadcrumbs = array();
 $this->breadcrumbs[QuestionaryModule::t('catalog')] = array('/catalog/catalog');
 
 if ( $sectionId = CatalogModule::getNavigationParam('sectionId') AND $sectionId != 1 )
-{
+{// выстраиваем верхнюю навигацию в зависимости от того, с какого раздела каталога мы перешли
     $tabName = CatalogModule::getNavigationParam('tab');
     if ( ! $page = CatalogModule::getNavigationParam('page') )
     {
@@ -57,8 +57,6 @@ if ( $questionary->user->id == Yii::app()->user->id )
         В анкете обязательно должна быть хотя бы одна ваша фотография.
         Без них ваша анкета не будет видна в каталоге или выводиться в поиске.</div>';
 }
-
-
 
 ?>
 <div class="row">

@@ -1,7 +1,13 @@
 <?php
-/* @var $this QuestionaryController */
-/* @var $questionary Questionary */
-/* @var $form TbActiveForm */
+/**
+ * Форма анкеты участника
+ * 
+ * @var $this QuestionaryController
+ * @var $questionary Questionary
+ * @var $form TbActiveForm
+ * 
+ * @todo не отображается список ошибок в конце формы
+ */
 
 // Подключаем расширения для полей формы
 
@@ -36,8 +42,13 @@ Yii::import('ext.CountryCitySelectorRu.*');
     // начало виджета формы редактирования анкеты
     $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         'id' => 'questionary-form',
-        'enableAjaxValidation' => false,
-        'htmlOptions' => array('class' => 'well'),
+        'enableAjaxValidation'   => true,
+        'enableClientValidation' => true,
+        'clientOptions' => array(
+            'validateOnSubmit' => true,
+            'validateOnChange' => true,
+        ),
+        //'htmlOptions' => array('class' => 'well'),
     ));
 
     // Устанавливаем правила для отображения/скрытия разделов формы
@@ -168,7 +179,6 @@ Yii::import('ext.CountryCitySelectorRu.*');
     </p>
 	<?php echo $form->errorSummary($questionary); ?>
     
-	<?php // echo $form->hiddenField($questionary,'userid'); ?>
     <?php // рейтинг анкеты (выставляется только администрацией)
         if ( Yii::app()->user->isSuperuser )
         {
@@ -1285,12 +1295,12 @@ Yii::import('ext.CountryCitySelectorRu.*');
 		<?php 
     		$this->widget('ext.ActiveDateSelect',
     		array(
-    		    'model'=>$questionary,
-    		    'attribute'=>'passportdate',
-    		    'reverse_years'=>false,
-    		    'field_order'=>'DMY',
-    		    'start_year'=>date("Y", time()-40*365*24*3600),
-    		    'end_year'=>date("Y", time()),
+    		    'model'         => $questionary,
+    		    'attribute'     => 'passportdate',
+    		    'reverse_years' => false,
+    		    'field_order'   => 'DMY',
+    		    'start_year'    => date("Y", time() - 40*365*24*3600),
+    		    'end_year'      => date("Y", time()),
     		));
 		?>
 		<?php echo $form->error($questionary,'passportdate'); ?>
@@ -1448,7 +1458,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
     // @todo вставить ссылку или текстовый блок с условиями соглашения
     if ( ! $user->policyagreed AND ! Yii::app()->user->checkAccess('Admin') )
     {// не показывается админам и тем, кто уже согласился с условиями
-        $this->widget('ext.EToggleBox.EToggleBox', array(
+        /*$this->widget('ext.EToggleBox.EToggleBox', array(
             'model'     => $user,
             'attribute' => 'policyagreed',
             'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
@@ -1461,7 +1471,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
                         $("#save_questionary").removeAttr("disabled");
                     }'
             ))
-        ));
+        ));*/
     }
     ?>
     
@@ -1493,7 +1503,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
         // Выделяем его очень ярко, чтобы ни в коем случае не ошибиться
         ?>
         <div class="ec-round-the-corner" style="background-color:#000;padding:20px;">
-        <br><br><br>
+        <br><br>
         <?php
         echo $form->labelEx($questionary,'privatecomment');
         // Поле длинное, так что мы можем позволить себе RichText редактор
@@ -1504,27 +1514,28 @@ Yii::import('ext.CountryCitySelectorRu.*');
                 'lang' => 'ru',
             ),
         ));
-        echo $form->error($questionary,'privatecomment');
+        echo $form->error($questionary, 'privatecomment');
         // Комментарий к анкете (пояснение)
         $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription',
             array(
                 'field' => 'privatecomment',
                 'type'  => 'info'));
         ?>
-        <br><br><br>
+        <br><br>
         </div>
     <?php 
     }// конец блока полей, доступного только администроторам
     ?>
-
     <div class="form-actions">
         <?php
+        //echo $form->errorSummary($questionary);
         // Кнопка сохранения 
         $this->widget('bootstrap.widgets.TbButton',
             array(
                 'buttonType'  => 'submit',
-                'type'        => 'primary',
-                'label'       => Yii::t('coreMessages','save'),
+                'type'        => 'success',
+                'size'        => 'large',
+                'label'       => Yii::t('coreMessages', 'save'),
                 'htmlOptions' => array('id' => 'save_questionary')
             ));
         ?>

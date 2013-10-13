@@ -168,11 +168,6 @@ class QuestionaryController extends Controller
 	 */
 	public function actionUpdate($id)
     {
-        // Форма анкеты выводится одной колонкой, чтобы ничто не отвлекало и не расползалась верстка
-        // @todo удалить эту строку отсюда и использовать во всех действиях QuestionaryController
-        // верстку в одну колонку по умолчанию
-        $this->layout = '//layouts/column1';
-        
         // Загружаем дополнительные стили для формы:
         $assetsUrl = CHtml::asset($this->module->basePath.DIRECTORY_SEPARATOR.'assets');
         Yii::app()->clientScript->registerCssFile($assetsUrl.DIRECTORY_SEPARATOR.
@@ -187,6 +182,9 @@ class QuestionaryController extends Controller
         {
             $this->redirect(Yii::app()->getModule('questionary')->profileUrl);
         }
+        
+        // AJAX-а вводимых значений в процессе заполнения формы
+        $this->performAjaxValidation($questionary);
         
         if ( ! $address = $questionary->address )
         {// проверка, на случай если в базе ошибки и адрес куда-то пропал
@@ -256,11 +254,7 @@ class QuestionaryController extends Controller
         $video = new Video;
         $validatedVideos = array();
 
-
-        // @todo сделать AJAX-проверку вводимых значений
-        // $this->performAjaxValidation($questionary);
-
-
+        
         if( Yii::app()->request->getPost('Questionary') )
         {
             $user->attributes = Yii::app()->request->getPost('User');
@@ -656,7 +650,7 @@ class QuestionaryController extends Controller
 	 */
 	protected function performAjaxValidation($model)
 	{
-		if(isset($_POST['ajax']) && $_POST['ajax']==='questionary-form')
+		if ( isset($_POST['ajax']) && $_POST['ajax'] === 'questionary-form' )
 		{
 			echo CActiveForm::validate($model);
 			Yii::app()->end();

@@ -196,31 +196,13 @@ class Questionary extends CActiveRecord
      */
     public function rules()
     {
-        return array(
-            array('userid,  birthdate, cityid, isactor, isamateuractor, hasfilms, isemcee, istvshowmen,
-                    isstatist, ismassactor
-                    isparodist, istwin, ismodel, isphotomodel, ispromomodel, isdancer,
-                    hasawards, isstripper, issinger,
-                    ismusician, issportsman, isextremal, isathlete, hasskills, hastricks, 
-                    haslanuages, hasinshurancecard, countryid, nativecountryid,
-                    shoessize, passportdate, rating, hastatoo, playagemin, playagemax,
-                    istheatreactor, ismediaactor, ownerid',
-                   'numerical', 'integerOnly'=>true),
-            array('firstname, lastname, middlename, city, inshurancecardnum', 'length', 'max'=>128),
-            
-            array('mobilephone, homephone, addphone, inn', 'length', 'max'=>32),
-            array('hairlength, wearsize', 'length', 'max'=>16),
-            array('vkprofile, fbprofile, okprofile, passportorg, admincomment', 'length', 'max'=>255),
-            array('privatecomment', 'length', 'max'=>4095),
-            array('passportserial, passportnum', 'length', 'max'=>10),
-            
-            // @todo добавить индивидуальную проверку для каждого типа поля
-            array('gender, height, weight, wearsize, looktype, haircolor, eyecolor,
-                    physiquetype, titsize, chestsize, waistsize, hipsize, striptype
-                    striplevel, singlevel, wearsize, status', 'safe'),
-            // @todo добавить проверку сложных значений
-            array('voicetimbre, addchar, parodist, twin, vocaltype, sporttype, extremaltype, trick, skill', 'safe'),
-        );
+        // правила проверки простых (скалярных) значений формы
+        // проверки по умолчанию
+        $defaultScalarRules = $this->getDefaultScalarRules();
+        // дополнительные проверки
+        $customScalarRules  = $this->getCustomScalarRules();
+        
+        return CMap::mergeArray($defaultScalarRules, $customScalarRules);
     }
     
     /**
@@ -369,6 +351,7 @@ class Questionary extends CActiveRecord
         Yii::import('ext.galleryManager.models.*');
         Yii::import('application.modules.questionary.extensions.behaviors.QManageDefaultValuesBehavior');
         Yii::import('application.modules.questionary.extensions.behaviors.QManageScalarValueBehavior');
+        Yii::import('application.modules.questionary.extensions.behaviors.QScalarRules');
         
         // получаем настройки галереи изображений из модуля
         $gallerySettings = Yii::app()->getModule('questionary')->gallerySettings;
@@ -389,7 +372,11 @@ class Questionary extends CActiveRecord
                 'class' => 'zii.behaviors.CTimestampBehavior',
                 'createAttribute' => 'timecreated',
                 'updateAttribute' => 'timemodified',
-            )
+            ),
+            // проверки для простых полей формы
+            'QScalarRules' => array(
+                'class' => 'application.modules.questionary.extensions.behaviors.QScalarRules',
+            ),
         );
     }
     
@@ -1239,16 +1226,20 @@ class Questionary extends CActiveRecord
     /** Получить список полей, которые нуждаются в преобразовании после прихода из формы
      * 
      * @return multitype:string
+     * @deprecated
+     * @todo удалить при рефакторинге
      */
     public function convertedFields()
     {
-        return array('birthdate', 'passportexpires', 'passportdate');
+        return array(/*'birthdate',*/ 'passportexpires', 'passportdate');
     }
     
     /** Получить массив атрибутов модели, пригодных для записи в базу
      * @todo посмотреть, можно ли сделдать это нормальным способом через фильтры
      * 
      * @param array $attributes - пришедшие из $_POST данные
+     * @deprecated
+     * @todo удалить при рефакторинге
      */
     public function getConvertedAttributes($attributes)
     {
@@ -1276,6 +1267,9 @@ class Questionary extends CActiveRecord
      * @param string|int|array $value - значение поля
      * 
      * @return mixed 
+     * 
+     * @deprecated
+     * @todo удалить при рефакторинге
      */
     protected function convertFieldValue($result, $field, $value)
     {
@@ -1294,6 +1288,9 @@ class Questionary extends CActiveRecord
      * @param array $result
      * @param array $field
      * @param array $value
+     * 
+     * @deprecated
+     * @todo удалить при рефакторинге
      */
     protected function convertDate($result, $field, $value)
     {
