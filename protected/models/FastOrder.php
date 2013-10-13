@@ -21,6 +21,21 @@
 class FastOrder extends CActiveRecord
 {
     /**
+     * @var string
+     */
+    const TYPE_NORMAL = 'normal';
+    
+    /**
+     * @var string
+     */
+    const TYPE_FAST = 'fast';
+    
+    /**
+     * @var string - тип заказа: заявка на онлайн-кастинг
+     */
+    const TYPE_CASTING = 'casting';
+    
+    /**
      * (non-PHPdoc)
      * @see CActiveRecord::init()
      */
@@ -29,6 +44,7 @@ class FastOrder extends CActiveRecord
         Yii::import('application.modules.user.UserModule');
         Yii::import('application.modules.user.models.*');
     }
+    
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
