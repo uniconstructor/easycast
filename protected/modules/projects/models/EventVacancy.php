@@ -19,6 +19,8 @@
  * @property string $searchdata
  * @property string $autoconfirm
  * @property string $salary
+ * @property string $timestart
+ * @property string $timeend
  * 
  * Relations:
  * @property SearchScope $scope
@@ -223,7 +225,7 @@ class EventVacancy extends CActiveRecord
 	{
 		return array(
 			array('name, limit', 'required'),
-			array('salary, autoconfirm, eventid, scopeid, timecreated, timemodified', 'length', 'max'=>11),
+			array('salary, autoconfirm, eventid, scopeid, timecreated, timemodified, timestart, timeend', 'length', 'max'=>11),
 			array('name, description', 'length', 'max'=>255),
 			array('limit', 'length', 'max'=>6),
 			array('status', 'length', 'max'=>9),
