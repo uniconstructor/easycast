@@ -1,6 +1,10 @@
 <?php 
+/**
+ * Страница восстановления пароля
+ * @todo языковые строки
+ */
 
-$this->pageTitle=Yii::app()->name . ' - '.UserModule::t("Restore");
+$this->pageTitle = Yii::app()->name . ' - '."Восстановление пароля";
 
 $this->breadcrumbs=array(
 	UserModule::t("Login") => array('/user/login'),
@@ -8,10 +12,10 @@ $this->breadcrumbs=array(
 );
 ?>
 
-<h1><?php echo UserModule::t("Restore"); ?></h1>
+<h1>Восстановление пароля</h1>
 
 <?php if(Yii::app()->user->hasFlash('recoveryMessage')): ?>
-<div class="success">
+<div class="alert alert-success">
 <?php echo Yii::app()->user->getFlash('recoveryMessage'); ?>
 </div>
 <?php else: ?>
