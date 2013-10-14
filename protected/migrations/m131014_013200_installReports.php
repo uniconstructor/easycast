@@ -19,7 +19,7 @@ class m131014_013200_installReports extends CDbMigration
             "timemodified" => "int(11) UNSIGNED NOT NULL DEFAULT 0",
             "plantime" => "int(11) UNSIGNED NOT NULL DEFAULT 0",
             "data" => "text",
-            "status" => "varchar(50) NOT NULL DEFAULT 'default'",
+            "status" => "varchar(50) NOT NULL DEFAULT 'draft'",
         );
         $this->createTable($table, $fields, 'ENGINE=InnoDB CHARSET=utf8');
         $this->_createIndexes($table, $fields, array('data'));

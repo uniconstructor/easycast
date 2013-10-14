@@ -186,9 +186,11 @@ return array(
         // Письма (этот модуль отвечает за правильную верстку писем)
         'mailComposer' => array(
             'class' => 'application.modules.mailComposer.MailComposerModule',
-            /*'modules' => array(
-                'composer' => 'application.modules.mailComposer.components.MailComposer',
-            ),*/
+        ),
+        
+        // отчеты
+        'reports' => array(
+            'class' => 'application.modules.reports.ReportsModule',
         ),
 	),
 

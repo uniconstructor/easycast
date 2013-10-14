@@ -136,14 +136,26 @@ class ProjectEventController extends Controller
 	 */
 	public function actionCallList()
 	{
-	    $eventId = Yii::app()->request->getParam('eventId', 0);
-	    if ( ! $event = ProjectEvent::model()->findByPk($eventId) )
+	    Yii::import('reports.models.*');
+	    $eventId   = Yii::app()->request->getParam('eventId', 0);
+	    $reportId  = Yii::app()->request->getParam('id', 0);
+	    if ( ! $event = ProjectEvent::model()->findByPk($eventId) AND ! $reportId )
 	    {
 	        throw new CHttpException(500, 'Невозможно отобразить вызывной лист: мероприятие не найдено');
 	    }
+	    if ( ! $report = RCallList::model()->findByPk($reportId) )
+	    {
+	        $report = new RCallList;
+	    }
+	    if ( $attributes = Yii::app()->request->getParam('Report') )
+	    {
+	        $report->attributes($attributes);
+	        $report->createReport($data);
+	    }
 	    
 	    $this->render('callList', array(
-	        'event' => $event,
+	        'event'  => $event,
+	        'report' => $report,
 	    ));
 	}
 

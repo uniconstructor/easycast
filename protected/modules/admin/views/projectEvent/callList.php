@@ -14,6 +14,7 @@ $breadcrumbs = array(
 $this->breadcrumbs = $breadcrumbs;
 
 // отображаем вызывной лист
-$this->widget('admin.extensions.CallList.CallList', array(
-    'objectId' => $event->id,
+$this->widget('reports.extensions.widgets.CallListReport.CallListReport', array(
+    'event'  => $event,
+    'report' => $report,
 ));
