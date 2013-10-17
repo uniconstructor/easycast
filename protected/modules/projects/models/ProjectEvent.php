@@ -23,6 +23,8 @@
  * @property string $salary
  * @property string $meetingplace
  * @property string $nodates
+ * @property string $virtual - "виртуальное" мероприятие любого типа: то есть такое событие которое 
+ *                             физически нигде не проводится и присутствует только на сайте
  * 
  * 
  * Связи с другими таблицами:
@@ -245,7 +247,8 @@ class ProjectEvent extends CActiveRecord
 	{
 		return array(
 			array('name, description', 'required'),
-			array('nodates, eta, showtimestart, parentid, projectid, timestart, timeend, timecreated, timemodified, addressid', 'length', 'max'=>20),
+			array('nodates, eta, showtimestart, parentid, projectid, timestart, timeend, timecreated, 
+			    timemodified, addressid, $virtual', 'length', 'max'=>20),
 			array('meetingplace, memberinfo, description', 'length', 'max'=>4095),
 			array('status', 'length', 'max'=>9),
 			array('type', 'length', 'max'=>20),

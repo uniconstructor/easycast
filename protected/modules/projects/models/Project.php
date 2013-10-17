@@ -19,6 +19,9 @@
  * @property integer $isfree
  * @property string $memberscount
  * @property string $status
+ * @property string $virtual - означает что весь проект состоит только из виртуальных мероприятий 
+ *                             (настоящие в нем создать нельзя).
+ *                             По смыслу идея чем-то напоминает абстрактный класс в программировании.
  * 
  * Relations:
  * @property User $leader
@@ -221,14 +224,14 @@ class Project extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('name, type, description, timestart, timeend', 'required'),
-			array('isfree', 'numerical', 'integerOnly'=>true),
+			array('isfree, virtual', 'numerical', 'integerOnly'=>true),
 			array('name', 'length', 'max'=>255),
 			array('type, status', 'length', 'max'=>9),
 			array('description, shortdescription, customerdescription', 'length', 'max'=>4095),
 			array('photogalleryid, galleryid, timestart, timeend, timecreated, timemodified, leaderid, customerid, orderid, memberscount', 'length', 'max'=>11),
 			// The following rule is used by search().
-			// Please remove those attributes that should not be searched.
-			array('id, name, type, description, galleryid, timestart, timeend, timecreated, timemodified, leaderid, customerid, orderid, isfree, memberscount, status', 'safe', 'on'=>'search'),
+			array('id, name, type, description, galleryid, timestart, timeend, timecreated, timemodified, 
+			    leaderid, customerid, orderid, isfree, virtual, memberscount, status', 'safe', 'on'=>'search'),
 		);
 	}
 
