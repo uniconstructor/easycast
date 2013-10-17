@@ -324,8 +324,9 @@ class ProjectMembers extends CWidget
      */
     protected function getMemberName($member)
     {
-        $memberUrl = Yii::app()->createAbsoluteUrl(Yii::app()->getModule('questionary')->profileUrl, array('id' => $member->member->id));
-        return CHtml::link($member->member->fullname, $memberUrl, array('target' => '_blank'));
+        $memberUrl   = Yii::app()->createAbsoluteUrl(Yii::app()->getModule('questionary')->profileUrl, array('id' => $member->member->id));
+        $memberLink  = CHtml::link($member->member->fullname, $memberUrl, array('target' => '_blank'));
+        return $memberLink;
     }
     
     /**

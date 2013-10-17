@@ -933,6 +933,11 @@ class Questionary extends CActiveRecord
         $history->save();
     }
     
+    /**
+     * Отправить письмо участнику с предложением зарегистрироваться
+     * (для анкет из базы Светланы Строиловой)
+     * @return null
+     */
     protected function sendSSFillingMail()
     {
         $mailComposer = Yii::app()->getModule('mailComposer');

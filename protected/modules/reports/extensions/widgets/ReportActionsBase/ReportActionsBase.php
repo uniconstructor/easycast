@@ -53,6 +53,10 @@ class ReportActionsBase extends CWidget
         echo '</div>';
     }
     
+    /**
+     * Отобразить форму сохранения отчета
+     * @return null
+     */
     protected function displaySaveAction()
     {
         if ( ! $this->allowSave )
@@ -62,6 +66,10 @@ class ReportActionsBase extends CWidget
         $this->render('_saveForm');
     }
     
+    /**
+     * Отобразить форму отправки отчета по email
+     * @return null
+     */
     protected function displaySaveSendMailAction()
     {
         if ( ! $this->allowSendMail )

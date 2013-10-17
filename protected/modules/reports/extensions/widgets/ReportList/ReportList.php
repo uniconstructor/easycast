@@ -59,16 +59,17 @@ class ReportList extends CWidget
         echo $this->createHeader();
         
         $this->widget('bootstrap.widgets.TbGridView', array(
-            'dataProvider' => $dataProvider,
+            'dataProvider' => $this->dataProvider,
             'columns' => array(
                 'id',
                 array(
-                    'name' => 'name',
+                    'name'  => 'name',
                     'value' => 'CHtml::link($data->name, Yii::app()->controller->createUrl("'.$this->viewUrl.'", array("id" => $data->id)))',
+                    'type'  => 'html',
                 ),
                 array(
-                    'timemodified'   => 'timemodified',
-                    'value'  => '( $data->timemodified ? date("Y.m.d H:i", $data->timemodified) : "" )',
+                    'name'   => 'timecreated',
+                    'value'  => '( $data->timecreated ? date("Y.m.d H:i", $data->timecreated) : "" )',
                     //'header' => '<b>Super time</b>',
                 ),
             ),
@@ -85,6 +86,6 @@ class ReportList extends CWidget
         {
             return '';
         }
-        return '<h4>'.$this->header.'</h4>';
+        return '<h3>'.$this->header.'</h3>';
     }
 }

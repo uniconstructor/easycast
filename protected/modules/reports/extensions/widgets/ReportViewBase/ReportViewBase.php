@@ -71,6 +71,10 @@ class ReportViewBase extends CWidget
         echo $this->createActions();
     }
     
+    /**
+     * Получить html-код доступных для отчета действий
+     * @return string
+     */
     protected function createActions()
     {
         return $this->widget('reports.extensions.widgets.ReportActionsBase.ReportActionsBase',
@@ -93,7 +97,7 @@ class ReportViewBase extends CWidget
         }
         if ( $this->report->status == Report::STATUS_FINISHED )
         {
-            $allowSave = true;
+            $allowSendMail = true;
         }
         return array(
             'report'        => $this->report,

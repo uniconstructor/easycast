@@ -7,7 +7,8 @@
  * @property integer $id
  * @property string $reportid
  * @property string $linktype
- * @property string $linkid
+ * @property string $objecttype
+ * @property string $objectid
  * 
  * Relations:
  * @property Report $report
@@ -37,14 +38,12 @@ class ReportLink extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
-			array('reportid, linkid', 'length', 'max'=>11),
-			array('linktype', 'length', 'max'=>20),
+			array('reportid, objectid', 'length', 'max'=>11),
+			array('linktype', 'length', 'max' => 20),
+			array('objecttype', 'length', 'max' => 50),
 			// The following rule is used by search().
-			// Please remove those attributes that should not be searched.
-			array('id, reportid, linktype, linkid', 'safe', 'on'=>'search'),
+			array('id, reportid, linktype, objecttype, objectid', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -67,7 +66,8 @@ class ReportLink extends CActiveRecord
 			'id' => 'ID',
 			'reportid' => 'Reportid',
 			'linktype' => 'Linktype',
-			'linkid' => 'Linkid',
+			'objecttype' => 'Objecttype',
+			'objectid' => 'objectid',
 		);
 	}
 
@@ -77,15 +77,13 @@ class ReportLink extends CActiveRecord
 	 */
 	public function search()
 	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
-
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
 		$criteria->compare('reportid',$this->reportid,true);
 		$criteria->compare('linktype',$this->linktype,true);
-		$criteria->compare('linkid',$this->linkid,true);
+		$criteria->compare('objecttype',$this->objecttype,true);
+		$criteria->compare('objectid',$this->objectid,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

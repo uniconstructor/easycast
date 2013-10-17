@@ -13,8 +13,14 @@
  * @property string $plantime
  * @property string $data
  * @property string $status
+ * @property string $comment
+ * 
+ * @property string $reportData
  * 
  * @todo описать все статусы
+ * @todo языковые строки
+ * @todo добавить какую-то общую проверку для сериализуемого массива data 
+ * @todo сделать создание ссылок по событиям
  */
 class Report extends CActiveRecord
 {
@@ -48,6 +54,28 @@ class Report extends CActiveRecord
 	{
 		return '{{reports}}';
 	}
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see CActiveRecord::defaultScope()
+	 */
+	public function defaultScope()
+	{
+	    return array(
+	        'order' => "`timecreated` DESC"
+	    );
+	}
+	
+	/**
+	 * Именованная группа условий: извлечь только отчеты определенного типа
+	 */
+	public function byType($type='')
+	{
+	    return array(
+	        'condition' => "`type` = :type",
+	        'params'    => array(':type' => $type),
+	    );
+	}
 
 	/**
 	 * @return array validation rules for model attributes.
@@ -59,6 +87,7 @@ class Report extends CActiveRecord
 			array('name', 'length', 'max'=>255),
 			array('type', 'length', 'max'=>20),
 			array('status', 'length', 'max'=>50),
+		    array('comment', 'length', 'max'=>4095),
 			array('data', 'safe'),
 			// The following rule is used by search().
 			array('id, authorid, name, type, timecreated, timemodified, plantime, data, status', 'safe', 'on'=>'search'),
@@ -87,6 +116,10 @@ class Report extends CActiveRecord
 	 */
 	public function beforeSave()
 	{
+	    if ( $this->isNewRecord AND ! $this->status )
+	    {// по умолчанию все отчеты создаются в статусе "черновик", если не указано иное
+	        $this->status = self::STATUS_DRAFT;
+	    }
 	    if ( ! empty($this->_data) )
 	    {
 	        $this->data = serialize($this->_data);
@@ -111,14 +144,15 @@ class Report extends CActiveRecord
 	{
 		return array(
 			'id' => 'ID',
-			'authorid' => 'Authorid',
-			'name' => 'Name',
-			'type' => 'Type',
-			'timecreated' => 'Timecreated',
+			'authorid' => 'Автор',
+			'name' => 'Название',
+			'type' => 'Тип',
+			'timecreated' => 'Время создания',
 			'timemodified' => 'Timemodified',
-			'plantime' => 'Plantime',
-			'data' => 'Data',
-			'status' => 'Status',
+			'plantime' => 'Планируемое время сбора',
+			'data' => 'Данные отчета',
+			'status' => 'Статус',
+			'comment' => 'Комментарий',
 		);
 	}
 
@@ -158,6 +192,16 @@ class Report extends CActiveRecord
     }
     
     /**
+     * Получить данные отчета (эта функция нужна для того чтобы нормально работал геттер поля data.
+     * Если обращатся к отчету $report->data - то геттер "getData" не срабатывает)
+     * @return array
+     */
+    public function getReportData()
+    {
+        return $this->getData();
+    }
+    
+    /**
      * Сохранить данные отчета
      * @param array $value
      * @return null
@@ -170,9 +214,10 @@ class Report extends CActiveRecord
     /**
      * Собрать все данные для отчета в один массив.
      * Эта функция должна быть переопределена в дочерних классах
+     * @param array $options - дополнительные параметры для сбора отчета (свои для каждого типа отчета)
      * @return array
      */
-    public function collectData()
+    public function collectData($options)
     {
         return array();
     }
@@ -181,16 +226,31 @@ class Report extends CActiveRecord
      * Собрать все данные для отчета и сохранить их в базу
      * @return null
      */
-    public function createReport($data)
+    public function createReport($options)
     {
-        if ( ! $data )
-        {
-            $data = $this->collectData();
+        if ( $this->status == self::STATUS_FINISHED )
+        {// отчет уже собран, действия не требуются
+            return;
         }
-        
+        // собираем данные для отчета
+        $data = $this->collectData($options);
+        // сохраняем собранные данные и помечаем отчет собранным
         $this->setData($data);
         $this->status = self::STATUS_FINISHED;
-        
+        $this->timemodified = time();
+        // сохраняем отчет в базу
         $this->save();
+        // указываем, по каким объектам собран отчет
+        $this->createLinks();
+    }
+    
+    /**
+     * Сохранить информацию о том, по каким объектам собран отчет
+     * Набор связей свой для каждого отчета, поэтому эта функция переопределяется в каждом отчете
+     * @return null
+     */
+    protected function createLinks()
+    {
+        return;
     }
 }

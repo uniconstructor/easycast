@@ -15,6 +15,16 @@ class CallList extends ProjectMembers
     protected $event;
     
     /**
+     * @var отображать ли контакты участников?
+     */
+    public $showContacts = true;
+    
+    /**
+     * @var string - комментарий к фотовызывному
+     */
+    public $comment = '';
+    
+    /**
      * (non-PHPdoc)
      * @see CWidget::init()
      */
@@ -34,6 +44,16 @@ class CallList extends ProjectMembers
     
     /**
      * (non-PHPdoc)
+     * @see ProjectMembers::run()
+     */
+    public function run()
+    {
+        parent::run();
+        $this->displayComment();
+    }
+    
+    /**
+     * (non-PHPdoc)
      * @see ProjectMembers::getMemberColumns()
      */
     protected function getMemberColumns()
@@ -42,24 +62,28 @@ class CallList extends ProjectMembers
         $columns[] = array(
             'name'   => 'name',
             'header' => 'ФИО',
-            'type'   => 'raw'
+            'type'   => 'raw',
+            'htmlOptions' => array('style' => 'text-align:center;'),
+            'headerHtmlOptions' => array('style' => 'text-align:center;'),
         );
         $columns[] = array(
             'name'   => 'age',
             'header' => 'Возраст',
             'type'   => 'html'
         );
-        $columns[] = array(
-            'name'   => 'phone',
-            'header' => 'Телефон',
-            'type'   => 'html'
-        );
-        $columns[] = array(
-            'name'   => 'email',
-            'header' => 'email',
-            'type'   => 'html'
-        );
-        
+        if ( $this->showContacts )
+        {// нужно отобразить вызывной с контактами
+            $columns[] = array(
+                'name'   => 'phone',
+                'header' => 'Телефон',
+                'type'   => 'html'
+            );
+            $columns[] = array(
+                'name'   => 'email',
+                'header' => 'email',
+                'type'   => 'html'
+            );
+        }
         return $columns;
     }
     
@@ -73,10 +97,27 @@ class CallList extends ProjectMembers
         $element['id']    = $member->id;
         $element['name']  = $this->getMemberName($member);
         $element['age']   = $member->member->age;
-        $element['phone'] = $this->getMemberPhones($member->member);
-        $element['email'] = '<a href="mailto:'.$member->member->user->email.'">'.$member->member->user->email.'</a>';
-    
+        if ( $this->showContacts )
+        {// нужно отобразить вызывной с контактами
+            $element['phone'] = $this->getMemberPhones($member->member);
+            $element['email'] = '<a href="mailto:'.$member->member->user->email.'">'.$member->member->user->email.'</a>';
+        }
+        
         return $element;
+    }
+    
+    /**
+     * (non-PHPdoc)
+     * @see ProjectMembers::getMemberName()
+     */
+    protected function getMemberName($member)
+    {
+        $memberLink  = '<h4>'.parent::getMemberName($member).'</h4>';
+        $memberImageUrl = $member->member->getAvatarUrl('medium');
+        $memberImage = CHtml::image($memberImageUrl, CHtml::encode($member->member->fullname),
+            array('style'=> 'width:400px;'));
+        
+        return $memberLink.'<br>'.$memberImage;
     }
     
     /**
@@ -127,5 +168,18 @@ class CallList extends ProjectMembers
         $header .= '<h4>'.$name.'</h4>';
         
         return $header;
+    }
+    
+    /**
+     * Отобразить комментарий к фотовызывному (если есть)
+     * @return string
+     */
+    protected function displayComment()
+    {
+        if ( trim(strip_tags($this->comment)) )
+        {
+            echo '<h4>Комментарий:</h4>';
+            echo $this->comment;
+        }
     }
 }
