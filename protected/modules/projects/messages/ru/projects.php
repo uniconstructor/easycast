@@ -48,6 +48,7 @@ return array(
     // '' => '',
     
     // Типы проекта
+    'project_type_project' => '(не задан)',
     'project_type_ad' => 'Реклама',
     'project_type_film' => 'Полный метр',
     'project_type_series' => 'Сериал',

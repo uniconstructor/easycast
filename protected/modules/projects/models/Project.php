@@ -35,11 +35,6 @@
 class Project extends CActiveRecord
 {
     /**
-     * @var int - максимальное количество фотогрфвий в галерее проекта
-     */
-    const MAX_GALLERY_PHOTOS = 10;
-    
-    /**
      * @var string - статус проекта: черновик. Проект только что создан. Необходимая инофрмация еще либо не внесена
      *               либо вносится в данный момент. Проект в этом статусе можно удалить.
      */
@@ -57,6 +52,52 @@ class Project extends CActiveRecord
      * @var string - статус проекта: завершен.
      */
     const STATUS_FINISHED = 'finished';
+    
+    /**
+     * @var string - тип проекта: не задан 
+     *               Служебный тип, не может быть установлен вручную. 
+     *               Создан "про запас", чтобы не было дыр в множестве типов. 
+     *               Используется только в случае, когда тип проекта определить невозможно 
+     *               (пока что таких ситуаций нет)
+     */
+    const TYPE_PROJECT   = 'project';
+    /**
+     * @var string - тип проекта: реклама
+     */
+    const TYPE_AD        = 'ad';
+    /**
+     * @var string - тип проекта: полнометражный фильм
+     */
+    const TYPE_FILM      = 'film';
+    /**
+     * @var string - тип проекта: сериал
+     */
+    const TYPE_SERIES    = 'series';
+    /**
+     * @var string - тип проекта: телешоу
+     */
+    const TYPE_TVSHOW    = 'tvshow';
+    /**
+     * @var string - тип проекта: показ
+     */
+    const TYPE_EXPO      = 'expo';
+    /**
+     * @var string - тип проекта: промо-акция
+     */
+    const TYPE_PROMO     = 'promo';
+    /**
+     * @var string - тип проекта: флешмоб
+     */
+    const TYPE_FLASHMOB  = 'flashmob';
+    /**
+     * @var string - тип проекта: видеоклип
+     */
+    const TYPE_VIDEOCLIP = 'videoclip';
+    
+    /**
+     * @var int - максимальное количество фотогрфвий в галерее проекта
+     */
+    const MAX_GALLERY_PHOTOS = 10;
     
 	/**
 	 * Returns the static model of the specified AR class.
