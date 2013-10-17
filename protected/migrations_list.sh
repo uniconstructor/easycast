@@ -21,9 +21,15 @@ php $EASYCAST_PROTECTED/yiic migrate --migrationPath=application.modules.project
 php $EASYCAST_PROTECTED/yiic migrate --migrationPath=application.modules.questionary.migrations
 # Пользователи
 php $EASYCAST_PROTECTED/yiic migrate --migrationPath=application.modules.user.migrations
+# Отчеты
+php $EASYCAST_PROTECTED/yiic migrate --migrationPath=application.modules.reports.migrations
+
+####### отключено ########
 # Уведомления (пока неизвестно, пригодится ли этот модуль)
 # php $EASYCAST_PROTECTED/yiic migrate --migrationPath=application.modules.notifyii.migrations
 # Форум (пока без миграций)
 # php $EASYCAST_PROTECTED/yiic migrate --migrationPath=application.modules.yii-forum.migrations
+####### отключено ########
+
 # Миграция приложения делается поcледней
 php $EASYCAST_PROTECTED/yiic migrate --migrationPath=application.migrations
