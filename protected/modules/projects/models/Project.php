@@ -1,9 +1,9 @@
 <?php
 
 /**
- * This is the model class for table "{{projects}}".
+ * Модель для работы с проектами
  *
- * The followings are the available columns in table '{{projects}}':
+ * Таблица '{{projects}}':
  * @property integer $id
  * @property string $name
  * @property string $type
@@ -31,6 +31,7 @@
  * @property array $opengroups
  * @property array $activegroups
  * 
+ * @todo переписать relations через именованные группы условий
  */
 class Project extends CActiveRecord
 {
@@ -368,6 +369,8 @@ class Project extends CActiveRecord
 	/**
 	 * Получить список возможных типов проекта
 	 * @return array
+	 * 
+	 * @todo заменить строковые значения константами класса
 	 */
 	public function getTypeList()
 	{
