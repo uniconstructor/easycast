@@ -16,6 +16,9 @@
  * @property string $timeused
  * @property string $comment
  * @property string $userid
+ * @property string $timefinished
+ * @property string $feedback
+ * @property string $status
  * 
  * Relations:
  * @property User $manager
@@ -26,6 +29,36 @@
  */
 class CustomerInvite extends CActiveRecord
 {
+    /**
+     * @var string - статус приглашения: черновик. Оно только что было создано, и пока не отправлено
+     *               ни заказчику ни нам для утверждения.
+     *               Обычно используется для только что созданных онлайн-кастингов, в которые еще не
+     *               внесена вся необходимая информация.
+     */
+    const STATUS_DRAFT       = 'draft';
+    /**
+     * @var string - статус приглашения: не подтверждено нами. Для приглашений, требующих нашего одобрения
+     *               перед отправкой (например активация онлайн-кастинга).
+     */
+    const STATUS_UNCONFIRMED = 'unconfirmed';
+    /**
+     * @var string - статус приглашения: отправлено заказчику, но еще не использовано.
+     */
+    const STATUS_PENDING     = 'pending';
+    /**
+     * @var string - статус приглашения: используется в данный момент (например идет отбор актеров)
+     */
+    const STATUS_ACTIVE      = 'active';
+    /**
+     * @var string - статус приглашения: работа успешно завершена (например отбор актеров закончен).
+     */
+    const STATUS_FINISHED    = 'finished';
+    /**
+     * @var string - статус приглашения: отклонено нами. Используется в тех случаях, когда заказчик запросил
+     *               у нас какоето-действие или доступ, а мы отказали ему.
+     */
+    const STATUS_REJECTED    = 'rejected';
+    
     /**
      * Returns the static model of the specified AR class.
      * @param string $className active record class name.
@@ -50,14 +83,16 @@ class CustomerInvite extends CActiveRecord
     public function rules()
     {
         return array(
-            array('objecttype, objectid, managerid, timecreated, timeused, userid', 'length', 'max'=>11),
+            array('objecttype, objectid, managerid, timecreated, timeused, timefinished, userid', 'length', 'max'=>11),
             array('key, key2', 'length', 'max'=>40),
+            array('status', 'length', 'max'=>50),
             array('email, name', 'length', 'max'=>255),
             array('email, name', 'required'),
             array('email', 'email'),
-            array('comment', 'length', 'max'=>4095),
+            array('comment, feedback', 'length', 'max'=>4095),
             
-            array('id, objecttype, objectid, key, key2, email, name, managerid, timecreated, timeused, userid', 'safe', 'on'=>'search'),
+            array('id, objecttype, objectid, key, key2, email, name, managerid, timecreated, timeused,
+                 userid, timefinished, feedback, status', 'safe', 'on'=>'search'),
         );
     }
 
@@ -154,6 +189,10 @@ class CustomerInvite extends CActiveRecord
             'timecreated' => 'Timecreated',
             'timeused' => 'Timeused',
             'comment' => 'Комментарий',
+            'userid' => 'Заказчик',
+            'timefinished' => 'Время завершения',
+            'feedback' => 'Отзыв заказчика после использования',
+            'status' => 'Статус',
         );
     }
 
