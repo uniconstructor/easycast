@@ -68,6 +68,11 @@ class QScalarRules extends CActiveRecordBehavior
         {
             return;
         }
+        $oldStatus = Questionary::model()->findByPk($this->owner->id)->status;
+        if ( in_array($oldStatus, array('unconfirmed', 'draft', 'delayed')) )
+        {
+            return;
+        }
         
         $year  = $this->owner->attributes['birthdate']['Year'];
         $month = $this->owner->attributes['birthdate']['Month'];
