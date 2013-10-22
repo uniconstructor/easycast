@@ -1,11 +1,12 @@
 <?php
 $this->breadcrumbs=array(
+    'Администрирование' => array('/admin'),
 	UserModule::t('Users') => array('/user'),
 	UserModule::t('Manage'),
 );
 
 $this->menu=array(
-    array('label'=>UserModule::t('Create'), 'url'=>array('create')),
+    array('label' => UserModule::t('Create'), 'url' => array('create')),
     //array('label'=>UserModule::t('Manage Users'), 'url'=>array('admin')),
     //array('label'=>UserModule::t('Manage Profile Field'), 'url'=>array('profileField/admin')),
     //array('label'=>UserModule::t('List User'), 'url'=>array('/user')),
@@ -37,10 +38,10 @@ $('.search-form form').submit(function(){
 </div><!-- search-form -->
 
 <?php $this->widget('zii.widgets.grid.CGridView', array(
-	'id'=>'user-grid',
-	'dataProvider'=>$model->search(),
-	'filter'=>$model,
-	'columns'=>array(
+	'id'           => 'user-grid',
+	'dataProvider' => $model->search(),
+	'filter'       => $model,
+	'columns' => array(
 		array(
 			'name' => 'id',
 			'type'=>'raw',
