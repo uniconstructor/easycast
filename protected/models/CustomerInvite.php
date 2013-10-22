@@ -270,8 +270,21 @@ class CustomerInvite extends CActiveRecord
     {
         // проверяем было ли уже отправлено письмо
         
-        // отправляем письмо (вне очереди)
+        // отправляем письмо (сразу же, без очереди)
         
         return true;
     }
-} 
+    
+    /**
+     * Изменить статус объекта
+     * @param string $newStatus
+     * @return bool
+     * 
+     * @todo проверить правильность и допустимость статуса
+     */
+    public function setStatus($newStatus)
+    {
+        $this->status = $newStatus;
+        return $this->save();
+    }
+}
