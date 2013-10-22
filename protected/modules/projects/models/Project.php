@@ -220,18 +220,17 @@ class Project extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
 			array('name, type, description, timestart, timeend', 'required'),
-			array('isfree, virtual', 'numerical', 'integerOnly'=>true),
-			array('name', 'length', 'max'=>255),
-			array('type, status', 'length', 'max'=>9),
-			array('description, shortdescription, customerdescription', 'length', 'max'=>4095),
-			array('photogalleryid, galleryid, timestart, timeend, timecreated, timemodified, leaderid, customerid, orderid, memberscount', 'length', 'max'=>11),
+			array('isfree, virtual', 'numerical', 'integerOnly' => true),
+			array('name', 'length', 'max' => 255),
+			array('type, status', 'length', 'max' => 9),
+			array('description, shortdescription, customerdescription', 'length', 'max' => 4095),
+			array('photogalleryid, galleryid, timestart, timeend, timecreated, timemodified, 
+			    leaderid, customerid, orderid, memberscount', 'length', 'max' => 11),
 			// The following rule is used by search().
 			array('id, name, type, description, galleryid, timestart, timeend, timecreated, timemodified, 
-			    leaderid, customerid, orderid, isfree, virtual, memberscount, status', 'safe', 'on'=>'search'),
+			    leaderid, customerid, orderid, isfree, virtual, memberscount, status', 'safe', 'on' => 'search'),
 		);
 	}
 
