@@ -646,13 +646,20 @@ class QuestionaryController extends Controller
 
 	/**
 	 * Performs the AJAX validation.
-	 * @param CModel the model to be validated
+	 * @param CModel|Questionary the model to be validated
 	 */
 	protected function performAjaxValidation($model)
 	{
 		if ( isset($_POST['ajax']) && $_POST['ajax'] === 'questionary-form' )
 		{
-			echo CActiveForm::validate($model);
+			$result = CActiveForm::validate($model);
+			if ( ! $model->getGalleryPhotos() )
+			{// не даем сохранять анкету если нет ни одной фотографии
+			    /*$result = CJSON::decode($result);
+			    $result['firstname'] = 'Нужно загрузить хотя бы одну фотографию';
+			    $result = CJSON::encode($result);*/
+			}
+			echo $result;
 			Yii::app()->end();
 		}
 	}
@@ -817,6 +824,12 @@ class QuestionaryController extends Controller
 	    }";
 	}
 	
+	/**
+	 * Отправить письмо с подтверждением активации анкеты
+	 * @param Questionary $questionary
+	 * @param string $password - пароль для входа на сайт
+	 * @return null
+	 */
 	protected function sendActivateConirmationEmail($questionary, $password)
 	{
 	    $message  = 'Ваша учетная запись активирована.<br>';
