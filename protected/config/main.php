@@ -3,6 +3,7 @@
 // Twitter bootstrap path alias
 Yii::setPathOfAlias('bootstrap', dirname(__FILE__).'/../extensions/bootstrap');
 
+
 // Главный файл конфигурации приложения.
 // Здесь задаются все общие параметры, одинаковые для "production"(релиза), "test"(тестового сервера) 
 // и "dev"(версии разработчика).
@@ -192,12 +193,19 @@ return array(
         'reports' => array(
             'class' => 'application.modules.reports.ReportsModule',
         ),
+        
+        // отсылка SMS
+        'sms' => array(
+            'class'  => 'application.components.smspilot.SmsPilotAPI',
+            'from'   => 'easyCast',
+            'apikey' => 'I5F2640ER6B486245L3HCB6VTJN687RQ10V5DAVB3KG2J1B29U6PZ5MK95WHTGFB',
+        ),
 	),
 
 	// Компоненты приложения
-	'components'=>array(
+	'components' => array(
 	    // пользователь (наследник класса WebUser)
-		'user'=>array(
+		'user' => array(
 		    // используем класс пользователя из модуля rights чтобы работали права доступа на основе ролей (RBAC)
             'class'          => 'RWebUser',
             // сразу же пускаем участника на сайт после регистрации, чтобы сэкономить ему время
@@ -218,7 +226,7 @@ return array(
 		),
 		
 		// MySQL database settings
-		'db'=>array(
+		'db' => array(
 			// Логин и пароль для базы определяются ant-скриптами сборки проекта
 			// (в зависимости от того где работает приложение: на реальном сервере или локально)
 			// поэтому в основном конфиге эти параметры не указываются
@@ -237,7 +245,7 @@ return array(
 	    ),
 		
 	    // обработка ошибок
-		'errorHandler'=>array(
+		'errorHandler' => array(
 			// use 'site/error' action to display errors
             'errorAction' => 'site/error',
         ),
@@ -286,7 +294,7 @@ return array(
         // Настройки сессии
         'session' => array(
             // @todo храним сессию в БД 
-            'class' => 'CHttpSession',//CDbHttpSession
+            'class'     => 'CHttpSession',//CDbHttpSession
             'autoStart' => true,
             // храним сессию 2 месяца
             'timeout' => 3600 * 24 * 60,
@@ -313,7 +321,6 @@ return array(
         
         // Настройки виджетов по умолчанию
         'widgetFactory' => array(
-        
             'widgets' => array(
                 // Выравнивание верстки для форума
                 // @todo поправить форум, а эту настройку отсюда убрать
@@ -331,11 +338,11 @@ return array(
                             'class' => 'btn btn-danger mmf_removelink',
                         ),
                     // все кнопки "добавить" становятся зелеными
-                    'addHtmlOptions'    => array(
+                    'addHtmlOptions' => array(
                             'class' => 'btn btn-success',
                         ),
                     // делаем все формы узкими, чтобы они вписались в верстку
-                    'tableHtmlOptions'  => array(
+                    'tableHtmlOptions' => array(
                             'style' => 'width:auto;',
                             'class' => 'table-striped',
                         ),
@@ -353,7 +360,7 @@ return array(
                 // Галерея загрузки фотографий
                 'GalleryManager' => array(
                     'htmlOptions' => array(
-                         'class'=>'dark',
+                         'class' => 'dark',
                     ),
                 ),
             ),
