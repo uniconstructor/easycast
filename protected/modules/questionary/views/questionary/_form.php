@@ -1530,7 +1530,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
         <?php
         //echo $form->errorSummary($questionary);
         // Кнопка сохранения 
-        $this->widget('bootstrap.widgets.TbButton',
+        $form->widget('bootstrap.widgets.TbButton',
             array(
                 'buttonType'  => 'submit',
                 'type'        => 'success',
