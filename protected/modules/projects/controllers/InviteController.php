@@ -4,6 +4,9 @@
  * Контроллер приглашений на мероприятия (для участников) или на отбор актеров (для заказчиков)
  * Отвечает только за AJAX-запросы (принять, отклонить и т. п.) или вывод страниц
  * Отображением самих приглашений занимаются различные виджеты
+ * 
+ * @todo вынести все функции работы с приглашениями заказчика в отдельный контроллер
+ * @todo создать новый модуль customer (кабинет заказчика) вынести контроллер приглашений заказчика туда 
  */
 class InviteController extends Controller
 {
@@ -113,23 +116,68 @@ class InviteController extends Controller
      * @todo сделать защиту от повторного использования и проверку по времени
      * @todo проверять статус связанного объекта и выводить сообщение, если он уже завершен
      * @todo заходить под учетной записью заказчика, если она у него есть
+     * @todo проверять статус приглашения
+     * @todo проверять, можно ли завершить отбор
      */
     public function actionSelection()
     {
+        // id приглашения заказчика
         $id   = Yii::app()->request->getParam('id', 0);
+        // одноразовые ключи безопасности
         $key  = Yii::app()->request->getParam('k1', '');
         $key2 = Yii::app()->request->getParam('k2', '');
         
-        if ( ! $customerInvite = CustomerInvite::model()->findByPk($id) )
-        {
-            throw new CHttpException(404, 'Приглашение не найдено');
-        }
-        if ( $customerInvite->key != $key OR $customerInvite->key2 != $key2 )
-        {// ключи доступа не совпадают
-            throw new CHttpException(400, "Неправильная ссылка с приглашением ({$customerInvite->id})");
+        // проверяем, что приглашение существует и ключи доступа правильные
+        $customerInvite = $this->loadCustomerInviteModel($id);
+        $this->checkCustomerInviteKeys($invite, $key, $key2);
+        
+        if ( true OR $customerInvite->status == CustomerInvite::STATUS_PENDING )
+        {// запоминаем, что приглашением воспользовались
+            // @todo изменять статус на "использовано" только для приглашений в статусе "pending"
+            $customerInvite->setStatus(CustomerInvite::STATUS_ACTIVE);
         }
         
+        if ( Yii::app()->request->getParam('done') )
+        {// нажата кнопка "завершить отбор"
+            if ( $this->finishSelectionAllowed($customerInvite) )
+            {// если заказчик закрыл все вакансии и ничего не забыл - перенаправляем его на
+                // страницу завершения отбора
+                $this->redirect(Yii::app()->createUrl('/projects/invite/finishSelection',
+                    array(
+                        'id' => $customerInvite->id,
+                        'k1' => $customerInvite->key,
+                        'k2' => $customerInvite->key2,
+                )));
+            }else
+            {// @todo отображаем сообщение о том, что отбор еще не закончен
+                
+            }
+        }
+        // отображаем страницу со списком участников для отбора
         $this->render('selection', array('customerInvite' => $customerInvite));
+    }
+    
+    /**
+     * Отобразить страницу с сообщением о том, что отбор участников окончен
+     * и предложением перейти к проекту
+     * @return null
+     * 
+     * @todo отсылать письмо команде при завершении отбора заказчиком
+     */
+    public function actionFinishSelection()
+    {
+        // id приглашения заказчика
+        $id   = Yii::app()->request->getParam('id', 0);
+        // одноразовые ключи безопасности
+        $key  = Yii::app()->request->getParam('k1', '');
+        $key2 = Yii::app()->request->getParam('k2', '');
+        
+        // проверяем, что приглашение существует и ключи доступа правильные
+        $customerInvite = $this->loadCustomerInviteModel($id);
+        $this->checkCustomerInviteKeys($invite, $key, $key2);
+        
+        // помечаем приглашение использованным
+        $customerInvite->setStatus(CustomerInvite::STATUS_FINISHED);
     }
     
     /**
@@ -228,7 +276,7 @@ class InviteController extends Controller
     }
     
     /**
-     * Получить модель приглашения или сообщить о том что приглашение не найдено
+     * Получить модель приглашения участника или сообщить о том что приглашение не найдено
      * @param int $id
      * @throws CHttpException
      * @return EventInvite
@@ -243,7 +291,49 @@ class InviteController extends Controller
         return $model;
     }
     
+    /**
+     * Получить модель приглашения заказчика или сообщить о том что приглашение не найдено
+     * @param int $id
+     * @throws CHttpException
+     * @return CustomerInvite
+     */
+    protected function loadCustomerInviteModel($id)
+    {
+        $model = CustomerInvite::model()->findByPk($id);
+        if ( $model === null )
+        {
+            throw new CHttpException(404, 'Приглашение не найдено');
+        }
+        return $model;
+    }
     
+    /**
+     * Определить, можно ли завершить отбор актеров (все ли вакансии закрыты?)
+     * @param CustomerInvite $invite - приглашение заказчика
+     * @return bool
+     * 
+     * @todo заглушка.
+     */
+    protected function finishSelectionAllowed($invite)
+    {
+        return true;
+    }
+    
+    /**
+     * Проверить ключи доступа из приглашения заказчика
+     * @param CustomerInvite $invite - приглашение заказчика
+     * @param string $key  - первый ключ безопасности (приходит из GET)
+     * @param string $key2 - второй ключ безопасности (приходит из GET)
+     * @throws CHttpException
+     * @return null
+     */
+    protected function checkCustomerInviteKeys($invite, $key, $key2)
+    {
+        if ( $customerInvite->key != $key OR $customerInvite->key2 != $key2 )
+        {// ключи доступа не совпадают
+            throw new CHttpException(400, "Неправильная ссылка с приглашением ({$customerInvite->id})");
+        }
+    }
     
     /**
      * 
@@ -253,6 +343,7 @@ class InviteController extends Controller
      * @return string
      * 
      * @todo заменить виджетом
+     * @deprecated виджет создан (ECAlert) - заменить все вызовы и удалить эту функцию при рефакторинге
      */
     protected function getInfoMessage($message, $header='', $class='alert alert-block')
     {
