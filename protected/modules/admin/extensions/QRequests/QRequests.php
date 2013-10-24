@@ -71,7 +71,7 @@ class QRequests extends CWidget
         $this->widget('bootstrap.widgets.TbGridView', array(
             'type'         => 'striped bordered condensed',
             'dataProvider' => $arrayProvider,
-            'template'     => "{items}{pager}",
+            'template'     => "{summary}{items}{pager}",
             'columns' => array(
                 array(
                     'name'   => 'name',
