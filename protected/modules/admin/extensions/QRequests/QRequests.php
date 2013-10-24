@@ -14,7 +14,7 @@ class QRequests extends CWidget
         $elements = array();
         
         // Получаем все анкеты, которые только что созданы или находятся в статусе "надо проверить"
-        $questionaries = Questionary::model()->findAll("status IN ('draft', 'pending')");
+        $questionaries = Questionary::model()->findAll("status IN ('draft', 'pending') ORDER BY `timemodified` DESC");
         foreach ( $questionaries as $questionary )
         {
             // кнопка подтверждения данных анкеты
@@ -65,7 +65,9 @@ class QRequests extends CWidget
         }
         
         // составляем таблицу со списком анкет для премодерации
-        $arrayProvider = new CArrayDataProvider($elements);
+        $arrayProvider = new CArrayDataProvider($elements,
+            array('pagination' => array('pageSize' => 100)));
+        
         $this->widget('bootstrap.widgets.TbGridView', array(
             'type'         => 'striped bordered condensed',
             'dataProvider' => $arrayProvider,
@@ -74,7 +76,7 @@ class QRequests extends CWidget
                 array(
                     'name'   => 'name',
                     'header' => QuestionaryModule::t('name'),
-                    'type'   => 'html',
+                    'type'   => 'raw',
                 ),
                 array(
                     'name'   => 'actions',
