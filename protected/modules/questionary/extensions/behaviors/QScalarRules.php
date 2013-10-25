@@ -27,8 +27,8 @@ class QScalarRules extends CActiveRecordBehavior
         
             array('mobilephone, homephone, addphone, inn', 'length', 'max' => 32),
             array('hairlength, wearsize', 'length', 'max' => 16),
-            array('vkprofile, fbprofile, okprofile, passportorg, admincomment', 'length', 'max' => 255),
-            array('privatecomment', 'length', 'max' => 4095),
+            array('vkprofile, fbprofile, okprofile, passportorg', 'length', 'max' => 255),
+            array('privatecomment, admincomment, moderationcomment', 'length', 'max' => 4095),
             array('passportserial, passportnum', 'length', 'max' => 10),
             
             // @todo добавить индивидуальную проверку для каждого типа поля
