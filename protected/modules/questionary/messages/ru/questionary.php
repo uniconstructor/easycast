@@ -108,7 +108,7 @@ return array
     'facetype_label' => 'Тип лица',
     'hairlength_label' => 'Длина волос',
     'canrepainthair_label' => 'Могу перекрасить',
-    'istheatreactor_label' => 'Есть ли у вас опыт работы в театре?',
+    'istheatreactor_label' => 'Есть ли у вас опыт игры в театре?',
     'ismediaactor_label' => 'Медийный актер',
     'privatecomment_label' => '<b>Дополнительная информация об анкете (видна только администраторам):</b>',
         
