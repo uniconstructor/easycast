@@ -3,7 +3,8 @@
  */
 .qform_subsection
 {
-    background: #aaa;
+    /*background: #aaa;*/
+    background: #000;
     border-radius: 6px;
     padding: 10px;
     margin:4px;

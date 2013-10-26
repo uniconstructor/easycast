@@ -3,7 +3,8 @@
 }
 
 .ec-search-filter-content-active {
-    background-color: #aaa;
+    /*background-color: #aaa;*/
+    background-color: #000;
     border-width: 1px;
     border-color: #fff;
     border-radius: 10px;
