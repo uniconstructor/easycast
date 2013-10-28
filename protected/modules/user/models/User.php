@@ -109,15 +109,16 @@ class User extends CActiveRecord
 	{
 	    if ( $this->isNewRecord )
 	    {// при создании пользователя автоматически создаем для него пустую анкету
-	        $ownerId     = $this->getOwnerId();
 	        $questionary = new Questionary();
 	        $questionary->userid  = $this->id;
 	        // по умолчанию анкету считаем введенными из своей базы (записываем владельцем админа)
-	        $questionary->ownerid = $ownerId;
-	        if ( $ownerId != 1 )
-	        {// вводим анкету из партнерской базы - запомним кому она принадлежит
-	            $questionary->ownerid = $ownerId;
+	        // если вводим анкету из партнерской базы - запомним кому она принадлежит
+	        $questionary->ownerid = $this->getOwnerId();
+	        if ( $questionary->ownerid != 1 )
+	        {// если анкета была заведена из партнерской базы - то для нее требуется подтверждение участника
+	            $questionary->status = Questionary::STATUS_UNCONFIRMED;
 	        }
+	        
 	        if ( ! $questionary->save() )
 	        {// если анкету не удалось сохранить - удалим созданного пользователя, чтобы не
 	            // оставлять в базе битые данные
