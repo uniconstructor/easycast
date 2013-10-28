@@ -10,7 +10,7 @@
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 	'id'                   => 'user-form',
 	'enableAjaxValidation' => true,
-	'htmlOptions'          => array('enctype'=>'multipart/form-data'),
+	'htmlOptions'          => array('enctype' => 'multipart/form-data'),
 ));
 ?>
 	<!--p class="note"><?php echo UserModule::t('Fields with <span class="required">*</span> are required.'); ?></p-->
@@ -24,7 +24,13 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         if ( $model->isNewRecord )
         {// источник данных указывается только при создании
             echo CHtml::label('Источник данных:', 'ownerId');
-            echo CHtml::dropDownList('ownerId', User::getDefaultOwnerId(), UserModule::getAdminList(array('0' => 'easyCast (наша анкета)')));
+            $admins = UserModule::getAdminList();
+            $sources = array('0' => 'easyCast (наша анкета)');
+            if ( isset($admins[823]) )
+            {
+                $sources[823] = $admins[823];
+            }
+            echo CHtml::dropDownList('ownerId', User::getDefaultOwnerId(), $sources);
         }
     ?>
     <br>
