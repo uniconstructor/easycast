@@ -193,13 +193,6 @@ return array(
         'reports' => array(
             'class' => 'application.modules.reports.ReportsModule',
         ),
-        
-        // отсылка SMS
-        'sms' => array(
-            'class'  => 'application.components.smspilot.SmsPilotAPI',
-            'from'   => 'easyCast',
-            'apikey' => 'I5F2640ER6B486245L3HCB6VTJN687RQ10V5DAVB3KG2J1B29U6PZ5MK95WHTGFB',
-        ),
 	),
 
 	// Компоненты приложения
@@ -314,6 +307,13 @@ return array(
             'class' => 'EasyCastAmazonAPI',
         ),
         
+        // отсылка SMS
+        'sms' => array(
+            'class'  => 'application.components.smspilot.SmsPilotAPI',
+            'from'   => 'easyCast',
+            'apikey' => 'I5F2640ER6B486245L3HCB6VTJN687RQ10V5DAVB3KG2J1B29U6PZ5MK95WHTGFB',
+        ),
+        
         // Компонент "simple Workflow" - для грамотной работы со статусами
         'swSource'=> array(
             'class'=>'application.extensions.simpleWorkflow.SWPhpWorkflowSource',
@@ -380,5 +380,4 @@ return array(
 	    // Настройки хостинга Amazon
 	    'AmazonS3Config' => 'easycast.s3',
 	),
-	
 );
