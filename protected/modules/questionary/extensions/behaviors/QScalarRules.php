@@ -70,7 +70,7 @@ class QScalarRules extends CActiveRecordBehavior
         }
         $oldStatus = Questionary::model()->findByPk($this->owner->id)->status;
         if ( in_array($oldStatus, array('unconfirmed', 'draft', 'delayed')) )
-        {
+        {// не проверяем дату рождения если анкета только что создана
             return;
         }
         
