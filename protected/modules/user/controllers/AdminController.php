@@ -106,7 +106,7 @@ class AdminController extends Controller
 			{// data validated - creatig user
 				// hashing password
 			    $model->password = Yii::app()->controller->module->encrypting($model->password);
-			    if ( $ownerId AND $ownerId != 1 )
+			    if ( $ownerId )
 			    {// анкета из партнерской базы - указываем партнера
 			        $model->setOwnerId($ownerId);
 			    }
@@ -138,23 +138,25 @@ class AdminController extends Controller
 	 */
 	public function actionUpdate()
 	{
-		$model=$this->loadModel();
+		$model = $this->loadModel();
 		
 		$this->performAjaxValidation(array($model));
-		if(isset($_POST['User']))
+		if ( isset($_POST['User']) )
 		{
 			$model->attributes=$_POST['User'];
 			//$profile->attributes=$_POST['Profile'];
 			
-			if( $model->validate() ) {
+			if( $model->validate() )
+			{
 				$old_password = User::model()->notsafe()->findByPk($model->id);
-				if ($old_password->password!=$model->password) {
-					$model->password=Yii::app()->controller->module->encrypting($model->password);
-					$model->activkey=Yii::app()->controller->module->encrypting(microtime().$model->password);
+				if ( $old_password->password != $model->password )
+				{
+					$model->password = Yii::app()->controller->module->encrypting($model->password);
+					$model->activkey = Yii::app()->controller->module->encrypting(microtime().$model->password);
 				}
 				$model->save();
 				
-				$this->redirect(array('view','id'=>$model->id));
+				$this->redirect(array('view', 'id' => $model->id));
 			}
 		}
 
@@ -231,7 +233,7 @@ class AdminController extends Controller
 	 */
 	public function sendActivationEmail($model, $password=null, $ownerId=1)
 	{
-	    if ( $ownerId AND $ownerId != 1 )
+	    if ( $ownerId == 823 )
 	    {// анкета из партнерской базы - не высылаем активационное письмо сразу
 	        return;
 	    }
