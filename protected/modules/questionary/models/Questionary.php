@@ -905,14 +905,14 @@ class Questionary extends CActiveRecord
         // новый статус анкеты
         $newStatus = $this->status;
         
-        if ( $this->ownerid )
+        if ( $this->ownerid AND $this->ownerid == 823 )
         {// нужно особое письмо с активацией
             if ( ( $oldStatus == 'draft' OR $oldStatus == 'delayed' ) AND $newStatus == 'unconfirmed' )
             {
                 $this->sendSSFillingMail();
             }
         }else
-        {
+        {// обычная активация
             if ( ( $oldStatus == 'draft' OR $oldStatus == 'delayed' ) AND $newStatus == 'active' )
             {// если анкета только что перешла из статуса "черновик" в активный статус -
                 // значит пользователя только что зарегистрировали и ввели все данные
