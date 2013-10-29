@@ -1,11 +1,12 @@
 <?php
 
 /**
- * This is the model class for table "{{project_members}}".
+ * Заявка на участие в проекте, участник проекта, 
+ * или история участия в проекте (в зависимости от статуса)
  *
- * The followings are the available columns in table '{{project_members}}':
+ * Таблица '{{project_members}}':
  * @property integer $id
- * @property string $memberid
+ * @property string $memberid - id анкеты участника (Questionary)
  * @property string $vacancyid
  * @property string $timecreated
  * @property string $timemodified
@@ -20,6 +21,9 @@
  * @property Questionary  $member
  * @property User         $manager
  * @property EventVacancy $vacancy
+ * 
+ * @todo увеличить длину комментариев к заявкам до 4095 символов
+ * @todo увеличить статус до 50
  */
 class ProjectMember extends CActiveRecord
 {
@@ -196,11 +200,15 @@ class ProjectMember extends CActiveRecord
 	public function relations()
 	{
 		return array(
+		    // участник проекта
 		    // @todo неудачное название для связи: оставить только для совместимости, а затем удалить
 		    'member'  => array(self::BELONGS_TO, 'Questionary', 'memberid'),
+		    // участник проекта
 		    // @todo заменить все использования связи member на questionary
 		    'questionary' => array(self::BELONGS_TO, 'Questionary', 'memberid'),
+		    // Сотрудник, одобривший или отклонивший заявку
 		    'manager' => array(self::BELONGS_TO, 'User', 'managerid'),
+		    // вакансия, на которую была подана заявка
 		    'vacancy' => array(self::BELONGS_TO, 'EventVacancy', 'vacancyid'),
 		);
 	}
