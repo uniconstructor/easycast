@@ -15,7 +15,7 @@
  * @property string $subscribekey
  * 
  * Связи с другими таблицами:
- * @property Questionsry $questionary - анкета приглашенного участника
+ * @property Questionary $questionary - анкета приглашенного участника
  * @property ProjectEvent $event - мероприятие
  * 
  * @todo заменить во всем коде модели текст статусов константами
@@ -166,8 +166,18 @@ class EventInvite extends CActiveRecord
 	public function relations()
 	{
 		return array(
+		    // анкета приглашенного участника
 		    'questionary' => array(self::BELONGS_TO, 'Questionary', 'questionaryid'),
-		    'event' => array(self::BELONGS_TO, 'ProjectEvent', 'eventid'),
+		    // мероприятие, на которое приглашен участник
+		    'event'       => array(self::BELONGS_TO, 'ProjectEvent', 'eventid'),
+		    
+		    /** 
+		     * {@todo одобренная заявка на участие в проекте 
+		     *     (после создания таблицы связей приглашений с вакансиями)}
+		     * 'request'     => array(self::HAS_ONE, 'MemberRequest', array() ),
+		     * {@todo одобренная заявка на участие в проекте}
+		     * 'member'      => array(self::HAS_ONE, 'ProjectMember', array() ),
+		     */
 		);
 	}
 
