@@ -31,6 +31,7 @@ class CronCommand extends CConsoleCommand
         
         parent::init();
     }
+    
     /**
      * (non-PHPdoc)
      * @see CConsoleCommand::run()
@@ -47,7 +48,7 @@ class CronCommand extends CConsoleCommand
         //$this->actionUploadImages()
         
         // для экспериментов
-        $this->actionTest();
+        //$this->actionTest();
         
         //$this->actionClearQueue();
         
@@ -105,12 +106,12 @@ class CronCommand extends CConsoleCommand
     {
         Yii::import('application.modules.projects.models.*');
         
-        $invite = new EventInvite;
-        $invite->questionaryid = 1;
-        $invite->eventid = 124;
-        $invite->save();
+        /*$invite = new EventInvite;
+        $invite->questionaryid = 9;
+        $invite->eventid = 169;
+        $invite->save();*/
         
-        //$vacancy = EventVacancy::model()->findByPk(17);
+        //$vacancy = EventVacancy::model()->findByPk(9);
         //$vacancy->sendInvites();
         
         $this->ecawsapi->processEmailQueue(1);
