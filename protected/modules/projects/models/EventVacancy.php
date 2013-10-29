@@ -247,16 +247,17 @@ class EventVacancy extends CActiveRecord
 		    'event' => array(self::BELONGS_TO, 'ProjectEvent', 'eventid'),
 		    // критерий поиска, по которому выбираются подходящие на вакансию участники 
 		    'scope' => array(self::BELONGS_TO, 'SearchScope', 'scopeid'),
+		    
 		    // Заявки на участие
+		    // @todo переписать через именованные группы условий
 		    'requests' => array(self::HAS_MANY, 'MemberRequest', 'vacancyid'),
 		    // одобренные заявки на вакансию
+		    // @todo переписать через именованные группы условий
 		    'members' => array(self::HAS_MANY, 'ProjectMember', 'vacancyid', 
 		        'condition' => "`members`.`status` = 'active' OR `members`.`status` = 'finished'"),
-		    // отклоненные заявки на вакансию
-		    'rejectedmembers' => array(self::HAS_MANY, 'ProjectMember', 'vacancyid', 
-		        'condition' => "status='rejected'"),
 		    // доступные фильтры поиска для этой вакансии
-		    'filterinstances' => array(self::HAS_MANY, 'CatalogFilterInstance', 'linkid', 
+		    'searchFilters' => array(self::MANY_MANY, 'CatalogFilter',
+		        "{{catalog_filter_instances}}(linkid, filterid)",
 		        'condition' => "`linktype` = 'vacancy'"),
 		    
 		    // Статистика
@@ -265,6 +266,18 @@ class EventVacancy extends CActiveRecord
 		    // Количество подтвержденных заявок
 		    'membersCount' => array(self::STAT, 'ProjectMember', 'vacancyid', 
 		        'condition' => "status = 'active' OR status = 'finished'"),
+		    
+		    
+		    // отклоненные заявки на вакансию
+		    // @deprecated
+		    // @todo переписать через именованные группы условий, удалить при рефакторинге
+		    'rejectedmembers' => array(self::HAS_MANY, 'ProjectMember', 'vacancyid',
+		        'condition' => "status='rejected'"),
+		        // ссылки на доступные фильтры поиска для этой вакансии
+		    // @deprecated использовалось пока я не умел писать связи типа "мост"
+		    // @todo удалить при рефакторинге, вместо нее использовать связь searchFilters
+		    'filterinstances' => array(self::HAS_MANY, 'CatalogFilterInstance', 'linkid',
+		        'condition' => "`linktype` = 'vacancy'"),
 		);
 	}
 

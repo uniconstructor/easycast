@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This is the model class for table "{{catalog_tabs}}".
+ * Вкладка в разделе каталога
  *
  * The followings are the available columns in table '{{catalog_tabs}}':
  * @property integer $id
@@ -10,12 +10,14 @@
  * @property string $lang
  * @property string $scopeid
  * 
+ * Relations:
  * @property SearchScope $scope
+ * @property CatalogFilter[] $searchFilters
+ * @property CatalogSection[] $sections
  */
 class CatalogTab extends CActiveRecord
 {
     /**
-     * (non-PHPdoc)
      * @see CActiveRecord::init()
      */
     public function init()
@@ -46,17 +48,18 @@ class CatalogTab extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
 			array('name, shortname', 'required'),
-			array('name, shortname', 'length', 'max'=>128),
-			array('lang', 'length', 'max'=>5),
-			array('scopeid', 'length', 'max'=>11),
+			array('name, shortname', 'length', 'max' => 128),
+			array('lang', 'length', 'max' => 5),
+			array('scopeid', 'length', 'max' => 11),
 			// The following rule is used by search().
-			// Please remove those attributes that should not be searched.
-			array('id, name, shortname, lang, scopeid', 'safe', 'on'=>'search'),
+			array('id, name, shortname, lang, scopeid', 'safe', 'on' => 'search'),
 		);
+		foreach ( $this->sections as $section1 )
+		{
+		    
+		}
 	}
 
 	/**
@@ -64,10 +67,16 @@ class CatalogTab extends CActiveRecord
 	 */
 	public function relations()
 	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
 		return array(
+		    // прикрепленные к вкладке условия поиска
 		    'scope' => array(self::BELONGS_TO, 'SearchScope', 'scopeid'),
+		    // Прикрепленные к вкладке фильтры поиска (связь типа "мост")
+		    'searchFilters' => array(self::MANY_MANY, 'CatalogFilter',
+		        "{{catalog_filter_instances}}(linkid, filterid)",
+		        'condition' => "`linktype` = 'tab'"),
+		    // разделы, в которых присутствует эта вкладка
+		    'sections' => array(self::MANY_MANY, 'CatalogSection',
+		        "{{catalog_tab_instances}}(tabid, sectionid)"),
 		);
 	}
 

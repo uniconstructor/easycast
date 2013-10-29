@@ -1,16 +1,22 @@
 <?php
 
 /**
- * This is the model class for table "{{catalog_tab_instances}}".
+ * Связь разделов каталога с вкладками
  *
  * The followings are the available columns in table '{{catalog_tab_instances}}':
  * @property integer $id
- * @property string $sectionid
- * @property string $parentid
- * @property string $tabid
+ * @property integer $sectionid
+ * @property integer $parentid
+ * @property integer $tabid
  * @property string $newname
  * @property string $lang
  * @property integer $visible
+ * 
+ * Relations:
+ * @property CatalogTab $tab
+ * @property CatalogTab $parent
+ * @property CatalogTabInstance $parentLink
+ * @property CatalogSection $section
  */
 class CatalogTabInstance extends CActiveRecord
 {
@@ -37,16 +43,13 @@ class CatalogTabInstance extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
-			array('visible', 'numerical', 'integerOnly'=>true),
-			array('sectionid, parentid, tabid', 'length', 'max'=>11),
-			array('newname', 'length', 'max'=>128),
-			array('lang', 'length', 'max'=>5),
+			array('visible', 'numerical', 'integerOnly' => true),
+			array('sectionid, parentid, tabid', 'length', 'max' => 11),
+			array('newname', 'length', 'max' => 128),
+			array('lang', 'length', 'max' => 5),
 			// The following rule is used by search().
-			// Please remove those attributes that should not be searched.
-			array('id, sectionid, parentid, tabid, newname, lang, visible', 'safe', 'on'=>'search'),
+			array('id, sectionid, parentid, tabid, newname, lang, visible', 'safe', 'on' => 'search'),
 		);
 	}
 
@@ -55,10 +58,15 @@ class CatalogTabInstance extends CActiveRecord
 	 */
 	public function relations()
 	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
 		return array(
-		    'tab' => array(self::BELONGS_TO, 'CatalogTab', 'tabid'),
+		    // Вкладка с критериями поиска
+		    'tab'     => array(self::BELONGS_TO, 'CatalogTab', 'tabid'),
+		    // Раздел каталога
+		    'section' => array(self::BELONGS_TO, 'CatalogSection', 'sectionid'),
+		    // ссылка на родительскую вкладку
+		    'parentLink' => array(self::BELONGS_TO, 'CatalogTabInstance', 'parentid'),
+		    // Родительская вкладка
+		    'parent' => array(self::HAS_ONE, 'CatalogTab', 'tabid', 'through' => 'parentLink'),
 		);
 	}
 

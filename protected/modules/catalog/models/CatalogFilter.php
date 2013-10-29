@@ -49,7 +49,25 @@ class CatalogFilter extends CActiveRecord
 	public function relations()
 	{
 		return array(
+		    // связь фильтров с разделами каталога, вкладками, и другими объектами, 
+		    // к которым можно прикрепить критерии поиска
 		    'instances' => array(self::HAS_MANY, 'CatalogFilterInstance', 'filterid'),
+		    
+		    // разделы каталога, в которых используется этот фильтр
+		    // @todo работа этой связи не протестирована
+		    'sections' => array(self::MANY_MANY, 'CatalogSection',
+		        "{{catalog_filter_instances}}(filterid, linkid)",
+		        'condition' => "`linktype` = 'section'"),
+		    // вкладки в разделах, в которых используется этот фильтр
+		    // @todo работа этой связи не протестирована
+		    'tabs' => array(self::MANY_MANY, 'CatalogTab',
+		        "{{catalog_filter_instances}}(filterid, linkid)",
+		        'condition' => "`linktype` = 'tab'"),
+		    // вакансии (роли), в которых используется этот фильтр
+		    // @todo работа этой связи не протестирована
+		    'vacancies' => array(self::MANY_MANY, 'CatalogTab',
+		        "{{catalog_filter_instances}}(filterid, linkid)",
+		        'condition' => "`linktype` = 'vacancy'"),
 		);
 	}
 

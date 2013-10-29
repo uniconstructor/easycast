@@ -16,7 +16,11 @@
  * @property string $count
  * @property integer $visible
  * 
+ * Relations:
  * @property SearchScope $scope
+ * @property CatalogSection $parent - вкладка верхнего уровня
+ * @property CatalogTab[] $tabs
+ * @property CatalogFilter[] $searchFilters
  */
 class CatalogSection extends CActiveRecord
 {
@@ -109,10 +113,24 @@ class CatalogSection extends CActiveRecord
 		    'scope'     => array(self::BELONGS_TO, 'SearchScope', 'scopeid'),
 		    // Родительский раздел
 		    'parent'    => array(self::BELONGS_TO, 'CatalogSection', 'parentid'),
-		    // Вкладки в разделе
+		    // вкладки внутри раздела
+		    'tabs' => array(self::MANY_MANY, 'CatalogTab',
+		        "{{catalog_tab_instances}}(sectionid, tabid)"),
+		    
+		    // Прикрепленные к разделу фильтры поиска (связь типа "мост")
+		    'searchFilters' => array(self::MANY_MANY, 'CatalogFilter', 
+		        "{{catalog_filter_instances}}(linkid, filterid)", 
+		        'condition' => "`linktype` = 'section'"),
+		    
+		    // ссылки на вкладки в разделе
+		    // @deprecated использовалось пока я не умел писать связи типа "мост"
+		    // @todo удалить при рефакторинге
 		    'instances' => array(self::HAS_MANY, 'CatalogTabInstance', 'sectionid'),
-		    // Фильтры поиска в разделе
-		    'filterinstances' => array(self::HAS_MANY, 'CatalogFilterInstance', 'linkid', 
+		    
+		    // ссылки на фильтры поиска в разделе
+		    // @deprecated использовалось пока я не умел писать связи типа "мост"
+		    // @todo удалить при рефакторинге, вместо нее использовать связь searchFilters
+		    'filterinstances' => array(self::HAS_MANY, 'CatalogFilterInstance', 'linkid',
 		        'condition' => "`linktype` = 'section'"),
 		);
 	}
