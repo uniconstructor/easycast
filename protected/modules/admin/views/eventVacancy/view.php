@@ -3,21 +3,32 @@
  * Страница просмотра вакансии
  */
 
-$this->breadcrumbs=array(
+$this->breadcrumbs = array(
 	'Администрирование' => array('/admin'),
     'Проекты'=>array('/admin/project'),
     $model->event->project->name => array('/admin/project/view', 'id' => $model->event->project->id),
-    $model->event->name => array('/admin/projectEvent/view','id'=>$model->event->id),
+    $model->event->name => array('/admin/projectEvent/view', 'id' => $model->event->id),
 	$model->name,
 );
 
 $this->menu = array(
-	array('label' => 'Страница мероприятия', 'url' => array('/admin/projectEvent/view','id'=>$model->event->id)),
-	array('label' => 'Добавить вакансию', 'url' => array('/admin/eventVacancy/create', 'eventid'=>$model->event->id)),
-	array('label' => 'Редактировать вакансию', 'url' => array('/admin/eventVacancy/update','id'=>$model->id)),
-    array('label' => 'Заявки','url'=>array('/admin/projectMember/index', 'vacancyid'=>$model->id, 'type' => 'applications')),
-    array('label' => 'Подтвержденные участники','url'=>array('/admin/projectMember/index', 'vacancyid'=>$model->id, 'type' => 'members')),
+	array('label' => 'Страница мероприятия', 
+	    'url' => array('/admin/projectEvent/view', 'id' => $model->event->id)),
+	array('label' => 'Добавить вакансию',
+	    'url' => array('/admin/eventVacancy/create', 'eventid' => $model->event->id)),
+	array('label' => 'Редактировать вакансию',
+	    'url' => array('/admin/eventVacancy/update', 'id' => $model->id)),
+    array('label' => 'Заявки',
+        'url' => array('/admin/projectMember/index', 
+            'vacancyid' => $model->id, 
+            'type' => 'applications',
+        )),
+    array('label' => 'Подтвержденные участники',
+        'url' => array('/admin/projectMember/index',
+            'vacancyid' => $model->id,
+            'type' => 'members')),
 );
+
 if ( $model->status == EventVacancy::STATUS_DRAFT )
 {// разрешаем удалять вакансию-черновик
     $this->menu[] = array('label' => 'Удалить вакансию','url'=>'#',
@@ -56,14 +67,7 @@ if ( $model->status == EventVacancy::STATUS_ACTIVE )
 
 
 // отображаение оповещений о смене статуса
-$this->widget('bootstrap.widgets.TbAlert', array(
-    'block'     => true, // display a larger alert block?
-    'fade'      => true, // use transitions?
-    'closeText' => '&times;', // close link text - if set to false, no close link is displayed
-    'alerts' => array( // configurations per alert type: success, info, warning, error or danger
-        'success' => array('block' => true, 'fade' => true, 'closeText' => '&times;'),
-    ),
-));
+$this->widget('bootstrap.widgets.TbAlert');
 
 ?>
 
