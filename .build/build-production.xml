@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Сборка EasyCast для production-сервера " default="finish" basedir="../">
-    
+<project name="Сборка EasyCast для production-сервера" default="finish" basedir="../">
     <!-- Указываем путь к Yii -->
     <property name="yii.dir" value="../yiisoft/yii/"/>
     <!-- Указываем путь к ядру EasyCast -->
@@ -77,7 +76,7 @@
     </target>
     
     <target name="cleanup" depends="setup-project-enviroment">
-        <echo>Удаление мусорных файлов</echo>
+        <echo>Удаление служебных файлов</echo>
     	<delete includeemptydirs="true" failonerror="false" deleteonexit="false">
             <fileset dir="${production_output.dir}" defaultexcludes="false">
                 <include name="**/.*/**"/>
