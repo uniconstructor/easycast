@@ -11,13 +11,22 @@
  * @todo добавить поле filtersOptions - для того чтобы можно было задавать отдельные настройки для каждого фильтра
  *       при выводе всего списка фильтров
  */
-class QSearchFilters extends CWidget
+class SearchFilters extends CWidget
 {
+    /**
+     * @var CActiveRecord - модель к которой прикреплены критерии поиска 
+     *                  Этот объект обязательно должен обладать отношением (Relation)
+     *                  которое назызывается searchFilters, которое содержит 
+     *                  используемые фильтры поиска
+     */
+    public $searchObject;
+    
     /**
      * @var string - режим отображения фильтров:
      *               filter - фильтр в разделе каталога
      *               search - большая форма поиска
      *               vacancy - критерии подбора участников для вакансии
+     * @deprecated не используется, удалить при рефакторинге
      */
     public $mode = 'filter';
     
@@ -31,11 +40,14 @@ class QSearchFilters extends CWidget
     
     /**
      * @var array - массив ссылок на используемые фильтры (CatalogFilterInstance)
+     * @deprecated больше не используется, удалить при рефакторинге
      */
     public $filterInstances = array();
     
     /**
      * @var CatalogSection - раздел анкеты в котором отображаются фильтры
+     * @deprecated не используется, удалить при рефакторинге
+     *             Вместо этого поля теперь используется searchObject
      */
     public $section;
     
@@ -66,6 +78,7 @@ class QSearchFilters extends CWidget
     
     /**
      * @var string - id html-тега, в котором обновляются результаты поиска
+     *               (виджет класса QSearchResults)
      */
     public $searchResultsId = 'search_results';
     

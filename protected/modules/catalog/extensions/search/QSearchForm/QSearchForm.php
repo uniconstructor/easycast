@@ -8,7 +8,7 @@
  * Форма собирает себя по кусочкам, для каждого поля используя специальный виджет
  * Виджеты полей общие для фильтров и для формы поиска
  */
-class QSearchForm extends QSearchFilters
+class QSearchForm extends SearchFilters
 {
     public $mode = 'form';
     

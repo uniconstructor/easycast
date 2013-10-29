@@ -106,7 +106,7 @@ class QSearchCriteriaAssembler extends CComponent
         // Подключаем все классы моделей, необходимые для поиска по анкетам
         $this->importDataClasses();
         // создаем заготовку для будущего критерия выборки
-        $this->getStartCriteria();
+        $this->createStartCriteria();
         
         // получаем список фильтров
         if ( ! empty($this->filters) )
@@ -116,7 +116,6 @@ class QSearchCriteriaAssembler extends CComponent
             {// смотрим каждый переданный фильтр: это уже объект или его надо подгрузить? 
                 if ( ! ($filterElement instanceof CatalogFilter) )
                 {// передано только название фильтра - подгружаем его из базы
-                    
                     $criteria = new CDbCriteria();
                     $criteria->compare('shortname', $filterElement);
                     if ( ! $filter = CatalogFilter::model()->find($criteria) )
@@ -236,7 +235,7 @@ class QSearchCriteriaAssembler extends CComponent
      * 
      * @return null
      */
-    protected function getStartCriteria()
+    protected function createStartCriteria()
     {
         if ( $this->startCriteria instanceof CDbCriteria )
         {// изначальное условие выборки задано вручную
