@@ -344,7 +344,7 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
     public function setStatus($newStatus)
     {
         $this->owner->status = $newStatus;
-        return $this->owner->save();
+        return $this->owner->save(false);
     }
     
     /**
