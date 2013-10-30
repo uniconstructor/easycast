@@ -248,7 +248,7 @@ class ProjectEvent extends CActiveRecord
 		return array(
 			array('name, description', 'required'),
 			array('nodates, eta, showtimestart, parentid, projectid, timestart, timeend, timecreated, 
-			    timemodified, addressid, $virtual', 'length', 'max'=>20),
+			    timemodified, addressid, virtual', 'length', 'max'=>20),
 			array('meetingplace, memberinfo, description', 'length', 'max'=>4095),
 			array('status', 'length', 'max'=>9),
 			array('type', 'length', 'max'=>20),
