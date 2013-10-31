@@ -620,22 +620,6 @@ class Questionary extends CActiveRecord
                 $bages[] = QuestionaryModule::t('amateuractor(female)');
             }
         }
-        // статист
-        if ( $this->isstatist )
-        {
-            $bages[] = QuestionaryModule::t('statist');
-        }
-        // актер массовых сцен
-        if ( $this->ismassactor )
-        {
-            if ( ! $this->gender OR $this->gender == 'male' )
-            {
-                $bages[] = QuestionaryModule::t('massactor(male)');
-            }else
-           {
-                $bages[] = QuestionaryModule::t('massactor(female)');
-            }
-        }
         // ведущий (ведущая)
         if ( $this->isemcee )
         {

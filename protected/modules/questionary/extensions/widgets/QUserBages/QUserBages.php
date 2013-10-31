@@ -10,6 +10,9 @@ class QUserBages extends CWidget
      */
     public $bages;
     
+    /**
+     * @see CWidget::run()
+     */
     public function run()
     {
         foreach ( $this->bages as $bage )
