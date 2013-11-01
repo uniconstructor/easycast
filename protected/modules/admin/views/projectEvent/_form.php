@@ -4,8 +4,8 @@
  */
 
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm',array(
-	'id'=>'project-event-form',
-	'enableAjaxValidation'=>false,
+	'id' => 'project-event-form',
+	'enableAjaxValidation' => false,
 )); 
 
 $dateFormatter = new CDateFormatter('ru');
