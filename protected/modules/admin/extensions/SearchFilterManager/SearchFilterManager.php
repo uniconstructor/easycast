@@ -15,6 +15,11 @@ class SearchFilterManager extends CWidget
     public $searchObject;
     
     /**
+     * @var string - адрес обработчика, сохраняющего критерии поиска
+     */
+    public $actionUrl;
+    
+    /**
      * @see CWidget::init()
      */
     public function init()
@@ -26,6 +31,13 @@ class SearchFilterManager extends CWidget
         {
             throw new CException('Не задан объект для фильтров');
         }
+        $js = '$("#active_search_filters").sortable({
+                update: function(event, ui){
+                    $("#activeFilters").val($("#active_search_filters").sortable("toArray"));
+                    //console.log($("#activeFilters").val());
+                },
+            }).disableSelection();';
+        Yii::app()->clientScript->registerScript('ecCollectFilters', $js, CClientScript::POS_END);
     }
     
     /**
@@ -44,16 +56,19 @@ class SearchFilterManager extends CWidget
      */
     protected function printSortableList($type)
     {
+        $styles = 'nav nav-list filters-list';
+        $arrow  = '';
         if ( $type == 'active' )
         {// отображаем добавленные фильтры
-            $widgetId     = 'pending_search_filters';
-            $connectWith  = 'active_search_filters';
-            $filters = $this->getActiveFilters();
+            $widgetId = 'active_search_filters';
+            $filters  = $this->getActiveFilters();
+            //$styles  .= 'alert alert-success';
         }else
         {// отображаем фильтры которые можно добавить
-            $widgetId     = 'active_search_filters';
-            $connectWith  = 'pending_search_filters';
-            $filters = $this->getPendingFilters();
+            $widgetId  = 'pending_search_filters';
+            $filters   = $this->getPendingFilters();
+            //$arrow   = '<i style="padding-top:5px;" class="icon-arrow-right pull-right"></i>';
+            //$styles .= 'alert alert-info';
         }
         $options = CHtml::listData($filters, 'id', 'name');
         
@@ -61,14 +76,13 @@ class SearchFilterManager extends CWidget
             'items' => $options,
             // additional javascript options for the JUI Sortable plugin
             'options' => array(
-                //'revert'      => true,
-                //'connectWith' => $connectWith,
                 'connectWith' => '.filters-list',
             ),
-            'htmlOptions' => array('id' => $widgetId, 'class' => 'nav nav-list filters-list'),
-            'itemTemplate' => '<li><input type="hidden" href="#" name="'.$type.'[{id}]" value="{id}">
-                <a href="#">{content}</a></li>',
+            'tagName' => 'ol',
+            'htmlOptions' => array('id' => $widgetId, 'class' => $styles),
+            'itemTemplate' => '<li id="{id}"><a href="#">{content}'.$arrow.'</a></li>',
         ));
+        // <input type="hidden" class="filterid" name="'.$type.'[]" value="{id}">
     }
     
     /**
@@ -92,6 +106,7 @@ class SearchFilterManager extends CWidget
     {
         $criteria = new CDbCriteria();
         $criteria->index = 'id';
+        $criteria->order = "`name` ASC";
         
         $allFilters = CatalogFilter::model()->findAll($criteria);
         if ( ! $activeFilters = $this->getActiveFilters() )

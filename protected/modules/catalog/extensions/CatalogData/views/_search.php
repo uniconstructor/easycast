@@ -28,7 +28,7 @@
     <div class="span3">
         <?php 
         // форма поиска
-        $this->widget('catalog.extensions.search.QSearchFilters.QSearchFilters', array(
+        $this->widget('catalog.extensions.search.SearchFilters.SearchFilters', array(
             'section' => $this->section,
         ));
         ?>

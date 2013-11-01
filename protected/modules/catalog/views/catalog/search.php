@@ -24,7 +24,7 @@
         // форма поиска
         // поиск по разделу "вся база", поэтому получаем первый раздел (корень дерева)
         $section = CatalogSection::model()->findByPk(1);
-        $this->widget('catalog.extensions.search.QSearchFilters.QSearchFilters', array(
+        $this->widget('catalog.extensions.search.SearchFilters.SearchFilters', array(
             'mode'    => 'form',
             'section' => $section,
         ));

@@ -69,7 +69,7 @@ $this->menu = array(
 </div>
 <?php 
 
-
+CVarDumper::dump($_POST, 10, true);
 
 ?>
 

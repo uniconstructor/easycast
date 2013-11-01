@@ -25,6 +25,7 @@ class CatalogTab extends CActiveRecord
         Yii::import('application.extensions.ESearchScopes.models.*');
         parent::init();
     }
+    
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
@@ -42,24 +43,41 @@ class CatalogTab extends CActiveRecord
 	{
 		return '{{catalog_tabs}}';
 	}
-
+	
+	/**
+	 * @see CActiveRecord::beforeSave()
+	 */
+	public function beforeSave()
+	{
+	    if ( $this->isNewRecord )
+	    {
+	        if ( ! $this->lang )
+	        {
+	            $this->lang = 'ru';
+	        }
+	    }else
+	    {
+    	    if ( ! $this->shortname )
+    	    {// автоматически устанавливаем короткое название вкладки, если оно не задано
+    	       $this->shortname = 'tab'.$this->id;
+    	    }
+	    }
+	    return parent::beforeSave();
+	}
+	
 	/**
 	 * @return array validation rules for model attributes.
 	 */
 	public function rules()
 	{
 		return array(
-			array('name, shortname', 'required'),
+			array('name', 'required'),
 			array('name, shortname', 'length', 'max' => 128),
 			array('lang', 'length', 'max' => 5),
 			array('scopeid', 'length', 'max' => 11),
 			// The following rule is used by search().
 			array('id, name, shortname, lang, scopeid', 'safe', 'on' => 'search'),
 		);
-		foreach ( $this->sections as $section1 )
-		{
-		    
-		}
 	}
 
 	/**
@@ -70,6 +88,7 @@ class CatalogTab extends CActiveRecord
 		return array(
 		    // прикрепленные к вкладке условия поиска
 		    'scope' => array(self::BELONGS_TO, 'SearchScope', 'scopeid'),
+		    
 		    // Прикрепленные к вкладке фильтры поиска (связь типа "мост")
 		    'searchFilters' => array(self::MANY_MANY, 'CatalogFilter',
 		        "{{catalog_filter_instances}}(linkid, filterid)",
@@ -100,10 +119,7 @@ class CatalogTab extends CActiveRecord
 	 */
 	public function search()
 	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
-
-		$criteria=new CDbCriteria;
+		$criteria = new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
 		$criteria->compare('name',$this->name,true);
@@ -112,7 +128,7 @@ class CatalogTab extends CActiveRecord
 		$criteria->compare('scopeid',$this->scopeid,true);
 
 		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
+			'criteria' => $criteria,
 		));
 	}
 }

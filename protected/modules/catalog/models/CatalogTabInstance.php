@@ -3,7 +3,7 @@
 /**
  * Связь разделов каталога с вкладками
  *
- * The followings are the available columns in table '{{catalog_tab_instances}}':
+ * Таблица '{{catalog_tab_instances}}':
  * @property integer $id
  * @property integer $sectionid
  * @property integer $parentid
@@ -17,6 +17,9 @@
  * @property CatalogTab $parent
  * @property CatalogTabInstance $parentLink
  * @property CatalogSection $section
+ * 
+ * @todo убрать поле lang - оно здесь не нужно
+ * @todo добавить поле order - чтобы вкладки можно было выводить в указанном порядке
  */
 class CatalogTabInstance extends CActiveRecord
 {
@@ -36,6 +39,21 @@ class CatalogTabInstance extends CActiveRecord
 	public function tableName()
 	{
 		return '{{catalog_tab_instances}}';
+	}
+	
+	/**
+	 * @see CActiveRecord::beforeSave()
+	 */
+	public function beforeSave()
+	{
+	    if ( $this->isNewRecord )
+	    {
+	        if ( ! $this->parentid )
+	        {
+	            $this->parentid = 0;
+	        }
+	    }
+	    return parent::beforeSave();
 	}
 
 	/**
@@ -68,6 +86,29 @@ class CatalogTabInstance extends CActiveRecord
 		    // Родительская вкладка
 		    'parent' => array(self::HAS_ONE, 'CatalogTab', 'tabid', 'through' => 'parentLink'),
 		);
+	}
+	
+	/**
+	 * @see CActiveRecord::defaultScope()
+	 */
+	public function defaultScope()
+	{
+	    return array(
+	        //'order' => '`order` ASC, `id` ASC',
+	        'order' => '`id` ASC',
+	    );
+	}
+	
+	/**
+	 * @see CActiveRecord::scopes()
+	 */
+	public function scopes()
+	{
+	    return array(
+	        'visible' => array(
+	            'condition' => '`visible` = 1',
+	        ),
+	    );
 	}
 
 	/**

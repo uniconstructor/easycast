@@ -112,7 +112,7 @@ class CatalogController extends Controller
 	 */
 	public function actionSearch()
 	{
-	    Yii::import('application.modules.catalog.extensions.search.QSearchFilters.QSearchFilters');
+	    Yii::import('application.modules.catalog.extensions.search.SearchFilters.SearchFilters');
 	    
 	    $this->render('search');
 	}
@@ -237,7 +237,7 @@ class CatalogController extends Controller
 	    {
 	        Yii::app()->end();
 	    }
-	    $this->widget('catalog.extensions.search.QSearchFilters.QSearchFilters', array(
+	    $this->widget('catalog.extensions.search.SearchFilters.SearchFilters', array(
             'section' => $section,
         ));
 	    Yii::app()->end();

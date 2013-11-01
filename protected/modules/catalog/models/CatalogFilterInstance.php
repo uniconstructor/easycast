@@ -1,14 +1,24 @@
 <?php
 
 /**
- * This is the model class for table "{{catalog_filter_instances}}".
+ * Связь фильтров поиска с другими объектами в базе
  *
- * The followings are the available columns in table '{{catalog_filter_instances}}':
+ * Таблица '{{catalog_filter_instances}}':
  * @property integer $id
  * @property string $linktype
  * @property integer $linkid
  * @property integer $filterid
+ * @property integer $order
  * @property integer $visible
+ * 
+ * Relations:
+ * @property CatalogFilter $filter
+ * 
+ * @todo автоматически вычислять order при создании записи если он не задан, основываясь
+ *       на порядковом номере последнего добавленного к этому объекту фильтра
+ * @todo настроить RBAC таким образом, чтобы была возможность:
+ *       - в зависимости от роли разрешать прикреплять только определенные фильтры
+ *       - в зависимости от роли разрешать искать только по определенным фильтрам
  */
 class CatalogFilterInstance extends CActiveRecord
 {
@@ -36,13 +46,11 @@ class CatalogFilterInstance extends CActiveRecord
 	public function rules()
 	{
 		return array(
-			array('visible', 'numerical', 'integerOnly'=>true),
-			array('linkid, filterid', 'length', 'max'=>11),
-		    // @todo прописать здесь все возможные типы связей, когда станет точно ясно сколько их
-			array('linktype', 'length', 'max'=>20),
+			array('visible, order', 'numerical', 'integerOnly' => true),
+			array('linkid, filterid', 'length', 'max' => 11),
+			array('linktype', 'length', 'max' => 20),
 			// The following rule is used by search().
-			// Please remove those attributes that should not be searched.
-			array('id, linkid, linktype, filterid, visible', 'safe', 'on'=>'search'),
+			array('id, linkid, linktype, filterid, order, visible', 'safe', 'on' => 'search'),
 		);
 	}
 
@@ -54,6 +62,28 @@ class CatalogFilterInstance extends CActiveRecord
 		return array(
 		    'filter' => array(self::BELONGS_TO, 'CatalogFilter', 'filterid'),
 		);
+	}
+	
+	/**
+	 * @see CActiveRecord::defaultScope()
+	 */
+	public function defaultScope()
+	{
+	    return array(
+            'order' => '`order` ASC, `id` ASC',
+	    );
+	}
+	
+	/**
+	 * @see CActiveRecord::scopes()
+	 */
+	public function scopes()
+	{
+	    return array(
+	        'visible' => array(
+	            'condition' => '`visible` = 1',
+	        ),
+	    );
 	}
 
 	/**
@@ -77,7 +107,7 @@ class CatalogFilterInstance extends CActiveRecord
 	 */
 	public function search()
 	{
-		$criteria=new CDbCriteria;
+		$criteria = new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
 		$criteria->compare('linktype',$this->linktype,true);
@@ -87,7 +117,7 @@ class CatalogFilterInstance extends CActiveRecord
 		$criteria->compare('order',$this->order,true);
 
 		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
+			'criteria' => $criteria,
 		));
 	}
 }

@@ -1,7 +1,7 @@
 <?php
 
 // Подключаем виджет, от которого все наследуется
-Yii::import('catalog.extensions.search.QSearchFilters.QSearchFilters');
+Yii::import('catalog.extensions.search.SearchFilters.SearchFilters');
 
 /**
  * Виджет, позволяющий задавать условия отбора участников в вакансию
@@ -10,7 +10,7 @@ Yii::import('catalog.extensions.search.QSearchFilters.QSearchFilters');
  * @todo выводить количество подходящих людей при сохранении критериев
  * @todo выводить количество подходящих людей в сообщении при неактивной форме поиска
  */
-class VacancyFilters extends QSearchFilters
+class VacancyFilters extends SearchFilters
 {
     /**
      * @var string - режим отображения фильтров:
@@ -55,7 +55,7 @@ class VacancyFilters extends QSearchFilters
     
     /**
      * (non-PHPdoc)
-     * @see QSearchFilters::init()
+     * @see SearchFilters::init()
      */
     public function init()
     {
@@ -68,7 +68,7 @@ class VacancyFilters extends QSearchFilters
     
     /**
      * (non-PHPdoc)
-     * @see QSearchFilters::displayButtons()
+     * @see SearchFilters::displayButtons()
      */
     protected function displayButtons()
     {
@@ -98,7 +98,7 @@ class VacancyFilters extends QSearchFilters
     
     /**
      * (non-PHPdoc)
-     * @see QSearchFilters::getFilterTitle()
+     * @see SearchFilters::getFilterTitle()
      */
     protected function getFilterTitle()
     {
@@ -107,7 +107,7 @@ class VacancyFilters extends QSearchFilters
     
     /**
      * (non-PHPdoc)
-     * @see QSearchFilters::getAjaxSearchParams()
+     * @see SearchFilters::getAjaxSearchParams()
      */
     protected function getAjaxSearchParams()
     {
@@ -118,7 +118,7 @@ class VacancyFilters extends QSearchFilters
     
     /**
      * (non-PHPdoc)
-     * @see QSearchFilters::getDisplayFilterOptions()
+     * @see SearchFilters::getDisplayFilterOptions()
      */
     protected function getDisplayFilterOptions($filter)
     {
@@ -133,7 +133,7 @@ class VacancyFilters extends QSearchFilters
     
     /**
      * (non-PHPdoc)
-     * @see QSearchFilters::createSuccessSearchJs()
+     * @see SearchFilters::createSuccessSearchJs()
      */
     protected function createSuccessSearchJs()
     {

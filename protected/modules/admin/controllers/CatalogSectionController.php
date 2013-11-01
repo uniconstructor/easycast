@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Админский контроллер для работы с разделами каталога
+ * @package easycast
+ * @subpackage admin
+ * 
+ */
 class CatalogSectionController extends Controller
 {
 	/**
@@ -52,8 +58,14 @@ class CatalogSectionController extends Controller
 	public function actionView($id)
 	{
 	    $this->layout = '//layouts/column1';
+	    $section = $this->loadModel($id);
+	    if ( $ids = Yii::app()->request->getPost('activeFilters') )
+	    {// сохраняем список используемых фильтров, если требуется
+	        $this->bindSearchFilters($section, $ids);
+	    }
+	    
 		$this->render('view', array(
-			'model' => $this->loadModel($id),
+			'model' => $section,
 		));
 	}
 
@@ -68,11 +80,13 @@ class CatalogSectionController extends Controller
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
-		if(isset($_POST['CatalogSection']))
+		if( isset($_POST['CatalogSection']) )
 		{
 			$model->attributes=$_POST['CatalogSection'];
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->id));
+			if ( $model->save() )
+			{
+			    $this->redirect(array('view','id'=>$model->id));
+			}
 		}
 
 		$this->render('create',array(
@@ -97,7 +111,7 @@ class CatalogSectionController extends Controller
 			$model->attributes = $_POST['CatalogSection'];
 			if ( $model->save() )
 			{
-			    $this->redirect(array('admin'));
+			    $this->redirect(array('view', 'id'=>$model->id));
 			}
 		}
 
@@ -183,5 +197,23 @@ class CatalogSectionController extends Controller
 			echo CActiveForm::validate($model);
 			Yii::app()->end();
 		}
+	}
+	
+	/**
+	 * Привязать фильтры поиска к разделу каталога или обновить фильтров
+	 * @param CatalogSection $section
+	 * @param string $ids - id фильтров поиска
+	 * @return void
+	 */
+	protected function bindSearchFilters($section, $ids)
+	{
+	    $filters = array();
+	    $ids = explode(',', $ids);
+	    foreach ( $ids as $id )
+	    {
+	         $filter = CatalogFilter::model()->findByPk($id);
+	         $filters[$id] = $filter;
+	    }
+	    $section->bindSearchFilters($filters);
 	}
 }

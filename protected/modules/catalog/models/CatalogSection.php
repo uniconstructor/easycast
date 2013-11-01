@@ -1,9 +1,9 @@
 <?php
 
 /**
- * This is the model class for table "{{catalog_sections}}".
+ * Модель для работы с одним разделом каталога
  *
- * The followings are the available columns in table '{{catalog_sections}}':
+ * Таблица '{{catalog_sections}}':
  * @property integer $id
  * @property string $parentid
  * @property string $scopeid
@@ -18,14 +18,14 @@
  * 
  * Relations:
  * @property SearchScope $scope
- * @property CatalogSection $parent - вкладка верхнего уровня
- * @property CatalogTab[] $tabs
+ * @property CatalogSection $parent - родительский раздел
+ * @property CatalogTab[] $tabs - прикрепленные вкладки
  * @property CatalogFilter[] $searchFilters
+ * @property CatalogTabInstance[] $tabInstances
  */
 class CatalogSection extends CActiveRecord
 {
     /**
-     * (non-PHPdoc)
      * @see CActiveRecord::init()
      */
     public function init()
@@ -33,6 +33,7 @@ class CatalogSection extends CActiveRecord
         Yii::import('application.extensions.ESearchScopes.models.*');
         parent::init();
     }
+    
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
@@ -52,32 +53,33 @@ class CatalogSection extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CModel::behaviors()
 	 */
 	public function behaviors()
 	{
 	    Yii::import('ext.galleryManager.*');
 	    Yii::import('ext.galleryManager.models.*');
-	    // настройки сохранения логотипа
-	    $logoSettings = array(
-	        'class' => 'GalleryBehavior',
-	        'idAttribute' => 'galleryid',
-	        'limit' => 1,
-	        // картинка проекта масштабируется в трех размерах
-	        'versions' => array(
-	            'small' => array(
-	                'centeredpreview' => array(150, 150),
-	            ),
-	        ),
-	        // галерея будет без имени
-	        'name'        => false,
-	        'description' => false,
-	    );
+	    Yii::import('catalog.extensions.search.SearchFiltersBehavior');
 	    
 	    return array(
-	        // логотип
-	        'galleryBehavior' => $logoSettings,
+	        // настройки сохранения логотипа
+	        'galleryBehavior' => array(
+    	        'class' => 'GalleryBehavior',
+    	        'idAttribute' => 'galleryid',
+    	        'limit' => 1,
+    	        'versions' => array(
+    	            'small' => array(
+    	                'centeredpreview' => array(150, 150),
+    	            ),
+    	        ),
+    	        'name'        => false,
+    	        'description' => false,
+    	    ),
+	        // настройки для прикрепляемых фильтров поиска
+	        'filtersBehavior' => array(
+	            'class' => 'catalog.extensions.search.SearchFiltersBehavior',
+	            'linkType' => 'section',
+            ),
 	    );
 	}
 
@@ -113,24 +115,29 @@ class CatalogSection extends CActiveRecord
 		    'scope'     => array(self::BELONGS_TO, 'SearchScope', 'scopeid'),
 		    // Родительский раздел
 		    'parent'    => array(self::BELONGS_TO, 'CatalogSection', 'parentid'),
+		    
 		    // вкладки внутри раздела
 		    'tabs' => array(self::MANY_MANY, 'CatalogTab',
 		        "{{catalog_tab_instances}}(sectionid, tabid)"),
-		    
 		    // Прикрепленные к разделу фильтры поиска (связь типа "мост")
 		    'searchFilters' => array(self::MANY_MANY, 'CatalogFilter', 
 		        "{{catalog_filter_instances}}(linkid, filterid)", 
 		        'condition' => "`linktype` = 'section'"),
 		    
 		    // ссылки на вкладки в разделе
-		    // @deprecated использовалось пока я не умел писать связи типа "мост"
-		    // @todo удалить при рефакторинге
+		    // эта связь используется при обновлении набора вкладок в разделе
+		    // @todo удалить  instances при рефакторинге, оставить только  tabInstances
+		    // @todo заменить все старые обращения к этой связи обращением к связи tabs
 		    'instances' => array(self::HAS_MANY, 'CatalogTabInstance', 'sectionid'),
+		    'tabInstances' => array(self::HAS_MANY, 'CatalogTabInstance', 'sectionid'),
 		    
 		    // ссылки на фильтры поиска в разделе
-		    // @deprecated использовалось пока я не умел писать связи типа "мост"
-		    // @todo удалить при рефакторинге, вместо нее использовать связь searchFilters
+		    // эта связь используется при обновлении набора прикрепленных фильтров поиска
+		    // @todo удалить filterinstances при рефакторинге, оставить только  filterInstances (camelCase)
+		    // @todo заменить все старые обращения к этой связи обращением к связи searchFilters
 		    'filterinstances' => array(self::HAS_MANY, 'CatalogFilterInstance', 'linkid',
+		        'condition' => "`linktype` = 'section'"),
+		    'filterInstances' => array(self::HAS_MANY, 'CatalogFilterInstance', 'linkid',
 		        'condition' => "`linktype` = 'section'"),
 		);
 	}
@@ -163,7 +170,7 @@ class CatalogSection extends CActiveRecord
 	 */
 	public function search()
 	{
-		$criteria=new CDbCriteria;
+		$criteria = new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
 		$criteria->compare('parentid',$this->parentid,true);
@@ -180,6 +187,43 @@ class CatalogSection extends CActiveRecord
 			'criteria'   => $criteria,
 		    'pagination' => false,
 		));
+	}
+	
+	/**
+	 * Привязать вкладки к этому разделу каталога
+	 * @param CatalogTab[] $tabs
+	 * @return void
+	 * 
+	 * @todo добавить обработку ошибок
+	 */
+	public function bindTabs($tabs)
+	{
+	    $this->clearTabInstances();
+	    foreach ( $tabs as $tab )
+	    {
+	        $instance = new CatalogTabInstance();
+	        $instance->sectionid = $this->id;
+	        $instance->tabid = $tab->id;
+	        $instance->save();
+	    }
+	}
+	
+	/**
+	 * Очистить старый набор вкладок перед добавлением нового
+	 * @return void
+	 * 
+	 * @todo добавить обработку ошибок
+	 */
+	protected function clearTabInstances()
+	{
+	    if ( ! $this->tabInstances )
+	    {
+	        return;
+	    }
+	    foreach ( $this->tabInstances as $instance )
+	    {
+	        $instance->delete();
+	    }
 	}
 	
 	/**
