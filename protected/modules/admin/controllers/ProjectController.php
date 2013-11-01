@@ -127,15 +127,14 @@ class ProjectController extends Controller
 			
 			if( ! $mmfErrors AND $model->save() )
 			{
-				$this->redirect(array('view','id'=>$model->id));
+				$this->redirect(array('view', 'id' => $model->id));
 			}
 		}
 
 		$this->render('update',array(
-			'model'=>$model,
-		    
-		    'video'=>$video,
-		    'validatedVideos'=>$validatedVideos,
+			'model' => $model,
+		    'video' => $video,
+		    'validatedVideos' => $validatedVideos,
 		));
 	}
 
@@ -204,8 +203,10 @@ class ProjectController extends Controller
 	public function loadModel($id)
 	{
 		$model=Project::model()->findByPk($id);
-		if($model===null)
-			throw new CHttpException(404,'The requested page does not exist.');
+		if ( $model === null )
+		{
+		    throw new CHttpException(404,'The requested page does not exist.');
+		}
 		return $model;
 	}
 
@@ -215,13 +216,19 @@ class ProjectController extends Controller
 	 */
 	protected function performAjaxValidation($model)
 	{
-		if(isset($_POST['ajax']) && $_POST['ajax']==='project-form')
+		if ( isset($_POST['ajax']) && $_POST['ajax'] === 'project-form' )
 		{
 			echo CActiveForm::validate($model);
 			Yii::app()->end();
 		}
 	}
 	
+	/**
+	 * Изменить статус проекта
+	 * @param int $id
+	 * @throws CHttpException
+	 * @return null
+	 */
 	public function actionSetStatus($id)
 	{
 	    $model = $this->loadModel($id);
