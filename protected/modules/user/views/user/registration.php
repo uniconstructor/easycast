@@ -9,6 +9,7 @@ $this->pageTitle=Yii::app()->name . ' - '.UserModule::t("Registration");
 /*$this->breadcrumbs = array(
 	UserModule::t("Registration"),
 );*/
+
 // убираем из заголовка все лишнее
 $this->ecHeaderOptions = array(
     'displayContacts'  => false,
@@ -28,15 +29,19 @@ $this->ecHeaderOptions = array(
     <div class="alert alert-info">
         Для регистрации достаточно ввести только почту и проверочный код.
     </div>
-    <?php $form = $this->beginWidget('UActiveForm', array(
-    	'id'=>'registration-form',
-    	'enableAjaxValidation'=>true,
+    <?php 
+    $form = $this->beginWidget('UActiveForm', array(
+    	'id' => 'registration-form',
+    	'enableAjaxValidation' => true,
     	//'disableAjaxValidationAttributes'=>array('RegistrationForm_verifyCode'),
-    	'clientOptions'=>array(
-    		'validateOnSubmit'=>true,
+    	'clientOptions' => array(
+    		'validateOnSubmit' => true,
+            'validationDelay'  => 1200,
+            'validateOnChange' => true,
     	),
-    	'htmlOptions' => array('enctype'=>'multipart/form-data'),
-    )); ?>
+    	'htmlOptions' => array('enctype' => 'multipart/form-data'),
+    )); 
+    ?>
 
 	<?php echo $form->errorSummary(array($model, $profile)); ?>
 	<?php echo $form->textFieldRow($model,'email'); ?>
@@ -101,7 +106,7 @@ $this->ecHeaderOptions = array(
     <div style="display:block;text-align:center;">
     <?php // кнопка регистрации 
 	    $this->widget('bootstrap.widgets.TbButton',
-            array('buttonType'=>'submit',
+            array('buttonType' => 'submit',
                   'type'  => 'primary',
                   'label' => UserModule::t("Register"),
                   'htmlOptions' => array('class' => 'btn btn-large btn-success'),
@@ -112,7 +117,6 @@ $this->ecHeaderOptions = array(
     // конец формы 
     $this->endWidget();
 ?>
-
 
 </div><!-- form -->
 <?php endif; ?>
