@@ -7,6 +7,8 @@ class QCreated extends CWidget
 {
     public $startDate;
     
+    public $userId;
+    
     /**
      * (non-PHPdoc)
      * @see CWidget::init()
@@ -14,7 +16,11 @@ class QCreated extends CWidget
     public function init()
     {
         $date = DateTime::createFromFormat('Y-m-d' , '2013-10-01');
-        $this->startDate = 0;//$date->format('U');
+        //$this->startDate = 0;//$date->format('U');
+        if ( ! $this->userId )
+        {
+            $this->userId = Yii::app()->user->id;
+        }
         parent::init();
     }
     
@@ -25,7 +31,7 @@ class QCreated extends CWidget
     public function run()
     {
         $criteria = new CDbCriteria;
-        $criteria->compare('userid', Yii::app()->user->id);
+        $criteria->compare('userid', $this->userId);
         $criteria->compare('timecreated', '>'.$this->startDate);
         $criteria->order = 'timecreated DESC';
         

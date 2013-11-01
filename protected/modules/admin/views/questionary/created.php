@@ -5,9 +5,22 @@
 
 $this->breadcrumbs = array(
     'Администрирование' => array('/admin'),
-    'Анкеты' => array('/admin/questionary'),
+    'Анкеты'            => array('/admin/questionary'),
     'Созданные анкеты',
 );
+
+
+$moduleClass = get_class(Yii::app()->getModule('user'));
+$admins = $moduleClass::getAdminList();
+$menuItems = array();
+foreach ( $admins as $id => $name )
+{
+    $menuItems[] = array(
+        'label' => $name,
+        'url'   => array('/admin/questionary/created', 'id' => $id)
+    );
+}
+$this->menu = $menuItems;
 
 ?>
 
@@ -15,6 +28,6 @@ $this->breadcrumbs = array(
 
 <?php 
 
-$this->widget('admin.extensions.QCreated.QCreated');
+$this->widget('admin.extensions.QCreated.QCreated', array('userId' => $userId));
 
 ?>

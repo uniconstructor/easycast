@@ -7,6 +7,9 @@ class QuestionaryController extends Controller
 {
     public $layout='//layouts/column2';
     
+    /**
+     * @see CController::init()
+     */
     public function init()
     {
         // Импортируем классы для работы с анкетами пользователей
@@ -45,7 +48,8 @@ class QuestionaryController extends Controller
      */
     public function actionCreated()
     {
-        $this->render('created');
+        $id = Yii::app()->request->getParam('id', 0);
+        $this->render('created', array('userId' => $id));
     }
     
     /**
