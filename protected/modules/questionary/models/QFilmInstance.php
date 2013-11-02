@@ -176,10 +176,10 @@ class QFilmInstance extends CActiveRecord
 
     public function setname($name)
     {
-        if ( $this->filmid AND $this->film->name == $name )
+        /*if ( $this->filmid AND $this->film->name == $name )
         {// фильм выбран из списка - не добавляем его в наш справочник
             return;
-        }
+        }*/
         
         if ( ! trim($name) )
         {// название пустое - не сохраняем его
@@ -187,11 +187,11 @@ class QFilmInstance extends CActiveRecord
         }
         
         // фильм не выбран из списка - попробуем отыскать его по имени
-        if ( $id = QFilm::model()->filmExists($name) )
+        /*if ( $id = QFilm::model()->filmExists($name) )
         {// нашли фильм по названию - просто запишем его id
             $this->filmid = $id;
             return;
-        }
+        }*/
 
         // фильм не выбран из списка и не найден по названию - добавим его в наш справочник
         $this->filmid = QFilm::model()->addUserFilm($name, $this->_year, $this->_director);
