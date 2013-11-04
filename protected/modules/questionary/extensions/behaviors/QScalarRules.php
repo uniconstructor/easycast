@@ -48,7 +48,7 @@ class QScalarRules extends CActiveRecordBehavior
     {
         return array(
             // список обязательных полей анкеты участника
-            array('firstname, lastname, gender', 'required', 'on' => 'update'), // birthdate
+            array('firstname, lastname, gender, birthdate', 'required', 'on' => 'update'), // 
             // проверка даты рождения
             //array('birthdate', 'type', 'type' => 'array'),
             //array('birthdate', 'filter', 'filter' => array('QScalarRules', 'checkBirthDate')),
@@ -61,6 +61,9 @@ class QScalarRules extends CActiveRecordBehavior
      * @param string $attribute - введенное значение
      * @param array $params - дополнительные параметры для проверки
      * @return null
+     * 
+     * @todo всегда сначала пытаться получить unixtime из массива формы и возвращать null только если его
+     *       получить не удалось
      */
     public function checkBirthDate($attribute, $params=array())
     {
@@ -68,10 +71,14 @@ class QScalarRules extends CActiveRecordBehavior
         {
             return;
         }
-        $oldStatus = Questionary::model()->findByPk($this->owner->id)->status;
-        if ( in_array($oldStatus, array('unconfirmed', 'draft', 'delayed')) )
-        {// не проверяем дату рождения если анкета только что создана
-            return;
+        
+        if ( ! $this->hasBirthDateArray() )
+        {
+            $oldStatus = Questionary::model()->findByPk($this->owner->id)->status;
+            if ( in_array($oldStatus, array('unconfirmed', 'draft', 'delayed')) )
+            {// не проверяем дату рождения если анкета только что создана
+                return;
+            }
         }
         
         $year  = $this->owner->attributes['birthdate']['Year'];
@@ -87,5 +94,23 @@ class QScalarRules extends CActiveRecordBehavior
         }
         
         return mktime(12, 0, 0, (int)$month, (int)$day, (int)$year);
+    }
+    
+    /**
+     * Проверяет, передана ли дата рождения при сохранении модели
+     * Дата рождения передается в виде массива только в том случае если модель была сохранена 
+     * из формы
+     * 
+     * @return void
+     */
+    protected function hasBirthDateArray()
+    {
+        if ( isset($this->owner->attributes['birthdate']['Year']) AND
+             isset($this->owner->attributes['birthdate']['Month']) AND
+             isset($this->owner->attributes['birthdate']['Day']) )
+        {
+            return true;
+        }
+        return false;
     }
 }
