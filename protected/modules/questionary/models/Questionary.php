@@ -1241,7 +1241,7 @@ class Questionary extends CActiveRecord
             {// поле нужно преобразовать
                 $result = $this->convertFieldValue($result, $name, $value);
             }else
-          {
+            {
                 $result[$name] = $value;
             }
         }
@@ -1264,7 +1264,7 @@ class Questionary extends CActiveRecord
     {
         switch ($field)
         {
-            case 'birthdate':       return $this->convertDate($result, $field, $value); break;
+            //case 'birthdate':       return $this->convertDate($result, $field, $value); break;
             case 'passportexpires': return $this->convertDate($result, $field, $value); break;
             case 'passportdate':    return $this->convertDate($result, $field, $value); break;
             
