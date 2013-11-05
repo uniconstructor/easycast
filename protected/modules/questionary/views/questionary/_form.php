@@ -2,9 +2,9 @@
 /**
  * Форма анкеты участника
  * 
- * @var $this QuestionaryController
- * @var $questionary Questionary
- * @var $form TbActiveForm
+ * @var QuestionaryController $this
+ * @var Questionary $questionary
+ * @var TbActiveForm $form
  * 
  * @todo не отображается список ошибок в конце формы
  */
@@ -35,15 +35,16 @@ Yii::import('ext.CountryCitySelectorRu.*');
 
     // настраиваем стандартные галочки "да/нет"
     $toggleBoxJsOptions = array(
-        'on_label' => Yii::t('coreMessages','yes'),
+        'on_label'  => Yii::t('coreMessages','yes'),
         'off_label' => Yii::t('coreMessages','no'),
     );
     
     // начало виджета формы редактирования анкеты
+    /* @var $form TbActiveForm  */
     $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         'id' => 'questionary-form',
         'enableAjaxValidation'   => true,
-        'enableClientValidation' => true,
+        'enableClientValidation' => false,
         'clientOptions' => array(
             'validateOnSubmit' => true,
             'validateOnChange' => true,
@@ -175,9 +176,9 @@ Yii::import('ext.CountryCitySelectorRu.*');
     //$clientScriptManager->registerScript($markLabelsJsId, $markLabelsJs, CClientScript::POS_END);
 ?>
 	<p class="note">
-        <?php echo Yii::t('coreMessages','form_required_fields', array('{mark}' => '<span class="required">*</span>')); ?>
+        <?php echo Yii::t('coreMessages', 'form_required_fields', array('{mark}' => '<span class="required">*</span>')); ?>
     </p>
-	<?php echo $form->errorSummary($questionary); ?>
+	<?php echo $form->errorSummary($questionary, null, null, array('id' => 'questionary-form-upper-es')); ?>
     
     <?php // рейтинг анкеты (выставляется только администрацией)
         if ( Yii::app()->user->isSuperuser )
@@ -200,7 +201,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
     
         <?php echo $form->labelEx($questionary,'birthdate'); ?>
         <?php
-            $this->widget('ext.ActiveDateSelect',
+            $form->widget('ext.ActiveDateSelect',
                 array(
                     'model'         => $questionary,
                     'attribute'     => 'birthdate',
@@ -1528,7 +1529,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
     ?>
     <div class="form-actions">
         <?php
-        //echo $form->errorSummary($questionary);
+        echo $form->errorSummary($questionary, null, null, array('id' => 'questionary-form-footer-es'));
         // Кнопка сохранения 
         $form->widget('bootstrap.widgets.TbButton',
             array(

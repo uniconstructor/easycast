@@ -71,17 +71,16 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
         {
             return date('d.m.Y', $this->owner->birthdate);
         }
-        
         return $this->owner->birthdate;
     }
     
     /**
      * Установить дату рождения
      */
-    public function setBirthdate($value)
+    /*public function setBirthdate($value)
     {
         $this->owner->birthdate = ActiveDateSelect::make_unixtime($value);
-    }
+    }*/
     
     /**
      * Получить срок истечения загранпаспорта

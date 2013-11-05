@@ -75,7 +75,9 @@ class QScalarRules extends CActiveRecordBehavior
         if ( ! $this->hasBirthDateArray() )
         {
             $oldStatus = Questionary::model()->findByPk($this->owner->id)->status;
-            if ( in_array($oldStatus, array('unconfirmed', 'draft', 'delayed')) )
+            $newStatus = $this->owner->attributes['status'];
+            if ( in_array($oldStatus, array('unconfirmed', 'draft', 'delayed')) AND
+                 in_array($newStatus, array('unconfirmed', 'draft', 'delayed')) )
             {// не проверяем дату рождения если анкета только что создана
                 return;
             }
@@ -85,8 +87,11 @@ class QScalarRules extends CActiveRecordBehavior
         $month = $this->owner->attributes['birthdate']['Month'];
         $day   = $this->owner->attributes['birthdate']['Day'];
         
-        $inputDate = $year.$month.$day;
-        $todayDate = date('Ymd');
+        $inputDate = mktime(12, 0, 0, (int)$month, (int)$day, (int)$year);
+        $todayDate = mktime(12, 0, 0, date('m'), date('d'), date('Y'));
+        
+        //CVarDumper::dump($inputDate, 10);echo '|';
+        //CVarDumper::dump($todayDate, 10);die;
         
         if ( $inputDate == $todayDate OR ( $inputDate > $todayDate ) )
         {// Дата рождения не может быть сегодняшней или больше текущей
@@ -105,7 +110,7 @@ class QScalarRules extends CActiveRecordBehavior
      */
     protected function hasBirthDateArray()
     {
-        if ( isset($this->owner->attributes['birthdate']['Year']) AND
+        if ( isset($this->owner->attributes['birthdate']['Year'])  AND
              isset($this->owner->attributes['birthdate']['Month']) AND
              isset($this->owner->attributes['birthdate']['Day']) )
         {

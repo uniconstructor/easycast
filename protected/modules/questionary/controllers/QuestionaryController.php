@@ -323,9 +323,9 @@ class QuestionaryController extends Controller
             //die;
 
 
-            if( $user->save() AND $questionary->save() AND $address->save() AND $recordingConditions->save() )
+            if( $questionary->validate(null, false) AND $user->save() AND $questionary->save() AND $address->save() AND $recordingConditions->save() )
             {// записываем в базу значения анкеты и адреса
-                $this->redirect(array('view','id'=>$questionary->id));
+                $this->redirect(array('view','id' => $questionary->id));
             }
         }
 
@@ -482,7 +482,7 @@ class QuestionaryController extends Controller
         $result = array('error' => '');
         if ( ! $this->canInviteUser() )
         {// нет прав на приглажение пользователя
-            $result['error'] = 'NOACCESS';
+            $result['error']   = 'NOACCESS';
             $result['message'] = QuestionaryModule::t('no_invite_access_message');
             echo CJSON::encode($result);
             Yii::app()->end();
@@ -492,7 +492,7 @@ class QuestionaryController extends Controller
         
         if ( ! $questionary = Questionary::model()->findByPk($id) )
         {// нет такого участника
-            $result['error'] = 'NOTFOUND';
+            $result['error']   = 'NOTFOUND';
             $result['message'] = QuestionaryModule::t('user_not_found');
             echo CJSON::encode($result);
             Yii::app()->end();
