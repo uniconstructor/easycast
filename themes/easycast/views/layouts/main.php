@@ -1,4 +1,4 @@
-<?php /* @var $this Controller */ ?><!DOCTYPE html>
+<!DOCTYPE html><?php /* @var $this Controller */ ?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru" lang="ru">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
