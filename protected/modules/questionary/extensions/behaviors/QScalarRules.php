@@ -52,7 +52,7 @@ class QScalarRules extends CActiveRecordBehavior
             // проверка даты рождения
             //array('birthdate', 'type', 'type' => 'array', 'allowEmpty' => true),
             //array('birthdate', 'filter', 'filter' => array('QScalarRules', 'checkBirthDate')),
-            array('birthdate', 'filter', 'filter' => array($this, 'checkBirthDate')),
+            array('birthdate', 'filter', 'filter' => array($this, 'checkBirthDate'), 'on' => 'update'),
         );
     }
     
@@ -69,7 +69,7 @@ class QScalarRules extends CActiveRecordBehavior
     {
         if ( $this->owner->scenario != 'update' )
         {
-            return;
+            return $this->owner->birthdate;
         }
         
         if ( ! $this->hasBirthDateArray() )
