@@ -146,7 +146,7 @@ class EventVacancy extends CActiveRecord
 	    // удаляем ссылки фильтров поиска на эту роль
 	    foreach ( $this->filterinstances as $instance )
 	    {
-	        $instance->delete;
+	        $instance->delete();
 	    }
 	    // удаляем условия отбора людей на эту вакансию
 	    if ( $this->scope )
