@@ -32,7 +32,7 @@ class QScalarRules extends CActiveRecordBehavior
             array('passportserial, passportnum', 'length', 'max' => 10),
             
             // @todo добавить индивидуальную проверку для каждого типа поля
-            array('birthdate, passportdate, gender, height, weight, wearsize, looktype, haircolor, eyecolor,
+            array('passportdate, gender, height, weight, wearsize, looktype, haircolor, eyecolor,
                     physiquetype, titsize, chestsize, waistsize, hipsize, striptype
                     striplevel, singlevel, wearsize, status', 'safe'),
             // @todo добавить проверку сложных значений
@@ -50,7 +50,7 @@ class QScalarRules extends CActiveRecordBehavior
             // список обязательных полей анкеты участника
             array('firstname, lastname, gender, birthdate', 'required', 'on' => 'update'), // 
             // проверка даты рождения
-            //array('birthdate', 'type', 'type' => 'array'),
+            //array('birthdate', 'type', 'type' => 'array', 'allowEmpty' => true),
             //array('birthdate', 'filter', 'filter' => array('QScalarRules', 'checkBirthDate')),
             array('birthdate', 'filter', 'filter' => array($this, 'checkBirthDate')),
         );
@@ -74,12 +74,21 @@ class QScalarRules extends CActiveRecordBehavior
         
         if ( ! $this->hasBirthDateArray() )
         {
+            if ( intval($this->owner->attributes['birthdate']) > 0 )
+            {
+                return $this->owner->attributes['birthdate'];
+            }
             $oldStatus = Questionary::model()->findByPk($this->owner->id)->status;
             $newStatus = $this->owner->attributes['status'];
+            $oldBirthDate = -1;
+            if ( isset($this->owner->birthdate) )
+            {
+                $oldBirthDate = $this->owner->attributes['birthdate'];
+            }
             if ( in_array($oldStatus, array('unconfirmed', 'draft', 'delayed')) AND
                  in_array($newStatus, array('unconfirmed', 'draft', 'delayed')) )
             {// не проверяем дату рождения если анкета только что создана
-                return;
+                return $oldBirthDate;
             }
         }
         
@@ -93,12 +102,12 @@ class QScalarRules extends CActiveRecordBehavior
         //CVarDumper::dump($inputDate, 10);echo '|';
         //CVarDumper::dump($todayDate, 10);die;
         
-        if ( $inputDate == $todayDate OR ( $inputDate > $todayDate ) )
+        if ( $inputDate >= $todayDate )
         {// Дата рождения не может быть сегодняшней или больше текущей
             $this->owner->addError('birthdate', "Не указана дата рождения");
         }
         
-        return mktime(12, 0, 0, (int)$month, (int)$day, (int)$year);
+        return $inputDate;
     }
     
     /**

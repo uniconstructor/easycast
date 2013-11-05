@@ -322,15 +322,17 @@ class QuestionaryController extends Controller
             //CVarDumper::dump($questionary, 10, true);
             //die;
 
-
-            if( $questionary->validate(null, false) AND $user->save() AND $questionary->save() AND $address->save() AND $recordingConditions->save() )
-            {// записываем в базу значения анкеты и адреса
-                $this->redirect(array('view','id' => $questionary->id));
+            if ( $questionary->validate(null, false) )
+            {// все данные анкеты проверены, сохранять можно
+                if( $user->save() AND $questionary->save() AND $address->save() AND $recordingConditions->save() )
+                {// записываем в базу значения анкеты и адреса
+                    $this->redirect(array('view', 'id' => $questionary->id));
+                }
             }
         }
 
         // отображение формы редактирования
-        $this->render('update',array(
+        $this->render('update', array(
             // передаем основные данные
             'questionary' => $questionary,
 	        'address'     => $address,
