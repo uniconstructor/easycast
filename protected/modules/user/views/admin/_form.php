@@ -24,10 +24,12 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         if ( $model->isNewRecord )
         {// источник данных указывается только при создании
             echo CHtml::label('Источник данных:', 'ownerId');
-            $admins = UserModule::getAdminList();
+            
+            $moduleClass = get_class(Yii::app()->getModule('user'));
+            $admins  = $moduleClass::getAdminList();
             $sources = array('0' => 'easyCast (наша анкета)');
             if ( isset($admins[823]) )
-            {
+            {// из источников данных оставляем только Светлану (hardcoded value, но что делать)
                 $sources[823] = $admins[823];
             }
             echo CHtml::dropDownList('ownerId', User::getDefaultOwnerId(), $sources);
