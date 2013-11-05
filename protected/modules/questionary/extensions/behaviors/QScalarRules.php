@@ -48,10 +48,9 @@ class QScalarRules extends CActiveRecordBehavior
     {
         return array(
             // список обязательных полей анкеты участника
-            array('firstname, lastname, gender, birthdate', 'required', 'on' => 'update'), // 
+            array('firstname, lastname, gender, birthdate', 'required', 'on' => 'update'),
             // проверка даты рождения
             //array('birthdate', 'type', 'type' => 'array', 'allowEmpty' => true),
-            //array('birthdate', 'filter', 'filter' => array('QScalarRules', 'checkBirthDate')),
             array('birthdate', 'filter', 'filter' => array($this, 'checkBirthDate'), 'on' => 'update'),
         );
     }
