@@ -1,7 +1,7 @@
 <?php
 
 // Twitter bootstrap path alias
-Yii::setPathOfAlias('bootstrap', dirname(__FILE__).'/../extensions/bootstrap');
+Yii::setPathOfAlias('bootstrap',      dirname(__FILE__).'/../extensions/bootstrap');
 Yii::setPathOfAlias('libphonenumber', dirname(__FILE__).'/../components/libphonenumber');
 
 
