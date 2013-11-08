@@ -133,7 +133,7 @@ class EventVacancyController extends Controller
 			}
 		}else
 		{
-		    throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+		    throw new CHttpException(400, 'Invalid request.');
 		}
 	}
 

@@ -5,7 +5,7 @@
 	<meta name="language" content="ru" />
     <link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->theme->baseUrl; ?>/css/styles.css" />
 	<title><?php echo CHtml::encode($this->pageTitle); ?></title>
-	<?php Yii::app()->bootstrap->register(); ?>
+	<?php //Yii::app()->bootstrap->register(); ?>
 </head>
 <body>
     <?php // шапка страницы

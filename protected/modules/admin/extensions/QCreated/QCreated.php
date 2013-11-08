@@ -36,7 +36,7 @@ class QCreated extends CWidget
         $criteria->order = 'timecreated DESC';
         $criteria->distinct = true;
         $criteria->select = array('questionaryid');
-        //$criteria->index = 'questionaryid';
+        
         
         $dataProvider = new CActiveDataProvider('QCreationHistory',
             array(

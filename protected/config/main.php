@@ -2,6 +2,7 @@
 
 // Twitter bootstrap path alias
 Yii::setPathOfAlias('bootstrap', dirname(__FILE__).'/../extensions/bootstrap');
+Yii::setPathOfAlias('libphonenumber', dirname(__FILE__).'/../components/libphonenumber');
 
 
 // Главный файл конфигурации приложения.
@@ -26,7 +27,7 @@ return array(
     'sourceLanguage' => 'en_us',
     
     // предварительно загружаемые компоненты
-    'preload' => array('log', 'messages'),
+    'preload' => array('log', 'messages', 'bootstrap'),
     
     // Название проекта 
     'name' => 'easyCast',
@@ -70,15 +71,16 @@ return array(
         //'ext.YiiImage.CImageComponent',
         // Twitter bootstrap
         'application.extensions.bootstrap.widgets.*',
+        //'application.extensions.bootstrap.helpers.TbHtml',
         // yes/no toogle column widget
 	    'application.extensions.jtogglecolumn.*',
 	    // Import simpleWorkflow extension (for statuses)
 	    'application.extensions.simpleWorkflow.*'
 	),
 
-	'modules'=>array(
+	'modules' => array(
 	    // Пользователи
-        'user'=>array(
+        'user' => array(
             // encrypting method (php hash function)
             'hash' => 'sha1',
             // send activation email
@@ -277,6 +279,7 @@ return array(
         // Twitter bootstrap
         'bootstrap' => array(
             'class' => 'bootstrap.components.Bootstrap',
+            //'class' => 'bootstrap.components.TbApi',
         ),
 
         // image manipulation library (for galleryManager)
@@ -353,6 +356,7 @@ return array(
                     'language' => 'ru',
                     'options' => array(
                         'showAnim' => 'fold',
+                        // @todo привести к стандартному формату
                         'dateFormat' => 'dd/mm/yy',
                     ),
                 ),
@@ -360,7 +364,7 @@ return array(
                 // Галерея загрузки фотографий
                 'GalleryManager' => array(
                     'htmlOptions' => array(
-                         'class' => 'dark',
+                         //'class' => 'dark',
                     ),
                 ),
             ),
@@ -376,6 +380,10 @@ return array(
 	    'adminPhone' => '+7(906)098-32-07',
 	    'adminEmail' => 'admin@easycast.ru',
 	    'hashSalt'   => '68xc7mtux0',
+	    // стандартный формат ввода даты для всех форм в приложении
+	    'inputDateFormat' => 'dd.mm.yyyy',
+	    'inputTimeFormat' => 'HH:mm',
+	    'inputDateTimeFormat' => 'dd.mm.yyyy HH:mm',
 	    
 	    // Настройки хостинга Amazon
 	    'AmazonS3Config' => 'easycast.s3',
