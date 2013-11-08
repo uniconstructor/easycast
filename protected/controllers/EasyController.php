@@ -84,7 +84,7 @@ class EasyController extends Controller
      */
     protected function performAjaxValidation($model)
     {
-        if ( isset($_POST['ajax']) && $_POST['ajax']==='mass-actors-form' )
+        if ( isset($_POST['ajax']) && $_POST['ajax'] === 'mass-actors-form' )
         {
             echo CActiveForm::validate($model);
             Yii::app()->end();

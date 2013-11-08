@@ -108,7 +108,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         'gallery'         => $gallery,
         'controllerRoute' => '/questionary/gallery'
     ));
-    echo $form->error($massActorForm, 'galeryid');
+    echo $form->error($massActorForm, 'galleryid');
     
     ?>
     <div class="form-actions">

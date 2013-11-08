@@ -24,6 +24,7 @@ class MassActorsForm extends CFormModel
         Yii::import('ext.galleryManager.models.*');
         
         Yii::import('ext.LPNValidator.LPNValidator');
+        Yii::import('questionary.models.*');
     }
     
     /**
@@ -33,11 +34,12 @@ class MassActorsForm extends CFormModel
     {
         return array(
             array('firstname, lastname, email, phone, birthdate, gender, galleryid', 'filter', 'filter' => 'trim'),
-            //array('phone', 'filter', 'filter' => array($this, 'filterPhone')),
+            // Сохраняем номер телефона в правильном формате (10 цифр)
             array('phone', 'LPNValidator', 'defaultCountry' => 'RU'),
+            //array('galleryid', 'filter', 'filter' => array($this, 'checkPhotos')),
             array('email', 'email'),
             array('email', 'unique', /*'criteria' => array(),*/ 'className' => 'User'),
-            // все поля обязательные
+            // все поля формы обязательные
             array('firstname, lastname, email, phone, birthdate, gender, galleryid', 'required'),
         );
     }
@@ -60,35 +62,62 @@ class MassActorsForm extends CFormModel
     
     /**
      * Эта функция проверяет обязательное наличие хотя бы одной загруженной фотографии
-     * @see CModel::afterValidate()
+     * @see CModel::beforeValidate()
      */
-    protected function afterValidate()
+    public function beforeValidate()
     {
-        /*if ( ! $this->hasPhotos() )
+        if ( ! $this->hasPhotos($this->galleryid) )
         {
             $this->addError('galleryid', 'Нужно загрузить хотя бы одну фотографию');
-        }*/
-        parent::afterValidate();
+        }
+        return parent::beforeValidate();
     }
     
     /**
-     * Определить, загружена ли хотя бы одна фотография
-     * @return boolean
+     * Эта функция проверяет обязательное наличие хотя бы одной загруженной фотографии
+     * @param int $galleryId
+     * @return int
      */
-    protected function hasPhotos()
+    /*public function checkPhotos()
     {
+        if ( ! $this->hasPhotos($this->galleryid) )
+        {
+            $this->addError('galleryid', 'Нужно загрузить хотя бы одну фотографию');
+        }
+        return $galleryId;
+    }*/
+    
+    /**
+     * Определить, загружена ли хотя бы одна фотография
+     * @param int $galleryId
+     * @return boolean
+     * 
+     * @todo сделать более надежную проверку безопасности при загрузке картинок
+     */
+    protected function hasPhotos($galleryId)
+    {
+        if ( ! $gallery = Gallery::model()->findByPk($galleryId) )
+        {
+            throw new CException('Ошибка при сохранении фотографий: невозможно найти галерею изображений');
+        }
+        if ( Questionary::model()->exists("`galleryid` = :galleryid", array(':galleryid' => $gallery->id)) )
+        {// проверяем, что никто не подставил чужую галерею при сохранении
+            throw new CException('Ошибка при сохранении фотографий: невозможно найти галерею изображений');
+        }
+        if ( $gallery->galleryPhotos )
+        {// ни одной фотографии не загружено
+            return true;
+        }
         return false;
     }
     
     /**
-     * 
-     * @param unknown $phone
-     * @return void
+     * Создать анкету для артиста массовых сцен
+     * @return bool
+     * @todo обработать возможные ошибки
      */
-    public function filterPhone($phone)
+    public function save()
     {
-        $validator = new LPNValidator();
-        $validator->defaultCountry = 'RU';
-        return $validator->validateAttribute($this, 'phone');
+        
     }
 }
