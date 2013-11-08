@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Сборка EasyCast для разработчика (локально) " default="finish" basedir="../">
-    
+<project name="Сборка EasyCast для разработчика (локально)" default="finish" basedir="../">
 	<!-- Указываем путь к Yii -->
 	<property name="yii.dir" value="../yiisoft/yii/"/>
 	<!-- Указываем путь к ядру EasyCast -->
@@ -14,7 +13,6 @@
     <property name="dev_output.dir" value="/home/frost/tmp/release/easycast/DEV/"/>
 	<!-- Папка веб-сервера -->
     <property name="webserver.dir" value="/home/frost/server/sites/bglance/"/>
-    
     
 	<target name="clear-webserver-directory">
         <echo>Очищаем папку веб-сервера</echo>
@@ -103,5 +101,4 @@
     <target name="finish" depends="update-local-webserver">
         <echo>Development version assembled. Ready to go.</echo>
     </target>
-    
 </project>
