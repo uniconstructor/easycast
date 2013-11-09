@@ -36,7 +36,7 @@ class MassActorsForm extends CFormModel
             array('firstname, lastname, email, phone, birthdate, gender, galleryid', 'filter', 'filter' => 'trim'),
             // Сохраняем номер телефона в правильном формате (10 цифр)
             array('phone', 'LPNValidator', 'defaultCountry' => 'RU'),
-            //array('galleryid', 'filter', 'filter' => array($this, 'checkPhotos')),
+            array('birthdate', 'filter', 'filter' => array($this, 'checkBirthDate')),
             array('email', 'email'),
             array('email', 'unique', /*'criteria' => array(),*/ 'className' => 'User'),
             // все поля формы обязательные
@@ -88,6 +88,16 @@ class MassActorsForm extends CFormModel
     }*/
     
     /**
+     * Фильтр для даты рождения
+     * @param int $galleryId
+     * @return int
+     */
+    public function checkBirthDate($date)
+    {
+        return CDateTimeParser::parse($date, Yii::app()->params['inputDateFormat']);
+    }
+    
+    /**
      * Определить, загружена ли хотя бы одна фотография
      * @param int $galleryId
      * @return boolean
@@ -113,11 +123,60 @@ class MassActorsForm extends CFormModel
     
     /**
      * Создать анкету для артиста массовых сцен
-     * @return bool
+     * @return User
+     * 
      * @todo обработать возможные ошибки
      */
     public function save()
     {
+        // CVarDumper::dump($this, 10, true);
+        // создаем пользователя
+        $user = new User();
+        $soucePassword  = $user->generatePassword();
         
+        $user->email     = $this->email;
+        $user->username  = $user->getLoginByEmail($user->email);
+        $user->password  = UserModule::encrypting($soucePassword);
+        $user->activkey  = UserModule::encrypting(microtime().$user->password);
+        $user->superuser = 0;
+        $user->status    = User::STATUS_ACTIVE;
+        
+        if ( ! $user->save() )
+        {
+            throw new CException('Не удалось создать пользователя');
+        }
+        
+        // впускаем участника на сайт
+        //$identity = new UserIdentity($user->username, $soucePassword);
+        //$identity->authenticate();
+        //Yii::app()->user->login($identity, 3600 * 24 * 30);
+        
+        if ( Yii::app()->getModule('user')->sendActivationMail )
+        {// отправляем активационное письмо если нужно
+            Yii::app()->getModule('user')->sendActivationEmail($user, $soucePassword);
+        }
+	    
+        // заполняем анкету
+        /* @var $questionary Questionary */
+        $questionary = $user->questionary;
+        $questionary->firstname   = $this->firstname;
+        $questionary->lastname    = $this->lastname;
+        $questionary->birthdate   = $this->birthdate;
+        $questionary->mobilephone = $this->phone;
+        $questionary->gender      = $this->gender;
+        $questionary->ismassactor = 1;
+        $questionary->status      = Questionary::STATUS_PENDING;
+        // Устанавливаем и сохраняем условия съемок
+        $questionary->recordingconditions->salary = 500;
+        $questionary->recordingconditions->save();
+        
+        // заменяем галерею
+        $oldGallery = $questionary->getGallery();
+        $questionary->galleryid = $this->galleryid;
+        $oldGallery->delete();
+        // сохраняем анкету
+        $questionary->save(false);
+        
+        return $user;
     }
 }

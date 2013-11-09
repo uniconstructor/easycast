@@ -229,7 +229,8 @@ class AdminController extends Controller
 	 * @param int $ownerId - id пользователя (админа, партнера, или заказчика) который предоставил данные этой анкеты
 	 * @return null
 	 * 
-	 * @todo избавиться от дублирования кода
+	 * @todo избавиться от дублирования кода - использовать Yii::app()->getModule('user')->sendActivationEmail($model, $password=null, $ownerId=1);
+	 * @deprecated
 	 */
 	public function sendActivationEmail($model, $password=null, $ownerId=1)
 	{
@@ -262,7 +263,8 @@ class AdminController extends Controller
 	    $message .= "\n Логин: ".$model->username."<br>";
 	    $message .= "\n Пароль: ".$password."<br>";
 	    $message .= "<br><br>";
-	    $message .= 'Если вы считаете что получили это письмо по ошибке или у вас возникли вопросы, то вы можете задать их нам, просто ответив на это письмо или позвонив по телефону +7(926)582-90-66.';
+	    $message .= 'Если вы считаете что получили это письмо по ошибке или у вас возникли вопросы, 
+	        то вы можете задать их нам, просто ответив на это письмо или позвонив по телефону '.Yii::app()->params['adminPhone'].'.';
 	    $message .= "<br><br>";
 	    $message .= "С уважением, команда проекта EasyCast";
 	     

@@ -230,7 +230,8 @@ class InviteController extends Controller
      * @param Questionary $user
      * @return null
      * 
-     * @todo рефакторинг: воспользоваться аналогичным методом из UserModule
+     * @todo рефакторинг: воспользоваться аналогичным методом из UserModule 
+     *       Yii::app()->module('user')->forceLogin($user);
      * @deprecated 
      */
     protected function quickLogin($questionary)

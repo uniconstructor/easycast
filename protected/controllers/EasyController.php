@@ -25,13 +25,25 @@ class EasyController extends Controller
         $this->performAjaxValidation($massActorForm);
         
         if ( $formData = Yii::app()->request->getPost('MassActorsForm') )
-        {
+        {// пришли данные из формы регистрации пользователя
             $massActorForm->attributes = $formData;
-            //var_dump($formData);die;
             $gallery = Gallery::model()->findByPk($massActorForm->galleryid);
+            
             if ( $massActorForm->validate() )
-            {
-                
+            {// все данные формы верны
+                if ( $user = $massActorForm->save() )
+                {// сохранение удалось 
+                    // Вместе с сохранением данных участника
+                    // сразу же происходит его авторизация на сайте
+                    Yii::app()->getModule('user')->forceLogin($user);
+                    // добавляем flash-сообщение об успешной регистрации
+                    Yii::app()->user->setFlash('success', 'Регистрация завершена.<br>
+                        Добро пожаловать.<br>
+                        Ваш пароль отправлен вам на почту.');
+                    
+                    // и перенаправляем его на страницу просмотра своей анкеты
+                    $this->redirect('/questionary/questionary/view');
+                }
             }
         }else
         {// Создаем пустую галерею
@@ -44,15 +56,12 @@ class EasyController extends Controller
             $gallery->save(false);
             $massActorForm->galleryid = $gallery->id;
         }
-        
-        
+                
         // Отображаем страницу формы с регистрацией массовки
         $this->render('index', array(
             'gallery'       => $gallery,
             'massActorForm' => $massActorForm,
         ));
-        CVarDumper::dump($_POST, 10, true);
-        
     }
     
     /**

@@ -76,13 +76,13 @@
  * @property integer $rating
  * @property integer $hastatoo
  * @property integer $ownerid
+ * @property integer $ismassactor
  * 
- * Relations (single):
+ * Relations:
  * @property User $user 
  * @property Address $address
- * 
- * Relations (multi):
- * @property array $pendingrequests
+ * @property QRecordingConditions $recordingconditions
+ * @property ProjectMember[] $pendingrequests
  * 
  * Stats:
  * @property int invitesCount - количество непрочитанных приглашений

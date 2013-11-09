@@ -29,6 +29,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 ?>
 
 <div class="span8 offset2">
+    <h1 style="text-align:center;">Регистрация</h1>
     <p class="note muted" style="text-align:center;">
         <?php echo Yii::t('coreMessages', 'form_required_fields', array('{mark}' => '<span class="required">*</span>')); ?>
     </p>

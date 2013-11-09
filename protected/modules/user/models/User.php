@@ -14,6 +14,9 @@
  * @var integer $firstaccess
  * @var timestamp $create_at
  * @var timestamp $lastaccess
+ * 
+ * Relations:
+ * @param Questionary $questionary
  */
 class User extends CActiveRecord
 {

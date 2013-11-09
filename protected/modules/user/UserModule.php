@@ -18,7 +18,7 @@ class UserModule extends CWebModule
     
     /**
      * @var bool - use amazon SES to send email
-     * @deprecated
+     * @deprecated вся работа с amazon AWS переехала в отдельный модуль - удалить эту константу при рефакторинге
      */
     const USE_AMAZON_API = false;
     
@@ -380,5 +380,53 @@ class UserModule extends CWebModule
 	        $result[$user->id] = $user->fullname.' ['.$user->username.']';
 	    }
 	    return $result;
+	}
+	
+	/**
+	 * Отправить письмо с уведомлением о регистрации
+	 * @param User $model
+	 * @param string $password
+	 * @param int $ownerId - id пользователя (админа, партнера, или заказчика) который предоставил данные этой анкеты
+	 * @return null
+	 * 
+	 * @todo запихнуть текст и верстку письма в модуль писем
+	 */
+	public function sendActivationEmail($model, $password=null, $ownerId=1)
+	{
+	    if ( $ownerId == 823 )
+	    {// анкета из партнерской базы - не высылаем активационное письмо сразу
+	        return;
+	    }
+	    $activation_url = Yii::app()->createAbsoluteUrl('/user/activation/activation',
+	        array("activkey" => $model->activkey, "email" => $model->email)
+	    );
+	
+	    if ( Yii::app()->user->checkAccess('Admin') )
+	    {// анкету заводит админ - сообщаем пользователю чтобы он подождал
+	        $theme = 'Вы стали участником проекта EasyCast';
+	        // @todo языковые строки
+	        $message = 'Добрый день.<br>
+                Если вы получили это сообщение, значит наш менеджер зарегистрировал вас в базе актеров на сайте EasyCast.ru, где вы сможете получать приглашения и подавать заявки на участие в съемках.<br>
+                Сейчас мы заполняем вашу анкету, используя ту информацию которую вы согласились нам предоставить.<br>
+        	    Примерно через 20 минут мы закончим ввод данных и сообщим вам об этом.<br>
+        	    После этого вы получите доступ к нашему сервису а также сможете уточнить информацию о себе.<br>';
+	    }else
+	    {// Пользователь регистрируется сам - стандартное сообщение
+	        $theme   = UserModule::t("You registered from {site_name}",array('{site_name}' => Yii::app()->name));
+	        $message = UserModule::t("Please activate you account go to {activation_url}",
+	            array('{activation_url}' => $activation_url)
+	        );
+	    }
+	    $message .= "<br><br>";
+	    $message .= "Данные для доступа к сайту:<br>";
+	    $message .= "\n Логин: ".$model->username."<br>";
+	    $message .= "\n Пароль: ".$password."<br>";
+	    $message .= "<br><br>";
+	    $message .= 'Если вы считаете что получили это письмо по ошибке или у вас возникли вопросы,
+	        то вы можете задать их нам, просто ответив на это письмо или позвонив по телефону '.Yii::app()->params['adminPhone'].'.';
+	    $message .= "<br><br>";
+	    $message .= "С уважением, команда проекта EasyCast";
+	
+	    UserModule::sendMail($model->email, $theme, $message, true);
 	}
 }
