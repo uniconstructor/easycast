@@ -183,9 +183,9 @@ class UserModule extends CWebModule
 	 * @param User $user
 	 * @return bool
 	 */
-	public function forceLogin($user)
+	public function forceLogin($user, $reLogin=false)
 	{
-	    if ( ! Yii::app()->user->isGuest )
+	    if ( ! Yii::app()->user->isGuest AND ! $reLogin )
 	    {
 	        return true;
 	    }
@@ -193,13 +193,13 @@ class UserModule extends CWebModule
 	    {// @todo подробнее обработать ошибку
 	        return false;
 	    }
-	
+	    
 	    $identity = new UserIdentity($user->username, null);
 	    // хак с Identity для того чтобы залогинить пользователя, не зная его пароля
 	    $identity->setState('inviteLogin', true);
 	    $identity->authenticate();
 	    $identity->clearState('inviteLogin');
-	    Yii::app()->user->login($identity, 3600*24*60);
+	    Yii::app()->user->login($identity, 3600 * 24 * 60);
 	
 	    return true;
 	}

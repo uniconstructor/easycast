@@ -136,6 +136,10 @@ if ( Yii::app()->user->checkAccess('Admin') )
     $newUserLink = CHtml::link('<i class="icon-plus icon-large"></i>&nbsp;Добавить еще анкету', 
         Yii::app()->createUrl('//user/admin/create'/*, array('lastId' => $questionary->id)*/),
         array('class' => 'btn btn-large btn-warning'));
-    echo '<div class="row span12" style="text-align:center;"><br>'.$newUserLink.'</div>';
+    // и в самом низу добавим кнопку "зайти под этим участником"
+    $loginAsLink = CHtml::link('<i class="icon-user icon-large"></i>&nbsp;Зайти под этим участником',
+        Yii::app()->createUrl('//questionary/questionary/loginAs', array('id' => $questionary->id)),
+        array('class' => 'btn btn-large'));
+    echo '<div class="row span12" style="text-align:center;"><br>'.$newUserLink.'&nbsp;'.$loginAsLink.'</div>';
 }
 ?>

@@ -68,19 +68,19 @@ class QuestionaryController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index', 'view', 'catalog', 'ajaxGetUserInfo', 'invite', 'dismiss', 'userActivation'),
-				'users'=>array('*'),
+				'actions' => array('index', 'view', 'catalog', 'ajaxGetUserInfo', 'invite', 'dismiss', 'userActivation'),
+				'users'   => array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('update', 'ajax'),
-				'users'=>array('@'),
+				'actions' => array('update', 'ajax', 'loginAs'),
+				'users'   => array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('delete'),
-				'users'=>array('admin'),
+				'actions' => array('delete'),
+				'users'   => array('admin'),
 			),
 			array('deny',  // deny all users
-				'users'=>array('*'),
+				'users' => array('*'),
 			),
 		);
 	}
@@ -626,6 +626,30 @@ class QuestionaryController extends Controller
         $this->render('userActivation', array(
             'url' => $url,
         ));
+    }
+    
+    /**
+     * Зайти в систему под указанным участником
+     * 
+     * @return void
+     * 
+     * @todo добавить проверку CSRF
+     */
+    public function actionLoginAs()
+    {
+        $id = Yii::app()->request->getParam('id', 0);
+        if ( ! $questionary = Questionary::model()->findByPk($id) )
+        {
+            throw new CHttpException('400', 'Не передан id участника');
+        }
+        $url = Yii::app()->createUrl('/questionary/questionary/view', array('id' => $id));
+        
+        if ( Yii::app()->user->checkAccess('Admin') )
+        {// еще одна проверка прав потому что у меня паранойя
+            Yii::app()->getModule('user')->forceLogin($questionary->user, true);
+            Yii::app()->user->setFlash('info', 'Приятно на время стать кем-то другим :)');
+        }
+        $this->redirect($url);
     }
     
 	/**
