@@ -189,6 +189,10 @@ class UserModule extends CWebModule
 	    {
 	        return true;
 	    }
+	    if ( Yii::app()->user->checkAccess('Admin') AND $reLogin )
+	    {// если заходим под другим пользователем - то сначала разлогиниваемся 
+	        Yii::app()->user->logout();
+	    }
 	    if ( ! ( $user instanceof User) )
 	    {// @todo подробнее обработать ошибку
 	        return false;
