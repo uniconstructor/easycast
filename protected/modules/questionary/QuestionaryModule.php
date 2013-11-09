@@ -218,4 +218,25 @@ class QuestionaryModule extends CWebModule
         }
         return parent::beforeControllerAction($controller,$action);
     }
+    
+    /**
+     * Определить id анкеты текущего пользователя (если он участник)
+     *
+     * @return int
+     */
+    public function getCurrentUserQuestionaryId()
+    {
+        if ( Yii::app()->user->isGuest )
+        {
+            return 0;
+        }
+        if ( Yii::app()->getModule('user')->user() )
+        {
+            return Yii::app()->getModule('user')->user()->questionary->id;
+        }else
+        {// что-то не так с учетной записью
+            // @todo записать ошибку в лог
+        }
+        return 0;
+    }
 }

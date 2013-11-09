@@ -538,13 +538,14 @@ class EventVacancy extends CActiveRecord
 	 * 
 	 * @return int
 	 * 
-	 * @todo перенести эту функцию в другую библиотеку
+	 * @deprecated функция перенесена в модуль Questionary
+	 *             правило вызова: Yii::app()->getModule('questionary')->getCurrentUserQuestionaryId();
 	 */
 	protected function getCurrentUserQuestionaryId()
 	{
 	    if ( Yii::app()->getModule('user')->user() )
 	    {
-	        $questionaryId = Yii::app()->getModule('user')->user()->questionary->id;
+	        return Yii::app()->getModule('user')->user()->questionary->id;
 	    }else
 	    {// что-то не так с учетной записью
 	        // @todo записать ошибку в лог

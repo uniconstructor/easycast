@@ -55,6 +55,11 @@ class VacancyActions extends CWidget
     public $messageClass = 'alert alert-info';
     
     /**
+     * @var int - id участника, для которого отбражаются кнопки
+     */
+    public $questionaryId;
+    
+    /**
      * @var string - id тега, содержащего текст сообщения
      */
     protected $messageId;
@@ -77,9 +82,18 @@ class VacancyActions extends CWidget
      */
     public function init()
     {
-        if ( ! $this->mode )
+        switch ( $this->mode )
         {
-            throw new CException(500, 'Display mode for VacancyActions not set');
+            case 'normal':
+                if ( ! $this->questionaryId )
+                {// берем id текущего пользователя, если он не задан вручную
+                    $this->questionaryId = Yii::app()->getModule('questionary')->getCurrentUserQuestionaryId();
+                }
+            break;
+            case 'token':
+                $this->questionaryId = $this->invite->questionaryid;
+            break;
+            default: throw new CException(500, 'Display mode for VacancyActions not set');
         }
         
         $this->messageId   = 'vacancy_actions_message_'.$this->vacancy->id;
@@ -99,6 +113,8 @@ class VacancyActions extends CWidget
             $this->messageStyle = 'display:block;';
         }
         $this->render('actions');
+        //CVarDumper::dump($this->isAllowed('addApplication'), 10, true);die;
+        //CVarDumper::dump(Yii::app()->user->checkAccess('User'), 10, true);die;
     }
     
     /**
@@ -141,11 +157,11 @@ class VacancyActions extends CWidget
         // дальше идет только проверка действий "для участника" (подать/отозвать заявку)
         if ( Yii::app()->user->checkAccess('User') OR $this->mode == 'token' )
         {// участник вошел на сайт или происходит подача заявки по токену 
-            if ( $this->vacancy->isAvailableForUser($this->invite->questionaryid) )
+            if ( $this->vacancy->isAvailableForUser($this->questionaryId) )
             {// участник еще не подал заявку и проходит по критериям вакансии - покажем кнопку
                 return true;
             }
-            if ( $this->vacancy->hasApplication($this->invite->questionaryid) )
+            if ( $this->vacancy->hasApplication($this->questionaryId) )
             {// участник уже подал заявку - сообщим ему об этом
                 $this->message .= 'Вы уже подали заявку на эту роль';
                 $this->messageClass = 'alert alert-block';
