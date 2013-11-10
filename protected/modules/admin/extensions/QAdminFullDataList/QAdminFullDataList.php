@@ -92,8 +92,8 @@ class QAdminFullDataList extends CWidget
     
         // Аватарка участника (150*150)
         // (ссылка с картинки ведет на его анкету, открывается в новом окне)
-        $imageURL   = $questionary->getAvatarUrl();
-        $image      = CHtml::image($imageURL, $info['fullName'], array('class' => 'ec-rounded-avatar'));
+        $imageURL   = $questionary->getAvatarUrl('catalog');
+        $image      = CHtml::image($imageURL, '', array('class' => 'ec-rounded-avatar'));
         $info['profileUrl'] = Yii::app()->createUrl(Yii::app()->getModule('questionary')->profileUrl,
             array('id' => $questionary->id));
         $info['avatar'] = CHtml::link($image, $info['profileUrl'], array('target' => '_blank'));
