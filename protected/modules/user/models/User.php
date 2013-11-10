@@ -16,7 +16,7 @@
  * @var timestamp $lastaccess
  * 
  * Relations:
- * @param Questionary $questionary
+ * @property Questionary $questionary
  */
 class User extends CActiveRecord
 {
