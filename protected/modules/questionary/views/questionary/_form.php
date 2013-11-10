@@ -199,20 +199,38 @@ Yii::import('ext.CountryCitySelectorRu.*');
     
         <?php echo $form->textFieldRow($questionary,'middlename',array('size'=>60,'maxlength'=>128)); ?>
     
-        <?php echo $form->labelEx($questionary,'birthdate'); ?>
-        <?php
-            $form->widget('ext.ActiveDateSelect',
-                array(
-                    'model'         => $questionary,
-                    'attribute'     => 'birthdate',
-                    'reverse_years' => true,
-                    'field_order'   => 'DMY',
-                    'start_year'    => 1910,
-                    'end_year'      => date("Y", time()),
-                )
-            );
+        <?php 
+        /*echo $form->labelEx($questionary,'birthdate'); 
+        $form->widget('ext.ActiveDateSelect',
+            array(
+                'model'         => $questionary,
+                'attribute'     => 'birthdate',
+                'reverse_years' => true,
+                'field_order'   => 'DMY',
+                'start_year'    => 1910,
+                'end_year'      => date("Y", time()),
+            )
+        );
+        echo $form->error($questionary,'birthdate');*/
+        
+        // дата рождения
+        echo $form->datepickerRow(
+            $questionary,
+            'formattedBirthDate', array(
+                'options' => array(
+                    'language'  => 'ru',
+                    'format'    => 'dd.mm.yyyy',
+                    'startView' => 'decade',
+                    'weekStart' => 1,
+                    'startDate' => '-75y',
+                    'endDate'   => '-1y',
+                    'autoclose' => true,
+                ),
+                'hint'    => 'Нажмите на название месяца или на год, чтобы изменить его',
+                'prepend' => '<i class="icon-calendar"></i>'
+            )
+        );
         ?>
-        <?php echo $form->error($questionary,'birthdate'); ?>
         
         <label><?php echo QuestionaryModule::t('playage_label'); ?></label>
         <div class="form-inline qform_subsection">

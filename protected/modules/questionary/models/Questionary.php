@@ -163,6 +163,19 @@ class Questionary extends CActiveRecord
     const LAST_INVITES_COUNT = 20;
     
     /**
+     * @todo документировать это решение
+     * @see CActiveRecord::__get()
+     */
+    /*public function __get($name)
+    {
+        switch ( $name )
+        {
+            case 'birthdate': return $this->getBirthdate(); break;
+        }
+        return parent::__get($name);
+    }*/
+    
+    /**
      * (non-PHPdoc)
      * @see CActiveRecord::init()
      */

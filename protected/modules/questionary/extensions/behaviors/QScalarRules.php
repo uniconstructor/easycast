@@ -19,7 +19,7 @@ class QScalarRules extends CActiveRecordBehavior
                         hasawards, isstripper, issinger,
                         ismusician, issportsman, isextremal, isathlete, hasskills, hastricks,
                         haslanuages, hasinshurancecard, countryid, nativecountryid,
-                        shoessize, rating, hastatoo, playagemin, playagemax,
+                        shoessize, rating, hastatoo, playagemin, playagemax, 
                         istheatreactor, ismediaactor, ownerid',
                 'numerical', 'integerOnly' => true),
             
@@ -37,6 +37,9 @@ class QScalarRules extends CActiveRecordBehavior
                     striplevel, singlevel, wearsize, status', 'safe'),
             // @todo добавить проверку сложных значений
             array('voicetimbre, addchar, parodist, twin, vocaltype, sporttype, extremaltype, trick, skill', 'safe'),
+            // @todo пропустить через trim все остальные поля
+            array('formattedBirthDate, firstname, lastname, birthdate, gender, galleryid', 
+                'filter', 'filter' => 'trim'),
         );
     }
     
@@ -48,82 +51,25 @@ class QScalarRules extends CActiveRecordBehavior
     {
         return array(
             // список обязательных полей анкеты участника
-            array('firstname, lastname, gender, birthdate', 'required', 'on' => 'update'),
+            array('firstname, lastname, gender, formattedBirthDate', 'required', 'on' => 'update'),
             // проверка даты рождения
-            //array('birthdate', 'type', 'type' => 'array', 'allowEmpty' => true),
-            array('birthdate', 'filter', 'filter' => array($this, 'checkBirthDate'), 'on' => 'update'),
+            //array('formattedBirthDate', 'filter', 'filter' => array($this, 'checkBirthDate')),
+            //array('birthdate', 'numerical', 'integerOnly' => true),
         );
     }
     
     /**
-     * Проверить дату рождения
-     * @param string $attribute - введенное значение
-     * @param array $params - дополнительные параметры для проверки
-     * @return null
-     * 
-     * @todo всегда сначала пытаться получить unixtime из массива формы и возвращать null только если его
-     *       получить не удалось
+     * Фильтр для даты рождения
+     * @param int $galleryId
+     * @return int
      */
-    public function checkBirthDate($attribute, $params=array())
+    public function checkBirthDate($date)
     {
         if ( $this->owner->scenario != 'update' )
         {
-            return $this->owner->birthdate;
+            return $date;
         }
-        
-        if ( ! $this->hasBirthDateArray() )
-        {
-            if ( intval($this->owner->attributes['birthdate']) > 0 )
-            {
-                return $this->owner->attributes['birthdate'];
-            }
-            $oldStatus = Questionary::model()->findByPk($this->owner->id)->status;
-            $newStatus = $this->owner->attributes['status'];
-            $oldBirthDate = -1;
-            if ( isset($this->owner->birthdate) )
-            {
-                $oldBirthDate = $this->owner->attributes['birthdate'];
-            }
-            if ( in_array($oldStatus, array('unconfirmed', 'draft', 'delayed')) AND
-                 in_array($newStatus, array('unconfirmed', 'draft', 'delayed')) )
-            {// не проверяем дату рождения если анкета только что создана
-                return $oldBirthDate;
-            }
-        }
-        
-        $year  = $this->owner->attributes['birthdate']['Year'];
-        $month = $this->owner->attributes['birthdate']['Month'];
-        $day   = $this->owner->attributes['birthdate']['Day'];
-        
-        $inputDate = mktime(12, 0, 0, (int)$month, (int)$day, (int)$year);
-        $todayDate = mktime(12, 0, 0, date('m'), date('d'), date('Y'));
-        
-        //CVarDumper::dump($inputDate, 10);echo '|';
-        //CVarDumper::dump($todayDate, 10);die;
-        
-        if ( $inputDate >= $todayDate )
-        {// Дата рождения не может быть сегодняшней или больше текущей
-            $this->owner->addError('birthdate', "Не указана дата рождения");
-        }
-        
-        return $inputDate;
-    }
-    
-    /**
-     * Проверяет, передана ли дата рождения при сохранении модели
-     * Дата рождения передается в виде массива только в том случае если модель была сохранена 
-     * из формы
-     * 
-     * @return void
-     */
-    protected function hasBirthDateArray()
-    {
-        if ( isset($this->owner->attributes['birthdate']['Year'])  AND
-             isset($this->owner->attributes['birthdate']['Month']) AND
-             isset($this->owner->attributes['birthdate']['Day']) )
-        {
-            return true;
-        }
-        return false;
+        //var_dump(CDateTimeParser::parse($date, Yii::app()->params['inputDateFormat']));die;
+        return CDateTimeParser::parse($date, Yii::app()->params['inputDateFormat']);
     }
 }

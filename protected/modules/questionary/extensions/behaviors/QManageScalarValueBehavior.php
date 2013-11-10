@@ -2,9 +2,16 @@
 
 /**
  * Класс, отвечающий за сохранение и получение обычных полей анкеты
+ * 
+ * @property Questionary $owner
  */
 class QManageScalarValueBehavior extends CActiveRecordBehavior
 {
+    /**
+     * @var string
+     */
+    protected $_formattedBirthDate;
+    
     /**
      * Получить название города проживания
      */
@@ -65,22 +72,26 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
     /**
      * Получить дату рождения
      */
-    public function getBirthdate()
+    public function getFormattedBirthDate()
     {
-        if ( $this->owner->scenario == 'view' )
+        if ( $this->_formattedBirthDate )
         {
-            return date('d.m.Y', $this->owner->birthdate);
+            return $this->_formattedBirthDate;
+        }else
+        {
+            $format = Yii::app()->params['outputDateFormat'];
+            return date($format, (int)$this->owner->birthdate);
         }
-        return $this->owner->birthdate;
     }
     
     /**
-     * Установить дату рождения
+     * Получить дату рождения
      */
-    /*public function setBirthdate($value)
+    public function setFormattedBirthDate($date)
     {
-        $this->owner->birthdate = ActiveDateSelect::make_unixtime($value);
-    }*/
+        $this->_formattedBirthDate = $date;
+        $this->owner->birthdate = CDateTimeParser::parse($date, Yii::app()->params['inputDateFormat']);
+    }
     
     /**
      * Получить срок истечения загранпаспорта
@@ -117,13 +128,23 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
      * Получить возраст (целым числом)
      *
      * @return int
+     * @todo разобраться с тем как флексия слов настраивается через языковые строки
      */
     public function getAge()
     {
         $age = floor((time() - $this->owner->birthdate) / (3600 * 24 * 365) );
         if ( $this->owner->birthdate AND $age > 0 )
         {
-            return QuestionaryModule::t('age', array('{age}' => $age));
+            switch ( mb_substr($age, -1) )
+            {
+                case '1': $langString = 'год'; break;
+                case '2': 
+                case '3': 
+                case '4': $langString = 'года'; break;
+                default : $langString = 'лет'; break;
+            }
+            return $age.' '.$langString;
+            //return QuestionaryModule::t('age', array('{age}' => $age));
         }
         return null;
     }
