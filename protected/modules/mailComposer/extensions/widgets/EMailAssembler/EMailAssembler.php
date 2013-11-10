@@ -63,11 +63,13 @@ class EMailAssembler extends CWidget
      */
     public $userHasFirstAccess = true;
     /**
-     * @deprecated удалить если не понадобится
-     * @var int - userid руководителя проектов для подписи внизу
-     *            (если письмо отправляется заказчику от имени члена команды)
+     * @var User
      */
-    public $managerId = 0;
+    public $manager;
+    /**
+     * @var array
+     */
+    public $topBarOptions = array();
     
     protected $_pluginsPrefix = 'application.modules.mailComposer.extensions.widgets.';
     
@@ -132,7 +134,7 @@ class EMailAssembler extends CWidget
      */
     protected function displayTopBar()
     {
-        $this->widget($this->_pluginsPrefix.'EMailTopBar.EMailTopBar');
+        $this->widget($this->_pluginsPrefix.'EMailTopBar.EMailTopBar', $this->topBarOptions);
     }
     
     /**
@@ -181,7 +183,7 @@ class EMailAssembler extends CWidget
      */
     protected function createSignatureFeedbackNotice()
     {
-        $message = 'Если у вас есть вопросы - то вы можете задать их нам, просто ответив на это письмо';
+        $message = 'Если у вас есть вопросы - то вы можете задать их, просто ответив на это письмо';
         if ( $this->showContactPhone AND $this->contactPhone )
         {// оставляем возможность не указывать телефон для обычной рассылки
             $message .= ' или позвонив по телефону '.$this->contactPhone;
@@ -219,6 +221,10 @@ class EMailAssembler extends CWidget
      */
     protected function createRegardsText()
     {
+        if ( $this->manager AND $this->manager->questionary->firstname )
+        {
+            return "С уважением, {$this->manager->questionary->fullname}.";
+        }
         return "С уважением, команда проекта EasyCast.";
     }
 }

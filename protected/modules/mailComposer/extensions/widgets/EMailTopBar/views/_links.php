@@ -2,11 +2,8 @@
 /**
  * Служебные ссылки вверху письма
  */
+/* @var $this EMailTopBar */
 ?>
 <div class="header-content">
-    <webversion>Веб версия</webversion>
-    <span class="hide">&nbsp;&nbsp;|&nbsp; 
-    <preferences lang="ru-RU">Обновить предпочтения</preferences>&nbsp;&nbsp;|&nbsp; 
-    <unsubscribe>Отписаться</unsubscribe>
-    </span>
+    <webversion><?= $this->webViewLink; ?></webversion>
 </div>

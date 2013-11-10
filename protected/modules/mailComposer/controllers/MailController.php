@@ -40,7 +40,7 @@ class MailController extends Controller
         return array(
             array('allow',
                 'actions' => array('display'),
-                'users'   => array('@'),
+                'users'   => array('*'),
             ),
             array('allow',
                 'actions' => array('test'),
@@ -87,24 +87,26 @@ class MailController extends Controller
      */
     public function actionDisplay()
     {
-        /*$segments = array();
-        $segments[] = array(
-            'type' => 'textOnly',
-            'header' => 'Заголовок текста',
-            'text' => 'Сам текст. С <b>разнообразным</b> <i>Форматированием</i><p>И абзацами</p>',
-        );
-        $segments[] = array(
-            'header' => 'ЕЩЕ ЗАГОЛОВОК',
-            'text' => 'Сам текст 2. С <b>разнообразным 2</b> <i>Форматированием 2</i><p>И абзацами</p>',
-            'button' => array('link' => '#', 'caption' => 'Подать заявку'),
-        );
-        echo $this->widget('application.modules.mailComposer.extensions.widgets.EMailAssembler.EMailAssembler',
-            array(
-                'mainHeader' => 'Test mail subject!',
-                'segments'   => $segments,
-                'signature'  => 'Have a nice day.<br>Goodbye.',
-            )
-        );*/
+        $type = Yii::app()->request->getParam('type');
+        $id   = Yii::app()->request->getParam('id');
+        $key  = Yii::app()->request->getParam('key');
+        
+        
+        
+        if ( $type == 'callList' )
+        {
+            Yii::import('reports.models.*');
+            
+            if ( ! $callList = RCallList::model()->findByPk($id) )
+            {
+                throw new CHttpException('404', 'Страница не найдена');
+            }
+            if ( $callList->key != $key AND ! Yii::app()->user->checkAccess('Admin') )
+            {
+                throw new CHttpException('404', 'Страница не найдена');
+            }
+            echo MailComposerModule::getMessage('callList', array('callList' => $callList));
+        }
     }
     
     /**

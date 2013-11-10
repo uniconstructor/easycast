@@ -21,7 +21,7 @@
                 <table border="0" cellpadding="0" cellspacing="0" align="left">
                     <tbody>
                         <tr>
-                            <td>
+                            <td style="vertical-align:top" valign="top">
                                 <?php 
                                 // Выводим изображение
                                 $this->render('misc/_image', array(
@@ -31,21 +31,20 @@
                                 ?>
                             </td>
                             <td class="w10" width="10"></td>
-                        </tr>
-                        <tr>
-                            <td></td>
+                            <td>
+                                <?php 
+                                // Выводим параграф текста (align=left)
+                                $this->render('misc/_text', array(
+                                    'align'     => 'left',
+                                    'text'      => $this->text,
+                                    'textColor' => $this->textColor,
+                                ));
+                                ?>
+                            </td>
                             <td class="w10" width="10"></td>
                         </tr>
                     </tbody>
                 </table>
-                <?php 
-                // Выводим параграф текста (align=left)
-                $this->render('misc/_text', array(
-                    'align'     => 'left',
-                    'text'      => $this->text,
-                    'textColor' => $this->textColor,
-                ));
-                ?>
             </td>
         </tr>
         <?php

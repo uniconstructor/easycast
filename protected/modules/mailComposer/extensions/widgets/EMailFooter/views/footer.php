@@ -18,7 +18,7 @@
                 </tr>
                 <tr>
                     <td class="w30" width="30"></td>
-                    <td class="w580" valign="top" width="360">
+                    <td class="w380" valign="top" width="380">
                         <?php 
                         // выводим стандартную подпись
                         $this->displaySignature();
@@ -28,8 +28,8 @@
                         $this->displayLinks();
                         ?>
                     </td>
-                    <td class="hide w0" width="60"></td>
-                    <td class="hide w0" valign="top" width="160">
+                    <td class="hide w0" width="10"></td>
+                    <td class="hide w0" valign="top" width="190">
                         <?php 
                         // Выводим контакты
                         $this->displayContacts();

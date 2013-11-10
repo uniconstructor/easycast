@@ -50,12 +50,17 @@ class EMailCallList extends EMailBase
         $data = $this->callList->getData();
         $this->event     = ProjectEvent::model()->findByPk($data['event']->id);
         $this->project   = Project::model()->findByPk($this->event->projectid);
-        if ( $manager = User::model()->findByPk($this->callList->authorid) )
+        if ( $this->project->leader )
         {
-            $this->manager = $manager;
-            $this->mailOptions['contactPhone'] = $manager->questionary->mobilephone;
-            $this->mailOptions['contactEmail'] = $manager->email;
+            $this->manager = $this->project->leader;
+            $this->mailOptions['contactPhone'] = $this->manager->questionary->mobilephone;
+            $this->mailOptions['contactEmail'] = $this->manager->email;
+            $this->mailOptions['manager']      = $this->manager;
+            $this->mailOptions['showTopServiceLinks'] = true;
+            $this->mailOptions['topBarOptions']['displayWebView'] = true;
+            $this->mailOptions['topBarOptions']['webViewLink'] = $this->getWebViewLink();
         }
+        // убираем дубли вакансий
         $this->clearVacancies($data['vacancies']);
         
         //CVarDumper::dump($this->vacancies, 3, true);
@@ -71,6 +76,8 @@ class EMailCallList extends EMailBase
         $this->addSegment($this->getProjectBlock());
         // список актеров для каждой роли
         $this->addVacancies();
+        // информация о руководителе проекта
+        $this->addManagerInfo();
         // выводим виджет со всеми данными
         parent::run();
     }
@@ -215,12 +222,35 @@ class EMailCallList extends EMailBase
         $block = array();
         
         $block['type']         = 'imageLeft';
-        $block['imageStyle']   = 'border:3px solid #c3c3c3;border-radius:50px;height:150px;width:150px;margin-top:5px;';
+        $block['imageStyle']   = 'border:3px solid #c3c3c3;border-radius:75px;height:150px;width:150px;margin-top:5px;';
         $block['imageLink']    = $this->manager->questionary->getAvatarUrl('catalog');
-        $block['text']         = $this->getManagerDescription($this->manager->questionary);
+        $block['text']         = $this->getManagerDescription();
         $block['addTextRuler'] = true;
         
         $this->addSegment($block);
+    }
+    
+    protected function getManagerDescription()
+    {
+        $result = '';
+        
+        $result .= '<img style="padding-top:10px;" src="'. Yii::app()->createAbsoluteUrl('/') .'/images/i-take-care.png" width="100%">';
+        $result .= '<h3>'.$this->manager->questionary->fullname.'</h3>';
+        $result .= '<span>Руководитель проектов</span><br>';
+        $result .= '<span style="display:block;">'.$this->getManagerPhone().' | '.$this->manager->email.'</span>';
+        if ( $this->manager->questionary->fbprofile )
+        {
+            //$fbIcon = '<img src="'. Yii::app()->createAbsoluteUrl('/') .'/images/facebook_icon.png">&nbsp;&nbsp;&nbsp;';
+            $fbIcon = '';
+            $fbLink = CHtml::link($fbIcon.$this->manager->questionary->fbprofile, $this->manager->questionary->fbprofile,
+                array('target' => '_blank'));
+            $result .= '<span style="display:block;width:100%;">'.$fbLink.'</span>';
+        }
+        $result .= '<span style="display:block;text-align:center;"><b>+7 495 227-5-226</b></span>';
+        $result .= '<span style="width:100%;text-align:right;"><img style="float:right;width:220px;" src="'. 
+            Yii::app()->createAbsoluteUrl('/') .'/images/24-7-365.png" width="220"></span>';
+        
+        return $result;
     }
     
     /**
@@ -267,6 +297,16 @@ class EMailCallList extends EMailBase
     protected function getManagerName()
     {
         return $this->manager->questionary->firstname.' '.$this->manager->questionary->lastname;
+    }
+    
+    protected function getWebViewLink()
+    {
+        $url = Yii::app()->createAbsoluteUrl('/mailComposer/mail/display', array(
+            'type' => 'callList',
+            'id'   => $this->callList->id,
+            'key'  => $this->callList->key,
+        ));
+        return CHtml::link('Версия для печати', $url, array('target' => '_blank'));
     }
     
     /**

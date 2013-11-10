@@ -9,7 +9,7 @@ class EMailTopBar extends CWidget
     /**
      * @var bool - отображать ли блок ссылок "отписаться/мои настройки/веб-версия"
      */
-    public $displayLinks = false;
+    public $displayLinks = true;
     /**
      * @var bool - отображать ли кнопки соцсетей
      */
@@ -92,6 +92,6 @@ class EMailTopBar extends CWidget
         {
             return false;
         }
-        //$this->render('_links');
+        $this->render('_links');
     }
 }

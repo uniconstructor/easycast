@@ -367,6 +367,16 @@ return array(
                          //'class' => 'dark',
                     ),
                 ),
+                
+                // Выбор даты
+                'TbDatePicker' => array(
+                    'options' => array(
+                        'language'  => 'ru',
+                        'format'    => 'dd.mm.yyyy',
+                        'weekStart' => 1,
+                        'autoclose' => true,
+                    ),
+                ),
             ),
         ),
 	),
@@ -376,14 +386,20 @@ return array(
 
 	// application-level parameters that can be accessed
 	// using Yii::app()->params['paramName']
-	'params'=>array(
+	'params' => array(
 	    'adminPhone' => '+7(906)098-32-07',
 	    'adminEmail' => 'admin@easycast.ru',
 	    'hashSalt'   => '68xc7mtux0',
 	    // стандартный формат ввода даты для всех форм в приложении
-	    'inputDateFormat' => 'dd.mm.yyyy',
-	    'inputTimeFormat' => 'HH:mm',
-	    'inputDateTimeFormat' => 'dd.mm.yyyy HH:mm',
+	    // (используется формат jquery-виджетов)
+	    'inputDateFormat'     => 'dd.M.yyyy',
+	    'inputTimeFormat'     => 'HH:mm',
+	    'inputDateTimeFormat' => 'dd.MM.yyyy HH:mm',
+	    // страндартный формат вывода даты для всех форм в приложении
+	    // (используется формат php-функции date())
+	    'outputDateFormat'     => "d.m.Y",
+	    'outputTimeFormat'     => 'H:i',
+	    'outputDateTimeFormat' => "d.m.Y H:i",
 	    
 	    // Настройки хостинга Amazon
 	    'AmazonS3Config' => 'easycast.s3',

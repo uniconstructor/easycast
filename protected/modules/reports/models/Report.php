@@ -14,6 +14,7 @@
  * @property string $data
  * @property string $status
  * @property string $comment
+ * @property string $key
  * 
  * @property string $reportData
  * 
@@ -97,6 +98,7 @@ class Report extends CActiveRecord
 		return array(
 			array('authorid, timecreated, timemodified, plantime', 'length', 'max'=>11),
 			array('name', 'length', 'max'=>255),
+			array('key', 'length', 'max'=>127),
 			array('type', 'length', 'max'=>20),
 			array('status', 'length', 'max'=>50),
 		    array('comment', 'length', 'max'=>4095),
@@ -135,6 +137,7 @@ class Report extends CActiveRecord
 	            $this->status   = self::STATUS_DRAFT;
 	        }
 	        $this->authorid = Yii::app()->user->id;
+	        $this->key      = sha1(microtime().Yii::app()->params['hashSalt']);
 	    }
 	    if ( ! empty($this->_data) )
 	    {

@@ -89,16 +89,18 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     // дата рождения
     echo $form->datepickerRow(
         $massActorForm,
-        'birthdate',
-        array(
+        'birthdate', array(
             'options' => array(
                 'language' => 'ru',
-                'format'    => Yii::app()->params['inputDateFormat'],
+                'format'    => 'dd.mm.yyyy',
                 'startView' => 'decade',
                 'weekStart' => 1,
-                'startDate' => ''),
+                'startDate' => '-75y',
+                'endDate'   => '-1y',
+                'autoclose' => true,
+            ),
             'hint' => 'Нажмите на название месяца или на год, чтобы изменить его',
-            'prepend' => '<i class="icon-calendar"></i>'
+            'prepend' => '<i class="icon-calendar"></i>',
         )
     );
     

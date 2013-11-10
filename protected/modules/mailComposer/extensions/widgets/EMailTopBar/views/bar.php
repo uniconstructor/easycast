@@ -2,6 +2,7 @@
 /**
  * Верхняя полоска письма
  */
+/* @var $this EMailTopBar */
 ?>
 <tr>
     <td class="w640" width="640">
