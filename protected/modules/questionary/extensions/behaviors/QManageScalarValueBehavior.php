@@ -80,7 +80,11 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
         }else
         {
             $format = Yii::app()->params['outputDateFormat'];
-            return date($format, (int)$this->owner->birthdate);
+            $date = date($format, (int)$this->owner->birthdate);
+            if ( $date != date($format, 0) )
+            {
+                return $date;
+            }
         }
     }
     
