@@ -273,12 +273,13 @@ class ProjectMailsBehavior extends CBehavior
     /**
      * Создать письмо с фотовызывным
      * @param RCallList $callList
+     * @param bool $addContacts
      * @return string
      */
-    public function createCallListMailText($callList)
+    public function createCallListMailText($callList, $addContacts=false)
     {
         return $this->owner->widget('application.modules.mailComposer.extensions.mails.EMailCallList.EMailCallList',
-            array('callList' => $callList),
+            array('callList' => $callList, 'addContacts' => $addContacts),
             true);
     }
     

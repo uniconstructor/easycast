@@ -135,11 +135,16 @@ class MailComposerModule extends CWebModule
             break;
             // вызывной лист
             case 'callList':
+                $addContacts = false;
                 if ( ! isset($params['callList']) )
                 {
                     throw new CException('callList for mail is not set');
                 }
-                return $mailComposer->createCallListMailText($params['callList']);
+                if ( isset($params['addContacts']) AND $params['addContacts'] )
+                {
+                    $addContacts = true;
+                }
+                return $mailComposer->createCallListMailText($params['callList'], $addContacts);
             break;
         }
     }

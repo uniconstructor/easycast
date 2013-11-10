@@ -261,11 +261,8 @@ class ProjectEventController extends Controller
 	protected function sendCallList($report, $email, $showContacts=false)
 	{
 	    $eventId = $report->reportData['event']->id;
-	    $message = $this->widget('admin.extensions.CallList.CallList', array(
-	        'objectId'     => $eventId,
-	        'showContacts' => $showContacts,
-	        'comment'      => $report->comment,
-	    ), true);
+	    $module = Yii::app()->getModule('mailComposer');
+	    $message = $module::getMessage('callList', array('callList' => $report, 'addContacts' => $showContacts));
 	    UserModule::sendMail($email, $report->name, $message, true);
 	}
 }

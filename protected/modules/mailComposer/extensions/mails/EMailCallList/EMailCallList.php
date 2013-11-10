@@ -15,6 +15,10 @@ class EMailCallList extends EMailBase
      */
     public $callList;
     /**
+     * @var bool
+     */
+    public $addContacts = false;
+    /**
      * @var Project
      */
     protected $project;
@@ -30,10 +34,6 @@ class EMailCallList extends EMailBase
      * @var User - руководитель проекта
      */
     protected $manager;
-    /**
-     * @var bool
-     */
-    protected $addContacts = false;
     
     /**
      * @see EMailBase::init()
