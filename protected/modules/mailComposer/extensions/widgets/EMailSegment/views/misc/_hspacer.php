@@ -4,5 +4,5 @@
  */
 ?>
 <tr>
-    <td class="w580" height="<?= $height; ?>" width="580"></td>
+    <td style="<?= $style; ?>" class="w580" height="<?= $height; ?>" width="580"></td>
 </tr>

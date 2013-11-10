@@ -1,34 +1,40 @@
 <?php
 /**
  * Вывести блок письма с изображением слева
- * @var EMailSegment $this
  */
+/* @var $this EMailSegment */
 ?>
 <layout>
-<table class="w580" width="580" border="0" cellpadding="0"
-    cellspacing="0">
+<table class="w580" width="580" border="0" cellpadding="0" cellspacing="0"  style="page-break-after:auto;">
     <tbody>
         <tr>
             <td class="w580" width="580">
                 <?php 
-                // Выводим заголовок (align=left)
-                $this->render('misc/_title');
+                if ( $this->header )
+                {// Выводим заголовок
+                    $this->render('misc/_title', array(
+                        'align' => $this->headerAlign,
+                        'title' => $this->header,
+                    ));
+                }
                 ?>
-                <table border="0" cellpadding="0" cellspacing="0"
-                    align="left">
+                <table border="0" cellpadding="0" cellspacing="0" align="left">
                     <tbody>
                         <tr>
                             <td>
                                 <?php 
-                                // Выводим изображение (w300)
-                                $this->render('misc/_image');
+                                // Выводим изображение
+                                $this->render('misc/_image', array(
+                                    'link'  => $this->imageLink,
+                                    'style' => $this->imageStyle,
+                                ));
                                 ?>
                             </td>
-                            <td class="w30" width="15"></td>
+                            <td class="w10" width="10"></td>
                         </tr>
                         <tr>
                             <td></td>
-                            <td class="w30" height="5" width="15"></td>
+                            <td class="w10" width="10"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -42,9 +48,10 @@
                 ?>
             </td>
         </tr>
-        <tr>
-            <td class="w580" height="10" width="580"></td>
-        </tr>
+        <?php
+        // Добавляем отступ между абзацами (580x10)
+        $this->render('misc/_hspacer', array('height' => 10, 'style' => $this->textRulerStyle));
+        ?>
     </tbody>
 </table>
 </layout>

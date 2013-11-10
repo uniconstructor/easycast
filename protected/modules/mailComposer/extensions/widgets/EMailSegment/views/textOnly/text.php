@@ -1,34 +1,40 @@
 <?php
 /**
  * Просто абзац текста без картинок
- * @var EMailSegment $this
  */
+/* @var $this EMailSegment */
 ?>
 <layout>
-<table class="w580" width="580" border="0" cellpadding="0" cellspacing="0">
+<table class="w580" width="580" border="0" cellpadding="0" cellspacing="0" style="page-break-after:auto;">
     <tbody>
         <tr>
             <td class="w580" width="580">
                 <?php 
-                // Выводим заголовок (align=left)
-                $this->render('misc/_title', array(
-                    'align' => 'left',
-                    'title' => $this->header,
-                ));
-                ?>
-                <?php 
-                // Выводим параграф текста (align=left)
-                $this->render('misc/_text', array(
-                    'align'     => 'left',
-                    'text'      => $this->text,
-                    'textColor' => $this->textColor,
-                ));
+                if ( $this->header )
+                {// Выводим заголовок
+                    $this->render('misc/_title', array(
+                        'align' => $this->headerAlign,
+                        'title' => $this->header,
+                    ));
+                }
+                if ( $this->addHeaderRuler )
+                {
+                    $this->render('misc/_hspacer', array('height' => 5, 'style' => $this->headerRulerStyle));
+                }
+                if ( $this->text )
+                {// Выводим абзац текста
+                    $this->render('misc/_text', array(
+                        'align'     => $this->textAlign,
+                        'text'      => $this->text,
+                        'textColor' => $this->textColor,
+                    ));
+                }
                 ?>
             </td>
         </tr>
-        <?php 
+        <?php
         // Добавляем отступ между абзацами (580x10)
-        $this->render('misc/_hspacer', array('height' => 10));
+        $this->render('misc/_hspacer', array('height' => 10, 'style' => $this->textRulerStyle));
         ?>
     </tbody>
 </table>

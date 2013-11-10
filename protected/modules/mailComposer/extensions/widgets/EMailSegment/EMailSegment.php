@@ -24,6 +24,10 @@ class EMailSegment extends CWidget
      */
     public $header;
     /**
+     * @var string - дополнительная информация справа от заголовка
+     */
+    public $headerInfo;
+    /**
      * @var string - абзац текста (разрешено html-форматирование)
      */
     public $text;
@@ -31,6 +35,10 @@ class EMailSegment extends CWidget
      * @var string - ссылка на изображение (если есть)
      */
     public $imageLink;
+    /**
+     * @var стиль отображаемого изображения
+     */
+    public $imageStyle = 'border:0px;';
     /**
      * @var array - массив колонок для отображения (если нужно отобразить верстку в несколько колонок)
      */
@@ -42,7 +50,39 @@ class EMailSegment extends CWidget
     /**
      * @var string - цвет текста в блоке
      */
-    public $textColor = '#ffffff';
+    public $textColor = '#6d6d6d';
+    /**
+     * @var string - цвет текста для заголовков
+     */
+    public $headerColor = '#286B84';
+    /**
+     * @var string - расположение текста в блоке
+     */
+    public $textAlign = 'left';
+    /**
+     * @var string - расположение заголовка в блоке
+     */
+    public $headerAlign = 'left';
+    /**
+     * @var bool - добавить ли разделитель после заголовка
+     */
+    public $addHeaderRuler = false;
+    /**
+     * @var bool - добавить ли разделитель в конце блока
+     */
+    public $addTextRuler = false;
+    /**
+     * @var string - слиль разделителя после заголовка
+     */
+    public $headerRulerStyle  = 'border-bottom:2px dotted #a3a3a3;';
+    /**
+     * @var string - слиль разделителя после текста (в конце блока)
+     */
+    public $textRulerStyle    = 'border-bottom:1px dotted #a3a3a3;';
+    /**
+     * @var string - слиль разделителя по умолчанию
+     */
+    public $defaultRulerStyle = 'border-bottom:1px dotted #a3a3a3;';
     
     /**
      * (non-PHPdoc)
@@ -53,6 +93,14 @@ class EMailSegment extends CWidget
         if ( ! $this->type )
         {// устанавливаем тип отображения по умолчанию, если он не задан
             $this->type = 'textOnly';
+        }
+        if ( ! $this->addHeaderRuler )
+        {
+            $this->headerRulerStyle = '';
+        }
+        if ( ! $this->addTextRuler )
+        {
+            $this->textRulerStyle = '';
         }
     }
     
@@ -66,7 +114,12 @@ class EMailSegment extends CWidget
         {// определяем, в каком виде отобразить блок письма
             // абзац текста
             case 'textOnly':  $this->displayTextOnly(); break;
+            // одно изобрадение слева
             case 'imageLeft': $this->displayImageLeft(); break;
+            // подзаголовок с дополнительной информацией
+            case 'subHeader': $this->render('subHeader/header'); break;
+            // горизонтальный разделитель
+            case 'subHeader': $this->render('hruler'); break;
         }
         if ( is_array($this->button) AND ! empty($this->button) )
         {// отображаем кнопку с действием под абзацем

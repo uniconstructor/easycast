@@ -25,7 +25,7 @@
             <td class="w60" valign="top" width="60"></td>
             <td width="20"></td>
             <td align="center" class="w300" valign="top" width="300">
-                <small style="color:#FFFFFF;font-size:8pt;"><?= $this->description; ?></small>
+                <small style="color:#6d6d6d;font-size:8pt;"><?= $this->description; ?></small>
             </td>
             <td width="20"></td>
             <td class="w60" valign="top" width="60"></td>

@@ -58,6 +58,8 @@ class MailController extends Controller
      */
     public function actionTest()
     {
+        $type = Yii::app()->request->getParam('type');
+        $id   = Yii::app()->request->getParam('id');
         //$invite = EventInvite::model()->findByPk(650);
         //echo MailComposerModule::getMessage('newInvite', array('invite' => $invite));
         
@@ -65,8 +67,16 @@ class MailController extends Controller
         //echo MailComposerModule::getSubject('customerInvite', array('customerInvite' => $customerInvite));
         //echo MailComposerModule::getMessage('customerInvite', array('customerInvite' => $customerInvite));
         
-        $questionary = Questionary::model()->findByPk(9);
-        echo MailComposerModule::getMessage('SSInvite', array('questionary' => $questionary));
+        if ( $type == 'callList' )
+        {
+            Yii::import('reports.models.*');
+            $callList = RCallList::model()->findByPk($id);
+            echo MailComposerModule::getMessage('callList', array('callList' => $callList));
+        }else
+        {
+            $questionary = Questionary::model()->findByPk(9);
+            echo MailComposerModule::getMessage('SSInvite', array('questionary' => $questionary));
+        }
     }
     
     /**

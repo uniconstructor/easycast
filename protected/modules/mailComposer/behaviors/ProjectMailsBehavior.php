@@ -271,6 +271,18 @@ class ProjectMailsBehavior extends CBehavior
     }
     
     /**
+     * Создать письмо с фотовызывным
+     * @param RCallList $callList
+     * @return string
+     */
+    public function createCallListMailText($callList)
+    {
+        return $this->owner->widget('application.modules.mailComposer.extensions.mails.EMailCallList.EMailCallList',
+            array('callList' => $callList),
+            true);
+    }
+    
+    /**
      * Получить массив для создания раздела письма с приветствием и информацией о том что вообще происходит
      * @param EventInvite $invite - приглашение участника
      *

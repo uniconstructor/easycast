@@ -5,7 +5,15 @@
  */
 class EMailHeader extends CWidget
 {
-    public $header = null;
+    /**
+     * @var string - тип заголовка (image|text)
+     */
+    public $type = 'image';
+    /**
+     * @var string - текст заголовка
+     */
+    public $header;
+    
     /**
      * (non-PHPdoc)
      * @see CWidget::init()
@@ -21,10 +29,17 @@ class EMailHeader extends CWidget
      */
     public function run()
     {
-        if ( ! $this->header )
-        {// заголовок не задан - ничего не отображаем
-            return;
+        if ( $this->type == 'text' )
+        {
+            if ( ! $this->header )
+            {// заголовок не задан - ничего не отображаем
+                return;
+            }
+            $this->render('textHeader');
+        }elseif ( $this->type == 'image' )
+        {
+            $this->render('imageHeader');
         }
-        $this->render('header');
+        
     }
 }

@@ -2,7 +2,6 @@
 /**
  * Выводит один подзаголовок письма
  */
+/* @var $this EMailSegment */
 ?>
-<p class="article-title" align="<?= $align; ?>">
-    <h3 style="color:<?= $this->textColor; ?>;"><?= $title; ?></h3>
-</p>
+<h3 style="color:<?= $this->headerColor; ?>;text-align:<?= $align; ?>;"><?= $title; ?></h3>

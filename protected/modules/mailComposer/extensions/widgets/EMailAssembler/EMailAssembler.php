@@ -62,6 +62,12 @@ class EMailAssembler extends CWidget
      *             (по умолчанию считаем, что участник хотя бы раз вродил на сайт и пароль помнит)
      */
     public $userHasFirstAccess = true;
+    /**
+     * @deprecated удалить если не понадобится
+     * @var int - userid руководителя проектов для подписи внизу
+     *            (если письмо отправляется заказчику от имени члена команды)
+     */
+    public $managerId = 0;
     
     protected $_pluginsPrefix = 'application.modules.mailComposer.extensions.widgets.';
     
@@ -160,7 +166,7 @@ class EMailAssembler extends CWidget
      */
     protected function displayFooter()
     {
-        $this->widget($this->_pluginsPrefix.'EMailFooter.EMailFooter', 
+        $this->widget($this->_pluginsPrefix.'EMailFooter.EMailFooter',
             array(
                 'contactEmail' => $this->contactEmail,
                 'contactPhone' => $this->contactPhone,

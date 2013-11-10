@@ -2,5 +2,6 @@
 /**
  * Выводит одно изображение
  */
+/* @var $this EMailSegment */
 ?>
-<img src="<?= $this->link; ?>" editable="true" label="Image" class="w580" width="580" border="0">
+<img src="<?= $link; ?>" style="<?= $style; ?>">
