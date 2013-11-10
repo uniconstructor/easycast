@@ -190,7 +190,7 @@ class ProjectEventController extends Controller
 	        $report->name = 'Вызывной лист на '.$event->getFormattedTimePeriod();
 	    }else
 	    {// отображаем существующий вызывной лист
-	        $event = $report->reportData['event'];
+	        $event = $this->loadModel($report->reportData['event']->id);
 	    }
 	    
 	    if ( $attributes = Yii::app()->request->getParam('RCallList') )
