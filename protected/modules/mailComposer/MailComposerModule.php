@@ -131,9 +131,16 @@ class MailComposerModule extends CWebModule
                 {
                     throw new CException('questionary for mail is not set');
                 }
-                $questionary = $params['questionary'];
-                return $mailComposer->createSSInviteMailText($questionary);
-                break;
+                return $mailComposer->createSSInviteMailText($params['questionary']);
+            break;
+            // вызывной лист
+            case 'callList':
+                if ( ! isset($params['callList']) )
+                {
+                    throw new CException('callList for mail is not set');
+                }
+                return $mailComposer->createCallListMailText($params['callList']);
+            break;
         }
     }
     

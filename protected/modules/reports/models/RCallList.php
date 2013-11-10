@@ -11,9 +11,6 @@ class RCallList extends Report
      */
     public function init()
     {
-        //Yii::import('application.extensions.ESearchScopes.behaviors.*');
-        //Yii::import('application.extensions.ESearchScopes.models.*');
-        //Yii::import('application.extensions.ESearchScopes.*');
         parent::init();
     }
     
@@ -69,8 +66,16 @@ class RCallList extends Report
         $vacancies = array();
         foreach ( $event->vacancies as $vacancy )
         {// собираем все подтвержденные заявки для каждой роли в переданном событии
+            if ( ! $vacancy->members )
+            {// если на роль нет ни одного участника - не помещаем ее в вызывной
+                continue;
+            }
+            $vacancyInfo = new StdClass();
+            $vacancyInfo->id   = $vacancy->id;
+            $vacancyInfo->name = $vacancy->name;
+            
             $element = array(
-                'vacancy' => $vacancy,
+                'vacancy' => $vacancyInfo,
                 'members' => $vacancy->members,
             );
             $vacancies[$vacancy->id] = $element;

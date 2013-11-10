@@ -37,6 +37,18 @@ class Report extends CActiveRecord
      */
     protected $_data;
     
+    /**
+     * @see CActiveRecord::init()
+     */
+    public function init()
+    {
+        Yii::import('ext.ESearchScopes.behaviors.*');
+        Yii::import('ext.ESearchScopes.models.*');
+        Yii::import('ext.ESearchScopes.*');
+        
+        parent::init();
+    }
+    
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
@@ -116,9 +128,13 @@ class Report extends CActiveRecord
 	 */
 	public function beforeSave()
 	{
-	    if ( $this->isNewRecord AND ! $this->status )
-	    {// по умолчанию все отчеты создаются в статусе "черновик", если не указано иное
-	        $this->status = self::STATUS_DRAFT;
+	    if ( $this->isNewRecord )
+	    {
+	        if ( ! $this->status )
+	        {// по умолчанию все отчеты создаются в статусе "черновик", если не указано иное
+	            $this->status   = self::STATUS_DRAFT;
+	        }
+	        $this->authorid = Yii::app()->user->id;
 	    }
 	    if ( ! empty($this->_data) )
 	    {
