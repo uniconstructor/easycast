@@ -503,6 +503,7 @@ class Questionary extends CActiveRecord
             'lastname' => QuestionaryModule::t('lastname_label'),
             'middlename' => QuestionaryModule::t('middlename_label'),
             'birthdate' => QuestionaryModule::t('birthdate_label'),
+            'formattedBirthDate' => QuestionaryModule::t('birthdate_label'),
             'gender' => QuestionaryModule::t('gender_label'),
             'timecreated' => QuestionaryModule::t('timecreated_label'),
             'timefilled' => QuestionaryModule::t('timefilled_label'),

@@ -20,7 +20,7 @@ return array
     'firstname_label' => 'Имя',
     'lastname_label' => 'Фамилия',
     'middlename_label' => 'Отчество',
-    'birthdate_label' => 'Число, месяц, год рождения',
+    'birthdate_label' => 'Дата рождения',
     'gender_label' => 'Пол',
     //'timecreated_label' => 'Timecreated',
     'timefilled_label' => 'Дата заполнения анкеты',
