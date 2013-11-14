@@ -248,14 +248,13 @@ class ProjectEvent extends CActiveRecord
 		return array(
 			array('name, description', 'required'),
 			array('nodates, eta, showtimestart, parentid, projectid, timestart, timeend, timecreated, 
-			    timemodified, addressid, virtual', 'length', 'max'=>20),
-			array('meetingplace, memberinfo, description', 'length', 'max'=>4095),
-			array('status', 'length', 'max'=>9),
-			array('type', 'length', 'max'=>20),
-			array('salary', 'length', 'max'=>32),
-			array('name', 'length', 'max'=>255),
+			    timemodified, addressid, virtual', 'length', 'max' => 20),
+			array('meetingplace, memberinfo, description', 'length', 'max' => 4095),
+			array('status', 'length', 'max' => 9),
+			array('type', 'length', 'max' => 20),
+			array('salary', 'length', 'max' => 32),
+			array('name', 'length', 'max' => 255),
 			// The following rule is used by search().
-			// Please remove those attributes that should not be searched.
 			//array('id, projectid, name, description, timestart, timeend, timecreated, timemodified, addressid, status', 'safe', 'on'=>'search'),
 		);
 	}

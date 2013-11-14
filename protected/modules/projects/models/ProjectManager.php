@@ -36,14 +36,11 @@ class ProjectManager extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
-			array('managerid, projectid, timestart, timeend', 'length', 'max'=>11),
-			array('status', 'length', 'max'=>9),
+			array('managerid, projectid, timestart, timeend', 'length', 'max' => 11),
+			array('status', 'length', 'max' => 9),
 			// The following rule is used by search().
-			// Please remove those attributes that should not be searched.
-			array('id, managerid, projectid, timestart, timeend, status', 'safe', 'on'=>'search'),
+			array('id, managerid, projectid, timestart, timeend, status', 'safe', 'on' => 'search'),
 		);
 	}
 

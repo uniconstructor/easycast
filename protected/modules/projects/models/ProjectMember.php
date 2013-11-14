@@ -155,11 +155,11 @@ class ProjectMember extends CActiveRecord
 	public function rules()
 	{
 		return array(
-			array('memberid, vacancyid, timecreated, timemodified, managerid, timestart, timeend', 'length', 'max'=>11),
-			array('request, responce', 'length', 'max'=>255),
-			array('status', 'length', 'max'=>9),
+			array('memberid, vacancyid, timecreated, timemodified, managerid, 
+			    timestart, timeend', 'length', 'max' => 11),
+			array('request, responce', 'length', 'max' => 255),
+			array('status', 'length', 'max' => 9),
 			// The following rule is used by search().
-			// Please remove those attributes that should not be searched.
 			//array('id, memberid, vacancyid, timecreated, timemodified, managerid, request, responce, timestart, timeend, status', 'safe', 'on'=>'search'),
 		);
 	}
