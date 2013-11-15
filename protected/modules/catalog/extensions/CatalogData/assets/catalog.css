@@ -17,3 +17,7 @@
 .thumbnails > li {
     margin-left: 10px;
 }
+
+.thumbnails {
+    margin-left: 0px;
+}

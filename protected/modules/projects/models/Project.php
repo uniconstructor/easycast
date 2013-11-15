@@ -64,39 +64,75 @@ class Project extends CActiveRecord
      *               Используется только в случае, когда тип проекта определить невозможно 
      *               (пока что таких ситуаций нет)
      */
-    const TYPE_PROJECT   = 'project';
+    const TYPE_PROJECT     = 'project';
     /**
      * @var string - тип проекта: реклама
      */
-    const TYPE_AD        = 'ad';
+    const TYPE_AD          = 'ad';
     /**
      * @var string - тип проекта: полнометражный фильм
      */
-    const TYPE_FILM      = 'film';
+    const TYPE_FILM        = 'film';
     /**
      * @var string - тип проекта: сериал
      */
-    const TYPE_SERIES    = 'series';
+    const TYPE_SERIES      = 'series';
     /**
      * @var string - тип проекта: телешоу
      */
-    const TYPE_TVSHOW    = 'tvshow';
+    const TYPE_TVSHOW      = 'tvshow';
     /**
      * @var string - тип проекта: показ
      */
-    const TYPE_EXPO      = 'expo';
+    const TYPE_EXPO        = 'expo';
     /**
      * @var string - тип проекта: промо-акция
      */
-    const TYPE_PROMO     = 'promo';
+    const TYPE_PROMO       = 'promo';
     /**
      * @var string - тип проекта: флешмоб
      */
-    const TYPE_FLASHMOB  = 'flashmob';
+    const TYPE_FLASHMOB    = 'flashmob';
     /**
      * @var string - тип проекта: видеоклип
      */
-    const TYPE_VIDEOCLIP = 'videoclip';
+    const TYPE_VIDEOCLIP   = 'videoclip';
+    /**
+     * @var string - реалити-шоу
+     */
+    const TYPE_REALITYSHOW = 'realityshow';
+    /**
+     * @var string - докуреалити
+     */
+    const TYPE_DOCUREALITY = 'docureality';
+    /**
+     * @var string - короткометражный фильм
+     */
+    const TYPE_SHORTFILM   = 'shortfilm';
+    /**
+     * @var string - конференция
+     */
+    const TYPE_CONFERENCE  = 'conference';
+    /**
+     * @var string - концерт
+     */
+    const TYPE_CONCERT     = 'concert';
+    /**
+     * @var string - театральная постановка
+     */
+    const TYPE_THEATREPERFOMANCE = 'theatreperfomance';
+    /**
+     * @var string - мюзикл
+     */
+    const TYPE_MUSICAL   = 'musical';
+    /**
+     * @var string - корпоратив
+     */
+    const TYPE_CORPORATE = 'corporate';
+    /**
+     * @var string - фестиваль
+     */
+    const TYPE_FESTIVAL  = 'festival';
     
     /**
      * @var int - максимальное количество фотогрфвий в галерее проекта
@@ -377,7 +413,9 @@ class Project extends CActiveRecord
 	public function getTypeList()
 	{
 	    $result = array('' => Yii::t('coreMessages', 'choose'));
-	    $types = array('ad','film','series','tvshow','expo','promo','flashmob','videoclip');
+	    $types = array('ad', 'film', 'series', 'tvshow', 'expo', 'promo', 'flashmob', 'videoclip',
+	        'docureality', 'realityshow', 'shortfilm', 'conference', 'concert', 'theatreperfomance',
+	        'musical', 'corporate', 'festival');
 	    foreach ( $types as $type )
 	    {
 	        $result[$type] = ProjectsModule::t('project_type_'.$type);

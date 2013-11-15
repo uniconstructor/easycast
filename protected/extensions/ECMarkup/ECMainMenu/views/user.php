@@ -3,38 +3,21 @@
  * Содержимое главного меню участника:
  * два ряда картинок с подписями
  */
+/* @var $this ECMainMenu */
 ?>
-<div class="mainmenu-inner">
-<table class="table">
-    <tr>
-        <td rowspan="2" class="mainmenu-new-user">
-        <?php
-            if ( Yii::app()->user->isGuest )
-            {
-                $this->render('newUser', array('newUser' => $newUser));
-            }else
-            {
-                $this->render('myPage', array('newUser' => $newUser));
-            }
-        ?>
-        </td>
-        <?php // Выводим пункты для первой строки меню 
-            foreach ( $items[0] as $item )
-            {
-                $this->render('item', array('item' => $item));
-            }
-        ?>
-    </tr>
-    <tr>
-        <?php // Выводим пункты для второй строки меню 
-            if ( isset($items[1]) )
-            {
-                foreach ( $items[1] as $item )
-                {
-                    $this->render('item', array('item' => $item));
-                }
-            }
-        ?>
-    </tr>
-</table>
+<div class="inner_wrapper">
+	<ul class="choose_your_side">
+        <li>
+            <a href="<?= $newUser->link; ?>" id="<?= $newUser->linkid; ?>" class="icon_office" <?= $newUser->modalOptions ?>>
+            <span >Моя страница</span>
+            </a>
+        </li>
+        <li><a href="/calendar" class="icon_calendar"><span>Календарь</span></a></li>
+        <li><a href="/projects" class="icon_projects"><span>Наши проекты</span></a></li>
+        <li><a href="#" class="icon_galery"><span>Наши события</span></a></li>
+        <li><a href="#" class="icon_casting"><span>Онлайн - кастинг</span></a></li>
+        <li><a href="#" class="icon_konsultant"><span>Онлайн - консультант</span></a></li>
+        <li><a href="#" class="icon_about"><span>О нас</span></a></li>
+        <li><a href="/forum" class="icon_forum"><span>Форум</span></a></li>
+	</ul>
 </div>

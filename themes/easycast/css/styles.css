@@ -1,11 +1,3 @@
-/**
- * Поля сверху и снизу страницы
- */
-body{
-    margin-top: 10px !important;
-    margin-bottom: 10px;
-}
-
 #page {
     padding-top: 0px;
 }
@@ -13,9 +5,9 @@ body{
 /**
  * Исправление неправильных цветов в таблице при клике мышкой
  */
-.grid-view table.items tr.selected td {
+/*.grid-view table.items tr.selected td {
     background: none repeat scroll 0 0 #111111 !important;
-}
+}*/
 
 /**
  * Скругленные уголки у аватарок всех пользователей

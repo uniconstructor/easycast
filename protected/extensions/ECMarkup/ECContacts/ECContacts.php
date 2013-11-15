@@ -1,17 +1,24 @@
 <?php
 /**
  * Небольшой виджет, выводящий список контактов
+ * @todo выводить разные телефоны в зависимости от того кто просматривает страницу (участник или заказчик)
  */
 class ECContacts extends CWidget
 {
     /**
-     * @var array = список тех контактов, которые нужно вывести
+     * @var array - список тех контактов, которые нужно вывести
+     *              (phone|email|feedback|likes) 
      */
     public $displayItems = array('phone', 'email', 'feedback');
     /**
      * @var array - список контактов на главной странице, в верхнем блоке
      */
     protected $_contacts = array();
+    
+    /**
+     * @var string
+     */
+    protected $phone;
     
     /**
      * Подготавливает виджет к запуску
@@ -27,14 +34,7 @@ class ECContacts extends CWidget
      */
     public function run()
     {
-        $this->widget('bootstrap.widgets.TbMenu', array(
-               'type'        => 'list',
-               'items'       => $this->_contacts,
-               'htmlOptions' => array(
-                   'class' => 'easycast-contacts', 
-                   'style' => 'padding-left:0px;'),
-               'encodeLabel' => false,
-          ));
+        $this->render('contacts');
     }
 
     /**
@@ -43,6 +43,8 @@ class ECContacts extends CWidget
      */
     protected function initContacts()
     {
+        $this->phone = '+7&nbsp;(495)&nbsp;227-5-226';
+        
         $contacts = array();
 
         // телефон

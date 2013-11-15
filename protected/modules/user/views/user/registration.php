@@ -12,7 +12,6 @@ $this->pageTitle=Yii::app()->name . ' - '.UserModule::t("Registration");
 
 // убираем из заголовка все лишнее
 $this->ecHeaderOptions = array(
-    'displayContacts'  => false,
     'displayloginTool' => false,
     'displayInformer'  => false,
 );

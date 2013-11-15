@@ -3,27 +3,29 @@
  * Содержимое главного меню заказчика:
  * два ряда картинок с подписями
  */
+/* @var $this ECMainMenu */
+
+$pendengItems = '';
+if ( $pendingItemsCount = FastOrder::countPendingOrderUsers() )
+{// если заказчик выбрал актеров для съемки - покажем их количество
+    $pendengItems = ' ('.$pendingItemsCount.')';
+}
 ?>
-<div class="mainmenu-inner">
-    <table class="table">
-        <tr>
-            <?php // Выводим пункты для первой строки меню 
-            foreach ( $items[0] as $item )
-            {
-                $this->render('item', array('item' => $item));
-            }
-            ?>
-        </tr>
-        <tr>
-            <?php // Выводим пункты для второй строки меню 
-            if ( isset($items[1]) )
-            {
-                foreach ( $items[1] as $item )
-                {
-                    $this->render('item', array('item' => $item));
-                }
-            }
-            ?>
-        </tr>
-    </table>
+<div class="inner_wrapper">
+	<ul class="choose_your_side">
+		<li>
+		  <a href="#" class="icon_zakaz" id="mainmenu_item_fastorder_image"
+		      data-toggle="modal" data-target="#fastOrderModal">
+		      <span>Срочный заказ</span>
+	       </a>
+        </li>
+		<li><a href="/catalog" class="icon_faces"><span>Наши лица</span></a></li>
+		<li><a href="/catalog/catalog/search" class="icon_search"><span>Поиск</span></a></li>
+		<li><a href="#" class="icon_services"><span>Наши услуги</span></a></li>
+		<li><a href="/projects" class="icon_projects"><span>Наши проекты</span></a></li>
+		<li><a href="#" class="icon_how-it-work"><span>Как это работает</span></a></li>
+		<li><a href="#" class="icon_locations"><span>Локейшены</span></a></li>
+		<li><a href="#" class="icon_about"><span>О нас</span></a></li>
+	</ul>
+	<div class="our_uslugi"></div>
 </div>

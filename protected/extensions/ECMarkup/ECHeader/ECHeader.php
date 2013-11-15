@@ -4,23 +4,53 @@
  */
 class ECHeader extends CWidget
 {
+    /**
+     * @var bool - отображать ли блок с контактами
+     */
     public $displayContacts = true;
-    
+    /**
+     * @var bool - отображать ли логотип сайта со ссылкой на главную
+     */
     public $displayLogo = true;
-    
+    /**
+     * @var bool - отображать ли виджет входа на сайт
+     */
     public $displayloginTool = true;
-    
+    /**
+     * @var bool - отображать ли информер участника/заказчика
+     */
     public $displayInformer = true;
+    /**
+     * @var bool - отображать ли информер участника/заказчика
+     */
+    public $displaySwitch   = true;
+    /**
+     * @var string - новое состояние переключателя "участник/заказчик"
+     */
+    public $newState;
     /**
      * @var string - ссылка на папку с ресурсами расширения
      */
     protected $_assetUrl;
+    /**
+     * @var int
+     */
+    protected $defaultSwitchMargin; 
+    /**
+     * @var int
+     */
+    protected $newSwitchMargin; 
     
     /**
      * Подготавливает виджет к запуску
      */
     public function init()
     {
+        if ( Yii::app()->user->isGuest AND ! Yii::app()->user->checkAccess('Admin') )
+        {// если пользователь уже зашел на сайт и он не админ - то не отображаем переключатель
+            $this->displaySwitch = false;
+        }
+        $this->defineNewState();
         // Загружаем стили шапки страницы
         $this->_assetUrl = Yii::app()->assetManager->publish(
             Yii::app()->extensionPath . DIRECTORY_SEPARATOR . 
@@ -29,30 +59,48 @@ class ECHeader extends CWidget
             'assets'   . DIRECTORY_SEPARATOR);
         Yii::app()->clientScript->registerCssFile($this->_assetUrl.'/css/header.css');
     }
+    
+    /**
+     * 
+     * @return void
+     */
+    protected function defineNewState()
+    {
+        $mode = Yii::app()->getGlobalState('userMode', 'user');
+        switch ( $mode )
+        {
+            case 'user': 
+                $this->newState = 'customer'; 
+                $this->defaultSwitchMargin = 0;
+                $this->newSwitchMargin     = 100;
+            break;
+            case 'customer':
+                $this->newState = 'user';
+                $this->defaultSwitchMargin = 100;
+                $this->newSwitchMargin     = 0;
+            break;
+        }
+    }
+    
+    /**
+     * 
+     * @return void
+     */
+    protected function getSwitchScript()
+    {
+        return "$('#switch').click(function() {
+            $('#switch_but').animate({marginLeft: '{$this->newSwitchMargin}'}, 550);
+            window.setTimeout(function(){document.location.href='?newState={$this->newState}';}, 550);
+            //return false;
+        });";
+    }
 
     /**
      * Отображает шапку страницы
      */
     public function run()
     {
-        // Начало шапки страницы
-        echo '<div id="header" class="container easycast-header">';
-        // Используем стили Twitter Bootstrap для того чтобы сделать резиновую верстку блоков в заголовке
-        echo '<div class="row-fluid show-grid">';
-        // Список контактов в левом верхнем углу
-        $this->printContacts();
-        // Логотип
-        $this->printLogo();
-        // Вход
-        $this->printLoginTool();
-        // Социальные сети
-        $this->printInformer();
-        // конец блока резиновой верстки
-        echo '</div>';
-        // Горизонтальная полоска
-        echo '<hr size="2" noshade style="border-color:white;margin-top:1px;margin-bottom:5px;" class="container">';
-        // Конец блока с заголовком
-        echo '</div><!-- header -->';
+        $this->render('header');
     }
 
     /**
@@ -94,9 +142,7 @@ class ECHeader extends CWidget
     {
         if ( $this->displayContacts )
         {
-            echo '<div class="span2">';
             $this->widget('application.extensions.ECMarkup.ECContacts.ECContacts');
-            echo '</div>';
         }
     }
     
@@ -110,9 +156,22 @@ class ECHeader extends CWidget
         if ( $this->displayInformer )
         {
             $this->widget('application.extensions.ECMarkup.ECMainInformer.ECMainInformer');
-        }else
-        {
-            echo '<div class="offset2"></div>';
         }
+    }
+    
+    /**
+     * Отобразить переключатель участник/заказчик
+     * @return null
+     */
+    protected function printSwitch()
+    {
+        if ( ! $this->displaySwitch )
+        {
+            return;
+        }
+        $switchScript = $this->getSwitchScript();
+        Yii::app()->clientScript->registerScript('#ecHeaderSwitchScript', $switchScript, CClientScript::POS_READY);
+        
+        $this->render('_switch');
     }
 }

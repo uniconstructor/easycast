@@ -30,6 +30,17 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
+        if ( $newState = Yii::app()->request->getParam('newState') )
+        {
+            if ( $newState == 'customer' )
+            {
+                Yii::app()->setGlobalState('userMode', $newState);
+            }
+            if ( $newState == 'user' )
+            {
+                Yii::app()->setGlobalState('userMode', $newState);
+            }
+        }
         $this->render('index');
         // $this->render('application.modules.user.views.user.login');
         // $this->redirect(Yii::app()->getModule('user')->loginUrl);

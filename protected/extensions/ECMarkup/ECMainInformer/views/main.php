@@ -1,7 +1,12 @@
 <?php
 
 ?>
-<div class="span2">
-    <a class="btn btn-success btn-large" href="/user/registration"
-        data-toggle="modal" data-target="#registration-modal">Стать участником</a>
+<div class="enterbut">
+	<div class="in_enterbut">
+		<a href="/user/login">Вход</a> /
+		<a href="/user/registration">Регистрация</a>
+	</div>
 </div>
+ <!--button type="button" class="btn btn-primary btn-lg">Присоединиться</button-->
+ <!--a class="btn btn-success btn-large" href="/user/registration"
+    data-toggle="modal" data-target="#registration-modal">Регистрация</a-->

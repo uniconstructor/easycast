@@ -11,6 +11,10 @@ class ECTopRated extends CWidget
      * @var CArrayDataProvider
      */
     protected $dataProvider;
+    /**
+     * @var string - ссылка на папку с ресурсами расширения
+     */
+    protected $_assetUrl;
     
     /**
      * (non-PHPdoc)
@@ -18,6 +22,7 @@ class ECTopRated extends CWidget
      */
     public function init()
     {
+        $this->publishAssets();
         // Подключаем все классы, которые нужны для отображения анкеты
         Yii::import('questionary.models.*');
         // Получаем пользователей по рейтингу
@@ -46,51 +51,30 @@ class ECTopRated extends CWidget
     }
     
     /**
+     * 
+     * @return void
+     */
+    protected function publishAssets()
+    {
+        // загружаем стили и скрипты слайдера
+        $this->_assetUrl = Yii::app()->assetManager->publish(
+            Yii::app()->extensionPath . DIRECTORY_SEPARATOR .
+            'ECMarkup' . DIRECTORY_SEPARATOR .
+            'ECTopRated' . DIRECTORY_SEPARATOR .
+            'assets'   . DIRECTORY_SEPARATOR);
+        
+        Yii::app()->clientScript->registerCssFile($this->_assetUrl.'/css/slider_index.css');
+        Yii::app()->clientScript->registerScriptFile($this->_assetUrl.'/js/jquery.carouFredSel-6.2.1.js', CClientScript::POS_HEAD);
+        Yii::app()->clientScript->registerScriptFile($this->_assetUrl.'/js/ecslider.js', CClientScript::POS_END);
+    }
+    
+    /**
      * (non-PHPdoc)
      * @see CWidget::run()
      */
     public function run()
     {
-        $topRated = $this->widget('ext.JCarousel.JCarousel', array(
-            // загружаем данные всех актеров
-            'dataProvider' => $this->dataProvider,
-            // устанавливаем ссылку на perview-картинку
-            'thumbUrl' => '$data["preview"]',
-            'imageUrl' => '$data["link"]',
-            // устанавливаем описание для каждой картинки
-            'text'     => '"&nbsp;"',
-            'altText'  => '$data["name"]',
-            'target'   => 'big-gallery-item',
-            // количество загружаемых анкет всегда берется из настроек 
-            'size'     => $this->dataProvider->itemCount,
-            // Пролистываем по 8 актеров за клик
-            'scroll'   => $this->getDisplayCount(), 
-            // Устанавливаем собственное событие при клике на фотографию актера
-            // (просто показываем его анкету)
-            'clickCallback' => 'return true;',
-            // показываем строго по 8 элементов
-            'visible' => $this->getDisplayCount(),
-            // показываем изображения по кругу
-            'wrap'    => 'circular',
-            // если картинку не удалось загрузить - все равно выделяем под нее 150px
-            'itemFallbackDimension' => 150,
-            // @todo подключить виджет TBThumbnails чтобы выводились черные подсказки
-            'linkClass' => '"thumbnail"',
-            'dataTitle' => '$data["name"]',
-        ), true);
-        
-        $this->widget('bootstrap.widgets.TbTabs', array(
-            'type'        => 'tabs',
-            'placement'   => 'above',
-            'tabs'        => array(
-                array(
-                    'label'   => 'Ассорти',
-                    'content' => $topRated,
-                    'active'  => true,
-                ),
-            ),
-        ));
-        echo '<div id="big-gallery-item" style="display:none;"></div>';
+        $this->render('slider');
     }
     
     /**
@@ -102,7 +86,7 @@ class ECTopRated extends CWidget
      */
     protected function getTotalCount()
     {
-        return 24;
+        return 8;
     }
     
     /**
@@ -114,6 +98,6 @@ class ECTopRated extends CWidget
      */
     protected function getDisplayCount()
     {
-        return 8;
+        return 24;
     }
 }

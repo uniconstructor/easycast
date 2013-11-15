@@ -8,9 +8,9 @@ $this->pageTitle = 'Регистрация';
 
 // убираем из заголовка все лишнее
 $this->ecHeaderOptions = array(
-    'displayContacts'  => false,
     'displayloginTool' => false,
     'displayInformer'  => false,
+    'displaySwitch'    => false,
 );
 
 // форма быстрой регистрации массовки
