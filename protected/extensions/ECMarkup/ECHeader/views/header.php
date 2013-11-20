@@ -16,7 +16,8 @@
 		<div class="top_center">
 			<div class="logo">
 				<a href="<?= Yii::app()->createAbsoluteUrl('//');?>">
-				<img src="<?= Yii::app()->createAbsoluteUrl('//');?>/images/logo.png" alt="EasyCast"/></a>
+				    <img src="<?= Yii::app()->createAbsoluteUrl('//');?>/images/logo.png" alt="EasyCast"/>
+				</a>
 			</div>
 			<?php 
 			// переключатель заказчик/участник

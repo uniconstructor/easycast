@@ -1,10 +1,14 @@
+/**
+ * Содержимое фильтра поиска
+ */
 .ec-search-filter-content {
     padding-bottom: 5px;
 }
-
+/**
+ * Стиль для активного в текущий момент фильтра поиска.
+ */
 .ec-search-filter-content-active {
-    /*background-color: #aaa;*/
-    background-color: #000;
+    background-color: #aaa;
     border-width: 1px;
     border-color: #fff;
     border-radius: 10px;

@@ -230,7 +230,7 @@ class SearchFilters extends CWidget
             var ecSearchData = {};
             $('body').trigger('collectData', [ecSearchData]);
             //console.log(ecSearchData);
-        
+            
             var encodedData = JSON.stringify(ecSearchData);
             settings.data = settings.data + '&data=' + encodedData;
             
@@ -251,7 +251,7 @@ class SearchFilters extends CWidget
         
         echo CHtml::ajaxButton($this->searchButtonTitle, $ajaxUrl, $ajaxOptions, array(
             'class' => 'btn btn-success',
-            'id'    => 'search_button'
+            'id'    => 'search_button',
         ));
     }
     
