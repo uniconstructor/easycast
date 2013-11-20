@@ -15,7 +15,7 @@ class QCreated extends CWidget
      */
     public function init()
     {
-        $date = DateTime::createFromFormat('Y-m-d' , '2013-10-01');
+        $date = DateTime::createFromFormat('Y-m-d' , '2013-09-01');
         $this->startDate = $date->format('U');
         if ( ! $this->userId )
         {
@@ -50,7 +50,6 @@ class QCreated extends CWidget
             'template'     => '{summary}{items}{pager}',
             'columns' => array(
                 array( // ФИО
-                    //'name'   => 'fullname',
                     'value'  => '($data->questionary ? CHtml::link($data->questionary->fullname, Yii::app()->createAbsoluteUrl("/questionary/questionary/view", array("id" => $data->questionaryid))) : "(Анкета удалена)" )',
                     'header' => '<b>ФИО</b>',
                     'type'   => 'raw',
