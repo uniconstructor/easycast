@@ -9,12 +9,14 @@ class QFieldDescription extends CWidget
      * @var string - название поля или раздела формы, к которому нужно вывести пояснение
      */
     public $field;
-    
     /**
      * @var string - тип (цвет) пояснения - основано на свойстве компонента alert в twitter bootstrap
      */
     public $type = 'alert';
-
+    
+    /**
+     * @see CWidget::run()
+     */
     public function run()
     {
         if ( $message = $this->getMessage($this->field) )

@@ -17,13 +17,7 @@ echo $form->textFieldRow($model, 'name');
 echo $form->textFieldRow($model, 'role');
 // год выхода
 echo $form->datepickerRow($model, 'year', array(
-    'options' => array(
-        'minViewMode' => 'years',
-        'language'    => 'en',
-        'format'      => 'yyyy',
-        'autoclose'   => true,
-        'forceParse'  => false,
-    ),
+    'options' => $this->getYearPickerOptions(),
 ));
 // режиссер
 echo $form->textFieldRow($model, 'director');

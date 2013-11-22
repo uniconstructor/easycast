@@ -1,0 +1,326 @@
+<?php
+
+/**
+ * Базовый класс для всех виджетов редактирования сложных полей
+ * Заменяет multimodelform
+ * 
+ * @todo прописать проверки обязательных полей в init
+ */
+class QGridEditBase extends CWidget
+{
+    /**
+     * @var Questionary
+     */
+    public $questionary;
+    /**
+     * @var string - сообщение перед удалением записи
+     */
+    public $deleteConfirmation;
+    /**
+     * @var string - всплывающая подсказка над иконкой удаления записи
+     */
+    public $deleteButtonLabel;
+    /**
+     * @var string - url по которому происходит удаление записей
+     */
+    public $deleteUrl;
+    /**
+     * @var string - url по которому происходит создание записей
+     */
+    public $createUrl;
+    /**
+     * @var string - url по которому происходит обновление записей
+     */
+    public $updateUrl;
+    /**
+     * @var string - префикс html-id для каждой строки таблицы (чтобы можно было удалять строки)
+     */
+    public $rowIdPrefix;
+    /**
+     * @var string - префикс для свойства name у editable полей
+     */
+    public $rowEditPrefix;
+    /**
+     * @var string - пустой класс модели (для создания формы добавления объекта)
+     */
+    public $modelClass;
+    /**
+     * @var array - список редактируемых полей в том порядке, в котором они идут в таблице
+     */
+    public $fields = array();
+    /**
+     * @var string - html-id формы для ввода новой записи
+    */
+    public $formId;
+    /**
+     * @var string - html-id modal-окна для ввода новой записи
+     */
+    public $modalId;
+    /**
+     * @var string - html-id кнопки для ввода новой записи
+     */
+    public $addButtonId;
+    /**
+     * @var string - заголовок всплывающего окна с формой добавления новой записи
+     */
+    public $modalHeader = 'Добавить запись';
+    /**
+     * @var array - список текстов-заглушек, которые отображаются в случае, когда поле не заполнено
+     */
+    public $emptyTextVariants = array();
+    
+    /**
+     * @var CActiveRecord
+    */
+    protected $model;
+    /**
+     * @var string
+     */
+    protected $viewsPrefix = 'questionary.extensions.widgets.QGridEditBase.views.';
+    
+    /**
+     * @see CWidget::init()
+     */
+    public function init()
+    {
+        parent::init();
+    
+        if ( ! ( $this->questionary instanceof Questionary ) )
+        {
+            throw new CException('В виджет '.get_class($this).' не передана анкета');
+        }
+        // создаем пустую модель для формы
+        $this->initModel();
+        
+        if ( ! $this->rowEditPrefix )
+        {
+            $this->rowEditPrefix = $this->modelClass;
+        }
+    }
+    
+    /**
+     * Создать пустую модель для формы добавления объекта
+     * @return void
+     */
+    protected function initModel()
+    {
+        $className = $this->modelClass;
+        $this->model = new $className;
+        $this->model->questionaryid = $this->questionary->id;
+    }
+    
+    /**
+     * @see CWidget::run()
+     */
+    public function run()
+    {
+        // рисуем таблицу со списком добавленных элементов и кнопкой "добавить"
+        $this->render($this->viewsPrefix.'films');
+        // отображаем скрытую форму добавления новой записи (она будет возникать в modal-окне)
+        $this->render($this->viewsPrefix.'_form', array('model' => $this->model));
+    }
+    
+    /**
+     * Отобразить поля формы создания новой записи
+     *
+     * @param TbActiveForm $form
+     * @return void
+     */
+    protected function renderFormFields($form)
+    {
+        throw new CException('Эта функция должна быть переопределена');
+    }
+    
+    /**
+     * Получить JS-код, выполняющийся после удаления строки
+     * @return string
+     */
+    protected function createAfterDeleteJs()
+    {
+        return 'function(link, success, data)
+        {
+            if ( ! success )
+            {
+                alert("При удалении возникла ошибка. Попробуйте еще раз.");
+                return;
+            }
+            var rowSelector = "#'.$this->rowIdPrefix.'" + data;
+            $(rowSelector).fadeOut(400);
+        }';
+    }
+    
+    /**
+     * Получить JS-код, выполняющийся после добавления новой записи
+     * @return string
+     *
+     * @todo создать нормальный ряд таблицы с возможностью редактирования и удаления
+     */
+    protected function createAfterAddJs()
+    {
+        $js = '';
+        $newRow = $this->createNewTableRowJs();
+        // js для добавления новой строки в таблицу
+        $js .= "\$('.{$this->rowIdPrefix}table table > tbody:last').append('{$newRow}');";
+        // js для очистки полей формы после добавления новой записи
+        $js .= $this->createClearFormJs();
+    
+        return $js;
+    }
+    
+    /**
+     *
+     * @return string
+     */
+    protected function createNewTableRowJs()
+    {
+        $row = "<tr>";
+        
+        foreach ( $this->fields as $field )
+        {
+            $row .= "<td>' + data.{$field} + '</td>";
+        }
+        $row .= "<td>&nbsp</td>";
+        $row .= "</tr>";
+    
+        return $row;
+    }
+    
+    /**
+     * js для очистки полей формы после добавления новой записи
+     * @return string
+     */
+    protected function createClearFormJs()
+    {
+        $js = '';
+        foreach ( $this->fields as $field )
+        {
+            $js .= "\$('#{$this->modelClass}_{$field}').val('');\n";
+        }
+        return $js;
+    }
+    
+    /**
+     *
+     * @return array - массив колонок таблицы TbExtendedGridView с настройками виджетов
+     */
+    protected function getTableColumns()
+    {
+        $dataColumns = $this->getDataColumns();
+        // колонка с иконками действий
+        $dataColumns[] = $this->getActionsColumn();
+    
+        return $dataColumns;
+    }
+    
+    /**
+     * Получить настройки для создания редактируемых колонок таблицы
+     * @return array
+     */
+    protected function getDataColumns()
+    {
+        throw new CException('Эта функция должна быть переопределена');
+    }
+    
+    /**
+     * Получить колонку действий с записями
+     * @return array
+     */
+    protected function getActionsColumn()
+    {
+        return array(
+            'header'      => 'Действия',
+            'htmlOptions' => array('nowrap' => 'nowrap', 'style' => 'text-align:center;'),
+            'class'       => 'bootstrap.widgets.TbButtonColumn',
+            'template'    => '{delete}',
+            'deleteConfirmation' => $this->deleteConfirmation,
+            'afterDelete' => $this->createAfterDeleteJs(),
+            'buttons' => array(
+                'delete' => array(
+                    'label' => $this->deleteButtonLabel,
+                    'url'   => 'Yii::app()->createUrl("'.$this->deleteUrl.'", array("id" => $data->id))',
+                ),
+            ),
+        );
+    }
+    
+    /**
+     * Получить стандартные настройки для виджета выбора даты
+     * @return array
+     */
+    protected function getYearPickerOptions()
+    {
+        return array(
+            'minViewMode' => 'years',
+            // @todo для русского языка виджет не работает - обновиться и исправить
+            'language'    => 'en',
+            'format'      => 'yyyy',
+            'autoclose'   => true,
+            'forceParse'  => false,
+        );
+    }
+    
+    /**
+     * Получить параметры для создания editable-колонки в таблице (текстовое поле)
+     *
+     * @param string $field - поле модели для которого создается редактируемая колонка таблицы
+     * @return void
+     */
+    protected function getTextColumnOptions($field)
+    {
+        return array(
+            'name'  => $field,
+            'class' => 'bootstrap.widgets.TbEditableColumn',
+            'editable' => array(
+                'type'      => 'text',
+                'title'     => $this->model->getAttributeLabel($field),
+                'url'       => $this->updateUrl,
+                'emptytext' => $this->getFieldEmptyText($field),
+                'params' => array(
+                    Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
+                ),
+            ),
+        );
+    }
+    
+    /**
+     * Получить параметры для создания editable-колонки в таблице (выбор года)
+     *
+     * @param string $field - поле модели для которого создается редактируемая колонка таблицы
+     * @return array
+     */
+    protected function getYearColumnOptions($field)
+    {
+        return array(
+            'name'  => $field,
+            'value' => '$data->'.$field.';',
+            'class' => 'bootstrap.widgets.TbEditableColumn',
+            'editable' => array(
+                'type'      => 'date',
+                'title'     => $this->model->getAttributeLabel($field),
+                'url'       => $this->updateUrl,
+                'emptytext' => $this->getFieldEmptyText($field),
+                'format'    => 'yyyy',
+                'params' => array(
+                    Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
+                ),
+                'options' => array(
+                    'datepicker' => $this->getYearPickerOptions(),
+                ),
+            ),
+        );
+    }
+    
+    /**
+     * Получить текст, который отображается в случае когда поле таблицы не заполнено
+     * @param string $field - поле модели для которого получается текс-заглушка
+     * @return string
+     */
+    protected function getFieldEmptyText($field)
+    {
+        if ( isset($this->emptyTextVariants[$field]) )
+        {
+            return $this->emptyTextVariants[$field];
+        }
+        return '[не заполнено]';
+    }
+}

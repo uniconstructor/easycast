@@ -881,15 +881,14 @@ class QUserInfo extends CWidget
             {
                 $film->setScenario('view');
                 $element = array();
-                $element['id'] = $film->id;
-                $element['name'] = $film->name;
-                $element['role'] = $film->role;
-                $element['year'] = $film->year;
+                $element['id']       = $film->id;
+                $element['name']     = $film->name;
+                $element['role']     = $film->role;
+                $element['year']     = $film->year;
                 $element['director'] = $film->director;
                 $films[] = $film;
             }
             
-            // @todo отключить разбивку по страницам
             $dataProvider = new CArrayDataProvider($films, array(
                 'pagination' => false)
             );

@@ -64,7 +64,7 @@ $form = $this->beginWidget('TbActiveForm', array(
                   alert('Ошибка при сохранении данных' + message);
                   return false;
               }",
-              'url'      => $this->createUrl,
+              'url' => $this->createUrl,
           ),
     ));
     // закрыть окно
