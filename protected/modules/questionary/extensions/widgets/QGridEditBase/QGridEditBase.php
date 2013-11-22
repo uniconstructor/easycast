@@ -15,11 +15,11 @@ class QGridEditBase extends CWidget
     /**
      * @var string - сообщение перед удалением записи
      */
-    public $deleteConfirmation;
+    public $deleteConfirmation = 'Удалить эту запись?';
     /**
      * @var string - всплывающая подсказка над иконкой удаления записи
      */
-    public $deleteButtonLabel;
+    public $deleteButtonLabel = 'Удалить';
     /**
      * @var string - url по которому происходит удаление записей
      */
@@ -115,7 +115,7 @@ class QGridEditBase extends CWidget
     public function run()
     {
         // рисуем таблицу со списком добавленных элементов и кнопкой "добавить"
-        $this->render($this->viewsPrefix.'films');
+        $this->render($this->viewsPrefix.'grid');
         // отображаем скрытую форму добавления новой записи (она будет возникать в modal-окне)
         $this->render($this->viewsPrefix.'_form', array('model' => $this->model));
     }
@@ -265,9 +265,9 @@ class QGridEditBase extends CWidget
      * @param string $field - поле модели для которого создается редактируемая колонка таблицы
      * @return void
      */
-    protected function getTextColumnOptions($field)
+    protected function getTextColumnOptions($field, $value=null)
     {
-        return array(
+        $options = array(
             'name'  => $field,
             'class' => 'bootstrap.widgets.TbEditableColumn',
             'editable' => array(
@@ -280,6 +280,13 @@ class QGridEditBase extends CWidget
                 ),
             ),
         );
+        
+        if ( $value )
+        {
+            $options['value'] = $value;
+        }
+        
+        return $options;
     }
     
     /**
@@ -322,5 +329,16 @@ class QGridEditBase extends CWidget
             return $this->emptyTextVariants[$field];
         }
         return '[не заполнено]';
+    }
+    
+    /**
+     * Получить критерий выборки записей для списка редактирования
+     * @return array
+     */
+    protected function getGridCriteria()
+    {
+        return array(
+            'condition' => "`questionaryid` = '{$this->questionary->id}'",
+        );
     }
 }

@@ -2,12 +2,24 @@
 
 /**
  * Класс для работы с одним экземпляром фильма
+ * 
+ * @property int $id
+ * @property int $questionaryid
+ * @property int $filmid
+ * @property string $name
+ * @property string $role
+ * @property string $director
+ * @property int $date
+ * @property int $timecreated
+ * @property int $timemodified
+ * 
+ * Relations:
+ * @property QFilm $film
+ * @property Questionary $questionary
  */
 class QFilmInstance extends CActiveRecord
 {
-    public $_year     = '';
-    public $_director = '';
-
+    //public $year; 
     /**
      * 
      * @param system $className
@@ -34,8 +46,9 @@ class QFilmInstance extends CActiveRecord
 	public function defaultScope()
 	{
 	    return array(
-	        'with' => 'film',
-	        'order' => 'film.date DESC');
+	        //'with'  => 'film',
+	        'order' => '`date` DESC',
+	    );
 	}
 
 	/**
@@ -45,44 +58,63 @@ class QFilmInstance extends CActiveRecord
 	public function rules()
 	{
 		return array(
-			array('questionaryid, filmid, timecreated', 'length', 'max'=>11),
+			array('questionaryid, filmid, timecreated, timemodified, year', 'length', 'max' => 11),
             // роль
-			array('role', 'length', 'max'=>128),
-		    array('role', 'filter', 'filter'=>'trim'),
+			array('role', 'length', 'max' => 255),
+		    array('role', 'filter', 'filter' => 'trim'),
+		    array('role', 'required'),
             // название фильма
-            array('name', 'length', 'max'=>255),
-		    array('name', 'filter', 'filter'=>'trim'),
+            array('name', 'length', 'max' => 255),
+		    array('name', 'filter', 'filter' => 'trim'),
             array('name', 'required'),
             // год выхода
-            array('year', 'numerical', 'integerOnly'=>true),
-		    array('year', 'filter', 'filter'=>'trim'),
-		    //array('year', 'required'),
+            array('date', 'numerical', 'integerOnly' => true),
+		    array('date', 'filter', 'filter' => 'trim'),
+		    //array('date', 'required'),
             // режиссер
-            array('director', 'length', 'max'=>255),
-		    array('director', 'filter', 'filter'=>'trim'),
+            array('director', 'length', 'max' => 255),
+		    array('director', 'filter', 'filter' => 'trim'),
 
-			array('id, questionaryid, filmid, role, timecreated', 'safe', 'on'=>'search'),
+			array('id, questionaryid, filmid, name, role, date, director, timecreated, timemodified', 'safe', 'on'=>'search'),
 		);
 	}
-
+	
+    /**
+     * @see CActiveRecord::relations()
+     */
 	public function relations()
 	{
 		return array(
+		    // анкета к которой привязана ссылка на фильм
 		    'questionary' => array(self::BELONGS_TO, 'Questionary', 'questionaryid'),
+		    // сам фильм
 		    'film'        => array(self::BELONGS_TO, 'QFilm', 'filmid'),
 		);
 	}
-
+    
+	/**
+	 * @see CModel::behaviors()
+	 */
 	public function behaviors()
 	{
 		return array(
-            'CAdvancedArBehavior',
-                     array('class' => 'ext.CAdvancedArBehavior'),
-            'QSaveYearBehavior',
-                     array('class' => 'application.modules.questionary.extensions.behaviors.QSaveYearBehavior'),
-				);
+            'CAdvancedArBehavior' => array('class' => 'ext.CAdvancedArBehavior'),
+            'QSaveYearBehavior'   => array(
+                'class' => 'questionary.extensions.behaviors.QSaveYearBehavior',
+                'yearfield' => 'date',
+            ),
+		    // автоматическое заполнение дат создания и изменения
+		    'CTimestampBehavior'  => array(
+		        'class' => 'zii.behaviors.CTimestampBehavior',
+		        'createAttribute' => 'timecreated',
+		        'updateAttribute' => 'timemodified',
+		    ),
+		);
 	}
-
+    
+	/**
+	 * @see CModel::attributeLabels()
+	 */
 	public function attributeLabels()
 	{
 		return array(
@@ -92,27 +124,29 @@ class QFilmInstance extends CActiveRecord
 			'name' => QuestionaryModule::t('film_name_label'),
 			'role' => QuestionaryModule::t('film_role_label'),
             'year' => QuestionaryModule::t('film_year_label'),
+            'date' => QuestionaryModule::t('film_year_label'),
             'director' => QuestionaryModule::t('film_director_label'),
 			'timecreated' => Yii::t('app', 'Timecreated'),
+			'timemodified' => Yii::t('app', 'Timemodified'),
 		);
 	}
 
+	/**
+	 * @return CActiveDataProvider
+	 * @return void
+	 */
 	public function search()
 	{
-		$criteria=new CDbCriteria;
+		$criteria = new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
-
 		$criteria->compare('questionaryid',$this->questionaryid,true);
-
 		$criteria->compare('filmid',$this->filmid,true);
-
 		$criteria->compare('role',$this->role,true);
-
 		$criteria->compare('timecreated',$this->timecreated,true);
 
 		return new CActiveDataProvider(get_class($this), array(
-			'criteria'=>$criteria,
+			'criteria' => $criteria,
 		));
 	}
 
@@ -121,16 +155,6 @@ class QFilmInstance extends CActiveRecord
      */
     protected function beforeSave()
     {
-        if ( $this->isNewRecord )
-        {
-            $this->timecreated = time();
-        }
-
-        if ( ! isset($this->role) OR ! $this->role )
-        {
-            $this->role = null;
-        }
-
         return parent::beforeSave();
     }
 
@@ -139,47 +163,20 @@ class QFilmInstance extends CActiveRecord
      */
     protected function afterSave()
     {
-        if ( $this->isNewRecord )
-        {
-            $film = $this->film;
-            if ( $this->_director )
-            {
-                $film->director = $this->_director;
-            }
-            if ( $this->_year )
-            {
-                $film->date     = $this->_year;
-            }
-
-            $film->save();
-        }
-
         parent::afterSave();
     }
-
-    public function setdirector($director)
+    
+    /**
+     * 
+     * @param unknown $name
+     * @return void
+     */
+    public function setName($name)
     {
-        if ( $director )
-        {
-            $this->_director = $director;
-        }
-    }
-
-    public function getdirector()
-    {
-        if ( isset($this->film->director) AND $this->film->director )
-        {
-            return $this->film->director;
-        }
-        return '';
-    }
-
-    public function setname($name)
-    {
-        /*if ( $this->filmid AND $this->film->name == $name )
-        {// фильм выбран из списка - не добавляем его в наш справочник
+        if ( $this->film AND $this->film->name == $name )
+        {// Название фильма не менялось
             return;
-        }*/
+        }
         
         if ( ! trim($name) )
         {// название пустое - не сохраняем его
@@ -187,62 +184,44 @@ class QFilmInstance extends CActiveRecord
         }
         
         // фильм не выбран из списка - попробуем отыскать его по имени
-        /*if ( $id = QFilm::model()->filmExists($name) )
+        if ( $id = QFilm::model()->filmExists($name) )
         {// нашли фильм по названию - просто запишем его id
             $this->filmid = $id;
-            return;
-        }*/
-
-        // фильм не выбран из списка и не найден по названию - добавим его в наш справочник
-        $this->filmid = QFilm::model()->addUserFilm($name, $this->_year, $this->_director);
-    }
-
-    public function getname()
-    {
-        if ( isset($this->film->name) AND $this->film->name )
-        {
-            return $this->film->name;
+        }else
+        {// фильм не выбран из списка и не найден по названию - добавим его в наш справочник
+            $this->filmid = QFilm::model()->addUserFilm($name, $this->date, $this->director);
         }
-        return '';
+        
+        // обрезаем любые кавычки в названии
+        $name = ECPurifier::trimQuotes($name);
+        $this->name = $name;
     }
 
-    public function setyear($year)
-    {
-        if ( $year )
-        {
-            $this->_year = mktime(12, 0, 0, 1, 1, $year);
-        }
-    }
-
-    public function getyear()
-    {
-        if ( isset($this->film->date) AND $this->film->date )
-        {
-            return date('Y', (int)$this->film->date);
-        }
-
-        return '';
-    }
-
-    public function setfilmid($id)
+    public function setFilmid($id)
     {
         if ( QFilm::model()->exists('id = :id', array(':id' => $id)) )
         {
             $this->filmid = $id;
+        }else
+        {
+            // @todo обработать ошибку
         }
     }
-
+    
     /**
      * Данные для создания формы одного фильма при помощи расширения multiModelForm
      * Подробнее см. http://www.yiiframework.com/doc/guide/1.1/en/form.table
      * @return array
+     * 
+     * @deprecated нужно было для виджета multimodelform. Больше не используется.
+     * @todo удалить при рефакторинге
      */
     public function formConfig()
     {
         return array(
-            'elements'=>array(
+            'elements' => array(
                 // название фильма
-                'name'=>array(
+                'name' => array(
                     'type'      => 'text',
                     'maxlength' => 255,
                     'visible'   => true,
@@ -254,19 +233,19 @@ class QFilmInstance extends CActiveRecord
                     'visible'   => true,
                 ),*/
                 // роль
-                'role'=>array(
+                'role' => array(
                     'type'      => 'text',
                     'maxlength' => 255,
                     'visible'   => true,
                 ),
                 // год выхода
-                'year'=>array(
+                'year' => array(
                     'type'    =>'dropdownlist',
                     'items'   => $this->yearList(),
                     'visible' => true,
                 ),
                 // режиссер
-                'director'=>array(
+                'director' => array(
                     'type'      => 'text',
                     'maxlength' => 255,
                     'visible'   => true,

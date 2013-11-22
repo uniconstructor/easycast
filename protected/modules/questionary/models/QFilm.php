@@ -2,6 +2,13 @@
 
 /**
  * Модель для хранения данных о фильме
+ * 
+ * @property int $id
+ * @property int $externalid
+ * @property string $name
+ * @property string $director
+ * @property int $timecreated
+ * @property int $timemodified
  */
 class QFilm extends CActiveRecord
 {
@@ -24,28 +31,47 @@ class QFilm extends CActiveRecord
 		return '{{q_films}}';
 	}
 
+	/**
+	 * @see CModel::rules()
+	 */
 	public function rules()
 	{
 		return array(
-			array('externalid, date, pictureid', 'length', 'max'=>11),
-			array('name, director', 'length', 'max'=>128),
-			array('id, externalid, name, date, director, pictureid', 'safe', 'on'=>'search'),
+			array('externalid, date, timecreated, timemodified', 'length', 'max' => 11),
+			array('name, director', 'length', 'max' => 255),
+			array('id, externalid, name, date, director, timecreated, timemodified', 'safe', 'on' => 'search'),
 		);
 	}
-
+    
+	/**
+	 * @see CActiveRecord::relations()
+	 */
 	public function relations()
 	{
 		return array(
+		    
 		);
 	}
 
+	/**
+	 * @see CModel::behaviors()
+	 */
 	public function behaviors()
 	{
-		return array('CAdvancedArBehavior',
-				array('class' => 'ext.CAdvancedArBehavior')
-				);
+		return array(
+		    'CAdvancedArBehavior' => array('class' => 'ext.CAdvancedArBehavior'),
+		    // автоматическое заполнение дат создания и изменения
+		    'CTimestampBehavior' => array(
+		        'class' => 'zii.behaviors.CTimestampBehavior',
+		        'createAttribute' => 'timecreated',
+		        'updateAttribute' => 'timemodified',
+		    ),
+		);
 	}
 
+	/**
+	 * @see CModel::attributeLabels()
+	 */
 	public function attributeLabels()
 	{
 		return array(
@@ -54,28 +80,21 @@ class QFilm extends CActiveRecord
 			'name' => Yii::t('app', 'Name'),
 			'date' => Yii::t('app', 'Date'),
 			'director' => Yii::t('app', 'Director'),
-			'pictureid' => Yii::t('app', 'Pictureid'),
 		);
 	}
 
 	public function search()
 	{
-		$criteria=new CDbCriteria;
+		$criteria = new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
-
 		$criteria->compare('externalid',$this->externalid,true);
-
 		$criteria->compare('name',$this->name,true);
-
 		$criteria->compare('date',$this->date,true);
-
 		$criteria->compare('director',$this->director,true);
 
-		$criteria->compare('pictureid',$this->pictureid,true);
-
 		return new CActiveDataProvider(get_class($this), array(
-			'criteria'=>$criteria,
+			'criteria' => $criteria,
 		));
 	}
 
@@ -88,7 +107,7 @@ class QFilm extends CActiveRecord
     public function filmExists($name)
     {
         if ( ! $films = $this->findAll('name = :name', array(':name' => $name)) )
-        {// нет ВУЗа с таким названием
+        {// нет фильма с таким названием
             return false;
         }
 
@@ -111,7 +130,6 @@ class QFilm extends CActiveRecord
         $film->externalid = 0;
         $film->date       = $year;
         $film->director   = $director;
-        $film->pictureid  = 0;
 
         $film->save();
 

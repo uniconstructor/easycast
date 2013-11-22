@@ -9,6 +9,11 @@ Yii::import('application.modules.questionary.extensions.behaviors.QSaveYearBehav
 class QEmcee extends QActivity
 {
     /**
+     * @var array
+     */
+    protected $fieldMap = array('event' => 'uservalue');
+    
+    /**
      * (non-PHPdoc)
      * @see CActiveRecord::defaultScope()
      */
@@ -31,7 +36,7 @@ class QEmcee extends QActivity
         // создаем новые правила проверки для полей "год" и "событие"
         $customRules = array(
             array('year', 'numerical', 'integerOnly'=>true),
-            array('event', 'length', 'max'=>255 ),
+            array('event', 'length', 'max' => 255 ),
             array('event', 'required'),
         );
         return CMap::mergeArray($rules, $customRules);
@@ -44,6 +49,7 @@ class QEmcee extends QActivity
     {
         return array(
             'event' => QuestionaryModule::t('emcee_event_label'),
+            'uservalue' => QuestionaryModule::t('emcee_event_label'),
             'year' => QuestionaryModule::t('year_label'),
             );
 
@@ -66,6 +72,9 @@ class QEmcee extends QActivity
         return parent::beforeSave();
     }
 
+    /**
+     * @see QActivity::behaviors()
+     */
     public function behaviors()
     {
         return array('QSaveYearBehavior',
@@ -77,7 +86,7 @@ class QEmcee extends QActivity
      * Получить мероприятие ведущего
      * @return mixed
      */
-    public function getevent()
+    public function getEvent()
     {
         return $this->uservalue;
     }
@@ -86,15 +95,17 @@ class QEmcee extends QActivity
      * Установить мероприятие ведущего
      * @param $event
      */
-    public function setevent($event)
+    public function setEvent($event)
     {
         $this->uservalue = $event;
     }
-
+    
     /**
      * Данные для создания формы одного экземпляра события при помощи расширения multiModelForm
      * Подробнее см. http://www.yiiframework.com/doc/guide/1.1/en/form.table
      * @return array
+     * 
+     * @deprecated
      */
     public function formConfig()
     {

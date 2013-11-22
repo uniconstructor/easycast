@@ -1,6 +1,6 @@
 <?php
 /**
- * Отображение таблицы со списком фильмов и всплывающего modal-окна с формой добавления фильма
+ * Отображение таблицы со списком записей и всплывающего modal-окна с формой добавления новой записи
  */
 /* @var $this QEditFilms */
 
@@ -9,11 +9,8 @@ $this->widget(
     'bootstrap.widgets.TbExtendedGridView',
     array(
         'type'         => 'striped bordered',
-        'dataProvider' => new CActiveDataProvider('QFilmInstance', array(
-            'criteria' => array(
-                'order'     => 'date DESC',
-                'condition' => "`questionaryid` = '{$this->questionary->id}'",
-            ),
+        'dataProvider' => new CActiveDataProvider($this->modelClass, array(
+            'criteria' => $this->getGridCriteria(),
             'pagination' => false,
         )),
         'template'    => "{items}",

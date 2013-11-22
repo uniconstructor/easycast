@@ -4,70 +4,68 @@
 Yii::import('questionary.extensions.widgets.QGridEditBase.QGridEditBase');
 
 /**
- * Виджет для редактирования фильмографии
+ * Виджет для редактирования мероприятий ведущего
  */
-class QEditFilms extends QGridEditBase
+class QEditEmceeEvents extends QGridEditBase
 {
     /**
      * @var string - сообщение перед удалением записи
      */
-    public $deleteConfirmation = 'Удалить эту запись из фильмографии?';
+    public $deleteConfirmation = 'Удалить это мероприятие?';
     /**
      * @var string - url по которому происходит удаление записей
      */
-    public $deleteUrl = "/questionary/qFilmInstance/delete";
+    public $deleteUrl = "/questionary/qEmcee/delete";
     /**
      * @var string - url по которому происходит создание записей
      */
-    public $createUrl = "/questionary/qFilmInstance/create";
+    public $createUrl = "/questionary/qEmcee/create";
     /**
      * @var string - url по которому происходит обновление записей
      */
-    public $updateUrl = "/questionary/qFilmInstance/update";
+    public $updateUrl = "/questionary/qEmcee/update";
     /**
      * @var string - префикс html-id для каждой строки таблицы (чтобы можно было удалять строки)
      */
-    public $rowIdPrefix = 'film_row_';
+    public $rowIdPrefix = 'emcee_row_';
     /**
      * @var string - пустой класс модели (для создания формы добавления объекта)
      */
-    public $modelClass = 'QFilmInstance';
+    public $modelClass = 'QEmcee';
     /**
      * @var array - список редактируемых полей в том порядке, в котором они идут в таблице
      */
-    public $fields = array('name', 'role', 'year', 'director');
+    public $fields = array('event', 'year');
     /**
      * @var string - html-id формы для ввода новой записи
-     */
-    public $formId = 'film-instance-form';
+    */
+    public $formId = 'emcee-instance-form';
     /**
      * @var string - html-id modal-окна для ввода новой записи
      */
-    public $modalId = 'film-instance-modal';
+    public $modalId = 'emcee-instance-modal';
     /**
      * @var string - html-id кнопки для ввода новой записи
      */
-    public $addButtonId = 'add-film-instance-button';
+    public $addButtonId = 'add-emcee-instance-button';
     /**
      * @var string - заголовок всплывающего окна с формой добавления новой записи
      */
-    public $modalHeader = 'Добавить фильмографию';
+    public $modalHeader = 'Добавить мероприятие';
     /**
      * @var array - список текстов-заглушек, которые отображаются в случае, когда поле не заполнено
      */
     public $emptyTextVariants = array(
-        'name'     => '[не указано]',
-        'role'     => '[не указана]',
+        'event'    => '[не указано]',
         'year'     => '[не указан]',
-        'director' => '[не указан]',
     );
     
     /**
      * Отобразить поля формы создания новой записи
-     * 
+     *
      * @param TbActiveForm $form
      * @return void
-     */
+    */
     protected function renderFormFields($form)
     {
         $this->render('_fields', array('model' => $this->model, 'form' => $form));
@@ -75,20 +73,16 @@ class QEditFilms extends QGridEditBase
     
     /**
      * Получить настройки для колонок таблицы с данными
-     * 
+     *
      * @return array
      */
     protected function getDataColumns()
     {
         return array(
-            // название фильма
-            $this->getTextColumnOptions('name'),
-            // роль
-            $this->getTextColumnOptions('role'),
+            // название мероприятия
+            $this->getTextColumnOptions('event'),
             // год
             $this->getYearColumnOptions('year'),
-            // режиссер
-            $this->getTextColumnOptions('director'),
         );
     }
 }

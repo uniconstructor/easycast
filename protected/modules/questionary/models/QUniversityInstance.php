@@ -101,19 +101,12 @@ class QUniversityInstance extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
-
 		$criteria->compare('type',$this->type,true);
-
 		$criteria->compare('questionaryid',$this->questionaryid,true);
-
 		$criteria->compare('universityid',$this->universityid,true);
-
 		$criteria->compare('timestart',$this->timestart,true);
-
 		$criteria->compare('timeend',$this->timeend,true);
-
 		$criteria->compare('workshop',$this->workshop,true);
-
 		$criteria->compare('timecreated',$this->timecreated,true);
 
 		return new CActiveDataProvider(get_class($this), array(
@@ -261,7 +254,7 @@ class QUniversityInstance extends CActiveRecord
                 // год окончания
                 'year'=>array(
                     'type'    =>'dropdownlist',
-                    'items'   => $this->yearList(1950, date('Y', time())+7),
+                    'items'   => $this->yearList(1950, date('Y', time()) + 7),
                     'visible' => true,
                 ),
                 // мастерская

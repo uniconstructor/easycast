@@ -10,6 +10,7 @@ class QAward extends CActiveRecord
 {
     /**
      * @var string - поле таблицы куда записывается значение поля "год"
+     * @deprecated
      */
     public $yearfield = 'date';
 
@@ -71,10 +72,11 @@ class QAward extends CActiveRecord
 	public function behaviors()
 	{
         return array(
-            'CAdvancedArBehavior',
-            array('class' => 'ext.CAdvancedArBehavior'),
-            'QSaveYearBehavior',
-            array('class' => 'application.modules.questionary.extensions.behaviors.QSaveYearBehavior'),
+            'CAdvancedArBehavior' => array('class' => 'ext.CAdvancedArBehavior'),
+            'QSaveYearBehavior'   => array(
+                'class'     => 'questionary.extensions.behaviors.QSaveYearBehavior',
+                'yearfield' => 'date',
+            ),
         );
 	}
 

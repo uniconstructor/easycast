@@ -6,6 +6,11 @@
 class QActivity extends CActiveRecord
 {
     /**
+     * @var array
+     */
+    protected $fieldMap = array();
+    
+    /**
      * (non-PHPdoc)
      * @see CActiveRecord::init()
      */
@@ -357,4 +362,18 @@ class QActivity extends CActiveRecord
 	    
 	    return $criteria;
 	}
+	
+    /**
+     * 
+     * @param string $field
+     * @return void
+     */
+    public function getRealFieldName($field)
+    {
+        if ( isset($this->fieldMap[$field]) )
+        {
+            return $this->fieldMap[$field];
+        }
+        return $field;
+    }
 }

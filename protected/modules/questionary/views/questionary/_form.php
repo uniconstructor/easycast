@@ -20,7 +20,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
 
 <div class="form wide">
 
-<?php
+    <?php
     $clientScriptManager = Yii::app()->clientScript;
     
     // создаем объект виджета для выбора страны и города
@@ -155,13 +155,13 @@ Yii::import('ext.CountryCitySelectorRu.*');
     
     // Не разрешаем сохранять форму, пока пользователь не даст согласия с условиями сайта
     // @todo изменить проверку прав
-    if ( ! $user->policyagreed AND ! Yii::app()->user->isSuperuser )
+    /*if ( ! $user->policyagreed AND ! Yii::app()->user->isSuperuser )
     {// отключаем кнопку сохранения только если пользователь не согласен с условиями сайта,
         // и он не админ 
         $hideSubmitScriptId = '_qHideSubmit';
         $hideSubmitScript   = '$("#save_questionary").addClass("disabled");$("#save_questionary").attr("disabled", "disabled");';
         $clientScriptManager->registerScript($hideSubmitScriptId, $hideSubmitScript, CClientScript::POS_END);
-    }
+    }*/
     
     // выводим специальный скрытый элемент, который каждую минуту посылает запрос на сайт, чтобы при длительном
     // заполнении анкеты не произошла потеря сессии и все данные не пропали
@@ -170,49 +170,37 @@ Yii::import('ext.CountryCitySelectorRu.*');
             'period' => 45,
         )
     );
-    // @todo раскрашиваем все подписи к полям (labels)
-    //$markLabelsJsId = '_qMarkLabelsAsBages';
-    //$markLabelsJs = '$("label")';
-    //$clientScriptManager->registerScript($markLabelsJsId, $markLabelsJs, CClientScript::POS_END);
-?>
+    ?>
 	<p class="note">
         <?php echo Yii::t('coreMessages', 'form_required_fields', array('{mark}' => '<span class="required">*</span>')); ?>
     </p>
 	<?php echo $form->errorSummary($questionary, null, null, array('id' => 'questionary-form-upper-es')); ?>
     
-    <?php // рейтинг анкеты (выставляется только администрацией)
-        if ( Yii::app()->user->isSuperuser )
-        {
-            echo $form->dropDownListRow($questionary,'rating', $questionary->getFieldVariants('rating'));
-            echo $form->error($questionary,'rating');
-        }
+    <?php 
+    // id анкеты
+    echo CHtml::hiddenField('qid', $questionary->id);
+    
+    // рейтинг анкеты (выставляется только администрацией)
+    if ( Yii::app()->user->isSuperuser )
+    {
+        echo $form->dropDownListRow($questionary,'rating', $questionary->getFieldVariants('rating'));
+        echo $form->error($questionary,'rating');
+    }
     ?>
 
 	<fieldset id="base_information_part">
 	<legend id="base_information_part_label">
-        <a class="btn btn-large btn-warning"><i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('base_information'); ?></a>
+        <a class="btn btn-large btn-warning">
+        <i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('base_information'); ?></a>
     </legend>
 
-        <?php echo $form->textFieldRow($questionary,'lastname',array('size'=>60,'maxlength'=>128)); ?>
+        <?php echo $form->textFieldRow($questionary,'lastname',array('size' => 60,'maxlength' => 128)); ?>
     
-        <?php echo $form->textFieldRow($questionary,'firstname',array('size'=>60,'maxlength'=>128)); ?>
+        <?php echo $form->textFieldRow($questionary,'firstname',array('size' => 60,'maxlength' => 128)); ?>
     
-        <?php echo $form->textFieldRow($questionary,'middlename',array('size'=>60,'maxlength'=>128)); ?>
+        <?php echo $form->textFieldRow($questionary,'middlename',array('size' => 60,'maxlength' => 128)); ?>
     
         <?php 
-        /*echo $form->labelEx($questionary,'birthdate'); 
-        $form->widget('ext.ActiveDateSelect',
-            array(
-                'model'         => $questionary,
-                'attribute'     => 'birthdate',
-                'reverse_years' => true,
-                'field_order'   => 'DMY',
-                'start_year'    => 1910,
-                'end_year'      => date("Y", time()),
-            )
-        );
-        echo $form->error($questionary,'birthdate');*/
-        
         // дата рождения
         echo $form->datepickerRow(
             $questionary,
@@ -238,15 +226,15 @@ Yii::import('ext.CountryCitySelectorRu.*');
             <?php echo $form->textFieldRow($questionary,'playagemax', array('maxlength'=>3, 'style'=>'width:30px;')); ?>
         </div>
     
-        <?php echo $form->dropDownListRow($questionary,'gender', $questionary->getFieldVariants('gender')); ?>
+        <?php echo $form->dropDownListRow($questionary, 'gender', $questionary->getFieldVariants('gender')); ?>
     
-        <?php echo $form->textFieldRow($questionary,'height',array('size'=>3,'maxlength'=>6)); ?>
+        <?php echo $form->textFieldRow($questionary, 'height', array('size' => 3, 'maxlength' => 6)); ?>
     
-        <?php echo $form->textFieldRow($questionary,'weight',array('size'=>3,'maxlength'=>6)); ?>
+        <?php echo $form->textFieldRow($questionary,'weight', array('size' => 3, 'maxlength' => 6)); ?>
         
-        <?php echo $form->dropDownListRow($questionary,'wearsize', $questionary->getFieldVariants('wearsize')); ?>
+        <?php echo $form->dropDownListRow($questionary, 'wearsize', $questionary->getFieldVariants('wearsize')); ?>
     
-        <?php echo $form->dropDownListRow($questionary,'shoessize', $questionary->getFieldVariants('shoessize')); ?>
+        <?php echo $form->dropDownListRow($questionary, 'shoessize', $questionary->getFieldVariants('shoessize')); ?>
     
         <?php echo $form->labelEx($questionary,'cityid'); ?>
         <?php
@@ -261,9 +249,9 @@ Yii::import('ext.CountryCitySelectorRu.*');
 
 	<fieldset id="contact_information_part">
 	    <legend id="contact_information_part_label">
-	        <a class="btn btn-large btn-warning"><i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('contact_information'); ?></a>
+	        <a class="btn btn-large btn-warning">
+	        <i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('contact_information'); ?></a>
 	    </legend>
-    
         <?php echo $form->textFieldRow($questionary,'mobilephone',array('size'=>32,'maxlength'=>32)); ?>
         <?php echo $form->textFieldRow($questionary,'homephone',array('size'=>32,'maxlength'=>32)); ?>
         <?php echo $form->textFieldRow($questionary,'addphone',array('size'=>32,'maxlength'=>32)); ?>
@@ -275,7 +263,8 @@ Yii::import('ext.CountryCitySelectorRu.*');
 
 	<fieldset id="looks_part">
 	    <legend id="looks_part_label">
-	        <a class="btn btn-large btn-warning"><i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('looks'); ?></a>
+	        <a class="btn btn-large btn-warning">
+	        <i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('looks'); ?></a>
         </legend>
 
         <?php echo $form->labelEx($questionary,'photos'); ?>
@@ -333,16 +322,15 @@ Yii::import('ext.CountryCitySelectorRu.*');
 		?>
 
 		<?php echo $form->dropDownListRow($questionary,'haircolor', $questionary->getFieldVariants('haircolor')); ?>
-		
 		<?php echo $form->dropDownListRow($questionary,'hairlength', $questionary->getFieldVariants('hairlength')); ?>
-
 		<?php echo $form->dropDownListRow($questionary,'eyecolor', $questionary->getFieldVariants('eyecolor')); ?>
-
 		<?php echo $form->dropDownListRow($questionary,'physiquetype', $questionary->getFieldVariants('physiquetype')); ?>
 		
         <div>
         <fieldset id="addchars" class="qform_subsection">
-        <legend id="addchars_label" class="qform_subsection_label"><?php echo QuestionaryModule::t('addchar_label'); ?></legend>
+            <legend id="addchars_label" class="qform_subsection_label">
+                <?php echo QuestionaryModule::t('addchar_label'); ?>
+            </legend>
             <?php 
                 $this->widget(
                 'application.modules.questionary.extensions.QEditAddChars.QEditAddChars',
@@ -358,9 +346,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
         <label><?php echo QuestionaryModule::t('parameters'); ?></label>
         <div class="form-inline qform_subsection">
             <?php echo $form->textFieldRow($questionary,'chestsize',array('maxlength'=>6, 'style'=>'width:50px;')); ?>
-
             <?php echo $form->textFieldRow($questionary,'waistsize',array('maxlength'=>6, 'style'=>'width:50px;')); ?>
-
             <?php echo $form->textFieldRow($questionary,'hipsize',array('maxlength'=>6, 'style'=>'width:50px;')); ?>
         </div>
 
@@ -371,7 +357,8 @@ Yii::import('ext.CountryCitySelectorRu.*');
         </div>
     </div>
 
-    <?php // Есть ли у вас татуировки
+    <?php 
+    // татуировки
     $this->widget('ext.EToggleBox.EToggleBox', array(
         'model'     => $questionary,
         'attribute' => 'hastatoo',
@@ -383,7 +370,9 @@ Yii::import('ext.CountryCitySelectorRu.*');
 
 	<fieldset id="experience_jobs_and_skills_part">
         <legend id="experience_jobs_and_skills_part_label">
-            <a class="btn btn-large btn-warning"><i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('experience_jobs_and_skills'); ?></a>
+            <a class="btn btn-large btn-warning">
+                <i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('experience_jobs_and_skills'); ?>
+            </a>
         </legend>
 
         <?php // Профессиональный актер
@@ -413,15 +402,11 @@ Yii::import('ext.CountryCitySelectorRu.*');
         <fieldset id="actoruniversities" class="qform_subsection">
             <legend class="qform_subsection_label"><?php echo QuestionaryModule::t('actor_universities_label'); ?></legend>
             <?php
-                echo $form->errorSummary( $validatedActorUniversities);
-            ?>
-            
-            <?php // пояснение для списка учебных заведений
+            echo $form->errorSummary( $validatedActorUniversities);
+            // пояснение для списка учебных заведений
             $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                    array('field' => 'actoruniversity'));
-            ?>
+                array('field' => 'actoruniversity'));
             
-            <?php
             // список театральных ВУЗов
             $actorUniversityFormConfig = $actorUniversity->formConfig();
             $this->widget('ext.multimodelform.MultiModelForm',array(
@@ -455,7 +440,8 @@ Yii::import('ext.CountryCitySelectorRu.*');
               'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
                       'after_on'  => 'js:function () {$("#films_part").fadeIn(200);}',
                       'after_off' => 'js:function () {$("#films_part").fadeOut(200);}'
-                     ))
+                     )
+                ),
             ));
             ?>
         </div>
@@ -465,81 +451,67 @@ Yii::import('ext.CountryCitySelectorRu.*');
     if ( Yii::app()->user->checkAccess('Admin') )
     {// медийный актер (проставляется только админами)
         $this->widget('ext.EToggleBox.EToggleBox', array(
-          'model'     => $questionary,
-          'attribute' => 'ismediaactor',
-          'options'   => $toggleBoxJsOptions,
+            'model'     => $questionary,
+            'attribute' => 'ismediaactor',
+            'options'   => $toggleBoxJsOptions,
         ));
     }
     ?>
     
     <div>
         <div id="films_part">
-        <?php // Снимались ли вы в фильмах
+        <?php 
+        // Снимались ли вы в фильмах
         $this->widget('ext.EToggleBox.EToggleBox', array(
             'model'     => $questionary,
             'attribute' => 'hasfilms',
             'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
-                  'after_on'  => 'js:function () {$("#films").fadeIn(200);}',
-                  'after_off' => 'js:function () {$("#films").fadeOut(200);}'))
-             ));
+                    'after_on'  => 'js:function () {$("#films").fadeIn(200);}',
+                    'after_off' => 'js:function () {$("#films").fadeOut(200);}',
+                    )
+                ),
+            )
+        );
         ?>
             <div>
                 <fieldset id="films" class="qform_subsection">
                     <legend class="qform_subsection_label"><?php echo QuestionaryModule::t('films_label'); ?></legend>
                     <?php
-                        echo $form->errorSummary($validatedFilms);
-                    ?>
-                    <?php // пояснение для списка фильмов
+                    // пояснение для списка фильмов
                     $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                            array('field' => 'hasfilms'));
-                    ?>
-                    <?php
+                        array('field' => 'hasfilms')
+                    );
                     // список фильмов
-                    $this->widget('ext.multimodelform.MultiModelForm',
-                        array(
-                           'addItemText'   => Yii::t('coreMessages','add'),
-                           'removeText'    => Yii::t('coreMessages','delete'),
-                           'removeConfirm' => QuestionaryModule::t('multimodel_remove_confirm'),
-                           'id'            => 'id_film', //the unique widget id
-                           'formConfig'    => $film->formConfig(), //the form configuration array
-                           'model'         => $film, //instance of the form model
-    
-                           //if submitted not empty from the controller,
-                           //the form will be rendered with validation errors
-                           'validatedItems' => $validatedFilms,
-    
-                           // ранее сохраненные музыкальные инструменты
-                           'data' => $questionary->films,
-                      ));
+                    $this->widget('questionary.extensions.widgets.QEditFilms.QEditFilms', array(
+                           'questionary' => $questionary,
+                        )
+                    );
                     ?>
                 </fieldset>
             </div>
         </div>
     </div>
     
-    <?php // Есть ли опыт работы в театре
-        $this->widget('ext.EToggleBox.EToggleBox', array(
-            'model'     => $questionary,
-            'attribute' => 'istheatreactor',
-            'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
-                  'after_on'  => 'js:function () {$("#actortheatres").fadeIn(200);}',
-                  'after_off' => 'js:function () {$("#actortheatres").fadeOut(200);}'))
-            ));
+    <?php 
+    // Есть ли опыт работы в театре
+    $this->widget('ext.EToggleBox.EToggleBox', array(
+        'model'     => $questionary,
+        'attribute' => 'istheatreactor',
+        'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
+              'after_on'  => 'js:function () {$("#actortheatres").fadeIn(200);}',
+              'after_off' => 'js:function () {$("#actortheatres").fadeOut(200);}'))
+        ));
     ?>
     
     <div>
         <fieldset id="actortheatres" class="qform_subsection">
             <legend class="qform_subsection_label"><?php echo QuestionaryModule::t('theatres'); ?></legend>
             <?php
-                echo $form->errorSummary( $validatedActorUniversities);
-            ?>
-            
-            <?php // пояснение для списка театров
+            echo $form->errorSummary( $validatedActorUniversities);
+            // пояснение для списка театров
             $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                    array('field' => 'actortheatres'));
-            ?>
-            
-            <?php
+                array('field' => 'actortheatres')
+            );
             // список театров
             $actorTheatreFormConfig = $actorTheatre->formConfig();
             $this->widget('ext.multimodelform.MultiModelForm',
@@ -565,31 +537,30 @@ Yii::import('ext.CountryCitySelectorRu.*');
         </fieldset>
     </div>
     
-    <?php // Статист
+    <?php 
+    // Статист
     $this->widget('ext.EToggleBox.EToggleBox', array(
         'model'     => $questionary,
         'attribute' => 'isstatist',
         'options'   => $toggleBoxJsOptions));
+    // пояснение для статиста
+    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+        array('field' => 'isstatist'));
     ?>
     
-    <?php // пояснение для статиста
-        $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                array('field' => 'isstatist'));
-    ?>
-    
-    <?php // Актер массовых сцен
+    <?php 
+    // Актер массовых сцен
     $this->widget('ext.EToggleBox.EToggleBox', array(
         'model'     => $questionary,
         'attribute' => 'ismassactor',
         'options'   => $toggleBoxJsOptions));
-    ?>
-    
-    <?php // пояснение для актера массовых сцен
-        $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                array('field' => 'ismassactor'));
+    // пояснение для актера массовых сцен
+    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+        array('field' => 'ismassactor'));
     ?>
 
-    <?php // Ведущий
+    <?php 
+    // Ведущий
     $this->widget('ext.EToggleBox.EToggleBox', array(
         'model'     => $questionary,
         'attribute' => 'isemcee',
@@ -597,42 +568,25 @@ Yii::import('ext.CountryCitySelectorRu.*');
               'after_on'  => 'js:function () {$("#emceelist").fadeIn(200);}',
               'after_off' => 'js:function () {$("#emceelist").fadeOut(200);}'))
         ));
-    ?>
     
-    <?php 
-        $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                array('field' => 'isemcee'));
+    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+        array('field' => 'isemcee'));
     ?>
 	
     <div>
 	<fieldset id="emceelist" class="qform_subsection">
-            <?php
-            //show errorsummary at the top for all models
-            //build an array of all models to check
-            echo $form->errorSummary($validatedEmceeList);
-            ?>
-            <?php
-            $this->widget('ext.multimodelform.MultiModelForm',
-                array(
-                   'addItemText'   => QuestionaryModule::t('emcee_add_event'),
-                   'removeText'    => Yii::t('coreMessages','delete'),
-                   'removeConfirm' => QuestionaryModule::t('multimodel_remove_confirm'),
-                   'id'            => 'id_emcee', //the unique widget id
-                   'formConfig'    => $emcee->formConfig(), //the form configuration array
-                   'model'         => $emcee, //instance of the form model
-
-                   //if submitted not empty from the controller,
-                   //the form will be rendered with validation errors
-                   'validatedItems' => $validatedEmceeList,
-
-                   // уже добавленные мероприятия пародиста
-                   'data' => $questionary->emceelist,
-              ));
-            ?>
+        <?php
+        // мероприятия ведущего
+        $this->widget('questionary.extensions.widgets.QEditEmceeEvents.QEditEmceeEvents', array(
+               'questionary' => $questionary,
+            )
+        );
+        ?>
 	</fieldset>
     </div>
     
-    <?php // Телеведущий
+    <?php 
+    // Телеведущий
     $this->widget('ext.EToggleBox.EToggleBox', array(
         'model'     => $questionary,
         'attribute' => 'istvshowmen',
@@ -640,33 +594,35 @@ Yii::import('ext.CountryCitySelectorRu.*');
               'after_on'  => 'js:function () {$("#tvshows").fadeIn(200);}',
               'after_off' => 'js:function () {$("#tvshows").fadeOut(200);}'))
         ));
-         
-        $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                array('field' => 'istvshowmen'));
+    
+    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+        array('field' => 'istvshowmen'));
     ?>
 	
     <div>
 	<fieldset id="tvshows" class="qform_subsection">
-            <?php
-            echo $form->errorSummary($validatedEmceeList);
-            $this->widget('ext.multimodelform.MultiModelForm',array(
-                       'addItemText'   => QuestionaryModule::t('tvshowmen_add_tvshow'),
-                       'removeText'    => Yii::t('coreMessages','delete'),
-                       'removeConfirm' => QuestionaryModule::t('multimodel_remove_confirm'),
-                       'id'            => 'id_tvshow', //the unique widget id
-                       'formConfig'    => $tvShow->formConfig(), //the form configuration array
-                       'model'         => $tvShow, //instance of the form model
-                       
-                       'validatedItems' => $validatedTvShows,
+    <?php
+    // опыт работы телеведущим
+    echo $form->errorSummary($validatedTvShows);
+    $this->widget('ext.multimodelform.MultiModelForm',array(
+               'addItemText'   => QuestionaryModule::t('tvshowmen_add_tvshow'),
+               'removeText'    => Yii::t('coreMessages','delete'),
+               'removeConfirm' => QuestionaryModule::t('multimodel_remove_confirm'),
+               'id'            => 'id_tvshow', //the unique widget id
+               'formConfig'    => $tvShow->formConfig(), //the form configuration array
+               'model'         => $tvShow, //instance of the form model
+               
+               'validatedItems' => $validatedTvShows,
 
-                       // Ранее добавленные шоу телеведущего
-                       'data' => $questionary->tvshows,
-                  ));
-            ?>
+               // Ранее добавленные шоу телеведущего
+               'data' => $questionary->tvshows,
+          ));
+    ?>
 	</fieldset>
     </div>
 
-    <?php // Пародист
+    <?php 
+    // Пародист
     $this->widget('ext.EToggleBox.EToggleBox', array(
         'model'     => $questionary,
         'attribute' => 'isparodist',
@@ -674,21 +630,21 @@ Yii::import('ext.CountryCitySelectorRu.*');
               'after_on'  => 'js:function () {$("#parodist").fadeIn(200);}',
               'after_off' => 'js:function () {$("#parodist").fadeOut(200);}'))
         ));
-        
-        $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                array('field' => 'isparodist'));
+    
+    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+        array('field' => 'isparodist'));
     ?>
 	
     <div>
 	<fieldset id="parodist" class="qform_subsection">
     	<?php 
-        	$this->widget(
-        	'application.modules.questionary.extensions.QEditParodistList.QEditParodistList',
-            	 array(
-            	    'SelectedValues' => $questionary->parodistlist,
-            	    'textFieldLabel' => QuestionaryModule::t('parodist_images'),
-            	    'hideSelect'     => 'asmSelect1',
-            	 ));
+    	$this->widget(
+    	'application.modules.questionary.extensions.QEditParodistList.QEditParodistList',
+        	 array(
+        	    'SelectedValues' => $questionary->parodistlist,
+        	    'textFieldLabel' => QuestionaryModule::t('parodist_images'),
+        	    'hideSelect'     => 'asmSelect1',
+        	 ));
     	?>
     	<?php echo $form->error($questionary,'parodist'); ?>
 	</fieldset>
@@ -703,8 +659,8 @@ Yii::import('ext.CountryCitySelectorRu.*');
               'after_off' => 'js:function () {$("#twin").fadeOut(200);}'))
         ));
         
-        $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                array('field' => 'istwin'));
+    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+        array('field' => 'istwin'));
     ?>
 	
     <div>
@@ -748,8 +704,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
                'id'            => 'id_modelschool', //the unique widget id
                'formConfig'    => $modelSchool->formConfig(), //the form configuration array
                'model'         => $modelSchool, //instance of the form model
-               //if submitted not empty from the controller,
-               //the form will be rendered with validation errors
+               
                'validatedItems' => $validatedModelSchools,
 
                // добавленные ранее модельные школы
@@ -773,8 +728,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
                'id'            => 'id_modeljob', //the unique widget id
                'formConfig'    => $modelJob->formConfig(), //the form configuration array
                'model'         => $modelJob, //instance of the form model
-               //if submitted not empty from the controller,
-               //the form will be rendered with validation errors
+               
                'validatedItems' => $validatedModelJobs,
 
                // Сохраненная ранее информация о работе моделью
@@ -784,19 +738,19 @@ Yii::import('ext.CountryCitySelectorRu.*');
     </fieldset>
     </div>
 
-    <?php // Фотомодель
-        $this->widget('ext.EToggleBox.EToggleBox', array(
-            'model'     => $questionary,
-            'attribute' => 'isphotomodel',
-            'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
-                    'after_on'  => 'js:function () {$("#photomodeljobs").fadeIn(200);}',
-                    'after_off' => 'js:function () {$("#photomodeljobs").fadeOut(200);}'))
-            ));
-    ?>
-    
     <?php 
-        $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                array('field' => 'isphotomodel'));
+    // Фотомодель
+    $this->widget('ext.EToggleBox.EToggleBox', array(
+        'model'     => $questionary,
+        'attribute' => 'isphotomodel',
+        'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
+                'after_on'  => 'js:function () {$("#photomodeljobs").fadeIn(200);}',
+                'after_off' => 'js:function () {$("#photomodeljobs").fadeOut(200);}'))
+        ));
+ 
+    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+        array('field' => 'isphotomodel')
+    );
     ?>
 
     <div>
@@ -812,8 +766,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
                'id'            => 'id_photomodeljob', //the unique widget id
                'formConfig'    => $photoModelJob->formConfig(), //the form configuration array
                'model'         => $photoModelJob, //instance of the form model
-               //if submitted not empty from the controller,
-               //the form will be rendered with validation errors
+               
                'validatedItems' => $validatedPhotoModelJobs,
 
                // сохраненная ранее информация о работе фотомоделью
@@ -843,19 +796,18 @@ Yii::import('ext.CountryCitySelectorRu.*');
         echo $form->errorSummary($validatedPromoModelJobs);
         $this->widget('ext.multimodelform.MultiModelForm', 
             array(
-                   'addItemText'   => Yii::t('coreMessages','add'),
-                   'removeText'    => Yii::t('coreMessages','delete'),
-                   'removeConfirm' => QuestionaryModule::t('multimodel_remove_confirm'),
-                   'id'            => 'id_promomodeljob', //the unique widget id
-                   'formConfig'    => $promoModelJob->formConfig(), //the form configuration array
-                   'model'         => $promoModelJob, //instance of the form model
-                   //if submitted not empty from the controller,
-                   //the form will be rendered with validation errors
-                   'validatedItems' => $validatedPromoModelJobs,
+               'addItemText'   => Yii::t('coreMessages','add'),
+               'removeText'    => Yii::t('coreMessages','delete'),
+               'removeConfirm' => QuestionaryModule::t('multimodel_remove_confirm'),
+               'id'            => 'id_promomodeljob', //the unique widget id
+               'formConfig'    => $promoModelJob->formConfig(), //the form configuration array
+               'model'         => $promoModelJob, //instance of the form model
+               
+               'validatedItems' => $validatedPromoModelJobs,
 
-                   // сохраненные ранее мероприятия промо-модели
-                   'data' => $questionary->promomodeljobs,
-              ));
+               // сохраненные ранее мероприятия промо-модели
+               'data' => $questionary->promomodeljobs,
+            ));
         ?>
     </fieldset>
     </div>
@@ -881,34 +833,36 @@ Yii::import('ext.CountryCitySelectorRu.*');
         echo $form->errorSummary($validatedDanceTypes);
         $danceTypeFormConfig = $danceType->formConfig();
         $this->widget('ext.multimodelform.MultiModelForm',array(
-                'addItemText'   => Yii::t('coreMessages','add'),
-                'removeText'    => Yii::t('coreMessages','delete'),
-                'removeConfirm' => QuestionaryModule::t('multimodel_remove_confirm'),
-                'id'            => 'id_dancetype', //the unique widget id
-                'formConfig'    => $danceType->formConfig(), //the form configuration array
-                'model'         => $danceType, //instance of the form model
-                //if submitted not empty from the controller,
-                //the form will be rendered with validation errors
-                'validatedItems' => $validatedDanceTypes,
-                // ранее сохраненные стили танца
-                'data' => $questionary->dancetypes,
-                // JS для корректного копирования элементов combobox
-                'jsAfterNewId' => 
-                    MultiModelForm::afterNewIdComboBox($danceTypeFormConfig['elements']['dancetype'], 
-                        'dancetype', 'name'),
+            'addItemText'   => Yii::t('coreMessages','add'),
+            'removeText'    => Yii::t('coreMessages','delete'),
+            'removeConfirm' => QuestionaryModule::t('multimodel_remove_confirm'),
+            'id'            => 'id_dancetype', //the unique widget id
+            'formConfig'    => $danceType->formConfig(), //the form configuration array
+            'model'         => $danceType, //instance of the form model
+            //if submitted not empty from the controller,
+            //the form will be rendered with validation errors
+            'validatedItems' => $validatedDanceTypes,
+            // ранее сохраненные стили танца
+            'data' => $questionary->dancetypes,
+            // JS для корректного копирования элементов combobox
+            'jsAfterNewId' => 
+                MultiModelForm::afterNewIdComboBox($danceTypeFormConfig['elements']['dancetype'], 
+                    'dancetype', 'name'),
           ));
         ?>
     </fieldset>
     </div>
 
-    <?php // Стриптиз
+    <?php 
+    // Стриптиз
     $this->widget('ext.EToggleBox.EToggleBox', array(
         'model'     => $questionary,
         'attribute' => 'isstripper',
         'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
               'after_on'  => 'js:function () {$("#stripdata").fadeIn(200);}',
               'after_off' => 'js:function () {$("#stripdata").fadeOut(200);}'))
-           ));?>
+           ));
+    ?>
     
     <div>
 	<fieldset id="stripdata" class="qform_subsection">
@@ -925,54 +879,58 @@ Yii::import('ext.CountryCitySelectorRu.*');
         'model'     => $questionary,
         'attribute' => 'issinger',
         'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
-              // При выборе пункта "вокал" полявляются дополнительные поля "тип вокала", "тембр голоса",
-              // "уровень вокала" и "музыкальные ВУЗы"
-              'after_on'  => 'js:function () {
-                    $("#vocaltypes").fadeIn(200);
-                    $("#voicetimbres").fadeIn(200);
-                    $("#singlevel").fadeIn(200);
-                    $("#musicuniversities").fadeIn(200);}',
-              // При выключении пункта "вокал" убираются все поля, с ним связанные.
-              // Поле "Музыкальные ВУЗы" убирается только если ниже в форме не выбран пункт "музыкант"
-              // (так как у нас используется один список музыкальных ВУЗов для певцов и для музыкантов)
-              'after_off' => 'js:function () {
-                    $("#vocaltypes").fadeOut(200);
-                    $("#voicetimbres").fadeOut(200);
-                    $("#singlevel").fadeOut(200);
-                    if ($("#Questionary_ismusician").attr("checked") != "checked" &&
-                        $("#Questionary_ismusician").attr("checked") != true )
-                        {
-                            $("#musicuniversities").fadeOut(200);                                                                                  
-                        }
-                    }'
-                   ))
-           ));
+            // При выборе пункта "вокал" полявляются дополнительные поля "тип вокала", "тембр голоса",
+            // "уровень вокала" и "музыкальные ВУЗы"
+            'after_on'  => 'js:function () {
+                  $("#vocaltypes").fadeIn(200);
+                  $("#voicetimbres").fadeIn(200);
+                  $("#singlevel").fadeIn(200);
+                  $("#musicuniversities").fadeIn(200);}',
+            // При выключении пункта "вокал" убираются все поля, с ним связанные.
+            // Поле "Музыкальные ВУЗы" убирается только если ниже в форме не выбран пункт "музыкант"
+            // (так как у нас используется один список музыкальных ВУЗов для певцов и для музыкантов)
+            'after_off' => 'js:function () {
+                  $("#vocaltypes").fadeOut(200);
+                  $("#voicetimbres").fadeOut(200);
+                  $("#singlevel").fadeOut(200);
+                  if ($("#Questionary_ismusician").attr("checked") != "checked" &&
+                      $("#Questionary_ismusician").attr("checked") != true )
+                      {
+                          $("#musicuniversities").fadeOut(200);                                                                                  
+                      }
+                  }'
+                )
+            ),
+        )
+    );
     ?>
     <div>
 	<fieldset id="vocaltypes" class="qform_subsection">
-	    <?php echo $form->labelEx($questionary,'type'); ?>
-    	<?php 
-        	$this->widget(
-        	'application.modules.questionary.extensions.QEditVocalTypes.QEditVocalTypes',
-            	 array(
-            	    'data'           => $questionary->getFieldVariants('vocaltype', false),
-            	    'SelectedValues' => $questionary->vocaltypes,
-            	 ));
+	    <?php
+	    // тип вокала
+	    echo $form->labelEx($questionary,'type');
+    	$this->widget(
+    	'application.modules.questionary.extensions.QEditVocalTypes.QEditVocalTypes',
+        	 array(
+        	    'data'           => $questionary->getFieldVariants('vocaltype', false),
+        	    'SelectedValues' => $questionary->vocaltypes,
+        	 ));
+    	echo $form->error($questionary,'vocaltype');
     	?>
-    	<?php echo $form->error($questionary,'vocaltype'); ?>
 	</fieldset>
 
     <fieldset id="voicetimbres" class="qform_subsection">
-	    <?php echo $form->labelEx($questionary,'voicetimbre'); ?>
-    	<?php 
-        	$this->widget(
-        	'application.modules.questionary.extensions.QEditVoiceTimbres.QEditVoiceTimbres',
-            	 array(
-            	    'data'           => $questionary->getFieldVariants('voicetimbre', false),
-            	    'SelectedValues' => $questionary->voicetimbres,
-            	 ));
-    	?>
-    	<?php echo $form->error($questionary,'voicetimbre'); ?>
+	    <?php
+	    // тембр голоса 
+	    echo $form->labelEx($questionary,'voicetimbre');
+    	$this->widget(
+    	'application.modules.questionary.extensions.QEditVoiceTimbres.QEditVoiceTimbres',
+        	 array(
+        	    'data'           => $questionary->getFieldVariants('voicetimbre', false),
+        	    'SelectedValues' => $questionary->voicetimbres,
+        	 )
+        );
+    	echo $form->error($questionary,'voicetimbre'); ?>
 	</fieldset>
 
     <div id="singlevel" class="qform_subsection">
@@ -981,38 +939,38 @@ Yii::import('ext.CountryCitySelectorRu.*');
     </div>
     </div>
 
-    <?php // Музыкант
+    <?php 
+	// Музыкант
     $this->widget('ext.EToggleBox.EToggleBox', array(
         'model'     => $questionary,
         'attribute' => 'ismusician',
         'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
               'after_on'  => 'js:function () {
-                                $("#instruments").fadeIn(200);
-                                $("#musicuniversities").fadeIn(200);
-                                }',
+                    $("#instruments").fadeIn(200);
+                    $("#musicuniversities").fadeIn(200);
+                    }',
               // Поле "Музыкальные ВУЗы" убирается только если выше в форме не выбран пункт "вокал"
               // (так как у нас используется один список музыкальных ВУЗов для певцов и для музыкантов)
               'after_off' => 'js:function () {
-                                $("#instruments").fadeOut(200);
-                                if ($("#Questionary_issinger").attr("checked") != "checked" &&
-                                    $("#Questionary_issinger").attr("checked") != true )
-                                    {
-                                        $("#musicuniversities").fadeOut(200);                                                                                  
-                                    }
-                                }'
-                                         ))
-                                               ));?>
+                    $("#instruments").fadeOut(200);
+                    if ($("#Questionary_issinger").attr("checked") != "checked" &&
+                        $("#Questionary_issinger").attr("checked") != true )
+                        {
+                            $("#musicuniversities").fadeOut(200);                                                                                  
+                        }
+                    }'
+                )
+            ),
+        )
+    );
+    ?>
 
     <div>
     <fieldset id="instruments" class="qform_subsection">
         <legend class="qform_subsection_label"><?php echo QuestionaryModule::t('instruments_label'); ?></legend>
         <?php
-        // ошибки при заполнении поля "музыкальные инструменты"
-        echo $form->errorSummary($validatedInstruments);
-        ?>
-
-        <?php
         // список стандартных музыкальных инструментов
+        echo $form->errorSummary($validatedInstruments);
         $instrumentFormConfig = $instrument->formConfig();
         $this->widget('ext.multimodelform.MultiModelForm',array(
                'addItemText'   => Yii::t('coreMessages','add'),
@@ -1021,7 +979,6 @@ Yii::import('ext.CountryCitySelectorRu.*');
                'id'            => 'id_instrument', //the unique widget id
                'formConfig'    => $instrumentFormConfig, //the form configuration array
                'model'         => $instrument, //instance of the form model
-
                //if submitted not empty from the controller,
                //the form will be rendered with validation errors
                'validatedItems' => $validatedInstruments,
@@ -1040,18 +997,15 @@ Yii::import('ext.CountryCitySelectorRu.*');
 
     <div>
     <fieldset id="musicuniversities" class="qform_subsection">
-        <legend class="qform_subsection_label"><?php echo QuestionaryModule::t('music_universities_label'); ?></legend>
+        <legend class="qform_subsection_label">
+            <?php echo QuestionaryModule::t('music_universities_label'); ?>
+        </legend>
         <?php
         // сообщения об ошибках при заполнении списка ВУЗов
         echo $form->errorSummary( $validatedMusicUniversities);
-        ?>
-        
-        <?php 
         $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                array('field' => 'musicuniversity'));
-        ?>
-
-        <?php
+            array('field' => 'musicuniversity'));
+        
         // список музыкальных ВУЗов
         // Отображается если указан пункт "вокал" или "музыкант"
         $musicUniversityFormConfig = $musicUniversity->formConfig();
@@ -1079,158 +1033,161 @@ Yii::import('ext.CountryCitySelectorRu.*');
     </fieldset>
     </div>
 
-    <?php // Спортсмен
+    <?php 
+    // Спортсмен
     $this->widget('ext.EToggleBox.EToggleBox', array(
         'model'     => $questionary,
         'attribute' => 'issportsman',
         'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
-              'after_on'  => 'js:function () {$("#sporttypes").fadeIn(200);}',
-              'after_off' => 'js:function () {$("#sporttypes").fadeOut(200);}'))
-           ));
-    ?>
-    
-    <?php 
-        $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                array('field' => 'issportsman'));
+                'after_on'  => 'js:function () {$("#sporttypes").fadeIn(200);}',
+                'after_off' => 'js:function () {$("#sporttypes").fadeOut(200);}',
+                )
+            ),
+        )
+    );
+    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+        array('field' => 'issportsman'));
     ?>
 	
     <div>
 	<fieldset id="sporttypes" class="qform_subsection">
     	<?php 
-        	$this->widget(
-        	'application.modules.questionary.extensions.QEditSportTypes.QEditSportTypes',
-            	 array(
-            	    'data'           => $questionary->getFieldVariants('sporttype', false),
-            	    'SelectedValues' => $questionary->sporttypes,
-            	    'textFieldLabel' => 'Другие виды спорта:',
-            	 ));
+    	// виды спорта
+    	$this->widget(
+    	'application.modules.questionary.extensions.QEditSportTypes.QEditSportTypes', array(
+        	    'data'           => $questionary->getFieldVariants('sporttype', false),
+        	    'SelectedValues' => $questionary->sporttypes,
+        	    'textFieldLabel' => 'Другие виды спорта:',
+        	 )
+        );
+    	echo $form->error($questionary,'sporttype');
     	?>
-    	<?php echo $form->error($questionary,'sporttype'); ?>
 	</fieldset>
     </div>
 
-    <?php // Экстремал
+    <?php
+    // Экстремал
     $this->widget('ext.EToggleBox.EToggleBox', array(
         'model'     => $questionary,
         'attribute' => 'isextremal',
         'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
               'after_on'  => 'js:function () {$("#extremaltypes").fadeIn(200);}',
               'after_off' => 'js:function () {$("#extremaltypes").fadeOut(200);}'))
-        ));
-    ?>
-    
-    <?php 
-        $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                array('field' => 'isextremal'));
+        )
+    );
+    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+        array('field' => 'isextremal'));
     ?>
 	
     <div>
 	<fieldset id="extremaltypes" class="qform_subsection">
     	<?php 
-        	$this->widget(
-        	'application.modules.questionary.extensions.QEditExtremalTypes.QEditExtremalTypes',
-            	 array(
-            	    'data'           => $questionary->getFieldVariants('extremaltype', false),
-            	    'SelectedValues' => $questionary->extremaltypes,
-            	     'textFieldLabel' => 'Другие виды спорта:',
-            	 ));
+    	// экстремальные виды спорта
+    	$this->widget(
+    	   'application.modules.questionary.extensions.QEditExtremalTypes.QEditExtremalTypes', array(
+        	    'data'           => $questionary->getFieldVariants('extremaltype', false),
+        	    'SelectedValues' => $questionary->extremaltypes,
+        	    'textFieldLabel' => 'Другие виды спорта:',
+        	 )
+        );
+    	echo $form->error($questionary, 'extremaltype');
     	?>
-    	<?php echo $form->error($questionary,'extremaltype'); ?>
 	</fieldset>
     </div>
 
-    <?php // Атлет
-    $this->widget('ext.EToggleBox.EToggleBox', array(
-        'model'     => $questionary,
-        'attribute' => 'isathlete',
-        'options'   => $toggleBoxJsOptions));
-    ?>
-    
     <?php 
-        $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                array('field' => 'isathlete'));
+	// Атлет
+    $this->widget('ext.EToggleBox.EToggleBox', array(
+            'model'     => $questionary,
+            'attribute' => 'isathlete',
+            'options'   => $toggleBoxJsOptions
+        )
+    );
+    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+        array('field' => 'isathlete'));
     ?>
 
-    <?php // Дополнительные умения и навыки 
-        $this->widget('ext.EToggleBox.EToggleBox', array(
-            'model'     => $questionary,
-            'attribute' => 'hasskills',
-            'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
-                  'after_on'  => 'js:function () {$("#skills").fadeIn(200);}',
-                  'after_off' => 'js:function () {$("#skills").fadeOut(200);}'))
-           ));
-    ?>
-    
     <?php 
-        $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                array('field' => 'hasskills'));
+    // Дополнительные умения и навыки 
+    $this->widget('ext.EToggleBox.EToggleBox', array(
+        'model'     => $questionary,
+        'attribute' => 'hasskills',
+        'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
+            'after_on'  => 'js:function () {$("#skills").fadeIn(200);}',
+            'after_off' => 'js:function () {$("#skills").fadeOut(200);}'))
+       ));
+    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+        array('field' => 'hasskills'));
     ?>
 	
     <div>
 	<fieldset id="skills" class="qform_subsection">
     	<?php 
-        	$this->widget(
-        	'application.modules.questionary.extensions.QEditSkills.QEditSkills',
-            	 array(
-            	    'data'           => $questionary->getFieldVariants('skill', false),
-            	    'SelectedValues' => $questionary->skills,
-            	    'textFieldLabel' => 'Другие умения:',
-            	 ));
+    	// умения и навыки
+    	$this->widget(
+    	   'application.modules.questionary.extensions.QEditSkills.QEditSkills', array(
+        	    'data'           => $questionary->getFieldVariants('skill', false),
+        	    'SelectedValues' => $questionary->skills,
+        	    'textFieldLabel' => 'Другие умения:',
+        	 )
+        );
+    	echo $form->error($questionary,'skill');
     	?>
-    	<?php echo $form->error($questionary,'skill'); ?>
 	</fieldset>
     </div>
 
-    <?php // Выполнение трюков
+    <?php 
+	// Выполнение трюков
     $this->widget('ext.EToggleBox.EToggleBox', array(
         'model'     => $questionary,
         'attribute' => 'hastricks',
         'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
               'after_on'  => 'js:function () {$("#tricks").fadeIn(200);}',
               'after_off' => 'js:function () {$("#tricks").fadeOut(200);}'))
-        ));
-    ?>
-    
-    <?php 
-        $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                array('field' => 'hastricks'));
+        )
+    );
+    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+        array('field' => 'hastricks'));
     ?>
     
 	<div>
 	<fieldset id="tricks" class="qform_subsection">
     	<?php 
-        	$this->widget(
-        	'application.modules.questionary.extensions.QEditTricks.QEditTricks',
-            	 array(
-            	    'data'           => $questionary->getFieldVariants('trick', false),
-            	    'SelectedValues' => $questionary->tricks,
-            	    'textFieldLabel' => 'Выполняемые трюки:',
-            	    'hideSelect'     => 'asmSelect8',
-            	 ));
+    	// список трюков для каскадера
+    	$this->widget(
+    	'application.modules.questionary.extensions.QEditTricks.QEditTricks',
+        	 array(
+        	    'data'           => $questionary->getFieldVariants('trick', false),
+        	    'SelectedValues' => $questionary->tricks,
+        	    'textFieldLabel' => 'Выполняемые трюки:',
+        	    'hideSelect'     => 'asmSelect8',
+        	 )
+        );
+    	echo $form->error($questionary, 'trick');
     	?>
-    	<?php echo $form->error($questionary,'trick'); ?>
 	</fieldset>
     </div>
 
-    <?php // Иностранные языки
+    <?php 
+	// Иностранные языки
     $this->widget('ext.EToggleBox.EToggleBox', array(
         'model'     => $questionary,
         'attribute' => 'haslanuages',
         'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
-              'after_on'  => 'js:function () {$("#languages").fadeIn(200);}',
-              'after_off' => 'js:function () {$("#languages").fadeOut(200);}'))
-           ));
+            'after_on'  => 'js:function () {$("#languages").fadeIn(200);}',
+            'after_off' => 'js:function () {$("#languages").fadeOut(200);}'))
+        )
+    );
     ?>
 
     <div>
 	<fieldset id="languages" class="qform_subsection">
-        <legend class="qform_subsection_label"><?php echo QuestionaryModule::t('languages_label'); ?></legend>
+        <legend class="qform_subsection_label">
+            <?php echo QuestionaryModule::t('languages_label'); ?>
+        </legend>
         <?php
         // сообщения об ошибках при заполнении списка иностранных языков
         echo $form->errorSummary($validatedLanguages);
-        ?>
-
-        <?php
         // список иностранных языков
         $languageFormConfig = $language->formConfig();
         $this->widget('ext.multimodelform.MultiModelForm',array(
@@ -1240,7 +1197,6 @@ Yii::import('ext.CountryCitySelectorRu.*');
                 'id'            => 'id_language', //the unique widget id
                 'formConfig'    => $languageFormConfig, //the form configuration array
                 'model'         => $language, //instance of the form model
-
                 //if submitted not empty from the controller,
                 //the form will be rendered with validation errors
                 'validatedItems' => $validatedLanguages,
@@ -1257,14 +1213,15 @@ Yii::import('ext.CountryCitySelectorRu.*');
 	</fieldset>
     </div>
     
-    <?php // Звания призы и награды
-        $this->widget('ext.EToggleBox.EToggleBox', array(
-            'model'     => $questionary,
-            'attribute' => 'hasawards',
-            'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
-                  'after_on'  => 'js:function () {$("#awards").fadeIn(200);}',
-                  'after_off' => 'js:function () {$("#awards").fadeOut(200);}'))
-               ));
+    <?php 
+    // Звания призы и награды
+    $this->widget('ext.EToggleBox.EToggleBox', array(
+        'model'     => $questionary,
+        'attribute' => 'hasawards',
+        'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
+            'after_on'  => 'js:function () {$("#awards").fadeIn(200);}',
+            'after_off' => 'js:function () {$("#awards").fadeOut(200);}'))
+        ));
     ?>
        
    <div>
@@ -1272,9 +1229,6 @@ Yii::import('ext.CountryCitySelectorRu.*');
            <?php
            // сообщения об ошибках при заполнении списка званий и наград
            echo $form->errorSummary($validatedAwards);
-           ?>
-    
-           <?php
            // список званий, призов и наград
            $this->widget('ext.multimodelform.MultiModelForm',array(
                   'addItemText'   => Yii::t('coreMessages','add'),
@@ -1283,7 +1237,6 @@ Yii::import('ext.CountryCitySelectorRu.*');
                   'id'            => 'id_award', //the unique widget id
                   'formConfig'    => $award->formConfig(), //the form configuration array
                   'model'         => $award, //instance of the form model
-
                   //if submitted not empty from the controller,
                   //the form will be rendered with validation errors
                   'validatedItems' => $validatedAwards,
@@ -1299,32 +1252,32 @@ Yii::import('ext.CountryCitySelectorRu.*');
 
 	<fieldset id="passportdata_part">
 	    <legend id="passportdata_part_label">
-	        <a class="btn btn-large btn-warning"><i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('passport_data'); ?></a>
+	        <a class="btn btn-large btn-warning">
+	           <i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('passport_data'); ?>
+           </a>
 	    </legend>
     	<?php
-    	    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription',
-    	        array('field' => 'passportdata'));
+	    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription',
+	        array('field' => 'passportdata'));
     	?>
-        
 		<?php echo $form->textFieldRow($questionary,'passportserial',array('size'=>10,'maxlength'=>10)); ?>
-	
 		<?php echo $form->textFieldRow($questionary,'passportnum',array('size'=>10,'maxlength'=>10)); ?>
 	
-		<?php echo $form->labelEx($questionary,'passportdate'); ?>
 		<?php 
-    		$this->widget('ext.ActiveDateSelect',
-    		array(
-    		    'model'         => $questionary,
-    		    'attribute'     => 'passportdate',
-    		    'reverse_years' => false,
-    		    'field_order'   => 'DMY',
-    		    'start_year'    => date("Y", time() - 40*365*24*3600),
-    		    'end_year'      => date("Y", time()),
-    		));
+		// дата выдачи загранпаспорта
+		echo $form->labelEx($questionary,'passportdate');
+		$this->widget('ext.ActiveDateSelect',
+		array(
+		    'model'         => $questionary,
+		    'attribute'     => 'passportdate',
+		    'reverse_years' => false,
+		    'field_order'   => 'DMY',
+		    'start_year'    => date("Y", time() - 40 * 365 * 24 * 3600),
+		    'end_year'      => date("Y", time()),
+		));
+		echo $form->error($questionary,'passportdate');
 		?>
-		<?php echo $form->error($questionary,'passportdate'); ?>
-	    
-		<?php echo $form->textFieldRow($questionary,'passportorg',array('size'=>60,'maxlength'=>255)); ?>
+		<?php echo $form->textFieldRow($questionary, 'passportorg', array('size' => 60, 'maxlength' => 255)); ?>
 
         <?php echo $form->labelEx($questionary,'countryid'); ?>
         <?php echo $countrySelector->countryActiveField('countryid', $questionary); ?>
@@ -1348,16 +1301,16 @@ Yii::import('ext.CountryCitySelectorRu.*');
             <div id="inshurancecardnum">
                 <?php
                 // номер медицинской страховки 
-                echo $form->textFieldRow($questionary,'inshurancecardnum',array('size'=>60,'maxlength'=>128));
+                echo $form->textFieldRow($questionary, 'inshurancecardnum', array('size' => 60,'maxlength' => 128));
                 ?>
             </div>
         </div>
         
-        <?php echo $form->textFieldRow($questionary, 'inn', array('size'=>32,'maxlength'=>32)); ?>
+        <?php echo $form->textFieldRow($questionary, 'inn', array('size' => 32,'maxlength' => 32)); ?>
 	
 	<h4><?php echo QuestionaryModule::t('address'); ?></h4>
         
-		<?php echo $form->textFieldRow($address, 'postalcode', array('size'=>10,'maxlength'=>10)); ?>
+		<?php echo $form->textFieldRow($address, 'postalcode', array('size' => 10, 'maxlength' => 10)); ?>
 
 		<?php echo $form->labelEx($address,'countryid'); ?>
 		<?php echo $countrySelector->countryActiveField('countryid', $address); ?>
@@ -1521,7 +1474,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
         // можно писать все что угодна, участник это поле не видит никогда
         // Выделяем его очень ярко, чтобы ни в коем случае не ошибиться
         ?>
-        <div class="ec-round-the-corner" style="background-color:#000;padding:20px;">
+        <div class="ec-round-the-corner" style="background-color:#aaa;padding:20px;">
         <br><br>
         <?php
         echo $form->labelEx($questionary,'privatecomment');

@@ -46,8 +46,6 @@ $form = $this->beginWidget('TbActiveForm', array(
           'label'       => Yii::t('coreMessages', 'add'),
           'url'         => $this->createUrl,
           'ajaxOptions' => array(
-              //'beforeSend' => new CJavaScriptExpression("function(){\$('#registration-form').yiiactiveform().validate(); return false;}"),
-              //'beforeSend' => new CJavaScriptExpression("function(){console.log(\$('#{$this->formId}').contents()); return false;}"),
               'success'  => "function (data, status) {
                       \$('#{$this->modalId}').modal('hide');
                       data = \$.parseJSON(data);

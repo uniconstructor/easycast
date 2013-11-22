@@ -656,9 +656,8 @@ class QuestionaryController extends Controller
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.
 	 * 
-	 * @todo корректно обработать случай когда мы не нашли данные
-	 * 
 	 * @param integer the ID of the model to be loaded
+	 * @return Questionary
 	 */
 	public function loadModel($id)
 	{
