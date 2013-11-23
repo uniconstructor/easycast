@@ -9,8 +9,6 @@
 
 // ошибки формы
 echo $form->errorSummary(array($model), null, null, array('id' => $this->formId.'_errors'));
-// id анкеты
-//echo CHtml::hiddenField('qid', $this->questionary->id);
 // название
 echo $form->textFieldRow($model, 'name');
 // роль

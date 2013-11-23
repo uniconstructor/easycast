@@ -8,10 +8,12 @@
  * 
  * @todo не отображается список ошибок в конце формы
  */
-
+/* @var $form TbActiveForm  */
 // Подключаем расширения для полей формы
 
 // Выбор даты по календарю
+// @todo этот виджет устарел - удалить все его упоминания при рефакторинге
+// (табличку с его названием позорно разбить об угол, прах развеять по ветру и навсегда предать забвению)
 Yii::import('ext.ActiveDateSelect');
 // Выбор страны и города
 Yii::import('ext.CountryCitySelectorRu.*');
@@ -40,7 +42,6 @@ Yii::import('ext.CountryCitySelectorRu.*');
     );
     
     // начало виджета формы редактирования анкеты
-    /* @var $form TbActiveForm  */
     $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         'id' => 'questionary-form',
         'enableAjaxValidation'   => true,
@@ -390,7 +391,6 @@ Yii::import('ext.CountryCitySelectorRu.*');
         <fieldset id="actoruniversities" class="qform_subsection">
             <legend class="qform_subsection_label"><?php echo QuestionaryModule::t('actor_universities_label'); ?></legend>
             <?php
-            echo $form->errorSummary( $validatedActorUniversities);
             // пояснение для списка учебных заведений
             $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
                 array('field' => 'actoruniversity'));
@@ -405,7 +405,8 @@ Yii::import('ext.CountryCitySelectorRu.*');
     
     <div>
         <div id="amateuractor">
-            <?php // непрофессиональный актер
+            <?php 
+            // непрофессиональный актер
             $this->widget('ext.EToggleBox.EToggleBox', array(
               'model'     => $questionary,
               'attribute' => 'isamateuractor',
@@ -432,25 +433,25 @@ Yii::import('ext.CountryCitySelectorRu.*');
     
     <div>
         <div id="films_part">
-        <?php 
-        // Снимались ли вы в фильмах
-        $this->widget('ext.EToggleBox.EToggleBox', array(
-            'model'     => $questionary,
-            'attribute' => 'hasfilms',
-            'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
-                    'after_on'  => 'js:function () {$("#films").fadeIn(200);}',
-                    'after_off' => 'js:function () {$("#films").fadeOut(200);}',
-                    )
-                ),
-            )
-        );
-        ?>
+            <?php 
+            // Снимались ли вы в фильмах
+            $this->widget('ext.EToggleBox.EToggleBox', array(
+                'model'     => $questionary,
+                'attribute' => 'hasfilms',
+                'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
+                        'after_on'  => 'js:function () {$("#films").fadeIn(200);}',
+                        'after_off' => 'js:function () {$("#films").fadeOut(200);}',
+                        )
+                    ),
+                )
+            );
+            ?>
             <div>
                 <fieldset id="films" class="qform_subsection">
                     <legend class="qform_subsection_label"><?php echo QuestionaryModule::t('films_label'); ?></legend>
                     <?php
                     // пояснение для списка фильмов
-                    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+                    $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
                         array('field' => 'hasfilms')
                     );
                     // список фильмов
@@ -541,7 +542,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
               'after_off' => 'js:function () {$("#emceelist").fadeOut(200);}'))
         ));
     // пояснение для ведущего
-    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+    $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
         array('field' => 'isemcee'));
     ?>
     <div>
@@ -566,7 +567,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
               'after_off' => 'js:function () {$("#tvshows").fadeOut(200);}'))
         ));
     
-    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+    $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
         array('field' => 'istvshowmen'));
     ?>
 	
@@ -602,7 +603,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
               'after_off' => 'js:function () {$("#parodist").fadeOut(200);}'))
         ));
     
-    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+    $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
         array('field' => 'isparodist'));
     ?>
 	
@@ -631,7 +632,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
               'after_off' => 'js:function () {$("#twin").fadeOut(200);}'))
         ));
         
-    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+    $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
         array('field' => 'istwin'));
     ?>
 	
@@ -640,8 +641,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
     	<?php 
     	// список образов двойника
     	$this->widget(
-    	'application.modules.questionary.extensions.QEditTwinList.QEditTwinList',
-        	 array(
+    	   'questionary.extensions.QEditTwinList.QEditTwinList', array(
         	    'SelectedValues' => $questionary->twinlist,
         	    'textFieldLabel' => QuestionaryModule::t('twin_images'),
         	    'hideSelect'     => 'asmSelect2',
@@ -661,10 +661,10 @@ Yii::import('ext.CountryCitySelectorRu.*');
               'after_off' => 'js:function () {$("#modelschools").fadeOut(200);$("#modeljobs").fadeOut(200);}'))
            ));
     // пояснение для моделей
-    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-            array('field' => 'ismodel'));
+    $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+        array('field' => 'ismodel')
+    );
     ?>
-	
     <div>
 	<fieldset id="modelschools" class="qform_subsection">
         <?php
@@ -676,7 +676,6 @@ Yii::import('ext.CountryCitySelectorRu.*');
         ?>
 	</fieldset>
     </div>
-    
     <div>
     <fieldset id="modeljobs" class="qform_subsection">
         <?php
@@ -699,7 +698,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
                 'after_off' => 'js:function () {$("#photomodeljobs").fadeOut(200);}'))
         ));
  
-    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+    $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
         array('field' => 'isphotomodel')
     );
     ?>
@@ -736,8 +735,8 @@ Yii::import('ext.CountryCitySelectorRu.*');
               'after_off' => 'js:function () {$("#promomodeljobs").fadeOut(200);}'))
            ));
         
-        $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                array('field' => 'ispromomodel'));
+        $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+            array('field' => 'ispromomodel'));
     ?>
     
     <div>
@@ -998,7 +997,8 @@ Yii::import('ext.CountryCitySelectorRu.*');
         )
     );
     $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-        array('field' => 'issportsman'));
+        array('field' => 'issportsman')
+    );
     ?>
 	
     <div>
@@ -1028,7 +1028,8 @@ Yii::import('ext.CountryCitySelectorRu.*');
         )
     );
     $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-        array('field' => 'isextremal'));
+        array('field' => 'isextremal')
+    );
     ?>
 	
     <div>
@@ -1098,7 +1099,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
               'after_off' => 'js:function () {$("#tricks").fadeOut(200);}'))
         )
     );
-    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+    $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
         array('field' => 'hastricks'));
     ?>
     
@@ -1450,6 +1451,14 @@ Yii::import('ext.CountryCitySelectorRu.*');
 <?php $this->endWidget(); ?>
 </div><!-- form -->
 <?php
-// место для отладки
+// Выводим здесь все всплывающие modal-формы для сложных значений
+// Их оказалось нельзя выводить в середине формы анкеты потому что вложенные виджеты форм в Yii не допускаются
+// Сами формы генерируются по ходу отрисовки формы и запоминаются в клипы, а затем выводятся здесь
+
+$clips = Yii::app()->getModule('questionary')->formClips;
+foreach ( $clips as $clip )
+{
+    echo $this->clips[$clip];
+}
 
 ?>

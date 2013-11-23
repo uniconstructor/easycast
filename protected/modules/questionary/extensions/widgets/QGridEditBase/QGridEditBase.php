@@ -5,6 +5,7 @@
  * Заменяет multimodelform
  * 
  * @todo прописать проверки обязательных полей в init
+ * @todo сделать настройку помещать/не помещать формы в клип
  */
 class QGridEditBase extends CWidget
 {
@@ -72,6 +73,12 @@ class QGridEditBase extends CWidget
      * @var array - список текстов-заглушек, которые отображаются в случае, когда поле не заполнено
      */
     public $emptyTextVariants = array();
+    /**
+     * @var string - id клипа (фрагмента html-кода который генерируется в одном месте а выводится в другом)
+     *               Здесь используется для modal-окон с формами (их нельзя размещать внутри других форм)
+     *               Если этот параметр задан - то в модуль questionary будет записан id фрагмента кода с формой
+     */
+    public $clipId;
     
     /**
      * @var CActiveRecord
@@ -103,6 +110,8 @@ class QGridEditBase extends CWidget
         {
             $this->rowEditPrefix = $this->modelClass;
         }
+        // регистрируем клип с формой в модуле анкет джля того чтобы позже вывести его в конце формы
+        $this->registerFormClip();
     }
     
     /**
@@ -117,14 +126,28 @@ class QGridEditBase extends CWidget
     }
     
     /**
+     * Зарегистрировать форму добавления сложного значения анкеты в модуле "анкеты" (QuestionaryModule)
+     * @return void
+     */
+    protected function registerFormClip()
+    {
+        $this->clipId = $this->formId.'-clip';
+        Yii::app()->getModule('questionary')->formClips[] = $this->clipId;
+    }
+    
+    /**
      * @see CWidget::run()
      */
     public function run()
     {
         // рисуем таблицу со списком добавленных элементов и кнопкой "добавить"
         $this->render($this->viewsPrefix.'grid');
+        
         // отображаем скрытую форму добавления новой записи (она будет возникать в modal-окне)
+        // записываем ее в clip и выводим позже, в самом низу страницы иначе она конфликтует с формой анкеты
+        $this->owner->beginClip($this->clipId);
         $this->render($this->viewsPrefix.'_form', array('model' => $this->model));
+        $this->owner->endClip();
     }
     
     /**

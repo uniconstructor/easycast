@@ -15,10 +15,10 @@ $this->beginWidget('bootstrap.widgets.TbModal', array('id' => $this->modalId));
 // отображаем форму
 $form = $this->beginWidget('TbActiveForm', array(
     'id' => $this->formId,
-    'enableAjaxValidation'   => false,
+    'enableAjaxValidation'   => true,
     'enableClientValidation' => true,
     'clientOptions' => array(
-        'validateOnSubmit' => false,
+        'validateOnSubmit' => true,
         'validateOnChange' => false,
     ),
     'action' => $this->createUrl,
@@ -32,6 +32,8 @@ $form = $this->beginWidget('TbActiveForm', array(
 
 <div class="modal-body">
     <?php
+    // id анкеты
+    echo CHtml::hiddenField('qid', $this->questionary->id);
     // отображаем все поля формы добавления новой записи
     $this->renderFormFields($form);
     ?>

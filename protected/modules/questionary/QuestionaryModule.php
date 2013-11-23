@@ -86,6 +86,13 @@ class QuestionaryModule extends CWebModule
         'name'        => true,
         'description' => true,
     );
+    /**
+     * @var array - массив id фрагментов кода (клипов), для всплывающих форм сложных значений
+     *              В форме анкеты требуется вывести множество "дочерних форм", а вкладывать их
+     *              друг в друга нельзя поэтому выбрано такое решение
+     *              Подробнее см. документацию класса CClipWidget
+     */
+    public $formClips = array();
     
     /**
      * @var QuestionaryController
