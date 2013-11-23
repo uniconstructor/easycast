@@ -16,9 +16,8 @@ echo $form->select2Row($model, 'language',  array(
     'options' => array(
         'tags' => ECPurifier::getSelect2Options($this->questionary->getFieldVariants('language', false)),
         'maximumSelectionSize' => 1,
-        //'data' => array('clever', 'is', 'better', 'clevertech'),
         'placeholder' => '(Не выбран)',
-        //'width' => '40%',
+        'placeholderOption' => '',
         'tokenSeparators' => array(',', ' ')
         ),
     )
@@ -28,12 +27,5 @@ echo $form->select2Row($model, 'language',  array(
 echo $form->select2Row($model, 'level',  array(
     'asDropDownList' => true,
     'data' => $this->questionary->getFieldVariants('languagelevel', false),
-    'options' => array(
-        //'tags' => array('clever', 'is', 'better', 'clevertech'),
-        //'data' => array('clever', 'is', 'better', 'clevertech'),
-        'placeholder' => '(Не выбран)',
-        //'width' => '40%',
-        //'tokenSeparators' => array(',', ' ')
-        ),
     )
 );

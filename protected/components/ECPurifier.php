@@ -21,4 +21,20 @@ class ECPurifier extends CHtmlPurifier
         }
         return $string;
     }
+    
+    /**
+     * Получить массив значений для использования в элементе select2
+     * @param array $data - значения по умолчанию в формате ключ-значение
+     * @return array
+     */
+    public static function getSelect2Options($data)
+    {
+        $options = array();
+        foreach ( $data as $id => $text )
+        {
+            $options[] = array('id' => $id, 'text' => CHtml::encode($text));
+        }
+        
+        return $options;
+    }
 }

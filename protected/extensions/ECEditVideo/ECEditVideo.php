@@ -4,65 +4,91 @@
 Yii::import('questionary.extensions.widgets.QGridEditBase.QGridEditBase');
 
 /**
- * Виджет для редактирования списка иностранных языков
- *
+ * Виджет для редактирования списка видео
+ * 
  * @package easycast
- * @subpackage questionary
  */
-class QEditLanguages extends QGridEditBase
+class ECEditVideo extends QGridEditBase
 {
+    /**
+     * @var string - сообщение перед удалением записи
+     */
+    public $deleteConfirmation = 'Удалить это видео?';
     /**
      * @var string - url по которому происходит удаление записей
      */
-    public $deleteUrl = "/questionary/qLanguage/delete";
+    public $deleteUrl = "/video/delete";
     /**
      * @var string - url по которому происходит создание записей
      */
-    public $createUrl = "/questionary/qLanguage/create";
+    public $createUrl = "/video/create";
     /**
      * @var string - url по которому происходит обновление записей
      */
-    public $updateUrl = "/questionary/qLanguage/update";
+    public $updateUrl = "/video/update";
     /**
      * @var string - префикс html-id для каждой строки таблицы (чтобы можно было удалять строки)
      */
-    public $rowIdPrefix = 'language_row_';
+    public $rowIdPrefix = 'video_row_';
     /**
      * @var string - пустой класс модели (для создания формы добавления объекта)
      */
-    public $modelClass = 'QLanguage';
+    public $modelClass = 'Video';
     /**
      * @var array - список редактируемых полей в том порядке, в котором они идут в таблице
      */
-    public $fields = array('language', 'level');
+    public $fields = array('name', 'link');
     /**
      * @var string - html-id формы для ввода новой записи
     */
-    public $formId = 'language-instance-form';
+    public $formId = 'video-instance-form';
     /**
      * @var string - html-id modal-окна для ввода новой записи
      */
-    public $modalId = 'language-instance-modal';
+    public $modalId = 'video-instance-modal';
     /**
      * @var string - html-id кнопки для ввода новой записи
      */
-    public $addButtonId = 'add-language-instance-button';
-    /**
-     * @var string - заголовок всплывающего окна с формой добавления новой записи
-     */
-    public $modalHeader = 'Добавить язык';
+    public $addButtonId = 'add-video-instance-button';
     /**
      * @var string - надпись на кнопке добавления новой записи
      */
-    public $addButtonLabel = 'Добавить иностранный язык';
+    public $addButtonLabel = 'Добавить видео';
+    /**
+     * @var string - заголовок всплывающего окна с формой добавления новой записи
+     */
+    public $modalHeader = 'Добавить видео';
     /**
      * @var array - список текстов-заглушек, которые отображаются в случае, когда поле не заполнено
      */
     public $emptyTextVariants = array(
-        'name'  => '[не указан]',
-        'level' => '[не указан]',
+        'name' => '[не указано]',
+        'link' => '[не указана]',
     );
     
+    /**
+     * @see QGridEditBase::initModel()
+     */
+    public function initModel()
+    {
+        $className = $this->modelClass;
+        //$this->model = new $className;
+        $this->model = new $this->modelClass;
+        $this->model->objecttype = 'questionary';
+        $this->model->objectid   = $this->questionary->id;
+        return $this->model;
+    }
+    
+    /**
+     * @see QGridEditBase::getGridCriteria()
+     */
+    protected function getGridCriteria()
+    {
+        return array(
+            'condition' => "`objecttype` = 'questionary' AND `objectid` = '{$this->questionary->id}'",
+        );
+    }
+
     /**
      * Отобразить поля формы создания новой записи
      *
@@ -73,21 +99,7 @@ class QEditLanguages extends QGridEditBase
     {
         $this->render('_fields', array('model' => $this->model, 'form' => $form));
     }
-    
-    /**
-     * js для очистки полей формы после добавления новой записи
-     * @return string
-     */
-    protected function createClearFormJs()
-    {
-        $js = '';
-        foreach ( $this->fields as $field )
-        {
-            $js .= "\$('#{$this->modelClass}_{$field}').select2('val', '');\n";
-        }
-        return $js;
-    }
-    
+
     /**
      * Получить настройки для колонок таблицы с данными
      *
@@ -96,16 +108,10 @@ class QEditLanguages extends QGridEditBase
     protected function getDataColumns()
     {
         return array(
-            // иностранный язык
-            array(
-                'name'  => 'language',
-                'value' => '$data->name;',
-            ),
-            // уровень владения
-            $this->getStaticSelect2ColumnOptions('level',
-                $this->questionary->getFieldVariants('languagelevel', false),
-                'languageLevel'
-            ),
+            // название видео
+            $this->getTextColumnOptions('name'),
+            // ссылка на видео
+            $this->getTextColumnOptions('link'),
         );
     }
 }

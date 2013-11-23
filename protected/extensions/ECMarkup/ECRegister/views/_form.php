@@ -14,8 +14,7 @@ $form = $this->beginWidget('UActiveForm', array(
     'clientOptions' => array(
         'validateOnSubmit' => true,
         'validateOnChange' => false,
-        //'afterValidate' => new CJavaScriptExpression("function(form, data, hasError){console.log(hasError);if(!hasError){window.location.href='{$this->actionUrl}';} }"),
-        'afterValidate' => new CJavaScriptExpression("function(form, data, hasError){console.log(hasError);if(!hasError){window.location.href='{$this->redirectUrl}';return false;}}"),
+        'afterValidate' => new CJavaScriptExpression("function(form, data, hasError){if(!hasError){window.location.href='{$this->redirectUrl}';return false;}}"),
     ),
     'htmlOptions' => array('enctype'=>'multipart/form-data'),
     'action' => $this->actionUrl,

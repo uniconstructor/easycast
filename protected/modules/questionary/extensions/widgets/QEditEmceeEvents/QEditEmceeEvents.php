@@ -5,6 +5,9 @@ Yii::import('questionary.extensions.widgets.QGridEditBase.QGridEditBase');
 
 /**
  * Виджет для редактирования мероприятий ведущего
+ * 
+ * @package easycast
+ * @subpackage questionary
  */
 class QEditEmceeEvents extends QGridEditBase
 {
@@ -52,6 +55,10 @@ class QEditEmceeEvents extends QGridEditBase
      * @var string - заголовок всплывающего окна с формой добавления новой записи
      */
     public $modalHeader = 'Добавить мероприятие';
+    /**
+     * @var string - надпись на кнопке добавления новой записи
+     */
+    public $addButtonLabel = 'Добавить мероприятие';
     /**
      * @var array - список текстов-заглушек, которые отображаются в случае, когда поле не заполнено
      */

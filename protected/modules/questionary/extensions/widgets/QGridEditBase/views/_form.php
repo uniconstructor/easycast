@@ -43,12 +43,12 @@ $form = $this->beginWidget('TbActiveForm', array(
     $this->widget('bootstrap.widgets.TbButton', array(
           'buttonType'  => 'ajaxSubmit',
           'type'        => 'success',
-          'label'       => Yii::t('coreMessages', 'add'),
+          'label'       => $this->addButtonLabel,
           'url'         => $this->createUrl,
           'ajaxOptions' => array(
               'success'  => "function (data, status) {
                       \$('#{$this->modalId}').modal('hide');
-                      data = \$.parseJSON(data);
+                      //data = \$.parseJSON(data);
                       {$this->createAfterAddJs()}
                   }",
               'type'     => 'post',
@@ -66,7 +66,7 @@ $form = $this->beginWidget('TbActiveForm', array(
           ),
     ));
     // закрыть окно
-    $this->widget('bootstrap.widgets.TbButton', array(
+    $form->widget('bootstrap.widgets.TbButton', array(
         'label'       => Yii::t('coreMessages', 'cancel'),
         'htmlOptions' => array('data-dismiss' => 'modal', 'class' => 'pull-left'),
     )); 

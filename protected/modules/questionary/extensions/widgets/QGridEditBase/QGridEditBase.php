@@ -61,6 +61,10 @@ class QGridEditBase extends CWidget
      */
     public $addButtonId;
     /**
+     * @var string - надпись на кнопке добавления новой записи
+     */
+    public $addButtonLabel = 'Добавить';
+    /**
      * @var string - заголовок всплывающего окна с формой добавления новой записи
      */
     public $modalHeader = 'Добавить запись';
@@ -84,7 +88,10 @@ class QGridEditBase extends CWidget
     public function init()
     {
         parent::init();
-    
+        
+        Yii::import('questionary.models.*');
+        Yii::import('questionary.models.complexValues.*');
+        
         if ( ! ( $this->questionary instanceof Questionary ) )
         {
             throw new CException('В виджет '.get_class($this).' не передана анкета');
@@ -313,8 +320,6 @@ class QGridEditBase extends CWidget
             'placeholder'       => 'Выбрать...',
             'placeholderOption' => '',
             'multiple'          => false,
-            //'formatResult'      => "js:function(item) {return item.text;}",
-            //'formatSelection'   => "js:function(item) {return item.text;}",
         );
         $variants = ECPurifier::getSelect2Options($variants);
         

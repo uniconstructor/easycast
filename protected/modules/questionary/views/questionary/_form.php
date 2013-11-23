@@ -252,12 +252,12 @@ Yii::import('ext.CountryCitySelectorRu.*');
 	        <a class="btn btn-large btn-warning">
 	        <i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('contact_information'); ?></a>
 	    </legend>
-        <?php echo $form->textFieldRow($questionary,'mobilephone',array('size'=>32,'maxlength'=>32)); ?>
-        <?php echo $form->textFieldRow($questionary,'homephone',array('size'=>32,'maxlength'=>32)); ?>
-        <?php echo $form->textFieldRow($questionary,'addphone',array('size'=>32,'maxlength'=>32)); ?>
-        <?php echo $form->textFieldRow($questionary,'vkprofile',array('size'=>60,'maxlength'=>255)); ?>
-        <?php echo $form->textFieldRow($questionary,'fbprofile',array('size'=>60,'maxlength'=>255)); ?>
-        <?php echo $form->textFieldRow($questionary,'okprofile',array('size'=>60,'maxlength'=>255)); ?>
+        <?php echo $form->textFieldRow($questionary, 'mobilephone', array('size'=>32,'maxlength'=>32)); ?>
+        <?php echo $form->textFieldRow($questionary, 'homephone', array('size'=>32,'maxlength'=>32)); ?>
+        <?php echo $form->textFieldRow($questionary, 'addphone', array('size'=>32,'maxlength'=>32)); ?>
+        <?php echo $form->textFieldRow($questionary, 'vkprofile', array('size'=>60,'maxlength'=>255)); ?>
+        <?php echo $form->textFieldRow($questionary, 'fbprofile', array('size'=>60,'maxlength'=>255)); ?>
+        <?php echo $form->textFieldRow($questionary, 'okprofile', array('size'=>60,'maxlength'=>255)); ?>
         <hr>
 	</fieldset>
 
@@ -286,29 +286,16 @@ Yii::import('ext.CountryCitySelectorRu.*');
         ?>
         
         <fieldset class="qform_subsection">
-            <legend><?php echo QuestionaryModule::t('video'); ?></legend>
+            <legend><?= QuestionaryModule::t('video'); ?></legend>
             <?php
-                echo $form->errorSummary($validatedVideos);
-                $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription',
-                array('field' => 'video'));
-            ?>
-            
-            <?php
+            // пояснение для списка видео
+            $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription',
+                array('field' => 'video')
+            );
             // список видео
-            $videoFormConfig = $video->formConfig();
-            $this->widget('ext.multimodelform.MultiModelForm',array(
-                   'addItemText'   => QuestionaryModule::t('add_video'),
-                   'removeText'    => Yii::t('coreMessages','delete'),
-                   'removeConfirm' => 'Удалить это видео?',
-                   'id'            => 'id_video', //the unique widget id
-                   'formConfig'    => $videoFormConfig, //the form configuration array
-                   'model'         => $video, //instance of the form model
-    
-                   'validatedItems' => $validatedVideos,
-    
-                   // ранее сохраненные видео
-                   'data' => $questionary->video,
-              ));
+            $this->widget('ext.ECEditVideo.ECEditVideo', array(
+                'questionary' => $questionary,
+            ));
             ?>
         </fieldset>
         
@@ -569,11 +556,10 @@ Yii::import('ext.CountryCitySelectorRu.*');
               'after_on'  => 'js:function () {$("#emceelist").fadeIn(200);}',
               'after_off' => 'js:function () {$("#emceelist").fadeOut(200);}'))
         ));
-    
+    // пояснение для ведущего
     $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
         array('field' => 'isemcee'));
     ?>
-	
     <div>
 	<fieldset id="emceelist" class="qform_subsection">
         <?php
@@ -651,7 +637,8 @@ Yii::import('ext.CountryCitySelectorRu.*');
 	</fieldset>
     </div>
 
-    <?php // Двойник
+    <?php 
+	// Двойник
     $this->widget('ext.EToggleBox.EToggleBox', array(
         'model'     => $questionary,
         'attribute' => 'istwin',
@@ -667,19 +654,21 @@ Yii::import('ext.CountryCitySelectorRu.*');
     <div>
 	<fieldset id="twin" class="qform_subsection">
     	<?php 
-        	$this->widget(
-        	'application.modules.questionary.extensions.QEditTwinList.QEditTwinList',
-            	 array(
-            	    'SelectedValues' => $questionary->twinlist,
-            	    'textFieldLabel' => QuestionaryModule::t('twin_images'),
-            	    'hideSelect'     => 'asmSelect2',
-            	 ));
+    	// список образов двойника
+    	$this->widget(
+    	'application.modules.questionary.extensions.QEditTwinList.QEditTwinList',
+        	 array(
+        	    'SelectedValues' => $questionary->twinlist,
+        	    'textFieldLabel' => QuestionaryModule::t('twin_images'),
+        	    'hideSelect'     => 'asmSelect2',
+        	 ));
     	?>
     	<?php echo $form->error($questionary,'twin'); ?>
 	</fieldset>
     </div>
 
-    <?php // Модель
+    <?php 
+	// Модель
     $this->widget('ext.EToggleBox.EToggleBox', array(
         'model'     => $questionary,
         'attribute' => 'ismodel',
@@ -687,54 +676,31 @@ Yii::import('ext.CountryCitySelectorRu.*');
               'after_on'  => 'js:function () {$("#modelschools").fadeIn(200);$("#modeljobs").fadeIn(200);}',
               'after_off' => 'js:function () {$("#modelschools").fadeOut(200);$("#modeljobs").fadeOut(200);}'))
            ));
-        
-        $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                array('field' => 'ismodel'));
+    // пояснение для моделей
+    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+            array('field' => 'ismodel'));
     ?>
 	
     <div>
 	<fieldset id="modelschools" class="qform_subsection">
         <?php
         // Модельные школы
-        echo $form->errorSummary($validatedModelSchools);
-        $this->widget('ext.multimodelform.MultiModelForm',
-            array(
-               'addItemText'   => Yii::t('coreMessages','add'),
-               'removeText'    => Yii::t('coreMessages','delete'),
-               'removeConfirm' => QuestionaryModule::t('multimodel_remove_confirm'),
-               'id'            => 'id_modelschool', //the unique widget id
-               'formConfig'    => $modelSchool->formConfig(), //the form configuration array
-               'model'         => $modelSchool, //instance of the form model
-               
-               'validatedItems' => $validatedModelSchools,
-
-               // добавленные ранее модельные школы
-               'data' => $questionary->modelschools,
-          ));
+        $this->widget('questionary.extensions.widgets.QEditModelSchools.QEditModelSchools', array(
+            'questionary' => $questionary,
+            )
+        );
         ?>
-
 	</fieldset>
     </div>
-
+    
     <div>
     <fieldset id="modeljobs" class="qform_subsection">
         <?php
         // опыт работы моделью
-        echo $form->errorSummary($validatedModelJobs);
-        $this->widget('ext.multimodelform.MultiModelForm', 
-            array(
-               'addItemText'   => Yii::t('coreMessages','add'),
-               'removeText'    => Yii::t('coreMessages','delete'),
-               'removeConfirm' => QuestionaryModule::t('multimodel_remove_confirm'),
-               'id'            => 'id_modeljob', //the unique widget id
-               'formConfig'    => $modelJob->formConfig(), //the form configuration array
-               'model'         => $modelJob, //instance of the form model
-               
-               'validatedItems' => $validatedModelJobs,
-
-               // Сохраненная ранее информация о работе моделью
-               'data' => $questionary->modeljobs,
-          ));
+        $this->widget('questionary.extensions.widgets.QEditModelJobs.QEditModelJobs', array(
+            'questionary' => $questionary,
+            )
+        );
         ?>
     </fieldset>
     </div>
@@ -813,7 +779,8 @@ Yii::import('ext.CountryCitySelectorRu.*');
     </fieldset>
     </div>
 
-    <?php // Танцор
+    <?php 
+    // Танцор
     $this->widget('ext.EToggleBox.EToggleBox', array(
         'model'     => $questionary,
         'attribute' => 'isdancer',
@@ -1187,6 +1154,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
             <?php echo QuestionaryModule::t('languages_label'); ?>
         </legend>
         <?php
+        // список иностранных языков
         $this->widget('questionary.extensions.widgets.QEditLanguages.QEditLanguages', array(
                'questionary' => $questionary,
             )

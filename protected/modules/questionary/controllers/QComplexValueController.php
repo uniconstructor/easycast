@@ -60,13 +60,12 @@ class QComplexValueController extends Controller
     }
     
     /**
-     * Создать запись в фильмографии
+     * Создать запись
      * @return void
      */
     public function actionCreate()
     {
-        $modelClass = $this->modelClass;
-        $instance = new $modelClass();
+        $instance = $this->initModel();
         // id анкеты к которой добавляется фильмография
         $qid = Yii::app()->request->getParam('qid', 0);
         // ajax-проверка введенных данных
@@ -76,7 +75,7 @@ class QComplexValueController extends Controller
         {
             // проверяем права на добавление фильмографии к этой анкете
             $this->checkAccess($instance, $qid);
-            
+            // привязываем значение к родительскому объекту (в этом случае - анкета)
             $instance->attributes    = $instanceData;
             $instance->questionaryid = $qid;
             if ( ! $instance->save() )
@@ -91,7 +90,7 @@ class QComplexValueController extends Controller
     }
     
     /**
-     * Обновить запись в фильмографии
+     * Обновить запись
      * @return void
      * 
      * @todo возвращать ошибки, связанные с другими полями
@@ -115,7 +114,7 @@ class QComplexValueController extends Controller
     }
     
     /**
-     * Удалить запись из фильмографии
+     * Удалить запись
      * @return void
      */
     public function actionDelete()
@@ -147,7 +146,7 @@ class QComplexValueController extends Controller
     }
     
     /**
-     * 
+     * Проверить, есть ли у пользователя доступ к добавлению, редактированию или удалению объекта
      * @param CActiveRecord $item
      * @return void
      */
@@ -156,13 +155,50 @@ class QComplexValueController extends Controller
         $currentQuestionaryId = Yii::app()->getModule('questionary')->getCurrentUserQuestionaryId();
         if ( ! $itemQuestionaryId )
         {
-            $itemQuestionaryId = $item->questionaryid;
+            $itemQuestionaryId = $this->getParentObjectId($item);
         }
         if ( $currentQuestionaryId != $itemQuestionaryId AND ! Yii::app()->user->checkAccess('Admin') )
         {// нет прав на удаление записи
             throw new CHttpException(500, 'Ошибка при удалении записи: неверно указан id анкеты');
             die;
         }
+    }
+    
+    /**
+     * Получить id "родительского" объекта - того объекта, к которому принадлежит редактируемая модель
+     * @param CActiveRecord $item
+     * @param string $parentObjectType - тип родительского объекта (к чему привязана модель?)
+     * @return int
+     * 
+     * @todo сделать более продуманный алгоритм определения родительского объекта: использовать
+     *       $this->modelClass вместе с $parentObjectType
+     */
+    protected function getParentObjectId($item, $parentObjectType='questionary')
+    {
+        if ( $parentObjectType === 'questionary' )
+        {
+            switch ( $this->modelClass )
+            {
+                case 'Video': return $item->objectid;
+                default:      return $item->questionaryid;
+            }
+        }
+        /*if ( $parentObjectType === 'questionary' )
+        {
+            $item->questionary->id;
+        }*/
+        
+        return 0;
+    }
+    
+    /**
+     * 
+     * @return CActiveRecord
+     */
+    protected function initModel()
+    {
+        $modelClass = $this->modelClass;
+        return new $modelClass();
     }
     
     /**

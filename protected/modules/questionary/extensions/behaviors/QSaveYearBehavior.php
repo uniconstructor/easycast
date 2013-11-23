@@ -19,6 +19,9 @@ class QSaveYearBehavior extends CActiveRecordBehavior
         if ( $this->owner->$yearfield AND $this->owner->$yearfield != mktime(12, 0, 0, 1, 1, 1970) )
         {
             return date('Y', (int)$this->owner->$yearfield);
+        }else
+        {
+            return '';
         }
     }
     

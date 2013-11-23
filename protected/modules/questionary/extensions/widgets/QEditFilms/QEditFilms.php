@@ -5,6 +5,9 @@ Yii::import('questionary.extensions.widgets.QGridEditBase.QGridEditBase');
 
 /**
  * Виджет для редактирования фильмографии
+ * 
+ * @package easycast
+ * @subpackage questionary
  */
 class QEditFilms extends QGridEditBase
 {
