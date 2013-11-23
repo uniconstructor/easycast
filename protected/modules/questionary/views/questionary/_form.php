@@ -13,7 +13,7 @@
 
 // Выбор даты по календарю
 // @todo этот виджет устарел - удалить все его упоминания при рефакторинге
-// (табличку с его названием позорно разбить об угол, прах развеять по ветру и навсегда предать забвению)
+//       (табличку с его названием позорно разбить об угол, прах развеять по ветру и навсегда предать забвению)
 Yii::import('ext.ActiveDateSelect');
 // Выбор страны и города
 Yii::import('ext.CountryCitySelectorRu.*');
@@ -952,34 +952,15 @@ Yii::import('ext.CountryCitySelectorRu.*');
             <?php echo QuestionaryModule::t('music_universities_label'); ?>
         </legend>
         <?php
-        // сообщения об ошибках при заполнении списка ВУЗов
-        echo $form->errorSummary( $validatedMusicUniversities);
         $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
             array('field' => 'musicuniversity'));
         
         // список музыкальных ВУЗов
         // Отображается если указан пункт "вокал" или "музыкант"
-        $musicUniversityFormConfig = $musicUniversity->formConfig();
-        $this->widget('ext.multimodelform.MultiModelForm',array(
-               'addItemText'   => Yii::t('coreMessages','add'),
-               'removeText'    => Yii::t('coreMessages','delete'),
-               'removeConfirm' => QuestionaryModule::t('multimodel_remove_confirm'),
-               'id'            => 'id_musicuniversity', //the unique widget id
-               'formConfig'    => $musicUniversityFormConfig, //the form configuration array
-               'model'         => $musicUniversity, //instance of the form model
-
-               //if submitted not empty from the controller,
-               //the form will be rendered with validation errors
-               'validatedItems' =>  $validatedMusicUniversities,
-
-               // ранее сохраненные музыкальные ВУЗы
-               'data' => $questionary->musicuniversities,
-               
-               // JS для корректного копирования элементов combobox
-               'jsAfterNewId' => 
-                    MultiModelForm::afterNewIdComboBox($musicUniversityFormConfig['elements']['universityid'], 
-                            'universityid', 'name'),
-          ));
+        $this->widget('questionary.extensions.widgets.QEditMusicUniversities.QEditMusicUniversities', array(
+                'questionary' => $questionary,
+            )
+        );
         ?>
     </fieldset>
     </div>

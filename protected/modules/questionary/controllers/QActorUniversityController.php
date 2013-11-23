@@ -1,7 +1,7 @@
 <?php
 
 // Подключаем родительский класс контроллера ВУЗа
-Yii::import('questionary.controllers.QComplexValueController');
+Yii::import('questionary.controllers.QUniversityController');
 
 /**
  * Контроллер для работы с театральными ВУЗами
