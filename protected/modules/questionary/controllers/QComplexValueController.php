@@ -84,7 +84,7 @@ class QComplexValueController extends Controller
                 throw new CHttpException(500, 'Ошибка при сохранении данных');
             }else
             {
-                echo CJSON::encode($instanceData);
+                echo CJSON::encode($this->getCreatedData($instanceData, $instance));
             }
         }
         Yii::app()->end();
@@ -109,7 +109,7 @@ class QComplexValueController extends Controller
         
         if ( ! $item->save() )
         {// не удалось обновить запись в поле
-            throw new CHttpException(500, $item->getError($item->getRealFieldName($field)));
+            throw new CHttpException(500, $item->getError($field));
             die;
         }
     }
@@ -133,6 +133,17 @@ class QComplexValueController extends Controller
         }
         
         echo $id;
+    }
+    
+    /**
+     * 
+     * @param array $instanceData
+     * @param CActiveRecord $instance
+     * @return void
+     */
+    protected function getCreatedData($instanceData, $instance)
+    {
+        return $instanceData;
     }
     
     /**

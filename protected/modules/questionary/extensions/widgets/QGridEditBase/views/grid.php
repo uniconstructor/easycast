@@ -5,7 +5,7 @@
 /* @var $this QEditFilms */
 
 // виджет с таблицей
-$this->widget(
+$grid = $this->widget(
     'bootstrap.widgets.TbExtendedGridView',
     array(
         'type'         => 'striped bordered',
@@ -19,6 +19,7 @@ $this->widget(
         //       Изменить селектор после того как проблема будет решена
         'htmlOptions' => array('class' => $this->rowIdPrefix.'table grid-view'),
         'rowHtmlOptionsExpression' => 'array("id" => "'.$this->rowIdPrefix.'".$data->id);',
+        'id' => $this->rowIdPrefix.'table',
     )
 );
 

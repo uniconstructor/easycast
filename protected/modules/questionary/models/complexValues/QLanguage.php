@@ -30,18 +30,13 @@ class QLanguage extends QActivity
         // создаем новые правила проверки для полей "язык" и "уровень владения"
         $customRules = array(
             // поле "язык"
-            //array('language, name', 'length', 'max'=>255),
-            //
-            // поле "уровень владения"
-            //array('level', 'length', 'max'=>255),
-            //array('level', 'required'),
-            
-            array('language', 'length', 'max'=>255),
-            //array('language, name', 'filter', 'filter'=>'trim'),
+            array('language', 'length', 'max' => 255),
+            array('language', 'filter', 'filter' => 'trim'),
             array('language', 'required'),
             
-            array('name', 'length', 'max'=>255),
-            array('name', 'filter', 'filter'=>'trim'),
+            // поле "уровень владения"
+            array('name', 'length', 'max' => 255),
+            array('name', 'filter', 'filter' => 'trim'),
             
             array('level', 'required'),
         );
@@ -56,6 +51,7 @@ class QLanguage extends QActivity
     {
         return array(
             'language'         => QuestionaryModule::t('language_label'),
+            'name'             => QuestionaryModule::t('language_label'),
             'customlanguage'   => QuestionaryModule::t('customlanguage_label'),
             'level'            => QuestionaryModule::t('level'),
         );
@@ -85,20 +81,16 @@ class QLanguage extends QActivity
      * Сеттер для поля "язык" - используется, если нужно сохранить стандартное значение из списка
      * @param string $language - значение из выпадающего списка (короткое название латинскими буквами)
      */
-    public function setlanguage($language)
+    public function setLanguage($language)
     {
-        if ( ! trim($language) OR $language == 'custom' )
-        {// Указан собственный язык
-            $this->value = 'custom';
-            return;
-        }
         if ( QActivityType::model()->isStandardComplexValue('language', $language) )
         {// язык выбран из списка
             $this->value = $language;
-            return;
+        }else
+        {// Указан собственный язык
+            $this->uservalue = $language;
+            $this->value     = 'custom';
         }
-    
-        $this->value = 'custom';
     }
     
     /**
@@ -130,6 +122,16 @@ class QLanguage extends QActivity
         }
         
         return $this->level;
+    }
+    
+    /**
+     * Получить уровень владения языком
+     * 
+     * @return null
+     */
+    public function getLanguageLevel()
+    {
+        return $this->getDefaultValueForDisplay('languagelevel', $this->level);
     }
 
     /**

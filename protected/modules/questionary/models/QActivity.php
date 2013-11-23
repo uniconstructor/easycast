@@ -7,6 +7,7 @@ class QActivity extends CActiveRecord
 {
     /**
      * @var array
+     * @deprecated
      */
     protected $fieldMap = array();
     
@@ -75,11 +76,13 @@ class QActivity extends CActiveRecord
 	public function behaviors()
 	{
 		return array(
-	                'CAdvancedArBehavior',
-				        array('class' => 'ext.CAdvancedArBehavior'),
-	                'QManageDefaultValuesBehavior',
-		                array('class' => 'questionary.extensions.behaviors.QManageDefaultValuesBehavior')
-				);
+            'CAdvancedArBehavior' => array(
+              'class' => 'ext.CAdvancedArBehavior',
+            ),
+            'QManageDefaultValuesBehavior' => array(
+              'class' => 'questionary.extensions.behaviors.QManageDefaultValuesBehavior',
+            ),
+		);
 	}
 
     /**
@@ -367,6 +370,7 @@ class QActivity extends CActiveRecord
      * 
      * @param string $field
      * @return void
+     * @deprecated
      */
     public function getRealFieldName($field)
     {

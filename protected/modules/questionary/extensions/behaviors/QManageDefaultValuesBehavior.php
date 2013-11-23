@@ -65,7 +65,7 @@ class QManageDefaultValuesBehavior extends CActiveRecordBehavior
                 $defaults[$variant->value] = $variant->translation;
             }
         }else
-       {
+        {
             return array(Questionary::VALUE_NOT_SET => 'error');
         }
         

@@ -678,7 +678,7 @@ class QuestionaryController extends Controller
 		if ( isset($_POST['ajax']) && $_POST['ajax'] === 'questionary-form' )
 		{
 			$result = CActiveForm::validate($model);
-			if ( ! $model->getGalleryPhotos() )
+			if ( ! $model->getGalleryPhotos() AND ! Yii::app()->user->checkAccess('Admin') )
 			{// не даем сохранять анкету если нет ни одной фотографии
 			    /*$result = CJSON::decode($result);
 			    $result['firstname'] = 'Нужно загрузить хотя бы одну фотографию';

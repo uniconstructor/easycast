@@ -268,20 +268,21 @@ Yii::import('ext.CountryCitySelectorRu.*');
         </legend>
 
         <?php echo $form->labelEx($questionary,'photos'); ?>
-        <?php // Рекомендации по добавлению фотографий
-            $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                    array('field' => 'photos'));
-            
-            if ( $questionary->galleryBehavior->getGallery() === null )
-            {
-                echo '<div class="alert">Сохраните анкету перед загрузкой фотографий</div>';
-            }else
-            {
-                $this->widget('GalleryManager', array(
-                     'gallery' => $questionary->galleryBehavior->getGallery(),
-                     'controllerRoute' => '/questionary/gallery'
-                ));
-            }
+        <?php
+        // Рекомендации по добавлению фотографий
+        $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+                array('field' => 'photos'));
+        
+        if ( $questionary->galleryBehavior->getGallery() === null )
+        {
+            echo '<div class="alert">Сохраните анкету перед загрузкой фотографий</div>';
+        }else
+        {
+            $this->widget('GalleryManager', array(
+                 'gallery' => $questionary->galleryBehavior->getGallery(),
+                 'controllerRoute' => '/questionary/gallery'
+            ));
+        }
         ?>
         
         <fieldset class="qform_subsection">
@@ -1186,29 +1187,10 @@ Yii::import('ext.CountryCitySelectorRu.*');
             <?php echo QuestionaryModule::t('languages_label'); ?>
         </legend>
         <?php
-        // сообщения об ошибках при заполнении списка иностранных языков
-        echo $form->errorSummary($validatedLanguages);
-        // список иностранных языков
-        $languageFormConfig = $language->formConfig();
-        $this->widget('ext.multimodelform.MultiModelForm',array(
-                'addItemText'   => Yii::t('coreMessages','add'),
-                'removeText'    => Yii::t('coreMessages','delete'),
-                'removeConfirm' => QuestionaryModule::t('multimodel_remove_confirm'),
-                'id'            => 'id_language', //the unique widget id
-                'formConfig'    => $languageFormConfig, //the form configuration array
-                'model'         => $language, //instance of the form model
-                //if submitted not empty from the controller,
-                //the form will be rendered with validation errors
-                'validatedItems' => $validatedLanguages,
-
-                // ранее сохраненные иностранные языки
-                'data' => $questionary->languages,
-                
-                // JS для корректного копирования элементов combobox
-                'jsAfterNewId' => 
-                    MultiModelForm::afterNewIdComboBox($languageFormConfig['elements']['language'], 
-                        'language', 'name'),
-          ));
+        $this->widget('questionary.extensions.widgets.QEditLanguages.QEditLanguages', array(
+               'questionary' => $questionary,
+            )
+        );
         ?>
 	</fieldset>
     </div>

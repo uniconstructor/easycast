@@ -158,31 +158,12 @@ class QGridEditBase extends CWidget
     protected function createAfterAddJs()
     {
         $js = '';
-        $newRow = $this->createNewTableRowJs();
         // js для добавления новой строки в таблицу
-        $js .= "\$('.{$this->rowIdPrefix}table table > tbody:last').append('{$newRow}');";
+        $js .= "\$.fn.yiiGridView.update('{$this->rowIdPrefix}table');";
         // js для очистки полей формы после добавления новой записи
         $js .= $this->createClearFormJs();
     
         return $js;
-    }
-    
-    /**
-     *
-     * @return string
-     */
-    protected function createNewTableRowJs()
-    {
-        $row = "<tr>";
-        
-        foreach ( $this->fields as $field )
-        {
-            $row .= "<td>' + data.{$field} + '</td>";
-        }
-        $row .= "<td>&nbsp</td>";
-        $row .= "</tr>";
-    
-        return $row;
     }
     
     /**
@@ -284,6 +265,63 @@ class QGridEditBase extends CWidget
         if ( $value )
         {
             $options['value'] = $value;
+        }
+        
+        return $options;
+    }
+    
+    /**
+     * Получить параметры для создания editable-колонки в таблице (select2 без подгрузки элементов по AJAX)
+     *
+     * @param string $field - поле модели для которого создается редактируемая колонка таблицы
+     * @param array $variants - список вариантов для выбора
+     * @return void
+     */
+    protected function getStaticSelect2ColumnOptions($field, $variants, $valueField='level', $allowCustom=false)
+    {
+        $options = array(
+            'name'  => $field,
+            'class' => 'bootstrap.widgets.TbEditableColumn',
+            'value' => '$data->'.$valueField.';',
+            'editable' => array(
+                'type'      => 'select2',
+                'title'     => $this->model->getAttributeLabel($field),
+                'url'       => $this->updateUrl,
+                'emptytext' => $this->getFieldEmptyText($field),
+                'params' => array(
+                    Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
+                ),
+                'select2' => $this->getSelect2Options($variants, 'static', $allowCustom),
+                'source' => $variants,
+            ),
+        );
+        
+        return $options;
+    }
+    
+    /**
+     * 
+     * @param array $variants
+     * @param string $type
+     * @param string $allowCustom
+     * @return array
+     */
+    protected function getSelect2Options($variants, $type='static', $allowCustom=false)
+    {
+        $options = array(
+            'maximumSelectionSize' => 0,
+            'placeholder'       => 'Выбрать...',
+            'placeholderOption' => '',
+            'multiple'          => false,
+            //'formatResult'      => "js:function(item) {return item.text;}",
+            //'formatSelection'   => "js:function(item) {return item.text;}",
+        );
+        $variants = ECPurifier::getSelect2Options($variants);
+        
+        if ( $allowCustom )
+        {
+            $options['tags'] = $variants;
+            $options['maximumSelectionSize'] = 1;
         }
         
         return $options;
