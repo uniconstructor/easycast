@@ -2,10 +2,10 @@
 
 // Выводим календарь со всеми событиями
 $this->widget('ext.efullcalendar.EFullCalendar', array(
-                'themeCssFile'=>'dot-luv/theme.css',
+                //'themeCssFile'=>'dot-luv/theme.css',
                 //'themeCssFile'=>'cupertino/theme.css',
-                'lang' => 'ru',
-                'options'=>array(
+                'lang'    => 'ru',
+                'options' => array(
                     //'allDayText' => CalendarModule::t('all_day'),
                     // Показывать полоску для событий целого дня
                     'allDaySlot' => true,
@@ -18,13 +18,13 @@ $this->widget('ext.efullcalendar.EFullCalendar', array(
                     // отображать выходные
                     'weekends'   => true,
                     // заголовок
-                    'header'=>array(
+                    'header' => array(
                         // стрелочки слева
-                        'left'=>'prev,next',
+                        'left'  => 'prev,next',
                         // заголовок
-                        'center'=>'title',
+                        'center' => 'title',
                         // справа день, неделя, месяц
-                        'right'=>'agendaDay,agendaWeek,month'
+                        'right'  => 'agendaDay,agendaWeek,month'
                     ),
                     'events' => array(
                         'url' => Yii::app()->createUrl('/calendar/calendar/getEvents'),
