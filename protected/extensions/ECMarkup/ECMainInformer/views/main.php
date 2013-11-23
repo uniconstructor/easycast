@@ -3,8 +3,7 @@
 ?>
 <div class="enterbut">
 	<div class="in_enterbut">
-		<a href="/user/login">Вход</a> /
-		<a href="/user/registration">Регистрация</a>
+		<a href="/user/login">Вход</a>
 	</div>
 </div>
  <!--button type="button" class="btn btn-primary btn-lg">Присоединиться</button-->

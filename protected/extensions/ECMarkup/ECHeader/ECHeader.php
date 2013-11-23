@@ -169,6 +169,10 @@ class ECHeader extends CWidget
         {
             return;
         }
+        if ( ! Yii::app()->user->isGuest AND ! Yii::app()->user->checkAccess('Admin') )
+        {// если пользователь не гость и не админ - то не показываем переключатель
+            return;
+        }
         $switchScript = $this->getSwitchScript();
         Yii::app()->clientScript->registerScript('#ecHeaderSwitchScript', $switchScript, CClientScript::POS_READY);
         

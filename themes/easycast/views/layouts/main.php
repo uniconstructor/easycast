@@ -13,7 +13,7 @@
     //Yii::app()->bootstrap->register();
     ?>
 </head>
-<body>
+<body class="ec-body">
     <?php // шапка страницы
         $ecHeaderOptions = array();
         if ( isset($this->ecHeaderOptions) )

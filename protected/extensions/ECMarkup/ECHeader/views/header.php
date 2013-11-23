@@ -7,15 +7,15 @@
 ?>
 <div class="ec-header">
 	<div class="ec-top">
-	   <div class="ec-top_left">
+	   <div class="ec-top_left span3">
 		<?php 
     		// Список контактов в левом верхнем углу
     		$this->printContacts();
 		?>
 		</div>
-		<div class="ec-top_center">
+		<div class="ec-top_center span6">
 			<div class="ec-logo">
-				<a href="<?= Yii::app()->createAbsoluteUrl('//');?>">
+				<a style="text-transform: none; margin-left: 0;" href="<?= Yii::app()->createAbsoluteUrl('//');?>">
 				    <img src="<?= Yii::app()->createAbsoluteUrl('//');?>/images/logo.png" alt="EasyCast"/>
 				</a>
 			</div>
@@ -24,7 +24,7 @@
 			$this->printSwitch();
 			?>
 		</div>
-		<div class="ec-top_right">
+		<div class="ec-top_right span3">
 		<?php 
 		    // выводим информер для участника или заказчика
             $this->printInformer();
