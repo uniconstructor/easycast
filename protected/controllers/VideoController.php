@@ -63,7 +63,7 @@ class VideoController extends QComplexValueController
                 throw new CHttpException(500, 'Ошибка при сохранении данных');
             }else
             {
-                echo CJSON::encode($this->getCreatedData($instanceData, $instance));
+                echo CJSON::encode($instance->getAttributes());
             }
         }
         Yii::app()->end();
