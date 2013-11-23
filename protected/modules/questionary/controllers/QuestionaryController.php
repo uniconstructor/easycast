@@ -168,10 +168,6 @@ class QuestionaryController extends Controller
 	 */
 	public function actionUpdate($id)
     {
-        // Загружаем дополнительные стили для формы:
-        $assetsUrl = CHtml::asset($this->module->basePath.DIRECTORY_SEPARATOR.'assets');
-        Yii::app()->clientScript->registerCssFile($assetsUrl.DIRECTORY_SEPARATOR.
-                                                    'css'.DIRECTORY_SEPARATOR.'questionary-form.css');
         // Загружаем модели изменяемых элементов
         $questionary = $this->loadModel($id);
         $questionary->setScenario('update');
@@ -208,18 +204,10 @@ class QuestionaryController extends Controller
         $videoMasterValues = array('objectid' => $questionary->id, 'objecttype' => 'questionary');
 
         // Загружаем модели сложных значений формы
-        // Ведущий
-        $emcee = new QEmcee;
-        $validatedEmceeList = array();
+        // @todo полностью избавится от использования multimodelform
         // Телеведущий
         $tvShow = new QTvshowInstance();
         $validatedTvShows = array();
-        // Модельные школы
-        $modelSchool = new QModelSchool;
-        $validatedModelSchools = array();
-        // Показы
-        $modelJob = new QModelJob;
-        $validatedModelJobs = array();
         // Работа фотомоделью
         $photoModelJob = new QPhotoModelJob;
         $validatedPhotoModelJobs = array();
@@ -232,27 +220,12 @@ class QuestionaryController extends Controller
         // Музыкальные инструменты
         $instrument = new QInstrument;
         $validatedInstruments = array();
-        // Иностранные языки
-        $language = new QLanguage;
-        $validatedLanguages = array();
-        // Музыкальные ВУЗы
-        $musicUniversity = new QMusicUniversity;
-        $validatedMusicUniversities = array();
-        // Театральные ВУЗы
-        $actorUniversity = new QActorUniversity;
-        $validatedActorUniversities = array();
-        // Фильмография
-        $film = new QFilmInstance;
-        $validatedFilms = array();
         // Звания, призы и награды
         $award = new QAward;
         $validatedAwards = array();
         // Работа в театре
         $actorTheatre = new QTheatreInstance;
         $validatedActorTheatres = array();
-        // Видео
-        $video = new Video;
-        $validatedVideos = array();
 
         
         if( Yii::app()->request->getPost('Questionary') )
@@ -271,17 +244,11 @@ class QuestionaryController extends Controller
             //die;
             
             // сохранение всех сложных значений
-            // Ведущий
-            MultiModelForm::save($emcee, $validatedEmceeList, $deleteEmceeList, $masterValues);
             // Телеведущий
             if ( MultiModelForm::validate($tvShow, $validatedTvShows, $deleteTvShows, $masterValues) )
             {
                 MultiModelForm::save($tvShow, $validatedTvShows, $deleteTvShows, $masterValues);
             }
-            // Модельная школа
-            MultiModelForm::save($modelSchool, $validatedModelSchools, $deleteModelSchools, $masterValues);
-            // Показ
-            MultiModelForm::save($modelJob, $validatedModelJobs, $deleteModelJobs, $masterValues);
             // Работа фотомоделью
             MultiModelForm::save($photoModelJob, $validatedPhotoModelJobs, $deletePhotoModelJobs, $masterValues);
             // Работа промо-моделью
@@ -293,20 +260,6 @@ class QuestionaryController extends Controller
             }
             // Музыкальные инструменты
             MultiModelForm::save($instrument, $validatedInstruments, $deleteInstruments, $masterValues);
-            // Иностранные языки
-            if ( MultiModelForm::validate($language, $validatedLanguages, $deleteLanguages, $masterValues) )
-            {
-                MultiModelForm::save($language, $validatedLanguages, $deleteLanguages, $masterValues);
-            }
-            // Музыкальные ВУЗы
-            MultiModelForm::save($musicUniversity, $validatedMusicUniversities, $deleteMusicUniversities, $masterValues);
-            // Театральные ВУЗы
-            MultiModelForm::save($actorUniversity, $validatedActorUniversities, $deleteActorUniversities, $masterValues);
-            // Фильмография
-            if ( MultiModelForm::validate($film, $validatedFilms, $deleteFilms, $masterValues) )
-            {
-                MultiModelForm::save($film, $validatedFilms, $deleteFilms, $masterValues);
-            }
             // Звания, призы и награды
             MultiModelForm::save($award, $validatedAwards, $deleteAwards, $masterValues);
             // Работа в театре
@@ -314,8 +267,6 @@ class QuestionaryController extends Controller
             {
                 MultiModelForm::save($actorTheatre, $validatedActorTheatres, $deleteActorTheatres, $masterValues);
             }
-            // Список видео
-            MultiModelForm::save($video, $validatedVideos, $deleteVideos, $videoMasterValues);
             
             // @todo ДЛЯ ТЕСТА (проверка отправленных значений)
             //CVarDumper::dump($_POST, 10, true);
@@ -324,8 +275,11 @@ class QuestionaryController extends Controller
 
             if ( $questionary->validate(null, false) )
             {// все данные анкеты проверены, сохранять можно
-                if( $user->save() AND $questionary->save() AND $address->save() AND $recordingConditions->save() )
+                if( $questionary->save() )
                 {// записываем в базу значения анкеты и адреса
+                    $user->save();
+                    $address->save();
+                    $recordingConditions->save();
                     $this->redirect(array('view', 'id' => $questionary->id));
                 }
             }
@@ -339,18 +293,9 @@ class QuestionaryController extends Controller
             'user'        => $user,
             'recordingConditions' => $recordingConditions,
             // передаем объекты для отображения сложных значений
-            // Ведущий
-            'emcee'              => $emcee,
-            'validatedEmceeList' => $validatedEmceeList,
             // Телеведущий
             'tvShow'           => $tvShow,
             'validatedTvShows' => $validatedTvShows,
-            // Модельная школа
-            'modelSchool'           => $modelSchool,
-            'validatedModelSchools' => $validatedModelSchools,
-            // Показ
-            'modelJob'           => $modelJob,
-            'validatedModelJobs' => $validatedModelJobs,
             // Работа фотомоделью
             'photoModelJob'           => $photoModelJob,
             'validatedPhotoModelJobs' => $validatedPhotoModelJobs,
@@ -363,27 +308,12 @@ class QuestionaryController extends Controller
             // Музыкальные инструменты
             'instrument'           => $instrument,
             'validatedInstruments' => $validatedInstruments,
-            // Иностранные языки
-            'language'           => $language,
-            'validatedLanguages' => $validatedLanguages,
-            // Музыкальные ВУЗы
-            'musicUniversity'            => $musicUniversity,
-            'validatedMusicUniversities' => $validatedMusicUniversities,
-            // Театральные ВУЗы
-            'actorUniversity'            => $actorUniversity,
-            'validatedActorUniversities' => $validatedActorUniversities,
-            // Фильмография
-            'film'           => $film,
-            'validatedFilms' => $validatedFilms,
             // Звания, призы и награды
             'award'           => $award,
             'validatedAwards' => $validatedAwards,
             // Работа в театре
             'actorTheatre'           => $actorTheatre,
             'validatedActorTheatres' => $validatedActorTheatres,
-            // Видео
-            'video'           => $video,
-            'validatedVideos' => $validatedVideos,
         ));
 	}
 
@@ -678,11 +608,9 @@ class QuestionaryController extends Controller
 		if ( isset($_POST['ajax']) && $_POST['ajax'] === 'questionary-form' )
 		{
 			$result = CActiveForm::validate($model);
-			if ( ! $model->getGalleryPhotos() AND ! Yii::app()->user->checkAccess('Admin') )
-			{// не даем сохранять анкету если нет ни одной фотографии
-			    /*$result = CJSON::decode($result);
-			    $result['firstname'] = 'Нужно загрузить хотя бы одну фотографию';
-			    $result = CJSON::encode($result);*/
+			if ( ! Yii::app()->user->checkAccess('Admin') )
+			{// не даем сохранять анкету если есть ошибки
+			    $result = CJSON::encode($result);
 			}
 			echo $result;
 			Yii::app()->end();

@@ -490,6 +490,43 @@ class Questionary extends CActiveRecord
         
         return parent::beforeDelete();
     }
+    
+    /**
+     * Эта функция проверяет обязательное наличие хотя бы одной загруженной фотографии
+     * @see CModel::beforeValidate()
+     */
+    public function beforeValidate()
+    {
+        if ( Yii::app()->user->checkAccess('Admin') )
+        {
+            return parent::beforeValidate();
+        }
+        if ( ! $this->hasPhotos($this->galleryid) AND ! $this->isNewRecord )
+        {
+            $this->addError('galleryid', 'Нужно загрузить хотя бы одну фотографию в разделе "внешность"');
+        }
+        return parent::beforeValidate();
+    }
+    
+    /**
+     * Определить, загружена ли хотя бы одна фотография
+     * @param int $galleryId
+     * @return boolean
+     *
+     * @todo сделать более надежную проверку безопасности при загрузке картинок
+     */
+    protected function hasPhotos($galleryId)
+    {
+        if ( ! $gallery = Gallery::model()->findByPk($galleryId) )
+        {
+            throw new CException('Ошибка при сохранении фотографий: невозможно найти галерею изображений');
+        }
+        if ( $gallery->galleryPhotos )
+        {// фотографии есть
+            return true;
+        }
+        return false;
+    }
 
     /**
      * @return array customized attribute labels (name=>label)

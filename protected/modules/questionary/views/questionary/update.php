@@ -26,18 +26,9 @@ $this->menu=array(
           'recordingConditions' => $recordingConditions,
 
           // сложные значения
-          // Ведущий
-          'emcee'              => $emcee,
-          'validatedEmceeList' => $validatedEmceeList,
           // Телеведущий
           'tvShow'           => $tvShow,
           'validatedTvShows' => $validatedTvShows,
-          // Модельная школа
-          'modelSchool'           => $modelSchool,
-          'validatedModelSchools' => $validatedModelSchools,
-          // Показ
-          'modelJob'           => $modelJob,
-          'validatedModelJobs' => $validatedModelJobs,
           // Работа фотомоделью
           'photoModelJob'           => $photoModelJob,
           'validatedPhotoModelJobs' => $validatedPhotoModelJobs,
@@ -50,26 +41,11 @@ $this->menu=array(
           // Музыкальные инструменты
           'instrument'           => $instrument,
           'validatedInstruments' => $validatedInstruments,
-          // Иностранные языки
-          'language'           => $language,
-          'validatedLanguages' => $validatedLanguages,
-          // Музыкальные ВУЗы
-          'musicUniversity'            => $musicUniversity,
-          'validatedMusicUniversities' => $validatedMusicUniversities,
-          // Театральные ВУЗы
-          'actorUniversity'            => $actorUniversity,
-          'validatedActorUniversities' => $validatedActorUniversities,
-          // Фильмография
-          'film'           => $film,
-          'validatedFilms' => $validatedFilms,
           // Звания, призы и награды
           'award'           => $award,
           'validatedAwards' => $validatedAwards,
           // Работа в театре
           'actorTheatre'           => $actorTheatre,
           'validatedActorTheatres' => $validatedActorTheatres,
-          // Видео
-          'video'           => $video,
-          'validatedVideos' => $validatedVideos,
      ));
 ?>

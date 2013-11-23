@@ -18,10 +18,13 @@ Yii::import('ext.ActiveDateSelect');
 // Выбор страны и города
 Yii::import('ext.CountryCitySelectorRu.*');
 
+// Загружаем дополнительные стили для формы:
+$assetsUrl = CHtml::asset($this->module->basePath.DIRECTORY_SEPARATOR.'assets');
+Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 
+    'questionary-form.css');
+
 ?>
-
 <div class="form wide">
-
     <?php
     $clientScriptManager = Yii::app()->clientScript;
     
@@ -284,6 +287,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
                  'controllerRoute' => '/questionary/gallery'
             ));
         }
+        echo $form->error($questionary, 'galleryid');
         ?>
         
         <fieldset class="qform_subsection">
@@ -480,7 +484,7 @@ Yii::import('ext.CountryCitySelectorRu.*');
         <fieldset id="actortheatres" class="qform_subsection">
             <legend class="qform_subsection_label"><?php echo QuestionaryModule::t('theatres'); ?></legend>
             <?php
-            echo $form->errorSummary( $validatedActorUniversities);
+            echo $form->errorSummary($validatedActorTheatres);
             // пояснение для списка театров
             $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
                 array('field' => 'actortheatres')
