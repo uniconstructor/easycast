@@ -7,8 +7,8 @@
 </div>
 </div>
 
-<div class="wrapper">
-<div id="content">
+<div class="ec-wrapper">
+<div id="ec-content">
     <?php 
     if ( Yii::app()->user->isGuest OR Yii::app()->user->checkAccess('Admin') )
     {

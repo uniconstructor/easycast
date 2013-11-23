@@ -5,9 +5,9 @@
 ?>
 <div class="span2">
     <div class="ec_user_info">
-        <img src="images/photo3.png" alt="<?= Yii::app()->getModule('user')->user()->fullname; ?>" />
+        <!--img src="images/photo3.png" alt="<?= Yii::app()->getModule('user')->user()->fullname; ?>" /-->
 	    <a class="name_user" href="/questionary/questionary/view"> <?= Yii::app()->getModule('user')->user()->fullname; ?></a>
-	    <a href="/user/logout" class="exit">Выйти</a>
+	    (<a href="/user/logout" class="exit">Выход</a>)
         <!--h4 class="ec_informer_header">Уведомления</h4>
         <div class="ec_user_info_block">
             <a href="<?= Yii::app()->createUrl('//questionary/questionary/view', array('activeTab' => 'invites')); ?>">
