@@ -8,7 +8,7 @@ if ( Yii::app()->user->isGuest OR Yii::app()->user->checkAccess('Admin') OR Yii:
     $this->widget('ext.ECMarkup.ECTopRated.ECTopRated');
 }else
 {// ассорти проектов (для участников)
-    
+    $this->widget('ext.ECMarkup.ECTopRated.ECTopRated');
 }
 // Выводим меню пользователя и заказчика
 $this->widget('ext.ECMarkup.ECMainMenu.ECMainMenu');
