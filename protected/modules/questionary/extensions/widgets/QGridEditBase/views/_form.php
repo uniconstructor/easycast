@@ -15,11 +15,11 @@ $this->beginWidget('bootstrap.widgets.TbModal', array('id' => $this->modalId));
 // отображаем форму
 $form = $this->beginWidget('TbActiveForm', array(
     'id' => $this->formId,
-    'enableAjaxValidation'   => true,
+    'enableAjaxValidation'   => false,
     'enableClientValidation' => true,
     'clientOptions' => array(
-        'validateOnSubmit' => true,
-        'validateOnChange' => true,
+        'validateOnSubmit' => false,
+        'validateOnChange' => false,
     ),
     'action' => $this->createUrl,
 ));

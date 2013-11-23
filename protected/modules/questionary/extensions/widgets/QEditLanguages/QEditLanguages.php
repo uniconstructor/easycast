@@ -96,7 +96,7 @@ class QEditLanguages extends QGridEditBase
     protected function getDataColumns()
     {
         return array(
-            // иностранный язык
+            // иностранный языкn (нельзя менять если уже создан)
             array(
                 'name'  => 'language',
                 'value' => '$data->name;',

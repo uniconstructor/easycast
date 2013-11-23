@@ -6,6 +6,14 @@
 class QUniversity extends CActiveRecord
 {
     /**
+     * @var string - тип ВУЗа: театральный
+     */
+    const TYPE_THEATRE = 'theatre';
+    /**
+     * @var string - тип ВУЗа: музыкальный
+     */
+    const TYPE_MUSIC = 'music';
+    /**
      * 
      * @param system $className
      * @return CActiveRecord
@@ -31,11 +39,11 @@ class QUniversity extends CActiveRecord
 	public function rules()
 	{
 		return array(
-			array('type', 'length', 'max'=>16),
+			array('type', 'length', 'max' => 16),
 			array('type', 'required'),
-			array('name', 'length', 'max'=>128),
+			array('name', 'length', 'max' => 128),
 			array('name', 'required'),
-			array('link', 'length', 'max'=>255),
+			array('link', 'length', 'max' => 255),
             array('system', 'numerical', 'integerOnly'=>true),
 			array('id, type, name, link, system', 'safe', 'on'=>'search'),
 		);
@@ -121,19 +129,24 @@ class QUniversity extends CActiveRecord
      */
     public function universityExists($name)
     {
-        if ( ! $universities = $this->findAll('name = :name', array(':name' => $name)) )
-        {// нет ВУЗа с таким названием
-            return false;
+        $id = intval($name);
+        if ( is_numeric($name) AND $this->exists("id = :id", array(':id' => $name)) )
+        {// есть ВУЗ с таким id
+            return (int)$name;
+        }elseif ( $universities = $this->findAll('name = :name', array(':name' => $name)) )
+        {// есть ВУЗ с таким названием
+            $university = current($universities);
+            return $university->id;
         }
-
-        $university = current($universities);
-        return $university->id;
+        
+        // такого ВУЗа еще нет в нашей базе
+        return 0;
     }
 
     /**
      * Добавить к нашему списку ВУЗов новый (введенный пользователем)
      * @param string $name - название ВУЗа
-     * @param string $type - тип ВУЗа - музыкальный или театральный
+     * @param string $type - тип ВУЗа - музыкальный (music) или театральный (theatre)
      * @param int $system - делать ли значение стандартным? (1 или 0)
      *                       Стандартные значения добавляются только админами из редактора
      *                       Все ВУЗы добавленные пользователями изначально не считаются стандартными
@@ -146,7 +159,7 @@ class QUniversity extends CActiveRecord
         $university->system = $system;
         $university->type   = $type;
         $university->link   = null;
-        $university->name   = CHtml::encode($name);
+        $university->name   = striptags($name);
 
         $university->save();
 

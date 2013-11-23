@@ -34,7 +34,7 @@ class QUniversityInstance extends CActiveRecord
 			array('questionaryid, universityid, timestart, timeend, timecreated', 'length', 'max'=>11),
             // ВУЗ
             array('name, specialty', 'length', 'max'=>255),
-		    array('name', 'filter', 'filter'=>'trim'),
+		    array('name', 'filter', 'filter' => 'trim'),
 		    
             // год окончания
             array('year', 'numerical', 'integerOnly'=>true),

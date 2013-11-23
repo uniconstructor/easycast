@@ -394,27 +394,11 @@ Yii::import('ext.CountryCitySelectorRu.*');
             // пояснение для списка учебных заведений
             $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
                 array('field' => 'actoruniversity'));
-            
             // список театральных ВУЗов
-            $actorUniversityFormConfig = $actorUniversity->formConfig();
-            $this->widget('ext.multimodelform.MultiModelForm',array(
-                   'addItemText'   => Yii::t('coreMessages','add'),
-                   'removeText'    => Yii::t('coreMessages','delete'),
-                   'removeConfirm' => QuestionaryModule::t('multimodel_remove_confirm'),
-                   'id'            => 'id_actoruniversity', //the unique widget id
-                   'formConfig'    => $actorUniversityFormConfig, //the form configuration array
-                   'model'         => $actorUniversity, //instance of the form model
-    
-                   'validatedItems' => $validatedActorUniversities,
-    
-                   // ранее сохраненные ВУЗы
-                   'data' => $questionary->actoruniversities,
-                    
-                    // JS для корректного копирования элементов combobox
-                   'jsAfterNewId' => 
-                        MultiModelForm::afterNewIdComboBox($actorUniversityFormConfig['elements']['universityid'], 
-                            'universityid', 'name'), 
-              ));
+            $this->widget('questionary.extensions.widgets.QEditActorUniversities.QEditActorUniversities', array(
+                    'questionary' => $questionary,
+                )
+            );
             ?>
         </fieldset>
     </div>

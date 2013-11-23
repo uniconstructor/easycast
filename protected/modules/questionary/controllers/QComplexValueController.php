@@ -18,13 +18,14 @@ class QComplexValueController extends Controller
      */
     public function init()
     {
+        parent::init();
+        
         Yii::import('questionary.models.*');
         Yii::import('questionary.models.complexValues.*');
-        
-        if ( ! $this->modelClass )
+        /*if ( ! $this->modelClass )
         {
             throw new CException('Не указан класс модели для контроллера сложных значений');
-        }
+        }*/
     }
     
     /**
@@ -83,7 +84,7 @@ class QComplexValueController extends Controller
                 throw new CHttpException(500, 'Ошибка при сохранении данных');
             }else
             {
-                echo CJSON::encode($this->getCreatedData($instanceData, $instance));
+                echo CJSON::encode($instance->getAttributes());
             }
         }
         Yii::app()->end();
@@ -132,17 +133,6 @@ class QComplexValueController extends Controller
         }
         
         echo $id;
-    }
-    
-    /**
-     * 
-     * @param array $instanceData
-     * @param CActiveRecord $instance
-     * @return void
-     */
-    protected function getCreatedData($instanceData, $instance)
-    {
-        return $instanceData;
     }
     
     /**
