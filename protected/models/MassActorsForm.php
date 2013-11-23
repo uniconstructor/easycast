@@ -115,7 +115,7 @@ class MassActorsForm extends CFormModel
             throw new CException('Ошибка при сохранении фотографий: невозможно найти галерею изображений');
         }
         if ( $gallery->galleryPhotos )
-        {// ни одной фотографии не загружено
+        {// фотографии есть
             return true;
         }
         return false;
