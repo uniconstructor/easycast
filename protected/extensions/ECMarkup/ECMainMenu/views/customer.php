@@ -11,7 +11,7 @@ if ( $pendingItemsCount = FastOrder::countPendingOrderUsers() )
     $pendengItems = ' ('.$pendingItemsCount.')';
 }
 ?>
-<div class="inner_wrapper">
+<div class="ec-inner_wrapper">
 	<ul class="choose_your_side">
 		<li>
 		  <a href="#" class="icon_zakaz" id="mainmenu_item_fastorder_image"

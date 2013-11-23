@@ -46,10 +46,11 @@ class ECHeader extends CWidget
      */
     public function init()
     {
-        if ( Yii::app()->user->isGuest AND ! Yii::app()->user->checkAccess('Admin') )
+        if ( Yii::app()->user->isGuest OR Yii::app()->user->checkAccess('Admin') )
         {// если пользователь уже зашел на сайт и он не админ - то не отображаем переключатель
-            $this->displaySwitch = false;
+            $this->displaySwitch = true;
         }
+        
         $this->defineNewState();
         // Загружаем стили шапки страницы
         $this->_assetUrl = Yii::app()->assetManager->publish(
@@ -58,6 +59,8 @@ class ECHeader extends CWidget
             'ECHeader' . DIRECTORY_SEPARATOR . 
             'assets'   . DIRECTORY_SEPARATOR);
         Yii::app()->clientScript->registerCssFile($this->_assetUrl.'/css/header.css');
+        
+        parent::init();
     }
     
     /**
@@ -169,13 +172,11 @@ class ECHeader extends CWidget
         {
             return;
         }
-        if ( ! Yii::app()->user->isGuest AND ! Yii::app()->user->checkAccess('Admin') )
+        if ( Yii::app()->user->isGuest OR Yii::app()->user->checkAccess('Admin') )
         {// если пользователь не гость и не админ - то не показываем переключатель
-            return;
+            $switchScript = $this->getSwitchScript();
+            Yii::app()->clientScript->registerScript('#ecHeaderSwitchScript', $switchScript, CClientScript::POS_READY);
+            $this->render('_switch');
         }
-        $switchScript = $this->getSwitchScript();
-        Yii::app()->clientScript->registerScript('#ecHeaderSwitchScript', $switchScript, CClientScript::POS_READY);
-        
-        $this->render('_switch');
     }
 }
