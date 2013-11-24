@@ -202,6 +202,7 @@ class UserModule extends CWebModule
 	    // хак с Identity для того чтобы залогинить пользователя, не зная его пароля
 	    $identity->setState('inviteLogin', true);
 	    $identity->authenticate();
+	    $identity->setState('inviteLogin', false);
 	    $identity->clearState('inviteLogin');
 	    Yii::app()->user->login($identity, 3600 * 24 * 60);
 	
