@@ -128,6 +128,7 @@ class CustomerInvite extends CActiveRecord
             'CTimestampBehavior' => array(
                 'class'           => 'zii.behaviors.CTimestampBehavior',
                 'createAttribute' => 'timecreated',
+                'updateAttribute' => null,
             ),
         );
     }
@@ -242,7 +243,7 @@ class CustomerInvite extends CActiveRecord
         }
         $this->timeused = time();
         
-        return $this->save();
+        return $this->save(false);
     }
     
     /**
@@ -285,6 +286,6 @@ class CustomerInvite extends CActiveRecord
     public function setStatus($newStatus)
     {
         $this->status = $newStatus;
-        return $this->save();
+        return $this->save(false);
     }
 }
