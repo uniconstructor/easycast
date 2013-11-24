@@ -17,7 +17,7 @@
     ?>
     <div class="slider_fon"></div>
     <div class="our_faces"></div>
-    <ul class="nav nav-tabs" style="margin-bottom: 15px;">
+    <ul class="nav ec-nav nav-tabs ec-nav-tabs" style="margin-bottom: 15px;">
         <li class="active"><a href="#current" data-toggle="tab">Все</a></li>
     </ul>
     <div id="myTabContent" class="tab-content" style="overflow:visible;">

@@ -23,8 +23,9 @@ if ( $pendingItemsCount = FastOrder::countPendingOrderUsers() )
 		<li><a href="/catalog/catalog/search" class="icon_search"><span>Поиск</span></a></li>
 		<!--li><a href="#" class="icon_services"><span>Наши услуги</span></a></li-->
 		<li><a href="/projects" class="icon_projects"><span>Наши проекты</span></a></li>
-		<!--li><a href="#" class="icon_how-it-work"><span>Как это работает</span></a></li>
-		<li><a href="#" class="icon_locations"><span>Локейшены</span></a></li>
+		<!--li><a href="#" class="icon_how-it-work"><span>Как это работает</span></a></li-->
+		<!--li><a href="/projects/casting/create" class="icon_casting"><span>Онлайн - кастинг</span></a></li-->
+		<!--li><a href="#" class="icon_locations"><span>Локейшены</span></a></li>
 		<li><a href="#" class="icon_about"><span>О нас</span></a></li-->
 	</ul>
 	<div class="our_uslugi"></div>

@@ -133,6 +133,10 @@ class Project extends CActiveRecord
      * @var string - фестиваль
      */
     const TYPE_FESTIVAL  = 'festival';
+    /**
+     * @var string - онлайн-кастинг
+     */
+    const TYPE_ONLINECASTING = 'festival';
     
     /**
      * @var int - максимальное количество фотогрфвий в галерее проекта

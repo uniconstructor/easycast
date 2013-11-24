@@ -84,8 +84,9 @@
     width: 1216px;
     /* float: left; */
     background: url(../images/asorti.png);
+    /* background-position-y: 0px; */
     margin-bottom: 10px;
-    margin-top: -39px;
+    margin-top: -37px;
     height: 271px;
     position: relative;
     /* margin-left: 52px; */
@@ -121,16 +122,23 @@
     padding: 0;
     list-style: none;
     display: block;
-    margin-top: 43px !important;
+    margin-top: 63px !important;
+    margin-left: 11xp;
 }
 
 .list_carousel .slider_photogallery li {
-    width: 129px;
-    height: 129px;
+    width: 127px;
+    height: 127px;
     padding: 0;
     margin: 0px 9px 9px 9px !important;
     display: block;
     float: left;
+}
+
+.list_carousel .slider_photogallery li a img {
+   border-radius: 6px;
+   border: 3px solid rgba(0, 0, 0, 0.16);
+   /* box-shadow: inset 0px 0px 10px #000; */
 }
 
 .list_carousel  #slider_news {
@@ -167,7 +175,7 @@
     left: -130px;
     display: block !important;
     z-index: 100;
-    margin-top: -140px;
+    margin-top: -135x;
     width: 40px;
     height: 74px;
 }
@@ -179,7 +187,7 @@
     position: absolute;
     right: 0;
     display: block !important;
-    margin-top: -140px;
+    margin-top: -135px;
     width: 40px;
     height: 74px;
 }
@@ -211,7 +219,7 @@
 .ec_slider_container2 .caroufredsel_wrapper {
     clear: both;
     margin-top: 0px !important;
-    margin-left: 43px !important;
+    margin-left: 46px !important;
 }
 
 .ec_slider_container4 .caroufredsel_wrapper {
@@ -244,8 +252,6 @@
         width: 100px;
         top: 49px;
         left: 44px;
-        background: url(../images/asorti.png) no-repeat;
-        background-position: -44px -49px;
     }
 }
 
@@ -274,13 +280,13 @@
     position: absolute;
     height: 232px;
     margin-top: 61px;
-    /* background-size: contain; */
+    background-size: 0.4;
 }
 
 .all_people {
     clear: both;
     float: right;
-    margin-top: 5px;
+    margin-top: 9px;
     color: #60696e;
     border-bottom: 1px dotted #60696e;
     margin-right: 86px;

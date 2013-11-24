@@ -72,11 +72,11 @@ class QuestionaryController extends Controller
 				'users'   => array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions' => array('update', 'ajax', 'loginAs'),
+				'actions' => array('update', 'ajax'),
 				'users'   => array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions' => array('delete'),
+				'actions' => array('delete', 'loginAs'),
 				'users'   => array('admin'),
 			),
 			array('deny',  // deny all users
@@ -137,7 +137,7 @@ class QuestionaryController extends Controller
                 $orderMessageStyle = 'display:none;';
                 $orderMessage = '';
             }else
-          {// участник уже приглашен - выводим кнопку отмены заказа
+            {// участник уже приглашен - выводим кнопку отмены заказа
                 $dismissButton = $this->createCustomerButton($id, 'dismiss');
                 $orderMessageClass = 'alert alert-info';
                 $orderMessageStyle = '';
@@ -348,21 +348,6 @@ class QuestionaryController extends Controller
 	}
 	
 	/**
-	 * Функция отображения каталога пользователей.
-	 * Вызывается при действии index и catalog
-	 * 
-	 * @return null
-	 * @todo похоже что эта функция вообще нигде не используется - удалить при рефакторинге
-	 */
-	/*protected function displayCatalog()
-	{
-	    $dataProvider = new CActiveDataProvider('Questionary');
-	    $this->render('catalog.index',array(
-	                    'dataProvider'=>$dataProvider,
-	    ));
-	}*/
-	
-	/**
 	 * Получить список городов по AJAX
 	 * 
 	 * @todo Переименовать функцию так, чтобы было понятно что она занимается только городами
@@ -571,6 +556,7 @@ class QuestionaryController extends Controller
         if ( ! $questionary = Questionary::model()->findByPk($id) )
         {
             throw new CHttpException('400', 'Не передан id участника');
+            Yii::app()->end();
         }
         $url = Yii::app()->createUrl('/questionary/questionary/view', array('id' => $id));
         

@@ -34,12 +34,14 @@ class InviteController extends Controller
      * Specifies the access control rules.
      * This method is used by the 'accessControl' filter.
      * @return array access control rules
+     * 
+     * @todo добавить работу с правами через RBAC
      */
     public function accessRules()
     {
         return array(
             array('allow',  // по одноразовой ссылке подписаться или отбирать актеров можно без авторизации
-                'actions' => array('subscribe', 'selection'),
+                'actions' => array('subscribe', 'selection', 'finishSelection'),
                 'users'   => array('*'),
             ),
             array('allow',  // принять или отклонить приглашение на съемки могут только участники
@@ -129,7 +131,7 @@ class InviteController extends Controller
         
         // проверяем, что приглашение существует и ключи доступа правильные
         $customerInvite = $this->loadCustomerInviteModel($id);
-        $this->checkCustomerInviteKeys($invite, $key, $key2);
+        $this->checkCustomerInviteKeys($customerInvite, $key, $key2);
         
         if ( true OR $customerInvite->status == CustomerInvite::STATUS_PENDING )
         {// запоминаем, что приглашением воспользовались
@@ -174,10 +176,12 @@ class InviteController extends Controller
         
         // проверяем, что приглашение существует и ключи доступа правильные
         $customerInvite = $this->loadCustomerInviteModel($id);
-        $this->checkCustomerInviteKeys($invite, $key, $key2);
+        $this->checkCustomerInviteKeys($customerInvite, $key, $key2);
         
         // помечаем приглашение использованным
         $customerInvite->setStatus(CustomerInvite::STATUS_FINISHED);
+        
+        $this->render('finishSelection');
     }
     
     /**
@@ -330,9 +334,9 @@ class InviteController extends Controller
      */
     protected function checkCustomerInviteKeys($invite, $key, $key2)
     {
-        if ( $customerInvite->key != $key OR $customerInvite->key2 != $key2 )
+        if ( $invite->key != $key OR $invite->key2 != $key2 )
         {// ключи доступа не совпадают
-            throw new CHttpException(400, "Неправильная ссылка с приглашением ({$customerInvite->id})");
+            throw new CHttpException(400, "Неправильная ссылка с приглашением ({$invite->id})");
         }
     }
     

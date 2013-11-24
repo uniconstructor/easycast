@@ -8,7 +8,7 @@
 <div class="ec-inner_wrapper">
 	<ul class="choose_your_side">
         <li>
-            <a href="<?= $newUser->link; ?>" id="<?= $newUser->linkid; ?>" class="icon_office" <?= $newUser->modalOptions ?>>
+            <a href="<?= $newUser->link; ?>" id="<?= $newUser->linkid; ?>" class="icon_office" <?php $newUser->modalOptions; ?>>
             <span>Моя страница</span>
             </a>
         </li>

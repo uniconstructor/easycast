@@ -30,6 +30,20 @@ class TokenSelection extends ProjectMembers
     }
     
     /**
+     * @see ProjectMembers::run()
+     */
+    public function run()
+    {
+        parent::run();
+        $linkParams = array(
+            'id' => $this->customerInvite->id,
+            'k1' => $this->customerInvite->key,
+            'k2' => $this->customerInvite->key2,
+        );
+        $this->render('footer', array('linkParams' => $linkParams));
+    }
+    
+    /**
      * Получить кнопки с действиями для участника
      * @param ProjectMember $member
      * @return string
@@ -39,7 +53,7 @@ class TokenSelection extends ProjectMembers
     protected function getMemberActions($member)
     {
         $this->widget('application.modules.projects.extensions.MemberActions.MemberActions', array(
-            'member' => $member,
+            'member'         => $member,
             'customerInvite' => $this->customerInvite,
         ), true);
     }
@@ -54,7 +68,7 @@ class TokenSelection extends ProjectMembers
     protected function getFullMembersList($members)
     {
         return $this->widget('application.modules.projects.extensions.QTokenFullDataList.QTokenFullDataList', array(
-            'members' => $members,
+            'members'        => $members,
             'customerInvite' => $this->customerInvite,
         ), true);
     }

@@ -1,8 +1,8 @@
-п»ї@import "reset.css";
+@import "reset.css";
 @import url(http://fonts.googleapis.com/css?family=Didact+Gothic&subset=latin,cyrillic-ext);
 
 /**
- * РЎС‚РёР»СЊ С„РѕРЅР° СЃР°Р№С‚Р°. РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РЅР° РІСЃРµС… СЃС‚СЂР°РЅРёС†Р°С….
+ * Стиль фона сайта. Используется на всех страницах.
  */
 
 .ec-body {
@@ -192,7 +192,7 @@ button.ec-btn-info:hover {
 
 
 /**
- * РЎС‚РёР»СЊ С€Р°РїРєРё СЃР°Р№С‚Р°. РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РЅР° РІСЃРµС… СЃС‚СЂР°РЅРёС†Р°С….
+ * Стиль шапки сайта. Используется на всех страницах.
  */
 
 .ec-header {
@@ -403,7 +403,7 @@ a.ec-switch_href {
 
 
 /**
- * РЎС‚РёР»СЊ РјРµРЅСЋ СЃР°Р№С‚Р°. РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РіР»Р°РІРЅРѕР№ СЃС‚СЂР°РЅРёС†Рµ.
+ * Стиль меню сайта. Используется главной странице.
  */
 
 
@@ -612,7 +612,7 @@ ul.choose_your_side li a {
 }
 
 /*
-	РЎС‚РёР»СЊ С„СѓС‚РµСЂР°. РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РЅР° РІСЃРµС… СЃС‚СЂР°РЅРёС†Р°С….
+	Стиль футера. Используется на всех страницах.
 */
 
 .ec-footer {	
@@ -625,7 +625,7 @@ ul.choose_your_side li a {
 
 
 /*
-	РЎС‚РёР»СЊ СЃРѕР±С‹С‚РёР№. РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РЅР° РіР»Р°РІРЅРѕР№ СЃС‚СЂР°РЅРёС†Рµ.
+	Стиль событий. Используется на главной странице.
 */
 
 .single_news {
@@ -687,7 +687,7 @@ ul.choose_your_side li a {
 }
 .our_choice {background: url(../images/our_choice.png) no-repeat; position:absolute; width:394px; height:89px;left: -166px;top: -77px;}
 .our_projects {background: url(../images/our_projects.png) no-repeat; position:absolute; width:470px; height:100px;left: -177px;top: -81px;}
-.our_rezim {background: url(../images/our_rezim.png) no-repeat; position:absolute; width:448px; height:69px;left: 665px;top: -70px;}
+.our_rezim {background: url(../images/our_rezim.png) no-repeat; position:absolute; width:448px; height:69px;left: 665px;top: -68px;}
 .our_events {background: url(../images/our_events.png) no-repeat; position:absolute; width:405px; height:79px;left: 300px;margin-top: 17px;}
 .our_uslugi {background: url(../images/our_uslugi.png) no-repeat; position:absolute; width:294px; height:110px;left: -281px;/* top: -0px; */margin-top: -60px;}
 .read_more {float:right; margin-right:10px; margin-top:0px;color: #888888;}
@@ -728,7 +728,7 @@ ul.choose_your_side li a {
 }
 
 /*
-	РЎС‚РёР»СЊ РїРѕРёСЃРєР°. РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РЅР° РіР»Р°РІРЅРѕР№ СЃС‚СЂР°РЅРёС†Рµ.
+	Стиль поиска. Используется на главной странице.
 */
 
 .main-search {
@@ -763,17 +763,35 @@ ul.choose_your_side li a {
 
 
 /*
-	РЎС‚РёР»СЊ РјРµС‚РѕРє. РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РЅР° РІСЃРµС… СЃС‚СЂР°РЅРёС†Р°С….
+	Стиль меток. Используется на всех страницах.
 */
 
 body .ec-nav-tabs > .active > a, body .ec-nav-tabs > .active > a:hover, body .ec-nav-tabs > .active > a:focus {
-	color: #858585;
-	background-color: rgba(0, 0, 0, 0.12);
-	box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.55);
-	-moz-box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.55);
-	-webkit-box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.55);
-	border:none;
-	border-radius: 7px;
+	background-color: rgba(175, 186, 191, 0.5)!important;
+	border: none!important;
+	border-radius: 8px!important;
+	padding: 4px 17px;
+	box-shadow: inset 0px 1px 1px rgba(0, 0, 0, 0.33);
+	-moz-box-shadow: inset 0px 1px 1px rgba(0, 0, 0, 0.33);
+	-webkit-box-shadow: inset 0px 1px 1px rgba(0, 0, 0, 0.33);
+	color: #60696e!important;
+	text-transform: uppercase;
+	text-shadow: 0px 1px 1px rgba(255, 255, 255, 0.39);
+	-moz-text-shadow: 0px 1px 1px rgba(255, 255, 255, 0.39);
+	-webkit-text-shadow: 0px 1px 1px rgba(255, 255, 255, 0.39);
+	padding:2px 13px;
+	margin-top: 8px;
+}
+
+.ec-nav > li > a:hover, .ec-nav > li > a:focus {
+	background-color: rgba(175, 186, 191, 0.5)!important;
+	border: none!important;
+	border-radius: 8px!important;
+	padding: 4px 17px;
+	box-shadow: inset 0px 1px 1px rgba(0, 0, 0, 0.33);
+	-moz-box-shadow: inset 0px 1px 1px rgba(0, 0, 0, 0.33);
+	-webkit-box-shadow: inset 0px 1px 1px rgba(0, 0, 0, 0.33);
+	color: #60696e!important;
 	text-transform: uppercase;
 	text-shadow: 0px 1px 1px rgba(255, 255, 255, 0.39);
 	-moz-text-shadow: 0px 1px 1px rgba(255, 255, 255, 0.39);
@@ -796,7 +814,7 @@ body .ec-nav-tabs > li > a {
 }
 
 body .ec-nav > li > a:hover, body .nav > li > a:focus {
-	background-color: rgba(0, 0, 0, 0.07);
+	background-color: rgba(175, 186, 191, 0.1)!important;
 	box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.25);
 	-moz-box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.25);
 	-webkit-box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.25);
@@ -813,6 +831,7 @@ body .ec-nav-tabs {
 	margin-top: 29px;
 	margin-bottom: 0px!important;
 	position: relative;
+	z-index: 100;
 }
 
 span.ec-label, span.ec-badge {
@@ -830,7 +849,7 @@ span.ec-label, span.ec-badge {
 }
 
 /*
-	РЎС‚РёР»СЊ РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ РїРѕРёСЃРєР°. РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РЅР° РІСЃРµС… СЃС‚СЂР°РЅРёС†Р°С….
+	Стиль для отображения результатов поиска. Используется на всех страницах.
 */
 
 .contact_profile li {
@@ -889,7 +908,7 @@ span.ec-label, span.ec-badge {
 }
 
 /*
-	РЎС‚РёР»СЊ РґР»СЏ С„РѕСЂРјС‹ РїРѕРёСЃРєР°. РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РЅР° СЃС‚СЂР°РЅРёС†Рµ РїРѕРёСЃРєР°.
+	Стиль для формы поиска. Используется на странице поиска.
 */
 
 .advanced-search {
@@ -954,5 +973,4 @@ ul.usual_suspects {}
 	-moz-box-shadow: 0px 4px 0px #949494;
 	border: none;
 }
-
 
