@@ -44,7 +44,8 @@ class EMailSegment extends CWidget
      */
     public $columns = array();
     /**
-     * @var array - кнопка с действием (если нужна). Массив, содержащий настройки для создания виджета EMailButton
+     * @var array - кнопка с действием (если нужна)
+     *              Массив, содержащий настройки для создания виджета EMailButton
      */
     public $button = array();
     /**
