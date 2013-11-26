@@ -5,7 +5,7 @@
  * @copyright 2011 myticket it-solutions gmbh
  * @license New BSD License
  * @category User Interface
- * @version 1.1
+ * @version 1.1a
  */
 
 Make containers collapsible (fieldset,portlet,div,ul ...).
