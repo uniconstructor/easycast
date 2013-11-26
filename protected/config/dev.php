@@ -6,8 +6,8 @@ return CMap::mergeArray(
         'modules' => array(
             // uncomment the following to enable the Gii tool
             'gii' => array(
-                'class'=>'system.gii.GiiModule',
-                'password'=>'12345',
+                'class'    => 'system.gii.GiiModule',
+                'password' => '12345',
                 // If removed, Gii defaults to localhost only. Edit carefully to taste.
                 'ipFilters'=>array('127.0.0.1','::1'),
                 'generatorPaths' => array(
@@ -27,8 +27,26 @@ return CMap::mergeArray(
                             'ipFilters'=>array('127.0.0.1','192.168.1.215'),
                         ),
                     )
-                )
+                ),
+            // бонус: мой маленький робот для торговли на бирже :)
+            // Он вообще к сайту никак не относится, просто воткнуть его сюда было быстрее чем
+            // создавать новый проект :)
+            /*'trader' => array(
+                'class' => 'application.modules.trader.TraderModule',
+            ),*/
+            
+            'questionary' => array(
+                'controllerMap' => array(
+                    // задаем путь к контроллеру загрузки изображений (для анкеты)
+                    'gallery' => array(
+                        'handlerClass' => 'GmUploadedPhoto',
+                        'customBehaviors' => array(),
+                    ),
+                ),
             ),
+        ),
+
+        ///
         'components' => array(
             'db' => array(
                 // данные для работы сайта локально (для разработки)
@@ -52,13 +70,14 @@ return CMap::mergeArray(
             // Использовать хостинг amazon s3 для хранения картинок
             'useAmazonS3'   => false,
             'AWSBucket'     => 'test.easycast.ru',
-            'AWSBucketPath' => 'http://test.easycast.ru.s3.amazonaws.com',
+            'AWSBucketPath' => 'http://bglance',
+            //'AWSBucketPath' => 'http://test.easycast.ru.s3.amazonaws.com',
             // SES
             // использовать сервисы amazon SES для отправки почты
             'useAmazonSES'  => false,
             // SQS
             // использовать Amazon SES для отправки большого количества почты (через очередь)
-            'useAmazonSQS'      => false,
+            'useAmazonSQS'      => true,
             'AWSEmailQueueUrl'  => 'https://sqs.us-east-1.amazonaws.com/507109426938/test_easycast_mail',
             'AWSEmailQueueName' => 'test_easycast_mail',
             
