@@ -230,6 +230,10 @@ class EMailCallList extends EMailBase
         $this->addSegment($block);
     }
     
+    /**
+     * Подпись с контактами менеджера внизу письма
+     * @return string
+     */
     protected function getManagerDescription()
     {
         $result = '';
@@ -299,6 +303,10 @@ class EMailCallList extends EMailBase
         return $this->manager->questionary->firstname.' '.$this->manager->questionary->lastname;
     }
     
+    /**
+     * Получить ссылку на просмотр веб-версии письма на сайте
+     * @return string
+     */
     protected function getWebViewLink()
     {
         $url = Yii::app()->createAbsoluteUrl('/mailComposer/mail/display', array(
