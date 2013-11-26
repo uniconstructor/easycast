@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Сборка EasyCast для разработчика (локально)" default="finish" basedir="../">
+<project name="Сборка EasyCast для разработчика (локально) " default="finish" basedir="../">
 	<!-- Указываем путь к Yii -->
 	<property name="yii.dir" value="../yiisoft/yii/"/>
 	<!-- Указываем путь к ядру EasyCast -->
-	<property name="core.dir" value="/home/frost/git/easycast/"/>
+	<property name="core.dir" value="/home/frost/git/easycast(core)/"/>
 	<!-- Указываем путь к проекту с плагинами -->
 	<property name="plugins.dir" value="/home/frost/git/easycast(plugins)/"/>
 	<!-- Путь к папке с файлами для версии разработчика -->
