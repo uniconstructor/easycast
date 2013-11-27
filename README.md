@@ -1,2 +1,2 @@
-easycast
+easyСast
 ========
