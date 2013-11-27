@@ -122,7 +122,7 @@
     padding: 0;
     list-style: none;
     display: block;
-    margin-top: 63px !important;
+    margin-top: 43px !important;
     margin-left: 11xp;
 }
 
@@ -279,14 +279,14 @@
     width: 100%;
     position: absolute;
     height: 232px;
-    margin-top: 61px;
+    margin-top: 26px;
     background-size: 0.4;
 }
 
 .all_people {
     clear: both;
     float: right;
-    margin-top: 9px;
+    margin-top: 0px;
     color: #60696e;
     border-bottom: 1px dotted #60696e;
     margin-right: 86px;
