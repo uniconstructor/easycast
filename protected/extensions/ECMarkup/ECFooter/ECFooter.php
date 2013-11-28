@@ -122,12 +122,12 @@ class ECFooter extends CWidget
      */
     public function printContacts()
     {
-        echo '<div class="span2 offset1">';
+        /*echo '<div class="span2 offset1">';
         $this->widget('application.extensions.ECMarkup.ECContacts.ECContacts',
             array(
                  'displayItems' => array('phone', 'email'),
             ));
-        echo '</div>';
+        echo '</div>';*/
     }
     
     /**

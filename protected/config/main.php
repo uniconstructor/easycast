@@ -289,7 +289,7 @@ return array(
         
         // Настройки сессии
         'session' => array(
-            // @todo храним сессию в БД 
+            // @todo хранить сессию в БД     
             'class'     => 'CHttpSession',//CDbHttpSession
             'autoStart' => true,
             // храним сессию 2 месяца
@@ -362,13 +362,9 @@ return array(
                 ),
                 
                 // Галерея загрузки фотографий
-                'GalleryManager' => array(
-                    'htmlOptions' => array(
-                         //'class' => 'dark',
-                    ),
-                ),
+                'GalleryManager' => array(),
                 
-                // Выбор даты
+                // Выбор даты (календарь из библиотеки yiiBooster)
                 'TbDatePicker' => array(
                     'options' => array(
                         'language'  => 'ru',
@@ -387,9 +383,17 @@ return array(
 	// application-level parameters that can be accessed
 	// using Yii::app()->params['paramName']
 	'params' => array(
-	    'adminPhone' => '+7(906)098-32-07',
-	    'adminEmail' => 'admin@easycast.ru',
-	    'hashSalt'   => '68xc7mtux0',
+	    // телефон по умолчанию, для всех вопросов по сайту
+	    'adminPhone'    => '+7(906)098-32-07',
+	    // телефон для заказчиков
+	    'customerPhone' => '+7(495)227-5-226',
+	    // телефон для участников
+	    'userPhone'     => '+7(968)590-88-88',
+	    // почта по умолчанию для сбора всех вопросов и отправки технических писем
+	    'adminEmail'    => 'admin@easycast.ru',
+	    // password salt для хеширования паролей
+	    'hashSalt'      => '68xc7mtux0',
+	    
 	    // стандартный формат ввода даты для всех форм в приложении
 	    // (используется формат jquery-виджетов)
 	    'inputDateFormat'     => 'dd.M.yyyy',

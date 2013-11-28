@@ -18,7 +18,12 @@ class ECContacts extends CWidget
     /**
      * @var string
      */
-    protected $phone;
+    protected $userPhone;
+    
+    /**
+     * @var string
+     */
+    protected $customerPhone;
     
     /**
      * Подготавливает виджет к запуску
@@ -43,18 +48,16 @@ class ECContacts extends CWidget
      */
     protected function initContacts()
     {
-        $this->phone = '+7&nbsp;(495)&nbsp;227-5-226';
+        $this->userPhone     = Yii::app()->params['userPhone'];
+        $this->customerPhone = Yii::app()->params['customerPhone'];
         
-        $contacts = array();
+        /*$contacts = array();
 
         // телефон
         if ( in_array('phone', $this->displayItems) )
         {
             $contacts['phone'] = array(
                 'icon'   =>  'icon-phone icon-white',
-                // Коля
-                //'label'  => '+7&nbsp;(926)&nbsp;782&nbsp;70&nbsp;87',
-                // Маруся
                 'label'  => '+7&nbsp;(906)&nbsp;098&nbsp;32&nbsp;07',
                 'itemOptions' => array('style' => ' margin-top: 0px;', 'id' => 'ec_contact_phone'),
             );
@@ -81,6 +84,6 @@ class ECContacts extends CWidget
             );
         }
 
-        return $contacts;
+        return $contacts;*/
     }
 }
