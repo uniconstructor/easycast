@@ -16,9 +16,9 @@ echo $form->select2Row($model, 'language',  array(
     'options' => array(
         'tags' => ECPurifier::getSelect2Options($this->questionary->getFieldVariants('language', false)),
         'maximumSelectionSize' => 1,
-        'placeholder' => '(Не выбран)',
-        'placeholderOption' => '',
-        'tokenSeparators' => array(',', ' ')
+        'placeholder'          => '(Не выбран)',
+        'placeholderOption'    => '',
+        'tokenSeparators'      => array(',', ' ')
         ),
     )
 );

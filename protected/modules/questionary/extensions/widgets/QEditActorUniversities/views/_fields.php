@@ -11,39 +11,67 @@
 echo $form->errorSummary(array($model), null, null, array('id' => $this->formId.'_errors'));
 // id анкеты
 echo CHtml::hiddenField('qid', $this->questionary->id);
+
 // ВУЗ
 echo $form->select2Row($model, 'name',  array(
+    // не показываем выпадающий список
     'asDropDownList' => false,
-    //'data' => $this->questionary->getFieldVariants('language'),
+    // параметры для JS-элемента select2
     'options' => array(
-        //'tags' => ECPurifier::getSelect2Options($this->questionary->getFieldVariants('language', false)),
-        'tags' => array(),
+        // допускаем вводсвоих вариантов
+        'tags' => true,
         // не разрешаем выбирать больше 1 ВУЗа
         'maximumSelectionSize' => 1,
+        // начинаем поиск с 2 символов
         'minimumInputLength'   => 2,
+        // заглушка в пустом поле
         'placeholder'          => '(Не выбран)',
+        // что отправляется если ничего не выбрано
         'placeholderOption'    => '',
-        'tokenSeparators'      => array(',', ' '),
+        // разделители ввода (не допускаем пробел, чтобы можно было ввести )
+        'tokenSeparators'      => array(',', "\n"),
+        
+        'multiplie'            => true,
         'ajax' => array(
+            // url контроллера для получения списка ВУЗов
             'url'         => $this->optionsListUrl,
+            // варинты списка приходят в формате JSON
             'dataType'    => 'json',
-            'quietMillis' => 100,
-            'data' => "js:function (term, page){
+            // задержка в миллисекундах перед отправкой запроса
+            'quietMillis' => 150,
+            // параметры для поиска вариантов для выпадающего списка: 
+            // первые введенные буквы, id анкеты и тип ВУЗа (музыкальный/театральный) 
+            'data' => "js:function (term, page) {
                 return {
                     'term': term,
                     'qid':  {$this->questionary->id},
                     'type': '".QUniversity::TYPE_THEATRE."'
                 };
             }",
-            'results' => "js:function(data, page){
+            // функция разбивки результатов поиска по страницам выпадающего списка
+            'results' => "js:function(data, page) {
                 return {
                     'results': data,
-                    'more':false
+                    //'more':    false
                 };
             }",
         ),
+        // эта функция создает "тег" из введенного пользователем значения, если
+        // в списке стандартных значений не найдено ничего подходящего
+        // Нужна, когда требуется добавить ВУЗ, которого нет у нас в списке
+        'createSearchChoice' => "js:function(term, data) {
+            if ($(data).filter(function() {
+                return this.text.localeCompare(term) === 0;
+            }).length === 0) {
+            return {
+                    id:   term,
+                    text: term
+                };
+            }
+        }",
     ),
 ));
+
 // специальность
 echo $form->textFieldRow($model, 'specialty');
 // год окончания
