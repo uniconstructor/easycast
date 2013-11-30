@@ -72,11 +72,13 @@ class ProjectController extends Controller
 		$video = new Video;
 		$validatedVideos = array();
 
-		if(isset($_POST['Project']))
+		if ( isset($_POST['Project']) )
 		{
-			$model->attributes=$_POST['Project'];
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->id));
+			$model->attributes = $_POST['Project'];
+			if ( $model->save() )
+			{
+			    $this->redirect(array('view','id'=>$model->id));
+			}
 		}
 
 		$this->render('create',array(
@@ -109,12 +111,11 @@ class ProjectController extends Controller
 		    'objectid' => $model->id,
 		    'objecttype' => 'project'
 		    );
-
-		if(isset($_POST['Project']))
+        
+		if ( isset($_POST['Project']) )
 		{
 			$model->attributes=$_POST['Project'];
 			$mmfErrors = false;
-			
 			// сохраняем список видео
 			if ( MultiModelForm::validate($video,$validatedVideos,$deleteVideos) )
 			{
@@ -123,8 +124,6 @@ class ProjectController extends Controller
 			{
 			    $mmfErrors = true;
 			}
-			
-			
 			if( ! $mmfErrors AND $model->save() )
 			{
 				$this->redirect(array('view', 'id' => $model->id));

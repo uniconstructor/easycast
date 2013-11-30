@@ -299,6 +299,8 @@ class EventVacancy extends CActiveRecord
 			'status' => ProjectsModule::t('status'),
 			'autoconfirm' => 'Автоматически одобрять все заявки',
 			'salary' => 'Размер оплаты за съемочный день',
+			'timestart' => 'Время начала',
+			'timeend' => 'Время окончания',
 		);
 	}
 

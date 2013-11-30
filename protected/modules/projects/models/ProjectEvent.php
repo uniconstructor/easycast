@@ -20,7 +20,6 @@
  * @property string $memberinfo
  * @property string $showtimestart
  * @property string $eta
- * @property string $salary
  * @property string $meetingplace
  * @property string $nodates
  * @property string $virtual - "виртуальное" мероприятие любого типа: то есть такое событие которое 
@@ -252,7 +251,6 @@ class ProjectEvent extends CActiveRecord
 			array('meetingplace, memberinfo, description', 'length', 'max' => 4095),
 			array('status', 'length', 'max' => 9),
 			array('type', 'length', 'max' => 20),
-			array('salary', 'length', 'max' => 32),
 			array('name', 'length', 'max' => 255),
 			// The following rule is used by search().
 			//array('id, projectid, name, description, timestart, timeend, timecreated, timemodified, addressid, status', 'safe', 'on'=>'search'),
@@ -312,7 +310,6 @@ class ProjectEvent extends CActiveRecord
 			'memberinfo' => 'Дополнительная информация для участников',
 			'showtimestart' => 'Отображать ли время начала съемок?',
 			'eta' => 'Время сбора',
-			'salary' => 'Размер оплаты',
 			'meetingplace' => 'Место встречи',
 			'nodates' => 'Создать мероприятие без конкретной даты',
 		);

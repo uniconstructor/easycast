@@ -19,6 +19,7 @@
  * @property integer $isfree
  * @property string $memberscount
  * @property string $status
+ * @property string $rating
  * @property string $virtual - означает что весь проект состоит только из виртуальных мероприятий 
  *                             (настоящие в нем создать нельзя).
  *                             По смыслу идея чем-то напоминает абстрактный класс в программировании.
@@ -167,15 +168,6 @@ class Project extends CActiveRecord
 	 */
 	protected function beforeSave()
 	{
-	    if ( $timestart = CDateTimeParser::parse($this->timestart,'dd/MM/yyyy') )
-	    {
-	        $this->timestart = $timestart;
-	    }
-	    if ( $timeend = CDateTimeParser::parse($this->timeend,'dd/MM/yyyy') )
-	    {
-	        $this->timeend = $timeend;
-	    }
-	    
 	    return parent::beforeSave();
 	}
 	
@@ -261,16 +253,41 @@ class Project extends CActiveRecord
 	public function rules()
 	{
 		return array(
-			array('name, type, description, timestart, timeend', 'required'),
+			array('name, type, description', 'required'),
 			array('isfree, virtual', 'numerical', 'integerOnly' => true),
 			array('name', 'length', 'max' => 255),
 			array('type, status', 'length', 'max' => 9),
 			array('description, shortdescription, customerdescription', 'length', 'max' => 4095),
 			array('photogalleryid, galleryid, timestart, timeend, timecreated, timemodified, 
-			    leaderid, customerid, orderid, memberscount', 'length', 'max' => 11),
+			    leaderid, customerid, orderid, memberscount, rating, notimestart, notimeend', 'length', 'max' => 12),
+		    
+		    /*array('timeend', 'type', 'type' => 'date', 
+		        'message' => 'Неправильный формат даты', 'dateFormat' => 'dd.MM.yyyy'),*/
+		    // делаем обязательными дату начала и окончания проекта, только если не установлены галочки
+		    // "без даты начала" или "без даты окончания"
+		    array('timestart', 'ext.YiiConditionalValidator',
+		        'if' => array(
+		            array('notimestart', 'compare', 'compareValue' => '0'),
+		        ),
+		        'then' => array(
+		            array('timestart', 'required'),
+		        ),
+		    ),
+		    array('timeend', 'ext.YiiConditionalValidator',
+		        'if' => array(
+		            array('notimeend', 'compare', 'compareValue' => '0'),
+		        ),
+		        'then' => array(
+		            array('timeend', 'required'),
+		        ),
+		    ),
+		    array('timestart', 'parseDateInput'),
+		    array('timeend', 'parseDateInput'),
+		    
+		    
 			// The following rule is used by search().
 			array('id, name, type, description, galleryid, timestart, timeend, timecreated, timemodified, 
-			    leaderid, customerid, orderid, isfree, virtual, memberscount, status', 'safe', 'on' => 'search'),
+			    leaderid, customerid, orderid, isfree, virtual, memberscount, status, rating', 'safe', 'on' => 'search'),
 		);
 	}
 
@@ -346,6 +363,9 @@ class Project extends CActiveRecord
 			'status' => ProjectsModule::t('status'),
 			'statustext' => ProjectsModule::t('status'),
 			'groups' => 'Группы',
+			'notimestart' => 'Дата начала уточняется',
+			'notimeend' => 'Без даты окончания',
+			'rating' => 'Рейтинг',
 		);
 	}
 
@@ -711,4 +731,34 @@ class Project extends CActiveRecord
 	
 	    return $tbPhotos;
 	}
+	
+	/**
+	 * 
+	 * @param string $attribute
+	 * @param array $attribute
+	 * @return int
+	 */
+	public function parseDateInput($attribute, $params)
+	{
+	    if ( ! $this->hasErrors() )
+	    {
+	        if ( $date = CDateTimeParser::parse($this->$attribute, Yii::app()->params['inputDateFormat']) )
+	        {
+	            $this->$attribute = $date;
+	        }
+	    }
+	}
+	
+	/**
+	 * Установить дату окончания проекта
+	 * @param string $value
+	 * @return void
+	 */
+	/*public function settimeend($value)
+	{
+	    if ( $timeend = CDateTimeParser::parse($date, Yii::app()->params['inputDateFormat']) )
+	    {
+	        $this->timeend = $timeend;
+	    }
+	}*/
 }

@@ -1,20 +1,42 @@
 <?php 
 /**
  * Форма редактирования проекта
- * @var Project $model
  */
+/* @var $model Project */
+/* @var $form TbActiveForm */
+
 
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 	'id'                   => 'project-form',
 	'enableAjaxValidation' => false,
-)); 
+));
+
+$formData = Yii::app()->request->getParam('Project');
+
+// рейтинг проекта (задается только здесь, в админке. Нужен только для сортировки проектов)
+$ratings = array(
+    '0' => 'Нет',
+    '1'  => '1',
+    '2'  => '2',
+    '3'  => '3',
+    '4'  => '4',
+    '5'  => '5',
+    '6'  => '6',
+    '7'  => '7',
+    '8'  => '8',
+    '9'  => '9',
+    '10' => '10',
+);
 
 $dateFormatter = new CDateFormatter('ru');
 ?>
 	<?php echo Yii::t('coreMessages','form_required_fields', array('{mark}' => '<span class="required">*</span>')); ?>
 	<?php echo $form->errorSummary($model); ?>
 	
-	<?php echo $form->textFieldRow($model,'name',array('class' => 'span5', 'maxlength' => 255)); ?>
+	<?php echo $form->dropDownListRow($model,'rating', $ratings); ?>
+	
+	<?php echo $form->textFieldRow($model, 'name',array('class' => 'span5', 'maxlength' => 255)); ?>
+	
 	<?php echo $form->dropDownListRow($model,'type', $model->getTypeList()); ?>
 	
 	<?php echo $form->labelEx($model,'shortdescription'); ?>
@@ -67,42 +89,61 @@ $dateFormatter = new CDateFormatter('ru');
         }
     ?>
     
-	<?php 
-	    echo $form->labelEx($model, 'timestart');
-	    $defaultStart = time();
-	    if ( $model->timestart )
-	    {
-	        $defaultStart = $model->timestart;
-	    }
-	    $this->widget('zii.widgets.jui.CJuiDatePicker',array(
-	        //'model'=>$model,
-            //'flat' => true,
-	        //'attribute'=>'timestart',
-            'name'    => 'Project[timestart]',
-            'value'   => $dateFormatter->format('dd/MM/yyyy', $defaultStart),
-	        'options' => array(
-	            'showAnim' => 'fold',
-	        ),
-	    ));
+    <?php 
+	    // дата начала проекта
+        $defaultStart = '';
+    	if ( isset($formData['timestart']) )
+    	{
+    	    $defaultStart = $formData['timestart'];
+    	}elseif ( $model->timestart )
+    	{
+    	    $defaultStart = date(Yii::app()->params['outputDateFormat'], (int)$model->timestart);
+    	}
+    	echo $form->datepickerRow(
+    	    $model,
+    	    'timestart', array(
+    	        'options' => array(
+    	            'language'  => 'ru',
+    	            'format'    => 'dd.mm.yyyy',
+    	            'startView' => 'month',
+    	            'weekStart' => 1,
+    	            'autoclose' => true,
+    	        ),
+    	        'hint'    => 'Если дата начала точно не известна - поставьте галочку "дата начала уточняется"',
+    	        'prepend' => '<i class="icon-calendar"></i>',
+                'value'   => $defaultStart,
+    	    )
+    	);
+        // создать проект без даты начала
+        echo $form->checkBoxRow($model, 'notimestart');
 	?>
 
-	<?php 
-	    echo $form->labelEx($model, 'timeend');
-	    $defaultEnd = time();
-	    if ( $model->timeend )
-	    {
-	        $defaultEnd = $model->timeend;
-	    }
-	    $this->widget('zii.widgets.jui.CJuiDatePicker',array(
-	        //'model'=>$model,
-            //'flat' => true,
-	        //'attribute'=>'timeend',
-            'name' => 'Project[timeend]',
-            'value' => $dateFormatter->format('dd/MM/yyyy', $defaultEnd),
-	        'options'=>array(
-	            'showAnim'=>'fold',
-	        ),
-	    ));
+	<?php // дата окончания проекта
+	    $defaultEnd = '';
+    	if ( isset($formData['timeend']) )
+    	{
+    	    $defaultEnd = $formData['timeend'];
+    	}elseif ( $model->timeend )
+    	{
+    	    $defaultEnd = date(Yii::app()->params['outputDateFormat'], (int)$model->timeend);
+    	}
+    	echo $form->datepickerRow(
+    	    $model,
+    	    'timeend', array(
+    	        'options' => array(
+    	            'language'  => 'ru',
+    	            'format'    => 'dd.mm.yyyy',
+    	            'startView' => 'month',
+    	            'weekStart' => 1,
+    	            'autoclose' => true,
+    	        ),
+    	        'hint'    => 'Если планируется длительный проект - поставьте галочку "без даты окончания"',
+    	        'prepend' => '<i class="icon-calendar"></i>',
+                'value'   => $defaultEnd,
+    	    )
+    	);
+        // создать "бесконечный проект" - без даты окончания
+        echo $form->checkBoxRow($model, 'notimeend');
 	?>
 
 	<?php echo $form->dropDownListRow($model,'leaderid',  $model->getManagerList()); ?>

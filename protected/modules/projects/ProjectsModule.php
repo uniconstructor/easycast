@@ -38,9 +38,10 @@ class ProjectsModule extends CWebModule
 	public function getProjectsCriteria($scopes=array())
 	{
 	    $criteria  = new CDbCriteria();
-	    // Показываем в списке проектов активные и завершенные проекты. Самые новые всегда наверху.
+	    // Показываем в списке проектов активные и завершенные проекты
 	    $criteria->addInCondition('status', array(Project::STATUS_ACTIVE, Project::STATUS_FINISHED));
-	    $criteria->order = '`timecreated` DESC';
+	    // Самые лучшие по рейтингу - всегда наверху
+	    $criteria->order = '`rating` DESC, `timecreated` DESC';
 	     
 	    return $criteria;
 	}
