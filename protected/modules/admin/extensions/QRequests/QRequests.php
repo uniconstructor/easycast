@@ -66,7 +66,7 @@ class QRequests extends CWidget
         
         // составляем таблицу со списком анкет для премодерации
         $arrayProvider = new CArrayDataProvider($elements,
-            array('pagination' => array('pageSize' => 100)));
+            array('pagination' => false));
         
         $this->widget('bootstrap.widgets.TbGridView', array(
             'type'         => 'striped bordered condensed',
