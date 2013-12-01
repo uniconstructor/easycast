@@ -51,6 +51,8 @@ class QAjaxUserInfo extends CWidget
         
         $this->sections = $this->getSectionsByDisplayType($this->displayType);
         $this->questionary = Questionary::model()->findByPk($this->id);
+        
+        parent::init();
     }
     
     /**

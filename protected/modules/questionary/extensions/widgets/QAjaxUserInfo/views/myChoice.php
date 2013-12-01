@@ -8,14 +8,11 @@
     <div class="span12"><hr></div>
     <div class="span5">
         <?php 
-        // Список фотографий пользователя
-        $this->widget('ext.ECMarkup.EThumbCarousel.EThumbCarousel', array(
-            'previews'    => $questionary->getBootstrapPhotos('small'),
-            'photos'      => $questionary->getBootstrapPhotos('medium'),
-            'largePhotos' => $questionary->getBootstrapPhotos('large'),
-            'id'          => 'ethumbcarousel'.$questionary->id,
+        // Список фото и видео
+        $this->widget('questionary.extensions.widgets.QUserMedia.QUserMedia', array(
+            'questionary' => $questionary,
             'echoScripts' => true,
-            ));
+        ));
         ?>
     </div>
     <div class="span7">

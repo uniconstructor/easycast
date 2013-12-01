@@ -83,6 +83,7 @@
  * @property Address $address
  * @property QRecordingConditions $recordingconditions
  * @property ProjectMember[] $pendingrequests
+ * @property Video[] $video
  * 
  * Stats:
  * @property int invitesCount - количество непрочитанных приглашений

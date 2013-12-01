@@ -66,15 +66,14 @@ class Video extends CActiveRecord
 	    if ( $this->isNewRecord )
 	    {// запоминаем того кто загрузил
 	        $this->uploaderid = Yii::app()->getModule('user')->user()->id;
-	    }
-	    if ( ! $this->type )
-	    {// определяем тип видео
+	        // определяем тип видео
 	        $this->type = $this->defineVideoType($this->link);
 	    }
 	    if ( ! $this->externalid )
 	    {// определяем id видео на портале, чтобы потом генерировать правильные ссылки на него
-	        $this->externalid = $this->extractExternalId();
+	        $this->extractExternalId();
 	    }
+	    
 	    
 	    return parent::beforeSave();
 	}
@@ -235,7 +234,7 @@ class Video extends CActiveRecord
             case 'youtube':
                 $this->externalid = $this->getYoutubeId($this->link);
             break;
-            default: $this->externalid = '';
+            default: $this->externalid = ''; break;
         }
         return $this->externalid;
 	}
@@ -265,14 +264,19 @@ class Video extends CActiveRecord
 	 * Получить ссылку на preview-картинку для видео
 	 * @return string
 	 */
-	public function getPreviewImageUrl()
+	public function getPreviewUrl($usePlaceholder=true)
 	{
+	    $defaultUrl = '';
+	    if ( $usePlaceholder )
+	    {
+	        $defaultUrl = Yii::app()->createAbsoluteUrl(Yii::app()->homeUrl.'images/video_placeholder.svg');
+	    }
 	    switch ( $this->type )
 	    {
 	        case 'youtube':
-                return 'http://img.youtube.com/vi/'.$this->externalid.'/default.jpg';
+                return 'http://img.youtube.com/vi/'.$this->externalid.'/mqdefault.jpg';
             break;
-	        default: return '';
+	        default: return $defaultUrl; break;
 	    }
 	}
 	

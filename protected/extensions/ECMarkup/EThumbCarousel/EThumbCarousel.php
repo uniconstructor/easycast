@@ -120,18 +120,18 @@ class EThumbCarousel extends CWidget
             )
         );
         $this->widget('bootstrap.widgets.TbThumbnails', array(
-                        'dataProvider' => $dataProvider,
-                        'template'     => "{items}",
-                        'itemView'     => '_thumb',
-                        'emptyText'    => $this->emptyText,
-                        )
+                'dataProvider' => $dataProvider,
+                'template'     => "{items}",
+                'itemView'     => '_thumb',
+                'emptyText'    => $this->emptyText,
+            )
         );
         // fancybox для каждой фотографии, чтобы можно было посмотреть увеличенную копию
         foreach ( $this->largePhotos as $id=>$photo )
         {
             $this->widget('application.extensions.fancybox.EFancyBox', array(
-                            'target'=> '#'.$this->id.'-photo-'.$photo['id'],
-                            'config'=>array(
+                            'target' => '#'.$this->id.'-photo-'.$photo['id'],
+                            'config' => array(
                                 'href'   => $photo['image'],
                                 'margin' => '0',
                                 'hideOnContentClick' => true,

@@ -58,6 +58,7 @@ class ProjectMembers extends CWidget
      */
     public function init()
     {
+        Yii::app()->getClientScript()->registerSweelixScript('shadowbox');
         parent::init();
     }
     

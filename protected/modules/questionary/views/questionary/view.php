@@ -49,17 +49,6 @@ if ( $canEdit )
         array('class' => 'btn btn-warning btn-large'));
 }
 
-// создаем сообщение, на случай если ни одной фотографии не загружено
-$noPhotoMessage = '<div class="alert">Фотографии не загружены</div>';
-if ( $questionary->user->id == Yii::app()->user->id )
-{// если участник просматривает свою анкету без фотографий - выведем предупреждение
-    $noPhotoMessage = '<div class="alert alert-danger alert-block"><h4 class="alert-heading">Ни одной фотографии не загружено</h4>
-        В анкете обязательно должна быть хотя бы одна ваша фотография.
-        Без них ваша анкета не будет видна в каталоге или выводиться в поиске.</div>';
-}
-// выводим предупреждения, если они есть
-$this->widget('bootstrap.widgets.TbAlert');
-
 ?>
 <div class="row">
     <div class="span12" style="margin-top:-40px;margin-bottom:-10px;">
@@ -89,20 +78,11 @@ $this->widget('bootstrap.widgets.TbAlert');
 <div class="row">
     <div class="span5">
         <div>
-        <?php // Список фотографий пользователя
-            $this->widget('ext.ECMarkup.EThumbCarousel.EThumbCarousel', array(
-                'previews'    => $questionary->getBootstrapPhotos('small'),
-                'photos'      => $questionary->getBootstrapPhotos('medium'),
-                'largePhotos' => $questionary->getBootstrapPhotos('large'),
-                'emptyText'   => $noPhotoMessage,
-            ));
-            if ( ! $questionary->getGalleryPhotos() AND $canEdit )
-            {
-                $this->widget('GalleryManager', array(
-                    'gallery' => $questionary->galleryBehavior->getGallery(),
-                    'controllerRoute' => '/questionary/gallery'
-                ));
-            }
+        <?php 
+        // Список фото и видео
+        $this->widget('questionary.extensions.widgets.QUserMedia.QUserMedia', array(
+            'questionary' => $questionary,
+        ));
         ?>
         </div>
     </div>
@@ -111,7 +91,7 @@ $this->widget('bootstrap.widgets.TbAlert');
             <div class="span6">
                 <?php 
                 // выводим список умений и достижений участника 
-                $this->widget('application.modules.questionary.extensions.widgets.QUserBages.QUserBages', array(
+                $this->widget('questionary.extensions.widgets.QUserBages.QUserBages', array(
                     'bages' => $questionary->bages,
                 ));
                 ?>
@@ -121,7 +101,7 @@ $this->widget('bootstrap.widgets.TbAlert');
             <div class="span7">
             <?php 
             // Выводим всю остальную информацию о пользователе
-            $this->widget('application.modules.questionary.extensions.widgets.QUserInfo.QUserInfo', array(
+            $this->widget('questionary.extensions.widgets.QUserInfo.QUserInfo', array(
                 'questionary' => $questionary,
                 'activeTab'   => $activeTab,
             ));

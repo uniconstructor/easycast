@@ -75,7 +75,9 @@ return array(
         // yes/no toogle column widget
 	    'application.extensions.jtogglecolumn.*',
 	    // Import simpleWorkflow extension (for statuses)
-	    'application.extensions.simpleWorkflow.*'
+	    'application.extensions.simpleWorkflow.*',
+	    // библиотека для работы с JS, включающая плагин shadowbox
+	    'ext.sweekit.Sweeml',
 	),
 
 	'modules' => array(
@@ -298,10 +300,17 @@ return array(
             //'autoCreateSessionTable' => true,
         ),
         
-        // Настройки менеджера скриптов (подключаем собственную, темную тему jquery)
+        // Настройки менеджера скриптов
         'clientScript' => array(
-            'scriptMap' => array(
+            // @todo удалить старую темную тему jquery
+            /*'scriptMap' => array(
                 'jquery-ui.css' => '/css/jqueryui/dot-luv/jquery-ui.css',
+            ),*/
+            // подключаем sweekit-библиотеку для удобной работы со скриптами
+            'behaviors' => array(
+                'sweelixClientScript' => array(
+                    'class' => 'ext.sweekit.behaviors.SwClientScriptBehavior',
+                ),
             ),
         ),
         
