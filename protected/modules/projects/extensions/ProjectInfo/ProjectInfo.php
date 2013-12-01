@@ -138,7 +138,7 @@ class ProjectInfo extends CWidget
     {
         if ( $this->eventId )
         {// отображается мероприятие
-            return array('main', /*'photo', 'video',*/ 'vacancies', 'requests');
+            return array('main', /*'photo',*/ 'video', 'vacancies', 'requests');
         }
         // отображается проект
         return array('main', 'photo', 'video', 'events', 'vacancies', 'requests');
@@ -194,6 +194,7 @@ class ProjectInfo extends CWidget
      */
     protected function displayInfoSection()
     {
+        $adminButton = $this->createAdminButton();
         if ( in_array('project', $this->displayInfo) )
         {// нужно отобразить информацию о проекте
             $imageUrl = $this->project->getAvatarUrl('full');
@@ -204,6 +205,7 @@ class ProjectInfo extends CWidget
             $this->render('_info', array(
                 'image'       => $image,
                 'description' => $description,
+                'adminButton' => $adminButton,
             ));
         }
         if ( $this->eventId AND in_array('event', $this->displayInfo) )
@@ -215,6 +217,7 @@ class ProjectInfo extends CWidget
             $this->render('_info', array(
                 'image'       => $image,
                 'description' => $description,
+                'adminButton' => $adminButton,
             ));
         }
     }
@@ -372,13 +375,18 @@ class ProjectInfo extends CWidget
     
     /**
      * Получить содержимое вкладки "видео"
-     * (информация о проекте)
+     * (для проекта)
      *
      * @return string
      */
     protected function getProjectVideoTab()
     {
         $content = '';
+        
+        $content .= $this->widget('ext.ECMarkup.ECVideoList.ECVideoList', array(
+            'objectType' => 'project',
+            'objectId'   => $this->project->id,
+        ), true);
         
         return $content;
     }
@@ -589,6 +597,7 @@ class ProjectInfo extends CWidget
             case 'main':      $content = $this->getEventMainTab(); break;
             case 'vacancies': $content = $this->getEventVacanciesTab(); break;
             case 'requests':  $content = $this->getEventRequestsTab(); break;
+            case 'video':     $content = $this->getEventVideoTab(); break;
         }
         
         if ( ! $content )
@@ -650,6 +659,24 @@ class ProjectInfo extends CWidget
             'displayVacancyColumn' => false,
             'displayHeader'        => false,
         ), true);
+    }
+    
+    /**
+     * Получить содержимое вкладки "видео"
+     * (для мероприятия)
+     *
+     * @return string
+     */
+    protected function getEventVideoTab()
+    {
+        $content = '';
+    
+        $content .= $this->widget('ext.ECMarkup.ECVideoList.ECVideoList', array(
+            'objectType' => 'event',
+            'objectId'   => $this->event->id,
+        ), true);
+    
+        return $content;
     }
     
     /**
@@ -733,5 +760,32 @@ class ProjectInfo extends CWidget
             $class = 'btn btn-success';
         }
         return CHtml::link($text, $this->getEventUrl($event->id), array('class' => $class));
+    }
+    
+    /**
+     * 
+     * @return string
+     */
+    protected function createAdminButton()
+    {
+        if ( $this->adminView() )
+        {
+            if ( $this->eventId )
+            {// отображается мероприятие
+                $url = Yii::app()->createUrl('/admin/projectEvent/view', array('id' => $this->eventId));
+            }else
+            {// отображается проект
+                $url = Yii::app()->createUrl('/admin/project/view', array('id' => $this->projectId));
+            }
+            return $this->widget('bootstrap.widgets.TbButton', array(
+                'buttonType' => 'link',
+                'type'       => 'warning',
+                'size'       => 'large',
+                'label'      => 'Настройки',
+                'url'        => $url,
+                //'icon' => 'remove white',
+            ), true);
+        }
+        return '';
     }
 }

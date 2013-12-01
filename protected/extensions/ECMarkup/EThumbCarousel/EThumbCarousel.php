@@ -130,13 +130,13 @@ class EThumbCarousel extends CWidget
         foreach ( $this->largePhotos as $id=>$photo )
         {
             $this->widget('application.extensions.fancybox.EFancyBox', array(
-                            'target' => '#'.$this->id.'-photo-'.$photo['id'],
-                            'config' => array(
-                                'href'   => $photo['image'],
-                                'margin' => '0',
-                                'hideOnContentClick' => true,
-                                'showCloseButton' => false,
-                            ),
+                    'target' => '#'.$this->id.'-photo-'.$photo['id'],
+                    'config' => array(
+                        'href'   => $photo['image'],
+                        'margin' => '0',
+                        'hideOnContentClick' => true,
+                        'showCloseButton' => false,
+                    ),
                 ));
         }
         if ( $this->echoScripts )

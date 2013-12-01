@@ -6,4 +6,5 @@
 <div class="span3" style="padding-top:20px;">
     <?= $image; ?>
     <p><?= $description; ?></p>
+    <p><?= $adminButton; ?></p>
 </div>

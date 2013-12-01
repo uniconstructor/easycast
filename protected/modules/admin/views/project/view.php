@@ -71,9 +71,17 @@ $dateFormatter = new CDateFormatter('ru');
 <h1>Проект "<?php echo $model->name; ?>"</h1>
 
 <?php $this->widget('bootstrap.widgets.TbDetailView',array(
-	'data'=>$model,
-	'attributes'=>array(
-		'name',
+	'data' => $model,
+	'attributes' => array(
+		array(
+            'label' => '&nbsp;',
+            'value' => CHtml::link(
+                '(Посмотреть как проект выглядит на сайте)',
+                Yii::app()->createUrl('/projects/projects/view',
+                array('id' => $model->id))
+            ),
+            'type' => 'raw', 
+        ),
 		'typetext',
         'shortdescription:raw',
         'description:raw',
