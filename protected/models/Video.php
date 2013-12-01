@@ -16,10 +16,13 @@
  * @property string $uploaderid
  * @property string $md5
  * @property string $size
+ * @property string $externalid - id видео на внешнем портале
  * @property string $status - статус видеоролика
  *                         pending - видео загружено участником и ждет проверки
  *                         approved - видео проверено администратором и одобрено (или загружено администратором)
  *                         rejected - видео отклонено администратором (нельзя такое публиковать)
+ * 
+ * @todo прописать константы для всех типов
  */
 class Video extends CActiveRecord
 {
@@ -60,8 +63,18 @@ class Video extends CActiveRecord
 	 */
 	public function beforeSave()
 	{
-	    $this->type = $this->defineVideoType($this->link);
-	    $this->uploaderid = Yii::app()->getModule('user')->user()->id;
+	    if ( $this->isNewRecord )
+	    {// запоминаем того кто загрузил
+	        $this->uploaderid = Yii::app()->getModule('user')->user()->id;
+	    }
+	    if ( ! $this->type )
+	    {// определяем тип видео
+	        $this->type = $this->defineVideoType($this->link);
+	    }
+	    if ( ! $this->externalid )
+	    {// определяем id видео на портале, чтобы потом генерировать правильные ссылки на него
+	        $this->externalid = $this->extractExternalId();
+	    }
 	    
 	    return parent::beforeSave();
 	}
@@ -72,13 +85,13 @@ class Video extends CActiveRecord
 	public function rules()
 	{
 		return array(
-		    array('link, name', 'filter', 'filter'=>'trim'),
+		    array('link, name', 'filter', 'filter' => 'trim'),
 		    array('link, name', 'required'),
 		    
-			array('objecttype, type, status', 'length', 'max'=>20),
-			array('timemodified, objectid, timecreated, uploaderid, size', 'length', 'max'=>11),
-			array('name, description, link', 'length', 'max'=>255),
-			array('md5', 'length', 'max'=>128),
+			array('objecttype, type, status', 'length', 'max' => 20),
+			array('timemodified, objectid, timecreated, uploaderid, size', 'length', 'max' => 11),
+			array('name, description, link, externalid', 'length', 'max' => 255),
+			array('md5', 'length', 'max' => 128),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, objecttype, objectid, name, type, description, link, timecreated, uploaderid, md5, size, status', 'safe', 'on'=>'search'),
@@ -166,6 +179,8 @@ class Video extends CActiveRecord
 	 * Массив для конфигурации формы добавления нескольких видео со сторонних ресурсов
 	 * 
 	 * @return array
+	 * @deprecated раньше использовалось для multimodelform
+	 * @todo удалить, когда все видео будут добавляться без использования multimodelform
 	 */
 	public function formConfig()
 	{
@@ -207,5 +222,74 @@ class Video extends CActiveRecord
         {
             return 'link';
         }
+	}
+	
+	/**
+	 * Получить из ссылки id видео на портале (youtube, vimeo) при сохранении видео
+	 * @return void
+	 */
+	public function extractExternalId()
+	{
+        switch ( $this->type )
+        {
+            case 'youtube':
+                $this->externalid = $this->getYoutubeId($this->link);
+            break;
+            default: $this->externalid = '';
+        }
+        return $this->externalid;
+	}
+	
+	/**
+	 * Получить id youtube-видео из ссылки
+	 * @param string $url
+	 * @return string
+	 * 
+	 * @see http://stackoverflow.com/questions/3392993/php-regex-to-get-youtube-video-id
+	 */
+	protected function getYoutubeId($url)
+	{
+	    $url = trim($url);
+	    preg_match("/^(?:http(?:s)?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:(?:watch)?\?(?:.*&)?v(?:i)?=|(?:embed|v|vi|user)\/))([^\?&\"'>]+)/", $url, $matches);
+	    
+	    if ( isset($matches[1]) )
+	    {
+	        return $matches[1];
+	    }
+	    // не удалось разобрать адрес видео
+	    // @todo записать в лог
+	    return '';
+	}
+	
+	/**
+	 * Получить ссылку на preview-картинку для видео
+	 * @return string
+	 */
+	public function getPreviewImageUrl()
+	{
+	    switch ( $this->type )
+	    {
+	        case 'youtube':
+                return 'http://img.youtube.com/vi/'.$this->externalid.'/default.jpg';
+            break;
+	        default: return '';
+	    }
+	}
+	
+	/**
+	 * Получить url для встраивания видео на странице
+	 * (для некоторых сервисов может отличаться от ссылки на видео)
+	 * 
+	 * @return string
+	 */
+	public function getEmbedUrl()
+	{
+	    switch ( $this->type )
+	    {
+	        case 'youtube':
+	            return 'http://www.youtube.com/embed/'.$this->externalid.'?rel=0';
+            break;
+	        default: return $this->link;
+	    }
 	}
 }
