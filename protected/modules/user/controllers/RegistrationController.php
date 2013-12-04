@@ -62,7 +62,7 @@ class RegistrationController extends Controller
 					if ( $model->validate() )
 					{// begin registration
 						$this->saveUser($model, $soucePassword, $verifyPassword);
-						$this->redirect('//site/index');
+						$this->redirect(Yii::app()->createAbsoluteUrl('/questionary/questionary/view'));
 						Yii::app()->end();
 					}
 				}

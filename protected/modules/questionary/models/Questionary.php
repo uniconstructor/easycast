@@ -164,19 +164,6 @@ class Questionary extends CActiveRecord
     const LAST_INVITES_COUNT = 20;
     
     /**
-     * @todo документировать это решение
-     * @see CActiveRecord::__get()
-     */
-    /*public function __get($name)
-    {
-        switch ( $name )
-        {
-            case 'birthdate': return $this->getBirthdate(); break;
-        }
-        return parent::__get($name);
-    }*/
-    
-    /**
      * (non-PHPdoc)
      * @see CActiveRecord::init()
      */
@@ -502,7 +489,7 @@ class Questionary extends CActiveRecord
         {
             return parent::beforeValidate();
         }
-        if ( ! $this->hasPhotos($this->galleryid) AND ! $this->isNewRecord )
+        if ( ! $this->isNewRecord AND ! $this->hasPhotos($this->galleryid) )
         {
             $this->addError('galleryid', 'Нужно загрузить хотя бы одну фотографию в разделе "внешность"');
         }
@@ -520,7 +507,8 @@ class Questionary extends CActiveRecord
     {
         if ( ! $gallery = Gallery::model()->findByPk($galleryId) )
         {
-            throw new CException('Ошибка при сохранении фотографий: невозможно найти галерею изображений');
+            //throw new CException('Ошибка при сохранении фотографий: невозможно найти галерею изображений');
+            return false;
         }
         if ( $gallery->galleryPhotos )
         {// фотографии есть
