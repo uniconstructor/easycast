@@ -7,7 +7,8 @@
 <table class="w580" width="580" border="0" cellpadding="0" cellspacing="0">
 <tbody>
     <tr>
-        <td class="w400" width="400" align="left">
+        <td class="w20" width="20"></td>
+        <td class="w380" width="400" align="left">
         <?php
         // Выводим заголовок (align=left)
         if ( $this->header )
@@ -19,9 +20,10 @@
         }
         ?>
         </td>
-        <td class="w180" width="180" style="text-align:right;font-size:16px;color:<?= $this->headerColor; ?>">
+        <td class="w160" width="160" style="text-align:right;font-size:16px;color:<?= $this->headerColor; ?>">
             <?= $this->headerInfo; ?>
         </td>
+        <td class="w20" width="20"></td>
     </tr>
 </tbody>
 </table>

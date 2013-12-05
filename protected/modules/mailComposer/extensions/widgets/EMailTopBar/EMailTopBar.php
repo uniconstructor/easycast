@@ -53,7 +53,7 @@ class EMailTopBar extends CWidget
      */
     public function init()
     {
-        
+        parent::init();
     }
     
     /**

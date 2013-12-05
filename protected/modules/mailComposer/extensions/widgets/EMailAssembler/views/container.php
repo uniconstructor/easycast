@@ -21,7 +21,7 @@ $this->displayMainHeader();
 $this->displayContent();
 ?>
 <tr>
-    <td class="w640" height="15" width="640" bgcolor="#ffffff"></td>
+    <td class="w640" height="15" width="640" bgcolor="#cbcac8"></td>
 </tr>
 <?php 
 // Выводим нижнюю часть письма

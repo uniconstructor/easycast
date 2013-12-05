@@ -8,6 +8,7 @@
 <table class="w580" width="580" border="0" cellpadding="0" cellspacing="0" style="page-break-after:auto;">
     <tbody>
         <tr>
+            <td class="w20" width="20">&nbsp;</td>
             <td class="w580" width="580">
                 <?php 
                 if ( $this->header )
@@ -31,10 +32,15 @@
                 }
                 ?>
             </td>
+            <td class="w20" width="20">&nbsp;</td>
         </tr>
         <?php
         // Добавляем отступ между абзацами (580x10)
-        $this->render('misc/_hspacer', array('height' => 10, 'style' => $this->textRulerStyle));
+        $this->render('misc/_hspacer', array(
+                'height' => 10,
+                'style'  => $this->textRulerStyle,
+            )
+        );
         ?>
     </tbody>
 </table>

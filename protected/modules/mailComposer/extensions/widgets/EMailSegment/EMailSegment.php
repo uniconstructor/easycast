@@ -73,9 +73,13 @@ class EMailSegment extends CWidget
      */
     public $addTextRuler = false;
     /**
+     * @var bool - добавить ли красивый "разорванный" разделитель в конце блока
+     */
+    public $addCutRuler = false;
+    /**
      * @var string - слиль разделителя после заголовка
      */
-    public $headerRulerStyle  = 'border-bottom:2px dotted #a3a3a3;';
+    public $headerRulerStyle  = 'border-bottom:3px dotted #a3a3a3;';
     /**
      * @var string - слиль разделителя после текста (в конце блока)
      */
@@ -103,6 +107,10 @@ class EMailSegment extends CWidget
         {
             $this->textRulerStyle = '';
         }
+        if ( ! $this->addTextRuler AND ! $this->addHeaderRuler )
+        {
+            $this->defaultRulerStyle = '';
+        }
     }
     
     /**
@@ -120,13 +128,19 @@ class EMailSegment extends CWidget
             // подзаголовок с дополнительной информацией
             case 'subHeader': $this->render('subHeader/header'); break;
             // горизонтальный разделитель
-            case 'subHeader': $this->render('hruler'); break;
+            case 'hruler':    $this->render('hruler'); break;
+            // разделитель с "разрезанными" краями
+            case 'cutRuler':  $this->render('cutRuler'); break;
         }
         if ( is_array($this->button) AND ! empty($this->button) )
         {// отображаем кнопку с действием под абзацем
             $this->widget('application.modules.mailComposer.extensions.widgets.EMailButton.EMailButton',
                 $this->button
             );
+        }
+        if ( $this->addCutRuler )
+        {// отображаем большой широкий разделитель в виде разрезанной бумаги 
+            $this->render('cutRuler');
         }
     }
     

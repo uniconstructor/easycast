@@ -49,7 +49,7 @@ class EMailBase extends CWidget
             'showSocialButtons'      => false,
             'showContactPhone'       => true,
             'showContactEmail'       => true,
-            'contactPhone'           => Yii::app()->params['adminPhone'],
+            'contactPhone'           => Yii::app()->params['userPhone'],
             'contactEmail'           => Yii::app()->params['adminEmail'],
             // текст большого главного заголовка в письме
             'mainHeader'             => '',

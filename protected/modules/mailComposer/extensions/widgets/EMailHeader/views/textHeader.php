@@ -16,9 +16,7 @@
                     <td class="w30" width="30"></td>
                     <td class="w580" width="580">
                         <div id="headline" align="center">
-                            <p>
-                                <singleline><h1 style="color:#286B84;"><?= $this->header; ?></h1></singleline>
-                            </p>
+                            <h1 style="color:#286B84;"><?= $this->header; ?></h1>
                         </div>
                     </td>
                     <td class="w30" width="30"></td>

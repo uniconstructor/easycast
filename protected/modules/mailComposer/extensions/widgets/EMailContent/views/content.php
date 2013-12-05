@@ -5,12 +5,12 @@
  */
 ?>
 <tr id="simple-content-row">
-    <td class="w640" width="640" bgcolor="#ffffff">
+    <td class="w640" width="640" bgcolor="#cbcac8">
         <table class="w640" width="640" border="0" cellpadding="0" cellspacing="0">
             <tbody>
                 <tr>
                     <td class="w30" width="30"></td>
-                    <td class="w580" width="580">
+                    <td class="w580" width="580" bgcolor="#ffffff" style="border-radius:10px;">
                     <repeater> 
                         <?php 
                         $widgetPath = 'application.modules.mailComposer.extensions.widgets.EMailSegment.EMailSegment';
