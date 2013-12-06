@@ -18,6 +18,11 @@ body {
 
  @font-face {
     font-family: micradi_regular; /* Гарнитура шрифта */
+    src: url(../fonts/gothic.ttf); /* Путь к файлу со шрифтом */
+   }
+   
+   @font-face {
+    font-family: micradi_regular; /* Гарнитура шрифта */
     src: url(../fonts/micradi_regular.ttf); /* Путь к файлу со шрифтом */
    }
 /* ==========  General styles ========== */
