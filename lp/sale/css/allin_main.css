@@ -17,7 +17,7 @@ body {
 }
 
  @font-face {
-    font-family: micradi_regular; /* Гарнитура шрифта */
+    font-family: century gothic; /* Гарнитура шрифта */
     src: url(../fonts/gothic.ttf); /* Путь к файлу со шрифтом */
    }
    
