@@ -36,6 +36,7 @@ class EMailOffer extends EMailBase
             $this->manager = Yii::app()->getModule('user')->user(775);
         }
         
+        $this->mailOptions['contentPadding'] = 0;
         $this->mailOptions['mainHeaderType'] = 'text';
         $this->mailOptions['contactPhone'] = Yii::app()->params['customerPhone'];
         $this->mailOptions['contactEmail'] = 'order@easycast.ru';
@@ -227,5 +228,24 @@ class EMailOffer extends EMailBase
     protected function getSalePageUrl()
     {
         return Yii::app()->createAbsoluteUrl('/sale', array('offerid' => $this->offer->id));
+    }
+    
+    /**
+     * Получить ссылку на раздел каталога
+     * @param string $name
+     * @return string
+     */
+    protected function getSectionUrl($name)
+    {
+        $params = array('offerid' => $this->offer->id);
+        switch ( $name )
+        {
+            case 'actors': $params = array('sectionid' => 4); break;
+            case 'ams':    $params = array('sectionid' => 17); break;
+            case 'models': $params = array('sectionid' => 3); break;
+            case 'types':  $params = array('sectionid' => 1); break;
+        }
+        
+        return Yii::app()->createAbsoluteUrl('/catalog/catalog/index', $params);
     }
 }

@@ -22,11 +22,11 @@ class EMailSegment extends CWidget
     /**
      * @var int - отступ содержимого от края блока
      */
-    public $padding;
+    public $padding = 0;
     /**
      * @var int - 
      */
-    public $fullPadding;
+    public $fullPadding = 0;
     /**
      * @var string - подзаголовок абзаца текста
      */

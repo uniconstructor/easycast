@@ -133,6 +133,8 @@ class MailComposer extends CApplicationComponent
             'showFeedbackNotification' => true,
             'showPasswordNotification' => false,
             'userHasFirstAccess'       => true,
+            'mainHeaderType'           => 'image',
+            'contentPadding'           => 30,
         );
     }
     

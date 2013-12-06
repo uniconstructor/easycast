@@ -11,7 +11,8 @@
                 <img src="<?= Yii::app()->createAbsoluteUrl('/images/offer/price_l.gif'); ?>"/>
             </td>
             <td width="247">
-                <a href="#"><img src="<?= Yii::app()->createAbsoluteUrl('/images/offer/price_but.gif'); ?>"></a>
+                <a href="<?= Yii::app()->createAbsoluteUrl('/calculator', array('offerid' => $this->offer->id)); ?>">
+                <img src="<?= Yii::app()->createAbsoluteUrl('/images/offer/price_but.gif'); ?>"></a>
             </td>
             <td width="201">
                 <img src="<?= Yii::app()->createAbsoluteUrl('/images/offer/price_r.gif'); ?>" style="margin-left: -2px;"/>

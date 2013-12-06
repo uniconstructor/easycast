@@ -13,21 +13,17 @@
                     <td class="w15" width="15"></td>
                     <td class="w610" valign="middle" width="610" align="left">
                         <table class="w610" width="610" border="0" cellpadding="0" cellspacing="0">
-                            <tbody>
-                                <tr>
-                                    <td class="w610" height="8" width="610">&nbsp;</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <?php // выводим служебные ссылки 
-                            $this->displayLinks();
-                        ?>
-                        <table class="w610" width="610" border="0" cellpadding="0" cellspacing="0">
-                            <tbody>
-                                <tr>
-                                    <td class="w610" height="8" width="610">&nbsp;</td>
-                                </tr>
-                            </tbody>
+                            <tr>
+                                <td class="w610" height="8" width="610">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="w610" height="8" width="610">
+                                <?= $this->displayLinks(); // выводим служебные ссылки ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="w610" height="8" width="610">&nbsp;</td>
+                            </tr>
                         </table>
                     </td>
                     <td class="w15" width="15"></td>
