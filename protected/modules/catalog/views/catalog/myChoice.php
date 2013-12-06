@@ -90,6 +90,8 @@ if ( ! FastOrder::orderIsEmpty() )
     </div>
     <div class="span2">&nbsp;</div>
     
-    <? $this->endWidget(); 
+    <?php $this->endWidget(); 
+    
+    
 }
 ?>
