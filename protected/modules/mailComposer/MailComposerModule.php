@@ -133,6 +133,14 @@ class MailComposerModule extends CWebModule
                 }
                 return $mailComposer->createSSInviteMailText($params['questionary']);
             break;
+            // приглашение активировать анкету для участников из нашей базы, при создании анкеты админом
+            case 'ECRegistration':
+                if ( ! isset($params['questionary']) )
+                {
+                    throw new CException('questionary for mail is not set');
+                }
+                return $mailComposer->createECRegistrationMailText($params['questionary']);
+            break;
             // вызывной лист
             case 'callList':
                 $addContacts = false;

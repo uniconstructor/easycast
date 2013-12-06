@@ -116,7 +116,9 @@ class AdminController extends Controller
 					return;
 				}
 				// отсылаем письмо с сылкой активации и паролем
-				$this->sendActivationEmail($model, $password, $ownerId);
+				// @todo больше не используется - удалить при рефакторинге
+				//$this->sendActivationEmail($model, $password, $ownerId);
+				
 				// перенаправляем админа на страницу редактирования анкеты
 				$this->redirect(array('/questionary/questionary/update', 'id' => $model->questionary->id));
 			}
@@ -253,7 +255,7 @@ class AdminController extends Controller
         	    После этого вы получите доступ к нашему сервису а также сможете уточнить информацию о себе.<br>';
 	    }else
 	    {// Пользователь регистрируется сам - стандартное сообщение
-	        $theme   = UserModule::t("You registered from {site_name}",array('{site_name}'=>Yii::app()->name));
+	        $theme   = UserModule::t("You registered from {site_name}", array('{site_name}'=>Yii::app()->name));
 	        $message = UserModule::t("Please activate you account go to {activation_url}",
 	            array('{activation_url}'=>$activation_url)
 	        );

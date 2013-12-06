@@ -407,13 +407,7 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
         switch ( $this->owner->status )
         {
             case 'draft':
-                if ( $this->owner->ownerid AND $this->owner->ownerid != 1 )
-                {// первый раз анкета должна активироваться самим участником
-                    return array('unconfirmed', 'delayed', 'active', 'delayed');
-                }else
-                {
-                    return array('active', 'delayed', 'pending');
-                }
+                return array('unconfirmed', 'active', 'delayed', 'pending');
             break;
             case 'active':
                 return array('active', 'pending');
@@ -425,13 +419,7 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
                 return array('unconfirmed', 'active');
             break;
             case 'delayed':
-                if ( $this->owner->ownerid )
-                {
-                    return array('delayed', 'unconfirmed', 'active');
-                }else
-                {
-                    return array('active', 'pending', 'delayed');
-                }
+                return array('delayed', 'unconfirmed', 'active');
             break;
             case 'rejected':
                 return array('rejected', 'active', 'pending');

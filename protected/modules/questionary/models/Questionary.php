@@ -498,6 +498,7 @@ class Questionary extends CActiveRecord
         {
             $this->addError('galleryid', 'Нужно загрузить хотя бы одну фотографию в разделе "внешность"');
         }
+        
         return parent::beforeValidate();
     }
     
@@ -650,7 +651,7 @@ class Questionary extends CActiveRecord
             {
                 $bages[] = QuestionaryModule::t('actor');
             }else
-           {
+            {
                $bages[] = QuestionaryModule::t('actress');
             }
         }
@@ -661,7 +662,7 @@ class Questionary extends CActiveRecord
             {
                 $bages[] = QuestionaryModule::t('amateuractor(male)');
             }else
-           {
+            {
                 $bages[] = QuestionaryModule::t('amateuractor(female)');
             }
         }
@@ -672,7 +673,7 @@ class Questionary extends CActiveRecord
             {
                 $bages[] = QuestionaryModule::t('emcee(male)');
             }else
-           {
+            {
                 $bages[] = QuestionaryModule::t('emcee(female)');
             }
         }
@@ -729,7 +730,7 @@ class Questionary extends CActiveRecord
             {
                 $bages[] = QuestionaryModule::t('singer(male)');
             }else
-           {
+            {
                 $bages[] = QuestionaryModule::t('singer(female)');
             }
         }
@@ -750,7 +751,7 @@ class Questionary extends CActiveRecord
             {
                 $bages[] = QuestionaryModule::t('sportsman(male)');
             }else
-           {
+            {
                 $bages[] = QuestionaryModule::t('sportsman(female)');
             }
         }
@@ -771,18 +772,18 @@ class Questionary extends CActiveRecord
             {
                 $bages[] = QuestionaryModule::t('theatreactor(male)');
             }else
-           {
+            {
                 $bages[] = QuestionaryModule::t('theatreactor(female)');
             }
         }
         // медийный актер
         if ( $this->ismediaactor )
         {
-        if ( ! $this->gender OR $this->gender == 'male' )
+            if ( ! $this->gender OR $this->gender == 'male' )
             {
                 $bages[] = QuestionaryModule::t('mediaactor(male)');
             }else
-           {
+            {
                 $bages[] = QuestionaryModule::t('mediaactor(female)');
             }
         }
@@ -936,13 +937,15 @@ class Questionary extends CActiveRecord
         
         if ( $this->ownerid AND $this->ownerid == 823 )
         {// нужно особое письмо с активацией
-            if ( ( $oldStatus == 'draft' OR $oldStatus == 'delayed' ) AND $newStatus == 'unconfirmed' )
+            if ( ( $oldStatus == 'draft' OR $oldStatus == 'delayed' ) AND
+                 ( $newStatus == 'unconfirmed' OR $newStatus == 'active' ) )
             {
                 $this->sendSSFillingMail();
             }
         }else
         {// обычная активация
-            if ( ( $oldStatus == 'draft' OR $oldStatus == 'delayed' ) AND $newStatus == 'active' )
+            if ( ( $oldStatus == 'draft' OR $oldStatus == 'delayed' ) AND
+                 ( $newStatus == 'unconfirmed' OR $newStatus == 'active' ) )
             {// если анкета только что перешла из статуса "черновик" в активный статус -
                 // значит пользователя только что зарегистрировали и ввели все данные
                 $filled = true;
@@ -978,37 +981,13 @@ class Questionary extends CActiveRecord
      */
     protected function sendDefaultFillingMail($user)
     {
-        // URL для активации учетной записи
-        $activationUrl = Yii::app()->createAbsoluteUrl(
-            '/user/activation/activation',
-            array("activkey" => $user->activkey, "email" => $user->email)
-        );
-        // ссылка на просмотр анкеты
-        $questionaryUrl = Yii::app()->createAbsoluteUrl(
-            Yii::app()->getModule('questionary')->profileUrl,
-            array("id" => $this->id)
-        );
-        $questionaryUrl = CHtml::link($questionaryUrl, $questionaryUrl);
-        // Тема и текст письма
-        $theme = 'Ввод данных завершен';
-        $message = 'Добрый день.
-                Мы закончили создание вашей анкеты. Пожалуйста проверьте правильность введенных нами данных.';
-        $message .= "<br><br>";
-        $message .= "Вы можете просмотреть и отредактировать свою анкету по адресу: ".$questionaryUrl;
-        $message .= "<br><br>";
-        $message .= "Для редактирования анкеты нужно войти на сайт.";
-        $message .= "<br><br>";
-        if ( $user->status == User::STATUS_NOACTIVE )
-        {// если участник еще не активирован - пришлем ему ссылку активации
-        $message .= UserModule::t("Please activate you account go to {activation_url}",
-            array('{activation_url}' => $activationUrl)
-        );
-        $message .= "<br><br>";
-        }
-        $message .= "С уважением, команда проекта EasyCast.";
+        $mailComposer = Yii::app()->getModule('mailComposer');
+         
+        $email   = $this->user->email;
+        $subject = 'Приглашение от проекта easyCast';
+        $message = $mailComposer->getMessage('ECRegistration', array('questionary' => $this));
         
-        // отсылаем письмо
-        UserModule::sendMail($user->email, $theme, $message);
+        UserModule::sendMail($this->user->email, $subject, $message, true);
     }
     
     /**

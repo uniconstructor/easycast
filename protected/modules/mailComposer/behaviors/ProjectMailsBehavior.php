@@ -271,6 +271,18 @@ class ProjectMailsBehavior extends CBehavior
     }
     
     /**
+     * Создать текст письма с приглашением активировать анкету для актеров из нашей базы
+     * @param Questionary $questionary
+     * @return string
+     */
+    public function createECRegistrationMailText($questionary)
+    {
+        return $this->owner->widget('application.modules.mailComposer.extensions.mails.EMailECRegistration.EMailECRegistration',
+            array('questionary' => $questionary),
+            true);
+    }
+    
+    /**
      * Создать письмо с фотовызывным
      * @param RCallList $callList
      * @param bool $addContacts
