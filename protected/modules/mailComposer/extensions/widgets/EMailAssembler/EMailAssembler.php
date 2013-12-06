@@ -41,6 +41,16 @@ class EMailAssembler extends CWidget
      */
     public $mainHeader = '';
     /**
+     * @var 'image'|'text' - тип отображения главного заголовка всего письма
+     *                     text - просто заголовок h1
+     *                     image - красивая фирменная шапка страницы
+     */
+    public $mainHeaderType = 'image';
+    /**
+     * @var bool - делать ли отступы для содержимого внутри письма
+     */
+    public $contentPadding = 30;
+    /**
      * @var array - массив, состоящий из массивов настроек для виджета EMailContent
      */
     public $segments = array();
@@ -67,14 +77,13 @@ class EMailAssembler extends CWidget
      */
     public $manager;
     /**
-     * @var array
+     * @var array - параметры отображения верхнего колонтитула письма (синяя полоска сверху которая)
      */
     public $topBarOptions = array();
     
     protected $_pluginsPrefix = 'application.modules.mailComposer.extensions.widgets.';
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
      */
     public function init()
@@ -119,7 +128,6 @@ class EMailAssembler extends CWidget
     }
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::run()
      */
     public function run()
@@ -144,8 +152,10 @@ class EMailAssembler extends CWidget
      */
     protected function displayMainHeader()
     {
-        $this->widget($this->_pluginsPrefix.'EMailHeader.EMailHeader',
-            array('header' => $this->mainHeader)
+        $this->widget($this->_pluginsPrefix.'EMailHeader.EMailHeader', array(
+                'header' => $this->mainHeader,
+                'type'   => $this->mainHeaderType,
+            )
         );
     }
     
@@ -156,8 +166,10 @@ class EMailAssembler extends CWidget
      */
     protected function displayContent()
     {
-        $this->widget($this->_pluginsPrefix.'EMailContent.EMailContent',
-            array('segments' => $this->segments)
+        $this->widget($this->_pluginsPrefix.'EMailContent.EMailContent', array(
+                'segments' => $this->segments,
+                'padding'  => $this->contentPadding,
+            )
         );
     }
     

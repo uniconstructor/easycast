@@ -58,6 +58,7 @@ class MailController extends Controller
      */
     public function actionTest()
     {
+        Yii::import('reports.models.*');
         $type = Yii::app()->request->getParam('type');
         $id   = Yii::app()->request->getParam('id');
         //$invite = EventInvite::model()->findByPk(650);
@@ -69,9 +70,12 @@ class MailController extends Controller
         
         if ( $type == 'callList' )
         {
-            Yii::import('reports.models.*');
             $callList = RCallList::model()->findByPk($id);
             echo MailComposerModule::getMessage('callList', array('callList' => $callList));
+        }elseif ( $type = 'offer' )
+        {
+            $offer = ROffer::model()->findByPk(9);
+            echo MailComposerModule::getMessage('offer', array('offer' => $offer));
         }else
         {
             $questionary = Questionary::model()->findByPk(9);

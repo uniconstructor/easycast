@@ -13,6 +13,7 @@ if ( ! isset($colspan) OR ! $colspan )
 ?>
 <tr>
     <td class="w20" width="20" height="<?= $height; ?>"></td>
-    <td style="<?= $style; ?>" <?= $colspan; ?> class="w580" height="<?= $height; ?>" width="580"></td>
+    <td style="<?= $style; ?>" <?= $colspan; ?> class="w<?= $this->blockWidth; ?>" 
+        height="<?= $height; ?>" width="<?= $this->blockWidth; ?>"></td>
     <td class="w20" width="20" height="<?= $height; ?>"></td>
 </tr>

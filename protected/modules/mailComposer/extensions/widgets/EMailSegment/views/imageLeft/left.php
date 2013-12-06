@@ -5,10 +5,11 @@
 /* @var $this EMailSegment */
 ?>
 <layout>
-<table class="w580" width="580" border="0" cellpadding="0" cellspacing="0"  style="page-break-after:auto;">
+<table class="w<?= $this->blockWidth; ?>" width="<?= $this->blockWidth; ?>" border="0" cellpadding="0" 
+    cellspacing="0" style="page-break-after:auto;">
     <tbody>
         <tr>
-            <td class="w20" width="20">&nbsp;</td>
+            <td class="w<?= $this->fullPadding; ?>" width="<?= $this->fullPadding; ?>">&nbsp;</td>
             <td class="w540" width="540">
                 <?php 
                 if ( $this->header )
@@ -47,7 +48,7 @@
                     </tbody>
                 </table>
             </td>
-            <td class="w20" width="20">&nbsp;</td>
+            <td class="w<?= $this->fullPadding; ?>" width="<?= $this->fullPadding; ?>">&nbsp;</td>
         </tr>
         <?php
         // Добавляем отступ между абзацами (580x10)

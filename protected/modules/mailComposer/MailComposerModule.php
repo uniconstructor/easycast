@@ -146,6 +146,15 @@ class MailComposerModule extends CWebModule
                 }
                 return $mailComposer->createCallListMailText($params['callList'], $addContacts);
             break;
+            // коммерческое предложение
+            case 'offer':
+                $addContacts = false;
+                if ( ! isset($params['offer']) )
+                {
+                    throw new CException('offer for mail is not set');
+                }
+                return $mailComposer->createOfferMailText($params['offer']);
+            break;
         }
     }
     

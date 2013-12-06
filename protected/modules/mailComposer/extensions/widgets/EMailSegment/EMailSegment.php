@@ -20,6 +20,14 @@ class EMailSegment extends CWidget
      */
     public $type = 'textOnly';
     /**
+     * @var int - отступ содержимого от края блока
+     */
+    public $padding;
+    /**
+     * @var int - 
+     */
+    public $fullPadding;
+    /**
      * @var string - подзаголовок абзаца текста
      */
     public $header;
@@ -35,6 +43,15 @@ class EMailSegment extends CWidget
      * @var string - ссылка на изображение (если есть)
      */
     public $imageLink;
+    /**
+     * @var string - ссылка на изображение (если есть)
+     */
+    public $imageAlt;
+    /**
+     * @var string - ссылка c изображения на веб-страницу (если есть)
+     *               Если не указана - изображение отобразится просто как картинка
+     */
+    public $imageTarget;
     /**
      * @var стиль отображаемого изображения
      */
@@ -90,6 +107,11 @@ class EMailSegment extends CWidget
     public $defaultRulerStyle = 'border-bottom:1px dotted #a3a3a3;';
     
     /**
+     * @var int - ширина блока по умолчанию
+     */
+    protected $blockWidth;
+    
+    /**
      * (non-PHPdoc)
      * @see CWidget::init()
      */
@@ -101,16 +123,20 @@ class EMailSegment extends CWidget
         }
         if ( ! $this->addHeaderRuler )
         {
-            $this->headerRulerStyle = '';
+            $this->headerRulerStyle  = '';
         }
         if ( ! $this->addTextRuler )
         {
-            $this->textRulerStyle = '';
+            $this->textRulerStyle    = '';
         }
         if ( ! $this->addTextRuler AND ! $this->addHeaderRuler )
         {
             $this->defaultRulerStyle = '';
         }
+        // определяем отступ от краев письма в зависимости от типа отображения: с отступом или без
+        $this->fullPadding = $this->padding + 20;
+        // определяем полную ширину блока по умолчанию
+        $this->blockWidth = 640 - (2 * $this->padding);
     }
     
     /**
@@ -127,6 +153,10 @@ class EMailSegment extends CWidget
             case 'imageLeft': $this->displayImageLeft(); break;
             // подзаголовок с дополнительной информацией
             case 'subHeader': $this->render('subHeader/header'); break;
+            // изображение во всю ширину письма
+            case 'image640':  $this->render('image640/image'); break;
+            // текст или произвольная верстка во всю ширину письма
+            case 'text640':   $this->render('text640/text'); break;
             // горизонтальный разделитель
             case 'hruler':    $this->render('hruler'); break;
             // разделитель с "разрезанными" краями

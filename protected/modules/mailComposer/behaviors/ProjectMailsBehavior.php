@@ -284,6 +284,18 @@ class ProjectMailsBehavior extends CBehavior
     }
     
     /**
+     * Создать письмо с коммерческим предложением
+     * @param ROffer $offer
+     * @return string
+     */
+    public function createOfferMailText($offer)
+    {
+        return $this->owner->widget('application.modules.mailComposer.extensions.mails.EMailOffer.EMailOffer',
+            array('offer' => $offer),
+            true);
+    }
+    
+    /**
      * Получить массив для создания раздела письма с приветствием и информацией о том что вообще происходит
      * @param EventInvite $invite - приглашение участника
      *

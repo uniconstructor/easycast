@@ -1,7 +1,6 @@
 <?php
 /**
- * Выводит таблицу-контейнер, содержащую в себе все сегменты письма
- * Добавляет отступы по 30px слева и справа от содержимого
+ * Выводит таблицу-контейнер, содержащую в себе все сегменты письма (без отступов)
  */
 /* @var $this EMailContent */
 ?>
@@ -10,8 +9,7 @@
         <table class="w640" width="640" border="0" cellpadding="0" cellspacing="0">
             <tbody>
                 <tr>
-                    <td class="w<?= $this->padding; ?>" width="<?= $this->padding; ?>"></td>
-                    <td class="w580" width="580" bgcolor="#fff" style="border-radius:10px;">
+                    <td class="w640" width="640" bgcolor="#fff">
                     <repeater> 
                         <?php 
                         $widgetPath = 'application.modules.mailComposer.extensions.widgets.EMailSegment.EMailSegment';
@@ -22,7 +20,6 @@
                         ?>
                     </repeater>
                     </td>
-                    <td class="w<?= $this->padding; ?>" width="<?= $this->padding; ?>"></td>
                 </tr>
             </tbody>
         </table>

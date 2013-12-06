@@ -20,6 +20,10 @@ class EMailContent extends CWidget
      *                 imageLink
      */
     public $segments = array();
+    /**
+     * @var int - делать ли отступы (30px) для всех блоков письма? 
+     */
+    public $padding = 30;
     
     /**
      * (non-PHPdoc)
@@ -39,6 +43,12 @@ class EMailContent extends CWidget
      */
     public function run()
     {
-        $this->render('content');
+        if ( $this->padding )
+        {
+            $this->render('content');
+        }else
+        {
+            $this->render('contentNoPadding');
+        }
     }
 }

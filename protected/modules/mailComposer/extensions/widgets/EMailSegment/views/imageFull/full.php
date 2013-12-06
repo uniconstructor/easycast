@@ -2,13 +2,14 @@
 /**
  * Вывести изображение и текст на всю ширину колонки
  */
+/* @var $this EMailSegment */
 ?>
-<layout label="Text with full-width image">
-<table class="w580" width="580" border="0" cellpadding="0"
+<layout>
+<table class="w<?= $this->blockWidth; ?>" width="<?= $this->blockWidth; ?>" border="0" cellpadding="0"
     cellspacing="0">
     <tbody>
         <tr>
-            <td class="w580" width="580">
+            <td class="w<?= $this->blockWidth; ?>" width="<?= $this->blockWidth; ?>">
                 <?php 
                 // Выводим заголовок (align=left)
                 $this->render('misc/_title');
@@ -16,19 +17,19 @@
             </td>
         </tr>
         <tr>
-            <td class="w580" width="580">
+            <td class="w<?= $this->blockWidth; ?>" width="<?= $this->blockWidth; ?>">
                 <?php 
-                // Выводим изображение (w580)
+                // Выводим изображение (полная ширина)
                 $this->render('misc/_image');
                 ?>
             </td>
         </tr>
         <?php 
-        // Добавляем отступ между абзацами (580x15)
+        // Добавляем отступ между абзацами (15px)
         $this->render('misc/_hspacer');
         ?>
         <tr>
-            <td class="w580" width="580">
+            <td class="w<?= $this->blockWidth; ?>" width="<?= $this->blockWidth; ?>">
             <?php 
             // Выводим параграф текста (align=left)
             $this->render('misc/_text');
@@ -36,7 +37,7 @@
             </td>
         </tr>
         <?php 
-        // Добавляем отступ между абзацами (580x10)
+        // Добавляем отступ между абзацами (10px)
         $this->render('misc/_hspacer');
         ?>
     </tbody>
