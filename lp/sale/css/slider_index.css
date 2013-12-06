@@ -1,0 +1,216 @@
+
+
+    #slides2 .slidesjs-navigation {
+      margin-top:3px;
+	  position:absolute;
+	  
+    
+      width: 29px;
+      height: 51px;
+}
+
+    #slides2 .slidesjs-previous {
+      float: left;
+	  background: url(../images/arrow-prev.png) no-repeat;
+    
+      left: 0;
+      margin-top: -116px;
+}
+
+    #slides2 .slidesjs-next {
+      margin-right: 5px;
+      float: right;
+	  background: url(../images/arrow-next.png) no-repeat;
+    
+      right: 0;
+      margin-top: -116px;
+}
+
+    .slidesjs-pagination {
+      margin: 6px 0 0;
+      float: right;
+      list-style: none;
+    
+      margin-right: 477px;
+}
+
+    .slidesjs-pagination li {
+      float: left;
+      margin: 0 1px;
+    }
+
+    .slidesjs-pagination li a {
+      display: block;
+      width: 13px;
+      height: 0;
+      padding-top: 13px;
+      background-image: url(../images/pagination.png);
+      background-position: 0 0;
+      float: left;
+      overflow: hidden;
+    }
+
+    .slidesjs-pagination li a.active,
+    .slidesjs-pagination li a:hover.active {
+      background-position: 0 -12px;}
+
+    .slidesjs-pagination li a:hover {
+      background-position: 0 -25px;}
+
+    #slides a:link,
+    #slides a:visited {
+      color: #333
+    }
+
+    #slides a:hover,
+    #slides a:active {
+      color: #9e2020
+    }
+
+    .navbar {
+      overflow: hidden
+    }
+	  #slides, #slides2 {
+      display: none
+    }
+	#slides2 .slidesjs-pagination {display:none}
+    .container {
+      margin: 0 auto;
+	  width: 1000px;
+	float: left;
+    
+      margin-bottom: 30px;
+}
+ .container2 {
+		margin: 0 auto;
+		width: 1216px;
+		/* float: left; */
+		background: url(../images/asorti.png);
+		margin-bottom: 10px;
+		margin-top: -33px;
+		height: 271px;
+		position: relative;
+		margin-left: 52px;
+}
+ .container3 {
+		margin: 0 auto;
+		width: 1000px;
+		margin-bottom: 10px;		
+		position: relative;
+		/* margin-top:100px; */
+		display: inline-block;
+}
+	.slidesjs-container {width:1000px;height:356px}
+#slides2 .slidesjs-container {width:190px;height:90px}
+
+
+			.list_carousel {
+				width: 1174px;
+			
+				margin-left: 91px;
+				position: relative;
+}
+			.list_carousel .slider_photogallery{
+				margin: 0;
+				padding: 0;
+				list-style: none;
+				display: block;
+				
+				margin-top: 43px!important;
+}
+			.list_carousel .slider_photogallery li {
+				width: 129px;
+				height: 129px;
+				padding: 0;
+				margin: 9px!important;
+				display: block;
+				float: left;
+			}
+		
+		.list_carousel  #slider_news{
+				margin: 0;
+				padding: 0;
+				list-style: none;
+				display: block;
+				
+			
+		
+}
+			.list_carousel #slider_news li {
+				width: 1000px;
+				height: 200px;
+				padding: 0;
+				display: block;
+				float: left;
+				position: relative;
+				z-index: 10;
+			
+				
+}
+		.list_carousel.responsive {
+				width: auto;
+				margin-left: 0;
+			}
+			.clearfix {
+				float: none;
+				clear: both;
+			}
+			.prev {
+				float: left;
+				background: url(../images/arrow-prev.png) no-repeat;
+				position: absolute;
+				left: -130px;
+				display: block!important;
+				z-index: 100
+			;margin-top: -148px;     width: 40px;      height: 74px;
+}
+			.next {
+			  margin-right: 5px;
+			  float: right;
+			  background: url(../images/arrow-next.png) no-repeat;
+			position:absolute;
+			  right: 0;display: block!important;
+				margin-top: -148px;
+				width: 40px;
+				height: 74px;
+			}
+			.prev_news {
+				float: left;
+				background: url(../images/arrow-prev.png) no-repeat;
+				position: absolute;
+				left: -48px;
+display: block!important;
+				z-index: 100
+			;margin-top: -148px;     width: 40px;      height: 74px;
+}
+			.next_news {
+			  margin-right: -16px;
+			  float: right;
+			  background: url(../images/arrow-next.png) no-repeat;
+			position:absolute;
+			  right: -26px;display: block!important;
+				margin-top: -148px;
+				width: 40px;
+				height: 74px;
+			
+			  z-index: 10000000;
+}
+
+.container3 .list_carousel {
+	width: 1000px;
+	position: relative;
+	margin-left:0px;
+	display: inline-block;
+}
+
+
+@-moz-document url-prefix() {
+				.list_carousel .slider_photogallery{
+				margin: 0;
+				padding: 0;
+				list-style: none;
+				display: block;
+
+}
+
+}
