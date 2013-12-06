@@ -5,14 +5,14 @@
  * @todo языковые строки
  */
 
-$this->pageTitle=Yii::app()->name . ' - '.UserModule::t("Registration");
+$this->pageTitle = Yii::app()->name . ' - '.UserModule::t("Registration");
 /*$this->breadcrumbs = array(
 	UserModule::t("Registration"),
 );*/
 
 // убираем из заголовка все лишнее
 $this->ecHeaderOptions = array(
-    'displayloginTool' => false,
+    'displayloginTool' => true,
     'displayInformer'  => false,
 );
 ?>

@@ -439,6 +439,11 @@ class Questionary extends CActiveRecord
             $recordingConditions->save();
         }
         
+        if ( Yii::app()->user->checkAccess('Admin') )
+        {// если админ ввел анкету - увеличиваем его счетчик
+            $this->updateCreationHistory();
+        }
+        
         parent::afterSave();
     }
     
@@ -948,13 +953,6 @@ class Questionary extends CActiveRecord
             }
             $this->sendDefaultFillingMail($user);
         }
-        
-        // запоминаем кто ввел анкету
-        $history = new QCreationHistory();
-        $history->userid        = Yii::app()->user->id;
-        $history->questionaryid = $this->id;
-        $history->timecreated   = time();
-        $history->save();
     }
     
     /**
@@ -1011,7 +1009,28 @@ class Questionary extends CActiveRecord
         
         // отсылаем письмо
         UserModule::sendMail($user->email, $theme, $message);
-    } 
+    }
+    
+    /**
+     * Записать на счет оператора введенную анкету
+     * @return void
+     */
+    protected function updateCreationHistory()
+    {
+        $criteria = new CDbCriteria();
+        $criteria->compare('questionaryid', $this->id);
+        if ( QCreationHistory::model()->exists($criteria) )
+        {// запись об этой введенной анкете уже существует
+            return;
+        }
+        
+        // записи еще нет - увеличиваем счетчик введенных оператором анкет
+        $history = new QCreationHistory();
+        $history->userid        = Yii::app()->user->id;
+        $history->questionaryid = $this->id;
+        $history->timecreated   = time();
+        $history->save();
+    }
     
     /**
      * Определить, впервый ли раз сохраняется анкета
