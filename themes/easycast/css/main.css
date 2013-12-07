@@ -1,5 +1,10 @@
 @import "reset.css";
-@import url(http://fonts.googleapis.com/css?family=Didact+Gothic&subset=latin,cyrillic-ext);
+
+
+@font-face {
+    font-family: century gothic; /* Гарнитура шрифта */
+    src: url(../fonts/gothic.ttf); /* Путь к файлу со шрифтом */
+ }
 
 /**
  * ����� ���� �����. ������������ �� ���� ���������.
@@ -781,7 +786,7 @@ body .ec-nav-tabs > .active > a, body .ec-nav-tabs > .active > a:hover, body .ec
 	-webkit-text-shadow: 0px 1px 1px rgba(255, 255, 255, 0.39);
 	padding:2px 13px;
 	margin-top: 8px;
-	margin-bottom:0xp;
+	margin-bottom:0px;
 }
 
 .ec-nav > li > a:hover, .ec-nav > li > a:focus {
@@ -975,3 +980,38 @@ ul.usual_suspects {}
 	border: none;
 }
 
+/*
+    breadcrumb. Используется на всех страницах.
+*/
+
+ul.ec-breadcrumb {
+    margin: 0 auto!important;
+    box-shadow: 0px 3px 4px rgba(0, 0, 0, 0.31);
+    -moz-box-shadow: 0px 3px 4px rgba(0, 0, 0, 0.31);
+    -webkit-box-shadow: 0px 3px 4px rgba(0, 0, 0, 0.31);
+    display: inline-block;
+    border-radius: 6px!important;
+    border-bottom: 4px solid #B0C4CE;
+    background-color: white!important;
+    background: linear-gradient(to top, #f2f5f6, #FFFFFF);
+    -moz-background: -moz-linear-gradient(to top, #f2f5f6, #FFFFFF);
+    -webkit-background: -webkit-linear-gradient(to top, #f2f5f6, #FFFFFF);
+    margin-top: -20px!important;
+}
+
+ul.ec-breadcrumb li a {
+    color: #777!important;
+}
+
+ul.ec-breadcrumb li a:hover {
+    color: #C78F00!important;
+}
+
+ul.ec-breadcrumb li a:active {
+    color: #C78F00!important;
+    text-decoration: none;
+}
+
+ul.ec-breadcrumb li.active {
+    color: #C78F00!important;
+}
