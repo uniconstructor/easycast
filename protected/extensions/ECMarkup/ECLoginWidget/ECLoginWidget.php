@@ -11,14 +11,23 @@ class ECLoginWidget extends CWidget
      */
     protected $_image;
     /**
+     * @deprecated
      * @var string - текст под картинкой (ФИО пользователя или ссылка "войти")
      */
     protected $_label;
+    /**
+     * @var string - ФИО
+     */
+    protected $_userName = '';
     /**
      * @var string - ссылка на страницу, на которую перейдет пользователь после нажатия на виджет
      *               (страница авторизации или личная страница пользователя)
      */
     protected $_mainUrl;
+    /**
+     * @var string - ссылка на выход с сайта
+     */
+    protected $_logoutUrl = '/user/logout';
     /**
      * @var string - путь к папке с картинками, стиялми и скриптами модуля
      */
@@ -34,34 +43,21 @@ class ECLoginWidget extends CWidget
                         'ECMarkup' . DIRECTORY_SEPARATOR .
                         'ECLoginWidget' . DIRECTORY_SEPARATOR .
                         'assets'   . DIRECTORY_SEPARATOR);
-        if ( Yii::app()->user->isGuest )
-        {// готовим виджет для гостя
-            // ссылка на вход
-            $this->_mainUrl = Yii::app()->getModule('user')->loginUrl;
-            // Изображение с иконкой входа
-            $this->_image = CHtml::link(
-                        CHtml::image($this->_assetUrl.'/login.png', Yii::t('coreMessages','entrance'), array('style' => 'height:75px;width:75px;')),
-                        $this->_mainUrl);
-            // Текст "войти"
-            $this->_label = '<div class="easycast-menu-label">'.
-                        CHtml::link(Yii::t('coreMessages','entrance'), $this->_mainUrl).
-                        '</div>';
-        }else
-       {// готовим виджет для авторизованного пользователя
-           $username    = Yii::app()->getModule('user')->user()->fullname;
-           $questionary = Yii::app()->getModule('user')->user()->questionary;
-           $logoutUrl   = Yii::app()->getModule('user')->logoutUrl;
-           // ссылка на свою страницу
-           $this->_mainUrl = Yii::app()->getModule('questionary')->profileUrl;
-           // Аватар пользователя
-           $this->_image = CHtml::link(
-                           CHtml::image($questionary->avatarUrl, Yii::app()->getModule('user')->user()->fullname, array('style' => 'height:75px;width:75px;')),
-                           $this->_mainUrl);
-           // Имя пользователя и кнопка "выход"
-           $this->_label = '<div class="easycast-menu-label">'.
-                       CHtml::link($username, $this->_mainUrl).
-                       '<br>('.CHtml::link(Yii::t('coreMessages','logout'), $logoutUrl).')'.
-                       '</div>';
+        if ( ! Yii::app()->user->isGuest )
+        {// готовим виджет для авторизованного пользователя
+            $this->_userName  = Yii::app()->getModule('user')->user()->fullname;
+            $questionary      = Yii::app()->getModule('user')->user()->questionary;
+            //$this->_logoutUrl = Yii::app()->createUrl(Yii::app()->getModule('user')->logoutUrl);
+            
+            // ссылка на свою страницу
+            $this->_mainUrl  = Yii::app()->getModule('questionary')->profileUrl;
+            
+            // Аватар пользователя
+            //$avatarUrl = CHtml::image($questionary->avatarUrl, CHtml::encode($this->_userName), array(
+            $avatarUrl = CHtml::image($questionary->avatarUrl, '', array(
+               'style' => 'height:16px;width:16px;',
+            ));
+            $this->_image = CHtml::link($avatarUrl, $this->_mainUrl);
         }
     }
     
@@ -70,7 +66,12 @@ class ECLoginWidget extends CWidget
      */
     public function run()
     {
-        echo $this->_image;
-        echo $this->_label;
+        if ( Yii::app()->user->isGuest )
+        {
+            $this->render('login');
+        }else
+        {
+            $this->render('logout');
+        }
     }
 }

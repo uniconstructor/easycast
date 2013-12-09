@@ -43,7 +43,6 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
             'label'       => 'Отправить',
             'htmlOptions' => array(
                 'id'    => 'place_order',
-                //'class' => 'btn btn-large btn-success',
             ),
         )); 
         ?>

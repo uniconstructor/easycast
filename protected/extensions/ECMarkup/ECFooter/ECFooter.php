@@ -52,8 +52,10 @@ class ECFooter extends CWidget
         echo '<div class="row-fluid show-grid">';
         $this->printCopyright();
         echo '</div>';
-		
+        // выводим скрытую форму регистрации для всплывающего окна
+        
 	    echo '</div><!-- footer -->';
+	    $this->widget('ext.ECMarkup.ECRegister.ECRegister');
     }
 
     /**
