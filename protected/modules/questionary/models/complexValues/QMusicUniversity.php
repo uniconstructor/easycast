@@ -28,5 +28,4 @@ class QMusicUniversity extends QUniversityInstance
             ),
             'order' => '`musicuniversities`.`timeend` DESC');
     }
-    
 }

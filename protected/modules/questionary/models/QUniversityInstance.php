@@ -206,16 +206,15 @@ class QUniversityInstance extends CActiveRecord
         $result = array();
         
         $criteria = new CDbCriteria();
-        $criteria->addCondition('type = :type');
+        $criteria->compare('type', $type);
         if ( QuestionaryModule::SYSTEM_DEFAULTS_ONLY )
         {// разрешены только одобренные администратором ВУЗы
-            $criteria->addCondition('system = 1');
+            $criteria->compare('system', 1);
         }
-        $criteria->params = array(':type' => $type);
-        $criteria->order  = 'name';
+        $criteria->order = 'name';
         
         if ( ! $universities = QUniversity::model()->findAll($criteria) )
-        {
+        {// ни одного ВУЗа не найдено
             return array();
         }
         

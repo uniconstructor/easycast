@@ -28,5 +28,4 @@ class QActorUniversity extends QUniversityInstance
             ),
             'order' => '`actoruniversities`.`timeend` DESC');
     }
-    
 }

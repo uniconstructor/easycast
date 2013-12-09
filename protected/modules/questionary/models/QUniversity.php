@@ -159,7 +159,7 @@ class QUniversity extends CActiveRecord
         $university->system = $system;
         $university->type   = $type;
         $university->link   = null;
-        $university->name   = striptags($name);
+        $university->name   = strip_tags($name);
 
         $university->save();
 
