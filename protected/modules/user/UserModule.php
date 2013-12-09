@@ -417,18 +417,18 @@ class UserModule extends CWebModule
         	    После этого вы получите доступ к нашему сервису а также сможете уточнить информацию о себе.<br>';
 	    }else
 	    {// Пользователь регистрируется сам - стандартное сообщение
-	        $theme   = UserModule::t("You registered from {site_name}",array('{site_name}' => Yii::app()->name));
+	        $theme = 'Вы стали участником проекта EasyCast';
 	        $message = UserModule::t("Please activate you account go to {activation_url}",
 	            array('{activation_url}' => $activation_url)
 	        );
 	    }
 	    $message .= "<br><br>";
 	    $message .= "Данные для доступа к сайту:<br>";
-	    $message .= "\n Логин: ".$model->username."<br>";
+	    $message .= "\n Логин: ".$model->email."<br>";
 	    $message .= "\n Пароль: ".$password."<br>";
 	    $message .= "<br><br>";
 	    $message .= 'Если вы считаете что получили это письмо по ошибке или у вас возникли вопросы,
-	        то вы можете задать их нам, просто ответив на это письмо или позвонив по телефону '.Yii::app()->params['adminPhone'].'.';
+	        то вы можете задать их нам, просто ответив на это письмо или позвонив по телефону '.Yii::app()->params['userPhone'].'.';
 	    $message .= "<br><br>";
 	    $message .= "С уважением, команда проекта EasyCast";
 	
