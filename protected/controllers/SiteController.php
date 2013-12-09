@@ -159,7 +159,7 @@ class SiteController extends Controller
             $model = new FastOrder();
             $model->attributes = $formData;
             $model->status = 'active';
-            $model->type = 'normal';
+            $model->type   = 'normal';
             $model->save();
             
             // заказ создан, добавляем в него данные анкет

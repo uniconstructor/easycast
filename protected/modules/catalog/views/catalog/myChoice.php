@@ -3,7 +3,7 @@
  * отображение страницы "мой выбор"
  * @var TbActiveForm $form
  */
-$this->breadcrumbs=array(
+$this->breadcrumbs = array(
     "Мой выбор",
 );
 
@@ -21,10 +21,6 @@ $this->widget('bootstrap.widgets.TbAlert', array(
     'block' => true, // display a larger alert block?
     'fade'  => false, // use transitions?
     'closeText' => false, // close link text - if set to false, no close link is displayed
-    'alerts' => array( // configurations per alert type
-        'success' => array('block'=>true, 'fade'=>false), // success, info, warning, error or danger
-        'info'    => array('block'=>true, 'fade'=>false), // success, info, warning, error or danger
-    ),
 ));
 
 
@@ -42,7 +38,8 @@ if ( ! FastOrder::orderIsEmpty() )
         'id' => 'order-form',
         'enableAjaxValidation' => false,
         'action' => '/site/placeOrder',
-    ));?>
+    ));
+    ?>
     <div class="span2">&nbsp;</div>
     <div class="span6">
         <h2>Ваши контактные данные</h2>
@@ -89,9 +86,7 @@ if ( ! FastOrder::orderIsEmpty() )
     	</div>
     </div>
     <div class="span2">&nbsp;</div>
-    
-    <?php $this->endWidget(); 
-    
-    
-}
-?>
+    <?php 
+    // конец формы
+    $this->endWidget(); 
+}// конец условия "в заказе есть хотя бы один актер"
