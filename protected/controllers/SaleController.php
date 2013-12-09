@@ -2,6 +2,7 @@
 
 /**
  * Контроллер для работы с коммерческим предложением и всем что связано с продажами
+ * @todo перенести сюда страницу коммерческого предложения
  */
 class SaleController extends Controller
 {
@@ -11,6 +12,6 @@ class SaleController extends Controller
      */
     public function actionIndex()
     {
-        
+        $this->redirect(Yii::app()->createAbsoluteUrl('/lp/sale/sale.html'));
     }
 }
