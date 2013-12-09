@@ -51,10 +51,10 @@ if ( $canEdit )
 
 ?>
 <div class="row">
-    <div class="span12" style="margin-top:-40px;margin-bottom:-10px;">
+    <div class="span12" style="margin-bottom:-10px;">
         <div id="order_message" 
             class="<?php echo $orderMessageClass; ?>" 
-            style="margin-top:20px;margin-bottom:-5px;<?php echo $orderMessageStyle; ?>">
+            style="margin-top:20px;<?php echo $orderMessageStyle; ?>">
             <?php // сообщение о том что участник приглашен на съемки
                 echo $orderMessage; 
                 echo '<br><br>';
