@@ -75,7 +75,8 @@ class MailController extends Controller
         }elseif ( $type = 'offer' )
         {
             $offer = ROffer::model()->findByPk(9);
-            echo MailComposerModule::getMessage('offer', array('offer' => $offer));
+            echo $offerMail = MailComposerModule::getMessage('offer', array('offer' => $offer));
+            //UserModule::sendMail('frost@easycast.ru', 'test message', $offerMail, true);
         }else
         {
             $questionary = Questionary::model()->findByPk(9);
@@ -94,8 +95,6 @@ class MailController extends Controller
         $type = Yii::app()->request->getParam('type');
         $id   = Yii::app()->request->getParam('id');
         $key  = Yii::app()->request->getParam('key');
-        
-        
         
         if ( $type == 'callList' )
         {
