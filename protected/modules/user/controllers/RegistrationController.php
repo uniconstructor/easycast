@@ -25,8 +25,8 @@ class RegistrationController extends Controller
 	 * Registration user
 	 */
 	public function actionRegistration() {
-            $model = new RegistrationForm;
-            $profile=new Profile;
+            $model   = new RegistrationForm;
+            $profile = new Profile;
             $profile->regMode = true;
             
 			// ajax validator
@@ -39,11 +39,11 @@ class RegistrationController extends Controller
 		    if (Yii::app()->user->id)
 		    {
 		    	$this->redirect(Yii::app()->controller->module->profileUrl);
-		    } else {
-		    	if(isset($_POST['RegistrationForm']))
+		    }else
+		    {
+		    	if ( isset($_POST['RegistrationForm']) )
 		    	{
 					$model->attributes   = $_POST['RegistrationForm'];
-					//$profile->attributes = ( (isset($_POST['Profile']) ? $_POST['Profile']:array()) );
 					//CVarDumper::dump($model->attributes, 10, true);
 					//CVarDumper::dump($_POST['RegistrationForm'], 10, true);
 					$soucePassword  = $model->password;
@@ -66,7 +66,7 @@ class RegistrationController extends Controller
 						Yii::app()->end();
 					}
 				}
-			    $this->render('/user/registration',array('model'=>$model,'profile'=>$profile));
+			    $this->render('/user/registration', array('model'=>$model,'profile'=>$profile));
 		    }
 	}
 	
@@ -152,6 +152,9 @@ class RegistrationController extends Controller
 	 * @param User $model
 	 * @param string $password
 	 * @return null
+	 * 
+	 * @deprecated
+	 * @todo использовать обращение к UserModule::sendActivationEmail()
 	 */
 	public function sendActivationEmail($model, $password=null)
 	{
@@ -172,9 +175,9 @@ class RegistrationController extends Controller
         	    После этого вы получите доступ к нашему сервису а также сможете уточнить информацию о себе.<br>';
 	    }else
 	    {// Пользователь регистрируется сам - стандартное сообщение
-	        $theme = UserModule::t("You registered from {site_name}",array('{site_name}'=>Yii::app()->name));
+	        $theme   = UserModule::t("You registered from {site_name}", array('{site_name}' => Yii::app()->name));
 	        $message = UserModule::t("Please activate you account go to {activation_url}",
-	                array('{activation_url}'=>$activation_url)
+	                array('{activation_url}' => $activation_url)
 	            );
 	    }
 	    $message .= "<br><br>";
