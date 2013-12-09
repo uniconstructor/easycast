@@ -35,12 +35,12 @@ class ECFooter extends CWidget
     {
         echo '<div id="footer">';
         // Используем стили Twitter Bootstrap для того чтобы сделать резиновую верстку блоков в подвале
-        echo '<div class="row">';
+        echo '<div class="container">';
         // Выводим горизонтальную полоску
         echo '<div class="span12"><hr noshade size="2" style="border-color:white;"></div>';
         echo '</div>';
         // Выводим кнопки социальных сетей
-        echo '<div class="row-fluid show-grid">';
+        echo '<div class="container">';
         $this->printSocialButtons();
         // Выводим счетчик Яндекса
         $this->printYandexCounter();
@@ -49,12 +49,11 @@ class ECFooter extends CWidget
         echo '</div>';
         
         // выводим копирайт
-        echo '<div class="row-fluid show-grid">';
+        echo '<div class="container">';
         $this->printCopyright();
         echo '</div>';
-        // выводим скрытую форму регистрации для всплывающего окна
-        
 	    echo '</div><!-- footer -->';
+	    // выводим скрытую форму регистрации для всплывающего окна
 	    $this->widget('ext.ECMarkup.ECRegister.ECRegister');
     }
 
