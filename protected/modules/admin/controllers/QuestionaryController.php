@@ -145,8 +145,6 @@ class QuestionaryController extends Controller
         {
             $message .= '<br><br>Комментарий администратора: '.$comment.'<br><br>';
         }
-        $message .= 'После внесения дополнительных изменений ваша анкета станет доступна в поиске,
-            и вы начнете получать приглашения на съемки.';
         
         return $message;
     }
@@ -161,7 +159,10 @@ class QuestionaryController extends Controller
     {
         $link = Yii::app()->createAbsoluteUrl(Yii::app()->getModule('questionary')->profileUrl, array('id' => $questionary->id));
         $message = 'Ваша анкета была проверена администратором и требует указания дополнительных данных.<br>
-        <br>Вы можете просмотреть и отредактировать ее по ссылке: '.$link;
+        <br>Вы можете просмотреть и отредактировать ее по ссылке: '.$link.'.';
+        
+        $message .= '<br><br>После внесения дополнительных изменений ваша анкета станет доступна в поиске,
+            и вы начнете получать приглашения на съемки.';
         
         $message .= '<br><br>Комментарий администратора: '.$comment;
         
