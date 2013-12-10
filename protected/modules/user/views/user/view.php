@@ -1,10 +1,10 @@
 <?php
-$this->breadcrumbs=array(
-	UserModule::t('Users')=>array('index'),
+$this->breadcrumbs = array(
+	UserModule::t('Users') => array('index'),
 	$model->username,
 );
 $this->layout='//layouts/column2';
-$this->menu=array(
+$this->menu = array(
     array('label'=>QuestionaryModule::t('edit_questionary'), 'url'=>array('/questionary/questionary/update/id/'.$model->questionary->id)),
     ((UserModule::isAdmin())
         ?array('label'=>UserModule::t('List User'), 'url'=>array('index'))
@@ -31,5 +31,3 @@ $this->menu=array(
 		'data'=>$model,
 		'attributes'=>$attributes,
 	));
-
-?>

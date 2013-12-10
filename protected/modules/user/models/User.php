@@ -351,6 +351,10 @@ class User extends CActiveRecord
      */
     public function getfullname()
     {
+        if ( ! $this->questionary )
+        {
+            return $this->username;
+        }
         $fullname = $this->questionary->firstname.' '.$this->questionary->lastname;
         
         if ( ! trim($fullname) )

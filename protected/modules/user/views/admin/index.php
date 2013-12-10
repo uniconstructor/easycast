@@ -33,44 +33,56 @@ $('.search-form form').submit(function(){
 <?php echo CHtml::link(UserModule::t('Advanced Search'),'#',array('class'=>'search-button')); ?>
 <div class="search-form" style="display:none">
 <?php $this->renderPartial('_search',array(
-    'model'=>$model,
+    'model' => $model,
 )); ?>
 </div><!-- search-form -->
 
-<?php $this->widget('zii.widgets.grid.CGridView', array(
+<?php $this->widget('bootstrap.widgets.TbGridView', array(
 	'id'           => 'user-grid',
 	'dataProvider' => $model->search(),
 	'filter'       => $model,
+	'template'     => '{pager} {items} {pager}',
 	'columns' => array(
 		array(
-			'name' => 'id',
-			'type'=>'raw',
-			'value' => 'CHtml::link(CHtml::encode($data->id),array("admin/update","id"=>$data->id))',
+			'name'  => 'id',
+			'type'  => 'raw',
+			'value' => 'CHtml::link(CHtml::encode($data->id), array("admin/view","id"=>$data->id))',
 		),
 		array(
-			'name' => 'username',
-			'type'=>'raw',
-			'value' => 'CHtml::link(UHtml::markSearch($data,"username"),array("admin/view","id"=>$data->id))',
+			'name'  => 'username',
+			'type'  => 'raw',
+			'value' => 'CHtml::link(UHtml::markSearch($data,"username"), array("admin/view","id"=>$data->id))',
 		),
 		array(
-			'name'=>'email',
-			'type'=>'raw',
-			'value'=>'CHtml::link(UHtml::markSearch($data,"email"), "mailto:".$data->email)',
+			'name'  => 'email',
+			'type'  => 'raw',
+			'value' => 'CHtml::link(UHtml::markSearch($data,"email"), "mailto:".$data->email)',
 		),
 		'create_at',
 		'lastaccess',
 		array(
-			'name'=>'superuser',
-			'value'=>'User::itemAlias("AdminStatus",$data->superuser)',
-			'filter'=>User::itemAlias("AdminStatus"),
+			'name'   => 'superuser',
+			'value'  => 'User::itemAlias("AdminStatus",$data->superuser)',
+			'filter' => User::itemAlias("AdminStatus"),
 		),
 		array(
-			'name'=>'status',
-			'value'=>'User::itemAlias("UserStatus",$data->status)',
+			'name'   => 'status',
+			'value'  => 'User::itemAlias("UserStatus",$data->status)',
 			'filter' => User::itemAlias("UserStatus"),
 		),
 		array(
-			'class'=>'CButtonColumn',
+			'class' => 'bootstrap.widgets.TbButtonColumn',
+            'template' => '{view} {update} {delete}',
+            'deleteConfirmation' => 'Удалить этого пользователя?',
+            'buttons' => array(
+                'delete' => array(
+                    'csrf' => true,
+                    'submit' => array(
+                        'delete',
+                        'id' => $model->id,
+                    ),
+                ),
+            ),
 		),
 	),
-)); ?>
+));
