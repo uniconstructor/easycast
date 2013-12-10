@@ -84,7 +84,7 @@ class EMailOffer extends EMailBase
     
         $block['type']         = 'image640';
         $block['imageStyle']   = 'border:0px;';
-        $block['imageLink']    = Yii::app()->createAbsoluteUrl('/images/offer/top.gif');
+        $block['imageLink']    = ECPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl('/images/offer/top.gif'));
         $block['imageTarget']  = $this->getSalePageUrl();
     
         return $block;
@@ -99,7 +99,7 @@ class EMailOffer extends EMailBase
         $block = array();
         
         $block['type']       = 'image640';
-        $block['imageLink']  = Yii::app()->createAbsoluteUrl('/images/offer/slogan.png');
+        $block['imageLink']  = ECPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl('/images/offer/slogan.png'));
         
         return $block;
     }
@@ -155,7 +155,7 @@ class EMailOffer extends EMailBase
         $block = array();
         
         $block['type']       = 'image640';
-        $block['imageLink']  = Yii::app()->createAbsoluteUrl('/images/offer/lp2.gif');
+        $block['imageLink']  = ECPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl('/images/offer/lp2.gif'));
         
         return $block;
     }
@@ -183,7 +183,7 @@ class EMailOffer extends EMailBase
         $block = array();
         
         $block['type']       = 'image640';
-        $block['imageLink']  = Yii::app()->createAbsoluteUrl('/images/offer/lp3.png');
+        $block['imageLink']  = ECPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl('/images/offer/lp3.png'));
         
         return $block;
     }
@@ -197,7 +197,7 @@ class EMailOffer extends EMailBase
         $block = array();
         
         $block['type']       = 'image640';
-        $block['imageLink']  = Yii::app()->createAbsoluteUrl('/images/offer/ibuzaeva.png');
+        $block['imageLink']  = ECPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl('/images/offer/ibuzaeva.png'));
         
         return $block;
     }

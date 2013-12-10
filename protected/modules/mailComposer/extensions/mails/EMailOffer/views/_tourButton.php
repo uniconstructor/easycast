@@ -8,14 +8,14 @@
     <tbody>
         <tr>
             <td width="162" height="70">
-                <img src="<?= Yii::app()->createAbsoluteUrl('/images/offer/tur_l.gif'); ?>"  style="display: inline" align="top" border="0" width="162"/>
+                <img src="<?= ECPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl('/images/offer/tur_l.gif')); ?>"  style="display: inline" align="top" border="0" width="162"/>
             </td>
             <td width="315">
                 <a href="<?= Yii::app()->createAbsoluteUrl('/tour', array('offerid' => $this->offer->id)); ?>">
-                <img src="<?= Yii::app()->createAbsoluteUrl('/images/offer/tur_but.gif'); ?>"  style="display: inline" align="top" border="0" width="315"></a>
+                <img src="<?= ECPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl('/images/offer/tur_but.gif')); ?>"  style="display: inline" align="top" border="0" width="315"></a>
             </td>
             <td width="165">
-                <img src="<?= Yii::app()->createAbsoluteUrl('/images/offer/tur_r.gif'); ?>"  style="display: inline; margin-left: -1px;" align="top" border="0" width="165" />
+                <img src="<?= ECPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl('/images/offer/tur_r.gif')); ?>"  style="display: inline; margin-left: -1px;" align="top" border="0" width="165" />
             </td>
         </tr>
     </tbody>

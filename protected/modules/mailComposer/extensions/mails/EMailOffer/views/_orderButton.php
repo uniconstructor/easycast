@@ -8,14 +8,14 @@
 	<tbody>
 		<tr>
 			<td width="194" height="62">
-				<img src="<?= Yii::app()->createAbsoluteUrl('/images/offer/zakaz_l.gif'); ?>"/>
+				<img src="<?= ECPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl('/images/offer/zakaz_l.gif')); ?>"/>
 			</td>
 			<td width="247">
 				<a href="<?= Yii::app()->createAbsoluteUrl('/order', array('offerid' => $this->offer->id)); ?>">
-				<img src="<?= Yii::app()->createAbsoluteUrl('/images/offer/zakaz_but.gif'); ?>"></a>
+				<img src="<?= ECPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl('/images/offer/zakaz_but.gif')); ?>"></a>
 			</td>
 			<td width="201">
-				<img src="<?= Yii::app()->createAbsoluteUrl('/images/offer/zakaz_r.gif'); ?>" style="margin-left: -2px;"/>
+				<img src="<?= ECPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl('/images/offer/zakaz_r.gif')); ?>" style="margin-left: -2px;"/>
 			</td>
 		</tr>
 	</tbody>
