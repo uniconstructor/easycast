@@ -112,7 +112,7 @@ class QuestionaryController extends Controller
         $subject = 'Ваша анкета одобрена';
         $text    = $this->getSuccessMessage($questionary, $message);
         
-        UserModule::sendMail($email, $subject, $text);
+        UserModule::sendMail($email, $subject, $text, true);
     }
     
     /**
@@ -126,7 +126,7 @@ class QuestionaryController extends Controller
         $subject = 'В вашей анкете следует указать дополнительные данные';
         $text    = $this->getRejectMessage($questionary, $message);
         
-        UserModule::sendMail($email, $subject, $text);
+        UserModule::sendMail($email, $subject, $text, true);
     }
     
     /**
@@ -161,10 +161,10 @@ class QuestionaryController extends Controller
         $message = 'Ваша анкета была проверена администратором и требует указания дополнительных данных.<br>
         <br>Вы можете просмотреть и отредактировать ее по ссылке: '.$link.'.';
         
-        $message .= '<br><br>После внесения дополнительных изменений ваша анкета станет доступна в поиске,
-            и вы начнете получать приглашения на съемки.';
-        
         $message .= '<br><br>Комментарий администратора: '.$comment;
+        
+        $message .= '<br><br><i>(После внесения дополнительных изменений ваша анкета станет доступна в поиске,
+            и вы начнете получать приглашения на съемки)</i>';
         
         return $message;
     }
