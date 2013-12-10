@@ -1,7 +1,8 @@
 <?php
 /**
  * Виджет отображающий подвал страницы
- * @todo вынести настройки всех соцсетей в widgetFactory
+ * @todo вынести настройки всех кнопок соцсетей в widgetFactory
+ * @todo вынести html-код подвала в html-файл
  */
 class ECFooter extends CWidget
 {
