@@ -25,7 +25,7 @@ $this->breadcrumbs = array(
 			<h2>Николай Гришин <span>управляющий парнер</span></h2>
 			<p><span>Тел:</span> +7 926 782 70 87 <span style="sep">|</span> +7 926 782 70 87</p>
 			<p><span>E-mail:</span> ceo@easycast.ru </p>
-			<p><img src="/images/facebook_icon.png" /><a href="http://www.facebook.com/ngrishinru" target="_blanck">www.facebook.com/ngrishinru</a></p>
+			<p><img src="/images/facebook_icon.png" /><a href="http://www.facebook.com/ngrishinru" target="_blank">www.facebook.com/ngrishinru</a></p>
 		</div>
 	</div>
 </div>
@@ -39,7 +39,7 @@ $this->breadcrumbs = array(
 			<h2>Ирина Бузаева <span>руководитель проектов</span></h2>
 			<p><span>Тел:</span> +7 915 066 86 05 <span style="sep">|</span> +7 926 782 70 87</p>
 			<p><span>E-mail:</span> irina@easycast.ru</p>
-			<p><img src="/images/facebook_icon.png" /><a href="http://www.facebook.com/irsen.love" target="_blanck">www.facebook.com/irsen.love</a></p>
+			<p><img src="/images/facebook_icon.png" /><a href="http://www.facebook.com/irsen.love" target="_blank">www.facebook.com/irsen.love</a></p>
 		</div>
 	</div>
 </div>
@@ -54,7 +54,7 @@ $this->breadcrumbs = array(
 			<h2>Елизавета Ларсен <span>руководитель проектов</span></h2>
 			<p><span>Тел:</span> +7 967 052 20 25 <span style="sep">|</span> +7 926 782 70 87</p>
 			<p><span>E-mail:</span> liza@easycast.ru</p>
-			<p><img src="/images/facebook_icon.png" /><a href="http://www.facebook.com/larsen.liza" target="_blanck">www.facebook.com/larsen.liza</a></p>
+			<p><img src="/images/facebook_icon.png" /><a href="http://www.facebook.com/larsen.liza" target="_blank">www.facebook.com/larsen.liza</a></p>
 		</div>
 	</div>
 </div>
