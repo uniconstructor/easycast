@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Контроллер для работы с приглашениями заказчиков
+ * Контроллер для работы с отсылкой коммерческих предложений
  */
-class CustomerInviteController extends Controller
+class CustomerOfferController extends Controller
 {
 	/**
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
@@ -17,7 +17,7 @@ class CustomerInviteController extends Controller
 	 */
 	public function init()
 	{
-	    Yii::import('application.modules.projects.models.*');
+	    //Yii::import('application.modules.projects.models.*');
 	    parent::init();
 	}
 
@@ -65,48 +65,31 @@ class CustomerInviteController extends Controller
 	/**
 	 * Creates a new model.
 	 * If creation is successful, the browser will be redirected to the 'view' page.
-	 * 
-	 * @todo сделать проверку допустимых значений objecttype
 	 */
 	public function actionCreate()
 	{
-		$model = new CustomerInvite;
+		$model = new CustomerOffer;
+		
+		// тип коммерческого предложения всегда одинаковый
+		$objectType = 'offer';
+		$objectId = Yii::app()->request->getParam('objectId', 0);
 		
 		// Uncomment the following line if AJAX validation is needed
 		$this->performAjaxValidation($model);
 		
-		// Определяем куда создается приглашение
-		if ( ! $objectType = Yii::app()->request->getParam('objectType') )
-		{
-		    throw new CHttpException(400, 'Не указан тип объекта для создания приглашения');
-		}
-		$objectId = Yii::app()->request->getParam('objectId', 0);
-		switch ( $objectType )
-		{
-		    case 'project': 
-		        $objectExists = Project::model()->exists('id = :id', array(':id' => $objectId));
-	        break;
-		    case 'event':
-		        $objectExists = ProjectEvent::model()->exists('id = :id', array(':id' => $objectId));
-	        break;
-		    case 'vacancy':
-		        $objectExists = EventVacancy::model()->exists('id = :id', array(':id' => $objectId));
-	        break;
-		    default: $objectExists = false;
-		}
-		if ( ! $objectExists )
-		{
-		    throw new CHttpException(400, 'Не найден объект для создания приглашения');
-		}
-		// связываем приглашение с нужным объектом при создании
+		// устанавливаем значения по умолчанию
 		$model->objecttype = $objectType;
 		$model->objectid   = $objectId;
+		$model->name       = '';
 
-		if ( $attributes = Yii::app()->request->getPost('CustomerInvite') )
+		if ( $attributes = Yii::app()->request->getPost('CustomerOffer') )
 		{
 			$model->attributes = $attributes;
 			if ( $model->validate() AND $model->save() )
 			{// @todo проставить setFlash здесь и на странице отображения
+			    // отправляем письмо с приглашением
+			    $model->sendNotification();
+			    
 			    $this->redirect(array('view',
 				    'id' => $model->id,
 			    ));
@@ -130,12 +113,12 @@ class CustomerInviteController extends Controller
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
-		if ( $attributes = Yii::app()->request->getPost('CustomerInvite') )
+		if ( $attributes = Yii::app()->request->getPost('CustomerOffer') )
 		{
 			$model->attributes = $attributes;
 			if ( $model->save() )
 			{
-			    $this->redirect(array('view', 'id'=>$model->id));
+			    $this->redirect(array('view', 'id' => $model->id));
 			}
 		}
 
@@ -157,12 +140,12 @@ class CustomerInviteController extends Controller
 	 */
 	public function actionAdmin()
 	{
-		$model = new CustomerInvite('search');
+		$model = new CustomerOffer('search');
 		$model->unsetAttributes();  // clear any default values
 		
-		if ( isset($_GET['CustomerInvite']) )
+		if ( isset($_GET['CustomerOffer']) )
 		{
-		    $model->attributes = $_GET['CustomerInvite'];
+		    $model->attributes = $_GET['CustomerOffer'];
 		}
 
 		$this->render('admin', array(
@@ -177,10 +160,10 @@ class CustomerInviteController extends Controller
 	 */
 	public function loadModel($id)
 	{
-		$model = CustomerInvite::model()->findByPk($id);
+		$model = CustomerOffer::model()->findByPk($id);
 		if ( $model === null )
 		{
-		    throw new CHttpException(404, 'Приглашение не найдено');
+		    throw new CHttpException(404, 'Коммерческое предложение не найдено');
 		}
 		return $model;
 	}
@@ -191,7 +174,7 @@ class CustomerInviteController extends Controller
 	 */
 	protected function performAjaxValidation($model)
 	{
-		if ( isset($_POST['ajax']) && $_POST['ajax'] === 'customer-invite-form' )
+		if ( isset($_POST['ajax']) && $_POST['ajax'] === 'customer-offer-form' )
 		{
 			echo CActiveForm::validate($model);
 			Yii::app()->end();

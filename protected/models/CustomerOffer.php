@@ -44,8 +44,13 @@ class CustomerOffer extends CustomerInvite
      */
     public function sendNotification()
     {
+        $params = array(
+            'offer'   => $this,
+            'manager' => $this->manager,
+        );
         // отправляем письмо (сразу же, без очереди)
-    
+        $message = Yii::app()->getModule('mailComposer')->getMessage('offer', $params);
+        Yii::app()->getModule('user')->sendMail($this->email, 'Коммерческое предложение проекта easyCast', $message, true);
         return true;
     }
 }

@@ -29,17 +29,10 @@ switch ( $model->objecttype )
 }
 // @todo вывести все приглашения для мероприятия, проекта, или события
 //$this->breadcrumbs['Приглашения для заказчиков'] = array('/admin/customerInvite/admin');
-$this->breadcrumbs[] = 'Приглашение №'.$model->name;
+$this->breadcrumbs[] = 'Приглашение №'.$model->id.' ('.$model->name.')';
 
 // отображаение оповещений
-$this->widget('bootstrap.widgets.TbAlert', array(
-    'block'     => true, // display a larger alert block?
-    'fade'      => true, // use transitions?
-    'closeText' => '&times;', // close link text - if set to false, no close link is displayed
-    'alerts' => array( // configurations per alert type: success, info, warning, error or danger
-        'success' => array('block' => true, 'fade' => true, 'closeText' => '&times;'),
-    ),
-));
+$this->widget('bootstrap.widgets.TbAlert');
 
 ?>
 <h1>Приглашение №<?php echo $model->id; ?></h1>

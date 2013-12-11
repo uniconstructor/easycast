@@ -300,11 +300,10 @@ class ProjectMailsBehavior extends CBehavior
      * @param ROffer $offer
      * @return string
      */
-    public function createOfferMailText($offer)
+    public function createOfferMailText($offer, $manager=null)
     {
         return $this->owner->widget('application.modules.mailComposer.extensions.mails.EMailOffer.EMailOffer',
-            array('offer' => $offer),
-            true);
+            array('offer' => $offer, 'manager' => $manager), true);
     }
     
     /**

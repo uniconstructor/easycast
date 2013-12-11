@@ -1,11 +1,12 @@
 <?php 
 /**
- * Форма создания/редактирования приглашения для заказчика
+ * Форма создания/редактирования коммерческого предложения
  * @todo сделать 3 кнопки "создать", "сохранить" и "отправить"
+ * @todo добавить возможность вставлять комментарий в коммерческое
  */
 
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
-	'id' => 'customer-invite-form',
+	'id' => 'customer-offer-form',
 	'enableAjaxValidation' => true,
 ));
 
@@ -16,7 +17,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 	<?php echo $form->textFieldRow($model, 'name',  array('class'=>'span5', 'maxlength' => 255)); ?>
 	
 	<?php // Наш комментарий для заказчика
-	echo $form->labelEx($model, 'comment'); 
+	/*echo $form->labelEx($model, 'comment'); 
     $this->widget('ext.imperavi-redactor-widget.ImperaviRedactorWidget', array(
     	'model' => $model,
     	'attribute' => 'comment',
@@ -24,12 +25,12 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     		'lang' => 'ru',
             ),
     ));
-    echo $form->error($model, 'comment');
+    echo $form->error($model, 'comment');*/
     ?>
-    <div class="alert alert-info">
+    <!--div class="alert alert-info">
         Этот комментарий добавится в письмо с приглашением, в самый конец. Используйте это поле
         чтобы сообщить заказчику дополнительную информацию.
-    </div>
+    </div-->
 
 	<div class="form-actions">
 		<?php

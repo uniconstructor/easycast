@@ -156,12 +156,16 @@ class MailComposerModule extends CWebModule
             break;
             // коммерческое предложение
             case 'offer':
-                $addContacts = false;
+                $manager = null;
                 if ( ! isset($params['offer']) )
                 {
                     throw new CException('offer for mail is not set');
                 }
-                return $mailComposer->createOfferMailText($params['offer']);
+                if ( isset($params['manager']) )
+                {
+                    $manager = $params['manager'];
+                }
+                return $mailComposer->createOfferMailText($params['offer'], $manager);
             break;
         }
     }
