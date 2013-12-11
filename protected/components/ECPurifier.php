@@ -46,6 +46,10 @@ class ECPurifier extends CHtmlPurifier
      */
     public static function getImageProxyUrl($url)
     {
+        if ( ! isset(Yii::app()->params['useGoogleImageProxy']) OR ! Yii::app()->params['useGoogleImageProxy'] )
+        {// использование прокси-серверов google отключено (для сборки разработчика)
+            return $url;
+        }
         $prefix = 'https://images2-focus-opensocial.googleusercontent.com/gadgets/proxy?url=';
         $suffix = '&container=focus&gadget=a&no_expand=1&resize_h=0&rewriteMime=image%2F*';
         

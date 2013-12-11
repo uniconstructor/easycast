@@ -54,6 +54,8 @@ class ECFooter extends CWidget
         $this->printCopyright();
         echo '</div>';
 	    echo '</div><!-- footer -->';
+	    // выводим скрипт онлайн-консультанта
+	    $this->render('zopim');
 	    // выводим скрытую форму регистрации для всплывающего окна
 	    $this->widget('ext.ECMarkup.ECRegister.ECRegister');
     }
@@ -64,7 +66,7 @@ class ECFooter extends CWidget
     public function printCopyright()
     {
         echo '<div class="span12 easycast-copyright">';
-        echo '&copy; 2005-' . date('Y').'&nbsp;';
+        echo '&copy; 2005-' . date('Y') . '&nbsp;';
         $easyCast = '&laquo;' . CHtml::link('EasyCast', Yii::app()->getBaseUrl(true)) . '&raquo;';
         echo Yii::t('coreMessages', 'copyright_notice', array('{easycast}' => $easyCast));
         echo '&nbsp;<br>';
@@ -85,16 +87,16 @@ class ECFooter extends CWidget
             return;
         }
         $this->widget('application.extensions.ESocial.ESocial', array(
-             'style'=>'horizontal',
+             'style'    => 'horizontal',
              'networks' => array(
                  // g+
-                 'googleplusone'=>array(
-                     "size"=>"medium",
-                     "annotation"=>"bubble",
+                 'googleplusone' => array(
+                     "size"       => "medium",
+                     "annotation" => "bubble",
                  ),
                  // В контакте
                  'vkontakte' => array(
-                     'apiid' => $this->_vkontakteApiId,
+                     'apiid'       => $this->_vkontakteApiId,
                      'containerid' => 'vk_like', 
                      'scriptid'    => 'vkontakte-init-script',
                      'type'        => 'button',
@@ -104,15 +106,15 @@ class ECFooter extends CWidget
                      'type' => 'combo'
                  ),
                  // Твиттер
-                 'twitter'=>array(
-                     'data-via'=>'', //http://twitter.com/#!/YourPageAccount if exists else leave empty
+                 'twitter' => array(
+                     'data-via' => '', //http://twitter.com/#!/YourPageAccount if exists else leave empty
                  ),
                  // Facebook
-                 'facebook'=>array(
-                     'href'=>'http://easycast.ru/',//asociate your page http://www.facebook.com/page 
-                     'action'=>'recommend',//recommend, like
-                     'colorscheme'=>'light',
-                     'width'=>'140px',
+                 'facebook' => array(
+                     'href'        => 'http://easycast.ru', //asociate your page http://www.facebook.com/page 
+                     'action'      => 'recommend', //recommend, like
+                     'colorscheme' => 'light',
+                     'width'       => '140px',
                  )
              )
         ));

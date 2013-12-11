@@ -34,8 +34,18 @@ class CustomerOffer extends CustomerInvite
     public function defaultScope()
     {
         return array(
-            'condition' => "`type`='offer'",
+            'condition' => "`objecttype`='offer'",
             'order'     => '`timecreated` DESC',
         );
+    }
+    
+    /**
+     * @see CustomerInvite::sendNotification()
+     */
+    public function sendNotification()
+    {
+        // отправляем письмо (сразу же, без очереди)
+    
+        return true;
     }
 }

@@ -9,7 +9,7 @@ Yii::import('application.modules.mailComposer.extensions.mails.EMailBase.EMailBa
 class EMailOffer extends EMailBase
 {
     /**
-     * @var ROffer - отчет класса "коммерческое предложение"
+     * @var CustomerOffer - приглашение для заказчика класса "коммерческое предложение"
      */
     public $offer;
     /**
@@ -32,7 +32,7 @@ class EMailOffer extends EMailBase
         parent::init();
         
         if ( ! $this->manager )
-        {// @todo в верстке готова только фотография Иры, поэтому пока что будем брать только ее
+        {// Если менеджер не указан - по умолчанию возьмем Иру
             $this->manager = Yii::app()->getModule('user')->user(775);
         }
         
@@ -51,139 +51,35 @@ class EMailOffer extends EMailBase
      */
     public function run()
     {
-        // альтернативная шапка
-        $this->addSegment($this->getOfferHeaderBlock());
-        // слоган
-        $this->addSegment($this->getSloganBlock());
-        // разделы каталога
-        $this->addSegment($this->getSectionsBlock());
-        // кнопка заказа
-        $this->addSegment($this->getOrderButtonBlock());
-        // кнопка расчета стоимости
-        $this->addSegment($this->getPriceButtonBlock());
-        // наши услуги
-        $this->addSegment($this->getServicesBlock());
-        // видеотур
-        $this->addSegment($this->getTourButtonBlock());
-        // 100 причин работать с нами
-        $this->addSegment($this->get100ReasonsBlock());
-        // персонализация
+        // добавляем основное содержимое страницы
+        $this->addSegment($this->getOfferContent());
+        
         $this->addSegment($this->getPersonalizationBlock());
+        
         // выводим виджет со всеми данными
         parent::run();
     }
     
     /**
-     * Выводит альтернативную шапку коммерческого предложения
-     * (с правильным фоном, ссылкой и кнопкой "сделать заказ")
-     * @return array
+     * Добавить одним блоком все основное содержимое коммерческого предложения
+     * @return void
      */
-    protected function getOfferHeaderBlock()
-    {
-        $block = array();
-    
-        $block['type']         = 'image640';
-        $block['imageStyle']   = 'border:0px;';
-        $block['imageLink']    = ECPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl('/images/offer/top.gif'));
-        $block['imageTarget']  = $this->getSalePageUrl();
-    
-        return $block;
-    }
-    
-    /**
-     * 
-     * @return array 
-     */
-    protected function getSloganBlock()
+    protected function getOfferContent()
     {
         $block = array();
         
-        $block['type']       = 'image640';
-        $block['imageLink']  = ECPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl('/images/offer/slogan.png'));
-        
-        return $block;
-    }
-    
-    /**
-     * Получить блок письма с разделами каталога
-     * @return array
-     */
-    protected function getSectionsBlock()
-    {
-        $block = array();
+        $orderUrl         = Yii::app()->createAbsoluteUrl('/order', $this->getReferalParams());
+        $calculationUrl   = Yii::app()->createAbsoluteUrl('/calculation', $this->getReferalParams());
+        $tourUrl          = Yii::app()->createAbsoluteUrl('/tour', $this->getReferalParams());
+        $onlineCastingUrl = Yii::app()->createAbsoluteUrl('/onlineCasting', $this->getReferalParams());
         
         $block['type'] = 'text640';
-        $block['text'] = $this->render('_sections', null, true);
-        
-        return $block;
-    }
-    
-    /**
-     * Получить блок письма с кнопкой "сделать заказ"
-     * @return array
-     */
-    protected function getOrderButtonBlock()
-    {
-        $block = array();
-        
-        $block['type'] = 'text640';
-        $block['text'] = $this->render('_orderButton', null, true);
-        
-        return $block;
-    }
-    
-    /**
-     * Получить блок письма с кнопкой "рассчитать стоимость"
-     * @return array
-     */
-    protected function getPriceButtonBlock()
-    {
-        $block = array();
-        
-        $block['type'] = 'text640';
-        $block['text'] = $this->render('_priceButton', null, true);
-        
-        return $block;
-    }
-    
-    /**
-     * Получить блок письма с описанием онлайн-сервисов
-     * @return array
-     */
-    protected function getServicesBlock()
-    {
-        $block = array();
-        
-        $block['type']       = 'image640';
-        $block['imageLink']  = ECPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl('/images/offer/lp2.gif'));
-        
-        return $block;
-    }
-    
-    /**
-     * Получить блок письма с кнопкой видео-тура
-     * @return array
-     */
-    protected function getTourButtonBlock()
-    {
-        $block = array();
-        
-        $block['type'] = 'text640';
-        $block['text'] = $this->render('_tourButton', null, true);
-        
-        return $block;
-    }
-    
-    /**
-     * Получить блок письма "100 причин работать с нами"
-     * @return array
-     */
-    protected function get100ReasonsBlock()
-    {
-        $block = array();
-        
-        $block['type']       = 'image640';
-        $block['imageLink']  = ECPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl('/images/offer/lp3.png'));
+        $block['text'] = $this->render('offer', array(
+            'orderUrl'         => $orderUrl,
+            'calculationUrl'   => $calculationUrl,
+            'tourUrl'          => $tourUrl,
+            'onlineCastingUrl' => $onlineCastingUrl,
+        ), true);
         
         return $block;
     }
@@ -196,8 +92,12 @@ class EMailOffer extends EMailBase
     {
         $block = array();
         
-        $block['type']       = 'image640';
-        $block['imageLink']  = ECPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl('/images/offer/ibuzaeva.png'));
+        $block['type'] = 'text640';
+        $block['text'] = $this->widget(
+            'application.modules.mailComposer.extensions.widgets.EMailManagerInfo.EMailManagerInfo',
+            array(
+                'manager' => $this->manager,
+            ), true);
         
         return $block;
     }
@@ -227,7 +127,22 @@ class EMailOffer extends EMailBase
      */
     protected function getSalePageUrl()
     {
-        return Yii::app()->createAbsoluteUrl('/sale', array('offerid' => $this->offer->id));
+        return Yii::app()->createAbsoluteUrl('/sale', $this->getReferalParams());
+    }
+    
+    /**
+     * Получить get-параметры для создания реферальной ссылки из с коммерческим предложением
+     * 
+     * @return array
+     */
+    protected function getReferalParams()
+    {
+        return array(
+            'offerid' => $this->offer->id,
+            // защищаем свой реферал ключом, чтобы никто не смог выдать себя за заказчика
+            // просто перебрав все id приглашений
+            'key'     => $this->offer->key,
+        );
     }
     
     /**
@@ -237,15 +152,25 @@ class EMailOffer extends EMailBase
      */
     protected function getSectionUrl($name)
     {
-        $params = array('offerid' => $this->offer->id);
+        $params = $this->getReferalParams();
         switch ( $name )
         {
-            case 'actors': $params = array('sectionid' => 4); break;
-            case 'ams':    $params = array('sectionid' => 17); break;
-            case 'models': $params = array('sectionid' => 3); break;
-            case 'types':  $params = array('sectionid' => 1); break;
+            case 'actors': $params['sectionid'] = 4; break;
+            case 'ams':    $params['sectionid'] = 17; break;
+            case 'models': $params['sectionid'] = 3; break;
+            case 'types':  $params['sectionid'] = 1; break;
         }
         
         return Yii::app()->createAbsoluteUrl('/catalog/catalog/index', $params);
+    }
+    
+    /**
+     * Получить путь к изображению через прокcи сервера google
+     * @param string $path - фрагмент пути к изображению
+     * @return string
+     */
+    protected function getImageUrl($path)
+    {
+        return ECPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl($path));
     }
 }

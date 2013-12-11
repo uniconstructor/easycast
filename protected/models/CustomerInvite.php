@@ -26,6 +26,13 @@
  * @property Project $project
  * @property ProjectEvent $event
  * @property EventVacancy $vacancy
+ * 
+ * @todo добавить поле timesent - время отправки приглашения 
+ *       (оно может быть создано заранее, а отправлено позднее)
+ * @todo добавить поле action - действие, на которое дается разрешение/приглашение
+ *       Продумать этот пункт - возможно стоит сделать тут третью нормальную форму, и разрешить
+ *       в одном приглашении давать доступ сразу к нескольким действиям, но пока не известно
+ *       есть ли в этом необходимость
  */
 class CustomerInvite extends CActiveRecord
 {
@@ -168,7 +175,8 @@ class CustomerInvite extends CActiveRecord
             return;
         }
         // отправляем оповещение заказчику
-        $this->sendNotification();
+        // @todo продумать, нужно ли каждый раз при создании нового приглашения сразу же отправлять сообщение
+        // $this->sendNotification();
         
         parent::afterSave();
     }
@@ -185,10 +193,10 @@ class CustomerInvite extends CActiveRecord
             'key' => 'Key',
             'key2' => 'Key2',
             'email' => 'Email',
-            'name' => 'Имя заказчика',
+            'name' => 'Имя заказчика (без фамилии, для обращения)',
             'managerid' => 'Managerid',
             'timecreated' => 'Timecreated',
-            'timeused' => 'Timeused',
+            'timeused' => 'Использовано',
             'comment' => 'Комментарий',
             'userid' => 'Заказчик',
             'timefinished' => 'Время завершения',
