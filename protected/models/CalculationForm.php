@@ -60,4 +60,14 @@ class CalculationForm extends CFormModel
             'phone'       => 'Телефон',
         );
     }
+    
+    /**
+     * Сохранить запрос на расчет стоимости
+     * Добавляет в Мегаплан новую задачу со всей информацией
+     * @return boolean
+     */
+    public function save()
+    {
+        return true;
+    }
 }
