@@ -105,9 +105,7 @@
 				</tr>
 				<tr>
 					<td width="339" height="82">
-						<a href="<?= $onlineCastingUrl; ?>">
-                            <img src="<?= $this->getImageUrl('/images/offer/online.png'); ?>">
-                        </a>
+						&nbsp;
 					</td>
 				</tr>
 			</tbody>
@@ -138,8 +136,8 @@
 						<font face="tahoma,sans-serif" color="#17414c" size="3">
 						8-летний опыт и 2 года ит-разработок позволили нам запустить первый в России 
 						автоматизированный ресурс для предоставления полного спектра кастинговых услуг 
-						при помощи </font><br />
-						<font face="tahoma,sans-serif" color="#55B0C6" size="3"><i>нескольких кликов<i></font>  
+						</font><br />
+						<font face="tahoma,sans-serif" color="#55B0C6" size="3"><i>при помощи нескольких кликов<i></font>  
 					</td>
 					<td width="60">
 					   <img src="<?= $this->getImageUrl('/images/offer/textfon-r.png'); ?>"/>
