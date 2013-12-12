@@ -27,6 +27,14 @@ class ECFooter extends CWidget
     public function init()
     {
         $this->_vkontakteApiId = Yii::app()->params['vkontakteApiId'];
+        
+        // Загружаем стили фрагмента страницы
+        $this->_assetUrl = Yii::app()->assetManager->publish(
+            Yii::app()->extensionPath . DIRECTORY_SEPARATOR .
+            'ECMarkup' . DIRECTORY_SEPARATOR .
+            'ECFooter' . DIRECTORY_SEPARATOR .
+            'assets'   . DIRECTORY_SEPARATOR);
+        Yii::app()->clientScript->registerCssFile($this->_assetUrl.'/ec-footer-menu.css');
     }
 
     /**
@@ -34,26 +42,12 @@ class ECFooter extends CWidget
      */
     public function run()
     {
-        echo '<div id="footer">';
-        // Используем стили Twitter Bootstrap для того чтобы сделать резиновую верстку блоков в подвале
-        echo '<div class="container">';
-        // Выводим горизонтальную полоску
-        echo '<div class="span12"><hr noshade size="2" style="border-color:white;"></div>';
-        echo '</div>';
-        // Выводим кнопки социальных сетей
-        echo '<div class="container">';
-        $this->printSocialButtons();
-        // Выводим счетчик Яндекса
-        $this->printYandexCounter();
-        // Выводим контакты еще раз
-        $this->printContacts();
-        echo '</div>';
-        
-        // выводим копирайт
-        echo '<div class="container">';
-        $this->printCopyright();
-        echo '</div>';
-	    echo '</div><!-- footer -->';
+        $this->render('footer');
+	    
+	    if ( ! Yii::app()->user->checkAccess('Admin') )
+	    {// Выводим счетчик Яндекса
+	        $this->printYandexCounter();
+	    }
 	    // выводим скрипт онлайн-консультанта
 	    $this->render('zopim');
 	    // выводим скрытую форму регистрации для всплывающего окна
