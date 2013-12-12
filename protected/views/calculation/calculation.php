@@ -72,7 +72,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                 'tags'            => $categories,
                 'placeholder'     => 'Выберите одну или несколько категорий',
                 'width'           => '60%',
-                'tokenSeparators' => array(',', ' ')
+                'tokenSeparators' => array(',')
             )
         )
     );
@@ -90,6 +90,12 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
             'prepend' => '<i class="icon-calendar"></i>',
         )
     );
+    // сколько съемочных дней планируется
+    echo $form->textFieldRow($calculationForm, 'daysnum', array(
+        'size'        => 60,
+        'maxlength'   => 255,
+        'prepend'     => '<i class="icon icon-th"></i>',
+        'placeholder' => ''));
     
     // имя
     echo $form->textFieldRow($calculationForm, 'name', array(
@@ -118,13 +124,11 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     <div class="form-actions">
         <?php 
         // кнопка отправки
-        $this->widget(
-            'bootstrap.widgets.TbButton',
-            array(
+        $form->widget('bootstrap.widgets.TbButton', array(
                 'buttonType' => 'submit',
                 'type'       => 'success',
                 'size'       => 'large',
-                'label'      => 'Запросить расчет стоимости'
+                'label'      => 'Запросить расчет стоимости',
             )
         ); 
         ?>

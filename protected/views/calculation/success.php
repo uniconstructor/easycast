@@ -14,8 +14,15 @@ $this->widget('bootstrap.widgets.TbAlert');
             'type'       => 'success',
             'size'       => 'large',
             'label'      => 'Вернуться на главную',
-            'icon'       => 'remove white',
-            'url'        => Yii::app()->createAbsoluteUrl('/sire/index'),
+            'url'        => Yii::app()->createAbsoluteUrl('/site/index'),
+        ));
+    $this->widget('bootstrap.widgets.TbButton',
+        array(
+            'buttonType' => 'link',
+            'type'       => 'default',
+            'size'       => 'large',
+            'label'      => 'Новый расчет',
+            'url'        => Yii::app()->createAbsoluteUrl('/calculation'),
         ));
     ?>
     </div>

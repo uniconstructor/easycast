@@ -26,6 +26,9 @@ class CalculationController extends Controller
     {
         $calculationForm = new CalculationForm();
         
+        // AJAX-проверка введенных данных
+        $this->performAjaxValidation($calculationForm);
+        
         // получаем все возможные типы проекта
         $projectTypes = Project::model()->getTypeList();
         // получаем все возможные разделы каталога
@@ -37,21 +40,22 @@ class CalculationController extends Controller
         $categories = array();
         foreach ($sections as $section)
         {
-            $categories[$section->id] = $section->name;
+            //$categories[$section->id] = $section->name;
+            $categories[$section->name] = $section->name;
         }
         $categories = ECPurifier::getSelect2Options($categories);
         
         if ( $formData = Yii::app()->request->getPost('CalculationForm') )
         {// пришли данные из формы расчета стоимости
             $calculationForm->attributes = $formData;
-            CVarDumper::dump($formData, 10, true);die;
+            //CVarDumper::dump($formData, 10, true);die;
             
             if ( $calculationForm->validate() )
             {// все данные формы верны
                 if ( $user = $calculationForm->save() )
                 {// сохранение удалось
                     // добавляем flash-сообщение
-                    Yii::app()->user->setFlash('success', 'Ваш запрос принят.<br>
+                    Yii::app()->user->setFlash('success', '<br>Ваш запрос принят.<br>
                         Мы расчитаем стоимость и пришлем результаты вам на почту <b>'.$calculationForm->email.'</b>.');
                     
                     // и перенаправляем его на страницу просмотра своей анкеты
