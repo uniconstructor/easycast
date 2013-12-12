@@ -68,10 +68,10 @@ class EMailOffer extends EMailBase
     {
         $block = array();
         
-        $orderUrl         = Yii::app()->createAbsoluteUrl('/order', $this->getReferalParams());
-        $calculationUrl   = Yii::app()->createAbsoluteUrl('/calculation', $this->getReferalParams());
-        $tourUrl          = Yii::app()->createAbsoluteUrl('/tour', $this->getReferalParams());
-        $onlineCastingUrl = Yii::app()->createAbsoluteUrl('/onlineCasting', $this->getReferalParams());
+        $orderUrl         = Yii::app()->createAbsoluteUrl('/order/index', $this->getReferalParams());
+        $calculationUrl   = Yii::app()->createAbsoluteUrl('/calculation/index', $this->getReferalParams());
+        $tourUrl          = Yii::app()->createAbsoluteUrl('/tour/index', $this->getReferalParams());
+        $onlineCastingUrl = Yii::app()->createAbsoluteUrl('/onlineCasting/index', $this->getReferalParams());
         
         $block['type'] = 'text640';
         $block['text'] = $this->render('offer', array(
