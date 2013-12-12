@@ -115,29 +115,43 @@
 	</td>
 </tr>
 <tr bgcolor="#dbe4f1">
-    <td>
-    	<table class="w640" width="640" border="0" cellpadding="0" cellspacing="0">
-			<tbody>
-				<tr>
-					<td width="15"></td>
-					<td width="610" height="100" valign="center" align="center">
-						<!-- Текст про сервисы -->
-						<font face="tahoma,sans-serif" color="#224c17" size="3">
-						Семилетний опыт и 2 года IT-разработок позволили нам запустить первый в 
-						России автоматизированный ресурс для предоставления полного спектра 
-						кастинговых услуг при помощи нескольких кликов.  
-						</font>
-					</td>
-					<td width="15"></td>
-				</tr>
-			</tbody>
-    	</table>
+	<td width="640" height="40" valign="middle" align="center">
+		<!-- Текст про сервисы -->
+		<font face="tahom,sans-serif" color="#17414c" size="6">ВАШИ ОНЛАЙН СЕРВИСЫ:</font>
 	</td>
 </tr>
 <tr bgcolor="#dbe4f1">
-	<td width="640" height="40" valign="center" align="center">
-		<!-- Текст про сервисы -->
-		<font face="tahom,sans-serif" color="#224c17" size="4">ВАШИ ОНЛАЙН СЕРВИСЫ:</font>
+    <td>
+    	<table class="w640" width="640" border="0" cellpadding="0" cellspacing="0">
+			<tbody>
+			    <tr>
+					<td colspan="3" height="20">
+					   <img src="<?= $this->getImageUrl('/images/offer/textfon-t.png'); ?>"/>
+				    </td>
+				</tr>
+				<tr>
+					<td width="60" height="90">
+					   <img src="<?= $this->getImageUrl('/images/offer/textfon-l.png'); ?>"/>
+					</td>
+					<td width="520" height="100" width="520" bgcolor="#FFFFFF" valign="middle" align="center">
+						<!-- Текст про сервисы -->
+						<font face="tahoma,sans-serif" color="#17414c" size="3">
+						8-летний опыт и 2 года ит-разработок позволили нам запустить первый в России 
+						автоматизированный ресурс для предоставления полного спектра кастинговых услуг 
+						при помощи </font><br />
+						<font face="tahoma,sans-serif" color="#55B0C6" size="3"><i>нескольких кликов<i></font>  
+					</td>
+					<td width="60">
+					   <img src="<?= $this->getImageUrl('/images/offer/textfon-r.png'); ?>"/>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="3" height="20">
+					   <img src="<?= $this->getImageUrl('/images/offer/textfon-b.png'); ?>"/>
+				    </td>
+				</tr>
+			</tbody>
+    	</table>
 	</td>
 </tr>
 <tr bgcolor="#dbe4f1">
@@ -169,14 +183,6 @@
 				</tr>
 			</tbody>
 		</table>
-	</td>
-</tr>
-<tr bgcolor="#dbe4f1">
-	<td>
-		<!-- 100 причин -->
-		<div style="text-align: left" align="center">
-			<img src="<?= $this->getImageUrl('/images/offer/100.png'); ?>" style="display:inline" align="top" border="0" width="640">
-		</div>
 	</td>
 </tr>
 <tr bgcolor="#dbe4f1">
