@@ -54,19 +54,19 @@
 					<td width="40" rowspan="2"></td>
 				</tr>
 				<tr valign="center">
-					<td width="119" height="30" bgcolor="#47ad2c" align="center">
+					<td width="119" height="71" bgcolor="#47ad2c" align="center">
 						<a href="<?= $this->getSectionUrl('actors'); ?>" style="text-decoration:none;">
 						<font face="tahoma,sans-serif" color="#224c17" size="4">АКТЕРЫ</font></a>
 					</td>
-					<td width="120" height="30" bgcolor="#c87c1a" align="center">
+					<td width="120" height="71" bgcolor="#c87c1a" align="center">
 						<a href="<?= $this->getSectionUrl('ams'); ?>" style="text-decoration:none;">
 						<font face="tahoma,sans-serif" color="#65390d" size="2">АРТИСТЫ МАССОВЫХ СЦЕН</font></a>
 					</td>
-					<td width="120" height="30" bgcolor="#257cb7" align="center">
+					<td width="120" height="71" bgcolor="#257cb7" align="center">
 						<a href="<?= $this->getSectionUrl('models'); ?>" style="text-decoration:none;">
 						<font face="tahoma,sans-serif" color="#09354f" size="4">МОДЕЛИ</font></a>
 					</td>
-					<td width="119" height="30" bgcolor="#7c2fce" align="center">
+					<td width="119" height="71" bgcolor="#7c2fce" align="center">
 						<a href="<?= $this->getSectionUrl('types'); ?>" style="text-decoration:none;">
 						<font face="tahoma,sans-serif" color="#2b0137" size="4">ТИПАЖИ</font></a>
 					</td>
