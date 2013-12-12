@@ -18,7 +18,6 @@ class EasyController extends Controller
      */
     public function actionIndex()
     {
-        //$this->redirect('/user/registration');
         // Создаем форму для регистрации массовки
         $massActorForm = new MassActorsForm();
         

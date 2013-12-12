@@ -2,9 +2,21 @@
 
 /**
  * Класс формы расчета стоимости заказа
+ * @todo добавить фамилию заказчика
  */
 class CalculationForm extends CFormModel
 {
+    public $projectname; 
+    public $projecttype; 
+    public $eventtime; 
+    public $plandate; 
+    public $categories; 
+    public $daysnum; 
+    public $comment; 
+    public $name; 
+    public $email; 
+    public $phone; 
+    
     /**
      * @see CFormModel::init()
      */
@@ -23,7 +35,7 @@ class CalculationForm extends CFormModel
             // Сохраняем номер телефона в правильном формате (10 цифр)
             array('phone', 'LPNValidator', 'defaultCountry' => 'RU'),
             array('email', 'email'),
-            array('projectname, projecttype, eventtime, userinfo, daysnum, name, email', 'required'),
+            array('projectname, projecttype, eventtime, daysnum, name, email', 'required'),
         );
     }
     
@@ -37,7 +49,9 @@ class CalculationForm extends CFormModel
             'projectname' => 'Название проекта',
             'projecttype' => 'Тип проекта',
             'eventtime'   => 'Это дневная или ночная съемка?',
-            'userinfo'    => 'Кого хотите пригласить?',
+            'plandate'    => 'Когда планируется съемка?',
+            'categories'  => 'Кого хотите пригласить?',
+            //'userinfo'    => 'Опишите подробнее кого вы хотите видеть',
             'daysnum'     => 'Сколько съемочных дней планируется?',
             'comment'     => 'Дополнительная информация',
             // контакты заказчика
