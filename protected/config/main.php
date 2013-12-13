@@ -107,7 +107,7 @@ return array(
         ),
 	    
         // Права доступа (RBAC)
-	    'rights'=>array(
+	    'rights' => array(
 	        // установка нам больше не понадобится
 	        'install'           => false,
 	        // разрешаем использовать переменные в правилах доступа
@@ -302,10 +302,6 @@ return array(
         
         // Настройки менеджера скриптов
         'clientScript' => array(
-            // @todo удалить старую темную тему jquery
-            /*'scriptMap' => array(
-                'jquery-ui.css' => '/css/jqueryui/dot-luv/jquery-ui.css',
-            ),*/
             // подключаем sweekit-библиотеку для удобной работы со скриптами
             'behaviors' => array(
                 'sweelixClientScript' => array(
@@ -329,6 +325,16 @@ return array(
         // Компонент "simple Workflow" - для грамотной работы со статусами
         'swSource'=> array(
             'class'=>'application.extensions.simpleWorkflow.SWPhpWorkflowSource',
+        ),
+        
+        // API для работы с Мегапланом
+        'megaplan' => array(
+            'class'             => 'EasyCastMegaplanAPI',
+            'host'              => 'easycast.megaplan.ru',
+            'accessId'          => '080b3A8c16682cd4aF11',
+            'secretKey'         => 'b6c0566843a0De4871439c5798cCf879Af13b9F8',
+            'defaultUserId'     => '1000031',
+            'defaultEmployeeId' => '1000004',
         ),
         
         // Настройки виджетов по умолчанию
@@ -416,5 +422,9 @@ return array(
 	    
 	    // Настройки хостинга Amazon
 	    'AmazonS3Config' => 'easycast.s3',
+	    
+	    // использовать ли прокси сервера google для отображения картинок в письмах
+	    // (должно быть включено на production и выключено на машине разработчика)
+	    'useGoogleImageProxy' => true,
 	),
 );

@@ -17,7 +17,6 @@ $this->ecHeaderOptions = array(
 /* @var $form TbActiveForm */
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'id' => 'mass-actors-form',
-    //'enableAjaxValidation'   => true,
     'enableAjaxValidation'   => true,
     'enableClientValidation' => false,
     'type' => 'horizontal',

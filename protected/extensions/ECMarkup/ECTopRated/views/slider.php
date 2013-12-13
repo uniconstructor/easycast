@@ -29,5 +29,5 @@
 </div>
 </div>
 
-<div class="wrapper">
+<div class="container" id="page">
 <div id="content">

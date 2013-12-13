@@ -18,6 +18,7 @@ class CustomerInviteController extends Controller
 	public function init()
 	{
 	    Yii::import('application.modules.projects.models.*');
+	    parent::init();
 	}
 
 	/**
@@ -41,7 +42,7 @@ class CustomerInviteController extends Controller
 	{
 		return array(
 			array('allow',
-				'actions' => array('index', 'view', 'create', 'update'),
+				'actions' => array('admin', 'index', 'view', 'create', 'update'),
 				'users'   => array('admin'),
 			),
 			array('deny',  // deny all users
@@ -113,7 +114,7 @@ class CustomerInviteController extends Controller
 		}
 
 		$this->render('create', array(
-			'model'=>$model,
+			'model' => $model,
 		));
 	}
 

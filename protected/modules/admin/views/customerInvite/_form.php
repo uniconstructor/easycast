@@ -12,9 +12,8 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 
 ?>
 	<?php echo $form->errorSummary($model); ?>
-
-	<?php echo $form->textFieldRow($model, 'email',array('class'=>'span5', 'maxlength' => 255)); ?>
-	<?php echo $form->textFieldRow($model, 'name',array('class'=>'span5', 'maxlength' => 255)); ?>
+	<?php echo $form->textFieldRow($model, 'email', array('class'=>'span5', 'maxlength' => 255)); ?>
+	<?php echo $form->textFieldRow($model, 'name',  array('class'=>'span5', 'maxlength' => 255)); ?>
 	
 	<?php // Наш комментарий для заказчика
 	echo $form->labelEx($model, 'comment'); 

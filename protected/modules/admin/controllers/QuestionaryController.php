@@ -112,7 +112,7 @@ class QuestionaryController extends Controller
         $subject = 'Ваша анкета одобрена';
         $text    = $this->getSuccessMessage($questionary, $message);
         
-        UserModule::sendMail($email, $subject, $text);
+        UserModule::sendMail($email, $subject, $text, true);
     }
     
     /**
@@ -126,7 +126,7 @@ class QuestionaryController extends Controller
         $subject = 'В вашей анкете следует указать дополнительные данные';
         $text    = $this->getRejectMessage($questionary, $message);
         
-        UserModule::sendMail($email, $subject, $text);
+        UserModule::sendMail($email, $subject, $text, true);
     }
     
     /**
@@ -145,8 +145,6 @@ class QuestionaryController extends Controller
         {
             $message .= '<br><br>Комментарий администратора: '.$comment.'<br><br>';
         }
-        $message .= 'После внесения дополнительных изменений ваша анкета станет доступна в поиске,
-            и вы начнете получать приглашения на съемки.';
         
         return $message;
     }
@@ -161,9 +159,12 @@ class QuestionaryController extends Controller
     {
         $link = Yii::app()->createAbsoluteUrl(Yii::app()->getModule('questionary')->profileUrl, array('id' => $questionary->id));
         $message = 'Ваша анкета была проверена администратором и требует указания дополнительных данных.<br>
-        <br>Вы можете просмотреть и отредактировать ее по ссылке: '.$link;
+        <br>Вы можете просмотреть и отредактировать ее по ссылке: '.$link.'.';
         
         $message .= '<br><br>Комментарий администратора: '.$comment;
+        
+        $message .= '<br><br><i>(После внесения дополнительных изменений ваша анкета станет доступна в поиске,
+            и вы начнете получать приглашения на съемки)</i>';
         
         return $message;
     }

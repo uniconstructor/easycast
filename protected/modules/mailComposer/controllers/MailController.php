@@ -74,7 +74,7 @@ class MailController extends Controller
             echo MailComposerModule::getMessage('callList', array('callList' => $callList));
         }elseif ( $type = 'offer' )
         {
-            $offer = ROffer::model()->findByPk(9);
+            $offer = CustomerOffer::model()->findByPk($id);
             echo $offerMail = MailComposerModule::getMessage('offer', array('offer' => $offer));
             //UserModule::sendMail('frost@easycast.ru', 'test message', $offerMail, true);
         }else

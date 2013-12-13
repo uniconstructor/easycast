@@ -37,4 +37,22 @@ class ECPurifier extends CHtmlPurifier
         
         return $options;
     }
+    
+    /**
+     * Получить URL для отображения изображений через прокси-сервера google
+     * Используется для того чтобы получать ссылки на картинки, которые сразу же отображаются в письмах
+     * @param string $url - ссылка на изображение
+     * @return string
+     */
+    public static function getImageProxyUrl($url)
+    {
+        if ( ! isset(Yii::app()->params['useGoogleImageProxy']) OR ! Yii::app()->params['useGoogleImageProxy'] )
+        {// использование прокси-серверов google отключено (для сборки разработчика)
+            return $url;
+        }
+        $prefix = 'https://images2-focus-opensocial.googleusercontent.com/gadgets/proxy?url=';
+        $suffix = '&container=focus&gadget=a&no_expand=1&resize_h=0&rewriteMime=image%2F*';
+        
+        return $prefix.urlencode($url).$suffix;
+    }
 }
