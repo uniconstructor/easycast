@@ -216,6 +216,7 @@ input[type=submit], input[type=reset], input[type=button], button, .button { fon
 }
 .banner img {width:1000px}
 .p2_banner {
+
     width: 770px;
 	padding: 15px 50px 15px 50px;
 	margin: 0 auto!important;
