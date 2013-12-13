@@ -7,6 +7,10 @@
 
 $this->pageTitle = 'Расчет стоимости';
 
+$this->breadcrumbs = array(
+    'Расчет стоимости'
+);
+
 // форма расчета стоимости
 /* @var $form TbActiveForm */
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(

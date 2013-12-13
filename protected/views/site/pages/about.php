@@ -1,6 +1,9 @@
 <?php
 /**
  * Страница "О нас"
+ * @todo добавить 3 вкладки: о компании, наши отзывы, наша команда
+ * @todo убрать все контакты кроме почты и facebook
+ * @todo расположить людей в 2 ряда
  */
 /* @var $this SiteController */
 
@@ -11,10 +14,6 @@ $this->breadcrumbs = array(
 	'О нас',
 );
 ?>
-<div class="ec-serv_about span12">
-	<p>Стоимость услуг зависит от задачи, формата проекта, сроков выполнения, объема заказа и размера вашего кошелька.</p>
-</div>
-
 
 <div class="ec-about_block span12" style="border-top:0px;">
 	<div class="ec-about_img">

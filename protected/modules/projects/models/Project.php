@@ -10,7 +10,9 @@
  * @property string $description
  * @property string $galleryid
  * @property string $timestart
+ * @property string $notimestart
  * @property string $timeend
+ * @property string $notimeend
  * @property string $timecreated
  * @property string $timemodified
  * @property string $leaderid

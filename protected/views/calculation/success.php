@@ -4,6 +4,10 @@
  */
 
 $this->widget('bootstrap.widgets.TbAlert');
+
+$this->breadcrumbs = array(
+    'Расчет стоимости'
+);
 ?>
 <div class="row">
     <div class="span8 offset2" style="text-align: center;">

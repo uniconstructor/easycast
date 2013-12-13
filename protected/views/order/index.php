@@ -3,6 +3,10 @@
  * Форма срочного заказа на отдельной странице
  */
 /* @var $this OrderController */
+
+$this->breadcrumbs = array(
+    'Заказ'
+);
  
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'id'     => 'order-form',
@@ -10,6 +14,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'action' => '/site/placeOrder',
     'type'   => 'horizontal',
 ));
+
 ?>
 <div class="row row-fluid">
 <div class="span4">&nbsp;</div>

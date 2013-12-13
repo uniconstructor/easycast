@@ -16,9 +16,9 @@
     		<ul class="ec-footer-menu">
     			<li><a href="<?= Yii::app()->createUrl('/questionary/questionary/view'); ?>"><span>Моя страница</span></a></li>
     			<li>|</li>
-    			<li><a href="#"><span>Календарь</span></a></li>
+    			<li><a href="<?= Yii::app()->createUrl('/calendar'); ?>"><span>Календарь</span></a></li>
     			<li>|</li>
-    			<li><a href="#"><span>Наши проекты</span></a></li>
+    			<li><a href="<?= Yii::app()->createUrl('/projects'); ?>"><span>Наши проекты</span></a></li>
     			<li>|</li>
     			<li><a href="#"><span>Наши события</span></a></li>
     			<li>|</li>
@@ -26,9 +26,9 @@
     			<li>|</li>
     			<li><a href="#"><span>Онлайн - консультант</span></a></li>
     			<li>|</li>
-    			<li><a href="#"><span>О нас</span></a></li>
+    			<li><a href="<?= Yii::app()->createUrl('/site/page/view/about'); ?>"><span>О нас</span></a></li>
     			<li>|</li>
-    			<li><a href="#"><span>Форум</span></a></li>
+    			<li><a href="<?= Yii::app()->createUrl('/forum'); ?>"><span>Форум</span></a></li>
     		</ul>
     	</div>
     </div>

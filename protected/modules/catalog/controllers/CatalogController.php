@@ -48,8 +48,8 @@ class CatalogController extends Controller
 	    $dataProvider = new CActiveDataProvider('Questionary', 
 	        array(
 	            'criteria' => $criteria, 
-	            'pagination'=>array(
-                    'pageSize'=>CatalogModule::PAGE_ITEMS_COUNT,
+	            'pagination' => array(
+                    'pageSize' => CatalogModule::PAGE_ITEMS_COUNT,
                     ),
 	            )
 	    );
@@ -61,6 +61,15 @@ class CatalogController extends Controller
 		        'tab'          => $tab,
 	        )
 		);
+	}
+	
+	/**
+	 * Отобразить страницу "Наши лица"
+	 * @return void
+	 */
+	public function actionFaces()
+	{
+	    $this->render('faces');
 	}
 	
 	/**

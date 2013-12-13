@@ -302,6 +302,10 @@ return array(
         
         // Настройки менеджера скриптов
         'clientScript' => array(
+            'scriptMap' => array(
+                'jquery-ui.css' => '/css/jqueryui/flick/jquery-ui.css',
+                'jquery-ui.min.css' => '/css/jqueryui/flick/jquery-ui.min.css',
+            ),
             // подключаем sweekit-библиотеку для удобной работы со скриптами
             'behaviors' => array(
                 'sweelixClientScript' => array(

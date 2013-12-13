@@ -1,4 +1,9 @@
 <?php
+/**
+ * Страница "наши услуги"
+ * @todo сделать все кнопки стандартными
+ * @todo новая статическая страница - гарантии с кнопкой "гарантии качества и надежности"
+ */
 /* @var $this SiteController */
 
 // название страницы
@@ -14,7 +19,7 @@ $this->breadcrumbs = array(
 		<div class="ec-serv_img">
 			<img src="/images/actors-example.jpg" alt="" />
 			<div>
-				<span>от 5000 руб.</span>
+				<span><?= CHtml::link('Стоимость', Yii::app()->createUrl('/calculation')); ?></span>
 			</div>
 		</div>
 		<div class="ec-serv_cont">
@@ -29,7 +34,7 @@ $this->breadcrumbs = array(
 		<div class="ec-serv_img">
 			<img src="/images/models-examlpe.jpg" alt="" />
 			<div>
-				<span>от 3000 руб.</span>
+				<span><?= CHtml::link('Стоимость', Yii::app()->createUrl('/calculation')); ?></span>
 			</div>
 		</div>
 		<div class="ec-serv_cont">
@@ -44,7 +49,7 @@ $this->breadcrumbs = array(
 		<div class="ec-serv_img">
 			<img src="/images/ams-example.jpg" alt="" />
 			<div>
-				<span>от 700 руб.</span>
+				<span><?= CHtml::link('Стоимость', Yii::app()->createUrl('/calculation')); ?></span>
 			</div>
 		</div>
 		<div class="ec-serv_cont">
@@ -59,7 +64,7 @@ $this->breadcrumbs = array(
 		<div class="ec-serv_img">
 			<img src="/images/types-example.jpg" alt="" />
 			<div>
-				<span>от 1000 руб.</span>
+				<span><?= CHtml::link('Стоимость', Yii::app()->createUrl('/calculation')); ?></span>
 			</div>
 		</div>
 		<div class="ec-serv_cont">
@@ -72,22 +77,24 @@ $this->breadcrumbs = array(
 </div>
 
 <div class="ec-serv_buttons span12">
-	<div class="ec-serv_about span12">
-		<p>Стоимость услуг зависит от задачи, формата проекта, сроков выполнения, объема заказа и размера вашего кошелька.</p>
+	<div class="ec-serv_about span12" style="font-size: 20px;">
+		<p>Главная цель нашей компании - максимально качественно выполнить поставленную вами задачу.
+		Стоимость услуг будет завистеть от объема работы, формата проекта и сроков выполнения задачи.</p>
 	</div>
+	
 	<div class="span4">
-		<div class="ec-join_but">
-			<a href="#" class="btn ec-btn-primary btn-lg">Расчитать стоимость</a>
+		<div class="">
+			<a href="#" class="btn btn-warning" style="font-size: 18px;">Связаться с нами</a>
 		</div>
 	</div>
 	<div class="span4">
-		<div class="ec-serv_but ec-join_but">
-			<a href="#" class="btn ec-btn-primary btn-lg">Связаться с нами</a>
+		<div class="">
+			<a href="#" class="btn btn-warning btn-large" style="font-size: 18px;">Расчитать стоимость</a>
 		</div>
 	</div>
 	<div class="span4">
-		<div class="ec-serv_but ec-join_but">
-			<a href="#" class="btn ec-btn-primary btn-lg">
+		<div class="">
+			<a href="#" class="btn btn-warning " style="font-size: 18px;">
 			<!--img src="images/bag.png" style="margin-top: -6px;"-->
 			Перейти в корзину
 			</a>

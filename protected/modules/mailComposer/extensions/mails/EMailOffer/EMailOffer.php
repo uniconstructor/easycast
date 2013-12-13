@@ -127,7 +127,7 @@ class EMailOffer extends EMailBase
      */
     protected function getSalePageUrl()
     {
-        return Yii::app()->createAbsoluteUrl('/sale', $this->getReferalParams());
+        return Yii::app()->createAbsoluteUrl('/sale/index', $this->getReferalParams());
     }
     
     /**

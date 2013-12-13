@@ -37,10 +37,6 @@
                                 <?= $fbUrl; ?>&nbsp;
                             </a>
                         </span>
-                        <span style="width:100%;text-align:right;">
-                            <img style="float:right;width:160px;margin-top:-27px;" 
-                                src="<?= $anyTimeImage; ?>" width="220">
-                        </span>
                         </div>
 					</td>
 					<td class="w20" width="20"></td>
