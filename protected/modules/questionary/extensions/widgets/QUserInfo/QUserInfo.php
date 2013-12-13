@@ -1106,7 +1106,8 @@ class QUserInfo extends CWidget
             'data'       => $data,
             'attributes' => $attributes), true);
         
-        return $content;
+        // запрещаем случайную индексацию условий съемок
+        return '<noindex>'.$content.'</noindex>';
     }
     
     /**
@@ -1243,7 +1244,8 @@ class QUserInfo extends CWidget
             'data'       => $data,
             'attributes' => $attributes), true);
         
-        return $content;
+        // запрещаем случайную индексацию персональных данных
+        return '<noindex>'.$content.'</noindex>';
     }
     
     /**
