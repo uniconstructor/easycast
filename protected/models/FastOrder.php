@@ -21,15 +21,13 @@
 class FastOrder extends CActiveRecord
 {
     /**
-     * @var string
+     * @var string - тип заказа - обычный заказ
      */
     const TYPE_NORMAL = 'normal';
-    
     /**
-     * @var string
+     * @var string - тип заказа - срочный заказ
      */
     const TYPE_FAST = 'fast';
-    
     /**
      * @var string - тип заказа: заявка на онлайн-кастинг
      */
