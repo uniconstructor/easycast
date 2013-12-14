@@ -9,6 +9,7 @@
  */
 class OnlineCastingController extends Controller
 {
+    public $layout='//layouts/column1';
     /**
      * 
      * @return void
