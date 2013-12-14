@@ -7,24 +7,38 @@
 $this->pageTitle = 'Онлайн-кастинг';
 
 $this->breadcrumbs = array(
-    'Онлайн-кастинг'
+    'Онлайн-кастинг',
 );
+
+$castingTabContent = '';
+if ( $step == 'info' )
+{
+    $castingTabContent = $this->renderPartial('_info', array(
+        'onlineCastingForm' => $onlineCastingForm,
+    ), true);
+}
+$roleTabContent = '';
+if ( $step == 'roles' )
+{
+    $roleTabContent = $this->renderPartial('_roles', array(
+        'onlineCastingRoleForm' => $onlineCastingRoleForm,
+    ), true);
+}
+$finishTabContent = '';
+if ( $step == 'finish' )
+{
+    $finishTabContent = $this->renderPartial('_finish', array(
+        'onlineCastingRoleForm' => $onlineCastingRoleForm,
+        'onlineCastingForm'     => $onlineCastingForm,
+    ), true);
+}
 ?>
 
 <?php 
 // wizard с формой создания кастинга и отбора людей
-$this->widget(
-    'bootstrap.widgets.TbWizard',
-    array(
-        'type' => 'tabs', // 'tabs' or 'pills'
-        'pagerContent' => '<div style="float:right">
-    <!--input type="button" class="btn button-next" name="next" value="Вперед" /-->
-    <!--input type="button" class="btn button-last" name="last" value="Last" /-->
-    </div>
-    <div style="float:left">
-    <!--input type="button" class="btn button-first" name="first" value="First" /-->
-    <!--input type="button" class="btn button-previous" name="previous" value="Назад" /-->
-    </div><br /><br />',
+$this->widget('bootstrap.widgets.TbWizard', array(
+        'type'         => 'pills', // 'tabs' or 'pills'
+        'pagerContent' => $this->renderPartial('_pager', null, true),
         'options' => array(
             'nextSelector'     => '.button-next',
             'previousSelector' => '.button-previous',
@@ -36,32 +50,28 @@ $this->widget(
                 var $percent = ($current/$total) * 100;
                 $("#wizard-bar > .bar").css({width:$percent+"%"});
             }',
-            //'onTabClick' => 'js:function(tab, navigation, index) {alert("Tab Click Disabled");return false;}',
+            //'onTabClick' => 'js:function(tab, navigation, index) {return false;}',
         ),
         'tabs' => array(
             array(
                 'label'   => 'Информация о кастинге',
-                'content' => $this->renderPartial('_step1',
-                array(
-                        'onlineCastingForm' => $onlineCastingForm,
-                    ), true),
-                //'content' => 'Информация о кастинге',
+                'content' => $castingTabContent,
                 'active'  => ($step == 'info'),
             ),
             array(
-                'label'   => 'Условия участия',
-                //'content' => '<div id="wizard-bar" class="progress progress-striped"><div class="bar"></div></div>(условия участия)',
-                'content' => $this->renderPartial('_roles',
-                array(
-                        'onlineCastingRoleForm' => $onlineCastingRoleForm,
-                    ), true),
+                'label'   => 'Требования к участникам',
+                'content' => $roleTabContent,
                 'active'  => ($step == 'roles'),
             ),
             array(
                 'label'   => 'Готово',
-                'content' => '<div id="wizard-bar" class="progress progress-striped"><div class="bar"></div></div>',
+                'content' => $finishTabContent,
                 'active'  => ($step == 'finish'),
             ),
         ),
     )
-    );
+);
+
+//CVarDumper::dump(OnlineCastingForm::getCastingInfo(), 10, true);
+//CVarDumper::dump(OnlineCastingForm::getRoleInfo(), 10, true);
+?>

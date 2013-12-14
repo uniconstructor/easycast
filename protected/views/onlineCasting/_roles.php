@@ -5,10 +5,10 @@
 
 /* @var $form TbActiveForm */
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
-    'id' => 'online-casting-role-form',
+    'id'                     => 'online-casting-role-form',
     'enableAjaxValidation'   => true,
     'enableClientValidation' => true,
-    'type' => 'horizontal',
+    'type'                   => 'horizontal',
     'clientOptions' => array(
         'validateOnSubmit' => true,
         'validateOnChange' => false,
@@ -21,47 +21,54 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     <div class="bar"></div>
 </div>
 <div class="span8 offset2">
-    <h1 style="text-align:center;">Информация о кастинге</h1>
+    <h1 style="text-align:center;">Требования к участникам</h1>
     <p class="note muted" style="text-align:center;">
         <?php echo Yii::t('coreMessages', 'form_required_fields', array('{mark}' => '<span class="required">*</span>')); ?>
     </p>
     <?php 
-    // ошибки формы
-    echo $form->errorSummary($onlineCastingRoleForm);
     // роль
     echo $form->textFieldRow($onlineCastingRoleForm, 'name', array(
         'size'        => 60,
         'maxlength'   => 255,
         'prepend'     => '<i class="icon icon-user"></i>',
-        'placeholder' => 'Имя'));
+        'placeholder' => 'Например "танцор"'));
     // описание роли
     echo $form->redactorRow($onlineCastingRoleForm, 'description', array(
         'options' => array(
             'lang' => 'ru')
     ));
-    
+    // роль
+    echo $form->textFieldRow($onlineCastingRoleForm, 'salary', array(
+        'size'        => 30,
+        'maxlength'   => 255,
+        'append'      => 'р.',
+        'placeholder' => '',
+        'hint'        => 'Если точно не известен - оставьте поле пустым',
+    ));
+    // ошибки формы
+    echo $form->errorSummary($onlineCastingRoleForm);
     ?>
     <input type="hidden" name="step" value="roles">
     <div class="form-actions">
         <?php 
-        // кнопка отправки
+        // назад
+        $form->widget('bootstrap.widgets.TbButton', array(
+            'buttonType' => 'link',
+            'type'       => 'default',
+            'size'       => 'large',
+            'label'      => '< Назад',
+            'url'        => Yii::app()->createUrl('/onlineCasting/create', array('step' => 'info')),
+            )
+        );
+        echo '&nbsp';
+        // к следующем шагу
         $form->widget('bootstrap.widgets.TbButton', array(
                 'buttonType' => 'submit',
-                //'buttonType' => 'ajaxSubmit',
                 'type'       => 'success',
                 'size'       => 'large',
                 'label'      => 'Следующий шаг >',
-                /*'url'        => Yii::app()->createUrl('/onlineCasting/saveCasting', array(
-                    'ajax' => 'online-casting-form')
-                ),*/
-                'htmlOptions' => array(
-                    'class' => 'button-next',
-                ),
-                /*'ajaxOptions' => array(
-                    'method' => 'post',
-                ),*/
             )
-        ); 
+        );
         ?>
     </div>
     <?php 

@@ -8,7 +8,7 @@
 $this->pageTitle = 'Расчет стоимости';
 
 $this->breadcrumbs = array(
-    'Расчет стоимости'
+    'Расчет стоимости',
 );
 
 // форма расчета стоимости
@@ -99,20 +99,31 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         'size'        => 60,
         'maxlength'   => 255,
         'prepend'     => '<i class="icon icon-th"></i>',
-        'placeholder' => ''));
+        'placeholder' => '',
+    ));
     
     // имя
     echo $form->textFieldRow($calculationForm, 'name', array(
         'size'        => 60,
         'maxlength'   => 255,
         'prepend'     => '<i class="icon icon-user"></i>',
-        'placeholder' => 'Имя'));
+        'placeholder' => 'Имя',
+    ));
+    // фамилия
+    echo $form->textFieldRow($calculationForm, 'lastname', array(
+        'size'        => 60,
+        'maxlength'   => 255,
+        'prepend'     => '<i class="icon icon-user"></i>',
+        'placeholder' => 'Фамилия',
+    ));
     // email
     echo $form->textFieldRow($calculationForm, 'email', array(
         'size'        => 60,
         'maxlength'   => 255,
         'prepend'     => '@',
-        'placeholder' => 'your@email.com'));
+        'placeholder' => 'your@email.com',
+        'hint'        => 'На этот адрес мы отправим вам расчет стоимости',
+    ));
     // телефон
     echo $form->textFieldRow($calculationForm, 'phone', array(
         'size'        => 60,

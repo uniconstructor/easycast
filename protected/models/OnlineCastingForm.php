@@ -3,6 +3,8 @@
 /**
  * Форма создания онлайн-кастинга
  * При сохранении создает проект и событие
+ * 
+ * @todo настройка: сколько помнить незаконченный кастинг
  */
 class OnlineCastingForm extends CFormModel
 {
@@ -16,6 +18,23 @@ class OnlineCastingForm extends CFormModel
     public $email;
     public $phone;
     
+    // дополнительные поля для того чтобы работал виджет Editable
+    // @see http://yii-booster.clevertech.biz/widgets/editable/view/field.html
+    //public $isNewRecord = false;
+    //public $primaryKey  = 'id';
+    //public $id;
+    //public $tableSchema = array('columns' => array());
+    
+    /**
+     * функция для имитации поведения activeRecord, чтобы работал виджет editable
+     * @see http://yii-booster.clevertech.biz/widgets/editable/view/field.html
+     * @see CModel::isAttributeSafe()
+     */
+    public function isAttributeSafe($attribute)
+    {
+        return true;
+    }
+    
     /**
      * @see CFormModel::init()
      */
@@ -23,6 +42,10 @@ class OnlineCastingForm extends CFormModel
     {
         Yii::import('ext.LPNValidator.LPNValidator');
         Yii::import('projects.models.*');
+        //$this->tableSchema = new stdClass();
+        //$this->tableSchema->columns = array();
+        
+        parent::init();
     }
     
     /**
@@ -67,85 +90,9 @@ class OnlineCastingForm extends CFormModel
      */
     public function save()
     {
-        if ( isset($_SESSION['onlineCasting']['info']) )
-        {
-            unset($_SESSION['onlineCasting']['info']);
-        }
-        $_SESSION['onlineCasting']['info'] = $this;
+        self::setCastingInfo($this);
         
         return true;
-    }
-    
-    /**
-     * Окончательно сохранить данные онлайн-кастинга в базу
-     * @return void
-     * 
-     * @todo определить кого назначать руководителем проекта по умолчанию
-     */
-    public function finalize()
-    {
-        if ( ! isset($_SESSION['onlineCasting']['info']) )
-        {// в сессии нет данных об онлайн-кастинге - не можем сохранить данные в базу
-            return false;
-        }
-        /* @var $template OnlineCastingForm */
-        $template = $_SESSION['onlineCasting']['info'];
-        
-        // создаем заготовки для проектов, мероприятий и ролей
-        $project = new Project();
-        $event   = new ProjectEvent();
-        $vacancy = new EventVacancy();
-        
-        // сохраняем информацию о проекте
-        $project->name        = $template->projectname;
-        $project->type        = $template->projecttype;
-        $project->description = $template->projectdescription;
-        $project->notimestart = 1;
-        $project->notimeend   = 1;
-        $project->leaderid    = 1;
-        // помечаем проект как онлайн-кастинг
-        $project->virtual     = 1;
-        if ( ! $project->save() )
-        {
-            throw new CException('Не удалось сохранить проект онлайн-кастинга');
-        }
-        
-        $event->name = $template->projectname;
-        if ( $template->plandate )
-        {// у кастинга есть планируемая дата проведения
-            $event->timestart = CDateTimeParser::parse($date, Yii::app()->params['inputDateFormat']);
-        }else
-        {// кастинг без определенной даты
-            $event->nodates = true;
-        }
-        $event->description = $template->eventdescription;
-        $event->virtual     = 1;
-        $event->type        = ProjectEvent::TYPE_CASTING;
-        if ( ! $event->save() )
-        {
-            throw new CException('Не удалось сохранить съемочный день для онлайн-кастинга');
-        }
-        
-        return true;
-    }
-    
-    /**
-     * 
-     * @return void
-     */
-    protected function addMegaplanTask()
-    {
-        $description = $this->createDescription();
-        
-        // создаем данные для задачи
-        $task = array();
-        $task['Model[Name]']        = 'Новый запрос онлайн-кастинга '.date('Y-m-d H:i');
-        $task['Model[Responsible]'] = '1000004';
-        $task['Model[Statement]']   = $description;
-        
-        // создаем задачу в Мегаплане
-        $result = Yii::app()->megaplan->createTask($task);
-        //CVarDumper::dump($result, 10, true);die;
     }
     
     /**
@@ -157,5 +104,77 @@ class OnlineCastingForm extends CFormModel
         $result = 'Новый запрос онлайн-кастинга<br>';
         
         return $result;
+    }
+    
+    /// Функции для работы с сессией
+    
+    /**
+     * Сохранить в сессию данные формы онлайн-кастинга
+     * @var OnlineCastingForm $info - форма создания онлайн-кастинга вместе со всей внесенной информацией
+     * @return void
+     */
+    public static function setCastingInfo($info)
+    {
+        self::initCastingInfo();
+        $data = Yii::app()->session->itemAt('onlineCasting');
+        $data['info'] = $info;
+        
+        Yii::app()->session->add('onlineCasting', $data);
+    }
+    
+    /**
+     * Получить из сессии данные формы создания онлайн-кастинга
+     * @return OnlineCastingForm|null - форма создания онлайн-кастинга вместе со всей внесенной информацией
+     */
+    public static function getCastingInfo()
+    {
+        self::initCastingInfo();
+        $data = Yii::app()->session->itemAt('onlineCasting');
+        return $data['info'];
+    }
+    
+    /**
+     * Сохранить в сессию данные формы создания роли
+     * @var OnlineCastingForm $info - форма создания роли вместе со всей внесенной информацией
+     * @return void
+     */
+    public static function setRoleInfo($info)
+    {
+        self::initCastingInfo();
+        $data = Yii::app()->session->itemAt('onlineCasting');
+        $data['role'] = $info;
+        
+        Yii::app()->session->add('onlineCasting', $data);
+    }
+    
+    /**
+     * Получить из сессии данные формы создания роли
+     * @return OnlineCastingRoleForm|null - форма создания роли вместе со всей внесенной информацией
+     */
+    public static function getRoleInfo()
+    {
+        self::initCastingInfo();
+        $data = Yii::app()->session->itemAt('onlineCasting');
+        return $data['role'];
+    }
+    
+    /**
+     * Подготовить сессию для работы с онлайн-качтингом
+     * @return void
+     */
+    protected static function initCastingInfo()
+    {
+        if ( ! Yii::app()->session->contains('onlineCasting') )
+        {
+            Yii::app()->session->add('onlineCasting', array(
+                'info' => new OnlineCastingForm(),
+                'role' => new OnlineCastingRoleForm(),
+                )
+            );
+        }
+        
+        // долго помним данные кастинга на случай если пользователь
+        // не завершил создание, но потом решил вернуться 
+        Yii::app()->session->setTimeout(3600 * 24 * 14);
     }
 }

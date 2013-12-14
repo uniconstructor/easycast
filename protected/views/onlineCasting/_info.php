@@ -10,10 +10,10 @@ $projectTypes = Project::model()->getTypeList();
 // форма создания онлайн-кастинга
 /* @var $form TbActiveForm */
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
-    'id' => 'online-casting-form',
+    'id'                     => 'online-casting-form',
     'enableAjaxValidation'   => true,
     'enableClientValidation' => true,
-    'type' => 'horizontal',
+    'type'                   => 'horizontal',
     'clientOptions' => array(
         'validateOnSubmit' => true,
         'validateOnChange' => false,
@@ -31,8 +31,6 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         <?php echo Yii::t('coreMessages', 'form_required_fields', array('{mark}' => '<span class="required">*</span>')); ?>
     </p>
     <?php 
-    // ошибки формы
-    echo $form->errorSummary($onlineCastingForm);
     // название проекта
     echo $form->textFieldRow($onlineCastingForm, 'projectname', array(
         'size'        => 60,
@@ -93,7 +91,8 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         'maxlength'   => 20,
         'prepend'     => '+7',
         'placeholder' => '(987)654-32-10'));
-    
+    // ошибки формы
+    echo $form->errorSummary($onlineCastingForm);
     ?>
     <input type="hidden" name="step" value="roles">
     <div class="form-actions">
@@ -108,9 +107,9 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                 /*'url'        => Yii::app()->createUrl('/onlineCasting/saveCasting', array(
                     'ajax' => 'online-casting-form')
                 ),*/
-                'htmlOptions' => array(
+                /*'htmlOptions' => array(
                     'class' => 'button-next',
-                ),
+                ),*/
                 /*'ajaxOptions' => array(
                     'method' => 'post',
                 ),*/

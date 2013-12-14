@@ -7,7 +7,24 @@ class OnlineCastingRoleForm extends CFormModel
 {
     public $name;
     public $description;
-    public $eventid;
+    public $salary;
+    
+    // дополнительные поля для того чтобы работал виджет Editable
+    // @see http://yii-booster.clevertech.biz/widgets/editable/view/field.html
+    //public $isNewRecord = false;
+    //public $primaryKey  = 'id';
+    //public $id;
+    //public $tableSchema;
+    
+    /**
+     * функция для имитации поведения activeRecord, чтобы работал виджет editable
+     * @see http://yii-booster.clevertech.biz/widgets/editable/view/field.html
+     * @see CModel::isAttributeSafe()
+     */
+    public function isAttributeSafe($attribute)
+    {
+        return true;
+    }
     
     /**
      * @see CFormModel::init()
@@ -15,6 +32,9 @@ class OnlineCastingRoleForm extends CFormModel
     public function init()
     {
         Yii::import('projects.models.*');
+        //$this->tableSchema = new stdClass();
+        //$this->tableSchema->columns = array();
+        
         parent::init();
     }
     
@@ -38,6 +58,18 @@ class OnlineCastingRoleForm extends CFormModel
         return array(
             'name'        => 'Роль',
             'description' => 'Задача',
+            'salary'      => 'Предполагаемый размер оплаты',
         );
+    }
+    
+    /**
+     * Сохранить в сессию данные роли
+     * @return void
+     */
+    public function save()
+    {
+        OnlineCastingForm::setRoleInfo($this);
+        
+        return true;
     }
 }

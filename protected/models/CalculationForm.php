@@ -14,6 +14,7 @@ class CalculationForm extends CFormModel
     public $daysnum; 
     public $comment; 
     public $name; 
+    public $lastname; 
     public $email; 
     public $phone; 
     
@@ -32,7 +33,7 @@ class CalculationForm extends CFormModel
     public function rules()
     {
         return array(
-            array('projectname, name, email, phone', 'filter', 'filter' => 'trim'),
+            array('projectname, name, lastname, email, phone', 'filter', 'filter' => 'trim'),
             // Сохраняем номер телефона в правильном формате (10 цифр)
             array('phone', 'LPNValidator', 'defaultCountry' => 'RU', 'allowEmpty' => true),
             array('email', 'email'),
@@ -95,6 +96,7 @@ class CalculationForm extends CFormModel
         
         $result .= "С сайта поступил новый запрос на расчет стоимости. \n\n<br><br>";
         $result .= "Имя заказчика: {$this->name}<br>\n";
+        $result .= "Фамилия: {$this->lastname}<br>\n";
         $result .= "email: {$this->email}<br>\n";
         $result .= "Телефон: {$this->phone}<br><br>\n";
         
