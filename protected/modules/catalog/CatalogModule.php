@@ -96,6 +96,7 @@ class CatalogModule extends CWebModule
 	    $criteria  = new CDbCriteria();
 	    // Показываем в базе пользователей только проверенные анкеты
 	    $criteria->compare('status', 'active');
+	    $criteria->compare('virtual', '0');
 	    
 	    return $criteria;
 	}
