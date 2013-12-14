@@ -11,9 +11,13 @@ $this->breadcrumbs = array(
 );
 
 ?>
-<div class="alert alert-info alert-block"><br>
-    Онлайн-кастинг позволяет вам найти и пригласить людей для вашей съемки прямо на сайте.<br>
-    Для того чтобы воспользоваться этим сервисом нужно всего три простых шага.
+<div class="row">
+    <div class="span12">
+        <div class="alert alert-info alert-block">
+            Онлайн-кастинг позволяет вам найти и пригласить людей для вашей съемки прямо на сайте.<br>
+            Для того чтобы воспользоваться этим сервисом нужно всего три простых шага.
+        </div>
+    </div>
 </div>
 <div class="row">
     <div class="span4">
@@ -36,6 +40,7 @@ $this->breadcrumbs = array(
 </div>
 <div class="row" style="text-align:center;">
 <?php 
+    // кнопка "начать"
     $this->widget('bootstrap.widgets.TbButton',
         array(
             'buttonType' => 'link',
