@@ -12,7 +12,7 @@ if ( $pendingItemsCount = FastOrder::countPendingOrderUsers() )
 }
 ?>
 <div class="ec-inner_wrapper">
-	<ul class="choose_your_side">
+	<ul class="ec-choose_your_side">
 		<li>
 		  <a href="#" class="icon_zakaz" id="mainmenu_item_fastorder_image"
 		      data-toggle="modal" data-target="#fastOrderModal">

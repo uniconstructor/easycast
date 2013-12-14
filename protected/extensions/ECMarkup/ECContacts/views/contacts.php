@@ -4,15 +4,15 @@
  */
 /* @var $this ECContacts */
 ?>
-<ul class="contacts">
-	<li><span class="laber"><?= $this->customerPhone; ?>(Заказчикам)</span></li>
-	<li><span><?= $this->userPhone; ?>(Пользователям)</span></li>
+<ul class="ec-contacts">
+	<li><img src="/images/icon-number.png">Заказчикам:<span class="laber"><?= $this->customerPhone; ?></span></li>
+	<li><img src="/images/icon-number.png">Пользователям:<span><?= $this->userPhone; ?></span></li>
 	<!--li><span>mail@easycast.ru</span></li-->
-	<li><span>
+	<li><img src="/images/icon-comment.png">
 	   <a style="text-transform:none;margin-left:0;" href="<?= Yii::app()->createUrl('/site/contact'); ?>">
 	       Обратная связь
        </a>
-   </span></li>
+   </li>
 	<?php 
 	if ( in_array('social', $this->displayItems) )
 	{// полоска с социальными кнопками, если нужно

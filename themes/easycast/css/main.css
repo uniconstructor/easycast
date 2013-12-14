@@ -1,10 +1,15 @@
 @import "reset.css";
+@import "ec-garantiya.css";
 @font-face {
     font-family: century gothic; /* Гарнитура шрифта */
-    src: url(../fonts/gothic.ttf); /* Путь к файлу со шрифтом */
+    src: url(../fonts/gothic2.ttf); /* Путь к файлу со шрифтом */
  }
  
-
+@font-face {
+    font-family: micradi_regular; /* Гарнитура шрифта */
+    src: url(../fonts/micradi_regular.ttf); /* Путь к файлу со шрифтом */
+}
+   
 /**
  * Стиль фона сайта. Используется на всех страницах.
  */
@@ -148,20 +153,21 @@ button.ec-btn:hover, button.ec-btn:active, button.ec-btn:focus {
 
 button.ec-btn-primary, a.ec-btn-primary {
     padding: 12px 11px 13px 10px;
-	font-size: 15px;
-	margin-bottom: -1px;
-	line-height: 10px;
-	border-radius: 6px;
-	text-transform: uppercase;
-	text-shadow: 0px 1px 1px #503D02;
-	-moz-text-shadow: 0px 1px 1px #503D02;
-	-webkit-text-shadow: 0px 1px 1px #503D02;
-	color: #FFF;
-	background-image: -webkit-linear-gradient(top, #F5DD16, #D0792E);
-	background-image: -moz-linear-gradient(top, #f5dd16, #d0792e);
-	background-image: -ms-linear-gradient(top, #f5dd16, #d0792e);
-	background-image: -o-linear-gradient(top, #f5dd16, #d0792e);
-	background-image: linear-gradient(top, #f5dd16, #d0792e);
+    font-size: 15px;
+    margin-bottom: 2px;
+    line-height: 10px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    text-shadow: 0px 1px 1px #503D02;
+    -moz-text-shadow: 0px 1px 1px #503D02;
+    -webkit-text-shadow: 0px 1px 1px #503D02;
+    color: #FFF;
+    background-image: -webkit-linear-gradient(top, #F5DD16, #D0792E);
+    background-image: -moz-linear-gradient(top, #f5dd16, #d0792e);
+    background-image: -ms-linear-gradient(top, #f5dd16, #d0792e);
+    background-image: -o-linear-gradient(top, #f5dd16, #d0792e);
+    background-image: linear-gradient(top, #f5dd16, #d0792e);
+    border: 1px solid #C96C0A;
 	border: 1px solid rgba(246, 200, 151, 0.13);
 	border-bottom: 4px solid #9B5103;
 	box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.58);
@@ -191,7 +197,7 @@ a.ec-btn-primary:focus {
     box-shadow: 0px 2px 0px #9B5103;
     -moz-box-shadow: 0px 2px 0px #9b5103;
     -webkit-box-shadow: 0px 2px 0px #9B5103;
-    margin: 2px 0px 0px 0px;
+    margin: 2px 0px 0px 0px!important;
     background-position: 0px!important;
 }
 
@@ -304,8 +310,8 @@ div.ec-top div.ec-top_center {
     float:left;
 }
 
-.ec-top ul {font-family:century gothic;float: left;margin-top: 8px;/* margin-left: 27px; */}
-.ec-top ul li {display: inline-block;margin: 2px 14px;padding: 0px 0px;font-size: 14px;}
+.ec-top ul {font-family:century gothic;float: left;margin-top: 3px;margin-left: 0px!important;}
+.ec-top ul li {display: inline-block; color: #606060; margin: 1px 0px!important;padding: 0px 0px;font-size: 14px;}
 .ec-top ul li  h4 {}
 .ec-top ul li input {
     border-radius: 10px;
@@ -351,7 +357,7 @@ div.ec-top div.ec-top_center {
 .ec-top_left {
     float:left;
     /*width: 255px;*/
-    margin-left: 0px;
+    margin-left: 0px!important;
 }   
 .ec-top_right {
     float: left;
@@ -363,9 +369,20 @@ div.ec-top div.ec-top_center {
     list-style-type: none;
 }
 .ec-contacts li {}
-.ec-contacts li img {}
+.ec-contacts li img {
+    float: left;
+    margin: 2px 5px 0px 0px;
+}
 .ec-contacts li span { 
     color:#7a7a7a;
+    margin-left: 5px;
+    background-color: #E9E9E9;
+    border-radius: 5px;
+    padding: 0px 5px;
+    box-shadow: inset 0px 1px 0px #D1D1D1;
+    -moz-box-shadow: inset 0px 1px 0px #D1D1D1;
+    -webkit-box-shadow: inset 0px 1px 0px #D1D1D1;
+    font-size: 14px;
 }
 .ec-contacts li a {margin: 0px 6px; float:left;}
 .ec-contacts li .tweet {
@@ -1188,6 +1205,57 @@ span.ec-label, span.ec-badge {
 }
 
 /*
+    Стиль меток. Используется на всех страницах.
+*/
+
+.ec-tabs {
+    border:none!important;
+}
+
+.ec-tabs li.active a {
+    color: #555555;
+	background-color: #ffffff;
+	border: 1px solid #ddd;
+	border-bottom-color: transparent;
+	cursor: default;
+	background-color: #FFF;
+	box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.4);
+	-moz-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.4);
+	-webkit-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.4);
+	display: inline-block;
+	border: none;
+	border-radius: 5px;
+	background: linear-gradient(to top, #F2F5F6, #FFF);
+	background: -moz-linear-gradient(to top, #f2f5f6, #FFFFFF);
+	background: -webkit-linear-gradient(to top, #f2f5f6, #FFFFFF);
+	padding: 3px 9px!important;
+	border-bottom: 3px solid #B4B4B4;
+	margin: 6px 5px 4px 5px;
+}
+
+.ec-tabs li a:hover, .ec-tabs li a:focus {
+    color: #555555;
+	background-color: #ffffff;
+	border: 1px solid #ddd;
+	border-bottom-color: transparent;
+	cursor: default;
+	background-color: #FFF;
+	box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.4);
+	-moz-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.4);
+	-webkit-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.4);
+	display: inline-block;
+	border: none;
+	border-radius: 5px;
+	background: linear-gradient(to top, #F2F5F6, #FFF);
+	background: -moz-linear-gradient(to top, #f2f5f6, #FFFFFF);
+	background: -webkit-linear-gradient(to top, #f2f5f6, #FFFFFF);
+	padding: 3px 9px!important;
+	border-bottom: 3px solid #B4B4B4;
+	margin: 4px 5px;
+}
+
+
+/*
     Стиль для отображения результатов поиска. Используется на всех страницах.
 */
 
@@ -1764,4 +1832,23 @@ div.ec-about_buttons div button:hover, div.ec-serv_buttons div button:active {
     -moz-box-shadow: 0px 2px 0px #9b5103;
     -webkit-box-shadow: 0px 2px 0px #9B5103;
     margin: 2px 0px -2px 0px;
+}
+
+/*
+    Стиль для breadcrumb
+*/
+
+.ec-breadcrumb {
+	margin-left:0px!important;
+	background-color: #FFF;
+	box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.4);
+	-moz-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.4);
+	-webkit-box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.4);
+	display: inline-block;
+	border-radius: 10px;
+	background: linear-gradient(to top, #F2F5F6, #FFF);
+	background: -moz-linear-gradient(to top, #f2f5f6, #FFFFFF);
+	background: -webkit-linear-gradient(to top, #f2f5f6, #FFFFFF);
+	padding: 20px 0px 25px 0px;
+	border-bottom: 3px solid #B4B4B4;
 }

@@ -6,7 +6,7 @@
 /* @var $this ECMainMenu */
 ?>
 <div class="ec-inner_wrapper">
-	<ul class="choose_your_side">
+	<ul class="ec-choose_your_side">
         <li>
             <a href="<?= $newUser->link; ?>" id="<?= $newUser->linkid; ?>" class="icon_office" <?php $newUser->modalOptions; ?>>
             <span>Моя страница</span>

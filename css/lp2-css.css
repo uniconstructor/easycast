@@ -1,14 +1,5 @@
 ﻿@import "reset.css";
 
-@font-face {
-    font-family: century gothic; /* Гарнитура шрифта */
-    src: url(../fonts/gothic.ttf); /* Путь к файлу со шрифтом */
- }
-
-@font-face {
-    font-family: micradi_regular; /* Гарнитура шрифта */
-    src: url(../fonts/micradi_regular.ttf); /* Путь к файлу со шрифтом */
-   }
 
 .lp-ec-wrapper {
 	width: 1000px;
@@ -40,14 +31,15 @@
 	width:1000px;
 }
 .lp-p2_banner p {
-	font-family:century gothic;
-	font-size: 27px;
+	font-family: century gothic;
+	font-size: 26px;
 	clear: both;
 	text-align: center;
-	color: #134855;
+	color: #777777;
 	text-shadow: 1px 1px 0px white;
 	-moz-text-shadow: 1px 1px 0px white;
 	-webkit-text-shadow: 1px 1px 0px white;
+	line-height: 27px;
 }
 
 .lp-our_services {
@@ -78,12 +70,13 @@
     margin: 20px 20px 12px 20px;
 }
 .lp-our_services ul  li h3{
-    color:#179bbc;
-    font-family: micradi_regular;
-    text-align: center;
-    text-transform: uppercase;
-    font-size: 13px;
-    /* margin-top: -8px; */
+	color: #179bbc;
+	font-family: micradi_regular;
+	text-align: center;
+	text-transform: uppercase;
+	font-size: 12px;
+	margin-top: -8px;
+	line-height: 16px;
 }
 
 .lp-our_services ul  li h3.padding{
@@ -155,7 +148,7 @@ div.lp-our_services ul  li span.font8{
 	margin: 0 auto;
 	display: inline-block;
 	text-align: center;
-	margin-top: 26px;
+	margin-top: 35px;
 	padding: 17px 0px;
 	margin-left: 25px;
 	text-transform: uppercase;

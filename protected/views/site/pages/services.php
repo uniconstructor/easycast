@@ -83,21 +83,25 @@ $this->breadcrumbs = array(
 	</div>
 	
 	<div class="span4">
-		<div class="">
-			<a href="#" class="btn btn-warning" style="font-size: 18px;">Связаться с нами</a>
+		<div class="ec-join_but">
+			<button type="button" class="btn ec-btn-primary btn-lg">Расчитать стоимость</button>
 		</div>
 	</div>
 	<div class="span4">
-		<div class="">
-			<a href="#" class="btn btn-warning btn-large" style="font-size: 18px;">Расчитать стоимость</a>
+		<div class="ec-serv_but ec-join_but">
+			<button type="button" class="btn ec-btn-primary btn-lg">Связаться с нами</button>
 		</div>
 	</div>
 	<div class="span4">
-		<div class="">
-			<a href="#" class="btn btn-warning " style="font-size: 18px;">
-			<!--img src="images/bag.png" style="margin-top: -6px;"-->
-			Перейти в корзину
-			</a>
+		<div class="ec-serv_but ec-join_but">
+			<button type="button" class="btn ec-btn-primary btn-lg"><img src="/images/bag.png" alt="EasyCast" style="margin-top: -6px;"> Перейти в корзину</button>
 		</div>
 	</div>
 </div>
+
+<div class="span12" style="margin-left:0px;">
+	<div class="ec-serv_but ec-join_but ec-garantiya">
+		<button type="button" class="btn ec-btn-garantiya btn-lg">гарантии качества</button>
+	</div>
+</div>
+			
