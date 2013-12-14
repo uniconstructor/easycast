@@ -37,27 +37,27 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     echo $form->errorSummary($massActorForm);
     // имя
     echo $form->textFieldRow($massActorForm, 'firstname', array(
-            'size' => 60,
-            'maxlength' => 128,
-            'prepend' => '<i class="icon icon-user"></i>',
+            'size'        => 60,
+            'maxlength'   => 128,
+            'prepend'     => '<i class="icon icon-user"></i>',
             'placeholder' => 'Имя'));
     // фамилия
     echo $form->textFieldRow($massActorForm, 'lastname', array(
-            'size' => 60,
-            'maxlength' => 128,
-            'prepend' => '<i class="icon icon-user"></i>',
+            'size'        => 60,
+            'maxlength'   => 128,
+            'prepend'     => '<i class="icon icon-user"></i>',
             'placeholder' => 'Фамилия'));
     // email
     echo $form->textFieldRow($massActorForm, 'email', array(
-            'size' => 60,
-            'maxlength' => 255,
-            'prepend' => '@',
+            'size'        => 60,
+            'maxlength'   => 255,
+            'prepend'     => '@',
             'placeholder' => 'your@email.com'));
     // телефон
     echo $form->textFieldRow($massActorForm, 'phone', array(
-            'size' => 60,
-            'maxlength' => 20,
-            'prepend' => '+7',
+            'size'        => 60,
+            'maxlength'   => 20,
+            'prepend'     => '+7',
             'placeholder' => '(987)654-32-10'));
     ?>
     
@@ -90,7 +90,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         $massActorForm,
         'birthdate', array(
             'options' => array(
-                'language' => 'ru',
+                'language'  => 'ru',
                 'format'    => 'dd.mm.yyyy',
                 'startView' => 'decade',
                 'weekStart' => 1,
@@ -98,7 +98,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                 'endDate'   => '-1y',
                 'autoclose' => true,
             ),
-            'hint' => 'Нажмите на название месяца или на год, чтобы изменить его',
+            'hint'    => 'Нажмите на название месяца или на год, чтобы изменить его',
             'prepend' => '<i class="icon-calendar"></i>',
         )
     );
@@ -116,13 +116,11 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     <div class="form-actions">
         <?php 
         // кнопка ренистрации
-        $this->widget(
-            'bootstrap.widgets.TbButton',
-            array(
+        $this->widget('bootstrap.widgets.TbButton', array(
                 'buttonType' => 'submit',
-                'type'  => 'success',
-                'size'  => 'large',
-                'label' => 'Регистрация'
+                'type'       => 'success',
+                'size'       => 'large',
+                'label'      => 'Регистрация'
             )
         ); 
         ?>
