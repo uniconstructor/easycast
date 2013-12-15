@@ -39,23 +39,30 @@ class QSearchFilterBaseSlider extends QSearchFilterBase
      */
     protected function getNotSetPlaceholder()
     {
-        return "Не важно";
+        return $this->getTitle();
     }
     
     /**
      * Получить значение в текстовом поле над слайдером сразу же при загрузке страницы
      * @param int $min
      * @param int $max
+     * @param string $placeholder - текст отображаемый в окошке слайдера, если ничего не выбрано
      * @return string
      */
-    protected function getDefaultSliderInfo($min, $max)
+    protected function getDefaultSliderInfo($min, $max, $placeholder=null)
     {
         $minLimit = $this->getMinValue();
         $maxLimit = $this->getMaxValue();
         
         if ( $min == $minLimit AND $max == $maxLimit )
         {// не задан ни один параметр - выводим заглушку
-            return $this->getNotSetPlaceholder();
+            if ( $placeholder )
+            {
+                return $placeholder;
+            }else
+            {
+                return $this->getNotSetPlaceholder();
+            }
         }
         if ( $min != $minLimit AND $max == $maxLimit )
         {// указана только нижняя граница, выводим "от хх"

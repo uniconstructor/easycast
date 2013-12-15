@@ -4,10 +4,13 @@
  */
 /* @var $this OrderController */
 
+$this->pageTitle = 'Заказ на съемку - easyCast';
+
 $this->breadcrumbs = array(
-    'Заказ'
+    'Заказ',
 );
- 
+
+// форма заказа
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'id'     => 'order-form',
     'enableAjaxValidation' => false,

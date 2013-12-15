@@ -14,8 +14,14 @@ class QSearchHandlerBase extends CComponent
     public $filter;
     
     /**
+     * @var CActiveRecord - объект, к которому прикреплены критерии поиска
+     */
+    public $searchObject;
+    
+    /**
      * @var CatalogSection|null - раздел каталога, внутри которого производится поиск
      *                        Не используется, если нужен поиск по всей форме
+     * @deprecated использовать searchObject
      */
     public $section;
     
@@ -151,9 +157,9 @@ class QSearchHandlerBase extends CComponent
         
         if ( $this->saveTo == 'session' )
         {
-            if ( is_object($this->section) )
+            if ( is_object($this->searchObject) )
             {
-                CatalogModule::setFilterSearchData($name, $this->section->id, $data);
+                CatalogModule::setFilterSearchData($name, $this->searchObject->id, $data);
             }else
             {
                 CatalogModule::setFormSearchData($name, $data);

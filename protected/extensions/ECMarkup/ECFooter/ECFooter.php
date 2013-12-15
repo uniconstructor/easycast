@@ -49,7 +49,10 @@ class ECFooter extends CWidget
 	        $this->printYandexCounter();
 	    }
 	    // выводим скрипт онлайн-консультанта
-	    $this->render('zopim');
+	    if ( ! Yii::app()->user->checkAccess('Admin') )
+	    {// (для всех кроме админов)
+	        $this->render('zopim');
+	    }
 	    // выводим скрытую форму регистрации для всплывающего окна
 	    $this->widget('ext.ECMarkup.ECRegister.ECRegister');
     }

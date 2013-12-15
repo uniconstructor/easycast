@@ -56,6 +56,15 @@ class QSearchFilterBody extends QSearchFilterBaseSlider
     }
     
     /**
+     * Получить текст, который отображается, когда в слайдере ничего не выбрано
+     * @return string
+     */
+    protected function getNotSetPlaceholder()
+    {
+        return $this->getTitle();
+    }
+    
+    /**
      * Получить html-код одного слайдера
      * 
      * @param string $element - тип слайдера ('chestsize', 'waistsize', 'hipsize')
@@ -68,6 +77,7 @@ class QSearchFilterBody extends QSearchFilterBaseSlider
         $content     = '';
         $shortname   = $this->filter->shortname;
         $textFieldId = 'search_'.$shortname.'_'.$element.'_slider_info';
+        $placeholder = $this->getSliderCaption($element);
         
         // задаем значения по умолчанию 
         $values = array(
@@ -87,27 +97,28 @@ class QSearchFilterBody extends QSearchFilterBaseSlider
         }
         
         // выводим пояснение к параметру фильтра
-        $content .= "<label for='{$textFieldId}' style='display:inline;'>{$this->getSliderCaption($element)}:&nbsp;</label>";
+        //$content .= "<label for='{$textFieldId}' style='display:inline;'>{$this->getSliderCaption($element)}:&nbsp;</label>";
         
         // Выводим окошко с выбранными результатами
-        $content .= CHtml::textField(null, $this->getDefaultSliderInfo($values[0], $values[1]), array(
-            'id'       => $textFieldId,
-            'class'    => 'text-right',
-            'class'    => 'ec-search-filter-slider-info',
-            'disabled' => 'disabled',
-        ));
+        $content .= CHtml::textField(null, 
+            $this->getDefaultSliderInfo($values[0], $values[1], $placeholder),
+            array(
+                'id'       => $textFieldId,
+                'class'    => 'ec-search-filter-slider-info',
+                'disabled' => 'disabled',
+            ));
         
         // выводим сам виджет со слайдером
         $content .= $this->widget('zii.widgets.jui.CJuiSlider',array(
             // additional javascript options for the slider plugin
             'options' => array(
-                'min' => $this->getMinValue(),
-                'max' => $this->getMaxValue(),
+                'min'    => $this->getMinValue(),
+                'max'    => $this->getMaxValue(),
                 'range'  => true,
                 'values' => $values,
-                'slide'  => 'js:function( event, ui ) {'.$this->getSlideJs($textFieldId).'}',
+                'slide'  => 'js:function( event, ui ) {'.$this->getSlideJs($textFieldId, $placeholder).'}',
             ),
-            'htmlOptions'=>array(
+            'htmlOptions' => array(
                 'name' => $this->getFullInputName($element),
             ),
         ), true);
@@ -216,5 +227,47 @@ class QSearchFilterBody extends QSearchFilterBaseSlider
         $.each(selectors, function(element, selector) {
             $(selector).on('slidechange', function() {".$this->toggleHighlightJsName."();} );
         });";
+    }
+    
+    /**
+     * Получить js-код, который выполняется при изменении значения слайдера
+     * @param string $name - id текстового поля для слайдера
+     * @param string $placeholder - надпись в текстовом окне слайдера по умолчанию
+     *
+     * @return string
+     */
+    protected function getSlideJs($name, $placeholder=null)
+    {
+        $js = '';
+        if ( ! $placeholder )
+        {
+            $placeholder = $this->getNotSetPlaceholder();
+        }
+        // Если задано и максимальное и минимальное значение - выводим диапазон
+        $js .= 'if ( ui.values[0] > '.$this->getMinValue().' && ui.values[1] < '.$this->getMaxValue().' )
+        {
+            $("#'.$name.'").val("'.Yii::t('coreMessages', 'from').' " + ui.values[0] + " '.Yii::t('coreMessages', 'to').' " + ui.values[1]);
+            return;
+        }';
+        // Если только максимальное - выводим "до хх"
+        $js .= 'if ( ui.values[0] == '.$this->getMinValue().' && ui.values[1] != '.$this->getMaxValue().' )
+        {
+            $("#'.$name.'").val("'.Yii::t('coreMessages', 'to').' " + ui.values[1]);
+            return;
+        }';
+        // Если только минимальное - выводим "от хх"
+        $js .= 'if ( ui.values[0] != '.$this->getMinValue().' && ui.values[1] == '.$this->getMaxValue().' )
+        {
+            $("#'.$name.'").val("'.Yii::t('coreMessages', 'from').' " + ui.values[0]);
+            return;
+        }';
+        // Если ничего не задано - выводим заглушку
+        $js .= 'if ( ui.values[0] == '.$this->getMinValue().' && ui.values[1] == '.$this->getMaxValue().' )
+        {
+            $("#'.$name.'").val("'.$placeholder.'");
+            return;
+        }';
+    
+        return $js;
     }
 }

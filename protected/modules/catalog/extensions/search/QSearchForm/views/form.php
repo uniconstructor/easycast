@@ -1,52 +1,63 @@
 <?php
-
-/**
- * @var $this CWidget
- */
-
 /**
  * Разметка для формы поиска
- * Определяет как и в каком порядке располагаются поля в форме. 
+ * Определяет как и в каком порядке располагаются поля в форме.
  * Один критерий поиска - один виджет
- * 
- * Форме разделена на 3 колонки
+ *
+ * Форма разделена на 4 колонки
  */
+/* @var $this QSearchForm */
+
+
 ?>
-<div class="span4">
-<?php // Пол
-    $options = array(
-        'display' => 'form',
-        'filter'  => CatalogFilter::model()->find("`shortname` = 'gender'"),
-    );
-    $this->widget('catalog.extensions.search.filters.QSearchFilterGender.QSearchFilterGender', $options);
-?>
-<?php // Возраст
-    $options = array(
-        'display' => 'form',
-        'filter'  => CatalogFilter::model()->find("`shortname` = 'age'"),
-    );
-    $this->widget('catalog.extensions.search.filters.QSearchFilterAge.QSearchFilterAge', $options);
-?>
-<?php // Рост
-    $options = array(
-        'display' => 'form',
-        'filter'  => CatalogFilter::model()->find("`shortname` = 'height'"),
-    );
-    $this->widget('catalog.extensions.search.filters.QSearchFilterHeight.QSearchFilterHeight', $options);
-?>
-<?php // Вес
-    $options = array(
-        'display' => 'form',
-        'filter'  => CatalogFilter::model()->find("`shortname` = 'weight'"),
-    );
-    $this->widget('catalog.extensions.search.filters.QSearchFilterWeight.QSearchFilterWeight', $options);
-?>
-</div>
-<div class="span4"></div>
-<div class="span4"></div>
-<div class="span12 text-center">
-    <?php 
-        // Добавляем внизу кнопки "очистить" и "найти"
-        $this->displayButtons();
-    ?>
+<div class="ec-advanced-search">
+    <div class="ec-usual_suspects span11"></div>
+    <div class="row">
+        <div class="search-column span3">
+        <ul>
+            <li>
+                <h3>Основная информация</h3>
+            </li>
+            <?php
+            // основные фильтры
+            $this->displayColumnFilters('base');
+            ?>
+        </ul>
+        </div>
+        <div class="search-column span3">
+        <ul>
+            <li>
+                <h3>Внешность</h3>
+            </li>
+            <?php
+            // фильтры по внешности
+            $this->displayColumnFilters('looks');
+            ?>
+        </ul>
+        </div>
+        <div class="search-column span3">
+        <ul>
+            <li>
+                <h3>Навыки</h3>
+            </li>
+            <?php
+            // фильтры по навыкам
+            $this->displayColumnFilters('skills');
+            ?>
+        </ul>
+        </div>
+        <div class="search-column span2"><!-- style="margin-top: 50px; text-align: center;" -->
+            <ul>
+                <li>
+                    <h3>&nbsp;</h3>
+                </li>
+                <li>
+                    <?php 
+                    // Добавляем кнопки "очистить" и "найти"
+                    $this->displayButtons();
+                    ?>
+                </li>
+            </ul>
+        </div>
+    </div>
 </div>

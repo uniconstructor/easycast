@@ -79,9 +79,9 @@ class QSearchResults extends CWidget
         // указываем путь к классу, который занимается сборкой поискового запроса из отдельных частей
         // @todo сделать полем класса
         $pathToAssembler = 'application.modules.catalog.extensions.search.handlers.QSearchCriteriaAssembler';
-        if ( $this->mode == 'filter' AND ! is_object($this->section) )
+        if ( $this->mode == 'filter' AND ! is_object($this->searchObject) )
         {
-            throw new CHttpException(500, 'Section not found');
+            throw new CException('Section not found');
         }
         
         // загружаем условия поиска, если они не переданы из формы
@@ -89,9 +89,11 @@ class QSearchResults extends CWidget
         
         // Указываем параметры для сборки запроса
         $config = array(
-            'class'   => $pathToAssembler,
-            'data'    => $this->data,
-            'section' => $this->section,
+            'class'        => $pathToAssembler,
+            'data'         => $this->data,
+            // @todo оставлено для совместимости, удалить при рефакторинге
+            //'section'      => $this->section,
+            'searchObject' => $this->searchObject,
         );
         $this->assembler = Yii::createComponent($config);
     }

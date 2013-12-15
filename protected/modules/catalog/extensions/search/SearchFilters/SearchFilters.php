@@ -26,7 +26,6 @@ class SearchFilters extends CWidget
      *               filter - фильтр в разделе каталога
      *               search - большая форма поиска
      *               vacancy - критерии подбора участников для вакансии
-     * @deprecated не используется, удалить при рефакторинге
      */
     public $mode = 'filter';
     
@@ -46,8 +45,7 @@ class SearchFilters extends CWidget
     
     /**
      * @var CatalogSection - раздел анкеты в котором отображаются фильтры
-     * @deprecated не используется, удалить при рефакторинге
-     *             Вместо этого поля теперь используется searchObject
+     * @deprecated не используется, удалить при рефакторинге. Вместо этого поля теперь используется searchObject.
      */
     public $section;
     
@@ -85,7 +83,7 @@ class SearchFilters extends CWidget
     /**
      * @var array - используемые фильтры поиска (массив объектов CatalogFilter)
      */
-    protected $filters = array();
+    public $filters = array();
     
     /**
      * (non-PHPdoc)
@@ -103,7 +101,14 @@ class SearchFilters extends CWidget
         // Базовый класс для виджетов поиска по ВУЗам
         Yii::import('catalog.extensions.search.filters.QSearchFilterBaseUni.QSearchFilterBaseUni');
         
-        if ( ! empty($this->filterInstances) )
+        if ( $this->searchObject )
+        {// задан объект поиска (раздел каталога, роль, и т. д.) - извлекаем набор фильтров из него
+            if ( ! $this->searchObject->searchFilters )
+            {
+                throw new CException('В указанном объекте отсутствуют прикрепленные критерии поиска');
+            }
+            $this->filters = $this->searchObject->searchFilters;
+        }elseif ( ! empty($this->filterInstances) )
         {// список фильтров задан извне - соберем их в массив
             foreach ( $this->filterInstances as $instance )
             {
@@ -115,10 +120,11 @@ class SearchFilters extends CWidget
             {
                 $this->filters[] = $instance->filter;
             }
+            $this->searchObject = $this->section;
         }
         if ( empty($this->filters) AND ! is_object($this->section) AND $this->mode == 'filter' )
         {// список фильтров не задан извне, и не содержится в объекте
-            throw new CHttpException('500', 'Не указан раздел для фильтров');
+            throw new CException(500, 'Не указан раздел для фильтров');
         }
         
         // регистрируем скрипт обновляющий результаты поиска при изменении данных в форме (пока не готов)
@@ -153,12 +159,12 @@ class SearchFilters extends CWidget
      */
     protected function getFilterTitle()
     {
-        if ( $this->mode == 'form' )
+        if ( $this->mode == 'form' OR ( isset($this->searchObject->id) AND $this->searchObject->id == 1 ) )
         {
             return "<h4>Условия</h4>";
         }else
         {
-            return "<h4>Поиск в разделе &quot;{$this->section->name}&quot;</h4>";
+            return "<h4>Поиск в разделе &quot;{$this->searchObject->name}&quot;</h4>";
         }
     }
     
@@ -181,17 +187,17 @@ class SearchFilters extends CWidget
     
     /**
      * Получить параметры для отображения всех виджетов (фильтров) поиска
-     * 
-     * @return multitype:unknown CatalogSection string 
-     * @return null
+     * @param CatalogFilter $filter - отображаемый фильтр поиска
+     * @return array
      */
     protected function getDisplayFilterOptions($filter)
     {
         return array(
-            'section' => $this->section,
-            'filter'  => $filter,
-            'display' => $this->mode,
-            'dataSource' => $this->dataSource,
+            'section'      => $this->section,
+            'searchObject' => $this->searchObject,
+            'filter'       => $filter,
+            'display'      => $this->mode,
+            'dataSource'   => $this->dataSource,
         );
     }
     
@@ -263,8 +269,8 @@ class SearchFilters extends CWidget
     protected function getAjaxSearchParams()
     {
         return array(
-            'sectionId' => $this->getSectionId(),
-            'mode'      => $this->mode,
+            'searchObjectId' => $this->getSearchObjectnId(),
+            'mode'           => $this->mode,
             Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken);
     }
     
@@ -328,12 +334,31 @@ class SearchFilters extends CWidget
      * Получить id текущего раздела каталога (если отображаются фильтры) или 0 (если отображается большая форма)
      * @return number
      * @return null
+     *
+     * @todo переименовать в getSearchObjectId
+     */
+    protected function getSearchObjectnId()
+    {
+        if ( is_object($this->searchObject) )
+        {
+            return $this->searchObject->id;
+        }
+    
+        return 0;
+    }
+    
+    /**
+     * Получить id текущего раздела каталога (если отображаются фильтры) или 0 (если отображается большая форма)
+     * @return number
+     * @return null
+     * 
+     * @deprecated не используется, удалить при рефакторинге
      */
     protected function getSectionId()
     {
-        if ( is_object($this->section) )
+        if ( is_object($this->searchObject) )
         {
-            return $this->section->id;
+            return $this->searchObject->id;
         }
         
         return 0;

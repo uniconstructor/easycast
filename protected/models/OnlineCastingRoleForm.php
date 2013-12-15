@@ -44,7 +44,7 @@ class OnlineCastingRoleForm extends CFormModel
     public function rules()
     {
         return array(
-            array('name, description', 'filter', 'filter' => 'trim'),
+            array('name, description, salary', 'filter', 'filter' => 'trim'),
             // все поля формы обязательные
             array('name, description', 'required'),
         );

@@ -56,13 +56,23 @@ class QSearchFilterBase extends CWidget
     public $display;
     
     /**
+     * @var CActiveRecord - модель к которой прикреплены критерии поиска
+     *                  Этот объект обязательно должен обладать отношением (Relation)
+     *                  которое назызывается searchFilters, которое содержит
+     *                  используемые фильтры поиска
+     */
+    public $searchObject;
+    
+    /**
      * @var CatalogSection - раздел анкеты в котором отображается фильтр 
      *                       (если фильтры используются в разделах каталога)
+     * @deprecated использовать searchObject вместо section и vacancy
      */
     public $section;
     
     /**
      * @var EventVacancy - вакансия, к которой прикремлен фильтр поиска
+     * @deprecated использовать searchObject вместо section и vacancy
      */
     public $vacancy;
     
@@ -260,15 +270,15 @@ class QSearchFilterBase extends CWidget
         // Проверяем правильность всех параметров перед созданием виджета
         if ( ! in_array($this->display, $this->displayModes) )
         {
-            throw new CHttpException('500', 'Неправильный тип отображения');
+            throw new CException('Неправильный тип отображения');
         }
         if ( ! $this->filter )
         {
-            throw new CHttpException('500', 'Не задана связь виджета с фильтром в базе. $this->filter должен быть задан');
+            throw new CException('Не задана связь виджета с фильтром в базе. $this->filter должен быть задан');
         }
-        if ( $this->display == 'filter' AND ! is_object($this->section) )
+        if ( $this->display == 'filter' AND ! is_object($this->searchObject)  )
         {
-            throw new CHttpException('500', 'Не указан раздел для фильтра');
+            throw new CException('Не указан раздел для фильтра');
         }
         if ( ! $this->namePrefix )
         {// если префикс не задан вручную - то берем его из базы
@@ -276,7 +286,7 @@ class QSearchFilterBase extends CWidget
         }
         if ( ! $this->elements )
         {// Не задан список полей для поискового виджета
-            throw new CHttpException('500', 'Не задан список полей для поискового виджета. $this->internalElements должен быть задан');
+            throw new CException('Не задан список полей для поискового виджета. $this->internalElements должен быть задан');
         }
         
         // Устанавливаем одно общее имя массива для всех input-полей формы фрагмента поиска
@@ -398,8 +408,12 @@ class QSearchFilterBase extends CWidget
             'collapsed'     => $collapsedSelector,
             'duration'      => 200,
         );
-        // создаем сам виджет (сворачивающийся блок с фильтром)
-        $this->widget('ext.slidetoggle.ESlidetoggle', $options);
+        
+        if ( $this->display == 'filter' )
+        {// создаем сам виджет (сворачивающийся блок с фильтром)
+            // (для режима отображения "фильтр")
+            $this->widget('ext.slidetoggle.ESlidetoggle', $options);
+        }
     }
     
     /**
@@ -444,8 +458,9 @@ class QSearchFilterBase extends CWidget
         {// нужно загрузить данные из сессии
             switch ( $this->display )
             {
-                case 'filter': $data = CatalogModule::getFilterSearchData($this->namePrefix, $this->section->id); break;
-                case 'form':   $data = CatalogModule::getFormSearchData($this->namePrefix); break;
+                case 'filter': $data = CatalogModule::getFilterSearchData($this->namePrefix, $this->searchObject->id); break;
+                case 'form':   $data = CatalogModule::getFilterSearchData($this->namePrefix, 1); break;
+                //case 'form':   $data = CatalogModule::getFormSearchData($this->namePrefix); break;
             }
         }elseif ( $this->dataSource == 'db' )
         {// нужно загрузить данные фильтра из базы
@@ -490,6 +505,10 @@ class QSearchFilterBase extends CWidget
      */
     protected function getFullTitle()
     {
+        /*if ( $this->display == 'form' )
+        {// не отображать заголовок фильтра если рисуем форму
+            return '';
+        }*/
         $iconDisplay = 'block';
         if ( $this->collapsedAtStart() OR ! $this->allowClear )
         {// показываем иконку очистки фильтра только если в нем присутствуют данные и очистка данных разрешена
@@ -518,7 +537,7 @@ class QSearchFilterBase extends CWidget
      */
     protected function getTitle()
     {
-        throw new CHttpException('500', 'getTitle() должен быть наследован');
+        throw new CException('getTitle() должен быть наследован');
     }
     
     /**
@@ -529,7 +548,7 @@ class QSearchFilterBase extends CWidget
      */
     protected function getContent()
     {
-        throw new CHttpException('500', 'getContent() должен быть наследован');
+        throw new CException('getContent() должен быть наследован');
     }
     
     /**
@@ -601,7 +620,7 @@ class QSearchFilterBase extends CWidget
      */
     protected function createClearFormDataJs()
     {
-        throw new CHttpException('500', 'clearFormJs() должен быть наследован');
+        throw new CException('clearFormJs() должен быть наследован');
     }
     
     /**
@@ -628,7 +647,7 @@ class QSearchFilterBase extends CWidget
                 ".Yii::app()->request->csrfTokenName." : '".Yii::app()->request->csrfToken."'
             };
             var ajaxOptions = {
-                url: '$url',
+                url  : '{$url}',
                 data : ajaxData,
                 type : 'post'
             };
@@ -644,7 +663,7 @@ class QSearchFilterBase extends CWidget
      */
     protected function createHighlightJs()
     {
-        $js = "jQuery('#{$this->titleId}').addClass('btn-primary');";
+        $js  = "jQuery('#{$this->titleId}').addClass('btn-primary');";
         $js .= "jQuery('#{$this->contentId}').addClass('ec-search-filter-content-active');";
         if ( $this->allowClear )
         {
@@ -661,7 +680,7 @@ class QSearchFilterBase extends CWidget
      */
     protected function createFadeOutJs()
     {
-        $js = "jQuery('#{$this->titleId}').removeClass('btn-primary');";
+        $js  = "jQuery('#{$this->titleId}').removeClass('btn-primary');";
         $js .= "jQuery('#{$this->contentId}').removeClass('ec-search-filter-content-active');";
         if ( $this->allowClear )
         {
@@ -723,21 +742,20 @@ class QSearchFilterBase extends CWidget
      */
     protected function createClearSessionDataJs()
     {
-        $sectionId = 0;
-        if ( is_object($this->section) )
+        $searchObjectId = 0;
+        if ( is_object($this->searchObject) )
         {
-            $sectionId = $this->section->id;
+            $searchObjectId = $this->searchObject->id;
         }
         // создаем URL для AJAX-запроса
-        $url = Yii::app()->createUrl($this->clearUrl,
-            array(
-                'namePrefix' => $this->namePrefix,
-                'sectionId'  => $sectionId,
+        $url = Yii::app()->createUrl($this->clearUrl, array(
+            'namePrefix'     => $this->namePrefix,
+            'searchObjectId' => $searchObjectId,
         ));
         // Устанавливаем данные для запроса и выполняем его
         return "var ajaxData = {
-            namePrefix : '{$this->namePrefix}',
-            sectionId  : '{$sectionId}',
+            namePrefix :      '{$this->namePrefix}',
+            searchObjectId  : '{$searchObjectId}',
             ".Yii::app()->request->csrfTokenName." : '".Yii::app()->request->csrfToken."'
         };
         var ajaxOptions = {
@@ -816,6 +834,6 @@ class QSearchFilterBase extends CWidget
      */
     protected function createCollectFilterDataJs()
     {
-        throw new CHttpException('500', 'createCollectFormDataJs() должен быть наследован');
+        throw new CException('createCollectFormDataJs() должен быть наследован');
     }
 }

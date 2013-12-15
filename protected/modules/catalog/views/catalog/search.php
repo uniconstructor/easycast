@@ -11,22 +11,24 @@
         <?php
         // Выводим виджет поисковых результатов
         // при первой загрузке страницы попробуем получить данные поиска из сессии
-        $data = CatalogModule::getSessionSearchData('form');
+        $data        = CatalogModule::getSessionSearchData('filter', 1);
+        $rootSection = CatalogSection::model()->findByPk(1);
         $options = array(
-            'mode' => 'search',
-            'data' => $data,
+            'mode'         => 'filter',
+            // @todo выяснить, можно ли удалить этот параметры
+            //'objectId'     => 1,
+            'data'         => $data,
+            'searchObject' => $rootSection,
         );
         $this->widget('catalog.extensions.search.QSearchResults.QSearchResults', $options);
         ?>
     </div>
     <div class="span3">
         <?php
-        // форма поиска
-        // поиск по разделу "вся база", поэтому получаем первый раздел (корень дерева)
-        $section = CatalogSection::model()->findByPk(1);
+        // форма поиска (поиск по разделу "вся база")
         $this->widget('catalog.extensions.search.SearchFilters.SearchFilters', array(
-            'mode'    => 'form',
-            'section' => $section,
+            'mode'         => 'filter',
+            'searchObject' => $rootSection,
         ));
         ?>
     </div>

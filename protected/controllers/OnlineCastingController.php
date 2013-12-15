@@ -18,7 +18,9 @@ class OnlineCastingController extends Controller
     public function init()
     {
         Yii::import('ext.LPNValidator.LPNValidator');
+        // подключаем необходимые для поиска по каталогу классы
         Yii::import('projects.models.*');
+        Yii::import('catalog.models.*');
     }
     /**
      * Отобразить первую страницу с пояснением о начале работы с онлайн-кастингом
@@ -121,6 +123,16 @@ class OnlineCastingController extends Controller
     }*/
     
     /**
+     * Сохранить кастинг со всеми ролями из сессии в базу и
+     * отправить команде оповещение о новом запросе на кастинг
+     * @return void
+     */
+    /*public function actionFinishCastingSetup()
+     {
+    
+    }*/
+    
+    /**
      * Сохранить критерии поиска для роли
      * @return void
      */
@@ -130,14 +142,13 @@ class OnlineCastingController extends Controller
     }
     
     /**
-     * Сохранить кастинг со всеми ролями из сессии в базу и 
-     * отправить команде оповещение о новом запросе на кастинг
+     * Очистить критерии поиска для роли
      * @return void
      */
-    /*public function actionFinishCastingSetup()
+    public function actionClearRoleCriteria()
     {
         
-    }*/
+    }
     
     /**
      * Performs the AJAX validation.
@@ -228,10 +239,10 @@ class OnlineCastingController extends Controller
                 $this->getCustomerErrorMessage());
         }
         
+        // @todo создаем заказ, который отправит сообщение команде
+        
         // удаляем проект онлайн-кастинга из сессии
         Yii::app()->session->remove('onlineCasting');
-        
-        // @todo создаем заказ, который отправит сообщение команде
         
         return true;
     }

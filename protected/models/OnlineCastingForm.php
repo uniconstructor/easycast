@@ -59,7 +59,7 @@ class OnlineCastingForm extends CFormModel
             array('phone', 'LPNValidator', 'defaultCountry' => 'RU', 'allowEmpty' => true),
             array('email', 'email'),
             array('plandate', 'safe'), //comment
-            array('projectname, projecttype, projectdescription, eventdescription, name, email', 'required'),
+            array('projectname, projecttype, projectdescription, eventdescription, name, lastname, email', 'required'),
         );
     }
     

@@ -48,8 +48,14 @@ class QSearchCriteriaAssembler extends CComponent
     public $filterInstances = array();
     
     /**
+     * @var CActiveRecord|null - объект, к которому прикреплены критерии поиска
+     */
+    public $searchObject;
+    
+    /**
      * @var CatalogSection|null - раздел каталога, внутри которого производится поиск
      *                        Не используется, если нужен поиск по всей форме 
+     * @deprecated 
      */
     public $section;
     
@@ -120,7 +126,7 @@ class QSearchCriteriaAssembler extends CComponent
                     $criteria->compare('shortname', $filterElement);
                     if ( ! $filter = CatalogFilter::model()->find($criteria) )
                     {
-                        throw new CException(500, "Фильтр с именем '{$filterElement}' не найден");
+                        throw new CException("Фильтр с именем '{$filterElement}' не найден");
                     }
                     
                     // заменяем строку с названием фильтра на объект
@@ -134,8 +140,11 @@ class QSearchCriteriaAssembler extends CComponent
             {// перебираем все фильтры раздела и для каждого создаем условие
                 $this->filters[] = $instance->filter;
             }
+        }elseif ( is_object($this->searchObject) )
+        {// происходит поиск по фильтрам, прикрепленным к произвольному объекту
+            $this->filters = $this->searchObject->searchFilters;
         }elseif ( is_object($this->section) )
-        {// происходит поиск по фильтрам
+        {// происходит поиск по фильтрам раздела каталога
             foreach ( $this->section->filterinstances as $instance )
             {// перебираем все фильтры раздела и для каждого создаем условие
                 $this->filters[] = $instance->filter;
@@ -208,13 +217,16 @@ class QSearchCriteriaAssembler extends CComponent
     protected function addFilterCriteria($filter)
     {
         $config = array(
-            'class'    => $this->pathPrefix.$filter->handlerclass,
-            'filter'   => $filter,
-            'data'     => $this->data,
-            'saveData' => $this->saveData,
-            'saveTo'   => $this->saveTo,
-            'section'  => $this->section,
+            'class'        => $this->pathPrefix.$filter->handlerclass,
+            'filter'       => $filter,
+            'data'         => $this->data,
+            'saveData'     => $this->saveData,
+            'saveTo'       => $this->saveTo,
+            // @todo оставлено для совместимости, удалить при рефакторинге
+            'section'      => $this->section,
+            'searchObject' => $this->searchObject,
         );
+        
         // для каждого фильтра создается свой обработ чик
         $handler = Yii::createComponent($config);
         if ( ! $handler->enabled() )
@@ -240,10 +252,17 @@ class QSearchCriteriaAssembler extends CComponent
         if ( $this->startCriteria instanceof CDbCriteria )
         {// изначальное условие выборки задано вручную
             $this->criteria = $this->startCriteria;
-        }elseif ( is_object($this->section) )
+        }elseif ( is_object($this->searchObject) )
         {// происходит поиск по фильтрам
             // Получаем условие поиска по разделу (к нему будут добавляться все остальные фильтры)
-            $this->startCriteria = $this->section->scope->getCombinedCriteria();
+            if ( ! $this->searchObject->scope )
+            {// на тот редкий случай когда критериев поиска в прикрепленном объекте вообще нет
+                $this->startCriteria = new CDbCriteria();
+                $this->startCriteria->compare('status', 'active');
+            }else
+            {
+                $this->startCriteria = $this->searchObject->scope->getCombinedCriteria();
+            }
             $this->criteria = $this->startCriteria;
         }else
         {// изначальное условие выборки не задано - создаем его самостоятельно
@@ -253,5 +272,12 @@ class QSearchCriteriaAssembler extends CComponent
             $this->criteria->compare('status', 'active');
             $this->startCriteria = $this->criteria;
         }
+        /*elseif ( is_object($this->section) )
+         {// происходит поиск по фильтрам
+        // @todo оставлено для совместимости - удалить эту логическую ветку при рефакторинге
+        // Получаем условие поиска по разделу (к нему будут добавляться все остальные фильтры)
+        $this->startCriteria = $this->section->scope->getCombinedCriteria();
+        $this->criteria = $this->startCriteria;
+        }*/
     }
 }

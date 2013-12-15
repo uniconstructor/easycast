@@ -112,13 +112,16 @@ class QSearchFilterBaseSelect2 extends QSearchFilterBase
     protected function createSelect2Options()
     {
         return array(
-            'placeholder'    => $this->defaultSelect2Placeholder,
+            // текст-заглушка
+            'placeholder'    => $this->getTitle(),
             // @todo что это за параметр?
             'allowClear'     => true,
             // select не закрывается, чтобы можно было быстро выбрать несколько вариантов
             'closeOnSelect'  => false,
             // отсылать событие change каждый раз при изменении данных
             'triggerChange ' => true,
+            // максимальная ширина всегда
+            'width'          => '100%',
         );
     }
     

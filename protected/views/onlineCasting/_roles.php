@@ -2,6 +2,7 @@
 /**
  * Страница создания роли в онлайн-кастинге
  */
+/* @var $this OnlineCastingController */
 
 /* @var $form TbActiveForm */
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
@@ -20,8 +21,18 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 <div id="wizard-bar" class="progress progress-striped">
     <div class="bar"></div>
 </div>
+<h1 style="text-align:center;">Требования к участникам</h1>
+<?php 
+// получаем корневой раздел каталога ("вся база") для того чтобы искать по всем доступным анкетам
+$rootSection = CatalogSection::model()->findByPk(1);
+// виджет расширенной формы поиска (по всей базе)
+$this->widget('catalog.extensions.search.QSearchForm.QSearchForm', array(
+    'searchObject' => $rootSection,
+    'mode'         => 'filter',
+));
+?>
 <div class="span8 offset2">
-    <h1 style="text-align:center;">Требования к участникам</h1>
+    <h1 style="text-align:center;">Информация о роли</h1>
     <p class="note muted" style="text-align:center;">
         <?php echo Yii::t('coreMessages', 'form_required_fields', array('{mark}' => '<span class="required">*</span>')); ?>
     </p>

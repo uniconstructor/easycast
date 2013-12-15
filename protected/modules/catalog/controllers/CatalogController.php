@@ -148,33 +148,34 @@ class CatalogController extends Controller
 	    }*/
 	    // Проверяем наличие всех обязательных параметров
 	    // режим поиска (по фильтрам в разделе или по всей базе)
-	    $mode      = Yii::app()->request->getParam('mode', 'form');
-	    $sectionId = Yii::app()->request->getParam('sectionId', 0);
+	    $mode     = Yii::app()->request->getParam('mode', 'form');
+	    $objectId = Yii::app()->request->getParam('searchObjectId', 1);
 	    
-	    if ( $mode == 'filter' AND ! $section = CatalogSection::model()->findByPk($sectionId) )
+	    if ( $mode == 'filter' AND ! $section = CatalogSection::model()->findByPk($objectId) )
 	    {// попытка поискать в несуществующем разделе
-	        throw new CHttpException(500, 'Section not found');
+	        throw new CException('Section not found');
 	    }
 	    // при первой загрузке страницы попробуем получить данные поиска из сессии
-	    if ( $sectionId > 1 )
+	    $data = CatalogModule::getSessionSearchData('filter', $objectId);
+	    /*if ( $objectId > 1 )
 	    {
-	        $data = CatalogModule::getSessionSearchData('filter', $sectionId);
+	        $data = CatalogModule::getSessionSearchData('filter', $objectId);
 	    }else
 	    {
 	        $data = CatalogModule::getSessionSearchData('form');
-	    }
+	    }*/
 	    if ( $formData = Yii::app()->request->getPost('data', null) )
 	    {// переданы данные для поиска - делаем из них нормальный массив
 	        $data = CJSON::decode($formData);
 	    }
 	    
 	    $options = array(
-	        'mode'    => $mode,
-	        'data'    => $data,
+	        'mode' => $mode,
+	        'data' => $data,
 	    );
 	    if ( $mode == 'filter' )
 	    {
-	        $options['section'] = $section;
+	        $options['searchObject'] = $section;
 	    }
 	    
 	    $this->widget('catalog.extensions.search.QSearchResults.QSearchResults', $options);
@@ -263,17 +264,17 @@ class CatalogController extends Controller
 	 */
 	public function actionClearSessionSearchData()
 	{
-	    // если название фильтра не задано - мы можем очистить только 
-	    if ( ! $namePrefix = Yii::app()->request->getPost('namePrefix', '') )
-	    {
-	        throw new CHttpException(500, 'namePrefix required');
-	    }
 	    if ( ! Yii::app()->request->isAjaxRequest )
 	    {
 	        Yii::app()->end();
 	    }
+	    if ( ! $namePrefix = Yii::app()->request->getPost('namePrefix', '') )
+	    {// если название фильтра не задано - мы можем очистить только всё полностью
+	        return;
+	        throw new CHttpException(500, 'namePrefix required');
+	    }
 	    // определяем, что нужно очистить: данные каталога или большую форму 
-	    $sectionId = Yii::app()->request->getPost('sectionId', 0);
+	    $sectionId = Yii::app()->request->getPost('searchObjectId', 0);
 	    if ( $section = CatalogSection::model()->findByPk($sectionId) )
 	    {// очищаем данные внутри раздела каталога
 	        CatalogModule::clearFilterSearchData($namePrefix, $sectionId, array());
@@ -283,6 +284,7 @@ class CatalogController extends Controller
 	    }
 	    
 	    echo 'OK';
+	    Yii::app()->end();
 	}
 	
 	/**

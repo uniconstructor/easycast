@@ -50,7 +50,7 @@ $this->widget('bootstrap.widgets.TbWizard', array(
                 var $percent = ($current/$total) * 100;
                 $("#wizard-bar > .bar").css({width:$percent+"%"});
             }',
-            //'onTabClick' => 'js:function(tab, navigation, index) {return false;}',
+            'onTabClick' => 'js:function(tab, navigation, index) {return false;}',
         ),
         'tabs' => array(
             array(
