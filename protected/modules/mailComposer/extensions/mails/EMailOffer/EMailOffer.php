@@ -158,7 +158,7 @@ class EMailOffer extends EMailBase
             case 'actors': $params['sectionid'] = 4; break;
             case 'ams':    $params['sectionid'] = 17; break;
             case 'models': $params['sectionid'] = 3; break;
-            case 'types':  $params['sectionid'] = 1; break;
+            case 'types':  $params['sectionid'] = 16; break;
         }
         
         return Yii::app()->createAbsoluteUrl('/catalog/catalog/index', $params);

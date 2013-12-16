@@ -41,30 +41,30 @@
 					<td width="45" height="104" rowspan="2"></td>
 					<td width="120">
                         <a href="<?= $this->getSectionUrl('actors'); ?>">
-                            <img src="<?= $this->getImageUrl('/images/offer/s1.png'); ?>" width="120">
+                            <img border="0" src="<?= $this->getImageUrl('/images/offer/s1.png'); ?>" width="120">
                         </a>
 					</td>
 					<td width="23" rowspan="2"></td>
 					<td width="120">
 					   <a href="<?= $this->getSectionUrl('ams'); ?>">
-					       <img src="<?= $this->getImageUrl('/images/offer/s2.png'); ?>"  width="120" />
+					       <img border="0" src="<?= $this->getImageUrl('/images/offer/s2.png'); ?>"  width="120" />
 				       </a>
 					</td>
 					<td width="23" height="176" rowspan="2"></td>
 					<td width="120">
                         <a href="<?= $this->getSectionUrl('models'); ?>">
-                            <img src="<?= $this->getImageUrl('/images/offer/s3.png'); ?>" width="120">
+                            <img border="0" src="<?= $this->getImageUrl('/images/offer/s3.png'); ?>" width="120">
                         </a>
 					</td>
 					<td width="23" height="176" rowspan="2"></td>
 					<td width="120">
 						<a href="<?= $this->getSectionUrl('types'); ?>">
-                            <img src="<?= $this->getImageUrl('/images/offer/s4.png'); ?>"  width="120" />
+                            <img border="0" src="<?= $this->getImageUrl('/images/offer/s4.png'); ?>"  width="120" />
 						</a>
 					</td>
 					<td width="40" rowspan="2"></td>
 				</tr>
-				<tr valign="center">
+				<tr valign="middle">
 					<td width="119" height="71" bgcolor="#47ad2c" align="center">
 						<a href="<?= $this->getSectionUrl('actors'); ?>" style="text-decoration:none;">
 						<font face="tahoma,sans-serif" color="#224c17" size="4">АКТЕРЫ</font></a>
@@ -96,7 +96,7 @@
 			<tbody>
 				<tr>
 					<td width="151" height="206" rowspan="3">
-						<img src="<?= $this->getImageUrl('/images/offer/vizitka.png'); ?>">
+						<img src="<?= $this->getImageUrl('/images/offer/iphones.png'); ?>">
 					</td>
 					<td width="339" height="68">
 						<a href="<?= $orderUrl; ?>">
