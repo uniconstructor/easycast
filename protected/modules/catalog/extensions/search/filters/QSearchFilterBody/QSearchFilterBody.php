@@ -119,7 +119,8 @@ class QSearchFilterBody extends QSearchFilterBaseSlider
                 'slide'  => 'js:function( event, ui ) {'.$this->getSlideJs($textFieldId, $placeholder).'}',
             ),
             'htmlOptions' => array(
-                'name' => $this->getFullInputName($element),
+                'name'  => $this->getFullInputName($element),
+                'class' => 'ec-search-filter-slider',
             ),
         ), true);
         

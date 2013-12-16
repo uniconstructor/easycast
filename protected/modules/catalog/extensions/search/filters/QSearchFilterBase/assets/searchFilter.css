@@ -37,3 +37,10 @@
 .ec-search-filter-slider-info {
     width: 90%;
 }
+/**
+ * Стиль самого слайдера
+ */
+.ec-search-filter-slider {
+    width: 95%;
+    margin-bottom: 5px;
+}

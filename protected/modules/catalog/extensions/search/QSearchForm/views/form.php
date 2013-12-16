@@ -11,12 +11,12 @@
 
 ?>
 <div class="ec-advanced-search">
-    <div class="ec-usual_suspects span11"></div>
-    <div class="row span12">
-        <div class="search-column span3">
+    <div class="ec-usual_suspects row span12"></div>
+    <div class="row span12" style="margin-left:-30px;">
+        <div class="span3">
         <ul>
             <li>
-                <h3>Основная информация</h3>
+                <h3 style="color:#497A89;font-size:20px;font-weight:normal;">Основная информация</h3>
             </li>
             <?php
             // основные фильтры
@@ -24,10 +24,10 @@
             ?>
         </ul>
         </div>
-        <div class="search-column span3">
+        <div class="span3">
         <ul>
             <li>
-                <h3>Внешность</h3>
+                <h3 style="color:#497A89;font-size:20px;font-weight:normal;">Внешность</h3>
             </li>
             <?php
             // фильтры по внешности
@@ -35,10 +35,10 @@
             ?>
         </ul>
         </div>
-        <div class="search-column span3">
+        <div class="span3">
         <ul>
             <li>
-                <h3>Навыки</h3>
+                <h3 style="color:#497A89;font-size:20px;font-weight:normal;">Навыки</h3>
             </li>
             <?php
             // фильтры по навыкам
