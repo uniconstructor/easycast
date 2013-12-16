@@ -1465,10 +1465,6 @@ div.ec-advanced-search div.search-column ul li label.radio input {
     padding: 5px 0px;
 }
 
-input[type="radio"] {
-    display:none;
-}
-
 .ec-search_choice p {
     font-size: 18px;
     color: #a2a2a2;
