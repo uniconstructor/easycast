@@ -14,7 +14,6 @@ if ( $sectionid != 1 AND $section = CatalogSection::model()->findByPk($sectionid
    );
 }
 ?>
-<!--h1><?php echo CatalogModule::t('catalog'); ?></h1-->
 <div class="span12" style="margin-left:0px;">
 <?php 
 
