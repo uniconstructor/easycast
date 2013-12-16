@@ -12,7 +12,7 @@
 ?>
 <div class="ec-advanced-search">
     <div class="ec-usual_suspects span11"></div>
-    <div class="row">
+    <div class="row span12">
         <div class="search-column span3">
         <ul>
             <li>
