@@ -27,8 +27,9 @@
         <?php
         // форма поиска (поиск по разделу "вся база")
         $this->widget('catalog.extensions.search.SearchFilters.SearchFilters', array(
-            'mode'         => 'filter',
-            'searchObject' => $rootSection,
+            'mode'          => 'filter',
+            'backToFormUrl' => '/search',
+            'searchObject'  => $rootSection,
         ));
         ?>
     </div>

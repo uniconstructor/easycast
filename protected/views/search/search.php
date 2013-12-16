@@ -16,6 +16,8 @@ $rootSection = CatalogSection::model()->findByPk(1);
 $this->widget('catalog.extensions.search.QSearchForm.QSearchForm', array(
     'searchObject' => $rootSection,
     'mode'         => 'filter',
+    // после отправки ajax-запроса поиска перенаправляет пользователя на страницу с фильтрами
+    'redirectUrl'  => '/catalog/catalog/search',
 ));
 
 //CVarDumper::dump( CatalogModule::getFilterSearchData($namePrefix, $sectionId) );

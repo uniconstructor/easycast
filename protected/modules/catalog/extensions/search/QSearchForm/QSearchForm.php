@@ -14,14 +14,10 @@ Yii::import('catalog.extensions.search.SearchFilters.SearchFilters');
 class QSearchForm extends SearchFilters
 {
     /**
-     * @var string - адрес для сохранения критериев поиска для роли
+     * @var string - url по которому происходит переход после поиска
+     *               Если этот параметр не задан - то перенаправления не происходит
      */
-    public $searchUrl = '/onlineCasting/saveRoleCriteria';
-    
-    /**
-     * @var string - адрес очистки критериев поиска для роли
-     */
-    public $clearUrl = '/onlineCasting/clearRoleCriteria';
+    public $redirectUrl = '';
     
     /**
      * @var array - распределение фильтров по колонкам формы поиска
@@ -132,13 +128,17 @@ class QSearchForm extends SearchFilters
      */
     protected function createSuccessSearchJs()
     {
-        $url = Yii::app()->createUrl('/catalog/catalog/search');
+        $redirectScript = '';
+        if ( $this->redirectUrl )
+        {
+            $url = Yii::app()->createUrl($this->redirectUrl);
+            $redirectScript = "document.location = '{$url}';return true;";
+        }
         return "function(data, status){
+            {$redirectScript}
             $('#{$this->searchResultsId}').html(data);
-        
             $('#search_button').attr('class', 'btn btn-success');
             $('#search_button').val('{$this->searchButtonTitle}');
-            document.location = '{$url}';
         }";
     }
 }

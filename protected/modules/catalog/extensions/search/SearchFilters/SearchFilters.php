@@ -23,9 +23,12 @@ class SearchFilters extends CWidget
     
     /**
      * @var string - режим отображения фильтров:
-     *               filter - фильтр в разделе каталога
-     *               search - большая форма поиска
+     *               filter - фильтр в разделе каталога (набор фильтров берется из раздела каталога)
+     *               search - большая форма поиска (@todo больше не используется, оставлено для совместимости: используйте значение 'form')
+     *               form - большая форма поиска (набор фильтров берется из первого (корневого) раздела каталога "все")
      *               vacancy - критерии подбора участников для вакансии
+     *               custom - просто отобразить набор фильтров/форму поиска, без привязки к объекту в базе
+     *                        В этом случае набор фильтров задается вручную, при помощи свойства filters
      */
     public $mode = 'filter';
     
@@ -58,6 +61,12 @@ class SearchFilters extends CWidget
      * @var string - по какому адресу отправлять запрос на очистку данных формы
      */
     public $clearUrl = '/catalog/catalog/clearSessionSearchData';
+    
+    /**
+     * @var string - ссылка на возврат к большой форме поиска
+     *               Если не задана - то кнопка "вернуться в расширенный поиск" не показывается
+     */
+    public $backToFormUrl = '';
     
     /**
      * @var boolean - отображать ли заголовок формы?
@@ -127,7 +136,7 @@ class SearchFilters extends CWidget
             throw new CException(500, 'Не указан раздел для фильтров');
         }
         
-        // регистрируем скрипт обновляющий результаты поиска при изменении данных в форме (пока не готов)
+        // @todo регистрируем скрипт обновляющий результаты поиска при изменении данных в форме (пока не готов)
         // $this->registerSearchResultsRefreshScript();
         parent::init();
     }
@@ -214,6 +223,8 @@ class SearchFilters extends CWidget
         echo '&nbsp;&nbsp;&nbsp;&nbsp;';
         // Кнопка "Очистить"
         $this->displayClearButton();
+        // кнопка "вернуться в расширенный поиск" (если нужна)
+        $this->displayBackToFormButton();
     }
     
     /**
@@ -315,6 +326,21 @@ class SearchFilters extends CWidget
             'class' => 'btn btn-primary',
             'id'    => 'clear_search'
         ));
+    }
+    
+    /**
+     * Отобразить кнопку "вернуться в расширенный поиск"
+     * @return void
+     */
+    protected function displayBackToFormButton()
+    {
+        if ( ! $this->backToFormUrl )
+        {
+            return;
+        }
+        $backToFormUrl = Yii::app()->createUrl($this->backToFormUrl);
+        
+        echo '<br><br>'.CHtml::link('В расширенный поиск', $backToFormUrl, array('class' => 'btn btn-warning'));
     }
     
     /**

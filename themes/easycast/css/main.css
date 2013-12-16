@@ -1479,7 +1479,6 @@ div.ec-advanced-search div.search-column ul li label.radio input {
 input[type="radio"] + label {
     font-family: century gothic, sans-serif;
     font-size: 16px;
-    color: #838383;
 }
 
 input[type="radio"] + label span {

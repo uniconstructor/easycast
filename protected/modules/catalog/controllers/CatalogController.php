@@ -151,10 +151,12 @@ class CatalogController extends Controller
 	    $mode     = Yii::app()->request->getParam('mode', 'form');
 	    $objectId = Yii::app()->request->getParam('searchObjectId', 1);
 	    
-	    if ( $mode == 'filter' AND ! $section = CatalogSection::model()->findByPk($objectId) )
+	    $section = CatalogSection::model()->findByPk($objectId);
+	    if ( ! $section )
 	    {// попытка поискать в несуществующем разделе
 	        throw new CException('Section not found');
 	    }
+	    
 	    // при первой загрузке страницы попробуем получить данные поиска из сессии
 	    $data = CatalogModule::getSessionSearchData('filter', $objectId);
 	    /*if ( $objectId > 1 )
@@ -164,7 +166,7 @@ class CatalogController extends Controller
 	    {
 	        $data = CatalogModule::getSessionSearchData('form');
 	    }*/
-	    if ( $formData = Yii::app()->request->getPost('data', null) )
+	    if ( $formData = Yii::app()->request->getPost('data') )
 	    {// переданы данные для поиска - делаем из них нормальный массив
 	        $data = CJSON::decode($formData);
 	    }
@@ -172,11 +174,8 @@ class CatalogController extends Controller
 	    $options = array(
 	        'mode' => $mode,
 	        'data' => $data,
+	        'searchObject' => $section,
 	    );
-	    if ( $mode == 'filter' )
-	    {
-	        $options['searchObject'] = $section;
-	    }
 	    
 	    $this->widget('catalog.extensions.search.QSearchResults.QSearchResults', $options);
 	}
