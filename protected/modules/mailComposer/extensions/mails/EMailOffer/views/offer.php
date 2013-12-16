@@ -39,29 +39,13 @@
 			<tbody>
 				<tr style="vertical-align:bottom;">
 					<td width="45" height="104" rowspan="2"></td>
-					<td width="120">
-                        <a href="<?= $this->getSectionUrl('actors'); ?>">
-                            <img border="0" src="<?= $this->getImageUrl('/images/offer/s1.png'); ?>" width="120">
-                        </a>
-					</td>
+					<td width="120"><p style="margin:0px;padding:0px;height:104px;width: 120px;"><a href="<?= $this->getSectionUrl('actors'); ?>"><img border="0" src="<?= $this->getImageUrl('/images/offer/s1.png'); ?>" width="120"></a></p></td>
 					<td width="23" rowspan="2"></td>
-					<td width="120">
-					   <a href="<?= $this->getSectionUrl('ams'); ?>">
-					       <img border="0" src="<?= $this->getImageUrl('/images/offer/s2.png'); ?>"  width="120" />
-				       </a>
-					</td>
+					<td width="120"><p style="margin:0px;padding:0px;height:104px;width: 120px;"><a href="<?= $this->getSectionUrl('ams'); ?>"><img border="0" src="<?= $this->getImageUrl('/images/offer/s2.png'); ?>"  width="120" /></a></p></td>
 					<td width="23" height="176" rowspan="2"></td>
-					<td width="120">
-                        <a href="<?= $this->getSectionUrl('models'); ?>">
-                            <img border="0" src="<?= $this->getImageUrl('/images/offer/s3.png'); ?>" width="120">
-                        </a>
-					</td>
+					<td width="120"><p style="margin:0px;padding:0px;height:104px;width: 120px;"><a href="<?= $this->getSectionUrl('models'); ?>"><img border="0" src="<?= $this->getImageUrl('/images/offer/s3.png'); ?>" width="120"></a></p></td>
 					<td width="23" height="176" rowspan="2"></td>
-					<td width="120">
-						<a href="<?= $this->getSectionUrl('types'); ?>">
-                            <img border="0" src="<?= $this->getImageUrl('/images/offer/s4.png'); ?>"  width="120" />
-						</a>
-					</td>
+					<td width="120"><p style="margin:0px;padding:0px;height:104px;width: 120px;"><a href="<?= $this->getSectionUrl('types'); ?>"><img border="0" src="<?= $this->getImageUrl('/images/offer/s4.png'); ?>"  width="120" /></a></p></td>
 					<td width="40" rowspan="2"></td>
 				</tr>
 				<tr valign="middle">
