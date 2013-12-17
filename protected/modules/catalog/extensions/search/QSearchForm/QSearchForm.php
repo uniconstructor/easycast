@@ -133,7 +133,7 @@ class QSearchForm extends SearchFilters
         if ( $this->redirectUrl )
         {
             $url = Yii::app()->createUrl($this->redirectUrl);
-            //$redirectScript = "document.location = '{$url}';return true;";
+            $redirectScript = "document.location = '{$url}';return true;";
         }
         return "function(data, status){
             {$redirectScript}

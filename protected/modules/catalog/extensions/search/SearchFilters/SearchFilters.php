@@ -95,6 +95,26 @@ class SearchFilters extends CWidget
     public $filters = array();
     
     /**
+     * @var string - название jQuery события, посылаемого при очистке всей формы
+     */
+    public $clearSearchEvent = 'clearSearch';
+    
+    /**
+     * @var string - название jQuery события, посылаемого при сборе данных со всей формы
+     */
+    public $collectDataEvent = 'collectData';
+    
+    /**
+     * @var string - название jQuery события, посылаемого для обновления результатов поиска
+     */
+    public $refreshDataEvent = 'refreshData';
+    /**
+     * @var bool - экспериментальная функция: обновлять результаты поиска по мере выбора критериев
+     * @todo отключить, если сервер не будет справляться
+     */
+    public $refreshDataOnChange = true;
+    
+    /**
      * (non-PHPdoc)
      * @see CWidget::init()
      */
@@ -136,8 +156,9 @@ class SearchFilters extends CWidget
             throw new CException('Не указан раздел для фильтров');
         }
         
-        // @todo регистрируем скрипт обновляющий результаты поиска при изменении данных в форме (пока не готов)
-        // $this->registerSearchResultsRefreshScript();
+        // регистрируем скрипт обновляющий результаты поиска при изменении данных в форме
+        $this->registerSearchResultsRefreshScript();
+        
         parent::init();
     }
     
@@ -207,6 +228,7 @@ class SearchFilters extends CWidget
             'filter'       => $filter,
             'display'      => $this->mode,
             'dataSource'   => $this->dataSource,
+            'refreshDataOnChange' => $this->refreshDataOnChange,
         );
     }
     
@@ -237,34 +259,7 @@ class SearchFilters extends CWidget
     protected function displaySearchButton()
     {
         $ajaxUrl = Yii::app()->createUrl($this->searchUrl);
-        
-        // Перед отправкой поискового запроса пристыковываем к нему данные из поисковой формы в формате json
-        // Плюс к этому, на время запоса выключаем кнопку поиска чтобы пользователь видел что процесс идет
-        $beforeSendJs = "function(jqXHR, settings){
-            $('#search_button').attr('class', 'btn btn-disabled');
-            $('#search_button').val('{$this->searchProgressTitle}');
-            
-            var ecSearchData = {};
-            $('body').trigger('collectData', [ecSearchData]);
-            //console.log(ecSearchData);
-            
-            var encodedData = JSON.stringify(ecSearchData);
-            settings.data = settings.data + '&data=' + encodedData;
-            
-            return true;
-        }";
-        // после ответа на запрос обновляем содержимое результатов поиска
-        $successJs = $this->createSuccessSearchJs();
-        
-        // Задаем настройки для поискового AJAX-запроса
-        $ajaxOptions = array(
-            'url'         => $ajaxUrl,
-            'data'        => $this->getAjaxSearchParams(),
-            'cache'       => false,
-            'type'        => 'post',
-            'beforeSend'  => $beforeSendJs,
-            'success'     => $successJs,
-        );
+        $ajaxOptions = $this->getAjaxSearchOptions();
         
         echo CHtml::ajaxButton($this->searchButtonTitle, $ajaxUrl, $ajaxOptions, array(
             'class' => 'btn btn-success',
@@ -286,6 +281,54 @@ class SearchFilters extends CWidget
     }
     
     /**
+     * Получить полный набор параметров для создания AJAX-запроса
+     * @return array
+     */
+    protected function getAjaxSearchOptions()
+    {
+        $ajaxUrl = Yii::app()->createUrl($this->searchUrl);
+        
+        // Перед отправкой поискового запроса пристыковываем к нему данные из поисковой формы в формате json
+        // Плюс к этому, на время запоса выключаем кнопку поиска чтобы пользователь видел что процесс идет
+        $beforeSendJs = $this->createBeforeSearchJs();
+        // после ответа на запрос обновляем содержимое результатов поиска
+        $successJs = $this->createSuccessSearchJs();
+        
+        // Задаем настройки для поискового AJAX-запроса
+        $ajaxOptions = array(
+            'url'         => $ajaxUrl,
+            'data'        => $this->getAjaxSearchParams(),
+            'cache'       => false,
+            'type'        => 'post',
+            'beforeSend'  => $beforeSendJs,
+            'success'     => $successJs,
+        );
+        
+        return $ajaxOptions;
+    }
+    
+    /**
+     * Создать скрипт, инициирующий AJAX-запрос поиска
+     * @return string
+     */
+    protected function createBeforeSearchJs()
+    {
+        return "function(jqXHR, settings){
+            $('#{$this->searchResultsId}').fadeTo(150, 0.5);
+            $('#search_button').attr('class', 'btn btn-disabled');
+            $('#search_button').val('{$this->searchProgressTitle}');
+            
+            var ecSearchData = {};
+            $('body').trigger('{$this->collectDataEvent}', [ecSearchData]);
+            
+            var encodedData = JSON.stringify(ecSearchData);
+            settings.data = settings.data + '&data=' + encodedData;
+            
+            return true;
+        }";
+    }
+    
+    /**
      * Получить js-код, выполняющийся после успешного ajax-запроса из формы поиска
      * 
      * @return string
@@ -297,6 +340,7 @@ class SearchFilters extends CWidget
         
             $('#search_button').attr('class', 'btn btn-success');
             $('#search_button').val('{$this->searchButtonTitle}');
+            $('#{$this->searchResultsId}').fadeTo(150, 1);
         }";
     }
     
@@ -308,8 +352,13 @@ class SearchFilters extends CWidget
     protected function displayClearButton()
     {
         $clearUrl = Yii::app()->createUrl($this->clearUrl);
+        $refreshJs = '';
+        if ( $this->refreshDataOnChange )
+        {
+            $refreshJs = "$('body').trigger('{$this->refreshDataEvent}');";
+        }
         $clearJs = "function(data, status){
-            $('body').trigger('clearSearch');
+            $('body').trigger('{$this->clearSearchEvent}');
         }";
         
         $ajaxData = array(
@@ -320,6 +369,7 @@ class SearchFilters extends CWidget
             'data'       => $ajaxData,
             'type'       => 'post',
             'beforeSend' => $clearJs,
+            'success'    => 'function(data, status){'.$refreshJs.'}',
         );
         
         echo CHtml::ajaxButton('Очистить', $clearUrl, $ajaxOptions, array(
@@ -352,8 +402,13 @@ class SearchFilters extends CWidget
      */
     protected function registerSearchResultsRefreshScript()
     {
-        //$js = "";
-        //Yii::app()->clientScript->registerScript('_ecRefreshSearchResultsJS#', $js, CClientScript::POS_END);
+        $ajaxOptions = $this->getAjaxSearchOptions();
+        $searchJs    = CHtml::ajax($ajaxOptions);
+        
+        $js = "$('body').on('{$this->refreshDataEvent}', function(event){
+            {$searchJs}
+        });";
+        Yii::app()->clientScript->registerScript('_ecRefreshSearchResultsJS#', $js, CClientScript::POS_END);
     }
     
     /**

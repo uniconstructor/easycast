@@ -14,7 +14,7 @@
     {// рисуем по одной кнопке для каждого раздела
         $activeButtonClass = '';
         $checkedValue      = '';
-        if ( in_array($section->id, $data['sections']) )
+        if ( isset($data['sections']) AND in_array($section->id, $data['sections']) )
         {
             $activeButtonClass = 'ec-search-section-active';
             $checkedValue      = 'checked="checked"';

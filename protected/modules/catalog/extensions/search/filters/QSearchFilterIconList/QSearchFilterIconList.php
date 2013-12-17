@@ -51,6 +51,11 @@ class QSearchFilterIconList extends QSearchFilterBase
         $this->_iconsAssetUrl = Yii::app()->assetManager->publish(
             Yii::getPathOfAlias('catalog.extensions.search.filters.QSearchFilterIconList.assets').DIRECTORY_SEPARATOR);
         
+        $refreshJs = '';
+        if ( $this->refreshDataOnChange )
+        {
+            $refreshJs = '$("body").trigger("'.$this->refreshDataEvent.'");';
+        }
         // устанавливаем скрипт активации кнопки для каждого раздела
         foreach ( $this->getCatalogSections() as $section )
         {
@@ -63,6 +68,7 @@ class QSearchFilterIconList extends QSearchFilterBase
                 {
                     $("#QSearchsections_hidden_'.$section->id.'").prop("checked", false);
                 }
+                '.$refreshJs.'
             });';
             Yii::app()->clientScript->registerScript('#toggleSearchSectionIcon'.$section->id, $js, CClientScript::POS_END);
         }
@@ -90,13 +96,13 @@ class QSearchFilterIconList extends QSearchFilterBase
         return  "function {$this->collectDataJsName}() {
             var data = {};
             var typeValue  = jQuery('{$selector}:checked');
-            console.log('{$selector}');
             if ( typeValue.length > 0 )
             {
                 var types = [];
                 $.each(typeValue, function(index, element){
                     types[index] = element.value;
                 });
+                
                 data.sections = types;
             }
             return data;

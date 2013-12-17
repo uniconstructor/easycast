@@ -28,10 +28,12 @@ class QSearchFilterSections extends QSearchFilterBaseSelect2
         return "Разделы каталога";
     }
     
-    /**
-     * @see QSearchFilterBaseSelect2::getContent()
-     */
-    protected function getContent()
+    public function init()
+    {
+        return '';
+    }
+    
+    public function run()
     {
         return '';
     }

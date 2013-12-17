@@ -104,6 +104,11 @@ class QSearchFilterBase extends CWidget
     public $collectDataEvent = 'collectData';
     
     /**
+     * @var string - название jQuery события, посылаемого для обновления результатов поиска
+     */
+    public $refreshDataEvent = 'refreshData';
+    
+    /**
      * @var string - название шлобальной переменной JavaScript, в которую собираются данные со всех фильтров
      */
     public $collectDataVar = 'ecSearchData';
@@ -703,6 +708,11 @@ class QSearchFilterBase extends CWidget
         $highlightJs = $this->createHighlightJs();
         $fadeOutJs   = $this->createFadeOutJs();
         
+        $refreshJs = '';
+        if ( $this->refreshDataOnChange )
+        {
+            $refreshJs = '$("body").trigger("'.$this->refreshDataEvent.'");';
+        }
         return "function {$this->toggleHighlightJsName}() {
             if ( {$this->isEmptyJsName}() )
             {
@@ -711,6 +721,7 @@ class QSearchFilterBase extends CWidget
             {
                 {$highlightJs}
             }
+            {$refreshJs}
         };";
     }
     

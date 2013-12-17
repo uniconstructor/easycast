@@ -4,8 +4,15 @@
  * Форма не использует модель
  */
 ?>
-<h1>Поиск</h1>
-
+<?php
+// верхняя полоска со списком разделов каталога
+// получаем корневой раздел каталога ("вся база") для того чтобы искать по всем доступным анкетам
+$rootSection = CatalogSection::model()->findByPk(1);
+// виджет расширенной формы поиска (по всей базе)
+$this->widget('catalog.extensions.search.QSectionHelper.QSectionHelper', array(
+    'searchObject' => $rootSection,
+));
+?>
 <div class="row">
     <div class="span9" id="search_results" style="margin-top:10px;">
         <?php
