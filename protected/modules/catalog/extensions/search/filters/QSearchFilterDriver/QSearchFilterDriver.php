@@ -90,7 +90,7 @@ class QSearchFilterDriver extends QSearchFilterBase
     protected function createClearFormDataJs()
     {
         $selector  = 'input[name="'.$this->getFullInputName('driver').'[]"]';
-        return "$('{$selector}').removeAttr('checked');";
+        return "$('{$selector}').prop('checked', false);";
     }
     
     /**

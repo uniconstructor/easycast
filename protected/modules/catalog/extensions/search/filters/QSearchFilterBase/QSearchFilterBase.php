@@ -328,7 +328,6 @@ class QSearchFilterBase extends CWidget
         $this->registerPageScripts();
         
         // Подключаем стили
-        // Подключаем CSS для оформления
         $this->_assetUrl = Yii::app()->assetManager->publish(
             Yii::getPathOfAlias('catalog.extensions.search.filters.QSearchFilterBase.assets') .
             DIRECTORY_SEPARATOR);

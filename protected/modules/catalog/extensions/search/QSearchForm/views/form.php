@@ -8,10 +8,17 @@
  */
 /* @var $this QSearchForm */
 
-
 ?>
 <div class="ec-advanced-search">
-    <div class="ec-usual_suspects row span12"></div>
+    <?php 
+    // верхняя полоска со списком разделов
+    $filter = CatalogFilter::model()->find("`shortname` = 'iconlist'");
+    $this->widget('catalog.extensions.search.filters.'.$filter->widgetclass.'.'.$filter->widgetclass, array(
+        'display'      => 'form',
+        'filter'       => $filter,
+        'searchObject' => $this->searchObject,
+    ));
+    ?>
     <div class="row span12" style="margin-left:-30px;">
         <div class="span3">
         <ul>

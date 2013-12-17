@@ -68,8 +68,9 @@ class QSearchForm extends SearchFilters
             }
             // параметры отображения фильтра
             $options = array(
-                'display' => 'form',
-                'filter'  => $filter,
+                'display'      => 'form',
+                'filter'       => $filter,
+                'searchObject' => $this->searchObject,
             );
             $path = 'catalog.extensions.search.filters.'.$filter->widgetclass.'.'.$filter->widgetclass;
             // отображаем фильтр поиска
@@ -88,7 +89,7 @@ class QSearchForm extends SearchFilters
      */
     protected function filterEnabled($name)
     {
-        return false;
+        return true;
     }
     
     /**
@@ -132,7 +133,7 @@ class QSearchForm extends SearchFilters
         if ( $this->redirectUrl )
         {
             $url = Yii::app()->createUrl($this->redirectUrl);
-            $redirectScript = "document.location = '{$url}';return true;";
+            //$redirectScript = "document.location = '{$url}';return true;";
         }
         return "function(data, status){
             {$redirectScript}

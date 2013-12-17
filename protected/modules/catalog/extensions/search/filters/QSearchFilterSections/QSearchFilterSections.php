@@ -29,6 +29,14 @@ class QSearchFilterSections extends QSearchFilterBaseSelect2
     }
     
     /**
+     * @see QSearchFilterBaseSelect2::getContent()
+     */
+    protected function getContent()
+    {
+        return '';
+    }
+    
+    /**
      * (non-PHPdoc)
      * @see QSearchFilterBaseSelect2::getMenuVariants()
      */

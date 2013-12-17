@@ -17,7 +17,6 @@ class QSearchFilterBaseSelect2 extends QSearchFilterBase
     protected $s2Selector;
     
     /**
-     * (non-PHPdoc)
      * @see QSearchFilterBase::init()
      */
     public function init()
@@ -31,10 +30,7 @@ class QSearchFilterBaseSelect2 extends QSearchFilterBase
     }
     
     /**
-     * (non-PHPdoc)
      * @see QSearchFilterBase::getContent()
-     *
-     * @todo добавить placeholder
      */
     protected function getContent()
     {
