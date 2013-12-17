@@ -605,11 +605,17 @@ class QSearchFilterBase extends CWidget
         // Код, очищающий данные, реагирует на события очистки всей формы и очистки этого элемента
         // общее правило: событие, очищающее этот фрагмент формы по умолчанию всегда называется 
         // "clear_filter_".$this->namePrefix
+        
+        $checkEmptyJs = '';
+        if ( $this->refreshDataOnChange )
+        {// не очищает те фильтры, которые и так пусты, если используется обновление результатов а процессе поиска
+            $checkEmptyJs = "if ( {$this->isEmptyJsName}() ){return true;}";
+        }
         return "$('body').on('{$eventName}', function(event) {
             if ( ! jQuery('#{$this->titleId}').hasClass('slidetoggle-collapsed') ) {
                 jQuery('#{$this->titleId}').trigger('click');
             }
-            //console.log('trigger_clear');
+            {$checkEmptyJs}
             {$clearFormJs}
             {$fadeOutJs}
             {$clearDataJs}
