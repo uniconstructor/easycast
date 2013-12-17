@@ -73,12 +73,22 @@ class QSearchFilterIconList extends QSearchFilterBase
             Yii::app()->clientScript->registerScript('#toggleSearchSectionIcon'.$section->id, $js, CClientScript::POS_END);
         }
     }
+    
     /**
      * @see QSearchFilterBase::getContent()
      */
     protected function getContent()
     {
         return $this->render('sections', array('sections' => $this->getCatalogSections()), true);
+    }
+    
+    /**
+     * @see QSearchFilterBase::getContentClass()
+     */
+    protected function getContentClass()
+    {
+        // не включаем выделение цветом полоски с разделами: это отдельный виджет, это только мешает
+        return '';
     }
     
     /**

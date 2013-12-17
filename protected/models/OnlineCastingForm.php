@@ -159,6 +159,32 @@ class OnlineCastingForm extends CFormModel
     }
     
     /**
+     * Сохранить в сессию условия поиска людей для роли
+     * @var array $criteria - данные из формы поиска
+     * @return void
+     */
+    public static function setRoleCriteria($criteria)
+    {
+        self::initCastingInfo();
+        $data = Yii::app()->session->itemAt('onlineCasting');
+        unset($data['roleCriteria']);
+        $data['roleCriteria'] = $criteria;
+        
+        Yii::app()->session->add('onlineCasting', $data);
+    }
+    
+    /**
+     * Получить из сессии условия поиска людей для роли
+     * @return array
+     */
+    public static function getRoleCriteria()
+    {
+        self::initCastingInfo();
+        $data = Yii::app()->session->itemAt('onlineCasting');
+        return $data['roleCriteria'];
+    }
+    
+    /**
      * Подготовить сессию для работы с онлайн-качтингом
      * @return void
      */
@@ -167,8 +193,9 @@ class OnlineCastingForm extends CFormModel
         if ( ! Yii::app()->session->contains('onlineCasting') )
         {
             Yii::app()->session->add('onlineCasting', array(
-                'info' => new OnlineCastingForm(),
-                'role' => new OnlineCastingRoleForm(),
+                    'info'         => new OnlineCastingForm(),
+                    'role'         => new OnlineCastingRoleForm(),
+                    'roleCriteria' => array(),
                 )
             );
         }

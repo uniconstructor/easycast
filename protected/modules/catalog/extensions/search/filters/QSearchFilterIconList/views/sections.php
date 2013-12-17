@@ -6,7 +6,8 @@
 /* @var $sections CatalogSection[] */
 ?>
 
-<div class="ec-usual_suspects span12">
+<div class="ec-usual_suspects row-fluid">
+    <div class="span12">
     <?php 
     // вспоминаем, какие разделы были выбраны в последний раз
     $data = $this->loadLastSearchParams();
@@ -26,4 +27,5 @@
         ));
     }
     ?>
+    </div>
 </div>

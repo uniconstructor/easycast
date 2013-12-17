@@ -20,7 +20,6 @@ class SearchFilters extends CWidget
      *                  используемые фильтры поиска
      */
     public $searchObject;
-    
     /**
      * @var string - режим отображения фильтров:
      *               filter - фильтр в разделе каталога (набор фильтров берется из раздела каталога)
@@ -31,7 +30,6 @@ class SearchFilters extends CWidget
      *                        В этом случае набор фильтров задается вручную, при помощи свойства filters
      */
     public $mode = 'filter';
-    
     /**
      * @var string - источник данных для формы (откуда будут взяты значения по умолчанию)
      *               Возможные значения:
@@ -39,71 +37,58 @@ class SearchFilters extends CWidget
      *               'db' - данные берутся из базы (используется при сохранении критериев вакансии и т. п.)
      */
     public $dataSource = 'session';
-    
     /**
      * @var array - массив ссылок на используемые фильтры (CatalogFilterInstance)
      * @deprecated больше не используется, удалить при рефакторинге
      */
     public $filterInstances = array();
-    
     /**
      * @var CatalogSection - раздел анкеты в котором отображаются фильтры
      * @deprecated не используется, удалить при рефакторинге. Вместо этого поля теперь используется searchObject.
      */
     public $section;
-    
     /**
      * @var string - по какому адресу отправлять поисковый ajax-запрос
      */
     public $searchUrl = '/catalog/catalog/ajaxSearch';
-    
     /**
      * @var string - по какому адресу отправлять запрос на очистку данных формы
      */
     public $clearUrl = '/catalog/catalog/clearSessionSearchData';
-    
     /**
      * @var string - ссылка на возврат к большой форме поиска
      *               Если не задана - то кнопка "вернуться в расширенный поиск" не показывается
      */
     public $backToFormUrl = '';
-    
     /**
      * @var boolean - отображать ли заголовок формы?
      */
     public $displayTitle = true;
-    
     /**
      * @var string надпись на кнопке поиска в обычном состоянии
      */
     public $searchButtonTitle = 'Найти';
-    
     /**
      * @var string надпись на кнопке поиска во время выполнения поиска
      */
     public $searchProgressTitle = 'Ищем...';
-    
     /**
      * @var string - id html-тега, в котором обновляются результаты поиска
      *               (виджет класса QSearchResults)
      */
     public $searchResultsId = 'search_results';
-    
     /**
      * @var array - используемые фильтры поиска (массив объектов CatalogFilter)
      */
     public $filters = array();
-    
     /**
      * @var string - название jQuery события, посылаемого при очистке всей формы
      */
     public $clearSearchEvent = 'clearSearch';
-    
     /**
      * @var string - название jQuery события, посылаемого при сборе данных со всей формы
      */
     public $collectDataEvent = 'collectData';
-    
     /**
      * @var string - название jQuery события, посылаемого для обновления результатов поиска
      */

@@ -138,7 +138,15 @@ class OnlineCastingController extends Controller
      */
     public function actionSaveRoleCriteria()
     {
-        
+        if ( ! Yii::app()->request->isAjaxRequest )
+        {
+            Yii::app()->end();
+        }
+        if ( $data = Yii::app()->request->getPost('data', null) AND ! empty($data) )
+        {// переданы данные для поиска - делаем из них нормальный массив
+            $data = CJSON::decode($data);
+        }
+        OnlineCastingForm::setRoleCriteria($data);
     }
     
     /**
@@ -147,7 +155,7 @@ class OnlineCastingController extends Controller
      */
     public function actionClearRoleCriteria()
     {
-        
+        OnlineCastingForm::setRoleCriteria(array());
     }
     
     /**
@@ -184,6 +192,7 @@ class OnlineCastingController extends Controller
         /* @var $template OnlineCastingForm */
         $template     = OnlineCastingForm::getCastingInfo();
         $roleTemplate = OnlineCastingForm::getRoleInfo();
+        $searchData   = OnlineCastingForm::getRoleCriteria();
         
         // создаем заготовки для проектов, мероприятий и ролей
         $project = new Project();
@@ -234,10 +243,12 @@ class OnlineCastingController extends Controller
             $vacancy->salary = $roleTemplate->salary;
         }
         if ( ! $vacancy->save() )
-        {
+        {// сохраняем саму роль
             throw new CHttpException(500, 'Не удалось сохранить роль для онлайн-кастинга. '.
                 $this->getCustomerErrorMessage());
         }
+        // сохраняем критерии поиска роли
+        $vacancy->setSearchData($searchData);
         
         // @todo создаем заказ, который отправит сообщение команде
         

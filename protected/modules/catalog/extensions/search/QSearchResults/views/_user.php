@@ -22,7 +22,7 @@ if ( $data and isset($data->user) )
     data-toggle="tooltip">
     <a href="<?= Yii::app()->createUrl(Yii::app()->getModule('questionary')->profileUrl, array('id' => $data->id));?>" 
     id="catalog-thumbnail-<?= $data->id; ?>" class="thumbnail" target="_blank">
-        <img style="border-radius: 10px;width: 150px;height: 150px;" src="<?= $image; ?>" alt="<?= $data->user->fullname; ?>">
+        <img style="border-radius:10px;width:150px;height:150px;" src="<?= $image; ?>" alt="<?= $data->user->fullname; ?>">
     </a>
 </li>
 <?php 

@@ -36,6 +36,7 @@ if ( $step == 'finish' )
 
 <?php 
 // wizard с формой создания кастинга и отбора людей
+// @todo невозможно проставить overflow:hidden для tab-content, поэтому горизонтальная прокрутка пока остается
 $this->widget('bootstrap.widgets.TbWizard', array(
         'type'         => 'pills', // 'tabs' or 'pills'
         'pagerContent' => $this->renderPartial('_pager', null, true),
@@ -51,6 +52,9 @@ $this->widget('bootstrap.widgets.TbWizard', array(
                 $("#wizard-bar > .bar").css({width:$percent+"%"});
             }',
             'onTabClick' => 'js:function(tab, navigation, index) {return false;}',
+        ),
+        'htmlOptions' => array(
+            'class' => 'row span12',
         ),
         'tabs' => array(
             array(

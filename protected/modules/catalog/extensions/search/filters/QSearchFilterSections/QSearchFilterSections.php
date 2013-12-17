@@ -20,7 +20,6 @@ class QSearchFilterSections extends QSearchFilterBaseSelect2
     protected $elements = array('sections');
     
     /**
-     * (non-PHPdoc)
      * @see QSearchFilterBase::getTitle()
      */
     protected function getTitle()
@@ -28,18 +27,20 @@ class QSearchFilterSections extends QSearchFilterBaseSelect2
         return "Разделы каталога";
     }
     
-    public function init()
+    /**
+     * @see QSearchFilterBase::visible()
+     */
+    public function visible()
     {
-        return '';
-    }
-    
-    public function run()
-    {
-        return '';
+        if ( $this->display == 'form' OR 
+               ( $this->display == 'filter' AND is_object($this->searchObject) AND $this->searchObject->id == 1 ) )
+        {
+            return false;
+        }
+        return true;
     }
     
     /**
-     * (non-PHPdoc)
      * @see QSearchFilterBaseSelect2::getMenuVariants()
      */
     protected function getMenuVariants()

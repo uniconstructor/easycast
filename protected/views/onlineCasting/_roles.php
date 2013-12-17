@@ -21,6 +21,25 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 <div id="wizard-bar" class="progress progress-striped">
     <div class="bar"></div>
 </div>
+<h1 style="text-align:center;">Требования к участникам</h1>
+<div class="alert alert-info" style="text-align:center;">
+    <h4>Укажите, кого вы хотите пригласить</h4>
+    Иконками обозначены категории участников, в которых будет производиться поиск.
+    Если не выбрано ни одной категории - поиск будет происходить по всей базе.
+</div>
+<?php 
+// получаем корневой раздел каталога ("вся база") для того чтобы искать по всем доступным анкетам
+$rootSection = CatalogSection::model()->findByPk(1);
+// виджет расширенной формы поиска (по всей базе)
+$this->widget('catalog.extensions.search.QSearchForm.QSearchForm', array(
+    'searchObject' => $rootSection,
+    //'mode'         => 'filter',
+    'data'         => OnlineCastingForm::getRoleCriteria(),
+    'searchUrl'    => '/onlineCasting/saveRoleCriteria',
+    'clearUrl'     => '/onlineCasting/clearRoleCriteria',
+    'refreshDataOnChange' => true,
+));
+?>
 <div class="span8 offset2">
     <h1 style="text-align:center;">Информация о роли</h1>
     <p class="note muted" style="text-align:center;">
@@ -76,15 +95,3 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         $this->endWidget();
     ?>
 </div>
-<h1 style="text-align:center;">Требования к участникам</h1>
-<?php 
-// получаем корневой раздел каталога ("вся база") для того чтобы искать по всем доступным анкетам
-$rootSection = CatalogSection::model()->findByPk(1);
-// виджет расширенной формы поиска (по всей базе)
-$this->widget('catalog.extensions.search.QSearchForm.QSearchForm', array(
-    'searchObject' => $rootSection,
-    'mode'         => 'filter',
-    'searchUrl'    => '/onlineCasting/saveRoleCriteria',
-    'clearUrl'     => '/onlineCasting/clearRoleCriteria',
-));
-?>

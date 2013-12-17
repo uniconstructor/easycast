@@ -15,7 +15,7 @@ class QSearchFilterSalary extends QSearchFilterBaseSlider
      * (non-PHPdoc)
      * @see QSearchFilterBase::enabled()
      */
-    protected function enabled()
+    public function enabled()
     {
         return Yii::app()->user->checkAccess('Admin');
     }
