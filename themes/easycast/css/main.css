@@ -1399,6 +1399,7 @@ div.search-column input {
 }
 
 .ec-usual_suspects .ec-join_but button.ec-btn-usual:hover,
+.ec-usual_suspects .ec-search-section-active,
 .ec-usual_suspects .ec-join_but button.ec-btn-usual:active{
     background-color:none;
     background-image: -webkit-linear-gradient(top, #F5DD16, #D0792E);
@@ -1414,6 +1415,7 @@ div.search-column input {
     background-position: 0px;
 }
 
+.ec-usual_suspects .ec-search-section-active img,
 .ec-usual_suspects .ec-join_but button.ec-btn-usual:hover img {
     margin-top:-80px;
 }

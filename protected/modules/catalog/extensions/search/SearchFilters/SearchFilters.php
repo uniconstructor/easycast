@@ -133,7 +133,7 @@ class SearchFilters extends CWidget
         }
         if ( empty($this->filters) AND ! is_object($this->section) AND $this->mode == 'filter' )
         {// список фильтров не задан извне, и не содержится в объекте
-            throw new CException(500, 'Не указан раздел для фильтров');
+            throw new CException('Не указан раздел для фильтров');
         }
         
         // @todo регистрируем скрипт обновляющий результаты поиска при изменении данных в форме (пока не готов)
@@ -280,7 +280,7 @@ class SearchFilters extends CWidget
     protected function getAjaxSearchParams()
     {
         return array(
-            'searchObjectId' => $this->getSearchObjectnId(),
+            'searchObjectId' => $this->getSearchObjectId(),
             'mode'           => $this->mode,
             Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken);
     }
@@ -363,7 +363,7 @@ class SearchFilters extends CWidget
      *
      * @todo переименовать в getSearchObjectId
      */
-    protected function getSearchObjectnId()
+    protected function getSearchObjectId()
     {
         if ( is_object($this->searchObject) )
         {
