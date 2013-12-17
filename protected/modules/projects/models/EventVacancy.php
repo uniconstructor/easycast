@@ -611,8 +611,7 @@ class EventVacancy extends CActiveRecord
 	 * которого будут накладываться все остальные критерии поиска)
 	 * 
 	 * @return CDbCriteria
-	 * 
-	 * @todo проверить вариант с compare
+	 * @deprecated использовать метод сборки критериев поиска из CatalogModule
 	 */
 	protected function createStartCriteria()
 	{

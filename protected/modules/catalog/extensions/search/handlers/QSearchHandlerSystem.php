@@ -13,7 +13,7 @@ class QSearchHandlerSystem extends QSearchHandlerBase
     protected function createCriteria()
     {
         $data          = $this->getFilterData();
-        $fields        = $data['system'];
+        $fields        = array();
         $allowedFields = $this->getAllowedFieldVariants();
         $operators     = array('AND', 'OR');
         $operator      = 'OR';
@@ -21,6 +21,10 @@ class QSearchHandlerSystem extends QSearchHandlerBase
         if ( isset($data['operator']) )
         {
             $operator = $data['operator'];
+        }
+        if ( isset($data['system']) AND is_array($data['system']) )
+        {
+            $fields = $data['system'];
         }
         
         if ( ! in_array($operator, $operators) )

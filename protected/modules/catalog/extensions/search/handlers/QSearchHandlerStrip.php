@@ -20,7 +20,7 @@ class QSearchHandlerStrip extends QSearchHandlerBase
         {
             $criteria->addInCondition('striptype', $data['striptype']);
         }
-        if ( isset($data['striplevel'])  AND is_array($data['striplevel']) )
+        if ( isset($data['striplevel']) AND is_array($data['striplevel']) )
         {
             $criteria->addInCondition('striplevel', $data['striplevel']);
         }

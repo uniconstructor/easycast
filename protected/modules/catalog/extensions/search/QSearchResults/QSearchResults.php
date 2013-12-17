@@ -105,7 +105,8 @@ class QSearchResults extends CWidget
     protected function setDefaultSearchObject()
     {
         if ( is_object($this->searchObject) )
-        {// объект поиска уже задан - извлекать его не требуется 
+        {// объект поиска уже задан - извлекать его не требуется
+            $this->objectId = $this->searchObject->id;
             return;
         }
         if ( ! $this->objectType OR ! $this->objectId )
@@ -123,11 +124,15 @@ class QSearchResults extends CWidget
             case 'vacancy':
                 $this->searchObject = EventVacancy::model()->findAllByPk($this->objectId);
             break;
-            default: return; // @todo выбрасывать исключение в этом случае
+            // по умолчанию считаем объект разделом каталога
+            default: 
+                $this->searchObject = CatalogSection::model()->findAllByPk($this->objectId);
+            return; 
         }
         if ( ! is_object($this->searchObject) )
         {// не удалось найти связанный объект
             // @todo выбрасывать исключение в этом случае
+            throw new CException('searchObject not set');
         }
     }
     
@@ -160,19 +165,10 @@ class QSearchResults extends CWidget
     {
         $data = array();
         
-        switch ( $this->objectType )
+        if ( ! $this->data )
         {
-            case 'section':
-                // @todo убрать разделение между поиском по рпзделу и по большой форме
-                $data = CatalogModule::getFormSearchData(CatalogModule::SEARCH_FIELDS_PREFIX);
-                if ( $this->objectId OR $this->section )
-                {
-                    $data = CatalogModule::getFilterSearchData(CatalogModule::SEARCH_FIELDS_PREFIX, $this->objectId);
-                }
-            break;
+            $this->data = CatalogModule::getFilterSearchData(CatalogModule::SEARCH_FIELDS_PREFIX, $this->objectId);
         }
-        
-        $this->data = $data;
     }
     
     /**
@@ -200,8 +196,8 @@ class QSearchResults extends CWidget
                 'criteria'   => $criteria,
                 'pagination' => array(
                     'pageSize' => $this->getMaxSectionItems(),
-                    //'route'    => $this->route,
-                    //'params'   => array(),//$this->getRouteParams(),
+                    'route'    => $this->route,
+                    'params'   => $this->getRouteParams(),
                 ),
             ));
         }
@@ -226,10 +222,16 @@ class QSearchResults extends CWidget
     {
         $params = array();
         
-        if ( $this->section )
+        if ( $this->searchObject )
         {
-            $params['mode'] = 'filter';
-            $params['sectionId'] = $this->section->id;
+            if ( ! $params['mode'] = $this->mode )
+            {
+                $params['mode'] = 'filter';
+            }
+            if ( isset($this->searchObject->id) )
+            {
+                $params['searchObjectId'] = $this->searchObject->id;
+            }
         }
         
         return $params;

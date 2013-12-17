@@ -157,8 +157,6 @@ class CatalogController extends Controller
 	        throw new CException('Section not found');
 	    }
 	    
-	    // при первой загрузке страницы попробуем получить данные поиска из сессии
-	    $data = CatalogModule::getSessionSearchData('filter', $objectId);
 	    /*if ( $objectId > 1 )
 	    {
 	        $data = CatalogModule::getSessionSearchData('filter', $objectId);
@@ -169,11 +167,14 @@ class CatalogController extends Controller
 	    if ( $formData = Yii::app()->request->getPost('data') )
 	    {// переданы данные для поиска - делаем из них нормальный массив
 	        $data = CJSON::decode($formData);
+	    }else
+	    {// при первой загрузке страницы попробуем получить данные поиска из сессии
+	        $data = CatalogModule::getSessionSearchData('filter', $objectId);
 	    }
 	    
 	    $options = array(
-	        'mode' => $mode,
-	        'data' => $data,
+	        'mode'         => $mode,
+	        'data'         => $data,
 	        'searchObject' => $section,
 	    );
 	    

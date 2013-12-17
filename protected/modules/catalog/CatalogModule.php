@@ -74,7 +74,7 @@ class CatalogModule extends CWebModule
 	 */
 	public function beforeControllerAction($controller, $action)
 	{
-		if(parent::beforeControllerAction($controller, $action))
+		if ( parent::beforeControllerAction($controller, $action) )
 		{
 			// this method is called before any module controller action is performed
 			// you may place customized code here
@@ -85,7 +85,7 @@ class CatalogModule extends CWebModule
 	}
 	
 	/**
-	 * Получить условия для выбора анкет в каталоге
+	 * Получить условия для разделов каталога
 	 * @todo прописать критерий через SearchScopes
 	 * @param array|SearchScope $scopes - критерий поиска проекта или несколько таких критериев поиска
      *         (например если мы ищем по своим критериям)
@@ -96,7 +96,7 @@ class CatalogModule extends CWebModule
 	    $criteria  = new CDbCriteria();
 	    // Показываем в базе пользователей только проверенные анкеты
 	    $criteria->compare('status', 'active');
-	    $criteria->compare('virtual', '0');
+	    //$criteria->compare('virtual', '0');
 	    
 	    return $criteria;
 	}

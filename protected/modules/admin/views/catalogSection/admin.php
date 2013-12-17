@@ -6,15 +6,15 @@
  * @todo сделать ссылку на редактирование условий выборки
  */
 
-$this->breadcrumbs=array(
+$this->breadcrumbs = array(
     'Администрирование' => array('/admin'),
     'Анкеты' => array('/admin/questionary'),
     'Разделы каталога',
 );
 
-$this->menu=array(
+$this->menu = array(
 	//array('label'=>'List CatalogSection','url'=>array('index')),
-	//array('label'=>'Создать раздел каталога','url'=>array('/catalogSection/create')),
+	array('label'=>'Создать раздел каталога', 'url'=>array('/catalogSection/create')),
 );
 
 Yii::app()->clientScript->registerScript('search', "
@@ -43,10 +43,10 @@ $('.search-form form').submit(function(){
 </div><!-- search-form -->
 
 <?php $this->widget('bootstrap.widgets.TbGridView',array(
-	'id'=>'catalog-section-grid',
+	'id' => 'catalog-section-grid',
 	'dataProvider' => $model->search(),
 	'filter'       => $model,
-	'columns'=>array(
+	'columns' => array(
 		//'id',
 		
 		// название раздела
