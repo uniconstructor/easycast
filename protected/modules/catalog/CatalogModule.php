@@ -102,6 +102,63 @@ class CatalogModule extends CWebModule
 	}
 	
 	/**
+	 * Создать условие поиска (CDbCriteria) по данным из фильтров, переданных в функцию
+	 * Условие никогда не создается полностью пустым - изначально в него всегда добавляется правило
+	 * "искать только анкеты в активном статусе" + сортировка по рейтингу
+	 *
+	 * @param array $data - данные из поисковых фильтров (формы поиска)
+	 * @param CatalogFilter $filters - набор фильтров, по которым составляется критерий поиска
+	 * @return CDbCriteria
+	 *
+	 * @todo предусмотреть возможность отключать изначальное содержание CDbCriteria
+	 */
+	public static function createSearchCriteria($data, $filters)
+	{
+	    // указываем путь к классу, который занимается сборкой поискового запроса из отдельных частей
+	    $pathToAssembler = 'catalog.extensions.search.handlers.QSearchCriteriaAssembler';
+	    // создаем основу для критерия выборки
+	    $startCriteria = self::createStartCriteria();
+	     
+	    // Указываем параметры для сборки поискового запроса по анкетам
+	    $config = array(
+	        'class'           => $pathToAssembler,
+	        'data'            => $data,
+	        'startCriteria'   => $startCriteria,
+	    );
+	    $config['filters']  = $filters();
+	    $config['saveData'] = false;
+	    
+	     
+	    // создаем компонет-сборщик запроса. Он соберет CDbCriteria из отдельных данных формы поиска
+	    $assembler = Yii::createComponent($config);
+	    if ( ! $finalCriteria = $assembler->getCriteria() )
+	    {// ни один фильтр поиска не был использован - возвращаем исходные условия
+	        return $startCriteria;
+	    }
+	     
+	    return $finalCriteria;
+	}
+	
+	/**
+	 * Создать базовый критерий выборки анкет (то условие, поверх
+	 * которого будут накладываться все остальные критерии поиска)
+	 *
+	 * @return CDbCriteria
+	 */
+	protected static function createStartCriteria()
+	{
+	    $criteria = new CDbCriteria();
+	     
+	    // (по умолчанию - берем только анкеты в активном статусе)
+	    $criteria->compare('status', 'active');
+	    // $criteria->addCondition("`t`.`status` = 'active'");
+	    // сортируем анкеты по рейтингу (сначала лучшие)
+	    $criteria->order = '`t`.`rating` DESC';
+	     
+	    return $criteria;
+	}
+	
+	/**
 	 * @param $str
 	 * @param $params
 	 * @param $dic
