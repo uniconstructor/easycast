@@ -12,6 +12,19 @@ class QSearchFilterSystem extends QSearchFilterBaseSelect2
     protected $elements = array('system', 'operator');
     
     /**
+     * @see QSearchFilterBaseSelect2::init()
+     */
+    public function init()
+    {
+        parent::init();
+        $opSelector = 'input[name="'.$this->getFullInputName('operator').'"]';
+        $js = "jQuery('{$opSelector}').change(function(){
+            $('body').trigger('{$this->refreshDataEvent}');
+        });";
+        Yii::app()->clientScript->registerScript('_ecRefreshSystemSearchOperator#'.$this->namePrefix, $js, CClientScript::POS_END);
+    }
+    
+    /**
      * @see QSearchFilterBase::getTitle()
      */
     protected function getTitle()

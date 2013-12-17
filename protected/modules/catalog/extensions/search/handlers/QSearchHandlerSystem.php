@@ -22,7 +22,7 @@ class QSearchHandlerSystem extends QSearchHandlerBase
         {
             $operator = $data['operator'];
         }
-        var_dump($operator);
+        
         if ( ! in_array($operator, $operators) )
         {// защита от SQL-injection
             // @todo записать ошибку в лог
