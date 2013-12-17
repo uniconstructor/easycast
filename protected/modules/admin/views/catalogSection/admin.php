@@ -67,7 +67,8 @@ $('.search-form form').submit(function(){
         
 		// последняя колонка с инструментами
 		array(
-			'class'=>'bootstrap.widgets.TbButtonColumn',
+			'class'    => 'bootstrap.widgets.TbButtonColumn',
+            'template' => '{view} {update}',
 		),
 	),
 )); ?>

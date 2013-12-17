@@ -1,13 +1,15 @@
 <?php
-$this->breadcrumbs=array(
-    'Администрирование' =>array('/admin'),
-	//'Проекты'=>array('/admin/project'),
+
+/* @var $this ProjectController */
+$this->breadcrumbs = array(
+    'Администрирование' => array('/admin'),
+	//'Проекты' => array('/admin/project'),
 	'Проекты',
 );
 
-$this->menu=array(
+$this->menu = array(
 	//array('label'=>'Список проектов','url'=>array('/admin/project')),
-	array('label'=>'Создать проект','url'=>array('/admin/project/create')),
+	array('label' => 'Создать проект','url' => array('/admin/project/create')),
 );
 
 Yii::app()->clientScript->registerScript('search', "
@@ -33,18 +35,22 @@ $('.search-form form').submit(function(){
 
 <?php // echo CHtml::link('Расширенный поиск','#',array('class'=>'search-button btn')); ?>
 <div class="search-form" style="display:none">
-<?php $this->renderPartial('_search',array(
+<?php $this->renderPartial('_search', array(
 	'model' => $model,
 )); ?>
 </div><!-- search-form -->
 
 <?php $this->widget('bootstrap.widgets.TbGridView',array(
-	'id'=>'project-grid',
+	'id'           => 'project-grid',
 	'dataProvider' => $model->search(),
-	'filter' => $model,
-	'columns'=>array(
-		//'id',
-		'name',
+	'filter'       => $model,
+	'columns' => array(
+		'id',
+		array(
+            'name'  => 'name',
+            'type'  => 'html',
+            'value' => 'CHtml::link($data->name, Yii::app()->createUrl("/admin/project/view",array("id" => $data->id)))',
+        ),
         'statustext',
 		/*'type',
 		'description',

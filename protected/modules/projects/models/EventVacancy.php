@@ -128,6 +128,7 @@ class EventVacancy extends CActiveRecord
 	        'name',
 	        'sections',
 	        'salary',
+	        'system',
 	    );
 	}
 	
