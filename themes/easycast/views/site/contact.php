@@ -14,7 +14,7 @@ $this->breadcrumbs=array(
 <?php if(Yii::app()->user->hasFlash('contact')): ?>
 
     <?php $this->widget('bootstrap.widgets.TbAlert', array(
-        'alerts'=>array('contact'),
+        'alerts' => array('contact'),
     )); ?>
 
 <?php else: ?>

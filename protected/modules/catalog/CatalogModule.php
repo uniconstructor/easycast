@@ -145,7 +145,7 @@ class CatalogModule extends CWebModule
 	 *
 	 * @return CDbCriteria
 	 */
-	protected static function createStartCriteria()
+	public static function createStartCriteria()
 	{
 	    $criteria = new CDbCriteria();
 	     
@@ -157,6 +157,19 @@ class CatalogModule extends CWebModule
 	     
 	    return $criteria;
 	}
+	
+	/**
+	 * Получить полный набор фильтров поиска для создания раздела каталога, вкладки, онлайн-кастинга
+	 * или условий отбора участников для роли   
+	 * 
+	 * @param string $type - настройка на будущее, если понадобится получать разные наборы фильтров для разных
+	 *                       случаев создания новых объектов
+	 * @return array
+	 */
+	public static function getFullFilterKit($type=null)
+	{
+	    return CatalogFilter::model()->findAll();
+	} 
 	
 	/**
 	 * @param $str

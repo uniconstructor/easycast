@@ -40,12 +40,12 @@ $('.search-form form').submit(function(){
 )); ?>
 </div><!-- search-form -->
 
-<?php $this->widget('bootstrap.widgets.TbGridView',array(
+<?php $this->widget('bootstrap.widgets.TbGridView', array(
 	'id'           => 'project-grid',
 	'dataProvider' => $model->search(),
 	'filter'       => $model,
 	'columns' => array(
-		'id',
+		//'id',
 		array(
             'name'  => 'name',
             'type'  => 'html',
@@ -66,7 +66,8 @@ $('.search-form form').submit(function(){
 		'memberscount',
 		*/
 		array(
-			'class'=>'bootstrap.widgets.TbButtonColumn',
+			'class' => 'bootstrap.widgets.TbButtonColumn',
+            'template' => '{view} {update}',
 		),
 	),
 )); ?>

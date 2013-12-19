@@ -1,15 +1,16 @@
 <?php
-$this->breadcrumbs=array(
-	'Catalog Sections'=>array('index'),
-	'Create',
+$this->breadcrumbs = array(
+	'Администрирование' => array('/admin'),
+    'Анкеты' => array('/admin/questionary'),
+    'Разделы каталога' => array('/admin/catalogSection/admin'),
+	'Создать',
 );
 
-$this->menu=array(
-	array('label'=>'List CatalogSection','url'=>array('index')),
-	array('label'=>'Manage CatalogSection','url'=>array('admin')),
+$this->menu = array(
+	array('label' => 'Список разделов', 'url' => array('/admin/catalogSection/admin')),
 );
 ?>
 
-<h1>Create CatalogSection</h1>
+<h1>Создать раздел каталога</h1>
 
-<?php echo $this->renderPartial('_form', array('model'=>$model)); ?>
+<?php echo $this->renderPartial('_form', array('model' => $model)); ?>

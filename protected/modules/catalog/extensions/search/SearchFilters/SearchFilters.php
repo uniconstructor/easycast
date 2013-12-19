@@ -98,6 +98,21 @@ class SearchFilters extends CWidget
      * @todo отключить, если сервер не будет справляться
      */
     public $refreshDataOnChange = true;
+    /**
+     * @var array - допустимые режимы отображения виджета
+     *              form    - большая форма поиска: критерии поиска не сворачиваются, список разделов отображается
+     *                        как большая полоска со списком кнопок наверху
+     *              filter  - набор фильтров поиска для раздела каталога или для поиска по всей базе
+     *                        Набор фильтров отображается как вертикальная колонка поисковых условий справа
+     *              vacancy - набор фильтров для создания критериев отбора людей на роль
+     *                        Используется в админке при создании роли.
+     *                        @todo использовать в онлайн-кастинге вместо filter как сейчас
+     *              section - набор фильтров для создания/редактирования условий раздела каталога
+     *                        Набор фильтров отображается как вертикальная колонка поисковых условий справа
+     *              tab     - набор фильтров для создания/редактирования условий вкладки в разделе каталога
+     *                        Набор фильтров отображается как вертикальная колонка поисковых условий справа
+     */
+    protected $displayModes = array('form', 'filter', 'vacancy', 'section', 'tab');
     
     /**
      * (non-PHPdoc)
@@ -117,11 +132,14 @@ class SearchFilters extends CWidget
         
         if ( $this->searchObject )
         {// задан объект поиска (раздел каталога, роль, и т. д.) - извлекаем набор фильтров из него
-            if ( ! $this->searchObject->searchFilters )
+            if ( ! $this->filters AND ! $this->searchObject->searchFilters )
             {
                 throw new CException('В указанном объекте отсутствуют прикрепленные критерии поиска');
             }
-            $this->filters = $this->searchObject->searchFilters;
+            if ( ! $this->filters )
+            {
+                $this->filters = $this->searchObject->searchFilters;
+            }
         }elseif ( ! empty($this->filterInstances) )
         {// список фильтров задан извне - соберем их в массив
             foreach ( $this->filterInstances as $instance )
@@ -157,6 +175,7 @@ class SearchFilters extends CWidget
         {// Определяем, нужно ли показывать заголовок над всеми фильтрами
             echo $this->getFilterTitle();
         }
+        
         foreach ( $this->filters as $filter )
         {// Перебираем все фильтры раздела и для каждого создаем виджет
             $this->displayFilter($filter);
@@ -166,14 +185,36 @@ class SearchFilters extends CWidget
     }
     
     /**
+     * Установить собственный набор фильтров вместо того, который был привязан к объекту изначально
+     * (используется в случаях вроде создания разделов каталога, когда набор фильтров, находящийся в
+     * разделе и набор фильтров, необходимый для того чтобы создать критерии отбора людей на роль - 
+     * это разные вещи)
+     * @param CatalogFilter[] $filters - новый массив фильтров поиска, который будет использоваться в форме
+     * @return void
+     */
+    public function setFilters($filters)
+    {
+        if ( ! $filters )
+        {
+            throw new CException('Задан пустой массив фильтров поиска');
+        }
+        $this->filters = $filters;
+    } 
+    
+    /**
      * Получить заголовок для формы фильтров поиска
      *
      * @return string
      * 
      * @todo языковые строки
+     * @todo переименовать в getFiltersTitle
      */
     protected function getFilterTitle()
     {
+        if ( ! $this->displayTitle )
+        {// заголовок над всеми фильтрами вообще отображать не нужно
+            return '';
+        }
         if ( $this->mode == 'form' OR ( isset($this->searchObject->id) AND $this->searchObject->id == 1 ) )
         {
             return "<h4>Условия</h4>";

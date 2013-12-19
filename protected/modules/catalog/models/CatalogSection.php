@@ -53,6 +53,18 @@ class CatalogSection extends CActiveRecord
 	}
 	
 	/**
+	 * @see CActiveRecord::beforeSave()
+	 */
+	public function beforeSave()
+	{
+	    if ( ! $this->content )
+	    {
+	        $this->content = 'users';
+	    }
+	    return true;
+	}
+	
+	/**
 	 * @see CModel::behaviors()
 	 */
 	public function behaviors()
@@ -88,13 +100,12 @@ class CatalogSection extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
-			array('name, shortname, content', 'required'),
+			array('name, shortname', 'required'),
 			array('visible', 'numerical', 'integerOnly'=>true),
 			array('parentid, scopeid, galleryid, count', 'length', 'max'=>11),
-			array('name, shortname', 'length', 'max'=>128),
+			array('name, shortname', 'length', 'max'=>255),
+			array('searchdata', 'length', 'max'=>4095),
 			array('lang', 'length', 'max'=>5),
 			array('content', 'length', 'max'=>8),
 			array('order', 'length', 'max'=>6),
@@ -246,5 +257,124 @@ class CatalogSection extends CActiveRecord
 	    }
 	
 	    return $avatar;
+	}
+	
+	// эти функции должны быть перенесены в расширение searchScopes как и хранение данных формы поиска
+	
+	/**
+	 * Получить все сохраненные данные из формы поиска людей для вакансии
+	 *
+	 * @return null
+	 */
+	protected function getSearchData()
+	{
+	    return unserialize($this->searchdata);
+	}
+	
+	/**
+	 * Получить данные для одного поискового фильтра
+	 * ! Важно: все функции, предоставляющие данные для формы поиска должны иметь функцию getFilterSearchData
+	 *          Это необходимо для совместимости
+	 *
+	 * @param string $namePrefix - имя ячейки в массиве данных из формы поиска,
+	 *                             в которой лежит сохраненное значение фильтра
+	 * @return array
+	 */
+	public function getFilterSearchData($namePrefix)
+	{
+	    $searchData = $this->getSearchData();
+	     
+	    if ( ! isset($searchData[$namePrefix]) )
+	    {
+	        return array();
+	    }
+	     
+	    return $searchData[$namePrefix];
+	}
+	
+	/**
+	 * Обновить данные о критерии выборки людей, которые подходят под эту вакансию
+	 * @param array|null $newData - новые условия подбора людей на вакансию
+	 * @return bool
+	 *
+	 * @todo обработать ситуацию, когда набор условий есть, но содержит более одного критерия
+	 *       или критерий неправильного типа
+	 */
+	public function setSearchData($newData)
+	{
+	    $newDataSerialized = serialize($newData);
+	    if ( $this->searchdata == $newDataSerialized )
+	    {// если условия выборки не изменились - ничего не надо делать
+	        return true;
+	    }
+	
+	    if ( ! $this->scope )
+	    {// условие для этой вакансии еще не создано - исправим это
+	        $this->initObjectScope();
+	    }
+	
+	    // сохраняем новые данные из формы поиска в вакансию
+	    $this->searchdata = $newDataSerialized;
+	    $this->save();
+	     
+	    // обновим составленный критерий поиска (ScopeCondition)
+	    // (для вакансии он всегда только один в наборе (SearchScope) и всегда является сериализованным массивом)
+	    $conditions = $this->scope->scopeConditions;
+	    $condition  = current($conditions);
+	    // заново получаем из данных формы поиска критерии для выборки участников
+	    $criteria  = CatalogModule::createSearchCriteria($newData, CatalogModule::getFullFilterKit());
+	    // сериализуем и сохраняем новые критерии выборки
+	    $condition->value = serialize($criteria);
+	
+	    return $condition->save();
+	}
+	
+	/**
+	 * Создать стандартную заготовку условия выбора участников.
+	 * Используется для новых, только что созданных объектов.
+	 * Условие создается не полностью пустым - изначально в него добавляется правило
+	 * "искать только анкеты в активном статусе" и несколько других условий, в зависимости от
+	 * данных с которыми создана роль
+	 * Создает объект SearchScope с сериализованным критерием выборки на борту и JSON-массив для формы поиска людей
+	 *
+	 * @throws CDbException
+	 * @return int - id группы условий (SearchScope) которая содержит один пустой критерий выборки анкет
+	 *
+	 * @todo предусмотреть возможность отключать изначальное содержание CDbCriteria
+	 * @todo если понадобится - сделать настройку "добавлять/не добавлять префикс 't' к полю status"
+	 */
+	protected function initObjectScope($saveData=false)
+	{
+	    // получаем все возможные фильтры поиска
+	    $filters = CatalogModule::getFullFilterKit();
+	    // создаем группу для условий поиска
+	    $scope = new SearchScope;
+	    $scope->name      = $this->name;
+	    $scope->modelid   = SearchScope::QMODEL_ID;
+	    $scope->type      = 'section';
+	    $scope->save();
+	     
+	    // Создаем изначально пустое условие поиска
+	    $criteria   = CatalogModule::createSearchCriteria(array(), $filters);
+	     
+	    // создаем само условие
+	    $condition = new ScopeCondition();
+	    $condition->scopeid = $scope->id;
+	    $condition->type    = 'serialized';
+	    $condition->value   = serialize($criteria);
+	    $condition->combine = 'and';
+	    $condition->save();
+	     
+	    // сохраняем ссылку на поисковый критерий и данные формы поиска
+	    $this->scopeid    = $scope->id;
+	    $this->searchdata = serialize($searchData);
+	     
+	    if ( $saveData )
+	    {// нужно сохранить модель после инициализации поисковых критериев
+	        return (bool)$this->save();
+	    }else
+	    {// модель сохранять не нужно - это произойдет само автоматически
+	        return true;
+	    }
 	}
 }

@@ -154,4 +154,44 @@ class SearchScope extends CActiveRecord
         
         return $criteria;
 	}
+	
+	/**
+	 * 
+	 * @return array
+	 */
+	public function getSearchData()
+	{
+	    if ( ! $this->scopeConditions )
+	    {
+	        throw new CException('No condition attached to this scope: cannot extract searchData');
+	    }
+	    if ( count($this->scopeConditions) > 1 )
+	    {
+	        throw new CException('More than one condition attached to this scope: cannot extract searchData');
+	    }
+	    
+	    $condition = current($this->scopeConditions);
+	    return $condition->getSearchDataAsArray();
+	}
+	
+	/**
+	 * Serialize and save custom form search data
+	 * @param array $newData - data from search form
+	 * @throws CException
+	 * @return void
+	 */
+	public function setSearchData($newData)
+	{
+	    if ( ! $this->scopeConditions )
+	    {
+	        throw new CException('No condition attached to this scope: cannot save searchData');
+	    }
+	    if ( count($this->scopeConditions) > 1 )
+	    {
+	        throw new CException('More than one condition attached to this scope: cannot save searchData');
+	    }
+	    
+	    $condition = current($this->scopeConditions);
+	    return $condition->setSearchData($newData);
+	}
 }

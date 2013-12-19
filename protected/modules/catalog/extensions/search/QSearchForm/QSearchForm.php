@@ -36,7 +36,7 @@ class QSearchForm extends SearchFilters
     /**
      * @var array - распределение фильтров по колонкам формы поиска
      */
-    protected $columnFilters = array(
+    public $columnFilters = array(
         'base'   => array('name', 'gender', 'age', 'playage', 'height'),
         'looks'  => array('looktype', 'weight', 'haircolor', 'hairlength', 'eyecolor', 'body', 'shoessize', 'hastatoo'),
         'skills' => array('dancer', 'voicetimbre', 'instrument', 'sporttype', 'extremaltype', 'language', 'driver'),

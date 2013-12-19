@@ -103,7 +103,7 @@ class QSearchFilterIconList extends QSearchFilterBase
     {
         //$selector  = 'input[name="'.$this->getFullInputName('sections').'[]"]';
         $selector  = 'input[name="QSearchsections[sections][]"]';
-        return  "function {$this->collectDataJsName}() {
+        return "function {$this->collectDataJsName}() {
             var data = {};
             var typeValue  = jQuery('{$selector}:checked');
             if ( typeValue.length > 0 )
@@ -117,7 +117,7 @@ class QSearchFilterIconList extends QSearchFilterBase
             }
             return data;
         };";
-        return $js;
+        //return $js;
     }
     
     /**

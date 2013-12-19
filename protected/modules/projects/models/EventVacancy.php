@@ -68,6 +68,8 @@ class EventVacancy extends CActiveRecord
         Yii::import('ext.ESearchScopes.models.*');
         Yii::import('application.modules.catalog.models.*');
         Yii::import('application.modules.catalog.CatalogModule');
+        
+        parent::init();
     }
     
 	/**
@@ -571,6 +573,8 @@ class EventVacancy extends CActiveRecord
 	 * 
 	 * @todo предусмотреть возможность отключать изначальное содержание CDbCriteria
 	 * @todo если понадобится - сделать настройку "добавлять/не добавлять префикс 't' к полю status"
+	 * @todo переименовать в initObjectScope для того чтобы позже можно было создать общий интерфейс для 
+	 *       всех объектов использующих плагин SearchScope 
 	 */
 	protected function initVacancyScope($saveData=false)
 	{
@@ -808,6 +812,8 @@ class EventVacancy extends CActiveRecord
 	
 	/**
 	 * Получить данные для одного поискового фильтра
+	 * ! Важно: все функции, предоставляющие данные для формы поиска должны иметь функцию getFilterSearchData
+	 *          Это необходимо для совместимости
 	 * 
 	 * @param string $namePrefix - имя ячейки в массиве данных из формы поиска, 
 	 *                             в которой лежит сохраненное значение фильтра 

@@ -55,6 +55,21 @@ $this->menu = array(
         	),
         )); 
         ?>
+        <?php
+        // для создания раздела каталога используем все доступные фильтры 
+        $filters = CatalogFilter::model()->findAll("`id` > '1'");
+        
+        // критерии поиска для раздела
+        $this->widget('catalog.extensions.search.SearchFilters.SearchFilters', array(
+            'searchObject' => $model,
+            'mode'         => 'section',
+            'filters'      => $filters,
+            'displayTitle' => false,
+            'dataSource'   => 'db',
+            'searchUrl'    => '/admin/catalogSection/setSearchData/id/'.$model->id,
+            'clearUrl'     => '/admin/catalogSection/clearSearchData',
+        ));
+        ?>
     </div>
         <?php 
         //CVarDumper::dump($model->searchFilters);
@@ -63,13 +78,16 @@ $this->menu = array(
         $this->widget('admin.extensions.SearchFilterManager.SearchFilterManager', array(
             'searchObject' => $model,
         ));
-        // критерии поиска для раздела
-        
         ?>
+    <div class="row">
+        <div class="span6 offset6">
+        
+        </div>
+    </div>
 </div>
 <?php 
 
-CVarDumper::dump($_POST, 10, true);
+//CVarDumper::dump($_POST, 10, true);
 
 ?>
 

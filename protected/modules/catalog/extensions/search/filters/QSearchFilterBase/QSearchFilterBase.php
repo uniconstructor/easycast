@@ -236,8 +236,19 @@ class QSearchFilterBase extends CWidget
     
     /**
      * @var array - допустимые режимы отображения виджета
+     *              form    - большая форма поиска: критерии поиска не сворачиваются, список разделов отображается
+     *                        как большая полоска со списком кнопок наверху
+     *              filter  - набор фильтров поиска для раздела каталога или для поиска по всей базе
+     *                        Набор фильтров отображается как вертикальная колонка поисковых условий справа
+     *              vacancy - набор фильтров для создания критериев отбора людей на роль
+     *                        Используется в админке при создании роли.
+     *                        @todo использовать в онлайн-кастинге вместо filter как сейчас
+     *              section - набор фильтров для создания/редактирования условий раздела каталога
+     *                        Набор фильтров отображается как вертикальная колонка поисковых условий справа
+     *              tab     - набор фильтров для создания/редактирования условий вкладки в разделе каталога
+     *                        Набор фильтров отображается как вертикальная колонка поисковых условий справа
      */
-    protected $displayModes = array('form', 'filter', 'vacancy');
+    protected $displayModes = array('form', 'filter', 'vacancy', 'section', 'tab');
     
     /**
      * @var array - промежуточная переменная для хранения условий поиска 
@@ -496,6 +507,7 @@ class QSearchFilterBase extends CWidget
             switch ( $this->display )
             {
                 case 'vacancy': $data = $this->vacancy->getFilterSearchData($this->namePrefix); break;
+                case 'section': $data = $this->searchObject->getFilterSearchData($this->namePrefix); break;
             }
         }
         return $data;
@@ -624,7 +636,11 @@ class QSearchFilterBase extends CWidget
             $clearDataJs = $this->createClearSessionDataJs();
         }else
         {// нужно очистить данные в БД
-            $clearDataJs = $this->createClearVacancyDataJs();
+            switch ( $this->display )
+            {
+                case 'vacancy': $clearDataJs = $this->createClearVacancyDataJs(); break;
+                default: $clearDataJs = $this->createClearSessionDataJs(); break;
+            }
         }
         $fadeOutJs      = $this->createFadeOutJs();
         // Код, очищающий данные, реагирует на события очистки всей формы и очистки этого элемента
@@ -663,8 +679,7 @@ class QSearchFilterBase extends CWidget
      * 
      * @return string
      * 
-     * @todo удалить эту функцию и создать всесто нее более общую, которая 
-     *       послылает AJAX-запрос с любыми данными по любому адресу
+     * @deprecated не используется, оставлено для совместимости, удалить при рефакторинге
      */
     protected function createClearVacancyDataJs()
     {
@@ -800,7 +815,7 @@ class QSearchFilterBase extends CWidget
             ".Yii::app()->request->csrfTokenName." : '".Yii::app()->request->csrfToken."'
         };
         var ajaxOptions = {
-            url: '$url',
+            url: '{$url}',
             data : ajaxData,
             type : 'post'
         };

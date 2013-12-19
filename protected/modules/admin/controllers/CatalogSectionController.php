@@ -42,7 +42,8 @@ class CatalogSectionController extends Controller
 	{
 		return array(
 			array('allow',  // все проверки прав производятся в beforeControllerAction
-				'actions' => array('index', 'view', 'create', 'update', 'admin', 'delete'),
+				'actions' => array('index', 'view', 'create', 'update', 'admin', 'delete', 
+				    'setSearchData', 'clearSearchData'),
 				'users' => array('@'),
 			),
 			array('deny',  // deny all users
@@ -159,7 +160,7 @@ class CatalogSectionController extends Controller
 	 */
 	public function actionAdmin()
 	{
-		$model=new CatalogSection('search');
+		$model = new CatalogSection('search');
 		$model->unsetAttributes();  // clear any default values
 		if ( isset($_GET['CatalogSection']) )
 		{
@@ -172,16 +173,80 @@ class CatalogSectionController extends Controller
 	}
 	
 	/**
+	 * Изменить критерии выборки людей, которые подходят под эту вакансию
+	 *
+	 * @return null
+	 */
+	public function actionSetSearchData()
+	{
+	    /*if ( ! Yii::app()->request->isAjaxRequest )
+	    {
+	        Yii::app()->end();
+	    }*/
+	    // id вакансии (обязательно)
+	    $id = Yii::app()->request->getParam('id', 0);
+	    $section = $this->loadModel($id);
+	     
+	    // условия, по которым отбираются люди на вакансию
+	    if ( $data = Yii::app()->request->getPost('data', null) AND ! empty($data) )
+	    {// переданы данные для поиска - делаем из них нормальный массив
+	        $data = CJSON::decode($data);
+	    }else
+	    {// данные для поиска не переданы - завершаем работу
+	        echo 'Не переданы данные для поиска';
+	        Yii::app()->end();
+	    }
+	     
+	    // Сохраняем данные поисковой формы и пересоздаем критерий поиска
+	    $section->setSearchData($data);
+	     
+	    // считаем сколько участников подошло под выбранные критерии
+	    //echo 'Подходящих участников: '.$section->countPotentialApplicants();
+	    Yii::app()->end();
+	}
+	
+	/**
+	 * Очистить сохраненные в сессии данные формы поиска
+	 * (Может очистить как данные всей формы поиска так и в отдельном разделе.
+	 * Как все поля - так и отдельное поле, все зависит от настроек)
+	 *
+	 * @return null
+	 * @todo обработать возможные ошибки
+	 */
+	public function actionClearFilterSearchData()
+	{
+	    /*if ( ! Yii::app()->request->isAjaxRequest )
+	    {
+	        Yii::app()->end();
+	    }*/
+	    // если название фильтра не задано - мы можем очистить только
+	    if ( ! $namePrefix = Yii::app()->request->getPost('namePrefix', '') )
+	    {
+	        throw new CHttpException(500, 'namePrefix required');
+	    }
+	     
+	    $sectionId = Yii::app()->request->getPost('id', 0);
+	    if ( $section = EventVacancy::model()->findByPk($sectionId) )
+	    {// очищаем данные внутри вакансии
+	        $section->clearFilterSearchData($namePrefix);
+	    }
+	
+	    echo 'OK';
+	    Yii::app()->end();
+	}
+	
+	/**
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.
 	 * @param integer the ID of the model to be loaded
+	 * @return CatalogSection
 	 */
 	public function loadModel($id)
 	{
 		$model = CatalogSection::model()->findByPk($id);
 		if( $model === null )
 		{
-		    throw new CHttpException(404,'The requested page does not exist.');
+		    throw new CHttpException(404, 'The requested page does not exist.');
 		}
 		return $model;
 	}

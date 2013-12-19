@@ -98,7 +98,7 @@ $this->widget('bootstrap.widgets.TbAlert');
         <?php
         // Критерии отбора участников для вакансии
         $this->widget('admin.extensions.VacancyFilters.VacancyFilters', array(
-            'mode' => 'vacancy',
+            'mode'    => 'vacancy',
             'vacancy' => $model,
             //'filterInstances' => $model->filterinstances,
         ));

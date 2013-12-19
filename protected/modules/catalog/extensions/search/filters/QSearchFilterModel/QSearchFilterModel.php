@@ -46,6 +46,13 @@ class QSearchFilterModel extends QSearchFilterBase
                 'model'      => 'Модель для съемок',
                 'photomodel' => 'Фотомодель',
             );
+        }else
+        {// по умолчанию показываем все 3 варианта
+            $data = array(
+                'model'      => 'Модель для съемок',
+                'photomodel' => 'Фотомодель',
+                'promomodel' => 'Промо-модель',
+            );
         }
         
         // получаем установленные значения по умолчанию

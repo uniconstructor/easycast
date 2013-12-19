@@ -34,7 +34,7 @@ $rootSection = CatalogSection::model()->findByPk(1);
 $this->widget('catalog.extensions.search.QSearchForm.QSearchForm', array(
     'searchObject' => $rootSection,
     //'mode'         => 'filter',
-    'data'         => OnlineCastingForm::getRoleCriteria(),
+    //'data'         => OnlineCastingForm::getRoleCriteria(),
     'searchUrl'    => '/onlineCasting/saveRoleCriteria',
     'clearUrl'     => '/onlineCasting/clearRoleCriteria',
     'refreshDataOnChange' => true,

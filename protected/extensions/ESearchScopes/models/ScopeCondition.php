@@ -47,13 +47,13 @@ class ScopeCondition extends CActiveRecord
 			array('scopeid, previousid', 'length', 'max'=>11),
 			array('type', 'length', 'max'=>16),
 			array('field', 'length', 'max'=>4095),
-			array('with, jointype, jointable, joincondition, joinparams', 'length', 'max'=>4095),
+			array('with, jointype, jointable, joincondition, joinparams, searchdata', 'length', 'max'=>4095),
 			array('value', 'length', 'max'=>4095),
 			array('comparison', 'length', 'max'=>10),
 			array('combine', 'length', 'max'=>3),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, scopeid, type, field, value, comparison, combine, inverse, previousid', 'safe', 'on'=>'search'),
+			array('id, scopeid, type, field, value, comparison, searchdata, combine, inverse, previousid', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -103,7 +103,7 @@ class ScopeCondition extends CActiveRecord
 	                )
 	            );
 	        }else
-	       {
+	        {
 	            $criteria->with = array($this->with);
 	        }
 	    }
@@ -123,6 +123,32 @@ class ScopeCondition extends CActiveRecord
 	    
 	    return $criteria;
 	}
+	
+	/**
+	 * @param array $newData
+	 * @return void
+	 */
+	public function setSearchData($newData)
+	{
+	    $newDataSerialized = serialize($newData);
+	    if ( $this->searchdata == $newDataSerialized )
+	    {// если условия выборки не изменились - ничего не надо делать
+	       return true;
+	    }
+	    
+	    // сохраняем новые данные из формы поиска в вакансию
+	    $this->searchdata = $newDataSerialized;
+	    $this->save();
+	}
+	
+	/**
+	 * 
+	 * @return array
+	 */
+	public function getSearchDataAsArray()
+	{
+	    return unserialize($this->searchdata);
+	} 
 	
 	/**
 	 * @todo implement inverse operator

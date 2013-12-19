@@ -14,7 +14,7 @@ $this->breadcrumbs = array(
 
 $this->menu = array(
 	//array('label'=>'List CatalogSection','url'=>array('index')),
-	array('label'=>'Создать раздел каталога', 'url'=>array('/catalogSection/create')),
+	array('label' => 'Создать раздел каталога', 'url' => array('/admin/catalogSection/create')),
 );
 
 Yii::app()->clientScript->registerScript('search', "

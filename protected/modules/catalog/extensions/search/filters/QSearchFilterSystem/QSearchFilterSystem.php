@@ -17,11 +17,15 @@ class QSearchFilterSystem extends QSearchFilterBaseSelect2
     public function init()
     {
         parent::init();
-        $opSelector = 'input[name="'.$this->getFullInputName('operator').'"]';
-        $js = "jQuery('{$opSelector}').change(function(){
-            $('body').trigger('{$this->refreshDataEvent}');
-        });";
-        Yii::app()->clientScript->registerScript('_ecRefreshSystemSearchOperator#'.$this->namePrefix, $js, CClientScript::POS_END);
+        if ( $this->refreshDataOnChange )
+        {
+            $opSelector = 'input[name="'.$this->getFullInputName('operator').'"]';
+            $js = "jQuery('{$opSelector}').change(function(){
+                $('body').trigger('{$this->refreshDataEvent}');
+            });";
+            Yii::app()->clientScript->registerScript('_ecRefreshSystemSearchOperator#'.$this->namePrefix,
+                $js, CClientScript::POS_END);
+        }
     }
     
     /**
@@ -88,6 +92,24 @@ class QSearchFilterSystem extends QSearchFilterBaseSelect2
     }
     
     /**
+     * Создать функцию, которая проверяет, пуст фильтр или нет 
+     * @return string
+     * 
+     * @todo добавить поддержку всего что ниже IE9 
+     * ( http://stackoverflow.com/questions/5533192/how-to-get-object-length-in-jquery )
+     */
+    protected function createIsEmptyFilterJs()
+    {
+        $collectDataJs = $this->createCollectFilterDataJs();
+        return "function {$this->isEmptyJsName}() {
+            var data = {$this->collectDataJsName}();
+            delete data.operator;
+            if ( Object.keys(data).length == 0 ) return true;
+            return false;
+        };";
+    }
+    
+    /**
      * @see QSearchFilterBaseSelect2::getMenuVariants()
      */
     protected function getMenuVariants()
@@ -117,7 +139,7 @@ class QSearchFilterSystem extends QSearchFilterBaseSelect2
             'isamateuractor' => 'Непрофессиональный актер',
             'istvshowmen' => 'Телеведущий',
             'isstatist' => 'Статист/типаж',
-            'ismassactor' => 'Артист массовх сцен',
+            'ismassactor' => 'Артист массовых сцен',
             'istheatreactor' => 'Актер театра',
             'ismediaactor' => 'Медийный актер',
         );
