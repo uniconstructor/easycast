@@ -32,7 +32,6 @@ class QSearchForm extends SearchFilters
      * @var string - id тега внутри которого содержится число подходящих участников
      */
     public $countResultsId = 'count_results';
-    
     /**
      * @var array - распределение фильтров по колонкам формы поиска
      */
@@ -100,7 +99,7 @@ class QSearchForm extends SearchFilters
      * @param CatalogFilter $filter - отображаемый фильтр поиска
      * @return array
      */
-    protected function getDisplayFilterOptions($filter)
+    /*protected function getDisplayFilterOptions($filter)
     {
         return array(
             'searchObject' => $this->searchObject,
@@ -109,7 +108,7 @@ class QSearchForm extends SearchFilters
             'dataSource'   => $this->dataSource,
             'refreshDataOnChange' => $this->refreshDataOnChange,
         );
-    }
+    }*/
     
     /**
      * Определить, включен ли фильтр в прикрепленном объекте поиска
@@ -182,11 +181,19 @@ class QSearchForm extends SearchFilters
             return;
         }
         $countUrl = Yii::app()->createUrl($this->countUrl);
-        $beforeSendJs = "function(jqXHR, settings){\$('#{$this->countResultsId}_container').removeClass('hide');}";
+        $beforeSendJs = "function(jqXHR, settings){
+            $('#{$this->countResultsId}_container').removeClass('hide');
+            var ecSearchData = {};
+            $('body').trigger('{$this->collectDataEvent}', [ecSearchData]);
+            
+            var encodedData = JSON.stringify(ecSearchData);
+            settings.data = settings.data + '&data=' + encodedData;
+        }";
         $ajaxOptions = array(
             'url'        => $countUrl,
             'cache'      => false,
             'type'       => 'post',
+            'data'       => $this->getAjaxSearchParams(),
             'beforeSend' => $beforeSendJs,
             'update'     => '#'.$this->countResultsId,
         );

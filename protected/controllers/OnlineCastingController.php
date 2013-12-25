@@ -12,6 +12,7 @@ class OnlineCastingController extends Controller
      * @var string - верстка всех страниц онлайн-кастинга - в одну колонку
      */
     public $layout='//layouts/column1';
+    
     /**
      * @see CController::init()
      */
@@ -22,6 +23,7 @@ class OnlineCastingController extends Controller
         Yii::import('projects.models.*');
         Yii::import('catalog.models.*');
     }
+    
     /**
      * Отобразить первую страницу с пояснением о начале работы с онлайн-кастингом
      * @return void
@@ -102,25 +104,29 @@ class OnlineCastingController extends Controller
         $this->render('conclusion');
     }
     
-    
-    
     /**
-     * Сохранить информацию об онлайн-кастинге в сессию
+     * Подсчитать количество подходящих для кастинга участников, учитывая текущие критерии поиска 
+     * 
      * @return void
      */
-    /*public function actionSaveCasting()
+    public function actionCount()
     {
+        Yii::import('questionary.models.*');
+        $data = CJSON::decode(Yii::app()->request->getPost('data'));
         
-    }*/
-    
-    /**
-     * Сохранить в сессию информацию о роли
-     * @return void
-     */
-    /*public function actionSaveRole()
-    {
+        if ( ! $data OR empty($data) )
+        {
+            return;
+        }
+        // @todo брать список фильтров поиска из специального набора фильтров для онлайн-кастинга
+        //       а не из раздела "вся база"
+        $rootSection = CatalogSection::model()->findByPk(1);
         
-    }*/
+        $criteria = CatalogModule::createSearchCriteria($data, $rootSection->searchFilters);
+        echo Questionary::model()->count($criteria);
+        
+        Yii::app()->end();
+    }
     
     /**
      * Сохранить кастинг со всеми ролями из сессии в базу и

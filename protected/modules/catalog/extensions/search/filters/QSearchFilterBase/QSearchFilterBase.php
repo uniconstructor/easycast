@@ -22,7 +22,6 @@
  * Если вы создаете новый фильтр поиска - то после создания его виджета и обработчика нужно миграцией добавить 
  * запись о них в таблицу {{catalog_filters}}
  * 
- * @todo возможно следует добавлять в заголовок выбранные пользователем значения (обсудить)
  * @todo добавить возможность устанавливать поле $data вручную (нужно для форм поиска, работающих с еще не созданными объектами)
  * @todo всегда использовать $this->filter->shortName вместо $this->namePrefix
  * @todo перенести все скрипты в assets
@@ -55,7 +54,6 @@ class QSearchFilterBase extends CWidget
      * @var string - как отображать фрагмент формы(form/filter/vacancy): для большой формы или для списка фильтров
      */
     public $display;
-    
     /**
      * @var CActiveRecord - модель к которой прикреплены критерии поиска
      *                  Этот объект обязательно должен обладать отношением (Relation)
@@ -63,57 +61,47 @@ class QSearchFilterBase extends CWidget
      *                  используемые фильтры поиска
      */
     public $searchObject;
-    
     /**
      * @var CatalogSection - раздел анкеты в котором отображается фильтр 
      *                       (если фильтры используются в разделах каталога)
      * @deprecated использовать searchObject вместо section и vacancy
      */
     public $section;
-    
     /**
      * @var EventVacancy - вакансия, к которой прикремлен фильтр поиска
      * @deprecated использовать searchObject вместо section и vacancy
      */
     public $vacancy;
-    
     /**
      * @var CatalogFilter - фильтр в таблице catalog_filters
      */
     public $filter;
-    
     /**
-     * @var string - префикс для названия всех input-полей
+     * @var string - префикс для названия всех input-полей (по умолчанию - короткое название фильтра)
      */
     public $namePrefix;
-    
     /**
      * @var string - название jQuery события, посылаемого при очистке всей формы
      */
     public $clearSearchEvent = 'clearSearch';
-    
     /**
      * @var string - название jQuery события, посылаемого при очистке только этого фрагмента формы.
      *               Не должно пересекаться с именами других фильтров, поэтому задается для каждого фильтра свое.
      *               По умолчанию определяется как 'clearFilter_'.$this->filter->shortname
      */
     public $clearFilterEvent;
-    
     /**
      * @var string - название jQuery события, посылаемого при сборе данных со всей формы
      */
     public $collectDataEvent = 'collectData';
-    
     /**
      * @var string - название jQuery события, посылаемого для обновления результатов поиска
      */
     public $refreshDataEvent = 'refreshData';
-    
     /**
      * @var string - название шлобальной переменной JavaScript, в которую собираются данные со всех фильтров
      */
     public $collectDataVar = 'ecSearchData';
-    
     /**
      * @var string - название jQuery события, посылаемого при изменении данных в этом фрагменте формы.
      *               Не должно пересекаться с именами других фильтров, поэтому задается для каждого фильтра свое.
@@ -122,15 +110,23 @@ class QSearchFilterBase extends CWidget
      *               т. е. $this->raizeEventOnChange = true;              
      */
     public $changeFilterEvent;
-    
     /**
      * @var string - источник данных для формы (откуда будут взяты значения по умолчанию)
      *               Возможные значения:
-     *               'session' - данные берутся из сессии (используется во всех формах поиска)
-     *               'db' - данные берутся из базы (используется при сохранении критериев вакансии и т. п.)
+     *               'session'  - данные берутся из сессии (используется во всех формах поиска)
+     *               'db'       - данные берутся из базы (используется при сохранении критериев вакансии и т. п.)
+     *               'external' - данные виджета переданы в параметре $this->data при создании формы 
      */
     public $dataSource = 'session';
-    
+    /**
+     * @var array - параметры выставленные в этом виджете по умолчанию
+     *              пример для фильтра по возрасту (age):
+     *              array(
+     *                  'agemin' => 18,
+     *                  'agemax' => 28,
+     *              )
+     */
+    public $data = array();
     /**
      * @var SearchScope|null - критерий поиска из таблицы SearchScopes
      *                         Используется только если данные для формы берутся из базы ($this->dataSource = 'db')
@@ -143,17 +139,14 @@ class QSearchFilterBase extends CWidget
      * @deprecated
      */
     public $scope;
-    
     /**
      * @var string - URL по которому отправляется AJAX-запрос на очистку данных для одного фильтра 
      */
     public $clearUrl = '/catalog/catalog/clearSessionSearchData';
-    
     /**
      * @var array - post-параметры, отправляемые при запросе очистки данных
      */
     public $clearUrlParams = array();
-    
     /**
      * @var bool - разрешить ли очистку этого фильтра (маленькой круглой кнопочкой внизу)?
      *             По умолчанию все фильтры очищать можно.
@@ -161,7 +154,6 @@ class QSearchFilterBase extends CWidget
      *             (активной) вакансии 
      */
     public $allowClear = true;
-    
     /**
      * @var bool - разрешить ли изменять критерии поиска по этому фильтру?
      *             В большинстве случаев, конечно же, можно.
@@ -170,7 +162,6 @@ class QSearchFilterBase extends CWidget
      *             (активной) вакансии, но при этом отображать установленные ранее значения
      */
     public $allowChange = true;
-    
     /**
      * @var bool - сохранять ли данные поисковой формы в сессию, при каждом изменении значения в форме
      *             (не рекомендуется, особенно для слайдеров)
@@ -178,62 +169,52 @@ class QSearchFilterBase extends CWidget
      *             или для зарегистрированных заказчиков, чтобы сделать их поиск еще удобнее
      */
     public $refreshDataOnChange = false;
-    
     /**
      * @var bool - отсылать событие при каждом изменении значения виджета
      *             Используйте только для тех критериев поиска, изменения которых ДЕЙСТВИТЕЛЬНО нужно
      *             отслеживать в реальном времени
      */
     public $raizeEventOnChange  = false;
-    
     /**
      * @var string - название функции, которая проверяет, используется ли фильтр поиска
      *                (выбрано ли хотя бы одно значение)
      *                Уникально для каждого фильтра
      */
     protected $isEmptyJsName;
-    
     /**
      * @var string - название функции, которая собирает все данные из одного фильтра поиска
      *                Уникально для каждого фильтра
      */
     protected $collectDataJsName;
-    
     /**
      * @var string - название js-функции, которая включает и отключает подсветку фильтра в зависимости
      *                от того, активирован он или нет
      */
     protected $toggleHighlightJsName;
-    
     /**
      * @var string - html-id для элемента, при нажатии на который очищается содержимое этого фрагмента формы
      *                (очищается и форма и сохраненные данные в сессии)
      */
     protected $clearDataPrefix;
-    
     /**
      * @var string - id для HTML-элемента отображающего заголовок фрагмента формы
      *                 (используется для сворачивания/разворачивания элемента)
      */
     protected $titleId;
-    
     /**
      * @var string - id для HTML-элемента отображающего основной код фрагмента формы
      *                 (используется для сворачивания/разворачивания элемента)
      */
     protected $contentId;
-    
     /**
      * @var array - список имен input-полей, которые содержатся в фрагменте формы
      */
     protected $elements;
-    
     /**
      * @var array - массив jquery-селекторов для элементов формы, при изменении которых
      *               возможно следует поменять цвет фильтра (выделить или снять выделение)
      */
     protected $inputSelectors = array();
-    
     /**
      * @var array - допустимые режимы отображения виджета
      *              form    - большая форма поиска: критерии поиска не сворачиваются, список разделов отображается
@@ -249,13 +230,11 @@ class QSearchFilterBase extends CWidget
      *                        Набор фильтров отображается как вертикальная колонка поисковых условий справа
      */
     protected $displayModes = array('form', 'filter', 'vacancy', 'section', 'tab');
-    
     /**
      * @var array - промежуточная переменная для хранения условий поиска 
      * (если условия поиска создаются по данным из формы)
      */
     protected $_conditions;
-    
     /**
      * @var string - путь к папке со стилями и скриптами
      */
@@ -276,6 +255,7 @@ class QSearchFilterBase extends CWidget
             // в классе QSearchCriteriaAssembler
             return;
         }
+        
         // Подключаем все необходимые для поиска классы
         // Конструктор поисковых запросов
         // @todo возможно не используется здесь, в связи со всеми последними изменениями. Удалить при рефакторинге
@@ -490,6 +470,8 @@ class QSearchFilterBase extends CWidget
      * Найти и загрузить последние использованные данные поиска для этого фильтра 
      * 
      * @return array
+     * 
+     * @todo убрать из этого класса логику загрузки значений по умолчанию и перенести ее в класс SearchFilters
      */
     protected function loadLastSearchParams()
     {
@@ -497,7 +479,7 @@ class QSearchFilterBase extends CWidget
         if ( $this->dataSource == 'session' )
         {// нужно загрузить данные из сессии
             switch ( $this->display )
-            {
+            {// @todo не различать случаи поиска по форме поиска и по фильтрам
                 case 'filter': $data = CatalogModule::getFilterSearchData($this->namePrefix, $this->searchObject->id); break;
                 case 'form':   $data = CatalogModule::getFilterSearchData($this->namePrefix, 1); break;
                 //case 'form':   $data = CatalogModule::getFormSearchData($this->namePrefix); break;
@@ -509,6 +491,9 @@ class QSearchFilterBase extends CWidget
                 case 'vacancy': $data = $this->vacancy->getFilterSearchData($this->namePrefix); break;
                 case 'section': $data = $this->searchObject->getFilterSearchData($this->namePrefix); break;
             }
+        }elseif ( $this->dataSource == 'external' )
+        {// данные фильтра переданы при создании объекта
+            return $this->data;
         }
         return $data;
     }

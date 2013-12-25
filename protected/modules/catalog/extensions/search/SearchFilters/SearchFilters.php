@@ -1,15 +1,14 @@
 <?php
 
 /**
- * Виджет для отображения списка фильтров поиска в каталоге
+ * Виджет для отображения списка фильтров поиска
+ * Все формы поиска наследуются от этого виджета
  * 
- * Для каждого раздела каталога набор фильтров индивидуален, поэтому виджет собирает
- * форму из нужных фрагментов. Фрагменты фильтров также используются в форме поиска
+ * Для каждой формы (например для раздела каталога) набор фильтров индивидуален, поэтому виджет сам собирает
+ * форму из нужных фрагментов.
  * 
  * @todo перенести весь JS во внешние файлы
- * @todo убрать поле section, заменить его более общим (объект, обладающий фильтрами)
- * @todo добавить поле filtersOptions - для того чтобы можно было задавать отдельные настройки для каждого фильтра
- *       при выводе всего списка фильтров
+ * @todo убрать поле section, заменить его более общим объектом searchObject (объект, обладающий фильтрами)
  */
 class SearchFilters extends CWidget
 {
@@ -29,7 +28,7 @@ class SearchFilters extends CWidget
      *               custom - просто отобразить набор фильтров/форму поиска, без привязки к объекту в базе
      *                        В этом случае набор фильтров задается вручную, при помощи свойства filters
      */
-    public $mode = 'filter';
+    public $mode       = 'filter';
     /**
      * @var string - источник данных для формы (откуда будут взяты значения по умолчанию)
      *               Возможные значения:
@@ -37,6 +36,16 @@ class SearchFilters extends CWidget
      *               'db' - данные берутся из базы (используется при сохранении критериев вакансии и т. п.)
      */
     public $dataSource = 'session';
+    /**
+     * @var array - массив со значениями по умолчанию для формы
+     *              (только если $this->dataSource = 'external')
+     *              Ключи массива - это префиксы имен фильтров, они составляются по правилу 
+     *              Пример массива для поля age:
+     *              ...
+     *              QSe
+     *              
+     */
+    public $data       = array();
     /**
      * @var array - массив ссылок на используемые фильтры (CatalogFilterInstance)
      * @deprecated больше не используется, удалить при рефакторинге
@@ -54,7 +63,7 @@ class SearchFilters extends CWidget
     /**
      * @var string - по какому адресу отправлять запрос на очистку данных формы
      */
-    public $clearUrl = '/catalog/catalog/clearSessionSearchData';
+    public $clearUrl  = '/catalog/catalog/clearSessionSearchData';
     /**
      * @var string - ссылка на возврат к большой форме поиска
      *               Если не задана - то кнопка "вернуться в расширенный поиск" не показывается
@@ -63,11 +72,11 @@ class SearchFilters extends CWidget
     /**
      * @var boolean - отображать ли заголовок формы?
      */
-    public $displayTitle = true;
+    public $displayTitle  = true;
     /**
      * @var string надпись на кнопке поиска в обычном состоянии
      */
-    public $searchButtonTitle = 'Найти';
+    public $searchButtonTitle   = 'Найти';
     /**
      * @var string надпись на кнопке поиска во время выполнения поиска
      */
@@ -76,11 +85,27 @@ class SearchFilters extends CWidget
      * @var string - id html-тега, в котором обновляются результаты поиска
      *               (виджет класса QSearchResults)
      */
-    public $searchResultsId = 'search_results';
+    public $searchResultsId     = 'search_results';
     /**
      * @var array - используемые фильтры поиска (массив объектов CatalogFilter)
      */
     public $filters = array();
+    /**
+     * @var array - массив настроек для каждого фильтра. Ключом массива является короткое названия фильтра,
+     *              а значением - настройки фильтра.
+     *              Пример:
+     *              ...
+     *              'sporttype' => array(
+     *                  'dataSource' => 'external',
+     *                  'data'       => array(
+     *                      'sporttype' => array('wrestling', 'bike'),
+     *                      ),
+     *                  'refreshDataOnChange' => true,
+     *                  ...
+     *              ),
+     *              ...
+     */
+    public $filterOptions = array();
     /**
      * @var string - название jQuery события, посылаемого при очистке всей формы
      */
@@ -198,8 +223,35 @@ class SearchFilters extends CWidget
         {
             throw new CException('Задан пустой массив фильтров поиска');
         }
+        
         $this->filters = $filters;
-    } 
+    }
+
+    /**
+     * Получить установленные в фильтре значения по умолчанию
+     * @param CatalogFilter $filter - фильтр поиска
+     * @return array|null
+     * 
+     * @todo перенести загрузку значений из сессии и базы сюда же,
+     * убрать этот функционал из класса QSearchFilterBase
+     */
+    protected function loadFilterData($filter)
+    {
+        $data = array();
+        $namePrefix = CatalogModule::SEARCH_FIELDS_PREFIX.$filter->shortname;
+        
+        switch ( $this->dataSource )
+        {
+            case 'external':
+                if ( isset($this->data[$namePrefix]) AND ! empty($this->data[$namePrefix]) )
+                {
+                    return $this->data[$namePrefix];
+                }
+            break;
+        }
+        
+        return $data;
+    }
     
     /**
      * Получить заголовок для формы фильтров поиска
@@ -235,7 +287,7 @@ class SearchFilters extends CWidget
         $panel = array();
         
         // Задаем путь к виджету фрагмента поиска и настройкам для него
-        $path = 'catalog.extensions.search.filters.'.$filter->widgetclass.'.'.$filter->widgetclass;
+        $path    = 'catalog.extensions.search.filters.'.$filter->widgetclass.'.'.$filter->widgetclass;
         $options = $this->getDisplayFilterOptions($filter);
         // Получаем заголовок и код виджета
         $this->widget($path, $options);
@@ -248,7 +300,7 @@ class SearchFilters extends CWidget
      */
     protected function getDisplayFilterOptions($filter)
     {
-        return array(
+        $defaults = array(
             'section'      => $this->section,
             'searchObject' => $this->searchObject,
             'filter'       => $filter,
@@ -256,6 +308,17 @@ class SearchFilters extends CWidget
             'dataSource'   => $this->dataSource,
             'refreshDataOnChange' => $this->refreshDataOnChange,
         );
+        if ( $data = $this->loadFilterData($filter) )
+        {// для этого фильтра установлены значения по умолчанию
+            $defaults['data'] = $data;
+        }
+        
+        if ( isset($this->filterOptions[$filter->shortname]) AND is_array($this->filterOptions[$filter->shortname]) )
+        {// для этого фильтра поиска заданы индивидуальные настройки
+            return CMap::mergeArray($defaults, $this->filterOptions[$filter->shortname]);
+        }
+        
+        return $defaults;
     }
     
     /**

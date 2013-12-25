@@ -107,7 +107,7 @@ class CatalogModule extends CWebModule
 	 * "искать только анкеты в активном статусе" + сортировка по рейтингу
 	 *
 	 * @param array $data - данные из поисковых фильтров (формы поиска)
-	 * @param CatalogFilter $filters - набор фильтров, по которым составляется критерий поиска
+	 * @param CatalogFilter[] $filters - набор фильтров, по которым составляется критерий поиска
 	 * @return CDbCriteria
 	 *
 	 * @todo предусмотреть возможность отключать изначальное содержание CDbCriteria
@@ -121,15 +121,17 @@ class CatalogModule extends CWebModule
 	     
 	    // Указываем параметры для сборки поискового запроса по анкетам
 	    $config = array(
-	        'class'           => $pathToAssembler,
-	        'data'            => $data,
-	        'startCriteria'   => $startCriteria,
+	        'class'         => $pathToAssembler,
+	        'data'          => $data,
+	        'startCriteria' => $startCriteria,
+	        'saveData'      => false,
+	        'filters'       => $filters,
 	    );
-	    $config['filters']  = $filters();
-	    $config['saveData'] = false;
+	    $config['filters']  = $filters;
 	    
 	     
 	    // создаем компонет-сборщик запроса. Он соберет CDbCriteria из отдельных данных формы поиска
+	    /* @var $assembler QSearchCriteriaAssembler */
 	    $assembler = Yii::createComponent($config);
 	    if ( ! $finalCriteria = $assembler->getCriteria() )
 	    {// ни один фильтр поиска не был использован - возвращаем исходные условия
@@ -177,9 +179,9 @@ class CatalogModule extends CWebModule
 	 * @param $dic
 	 * @return string
 	 */
-	public static function t($str='',$params=array(),$dic='catalog')
+	public static function t($str='', $params=array(), $dic='catalog')
 	{
-	    if (Yii::t("CatalogModule", $str)==$str)
+	    if ( Yii::t("CatalogModule", $str) == $str )
 	    {
 	        return Yii::t("CatalogModule.".$dic, $str, $params);
 	    }else

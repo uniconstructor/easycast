@@ -33,11 +33,14 @@ $rootSection = CatalogSection::model()->findByPk(1);
 // виджет расширенной формы поиска (по всей базе)
 $this->widget('catalog.extensions.search.QSearchForm.QSearchForm', array(
     'searchObject' => $rootSection,
-    //'mode'         => 'filter',
-    //'data'         => OnlineCastingForm::getRoleCriteria(),
+    'mode'         => 'form',
+    'dataSource'   => 'external',
+    'data'         => OnlineCastingForm::getRoleCriteria(),
     'searchUrl'    => '/onlineCasting/saveRoleCriteria',
     'clearUrl'     => '/onlineCasting/clearRoleCriteria',
+    'countUrl'     => '/onlineCasting/count',
     'refreshDataOnChange' => true,
+    'searchButtonTitle'   => 'Сохранить',
 ));
 ?>
 <div class="span8 offset2">

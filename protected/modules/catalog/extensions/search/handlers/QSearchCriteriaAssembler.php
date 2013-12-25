@@ -227,7 +227,8 @@ class QSearchCriteriaAssembler extends CComponent
             'searchObject' => $this->searchObject,
         );
         
-        // для каждого фильтра создается свой обработ чик
+        // для каждого фильтра создается свой обработчик
+        /* @var $handler QSearchHandlerBase */
         $handler = Yii::createComponent($config);
         if ( ! $handler->enabled() )
         {// пользователю не разрешен поиск по этому критерию - идем дальше, даже не начинаем собирать запрос

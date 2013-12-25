@@ -12,30 +12,25 @@ class QSearchHandlerBase extends CComponent
      * @var CatalogFilter
      */
     public $filter;
-    
     /**
      * @var CActiveRecord - объект, к которому прикреплены критерии поиска
      */
     public $searchObject;
-    
     /**
      * @var CatalogSection|null - раздел каталога, внутри которого производится поиск
      *                        Не используется, если нужен поиск по всей форме
      * @deprecated использовать searchObject
      */
     public $section;
-    
     /**
      * @var array - данные, пришедшие из формы поиска
      */
     public $data;
-    
     /**
      * @var bool - сохранять ли данные из формы поиска (используется почти всегда,
      *              в основном для сохранения данных о поиске в сессию)
      */
     public $saveData = true;
-    
     /**
      * @var string - куда сохранить данные поиска (session/db)
      */
@@ -80,7 +75,7 @@ class QSearchHandlerBase extends CComponent
      */
     protected function createScope()
     {
-        throw new CHttpException('500', 'createScope() должен быть наследован');
+        throw new CException('createScope() должен быть наследован');
     }
     
     /**
@@ -91,7 +86,7 @@ class QSearchHandlerBase extends CComponent
      */
     protected function createConditions()
     {
-        throw new CHttpException('500', 'createConditions() должен быть наследован');
+        throw new CException('createConditions() должен быть наследован');
     }
     
     /**
@@ -102,7 +97,7 @@ class QSearchHandlerBase extends CComponent
      */
     protected function createCriteria()
     {
-        throw new CHttpException('500', 'createCriteria() должен быть наследован');
+        throw new CException('createCriteria() должен быть наследован');
     }
     
     /**
