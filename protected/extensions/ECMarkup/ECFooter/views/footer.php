@@ -38,7 +38,7 @@
             <p><span>Горячая линия</span> для заказчиков (24 часа):&nbsp;<span>+7&nbsp;(495)&nbsp;227-5-226</span> / sale@easycast.ru /</p>
         </div>
     	<div class="span6 offset1 ec-footer-contacts">
-            <p><span>Техническая поддержка</span> для пользователей:&nbsp;<span>+7&nbsp;(468)&nbsp;590-88-00</span> / mail@easycast.ru</p>
+            <p><span>Техническая поддержка</span> для пользователей:&nbsp;<span>+7&nbsp;(968)&nbsp;590-88-00</span> / mail@easycast.ru</p>
         </div>
     </div>
     <!-- Обратная связь -->
@@ -56,7 +56,7 @@
             &copy; 2005-<?= date('Y'); ?>&nbsp;Кастинговое агенство &laquo;<a
                 href="http://bglance">EasyCast</a>&raquo;. Все
             права защищены.&nbsp;<br>
-            <a href="http://bglance/site/page/view/license"><small>Пользовательское
+            <a href="<?= Yii::app()->createUrl('/site/page/view/license'); ?>"><small>Пользовательское
                     соглашение</small></a>
         </div>
     </div>
