@@ -258,7 +258,7 @@ class Project extends CActiveRecord
 			array('name, type, description', 'required'),
 			array('isfree, virtual', 'numerical', 'integerOnly' => true),
 			array('name', 'length', 'max' => 255),
-			array('type, status', 'length', 'max' => 9),
+			array('type, status', 'length', 'max' => 20),
 			array('description, shortdescription, customerdescription', 'length', 'max' => 4095),
 			array('photogalleryid, galleryid, timestart, timeend, timecreated, timemodified, 
 			    leaderid, customerid, orderid, memberscount, rating, notimestart, notimeend', 'length', 'max' => 12),
@@ -285,7 +285,6 @@ class Project extends CActiveRecord
 		    ),
 		    array('timestart', 'parseDateInput'),
 		    array('timeend', 'parseDateInput'),
-		    
 		    
 			// The following rule is used by search().
 			array('id, name, type, description, galleryid, timestart, timeend, timecreated, timemodified, 
@@ -460,7 +459,8 @@ class Project extends CActiveRecord
 	    {
 	        $type = $this->type;
 	    }
-	    return ProjectsModule::t('project_type_'.$type);
+	    $projectsModule = Yii::app()->getModule('projects');
+	    return $projectsModule::t('project_type_'.$type);
 	}
 	
 	/**
