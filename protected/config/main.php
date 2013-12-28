@@ -2,6 +2,7 @@
 
 // Twitter bootstrap path alias
 Yii::setPathOfAlias('bootstrap', dirname(__FILE__).'/../extensions/bootstrap');
+// путь к google-библиотеке для обработки телефонных номеров
 Yii::setPathOfAlias('libphonenumber', dirname(__FILE__).'/../components/libphonenumber');
 
 
@@ -49,7 +50,7 @@ return array(
     ),*/
     
 	// autoloading model and component classes
-	'import'=>array(
+	'import' => array(
 		'application.models.*',
 		'application.components.*',
 	    'application.extensions.*',
@@ -302,8 +303,9 @@ return array(
         
         // Настройки менеджера скриптов
         'clientScript' => array(
+            // настройка темы jQuery
             'scriptMap' => array(
-                'jquery-ui.css' => '/css/jqueryui/flick/jquery-ui.css',
+                'jquery-ui.css'     => '/css/jqueryui/flick/jquery-ui.css',
                 'jquery-ui.min.css' => '/css/jqueryui/flick/jquery-ui.min.css',
             ),
             // подключаем sweekit-библиотеку для удобной работы со скриптами
@@ -319,7 +321,7 @@ return array(
             'class' => 'EasyCastAmazonAPI',
         ),
         
-        // отсылка SMS
+        // отсылка SMS (через smspilot.ru)
         'sms' => array(
             'class'  => 'application.components.smspilot.SmsPilotAPI',
             'from'   => 'easyCast',
@@ -327,21 +329,17 @@ return array(
         ),
         
         // Компонент "simple Workflow" - для грамотной работы со статусами
-        'swSource'=> array(
-            'class'=>'application.extensions.simpleWorkflow.SWPhpWorkflowSource',
+        'swSource' => array(
+            'class' => 'application.extensions.simpleWorkflow.SWPhpWorkflowSource',
         ),
         
-        // API для работы с Мегапланом
+        // API для работы с Мегапланом (только общие настройки, все основное лежит в production и dev-ветках)
         'megaplan' => array(
-            'class'             => 'EasyCastMegaplanAPI',
-            'host'              => 'easycast.megaplan.ru',
-            'accessId'          => '080b3A8c16682cd4aF11',
-            'secretKey'         => 'b6c0566843a0De4871439c5798cCf879Af13b9F8',
-            'defaultUserId'     => '1000031',
-            'defaultEmployeeId' => '1000004',
+            'class' => 'EasyCastMegaplanAPI',
+            'host'  => 'easycast.megaplan.ru',
         ),
         
-        // Настройки виджетов по умолчанию
+        // Настройки по умолчанию для всех виджетов
         'widgetFactory' => array(
             'widgets' => array(
                 // Выравнивание верстки для форума
