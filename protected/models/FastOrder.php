@@ -595,7 +595,7 @@ class FastOrder extends CActiveRecord
 	    // создаем данные для задачи
 	    $task = array();
 	    $task['Model[Name]']        = $name;
-	    $task['Model[Responsible]'] = '1000000';
+	    $task['Model[Responsible]'] = Yii::app()->megaplan->defaultEmployeeId;
 	    $task['Model[Statement]']   = $description;
 	    $task['Model[IsGroup]']     = 0;
 	    $task['Model[Executors]']   = Yii::app()->megaplan->projectManagers;
