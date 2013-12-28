@@ -2,14 +2,14 @@
 
 /**
  * Класс формы расчета стоимости заказа
- * @todo добавить фамилию заказчика
  */
 class CalculationForm extends CFormModel
 {
     public $projectname; 
     public $projecttype; 
     public $eventtime; 
-    public $plandate; 
+    public $plandate;
+    public $duration;
     public $categories; 
     public $daysnum; 
     public $comment; 
@@ -33,7 +33,8 @@ class CalculationForm extends CFormModel
     public function rules()
     {
         return array(
-            array('projectname, name, lastname, email, phone', 'filter', 'filter' => 'trim'),
+            array('projectname, name, lastname, email, phone, duration, daysnum', 'filter', 'filter' => 'trim'),
+            array('duration, daysnum', 'numerical', 'integerOnly' => true),
             // Сохраняем номер телефона в правильном формате (10 цифр)
             array('phone', 'LPNValidator', 'defaultCountry' => 'RU', 'allowEmpty' => true),
             array('email', 'email'),
@@ -53,12 +54,14 @@ class CalculationForm extends CFormModel
             'projecttype' => 'Тип проекта',
             'eventtime'   => 'Это дневная или ночная съемка?',
             'plandate'    => 'Когда планируется съемка?',
+            'duration'    => 'Длительность смены (в часах)',
             'categories'  => 'Кого хотите пригласить?',
             //'userinfo'    => 'Опишите подробнее кого вы хотите видеть',
             'daysnum'     => 'Сколько съемочных дней планируется?',
             'comment'     => 'Дополнительная информация',
             // контакты заказчика
             'name'        => 'Имя',
+            'lastname'    => 'Фамилия',
             'email'       => 'email',
             'phone'       => 'Телефон',
         );
@@ -71,7 +74,7 @@ class CalculationForm extends CFormModel
      */
     public function save()
     {
-        $description = $this->createDescription();
+        /*$description = $this->createDescription();
         // создаем данные для задачи
         $task = array();
         $task['Model[Name]']        = 'Новый запрос расчета стоимости '.date('Y-m-d H:i');
@@ -79,8 +82,22 @@ class CalculationForm extends CFormModel
         $task['Model[Statement]']   = $description;
         
         // создаем задачу в Мегаплане
-        $result = Yii::app()->megaplan->createTask($task);
-        //CVarDumper::dump($result, 10, true);die;
+        $result = Yii::app()->megaplan->createTask($task);*/
+        
+        // создаем новый заказ на расчет стоимости
+        $order = new FastOrder;
+        $order->type       = FastOrder::TYPE_CALCULATION;
+        $order->name       = $this->name;
+        $order->customerid = 0;
+        $order->email      = $this->email;
+        $order->phone      = $this->phone;
+        $order->comment    = $this->comment;
+        // сохраняем данные формы заказа
+        $order->orderdata  = serialize($this->attributes);
+        if ( ! $order->save() )
+        {
+            throw new CException('Не удалось создать заказ при сохранении формы расчета стоимости');
+        }
         
         return true;
     }

@@ -3,15 +3,16 @@
  * Сообщение отображаемое после отправки заявки на расчет стоимости
  */
 
-$this->widget('bootstrap.widgets.TbAlert');
-
 $this->breadcrumbs = array(
-    'Расчет стоимости'
+    'Расчет стоимости',
 );
 ?>
 <div class="row">
     <div class="span8 offset2" style="text-align: center;">
-    <?php 
+    <?php
+    // сообщение о том что заказ принят 
+    $this->widget('bootstrap.widgets.TbAlert');
+    // кнопки дальнейших действий
     $this->widget('bootstrap.widgets.TbButton',
         array(
             'buttonType' => 'link',
@@ -20,6 +21,7 @@ $this->breadcrumbs = array(
             'label'      => 'Вернуться на главную',
             'url'        => Yii::app()->createAbsoluteUrl('/site/index'),
         ));
+    echo '&nbsp;';
     $this->widget('bootstrap.widgets.TbButton',
         array(
             'buttonType' => 'link',

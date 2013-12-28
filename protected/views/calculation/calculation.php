@@ -96,10 +96,18 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     );
     // сколько съемочных дней планируется
     echo $form->textFieldRow($calculationForm, 'daysnum', array(
-        'size'        => 60,
         'maxlength'   => 255,
         'prepend'     => '<i class="icon icon-th"></i>',
-        'placeholder' => '',
+        'append'      => 'дн.',
+    ));
+    // длительность смены (в часах)
+    echo $form->textFieldRow($calculationForm, 'duration', array(
+        'maxlength'   => 255,
+        'prepend'     => '<i class="icon icon-time"></i>',
+        'append'      => 'ч.',
+        'hint'        => 'Если на разные дни съемок планируется разное количество часов - укажите здесь максимальное
+            число и в комментариях напишите как именно распределяется время: это поможет нам точнее расчитать
+            для вас стоимость.',
     ));
     
     // имя
@@ -129,7 +137,9 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         'size'        => 60,
         'maxlength'   => 20,
         'prepend'     => '+7',
-        'placeholder' => '(987)654-32-10'));
+        'placeholder' => '(987)654-32-10',
+        'hint'        => 'Для связи с вами, на случай если потребуется уточнить детали.<br>(10 цифр, без восьмерки)',
+    ));
     // комментарий
     echo $form->redactorRow($calculationForm, 'comment', array(
         'options' => array(
