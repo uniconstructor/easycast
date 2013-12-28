@@ -44,9 +44,9 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     ?>
     
     <div class="control-group">
-    <?php 
-    echo $form->labelEx($calculationForm, 'eventtime', array('class' => 'control-label'));
-    ?>
+        <?php 
+        echo $form->labelEx($calculationForm, 'eventtime', array('class' => 'control-label'));
+        ?>
         <div class="controls">
         <?php
         // дневная или ночная съемка
@@ -109,7 +109,13 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
             число и в комментариях напишите как именно распределяется время: это поможет нам точнее расчитать
             для вас стоимость.',
     ));
-    
+    ?>
+    <div class="control-group">
+        <div class="controls">
+            <h3>Контактная информация</h3>
+        </div>
+    </div>
+    <?php
     // имя
     echo $form->textFieldRow($calculationForm, 'name', array(
         'size'        => 60,
@@ -142,20 +148,18 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     ));
     // комментарий
     echo $form->redactorRow($calculationForm, 'comment', array(
-        'options' => array(
-            'lang' => 'ru')
-        ));
+        'options' => array('lang' => 'ru'),
+    ));
     ?>
     <div class="form-actions">
         <?php 
         // кнопка отправки
         $form->widget('bootstrap.widgets.TbButton', array(
-                'buttonType' => 'submit',
-                'type'       => 'success',
-                'size'       => 'large',
-                'label'      => 'Запросить расчет стоимости',
-            )
-        ); 
+            'buttonType' => 'submit',
+            'type'       => 'success',
+            'size'       => 'large',
+            'label'      => 'Запросить расчет стоимости',
+        )); 
         ?>
     </div>
     <?php 
