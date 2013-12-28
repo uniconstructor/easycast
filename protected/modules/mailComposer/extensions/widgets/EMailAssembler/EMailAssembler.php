@@ -198,10 +198,11 @@ class EMailAssembler extends CWidget
         $message = 'Если у вас есть вопросы - то вы можете задать их, просто ответив на это письмо';
         if ( $this->showContactPhone AND $this->contactPhone )
         {// оставляем возможность не указывать телефон для обычной рассылки
-            $message .= ' или позвонив по телефону '.$this->contactPhone;
+            $message .= ' или позвонив по телефону '.$this->contactPhone.
+                '. Еще можно использовать чат для онлайн-консультаций на нашем сайте.';
         }else
         {
-            $message .= '.';
+            $message .= ' или воспользоваться чатом для онлайн-консультации на нашем сайте.';
         }
         return $message;
     }
