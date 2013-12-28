@@ -6,10 +6,37 @@ return CMap::mergeArray(
         'components' => array(
             // данные для подключения к серверу БД (используется amazon RDS)
             // серверные переменные заданы в параметрах Elastic Beanstalk
+            // чтобы увидеть или изменить их - нужно зайти в контрольную панель Амазоновского хостинга
+            // https://console.aws.amazon.com/elasticbeanstalk/home?region=us-east-1
+            // выбрать среду (enviroment) в которой работает сайт и изменить ее настройки
             'db' => array(
                 'connectionString' => 'mysql:host='.$_SERVER['RDS_ENDPOINT'].';dbname=easycast',
-                'username' => $_SERVER['RDS_LOGIN'],
-			    'password' => $_SERVER['RDS_PASS'],
+                'username'         => $_SERVER['RDS_LOGIN'],
+			    'password'         => $_SERVER['RDS_PASS'],
+            ),
+            
+            // API для работы с Мегапланом
+            'megaplan' => array(
+                'debug'             => false,
+                'accessId'          => '3191561bcf6adc2Ab125',
+                'secretKey'         => '3F62c64cf3fd6daC1c2543a45720Ed666e4d920f',
+                'defaultUserId'     => '1000027',
+                'defaultEmployeeId' => '1000000',
+                'auditors'          => array('1000015', '1000005', '1000012'),
+                // список id руководителей проектов в Мегаплане
+                'projectManagers'   => array(
+                    '1000001', // Ира
+                    '1000005', // Алена 
+                    '1000002', // Аня (Дуленкова)
+                    '1000008', // Максим
+                    '1000007', // Лиза
+                    '1000010', // Вероника
+                    '1000011', // Лёха (Михайлов)
+                    '1000006', // Маруся
+                    '1000012', // Петя
+                    '1000004', // Я
+                    '1000015', // Коля
+                ),
             ),
             
             'log' => array(
@@ -19,7 +46,7 @@ return CMap::mergeArray(
                         'class' => 'CDbLogRoute',
                         // @todo хранить логи отдельно ото всех остальных данных для лучшей безопасности
                         'connectionID' => 'db',
-                        'levels' => 'error, warning, info, application',
+                        'levels' => 'error, warning, info, application, AWS',
                         'autoCreateLogTable' => false,
                     ),
                 ),
