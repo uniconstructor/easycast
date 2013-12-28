@@ -4,27 +4,22 @@ return CMap::mergeArray(
     require(dirname(__FILE__).'/main.php'),
     array(
         'modules' => array(
-            // uncomment the following to enable the Gii tool
+            // для версии разработчика включаем Gii-генерацию кода
             'gii' => array(
                 'class'    => 'system.gii.GiiModule',
                 'password' => '12345',
                 // If removed, Gii defaults to localhost only. Edit carefully to taste.
-                'ipFilters'=>array('127.0.0.1','::1'),
+                'ipFilters' => array('127.0.0.1','::1'),
                 'generatorPaths' => array(
-                    'application.gii',  //nested set  Model and Crud templates
+                    'application.gii',  // Model and Crud templates
                     'bootstrap.gii',
                 ),
             ),
             'log' => array(
-                'routes'=> array(
-                        /*array(
-                         'class'=>'CEmailLogRoute',
-                            'levels'=>'error, warning',
-                            'emails'=>'php1602agregator@gmail.com',
-                        ),*/
+                'routes' => array(
                         array(
-                            'class'=>'ext.yii-debug-toolbar.YiiDebugToolbarRoute',
-                            'ipFilters'=>array('127.0.0.1','192.168.1.215'),
+                            'class'     => 'ext.yii-debug-toolbar.YiiDebugToolbarRoute',
+                            'ipFilters' => array('127.0.0.1', '192.168.1.215'),
                         ),
                     )
                 ),
