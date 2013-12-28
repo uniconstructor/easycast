@@ -19,6 +19,9 @@
 <ul>
     <li>ФИО: <?= $orderData['name']; ?> <?= $orderData['lastname']; ?></li>
     <li>email: <?= $orderData['email']; ?></li>
-    <li>Телефон: <?= $orderData['phone']; ?></li>
+    <li>Телефон: +7 <?= $orderData['phone']; ?></li>
 </ul>
 <?= $comment; ?>
+<br>
+<br>
+<?= $viewLink; ?>

@@ -54,7 +54,7 @@ class OrderDescription extends CWidget
                 $this->render($this->target.'/order', null);
             break;
             case FastOrder::TYPE_CASTING:
-                $this->render($this->target.'/casting', null);
+                $this->createCastingDescription();
             break;
             case FastOrder::TYPE_CALCULATION:
                 $this->createCalculationDescription();
@@ -98,7 +98,7 @@ class OrderDescription extends CWidget
         {
             $daysNum = '<li>Длительность смены: '.$orderData['duration'].' ч.</li>';
         }
-    
+        
         $params = array(
             'orderData' => $orderData,
             'eventTime' => $eventTime,
@@ -106,8 +106,8 @@ class OrderDescription extends CWidget
             'daysNum'   => $daysNum,
             'duration'  => $duration,
             'comment'   => $comment,
+            'viewLink'  => $this->createViewOrderLink('Посмотреть заказ на сайте'),
         );
-    
         $this->render($this->target.'/calculation', $params);
     }
     
@@ -117,6 +117,42 @@ class OrderDescription extends CWidget
      */
     protected function createCastingDescription()
     {
+        $orderData = $this->order->loadOrderData();
         
+        $params = array(
+            'orderData'   => $orderData,
+            //'eventTime'   => $eventTime,
+            //'planDate'    => $planDate,
+            //'comment'     => $comment,
+            'orderLink'   => $this->createViewOrderLink('Посмотреть заказ на сайте'),
+            'projectLink' => $this->createViewProjectLink('Перейти к проекту'),
+        );
+        $this->render($this->target.'/casting', $params);
+    }
+    
+    /**
+     * Получить ссылку на просмотр заказа
+     * @param string $text
+     * @return string
+     */
+    protected function createViewOrderLink($text=null)
+    {
+        $viewUrl = Yii::app()->createAbsoluteUrl('/admin/fastOrder/view', array('id' => $this->order->id));
+        return CHtml::link($text, $viewUrl);
+    }
+    
+    /**
+     * Получить ссылку на просмотр заготовки проекта (для онлайн-кастинга)
+     * @param string $text
+     * @return string
+     */
+    protected function createViewProjectLink($text=null)
+    {
+        if ( ! $this->order->project )
+        {
+            return;
+        }
+        $viewUrl = Yii::app()->createAbsoluteUrl('/projects/projects/view', array('id' => $this->order->project->id));
+        return CHtml::link($text, $viewUrl);
     }
 }

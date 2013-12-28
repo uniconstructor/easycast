@@ -16,7 +16,7 @@ if ( $this->order->comment )
 Контактная информация:<br>
 <ul>
     <li>Имя: <?= $this->order->name; ?></li>
-    <li>Телефон: <?= $this->order->phone; ?></li>
+    <li>Телефон: +7 <?= $this->order->phone; ?></li>
     <li>email: <?= $this->order->email; ?></li>
 </ul>
 <p><?= $comment; ?></p>
