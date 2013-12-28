@@ -127,16 +127,7 @@ class OnlineCastingController extends Controller
         
         Yii::app()->end();
     }
-    
-    /**
-     * Сохранить кастинг со всеми ролями из сессии в базу и
-     * отправить команде оповещение о новом запросе на кастинг
-     * @return void
-     */
-    /*public function actionFinishCastingSetup()
-     {
-    
-    }*/
+
     
     /**
      * Сохранить критерии поиска для роли
@@ -195,17 +186,14 @@ class OnlineCastingController extends Controller
      */
     protected function finalizeCasting()
     {
+        // получаем данные всех форм из сессии
         /* @var $template OnlineCastingForm */
         $template     = OnlineCastingForm::getCastingInfo();
         $roleTemplate = OnlineCastingForm::getRoleInfo();
         $searchData   = OnlineCastingForm::getRoleCriteria();
         
-        // создаем заготовки для проектов, мероприятий и ролей
-        $project = new Project();
-        $event   = new ProjectEvent();
-        $vacancy = new EventVacancy();
-        
         // сохраняем информацию о проекте
+        $project = new Project();
         $project->name        = $template->projectname;
         $project->type        = $template->projecttype;
         $project->description = $template->projectdescription;
@@ -221,6 +209,7 @@ class OnlineCastingController extends Controller
         }
         
         // сохраняем информацию о мероприятии и привызываем мероприятие к проекту
+        $event   = new ProjectEvent();
         $event->projectid   = $project->id;
         $event->name        = $template->projectname;
         $event->description = $template->eventdescription;
@@ -231,8 +220,8 @@ class OnlineCastingController extends Controller
             $event->timestart = CDateTimeParser::parse($template->plandate, Yii::app()->params['inputDateFormat']);
         }else
         {// кастинг без определенной даты
-        $event->timestart = 0;
-        $event->nodates   = true;
+            $event->timestart = 0;
+            $event->nodates   = true;
         }
         if ( ! $event->save() )
         {
@@ -241,6 +230,7 @@ class OnlineCastingController extends Controller
         }
         
         // сохраняем роль
+        $vacancy = new EventVacancy();
         $vacancy->eventid     = $event->id;
         $vacancy->name        = $roleTemplate->name;
         $vacancy->description = $roleTemplate->description;
@@ -249,39 +239,46 @@ class OnlineCastingController extends Controller
             $vacancy->salary = $roleTemplate->salary;
         }
         if ( ! $vacancy->save() )
-        {// сохраняем саму роль
+        {
             throw new CHttpException(500, 'Не удалось сохранить роль для онлайн-кастинга. '.
                 $this->getCustomerErrorMessage());
         }
         // сохраняем критерии поиска роли
         $vacancy->setSearchData($searchData);
         
-        // @todo создаем заказ, который отправит сообщение команде
+        // создаем заказ, который отправит сообщение команде (мегаплан + почта) и подтверждение заказчику
+        $order = new FastOrder();
+        $order->type       = FastOrder::TYPE_CASTING;
+        $order->name       = $template->name;
+        $order->customerid = 0;
+        $order->email      = $template->email;
+        $order->phone      = $template->phone;
+        // дополнительные данные о созданном кастинге
+        $orderData = array(
+            'projectid'   => $project->id,
+            'castingData' => $template->attributes,
+            'roleData'    => $roleTemplate->attributes,
+            'searchData'  => $searchData,
+        );
+        $order->orderdata  = serialize($orderData);
+        if ( ! $order->save() )
+        {
+            throw new CHttpException(500, 'Не удалось сохранить заявку на онлайн-кастинг. '.
+                $this->getCustomerErrorMessage());
+        }
         
-        // удаляем проект онлайн-кастинга из сессии
+        // привязываем проект к только что созданному заказу
+        $project->orderid = $order->id;
+        if ( ! $project->save(true, array('orderid')) )
+        {// @todo не выбрасывать исключение. просто писать ошибку в лог
+            throw new CHttpException(500, 'Не удалось привязать заказу к проекту. '.
+                $this->getCustomerErrorMessage());
+        }
+        
+        // удаляем заготовку проекта онлайн-кастинга из сессии
         Yii::app()->session->remove('onlineCasting');
         
         return true;
-    }
-    
-    /**
-     * 
-     * @return void
-     * 
-     * @todo нужно создавать заказ, который уже сам создаст задачу в Мегаплане, а не создавать ее здесь
-     */
-    protected function addMegaplanTask()
-    {
-        $description = $this->createDescription();
-    
-        // создаем данные для задачи
-        $task = array();
-        $task['Model[Name]']        = 'Новый запрос онлайн-кастинга '.date('Y-m-d H:i');
-        $task['Model[Responsible]'] = '1000004';
-        $task['Model[Statement]']   = $description;
-    
-        // создаем задачу в Мегаплане
-        $result = Yii::app()->megaplan->createTask($task);
     }
     
     /**

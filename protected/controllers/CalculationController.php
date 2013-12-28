@@ -18,6 +18,7 @@ class CalculationController extends Controller
         Yii::import('catalog.models.*');
         parent::init();
     }
+    
     /**
      * Отобразить и обработать форму рассчета стоимости
      * @return void
@@ -56,7 +57,7 @@ class CalculationController extends Controller
                 {// сохранение удалось
                     // добавляем flash-сообщение
                     Yii::app()->user->setFlash('success', '<br>Ваш запрос принят.<br>
-                        Мы расчитаем стоимость и пришлем результаты вам на почту <b>'.$calculationForm->email.'</b>.');
+                        Мы расчитаем стоимость съемки и пришлем результаты вам на почту <b>'.$calculationForm->email.'</b>.');
                     
                     // и перенаправляем его на страницу просмотра своей анкеты
                     $this->redirect('/calculation/success');
