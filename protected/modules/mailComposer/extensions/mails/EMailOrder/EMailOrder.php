@@ -14,7 +14,7 @@ Yii::import('application.modules.mailComposer.extensions.mails.EMailBase.EMailBa
 class EMailOrder extends EMailBase
 {
     /**
-     * @var FastOrder - созданный заказ, для которого отправляется это письмо
+     * @var FastOrder - созданный заказ, по которому составляется письмо
      */
     public $order;
     /**
@@ -23,6 +23,11 @@ class EMailOrder extends EMailBase
      *               - customer подтверждение заказчику
      */
     public $target;
+    
+    /**
+     * @var array - массив с параметрами для виджета, создающего описание заказа (класс OrderDescription)
+     */
+    protected $descriptionParams;
     
     /**
      * @see EMailBase::init()
@@ -39,6 +44,12 @@ class EMailOrder extends EMailBase
         {
             throw new CException('Не указано для кого составлять письмо');
         }
+        
+        $this->descriptionParams = array(
+            'order'  => $this->order,
+            'target' => $this->target,
+            'type'   => 'email',
+        );
     }
     
     /**
@@ -67,22 +78,21 @@ class EMailOrder extends EMailBase
         {// текст письма выбирается в зависимости от типа заказа
             case FastOrder::TYPE_FAST:
                 $header = 'Оформлен срочный заказ';
-                $text   = $this->render('team/fastOrder', null, true);
             break;
             case FastOrder::TYPE_NORMAL:
                 $header = 'Новый заказ на сайте';
-                $text = $this->render('team/order', null, true);
             break;
             case FastOrder::TYPE_CASTING:
                 $header = 'Новая заявка на проведение онлайн-кастинга';
-                $text = $this->render('team/casting', null, true);
             break;
             case FastOrder::TYPE_CALCULATION:
                 $header = 'Новая заявка на расчет стоимости';
-                $text = $this->render('team/calculation', null, true);
             break;
             default: throw new CException('Неизвестный тип заказа'); break;
         }
+        
+        $text = $this->widget('application.modules.admin.extensions.OrderDescription.OrderDescription',
+            $this->descriptionParams, true);
         
         return $this->textBlock($text, $header);
     }
@@ -97,22 +107,21 @@ class EMailOrder extends EMailBase
         {// текст письма выбирается в зависимости от типа заказа
             case FastOrder::TYPE_FAST:
                 $header = 'Ваш заказ принят';
-                $text   = $this->render('customer/fastOrder', null, true);
             break;
             case FastOrder::TYPE_NORMAL:
                 $header = 'Ваш заказ принят';
-                $text = $this->render('customer/order', null, true);
             break;
             case FastOrder::TYPE_CASTING:
                 $header = 'Заявка на проведение онлайн-кастинга принята';
-                $text = $this->render('customer/casting', null, true);
             break;
             case FastOrder::TYPE_CALCULATION:
                 $header = 'Заявка на расчет стоимости принята';
-                $text = $this->render('customer/calculation', null, true);
             break;
             default: throw new CException('Неизвестный тип заказа'); break;
         }
+        
+        $text = $this->widget('application.modules.admin.extensions.OrderDescription.OrderDescription',
+            $this->descriptionParams, true);
         
         return $this->textBlock($text, $header);
     }

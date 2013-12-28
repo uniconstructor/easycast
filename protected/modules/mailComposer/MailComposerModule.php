@@ -167,6 +167,18 @@ class MailComposerModule extends CWebModule
                 }
                 return $mailComposer->createOfferMailText($params['offer'], $manager);
             break;
+            // заказ, онлайн-кастинг или расчет стоимости
+            case 'newOrder':
+                if ( ! isset($params['order']) )
+                {
+                    throw new CException('Не указан заказ для составления письма');
+                }
+                if ( ! isset($params['target']) )
+                {
+                    throw new CException('Не указано для кого составлять письмо (заказчик или команда)');
+                } 
+                return $mailComposer->createOrderMailText($params['order'], $params['target']);
+            break;
         }
     }
     
@@ -211,7 +223,7 @@ class MailComposerModule extends CWebModule
      * @param $dic
      * @return string
      */
-    public static function t($str='',$params=array(),$dic='calendar') {
+    public static function t($str='', $params=array(), $dic='mailComposer') {
         if (Yii::t("MailComposer", $str)==$str)
         {
             return Yii::t("MailComposer.".$dic, $str, $params);

@@ -297,13 +297,28 @@ class ProjectMailsBehavior extends CBehavior
     
     /**
      * Создать письмо с коммерческим предложением
-     * @param ROffer $offer
+     * @param CustomerOffer $offer
+     * @param User $manager - руководитель проектов от имени которого составляется письмо
      * @return string
      */
     public function createOfferMailText($offer, $manager=null)
     {
         return $this->owner->widget('application.modules.mailComposer.extensions.mails.EMailOffer.EMailOffer',
             array('offer' => $offer, 'manager' => $manager), true);
+    }
+    
+    /**
+     * Создать письмо с оповещением о новом заказе
+     * @param FastOrder $order - заказ, для которого составляется письмо
+     * @param string $target - для кого составляется письмо
+     *                         team - оповещение для команды
+     *                         customer - подтверждение для заказчика
+     * @return string
+     */
+    public function createOrderMailText($order, $target)
+    {
+        return $this->owner->widget('application.modules.mailComposer.extensions.mails.EMailOrder.EMailOrder',
+            array('order' => $order, 'target' => $target), true);
     }
     
     /**

@@ -60,6 +60,7 @@ class MailController extends Controller
     {
         Yii::import('reports.models.*');
         $type = Yii::app()->request->getParam('type');
+        $subType = Yii::app()->request->getParam('subtype');
         $id   = Yii::app()->request->getParam('id');
         //$invite = EventInvite::model()->findByPk(650);
         //echo MailComposerModule::getMessage('newInvite', array('invite' => $invite));
@@ -72,15 +73,22 @@ class MailController extends Controller
         {
             $callList = RCallList::model()->findByPk($id);
             echo MailComposerModule::getMessage('callList', array('callList' => $callList));
-        }elseif ( $type = 'offer' )
+        }elseif ( $type == 'offer' )
         {
             $offer = CustomerOffer::model()->findByPk($id);
             echo $offerMail = MailComposerModule::getMessage('offer', array('offer' => $offer));
             //UserModule::sendMail('frost@easycast.ru', 'test message', $offerMail, true);
-        }else
+        }elseif ( $type == 'SSInvite' )
         {
-            $questionary = Questionary::model()->findByPk(9);
+            $questionary = Questionary::model()->findByPk($id);
             echo MailComposerModule::getMessage('SSInvite', array('questionary' => $questionary));
+        }elseif ( $type == 'newOrder' )
+        {
+            $order = FastOrder::model()->findByPk($id);
+            echo MailComposerModule::getMessage('newOrder', array(
+                'order'  => $order,
+                'target' => $subType,
+            ));
         }
     }
     
