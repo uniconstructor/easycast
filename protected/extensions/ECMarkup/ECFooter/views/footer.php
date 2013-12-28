@@ -35,10 +35,12 @@
     <!-- Контакты -->
     <div class="row-fluid show-grid">
         <div class="span6 offset1 ec-footer-contacts">
-            <p><span>Горячая линия</span> для заказчиков (24 часа):&nbsp;<span>+7&nbsp;(495)&nbsp;227-5-226</span> / sale@easycast.ru</p>
+            <p><span>Горячая линия</span> для заказчиков 
+                (24 часа):&nbsp;<span><?= Yii::app()->params['customerPhone']; ?></span> <br> sale@easycast.ru</p>
         </div>
     	<div class="span6 offset1 ec-footer-contacts">
-            <p><span>Техническая поддержка</span> для пользователей:&nbsp;<span>+7&nbsp;(968)&nbsp;590-88-00</span> / mail@easycast.ru</p>
+            <p><span>Техническая поддержка</span> 
+            для пользователей:&nbsp;<span><?= Yii::app()->params['userPhone']; ?></span> <br> mail@easycast.ru</p>
         </div>
     </div>
     <!-- Обратная связь -->
