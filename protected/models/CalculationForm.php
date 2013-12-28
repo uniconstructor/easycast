@@ -69,21 +69,11 @@ class CalculationForm extends CFormModel
     
     /**
      * Сохранить запрос на расчет стоимости
-     * Добавляет в Мегаплан новую задачу со всей информацией
+     * Добавляет в Мегаплан новую задачу со всей информацией о заказе
      * @return boolean
      */
     public function save()
     {
-        /*$description = $this->createDescription();
-        // создаем данные для задачи
-        $task = array();
-        $task['Model[Name]']        = 'Новый запрос расчета стоимости '.date('Y-m-d H:i');
-        $task['Model[Responsible]'] = '1000004';
-        $task['Model[Statement]']   = $description;
-        
-        // создаем задачу в Мегаплане
-        $result = Yii::app()->megaplan->createTask($task);*/
-        
         // создаем новый заказ на расчет стоимости
         $order = new FastOrder;
         $order->type       = FastOrder::TYPE_CALCULATION;
@@ -100,30 +90,5 @@ class CalculationForm extends CFormModel
         }
         
         return true;
-    }
-    
-    /**
-     * Создать из данных формы текстовое описание для запроса расчета стоимости
-     * @return string
-     */
-    protected function createDescription()
-    {
-        $result = '';
-        $type = Project::model()->getTypetext($this->projecttype);
-        
-        $result .= "С сайта поступил новый запрос на расчет стоимости. \n\n<br><br>";
-        $result .= "Имя заказчика: {$this->name}<br>\n";
-        $result .= "Фамилия: {$this->lastname}<br>\n";
-        $result .= "email: {$this->email}<br>\n";
-        $result .= "Телефон: {$this->phone}<br><br>\n";
-        
-        $result .= "Проект: {$this->projectname}<br>\n";
-        $result .= "Тип проекта: {$type}<br>\n";
-        $result .= "Планируемая дата: {$this->plandate}<br>\n";
-        $result .= "Кто требуется: {$this->categories}<br>\n";
-        $result .= "Количество съемочных дней: {$this->daysnum}<br>\n";
-        $result .= "Комментарий: {$this->comment}<br>\n";
-        
-        return $result;
     }
 }
