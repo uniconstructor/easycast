@@ -39,21 +39,32 @@ return CMap::mergeArray(
                 'controllerMap' => array(
                     // задаем путь к контроллеру загрузки изображений (для анкеты)
                     'gallery' => array(
-                        'handlerClass' => 'GmUploadedPhoto',
+                        'handlerClass'    => 'GmUploadedPhoto',
                         'customBehaviors' => array(),
                     ),
                 ),
             ),
         ),
 
-        // настройки соединения с БД (для среды разработчика)
         'components' => array(
+            // настройки соединения с БД (для среды разработчика)
             'db' => array(
                 // данные для работы сайта локально (для разработки)
                 'connectionString' => 'mysql:host=localhost;dbname=easycast',
                 'username' => 'root',
                 'password' => 'root',
-            )
+            ),
+            // API для работы с Мегапланом: в среде разработчика создаем задачи только для себя,
+            // не указывая никого в качестве соисполнителей или аудиторов, чтобы не отвлекать от работы остальных
+            'megaplan' => array(
+                'debug'             => true,
+                'accessId'          => '3191561bcf6adc2Ab125',
+                'secretKey'         => '3F62c64cf3fd6daC1c2543a45720Ed666e4d920f',
+                'defaultUserId'     => '1000027',
+                'defaultEmployeeId' => '1000000',
+                'auditors'          => array('1000004'),
+                'projectManagers'   => array('1000004'),
+            ),
         ),
         
         // другие параметры приложения
