@@ -1,13 +1,14 @@
 <?php
 
 /**
- * Модель для работы с обычными или срочными  заказами
+ * Модель для работы с обычными или срочными заказами
+ * Онлайн-кастинг и заявка на расчет стоимости - это тоже заказ
  * Таблица "{{fast_orders}}".
  *
- * The followings are the available columns in table '{{fast_orders}}':
  * @property integer $id
  * @property string $timecreated
  * @property string $timemodified
+ * @property string $type
  * @property string $name
  * @property string $phone
  * @property string $email
@@ -16,22 +17,31 @@
  * @property string $ourcomment
  * @property string $solverid
  * @property string $customerid
+ * @property string $orderdata - любые дополнительные данные заказа в сериализованном виде
  * @property string $version
+ * @property string $megaplanid
+ * 
+ * @todo выяснить, могут ли несколько проектов быть привязаны к одному заказу
+ * @todo завершать заказы на сайте синхронно с задачами Мегаплана
  */
 class FastOrder extends CActiveRecord
 {
     /**
      * @var string - тип заказа - обычный заказ
      */
-    const TYPE_NORMAL = 'normal';
+    const TYPE_NORMAL      = 'normal';
     /**
      * @var string - тип заказа - срочный заказ
      */
-    const TYPE_FAST = 'fast';
+    const TYPE_FAST        = 'fast';
     /**
      * @var string - тип заказа: заявка на онлайн-кастинг
      */
-    const TYPE_CASTING = 'casting';
+    const TYPE_CASTING     = 'casting';
+    /**
+     * @var string - тип заказа: заявка на онлайн-кастинг
+     */
+    const TYPE_CALCULATION = 'calculation';
     
     /**
      * (non-PHPdoc)
@@ -96,7 +106,7 @@ class FastOrder extends CActiveRecord
 	public function saveOrderData($data)
 	{
 	    $this->orderdata = serialize($data);
-	    $this->save();
+	    return $this->save();
 	}
 	
 	/**
@@ -117,28 +127,20 @@ class FastOrder extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
-			array('timecreated, timemodified, solverid, customerid, version', 'length', 'max'=>11),
+		    array('phone, name, email, comment, ourcomment', 'filter', 'filter' => 'trim'),
+		    array('name, phone', 'required'),
 		    
-			array('name', 'length', 'max'=>128),
-		    array('name', 'filter', 'filter'=>'trim'),
-			array('name', 'required'),
+		    array('comment, ourcomment', 'length', 'max' => 4095),
+			array('name, email', 'length', 'max' => 255),
+			array('status', 'length', 'max' => 20),
+			array('type, phone', 'length', 'max' => 20),
+		    array('timecreated, timemodified, solverid, customerid, version', 'length', 'max' => 11),
 		    
-			array('phone', 'length', 'max'=>20),
-		    array('phone', 'filter', 'filter'=>'trim'),
-			array('phone', 'required'),
-		    
-			array('email, comment, ourcomment', 'length', 'max'=>255),
-		    array('email, comment, ourcomment', 'filter', 'filter'=>'trim'),
-		    
-			array('status', 'length', 'max'=>20),
-			array('type', 'length', 'max'=>20),
 			array('orderdata', 'safe'),
-			array('version', 'numerical', 'integerOnly'=>true),
+			array('version, megaplanid', 'numerical', 'integerOnly' => true),
+		    
 			// The following rule is used by search().
-			// Please remove those attributes that should not be searched.
 			array('id, timecreated, timemodified, name, phone, email, status, comment, ourcomment, solverid, customerid', 'safe', 'on'=>'search'),
 		);
 	}
@@ -151,6 +153,7 @@ class FastOrder extends CActiveRecord
 		return array(
 		    'solver'   => array(self::BELONGS_TO, 'User', 'solverid'),
 		    'customer' => array(self::BELONGS_TO, 'User', 'customerid'),
+		    'project'  => array(self::HAS_ONE, 'Project', 'orderid'),
 		);
 	}
 	
@@ -241,7 +244,7 @@ class FastOrder extends CActiveRecord
 	    switch ( $this->status )
 	    {
 	        case 'active':
-	            return array('pending');
+	            return array('pending', 'closed', 'finished');
             break;
 	        case 'pending':
 	            return array('closed', 'rejected');
@@ -429,14 +432,14 @@ class FastOrder extends CActiveRecord
 	    if ( ! Yii::app()->session->contains('easyCastOrder') )
 	    {
 	        $order = array();
-	        $order['users'] = array();
+	        $order['users']       = array();
 	        $order['timecreated'] = time();
 	        Yii::app()->session->add('easyCastOrder', $order);
 	    }
 	    
-	    // Если пользователь собрался делать заказ - позаботимся о том, чтобы он не пропал,
-	    // продлив время сессии на 2 суток
-	    Yii::app()->session->setTimeout(3600*24*2); 
+	    // Если пользователь собрался делать заказ - позаботимся о том, чтобы он не пропал, продлив время сессии
+	    // @todo вынести время хранения заказа в настройку
+	    Yii::app()->session->setTimeout(3600 * 24 * 14); 
 	}
 	
 	/**
@@ -457,52 +460,11 @@ class FastOrder extends CActiveRecord
 	 */
 	protected function sendNewOrderNotifications()
 	{
-	    $viewUrl = $this->createOrderViewUrl();
-	    $subjectTeam = '[EasyCast] На сайте новый заказ №'.$this->id;
-	    $messageTeam = 'На сайт только что поступил новый заказ  №'.$this->id.'.<br><br>';
-	    $messageTeam .= '<ul>';
-	    $messageTeam .= '<li>От кого: '.$this->name.'</li>';
-	    $messageTeam .= '<li>Телефон: '.$this->phone.'</li>';
-	    if ( $this->email )
-	    {
-	        $messageTeam .= '<li>email: '.$this->email.'</li>';
-	    }
-	    if ( $this->comment )
-	    {
-	        $messageTeam .= '<li>Комментарий к заказу: '.$this->comment.'</li>';
-	    }
-	    $messageTeam .= '</ul>';
-	    $messageTeam .= '<br><br>';
-	    $messageTeam .= 'Просмотреть заказ можно по ссылке: '.CHtml::link($viewUrl, $viewUrl);
-	     
-	     
-	    // Отправляем письмо нашей команде, чтобы она знала о заказе
-	    // @todo отправлять SMS команде если заказ срочный
-	    UserModule::sendMail('order@easycast.ru', $subjectTeam, $messageTeam, true);
-	     
-	    // Отправляем письмо заказчику (если он оставил email), чтобы он знал что его заказ принят
-	    // @todo отправлять SMS заказчику при получении заказа (если не указан email)
-	    // @todo отсылать письмо повторно на тот же адрес не чаще чем раз в 10 минут
-	    if ( $this->email )
-	    {
-	        $subjectCustomer = '[EasyCast] Ваш заказ №'.$this->id.' зарегистрирован';
-	        $messageCustomer = 'Добрый день.<br><br>';
-	        $messageCustomer .= 'Мы получили ваш заказ на сайте <a href="http://easycast.ru">EasyCast.ru</a> и очень скоро свяжемся с вами, чтобы подтвердить его.<br>';
-	        $messageCustomer .= 'Пожалуйста, проверьте правильность введенных вами данных:<br>';
-	        $messageCustomer .= '<ul>';
-	        $messageCustomer .= '<li>Ваше имя: '.$this->name.'</li>';
-	        $messageCustomer .= '<li>Телефон: '.$this->phone.'</li>';
-	        $messageCustomer .= '<li>email: '.$this->email.'</li>';
-	        if ( $this->comment )
-	        {
-	            $messageCustomer .= '<li>Комментарий к заказу: '.$this->comment.'</li>';
-	        }
-	        $messageCustomer .= '</ul>';
-	        $messageCustomer .= '<br>';
-	        $messageCustomer .= 'С уважением, команда проекта EasyCast.';
-	         
-	        UserModule::sendMail($this->email, $subjectCustomer, $messageCustomer, true);
-	    }
+	    // отправляем оповещение по почте
+	    $this->sendEmailNotification();
+	    // отправляем оповещение в Мегаплан
+	    $this->sendMegaplanNotification();
+	    // @todo отправляем оповещение по SMS
 	}
 	
 	/**
@@ -562,5 +524,102 @@ class FastOrder extends CActiveRecord
 	public static function getOrderVersion()
 	{
 	    return 20130506;
-	} 
+	}
+	
+	/**
+	 * Отправить почтовое оповещение о новом заказе команде и заказчику
+	 * 
+	 * @return void
+	 */
+	protected function sendEmailNotification()
+	{
+	    $mailComposer = Yii::app()->getModule('mailComposer');
+	    
+	    $teamSubject = '[EasyCast] На сайте новый заказ №'.$this->id;
+	    $teamParams = array(
+	        'order'  => $this,
+	        'target' => 'team',
+	    );
+	    $teamMessage = $mailComposer::getMessage('newOrder', $teamParams);
+	    
+	    // Отправляем письмо с оповещением команде
+	    // @todo отправлять SMS команде если заказ срочный
+	    UserModule::sendMail('order@easycast.ru', $teamSubject, $teamMessage, true);
+	    
+	    if ( ! $this->email )
+	    {// email заказчика не указан - больше действий не требуется
+	        // @todo отправлять SMS заказчику при получении заказа (только если не указан email)
+	        return;
+	    }
+	    
+	    // Отправляем письмо заказчику (если он оставил email), чтобы он знал что его заказ принят
+	    // @todo отсылать письмо повторно не чаще чем раз в 10 минут (защита от спама через нашу форму)
+	    $customerSubject = '[EasyCast] Ваш заказ №'.$this->id.' зарегистрирован';
+	    $customerParams = array(
+	        'order'  => $this,
+	        'target' => 'customer',
+	    );
+	    $customerMessage = $mailComposer::getMessage('newOrder', $customerParams);
+	     
+	    UserModule::sendMail($this->email, $customerSubject, $customerMessage, true);
+	}
+	
+	/**
+	 * Отправить оповещение о новом заказе в Мегаплан
+	 * @return void
+	 */
+	protected function sendMegaplanNotification()
+	{
+	    // создаем текст задачи в Мегаплане при помощи виджета, в зависимости от типа заказа
+	    $descriptionClass = 'application.modules.admin.extensions.OrderDescription.OrderDescription';
+	    $descriptionParams = array(
+	        'order'  => $this,
+	        'target' => 'team',
+	        'type'   => 'megaplan',
+	    );
+	    $description = Yii::app()->controller->widget($descriptionClass, $descriptionParams, true);
+	    
+	    switch ( $this->type )
+	    {// создаем название задачи
+	        case self::TYPE_FAST:        $name = 'Срочный заказ #'.$this->id; break;
+	        case self::TYPE_NORMAL:      $name = 'Заказ #'.$this->id; break;
+	        case self::TYPE_CASTING:     $name = 'Новая заявка на онлайн-кастинг'; break;
+	        case self::TYPE_CALCULATION: $name = 'Новая заявка на расчет стоимости'; break;
+	        default: $name = 'На сайте новый заказ'; break;
+	    }
+	    if ( Yii::app()->megaplan->debug )
+	    {// для отладки и тестирования: отличаем тестовые задачи от реальных
+	        $name = '[TEST] '.$name; 
+	    }
+	    
+	    // создаем данные для задачи
+	    $task = array();
+	    $task['Model[Name]']        = $name;
+	    $task['Model[Responsible]'] = '1000000';
+	    $task['Model[Statement]']   = $description;
+	    $task['Model[IsGroup]']     = 0;
+	    $task['Model[Executors]']   = Yii::app()->megaplan->projectManagers;
+	    $task['Model[Auditors]']    = Yii::app()->megaplan->auditors;
+	    
+	    // создаем задачу в Мегаплане
+	    // @todo делать несколько попыток на случай проблем с сетью
+	    // @todo обработать возможные ошибки при создании задачи
+	    $taskId = 0;
+	    $result = Yii::app()->megaplan->createTask($task);
+	    if ( isset($result['status']['code']) AND $result['status']['code'] == 'ok' )
+	    {
+	        if ( isset($result['data']['Id']) AND $result['data']['Id'] )
+	        {
+	            $taskId = $result['data']['Id'];
+	        }
+	    }
+	    if ( $taskId )
+	    {// если задача успешно создана и мы знаем ее id - связываем задачу с заказом для дальнейшей синхронизации
+	        $this->megaplanid = $taskId;
+	        if ( ! $this->save(true, array('megaplanid')) )
+	        {
+	            throw new CException('Не удалось привязять заказ к задаче Мегаплана');
+	        }
+	    }
+	}
 }
