@@ -92,9 +92,11 @@ class ECHeader extends CWidget
     protected function getSwitchScript()
     {
         return "$('#switch').click(function() {
-            $('#switch_but').animate({marginLeft: '{$this->newSwitchMargin}'}, 550);
-            window.setTimeout(function(){document.location.href='?newState={$this->newState}';}, 550);
-            //return false;
+            $('#ec-switch_but').animate({marginLeft: {$this->newSwitchMargin}}, 550, 'swing', function() {
+                document.location.href='?newState={$this->newState}';
+                console.log('complete');
+            });
+            return false;
         });";
     }
 
