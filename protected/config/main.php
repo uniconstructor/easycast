@@ -22,32 +22,18 @@ return array(
     
     // физический путь к папке "protected"
 	'basePath' => dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
-    
     // язык приложения
     'language'       => 'ru',
     'sourceLanguage' => 'en_us',
-    
     // предварительно загружаемые компоненты
     'preload' => array('log', 'messages', 'bootstrap'),
-    
     // Название проекта 
-    'name' => 'easyCast',
-    
+    'name'    => 'easyCast',
     // Короткие имена для вызова популярных библиотек
     // @todo попробовать перенести сюда bootstrap и посмотреть, ничего ли не сломается
     'aliases' => array(
         
     ),
-    
-    // сокращенные пути к контроллерам
-    /*'controllerMap' => array(
-        // загрузка изображений в галерею
-        // @todo удалить в целях безопасности
-        'gallery' => array(
-            'class'     => 'ext.galleryManager.GalleryController',
-            'pageTitle' => 'Gallery administration',
-        ),
-    ),*/
     
 	// autoloading model and component classes
 	'import' => array(
@@ -102,28 +88,28 @@ return array(
             'loginUrl' => array('/user/login'),
             // page after login
             'returnUrl' => array('//questionary/questionary/view'),
-            //'returnUrl' => array('//site/index'),
             // page after logout
             'returnLogoutUrl' => array('//site/index'),
         ),
 	    
         // Права доступа (RBAC)
 	    'rights' => array(
-	        // установка нам больше не понадобится
+	        // установка (производится только один раз, потом всегда должна быть false)
 	        'install'           => false,
 	        // разрешаем использовать переменные в правилах доступа
 	        'enableBizRuleData' => true,
 	        // нужно установить разметку страницы в соответствии с нашей темой
-	        'appLayout' => '//layouts/column1',
+	        'appLayout'         => '//layouts/column1',
 	    ),
 	    
 	    // анкета пользователя (реализована отдельным модулем)
 	    'questionary' => array(
             'controllerMap' => array(
                 // задаем путь к контроллеру загрузки изображений (для анкеты)
-                'gallery' => array(
-                    'class' => 'ext.galleryManager.GalleryController',
-                    'handlerClass' => 'GmS3Photo',
+                'gallery'   => array(
+                    'class'           => 'ext.galleryManager.GalleryController',
+                    // используем класс-обработчик загруженных изоюражений, работающий с Amazon
+                    'handlerClass'    => 'GmS3Photo',
                     'customBehaviors' => array(
                         'S3GalleryControllerBehavior' => array(
 	                        'class' => 'application.extensions.galleryManager.behaviors.S3GalleryControllerBehavior',
@@ -152,7 +138,7 @@ return array(
             'controllerMap' => array(
                 // задаем путь к контроллеру загрузки изображений (для анкеты)
                 'gallery' => array(
-                    'class' => 'ext.galleryManager.GalleryController',
+                    'class'        => 'ext.galleryManager.GalleryController',
                     'handlerClass' => 'GmS3Photo',
                 ),
             ),
@@ -184,7 +170,7 @@ return array(
         ),
         
         // Оповещения
-        // @todo привести в порядок или удалить
+        // @todo не используется: удалить при рефакторинге если так и не понадобится
         'notifyii' => array(
             'class' => 'application.modules.notifyii.NotifyiiModule',
         ),
@@ -202,7 +188,7 @@ return array(
 
 	// Компоненты приложения
 	'components' => array(
-	    // пользователь (наследник класса WebUser)
+	    // пользователи (важно: здесь настройки для наследника класса WebUser, а не для модели User)
 		'user' => array(
 		    // используем класс пользователя из модуля rights чтобы работали права доступа на основе ролей (RBAC)
             'class'          => 'RWebUser',
@@ -212,52 +198,56 @@ return array(
             'loginUrl'       => array('/user/login'),
 		),
 	    
-		// Отображаем все URL в формате /путь/к/странице (на сервере должен быть включен mod_rewrite)
+		// отображаем все URL в формате /путь/к/странице (на сервере должен быть включен mod_rewrite)
 		'urlManager' => array(
 			'urlFormat' => 'path',
 			'rules'     => array(
-				'<controller:\w+>/<id:\d+>' => '<controller>/view',
+				'<controller:\w+>/<id:\d+>'              => '<controller>/view',
 				'<controller:\w+>/<action:\w+>/<id:\d+>' => '<controller>/<action>',
-				'<controller:\w+>/<action:\w+>' => '<controller>/<action>',
+				'<controller:\w+>/<action:\w+>'          => '<controller>/<action>',
 			),
 		    'showScriptName' => false
 		),
 		
-		// MySQL database settings
+		// настройки MySQL (только общие для всех сборок)
 		'db' => array(
-			// Логин и пароль для базы определяются ant-скриптами сборки проекта
+			// ВАЖНО: Логин и пароль для базы определяются ant-скриптами сборки проекта
 			// (в зависимости от того где работает приложение: на реальном сервере или локально)
-			// поэтому в основном конфиге эти параметры не указываются
+			// поэтому в основном конфиге эти параметры не указываются: они задаются 
+			// в config-файлах веткок dev, test и release
+			// (для того чтобы базовый config.php содержал только те настройки, которые не меняются
+		    // в зависимости от варианта сборки)  
 		    'tablePrefix'    => 'bgl_',
 		    'emulatePrepare' => true,
 			'charset'        => 'utf8',
 		),
 	    
-	    // HTTP request handling
+	    // работа с HTTP-запросами
 	    'request' => array(
 	        'class' => 'CHttpRequest',
-	        // prevent XSS
+	        // включаем защиту от XSS-атак
 	        'enableCsrfValidation'   => true,
-	        // prevent Cookie-based attacks
+	        // включаем защиту от подмены cookie
 	        'enableCookieValidation' => true,
 	    ),
 		
 	    // обработка ошибок
 		'errorHandler' => array(
-			// use 'site/error' action to display errors
+			// путь 'site/error' будет использован для отображения всех ошибок на сайте
             'errorAction' => 'site/error',
         ),
 	    
         // логи
 		'log' => array(
-			'class' => 'CLogRouter',
+			'class'  => 'CLogRouter',
 			'routes' => array(
 			    // храним логи в базе
 				array(
-					'class'        => 'CDbLogRoute',
-					'connectionID' => 'db',
-					'levels'       => 'error, warning, info, application, AWS',
-				    'autoCreateLogTable' => true,
+					'class'              => 'CDbLogRoute',
+					'connectionID'       => 'db',
+					'levels'             => 'error, warning, info, application, AWS',
+					// отключаем проверку и автоматическое создание таблицы логов (ускоряет работу сайта)
+				    'autoCreateLogTable' => false,
 				),
 			),
 		),
@@ -267,9 +257,10 @@ return array(
 	    'authManager' => array(
 	        // Provides support authorization item sorting.
 	        'class'      => 'RDbAuthManager',
-	        // Роль по умолчанию. Все, кто не админы, модераторы и юзеры — гости.
-	        //'defaultRoles' => array('guest'),
-	        // показываем ошибки только в режиме отладки
+	        // Роль по умолчанию. Все, кто не админы, модераторы и юзеры — гости
+	        // @todo не используется: выяснить нужно ли задавать defaultRoles для RBAC, и если нет - то удалить
+	        // 'defaultRoles' => array('guest'),
+	        // показываем ошибки авторизации только в режиме отладки: (для тестовой сборки и версии разработчика)
 	        'showErrors' => YII_DEBUG,
 	    ),
 	    
@@ -282,33 +273,37 @@ return array(
         // Twitter bootstrap
         'bootstrap' => array(
             'class' => 'bootstrap.components.Bootstrap',
+            // @todo после перехода на YiiBooster - не используется: удалить при рефакторинге
             //'class' => 'bootstrap.components.TbApi',
         ),
 
-        // image manipulation library (for galleryManager)
+        // библиотека для работы с изображениями (требуется для плагина galleryManager)
         'image' => array(
             'class' => 'ext.image.CImageComponent',
         ),
         
         // Настройки сессии
         'session' => array(
-            // @todo хранить сессию в БД     
-            'class'     => 'CHttpSession',//CDbHttpSession
+            // @todo хранить сессию в БД
+            // @todo после переноса сессии в БД создать миграцией индексы для этой таблицы, и отключить ее автосоздание
+            'class'     => 'CHttpSession',//'CDbHttpSession',
             'autoStart' => true,
-            // храним сессию 2 месяца
+            // стандартное время хранения сессии: 2 месяца
+            // @todo вынести время хранения сессии в настройку
             'timeout' => 3600 * 24 * 60,
-            //'connectionID' => 'db',
+            //'connectionID'           => 'db',
             //'autoCreateSessionTable' => true,
         ),
         
-        // Настройки менеджера скриптов
+        // Настройки js-библиотек и скриптов
         'clientScript' => array(
-            // настройка темы jQuery
+            // @todo не работает настройка темы jQuery
             'scriptMap' => array(
                 'jquery-ui.css'     => '/css/jqueryui/flick/jquery-ui.css',
                 'jquery-ui.min.css' => '/css/jqueryui/flick/jquery-ui.min.css',
             ),
-            // подключаем sweekit-библиотеку для удобной работы со скриптами
+            // подключаем sweekit-библиотеку для удобной работы со скриптами: 
+            // она нужна для более легкой работы с AJAX и содержит плагин shadowbox
             'behaviors' => array(
                 'sweelixClientScript' => array(
                     'class' => 'ext.sweekit.behaviors.SwClientScriptBehavior',
@@ -316,63 +311,73 @@ return array(
             ),
         ),
         
-        // Наша обертка вокруг Amazon Web Services API
+        // Наша обертка вокруг Amazon Web Services API: облегчает обращение к часто используемым методам
         'ecawsapi' => array(
             'class' => 'EasyCastAmazonAPI',
         ),
         
         // отсылка SMS (через smspilot.ru)
-        'sms' => array(
+        // @todo перенести ключи доступа к SmsPilot в настройки AMAZON и в dev и test-ветки (как пароль к БД)
+        'smspilot' => array(
             'class'  => 'application.components.smspilot.SmsPilotAPI',
             'from'   => 'easyCast',
             'apikey' => 'I5F2640ER6B486245L3HCB6VTJN687RQ10V5DAVB3KG2J1B29U6PZ5MK95WHTGFB',
         ),
         
-        // Компонент "simple Workflow" - для грамотной работы со статусами
+        // Компонент "Simple Workflow" нужен для работы со статусами объектов, позволяет установить
+        // workflow-схему работы для приложения (@see http://en.wikipedia.org/wiki/Workflow)
+        // через этот компонент должны производится любые операции со статусом 
+        // любого объекта в базе
+        // @todo подключение не закончено: требуется рефакторинг почти всех моделей приложения
         'swSource' => array(
             'class' => 'application.extensions.simpleWorkflow.SWPhpWorkflowSource',
         ),
         
-        // API для работы с Мегапланом (только общие настройки, все основное лежит в production и dev-ветках)
+        // API для работы с Мегапланом (@see http://megaplan.ru) 
+        // (тут только общие настройки, ключи доступа указаны в конфигах в production и dev-ветках)
+        // @todo перенести ключи доступа к Мегаплану в настройки AMAZON (как пароль к БД)
         'megaplan' => array(
             'class' => 'EasyCastMegaplanAPI',
+            // адрес по которому производятся все API-запросы
             'host'  => 'easycast.megaplan.ru',
         ),
         
-        // Настройки по умолчанию для всех виджетов
+        // Настройки по умолчанию для всех виджетов Yii
         'widgetFactory' => array(
             'widgets' => array(
                 // Выравнивание верстки для форума
                 // @todo поправить форум, а эту настройку отсюда убрать
-                'CGridView' => array(
+                /*'CGridView' => array(
                     'itemsCssClass' => '',
                     'pagerCssClass' => '',
-                ),
+                ),*/
                 
                 // Формы для сложных значений
+                // @todo удалить эту настройку вместе с самим плагином multimodelform
+                //       когда весь multimodelform будет заменен редактируемыми grid-списками
                 'MultiModelForm' => array(
                     'tableView'         => true,
                     'bootstrapLayout'   => true,
                     // все кнопки "удалить" становятся красными
                     'removeHtmlOptions' => array(
-                            'class' => 'btn btn-danger mmf_removelink',
-                        ),
+                        'class' => 'btn btn-danger mmf_removelink',
+                    ),
                     // все кнопки "добавить" становятся зелеными
                     'addHtmlOptions' => array(
-                            'class' => 'btn btn-success',
-                        ),
+                        'class' => 'btn btn-success',
+                    ),
                     // делаем все формы узкими, чтобы они вписались в верстку
                     'tableHtmlOptions' => array(
-                            'style' => 'width:auto;',
-                            'class' => 'table-striped',
-                        ),
+                        'style' => 'width:auto;',
+                        'class' => 'table-striped',
+                    ),
                 ),
                 
                 // Выбор даты из календаря
                 'CJuiDatePicker' => array(
                     'language' => 'ru',
-                    'options' => array(
-                        'showAnim' => 'fold',
+                    'options'  => array(
+                        'showAnim'   => 'fold',
                         // @todo привести к стандартному формату
                         'dateFormat' => 'dd/mm/yy',
                     ),
@@ -385,8 +390,11 @@ return array(
                 'TbDatePicker' => array(
                     'options' => array(
                         'language'  => 'ru',
+                        // @todo проверить, правильно ли записано, привести к единому формату, использовать константы
                         'format'    => 'dd.mm.yyyy',
+                        // неделя всегда начинается с понедельника
                         'weekStart' => 1,
+                        // автоматически закрывать календарь после выбора даты
                         'autoclose' => true,
                     ),
                 ),
@@ -399,25 +407,50 @@ return array(
 
 	// application-level parameters that can be accessed
 	// using Yii::app()->params['paramName']
+	// @todo полностью переместить в params.php
 	'params' => array(
-	    // телефон по умолчанию, для всех вопросов по сайту
-	    'adminPhone'    => '+7(906)098-32-07',
-	    // телефон для заказчиков
+	    // телефон по умолчанию, для всех вопросов по сайту (используем телефон техподдержки пользователей)
+	    'adminPhone'    => '+7(968)590-88-00',
+	    // телефон для заказчиков (прямой, круглосуточный)
 	    'customerPhone' => '+7(495)227-5-226',
-	    // телефон для участников
+	    // телефон для участников (техподдержка пользователей)
 	    'userPhone'     => '+7(968)590-88-00',
 	    // почта по умолчанию для сбора всех вопросов и отправки технических писем
 	    'adminEmail'    => 'admin@easycast.ru',
 	    // password salt для хеширования паролей
 	    'hashSalt'      => '68xc7mtux0',
 	    
-	    // стандартный формат ввода даты для всех форм в приложении
-	    // (используется формат jquery-виджетов)
+	    ////////////////////////////////////////////////////////////////////
+	    ///////// ВАЖНО: стандарт форматирования дат во всех формах ////////
+	    ////////////////////////////////////////////////////////////////////
+	    
+	    // При работе с виджетами выбора даты и времени нужно знать важную особенность:
+	    // стандарты форматирования даты jQuery и PHP НЕСОВМЕСТИМЫ, хотя и очень похожи. 
+	    // Поэтому настройки виджетов ввода даты/времени используют один стандарт форматирования даты 
+	    // (как в jquery), а функция date() в PHP - другой
+	    // Поэтому НЕЛЬЗЯ одновременно использовать одну и ту же запись формата даты/времени 
+	    // для преобразования unixtime в дату (в форме, для установки значения по умолчанию)
+	    // и для преобразования даты в unixtime (при получении данных из такой формы).
+	    
+	    // @todo объявить все форматы для даты и времени константами и записать их в начале этого конфига.
+	    //       Это нужно на случай если для каких-то других плагинов понадобится указать формат даты 
+	    //       и времени
+	    
+	    // форматы ввода даты и времени: используются в настройках виджетов, для преобразования
+	    // unixtime в дату скриптами виджета (на стороне клиента) 
+	    // работает правило форматирования jquery-виджетов:
+	    //     M  - обозначает месяц (3 буквы, язык текущей локали)
+	    //     MM - обозначает месяц (полное название, язык текущей локали)
+	    //     mm - обозначает минуты (2 цифры, ведущие нули)
 	    'inputDateFormat'     => 'dd.M.yyyy',
 	    'inputTimeFormat'     => 'HH:mm',
 	    'inputDateTimeFormat' => 'dd.MM.yyyy HH:mm',
-	    // страндартный формат вывода даты для всех форм в приложении
-	    // (используется формат php-функции date())
+	    // форматы вывода даты и времени: используются в коде формы для преобразования 
+	    // unixtime в дату при подстановке значения по умолчанию
+	    // работает формат php-функции date(): 
+	    //     M - обозначает месяц (3 буквы, язык текущей локали)
+	    //     m - тоже обозначает месяц (2 цифры, ведущие нули)
+	    //     i - обозначает минуты (2 цифры, ведущие нули)
 	    'outputDateFormat'     => "d.m.Y",
 	    'outputTimeFormat'     => 'H:i',
 	    'outputDateTimeFormat' => "d.m.Y H:i",
@@ -425,8 +458,13 @@ return array(
 	    // Настройки хостинга Amazon
 	    'AmazonS3Config' => 'easycast.s3',
 	    
-	    // использовать ли прокси сервера google для отображения картинок в письмах
-	    // (должно быть включено на production и выключено на машине разработчика)
+	    // Использовать ли прокси сервера google для кэширования картинок в отправляемых сервером письмах?
+	    // Включение этой опции позволяет всегда отображать картинки из наших писем в большинстве
+	    // почтовых программ и во всех основных почтовых веб-интерфейсах (gmail, google, yandex, mail.ru)
+	    // Пользователю не нужно будет нажимать "показать картинки" при получении письма: он увидит их сразу.
+	    // Как это будет работать: http://www.campaignmonitor.com/resources/will-it-work/image-blocking/
+	    // Должно быть включено на production и выключено на машине разработчика
+	    // @todo убрать из общего конфига и вынести в dev, test и production
 	    'useGoogleImageProxy' => true,
 	),
 );
