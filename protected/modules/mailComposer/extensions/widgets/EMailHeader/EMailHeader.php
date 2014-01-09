@@ -38,7 +38,8 @@ class EMailHeader extends CWidget
             $this->render('textHeader');
         }elseif ( $this->type == 'image' )
         {
-            $this->render('imageHeader');
+            $imageUrl = ECPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl('//images/mail-header.png'));
+            $this->render('imageHeader', array('imageUrl' => $imageUrl));
         }
         
     }
