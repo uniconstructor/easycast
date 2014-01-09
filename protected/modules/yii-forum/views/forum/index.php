@@ -1,6 +1,6 @@
 <?php
 $this->widget('bootstrap.widgets.TbBreadcrumbs', array(
-    'links'=>array('Форум')
+    'links' => array('Форум')
 ));
 
 if(!Yii::app()->user->isGuest && Yii::app()->user->isAdmin)

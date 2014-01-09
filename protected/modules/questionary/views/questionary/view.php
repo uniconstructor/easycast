@@ -6,7 +6,7 @@ Yii::import('application.modules.catalog.CatalogModule');
 Yii::import('application.modules.catalog.models.*');
 
 $this->breadcrumbs = array();
-$this->breadcrumbs[QuestionaryModule::t('catalog')] = array('/catalog/catalog');
+$this->breadcrumbs[QuestionaryModule::t('catalog')] = array('/catalog/catalog/faces');
 
 if ( $sectionId = CatalogModule::getNavigationParam('sectionId') AND $sectionId != 1 )
 {// выстраиваем верхнюю навигацию в зависимости от того, с какого раздела каталога мы перешли
@@ -17,7 +17,7 @@ if ( $sectionId = CatalogModule::getNavigationParam('sectionId') AND $sectionId 
     }
     $section = CatalogSection::model()->findByPk($sectionId);
     $this->breadcrumbs[$section->name] = array('/catalog/catalog',
-        'sectionid' => $sectionId,
+        'sectionid'        => $sectionId,
         'Questionary_page' => $page);
     if ( $tabName )
     {
@@ -27,9 +27,9 @@ if ( $sectionId = CatalogModule::getNavigationParam('sectionId') AND $sectionId 
             {
                 $this->breadcrumbs[$tabInstance->tab->name] = array(
                     '/catalog/catalog',
-                        'sectionId' => $sectionId,
-                        'tab'       => $tabName,
-                        'Questionary_page' => $page
+                    'sectionId'        => $sectionId,
+                    'tab'              => $tabName,
+                    'Questionary_page' => $page
                 );
                 break;
             }

@@ -1,11 +1,11 @@
 <?php
 $this->widget('bootstrap.widgets.TbBreadcrumbs', array(
-    'links'=>$forum->getBreadcrumbs(),
+    'links' => $forum->getBreadcrumbs(),
 ));
 
 $this->renderPartial('_subforums', array(
-    'inforum'=>true,
-    'forum' => $forum,
+    'inforum'   => true,
+    'forum'     => $forum,
     'subforums' => $subforumsProvider,
 ));
 
@@ -18,9 +18,9 @@ $gridColumns = array(
     array(
         'name' => 'Thread / Author',
         'headerHtmlOptions' => array('colspan' => '2'),
-        'type' => 'html',
+        'type'   => 'html',
         'header' => 'Тема / Автор',
-        'value' => '$data->is_locked ? '."'<i class=\"icon-lock\" style=\"font-size: 18pt;\"></i>' : '<i class=\"icon-file-alt\" style=\"font-size: 18pt;\"></i>'",
+        'value'  => '$data->is_locked ? '."'<i class=\"icon-lock\" style=\"font-size: 18pt;\"></i>' : '<i class=\"icon-file-alt\" style=\"font-size: 18pt;\"></i>'",
         'htmlOptions' => array('style' => 'width:20px;vertical-align:middle;'),
     ),
     array(
