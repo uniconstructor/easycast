@@ -64,7 +64,7 @@ class ECHeader extends CWidget
     }
     
     /**
-     * 
+     * Определить в каком положении показывать переключатель изначально: "участникам" или "заказчикам"
      * @return void
      */
     protected function defineNewState()
@@ -73,12 +73,12 @@ class ECHeader extends CWidget
         switch ( $mode )
         {
             case 'user': 
-                $this->newState = 'customer'; 
+                $this->newState            = 'customer'; 
                 $this->defaultSwitchMargin = 0;
                 $this->newSwitchMargin     = 100;
             break;
             case 'customer':
-                $this->newState = 'user';
+                $this->newState            = 'user';
                 $this->defaultSwitchMargin = 100;
                 $this->newSwitchMargin     = 0;
             break;
@@ -94,7 +94,6 @@ class ECHeader extends CWidget
         return "$('#switch').click(function() {
             $('#ec-switch_but').animate({marginLeft: {$this->newSwitchMargin}}, 550, 'swing', function() {
                 document.location.href='?newState={$this->newState}';
-                console.log('complete');
             });
             return false;
         });";
