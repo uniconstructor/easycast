@@ -102,29 +102,29 @@ class Questionary extends CActiveRecord
      * @var string - статус анкеты: черновик
      *               Анкета только что создана и еще не заполнена
      */
-    const STATUS_DRAFT    = 'draft';
+    const STATUS_DRAFT       = 'draft';
     /**
      * @var string - статус анкеты: проверена
      *               Анкета проверена и одобрена модератором
      *               Видна в каталоге и поиске
      */
-    const STATUS_ACTIVE   = 'active';
+    const STATUS_ACTIVE      = 'active';
     /**
      * @var string - статус анкеты: ожидает проверки
      *               В анкете были изменены какие-то важные данные и она была отправлена на модерацию
      */
-    const STATUS_PENDING  = 'pending';
+    const STATUS_PENDING     = 'pending';
     /**
      * @var string - статус анкеты: отложена.
      *               Анкета была не до конца заполнена оператором и отложена, чтобы заполнить ее позднее
      *               В каталоге и поиске не отображается.
      */
-    const STATUS_DELAYED  = 'delayed';
+    const STATUS_DELAYED     = 'delayed';
     /**
      * @var string - статус анкеты: отклонена
      *               Анкеты была проверена администратором и отправлена на доработку
      */
-    const STATUS_REJECTED = 'rejected';
+    const STATUS_REJECTED    = 'rejected';
     /**
      * @var string - статус анкеты: еще не подтверждена участником.
      *               Используется только если анкеты заводятся без обзвона людей.
