@@ -35,7 +35,8 @@ class QScalarRules extends CActiveRecordBehavior
             array('passportdate, gender, height, weight, wearsize, looktype, haircolor, eyecolor,
                     physiquetype, titsize, chestsize, waistsize, hipsize, striptype
                     striplevel, singlevel, wearsize, status', 'safe'),
-            // @todo добавить проверку сложных значений
+            // @todo добавить проверку сложных значений или проводить ее асинхронно при работе
+            //       с изменяемой grid-таблицей
             array('voicetimbre, addchar, parodist, twin, vocaltype, sporttype, extremaltype, trick, skill', 'safe'),
             // @todo пропустить через trim все остальные поля
             array('formattedBirthDate, firstname, lastname, birthdate, gender, galleryid', 
@@ -69,7 +70,6 @@ class QScalarRules extends CActiveRecordBehavior
         {
             return $date;
         }
-        //var_dump(CDateTimeParser::parse($date, Yii::app()->params['inputDateFormat']));die;
         return CDateTimeParser::parse($date, Yii::app()->params['inputDateFormat']);
     }
 }
