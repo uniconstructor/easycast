@@ -19,5 +19,5 @@
 	<li><a href="<?= Yii::app()->createUrl('/catalog/catalog/index/sectionid/5'); ?>" class="icon_children"><span>Дети</span></a></li>
 	<li><a href="<?= Yii::app()->createUrl('/catalog/catalog/index/sectionid/7'); ?>" class="icon_sport"><span>Спортсмены</span></a></li>
 	<li><a href="<?= Yii::app()->createUrl('/catalog/catalog/index/sectionid/17'); ?>" class="icon_mass"><span>Актеры массовых сцен</span></a></li>
-	<li><a href="<?= Yii::app()->createUrl('/catalog/catalog/index/sectionid/18'); ?>" class="icon_no_russia"><span>Не славяне</span></a></li>
+	<!--li><a href="<?= Yii::app()->createUrl('/catalog/catalog/index/sectionid/18'); ?>" class="icon_no_russia"><span>Не славяне</span></a></li-->
 </ul>
