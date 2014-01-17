@@ -218,7 +218,8 @@ class EventVacancy extends CActiveRecord
 	public function defaultScope()
 	{
 	    return array(
-	        'order' => 'timecreated DESC');
+	        'order' => '`timecreated` DESC',
+	    );
 	}
 
 	/**
@@ -421,8 +422,11 @@ class EventVacancy extends CActiveRecord
 	/**
 	 * Определить, посылал ли уже участник заявку на эту вакансию
 	 * @param int $questionaryId - id анкеты пользователя в таблице questionary
-	 * @param array $statuses - статусы заявки. Можно выборочно учитывать только ожидающие (draft), 
-	 *                           подтвержденные (active), отклоненные (rejected) или завершенные (finished) заявки
+	 * @param array $statuses - статусы заявки: можно выборочно учитывать
+	 *                           - только ожидающие (draft), 
+	 *                           - подтвержденные (active), 
+	 *                           - отклоненные (rejected) 
+	 *                           - или завершенные (finished) заявки
 	 *                           А также любые комбинации этих статусов
 	 * @return boolean
 	 */
@@ -430,12 +434,14 @@ class EventVacancy extends CActiveRecord
 	{
 	    if ( ! $questionaryId )
 	    {// id анкеты не указан - попробуем взять текущий
-	        $questionaryId = $this->getCurrentUserQuestionaryId();
+	        if ( ! $questionaryId = Yii::app()->questionary->getCurrentQuestionaryId() )
+	        {
+	            return false;
+	        }
 	    }
 	    $criteria = new CDbCriteria();
-	    $criteria->addCondition('`memberid` = :memberid');
-	    $criteria->addCondition('`vacancyid` = :vacancyid');
-	    $criteria->params = array(':memberid' => $questionaryId, ':vacancyid' => $this->id);
+	    $criteria->compare('memberid', $questionaryId);
+	    $criteria->compare('vacancyid', $this->id);
 	    
 	    if ( is_array($statuses) AND ! empty($statuses) )
 	    {
@@ -443,6 +449,32 @@ class EventVacancy extends CActiveRecord
 	    }
 	    
 	    return ProjectMember::model()->exists($criteria);
+	}
+	
+	/**
+	 * Определить, является ли переданный пользователь утвержденным кандидатом на эту роль
+	 * @param int $questionaryId - id анкеты участника
+	 * @param array $statuses
+	 * @return bool
+	 */
+	public function hasMember($questionaryId=null, $statuses=array())
+	{
+	    if ( ! $questionaryId )
+	    {// id анкеты не указан - попробуем взять текущий
+	        if ( ! $questionaryId = Yii::app()->questionary->getCurrentQuestionaryId() )
+	        {
+	            return false;
+	        }
+	    }
+	    if ( ! $statuses )
+	    {
+	        $statuses = array(
+	            ProjectMember::STATUS_ACTIVE,
+	            ProjectMember::STATUS_FINISHED,
+	            ProjectMember::STATUS_SUCCEED,
+            );
+	    }
+	    return $this->hasApplication($questionaryId, $statuses);
 	}
 	
 	/**
@@ -545,7 +577,7 @@ class EventVacancy extends CActiveRecord
 	 * @return int
 	 * 
 	 * @deprecated функция перенесена в модуль Questionary
-	 *             правило вызова: Yii::app()->getModule('questionary')->getCurrentUserQuestionaryId();
+	 *             правило вызова: Yii::app()->getModule('questionary')->getCurrentQuestionaryId();
 	 */
 	protected function getCurrentUserQuestionaryId()
 	{
@@ -673,14 +705,8 @@ class EventVacancy extends CActiveRecord
 	 */
 	protected function createSearchCriteria($data)
 	{
-	    /* @todo удалить эту проверку после тестов
-	    if ( ! $this->id )
-	    {// на всякий случай проверим, что создаем условие поиска для уже существующей вакансии
-	        throw new CDbException('Cannot create new SearchCriteria for non-saved vacancy');
-	    }*/
-	    
 	    // указываем путь к классу, который занимается сборкой поискового запроса из отдельных частей
-	    $pathToAssembler = 'application.modules.catalog.extensions.search.handlers.QSearchCriteriaAssembler';
+	    $pathToAssembler = 'catalog.extensions.search.handlers.QSearchCriteriaAssembler';
 	    // создаем основу для критерия выборки
 	    $startCriteria = $this->createStartCriteria();
 	    

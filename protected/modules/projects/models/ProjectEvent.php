@@ -24,6 +24,7 @@
  * @property string $nodates
  * @property string $virtual - "виртуальное" мероприятие любого типа: то есть такое событие которое 
  *                             физически нигде не проводится и присутствует только на сайте
+ *                             (например онлайн-кастинг)
  * 
  * 
  * Связи с другими таблицами:
@@ -35,7 +36,9 @@
  * @property array $videos - Видео c мероприятия
  * @property array $events - (для групп) мероприятия, входящие в группу
  * @property ProjectEvent $group - группа, к которой принадлежит мероприятие (если есть)
+ * @property ProjectMember[] $members - подтвержденные участники мероприятия (НЕ ГОТОВО)
  * 
+ * @todo прописать связь members - все участники мероприятия
  * @todo прописать создание адреса в afterSave
  * @todo убрать поле addressid, прописать связь через condition
  * @todo языковые строки
@@ -273,8 +276,10 @@ class ProjectEvent extends CActiveRecord
 		        'condition' => "`address`.`objecttype`='event'"),
 		    // группа мероприятия (если это мероприятие входит в группу)
 		    'group' => array(self::BELONGS_TO, 'ProjectEvent', 'parentid'),
-		    // Вакансии мероприятия
-		    'vacancies' => array(self::HAS_MANY, 'EventVacancy', 'eventid', 'order' => "`vacancies`.`name` ASC"),
+		    // Вакансии (роли) мероприятия
+		    'vacancies' => array(self::HAS_MANY, 'EventVacancy', 'eventid',
+		        'index' => '`vacancies`.`id`', 
+		        'order' => "`vacancies`.`name` ASC"),
 		    // активные вакансии мероприятия
 		    'activevacancies' => array(self::HAS_MANY, 'EventVacancy', 'eventid',
 		        'condition' => "`activevacancies`.`status`='active'", 'order' => "`activevacancies`.`name` ASC"),
@@ -286,6 +291,8 @@ class ProjectEvent extends CActiveRecord
 		    // дочерние мероприятия группы (если это является группой)
 		    'events' => array(self::HAS_MANY, 'ProjectEvent', 'parentid',
 		        'order' => '`events`.`timestart` ASC'),
+		    // @todo подтвержденные участники мероприятия
+		    //'members' => array(self::HAS_MANY, 'ProjectMember', ......),
 		);
 	}
 
@@ -463,24 +470,22 @@ class ProjectEvent extends CActiveRecord
 	
 	/**
 	 * Определить, является ли переданный участник участником этого события
-	 * @param int $userId - id участника в таблице questionary
+	 * @param int $questionaryId - id анкеты участника в таблице questionary
 	 * @return bool
 	 */
-	public function hasMember($userId)
+	public function hasMember($questionaryId)
 	{
 	    if ( ! $this->vacancies )
-	    {// в проекте нет ни одной вакансии - значит нет и участников
+	    {// в мероприятии нет ни одной роли - значит нет и участников
 	        return false;
 	    }
-	    
 	    foreach ( $this->vacancies as $vacancy )
 	    {
-	        if ( $vacancy->hasMember($userId) )
+	        if ( $vacancy->hasMember($questionaryId) )
 	        {
 	            return true;
 	        }
 	    }
-	    
 	    return false;
 	}
 	
@@ -672,7 +677,7 @@ class ProjectEvent extends CActiveRecord
 	 */
 	public function getDefaultTimeEnd($timeStart, $neededTimeEnd=null)
 	{
-	    $defaultTimeEnd = $timeStart + 3*31*24*3600;
+	    $defaultTimeEnd = $timeStart + 3 * 31 * 24 * 3600;
 	    if ( ! $neededTimeEnd )
 	    {// пользователь не указал окончание временного периода - устанавливаем по умолчанию
 	        $timeEnd = $defaultTimeEnd;
@@ -683,7 +688,7 @@ class ProjectEvent extends CActiveRecord
 	    
 	    $timeEnd = intval($timeEnd);
 	    // Защита сервера от перегрузки: не даем запрашивать события больше чем за 3 месяца
-	    if ( $timeEnd - $timeStart > 3*31*24*3600 )
+	    if ( $timeEnd - $timeStart > 3 * 31 * 24 * 3600 )
 	    {// запрашиваются мероприятия за период больше разрешенного - непорядок
 	        $timeEnd   = $defaultTimeEnd;
 	    }
@@ -858,19 +863,17 @@ class ProjectEvent extends CActiveRecord
 	public function getAllowedVacancies($questionaryId, $showGroup=false)
 	{
 	    $vacancies = array();
-	    
 	    if ( ! $this->activevacancies )
 	    {
 	        return array();
 	    }
 	    
-	    // @todo 
+	    // @todo решить, каким образом лучше всего проверять доступность вакансий группы
 	    /*if ( $this->group )
 	    {// если это мероприятие входит в состав группы, то проверим и вакансии группы
     	    // @todo убрать эту проверку, когда все вакансии будут прописаны через relations
     	    $activeVacancies = $this->group->getAllowedVacancies($questionaryId);
 	    }*/
-	    
 	    
 	    foreach ( $this->activevacancies as $vacancy )
 	    {// проверяем каждую вакансию мероприятия, и определяем, подходит ли для нее участник 
@@ -881,5 +884,27 @@ class ProjectEvent extends CActiveRecord
 	    }
 	    
 	    return $vacancies;
+	}
+	
+	/**
+	 * Подсчитать количество доступных ролей для выбраного пользователя в текущем мероприятии
+	 * @param int $questionaryId - id анкеты для которой считается количество доступных ролей
+	 * @return int
+	 */
+	public function countVacanciesFor($questionaryId)
+	{
+	    return count($this->getAllowedVacancies($questionaryId));
+	}
+	
+	/**
+	 * Определить, есть ли хоть одна доступная роль для выбранного пользователя в текущем событии
+	 * @param int $questionaryId - id анкеты для которой определяются доступные роли
+	 * @return boolean
+	 * 
+	 * @todo оптимизировать алгоритм: не проверять все активные роли, а останавливаться как только нашли первую
+	 */
+	public function hasVacanciesFor($questionaryId)
+	{
+	    return (bool)$this->countVacanciesFor($questionaryId);
 	}
 }
