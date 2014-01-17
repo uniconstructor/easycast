@@ -10,11 +10,11 @@
 class AgendaController extends Controller
 {
     /**
-     * 
+     * Отобразить страницу "наши события"
      * @return void
      */
     public function actionIndex()
     {
-        
+        $this->render('index');
     }
 }

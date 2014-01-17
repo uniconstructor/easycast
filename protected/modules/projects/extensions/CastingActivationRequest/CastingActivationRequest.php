@@ -2,6 +2,7 @@
 
 /**
  * Форма заявки на активацию онлайн-кастинга
+ * @deprecated не пригодилось - удалить при рефакторинге
  */
 class CastingActivationRequest extends CWidget
 {

@@ -2,7 +2,8 @@
 /**
  * Шаблон отображения одного проекта
  */
-
+/* @var $this ProjectsController */
+/* @var $data Project */
 
 // Проверка на случай если нет картинки проекта
 if ( $coverUrl = $data->getAvatarUrl() )

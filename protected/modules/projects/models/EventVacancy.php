@@ -434,7 +434,7 @@ class EventVacancy extends CActiveRecord
 	{
 	    if ( ! $questionaryId )
 	    {// id анкеты не указан - попробуем взять текущий
-	        if ( ! $questionaryId = Yii::app()->questionary->getCurrentQuestionaryId() )
+	        if ( ! $questionaryId = Yii::app()->getModule('questionary')->getCurrentQuestionaryId() )
 	        {
 	            return false;
 	        }
@@ -461,7 +461,7 @@ class EventVacancy extends CActiveRecord
 	{
 	    if ( ! $questionaryId )
 	    {// id анкеты не указан - попробуем взять текущий
-	        if ( ! $questionaryId = Yii::app()->questionary->getCurrentQuestionaryId() )
+	        if ( ! $questionaryId = Yii::app()->getModule('questionary')->getCurrentQuestionaryId() )
 	        {
 	            return false;
 	        }

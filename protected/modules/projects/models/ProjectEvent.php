@@ -278,8 +278,7 @@ class ProjectEvent extends CActiveRecord
 		    'group' => array(self::BELONGS_TO, 'ProjectEvent', 'parentid'),
 		    // Вакансии (роли) мероприятия
 		    'vacancies' => array(self::HAS_MANY, 'EventVacancy', 'eventid',
-		        'index' => '`vacancies`.`id`', 
-		        'order' => "`vacancies`.`name` ASC"),
+		        'order' => "`vacancies`.`name` ASC",),
 		    // активные вакансии мероприятия
 		    'activevacancies' => array(self::HAS_MANY, 'EventVacancy', 'eventid',
 		        'condition' => "`activevacancies`.`status`='active'", 'order' => "`activevacancies`.`name` ASC"),
@@ -796,7 +795,7 @@ class ProjectEvent extends CActiveRecord
 	    $types[self::TYPE_PHOTO]      = 'Фотосессия';
 	    $types[self::TYPE_REPETITION] = 'Репетиция';
 	    $types[self::TYPE_PRESHOW]    = 'Генеральная репетиция';
-	    $types[self::TYPE_SHOW]       = 'Съемки';
+	    $types[self::TYPE_SHOW]       = 'Съемка';
 	    
 	    return $types;
 	}

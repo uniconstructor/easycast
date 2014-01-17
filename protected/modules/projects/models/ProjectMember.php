@@ -21,9 +21,7 @@
  * @property Questionary  $member
  * @property User         $manager
  * @property EventVacancy $vacancy
- * 
- * @todo увеличить длину комментариев к заявкам до 4095 символов
- * @todo увеличить статус до 50
+ * @property ProjectEvent $event
  */
 class ProjectMember extends CActiveRecord
 {
@@ -157,8 +155,8 @@ class ProjectMember extends CActiveRecord
 		return array(
 			array('memberid, vacancyid, timecreated, timemodified, managerid, 
 			    timestart, timeend', 'length', 'max' => 11),
-			array('request, responce', 'length', 'max' => 255),
-			array('status', 'length', 'max' => 9),
+			array('request, responce', 'length', 'max' => 4095),
+			array('status', 'length', 'max' => 50),
 			// The following rule is used by search().
 			//array('id, memberid, vacancyid, timecreated, timemodified, managerid, request, responce, timestart, timeend, status', 'safe', 'on'=>'search'),
 		);
@@ -210,6 +208,8 @@ class ProjectMember extends CActiveRecord
 		    'manager' => array(self::BELONGS_TO, 'User', 'managerid'),
 		    // вакансия, на которую была подана заявка
 		    'vacancy' => array(self::BELONGS_TO, 'EventVacancy', 'vacancyid'),
+		    // мероприятие, на которое подана заявка
+		    'event' => array(self::HAS_ONE, 'ProjectEvent', 'eventid', 'through' => 'vacancy'),
 		);
 	}
 
@@ -431,6 +431,7 @@ class ProjectMember extends CActiveRecord
 	 * После подтверждения приглашение удаляется
 	 * 
 	 * @return null
+	 * @todo написать проверки на случай если модель не найдена 
 	 */
 	protected function autoConfirmInvite()
 	{

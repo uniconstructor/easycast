@@ -360,6 +360,15 @@ class UserModule extends CWebModule
 	}
 	
 	/**
+	 * Получить текущий режим просмотра сайта: для участников или для заказчиков
+	 * @return string
+	 */
+	public function getViewMode()
+	{
+	    return Yii::app()->getGlobalState('userMode', 'user');
+	}
+	
+	/**
 	 * Получить список админов для выпадающего меню
 	 * @param bool|array $emptyOption - отображать ли пустое значение?
 	 *                                  Если передан массив - он подставится вместо первого элемента

@@ -2,7 +2,6 @@
 return array(
     'module_title' => 'Проекты', 
     
-    
     // Приглашения
     'invites' => 'Приглашения',
     'invites_label' => 'Приглашения к участию в проектах',
@@ -81,9 +80,11 @@ return array(
     'eventinfo_section_main' => 'Информация',
     'eventinfo_section_vacancies' => 'Роли',
     'eventinfo_section_requests' => 'Заявки',
+    'eventinfo_section_video' => 'Видео',
+    'eventinfo_section_photo' => 'Фото',
     
 
-    // Статусы
+    /// Статусы ///
     // Статусы проекта
     'project_status_draft' => 'Черновик',
     'project_status_filled' => 'Внесена информация',
@@ -104,8 +105,6 @@ return array(
     'member_status_succeed' => 'Успешно завершено',
     'member_status_failed' => 'Завершено',
     'member_status_canceled' => 'Отменена участником',
-    
-    
     // Статусы мероприятия
     'event_status_draft' => 'Черновик',
     'event_status_active' => 'Запущено',

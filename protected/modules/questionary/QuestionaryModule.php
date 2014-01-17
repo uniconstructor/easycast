@@ -228,7 +228,6 @@ class QuestionaryModule extends CWebModule
     
     /**
      * Определить id анкеты текущего пользователя (если он участник)
-     *
      * @return int
      * 
      * @deprecated слишком длинное название - удалить при рефакторинге (использовать getCurrentQuestionaryId())
@@ -244,12 +243,11 @@ class QuestionaryModule extends CWebModule
      */
     public function getCurrentQuestionaryId()
     {
-        $questionary = $this->getCurrentQuestionary();
-        if ( ! $questionary )
+        if ( $questionary = $this->getCurrentQuestionary() )
         {
-            return 0;
+            return $questionary->id;
         }
-        return $questionary->id;
+        return 0;
     }
     
     /**
