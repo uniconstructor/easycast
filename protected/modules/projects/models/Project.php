@@ -8,6 +8,7 @@
  * @property string $name
  * @property string $type
  * @property string $description
+ * @property string $shortdescription
  * @property string $galleryid
  * @property string $timestart
  * @property string $notimestart
@@ -692,25 +693,31 @@ class Project extends CActiveRecord
 	
 	/**
 	 * Получить ссылку на картинку с аватаром проекта
-	 *
 	 * @return string - url картинки или заглушка, если нет аватара
-	 * @todo поставить другую заглушку-картинку для проекта
 	 */
-	public function getAvatarUrl($size='small')
+	public function getAvatarUrl($size='small', $insertPlaceholder=false)
 	{
-	    $nophoto = Yii::app()->getBaseUrl(true).'/images/question.svg';
+	    $nophoto = Yii::app()->getBaseUrl(true).'/images/project_placeholder.png';
 	    if ( ! $avatar = $this->getGalleryCover() )
 	    {// изображения проекта нет - выводим заглушку
 	        return $nophoto;
 	    }
-	    
 	    // Изображение загружено - получаем нужную версию
 	    if ( ! $avatar = $avatar->getUrl($size) )
-	    {
+	    {// нет версии нужного размера
 	        return $nophoto;
 	    }
-	
+	    
 	    return $avatar;
+	}
+	
+	/**
+	 * Определить, существует ли аватар для проекта
+	 * @return bool
+	 */
+	public function hasAvatar()
+	{
+	    return (bool)$this->getGalleryCover();
 	}
 	
 	/**
