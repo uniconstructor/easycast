@@ -524,7 +524,7 @@ class Project extends CActiveRecord
 	 * Получить статус записи для отображения пользователю
 	 * @param string $status
 	 */
-	public function getStatustext($status=null)
+	public function getStatusText($status=null)
 	{
 	    if ( ! $status )
 	    {
@@ -619,7 +619,6 @@ class Project extends CActiveRecord
 	    {// для заказчика или гостя вакансий быть не может
 	        return false;
 	    }
-	    
 	    // Получаем все активные в данный момент вакансии, чтобы потом их отфильтровать
 	    $activeVacancies = $this->getActiveVacancies();
 	    
@@ -628,10 +627,9 @@ class Project extends CActiveRecord
 	        // но им нужно смотреть что не заполнено по проекту
 	        return $activeVacancies;
 	    }
-	    
 	    if ( ! $questionaryId )
-	    {
-	        $questionaryId = Yii::app()->getModule('user')->user()->questionary->id;
+	    {// определяем id текущего участника, если он не задан извне
+	        $questionaryId = Yii::app()->getModule('questionary')->getCurrentQuestionaryId();
 	    }
 	    
 	    // Фильтруем все активные вакансии, оставляя только доступные для участника
