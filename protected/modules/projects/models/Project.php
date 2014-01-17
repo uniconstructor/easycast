@@ -9,6 +9,7 @@
  * @property string $type
  * @property string $description
  * @property string $shortdescription
+ * @property string $customerdescription
  * @property string $galleryid
  * @property string $timestart
  * @property string $notimestart
@@ -406,6 +407,39 @@ class Project extends CActiveRecord
 	}
 	
 	/**
+	 * Получить описание проекта (для участника или заказчика)
+	 * Если нужное описание отсутствует - подставляется то которое есть
+	 * @param string - режим просмотра сайта: для участника или для заказчика
+	 * @return void
+	 */
+	public function getFullDescription($userMode='')
+	{
+	    if ( ! $userMode )
+	    {
+	        $userMode = Yii::app()->getModule('user')->getViewMode();
+	    }
+	    
+	    $cutomerDescription = $this->customerdescription;
+	    if ( ! trim(strip_tags($cutomerDescription)) )
+	    {
+	        $cutomerDescription = $this->description;
+	    }
+	    $userDescription = $this->description;
+	    if ( ! trim(strip_tags($userDescription)) )
+	    {
+	        $userDescription = $this->customerdescription;
+	    }
+	    
+	    if ( $userMode == 'user' )
+	    {
+	        return $userDescription;
+	    }else
+	    {
+	        return $cutomerDescription;
+	    }
+	}
+	
+	/**
 	 * Получить список возможных менеджеров проекта для выпадающего меню
 	 * @return array
 	 * 
@@ -695,7 +729,11 @@ class Project extends CActiveRecord
 	 */
 	public function getAvatarUrl($size='small', $insertPlaceholder=false)
 	{
-	    $nophoto = Yii::app()->getBaseUrl(true).'/images/project_placeholder.png';
+	    $nophoto = '';
+	    if ( $insertPlaceholder )
+	    {// вставляем заглушку вместо изображения
+	        $nophoto = Yii::app()->getBaseUrl(true).'/images/project_placeholder.png';
+	    }
 	    if ( ! $avatar = $this->getGalleryCover() )
 	    {// изображения проекта нет - выводим заглушку
 	        return $nophoto;
