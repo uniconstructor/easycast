@@ -17,11 +17,11 @@ class VacancyController extends Controller
     {
         if ( ! Yii::app()->request->isAjaxRequest OR ! Yii::app()->request->isPostRequest )
         {// разрешаем только POST AJAX-запросы
-            throw new CHttpException(500, 'Only AJAX request allowed');
+            throw new CHttpException(400, 'Only AJAX request allowed');
         }
         if ( Yii::app()->user->isGuest )
         {// проверяем права
-            throw new CHttpException(500, 'Operation not permitted');
+            throw new CHttpException(400, 'Operation not permitted');
         }
         // получаем вакансию
         $vacancyId = Yii::app()->request->getPost('vacancyId', null);
@@ -50,7 +50,7 @@ class VacancyController extends Controller
     {
         if ( ! Yii::app()->request->isAjaxRequest OR ! Yii::app()->request->isPostRequest )
         {// разрешаем только POST AJAX-запросы
-            throw new CHttpException(500, 'Only AJAX request allowed');
+            throw new CHttpException(400, 'Only AJAX request allowed');
         }
         
         if ( ! $key = Yii::app()->request->getPost('key', null) )
@@ -119,7 +119,7 @@ class VacancyController extends Controller
         $model = EventVacancy::model()->findByPk($id);
         if ( $model === null )
         {
-            throw new CHttpException(404, 'Вакансия не найдена id='.$id);
+            throw new CHttpException(404, 'Роль не найдена id='.$id);
         }
         return $model;
     }
