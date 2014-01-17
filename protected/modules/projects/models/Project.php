@@ -196,11 +196,12 @@ class Project extends CActiveRecord
 	{
 	    Yii::import('ext.galleryManager.*');
 	    Yii::import('ext.galleryManager.models.*');
+	    
 	    // настройки сохранения логотипа
 	    $logoSettings = array(
-            'class' => 'GalleryBehavior',
+            'class'       => 'GalleryBehavior',
             'idAttribute' => 'galleryid',
-            'limit' => 1,
+            'limit'       => 1,
             // картинка проекта масштабируется в трех размерах
             'versions' => array(
                 'small' => array(
@@ -214,11 +215,12 @@ class Project extends CActiveRecord
             'name'        => false,
             'description' => true,
         );
+	    
 	    // Настройки фотогалереи проекта
 	    $photoGallerySettings = array(
-	        'class' => 'GalleryBehavior',
+	        'class'       => 'GalleryBehavior',
 	        'idAttribute' => 'photogalleryid',
-	        'limit' => self::MAX_GALLERY_PHOTOS,
+	        'limit'       => self::MAX_GALLERY_PHOTOS,
 	        // фотографии проекта масштабируются в трех размерах
 	        'versions' => array(
 	            'small' => array(
@@ -238,12 +240,12 @@ class Project extends CActiveRecord
 	    return array(
 	        // автоматическое заполнение дат создания и изменения
 	        'CTimestampBehavior' => array(
-	            'class' => 'zii.behaviors.CTimestampBehavior',
+	            'class'           => 'zii.behaviors.CTimestampBehavior',
 	            'createAttribute' => 'timecreated',
 	            'updateAttribute' => 'timemodified',
 	        ),
 	        // логотип
-	        'galleryBehavior' => $logoSettings,
+	        'galleryBehavior'      => $logoSettings,
 	        // фотогалерея
 	        'photoGalleryBehavior' => $photoGallerySettings,
 	    );
@@ -452,8 +454,10 @@ class Project extends CActiveRecord
 	 * Получить тип проекта для отображения пользователю
 	 * @param string $type
 	 * @return string
+	 * 
+	 * @deprecated заменить на getTypeLabel при рефакторинге
 	 */
-	public function getTypetext($type=null)
+	public function getTypeText($type=null)
 	{
 	    if ( ! $type )
 	    {
@@ -461,6 +465,19 @@ class Project extends CActiveRecord
 	    }
 	    $projectsModule = Yii::app()->getModule('projects');
 	    return $projectsModule::t('project_type_'.$type);
+	}
+	
+	/**
+	 * Получить тип проекта для отображения пользователю
+	 * @param string $type
+	 * @return string
+	 * 
+	 * @todo стандартизировать имена функций получения типа: для любого объекта, обладающего типом
+	 *       эта функция должна называться getTypeLabel
+	 */
+	public function getTypeLabel($type=null)
+	{
+	    return $this->getTypeText($type);
 	}
 	
 	/**
@@ -681,13 +698,13 @@ class Project extends CActiveRecord
 	 */
 	public function getAvatarUrl($size='small')
 	{
-	    $nophoto = Yii::app()->getBaseUrl(true).'/images/nophoto.png';
+	    $nophoto = Yii::app()->getBaseUrl(true).'/images/question.svg';
 	    if ( ! $avatar = $this->getGalleryCover() )
-	    {// изображения проекта нет
-	        return '';
+	    {// изображения проекта нет - выводим заглушку
+	        return $nophoto;
 	    }
-	
-	    // Изображение загружено - получаем самую маленькую версию
+	    
+	    // Изображение загружено - получаем нужную версию
 	    if ( ! $avatar = $avatar->getUrl($size) )
 	    {
 	        return $nophoto;
