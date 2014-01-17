@@ -230,20 +230,46 @@ class QuestionaryModule extends CWebModule
      * Определить id анкеты текущего пользователя (если он участник)
      *
      * @return int
+     * 
+     * @deprecated слишком длинное название - удалить при рефакторинге (использовать getCurrentQuestionaryId())
      */
     public function getCurrentUserQuestionaryId()
     {
-        if ( Yii::app()->user->isGuest )
+        return $this->getCurrentQuestionaryId();
+    }
+    
+    /**
+     * Определить id анкеты текущего пользователя
+     * @return int
+     */
+    public function getCurrentQuestionaryId()
+    {
+        $questionary = $this->getCurrentQuestionary();
+        if ( ! $questionary )
         {
             return 0;
         }
-        if ( Yii::app()->getModule('user')->user() )
+        return $questionary->id;
+    }
+    
+    /**
+     * Получить анкету текущего пользователя
+     * @return Questionary
+     */
+    public function getCurrentQuestionary()
+    {
+        if ( Yii::app()->user->isGuest )
         {
-            return Yii::app()->getModule('user')->user()->questionary->id;
-        }else
-        {// что-то не так с учетной записью
-            // @todo записать ошибку в лог
+            return null;
         }
-        return 0;
+        $user = Yii::app()->getModule('user')->user();
+        if ( $user AND isset($user->questionary) AND is_object($user->questionary) )
+        {
+            return $user->questionary;
+        }else
+        {// что-то не так с учетной записью (пользователь есть, а анкета для него не создана)
+            ECDebug::handleError('Найден пользователь без анкеты');
+        }
+        return null;
     }
 }
