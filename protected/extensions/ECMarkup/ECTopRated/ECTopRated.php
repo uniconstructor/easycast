@@ -38,7 +38,6 @@ class ECTopRated extends CWidget
             $element = array();
             $element['id']      = $user->id;
             $element['preview'] = $user->getAvatarUrl('catalog');
-            $element['full']    = $user->getAvatarUrl('full');
             $element['name']    = $user->fullname;
             $element['link']    = Yii::app()->createUrl(Yii::app()->getModule('questionary')->profileUrl, array('id' => $user->id));
             
@@ -46,7 +45,7 @@ class ECTopRated extends CWidget
         }
         
         $this->dataProvider = new CArrayDataProvider($elements, array(
-            'pagination' => array('pageSize'=>count($elements)))
+            'pagination' => false)
         );
     }
     
@@ -78,26 +77,24 @@ class ECTopRated extends CWidget
     }
     
     /**
-     * Определить максимальное количество актеров, показываемых в ассорти
-     * 
+     * Определить количество актеров в списке
      * @return int
      * 
      * @todo брать значение из настроек
      */
     protected function getTotalCount()
     {
-        return 8;
+        return 24;
     }
     
     /**
-     * Получить количество отображаемых участников
-     * 
+     * Получить количество одновременно отображаемых участников
      * @return number
      * 
      * @todo брать значение из настроек
      */
     protected function getDisplayCount()
     {
-        return 24;
+        return 7;
     }
 }

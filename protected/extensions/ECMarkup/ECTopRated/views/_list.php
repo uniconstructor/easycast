@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ * Список актеров в ассорти на главной
  */
 /* @var $this ECTopRated */
 ?>
@@ -21,7 +21,7 @@
     		<div class="clearfix"></div>
     		<a id="prev" class="prev" href="#"></a>
     		<a id="next" class="next" href="#"></a>
-    		<a href="<?= Yii::app()->createAbsoluteUrl('//catalog/'); ?>" class="all_people">Все участники &gt;</a>
+    		<a href="<?= Yii::app()->createAbsoluteUrl('//catalog/faces'); ?>" class="all_people">Все участники &gt;</a>
     	</div>
     </div>
 </div>
