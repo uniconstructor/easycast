@@ -6,11 +6,11 @@
 ?>
 <!--ul class="ec-contacts"-->
 <ul class="ec-contacts">
-	<li><nobr><img src="/images/icon-number.png">Заказчикам:<span><?= $this->customerPhone; ?></span></nobr></li>
-	<li><nobr><img src="/images/icon-number.png">Пользователям:<span><?= $this->userPhone; ?></span></nobr></li>
-	<li><nobr><img src="/images/mailme.png"><span>mail@easycast.ru</span></nobr></li>
+	<li><nobr><img src="/images/icon-number.png"><span><?= $this->customerPhone; ?></span>(Заказчикам)</nobr></li>
+	<li><nobr><img src="/images/icon-number.png"><span><?= $this->userPhone; ?></span>(Пользователям)</nobr></li>
+	<li><nobr><img src="/images/mailme.png">&nbsp;mail@easycast.ru</nobr></li>
 	<li><img src="/images/icon-comment.png">
-	   <a style="text-transform:none;margin-left:0;" href="<?= Yii::app()->createUrl('/site/contact'); ?>">
+	   <a style="text-transform:none;text-decoration:underline;" href="<?= Yii::app()->createUrl('/site/contact'); ?>">
 	       Обратная связь
        </a>
    </li>
