@@ -12,14 +12,13 @@ Yii::setPathOfAlias('libphonenumber', dirname(__FILE__).'/../components/libphone
 // В разных ветках git-репозитория лежат дополнительные config-файлы для каждой версии сайта.
 // Каждая версия сайта собирается отдельным ant-скриптом.
 // Последовательность сборки такова: 
-//                    Yii
-//                    EasyCast (ядро)
-//                    Оригинальные плагины
-//                    Наши изменения в плагинах
-//                    Настройки окружения (для dev, test или production версии)
+//                    1) Yii
+//                    2) EasyCast (ядро)
+//                    3) Оригинальные плагины
+//                    4) Наши изменения в плагинах
+//                    5) Настройки окружения (для dev, test или production версии)
 return array(
-    /// general application parameters //
-    
+    // Основные параметры приложения
     // физический путь к папке "protected"
 	'basePath' => dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
     // язык приложения
@@ -30,17 +29,16 @@ return array(
     // Название проекта 
     'name'    => 'easyCast',
     // Короткие имена для вызова популярных библиотек
-    // @todo попробовать перенести сюда bootstrap и посмотреть, ничего ли не сломается
-    'aliases' => array(
+    /*'aliases' => array(
         
-    ),
+    ),*/
     
 	// autoloading model and component classes
-	'import' => array(
+    'import' => array(
 		'application.models.*',
 		'application.components.*',
 	    'application.extensions.*',
-        // country and city selector
+        // Выбор страны и города
 	    'application.extensions.CountryCitySelectorRu.models.*',
 	    // User module
 	    'application.modules.user.models.*',
@@ -52,19 +50,22 @@ return array(
 	    'application.modules.questionary.*',
 	    'application.modules.questionary.components.*',
 	    'application.modules.questionary.models.*',
-        // Image gallery manager
+        // Модуль загрузки изображений
         'ext.galleryManager.models.*',
         // Image manipulation library
         //'ext.YiiImage.CImageComponent',
-        // Twitter bootstrap
+        // Виджеты Twitter Bootstrap
         'application.extensions.bootstrap.widgets.*',
-        //'application.extensions.bootstrap.helpers.TbHtml',
-        // yes/no toogle column widget
+        // старый виджет выбора "да/нет"
+        // @todo с подключением YiiBooster виджет устарел: заменить все обращения к нему на новые элементы
+        //       а затем удалить из сборки при рефакторинге 
 	    'application.extensions.jtogglecolumn.*',
-	    // Import simpleWorkflow extension (for statuses)
+	    // simpleWorkflow (для работы со статусами)
 	    'application.extensions.simpleWorkflow.*',
-	    // библиотека для работы с JS, включающая плагин shadowbox
+	    // sweekit: библиотека для удобной работы с JS, включающая плагин shadowbox
 	    'ext.sweekit.Sweeml',
+	    // @todo (запланировано) компонент для работы с Google Maps 
+	    //'ext.sweekit.map.*',
 	),
 
 	'modules' => array(
@@ -184,11 +185,23 @@ return array(
         'reports' => array(
             'class' => 'application.modules.reports.ReportsModule',
         ),
+        
+        // @todo (запланировано) Уведомления на Android/iOS
+        /*'mobileNotification' => array(
+            'class' => 'ext.sweekit.actions.SwMobileNotifier',
+            'mode' => 'production', // can be development to use the sandbox
+            'apnsCertificateFile' => 'my_apple_certificate_for_push.pem',
+            'apnsCertificatePassphrase' => 'my_apple_certificate_passphrase', // comment out if there is no passphrase
+            'apnsEmbeddedCaFile'=>true, // embed entrust ca file if needed (ssl errors, ...)
+            'c2dmUsername' => 'my_gmail_push_account@gmail.com',
+            'c2dmPassword' => 'my_gmail_push_account_password',
+            'c2dmApplicationIdentifier' => 'my_gmail_push_app_identifier',
+        ),*/
 	),
 
 	// Компоненты приложения
 	'components' => array(
-	    // пользователи (важно: здесь настройки для наследника класса WebUser, а не для модели User)
+	    // пользователи (важно: здесь настройки для авторизации, а не для модели User)
 		'user' => array(
 		    // используем класс пользователя из модуля rights чтобы работали права доступа на основе ролей (RBAC)
             'class'          => 'RWebUser',
@@ -198,8 +211,9 @@ return array(
             'loginUrl'       => array('/user/login'),
 		),
 	    
-		// отображаем все URL в формате /путь/к/странице (на сервере должен быть включен mod_rewrite)
+		// настройки преобразования url-адресов
 		'urlManager' => array(
+		    // отображаем все URL в формате /путь/к/странице (на сервере должен быть включен mod_rewrite)
 			'urlFormat' => 'path',
 			'rules'     => array(
 				'<controller:\w+>/<id:\d+>'              => '<controller>/view',
@@ -224,7 +238,13 @@ return array(
 	    
 	    // работа с HTTP-запросами
 	    'request' => array(
-	        'class' => 'CHttpRequest',
+	        'class'     => 'CHttpRequest',
+	        // дополнительные методы объекта request для работы js-библиотеки sweekit
+	        'behaviors' => array(
+	            'sweelixAjax' => array(
+	                'class' => 'ext.sweekit.behaviors.SwAjaxBehavior',
+	            ),
+	        ),
 	        // включаем защиту от XSS-атак
 	        'enableCsrfValidation'   => true,
 	        // включаем защиту от подмены cookie
@@ -237,11 +257,15 @@ return array(
             'errorAction' => 'site/error',
         ),
 	    
-        // логи
+        // хранение и просмотр логов
+        // @todo обновить и добавить расширение yii-debug-toolbar, (только для test и dev)
+        //       http://www.yiiframework.com/extension/yii-debug-toolbar
+        // @todo для всех сборок добавить плагин для просмотра логов
+        //       http://www.yiiframework.com/extension/yii-audit-module/
 		'log' => array(
 			'class'  => 'CLogRouter',
 			'routes' => array(
-			    // храним логи в базе
+			    // хранилище логов в базе
 				array(
 					'class'              => 'CDbLogRoute',
 					'connectionID'       => 'db',
@@ -266,15 +290,13 @@ return array(
 	    
 	    // Подключаем модуль i18n чтобы можно было переводить приложение на разные языки
 	    'messages' => array(
-	        // языковые строки берутся из файла
+	        // все языковые строки берутся из php-файлов
 	        'class' => 'CPhpMessageSource',
 	    ),
 
-        // Twitter bootstrap
+        // Twitter Bootstrap
         'bootstrap' => array(
             'class' => 'bootstrap.components.Bootstrap',
-            // @todo после перехода на YiiBooster - не используется: удалить при рефакторинге
-            //'class' => 'bootstrap.components.TbApi',
         ),
 
         // библиотека для работы с изображениями (требуется для плагина galleryManager)
@@ -283,10 +305,10 @@ return array(
         ),
         
         // Настройки сессии
+        // @todo хранить сессию в БД, используя расширение http://www.yiiframework.com/extension/session
+        // @todo после переноса сессии в БД создать миграцией индексы для этой таблицы, и отключить ее автосоздание
         'session' => array(
-            // @todo хранить сессию в БД
-            // @todo после переноса сессии в БД создать миграцией индексы для этой таблицы, и отключить ее автосоздание
-            'class'     => 'CHttpSession',//'CDbHttpSession',
+            'class'     => 'CHttpSession',
             'autoStart' => true,
             // стандартное время хранения сессии: 2 месяца
             // @todo вынести время хранения сессии в настройку
@@ -302,8 +324,7 @@ return array(
                 'jquery-ui.css'     => '/css/jqueryui/flick/jquery-ui.css',
                 'jquery-ui.min.css' => '/css/jqueryui/flick/jquery-ui.min.css',
             ),
-            // подключаем sweekit-библиотеку для удобной работы со скриптами: 
-            // она нужна для более легкой работы с AJAX и содержит плагин shadowbox
+            // подключаем скрипты для работы js-библиотеки sweekit 
             'behaviors' => array(
                 'sweelixClientScript' => array(
                     'class' => 'ext.sweekit.behaviors.SwClientScriptBehavior',
@@ -345,13 +366,6 @@ return array(
         // Настройки по умолчанию для всех виджетов Yii
         'widgetFactory' => array(
             'widgets' => array(
-                // Выравнивание верстки для форума
-                // @todo поправить форум, а эту настройку отсюда убрать
-                /*'CGridView' => array(
-                    'itemsCssClass' => '',
-                    'pagerCssClass' => '',
-                ),*/
-                
                 // Формы для сложных значений
                 // @todo удалить эту настройку вместе с самим плагином multimodelform
                 //       когда весь multimodelform будет заменен редактируемыми grid-списками
@@ -373,7 +387,7 @@ return array(
                     ),
                 ),
                 
-                // Выбор даты из календаря
+                // Выбор даты из календаря (jQuery)
                 'CJuiDatePicker' => array(
                     'language' => 'ru',
                     'options'  => array(

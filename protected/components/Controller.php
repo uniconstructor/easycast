@@ -3,37 +3,40 @@
  * Controller is the customized base controller class.
  * All controller classes for this application should extend from this base class.
  */
-class Controller extends RController//CController
+class Controller extends RController
 {
-	/**
-	 * @var string the default layout for the controller view. Defaults to '//layouts/column1',
-	 * meaning using a single column layout. See 'protected/views/layouts/column1.php'.
-	 */
-	//public $layout='//layouts/column1';
-	/**
-	 * @var array context menu items. This property will be assigned to {@link CMenu::items}.
-	 */
-	//public $menu=array();
-	/**
-	 * @var array the breadcrumbs of the current page. The value of this property will
-	 * be assigned to {@link CBreadcrumbs::links}. Please refer to {@link CBreadcrumbs::links}
-	 * for more details on how to specify this property.
-	 */
-	//public $breadcrumbs=array();
-	
-	/**
-	 * (non-PHPdoc)
-	 * @see CController::filters()
-	 */
-	/*public function filters()
-	{
-	    return array(
-	        //'rights' => array('application.modules.rights.components.RightsFilter'),
-	    );
-	}*/
-    
     /**
      * @var array - настройки шапки страницы EasyCast 
      */
     public $ecHeaderOptions = array();
+    
+    /**
+     * @todo (запланировано) фильтр, который заставляет пользователей использовать только защищенное соединение
+     * @todo перед включением обновить методы filters во всех контроллерах
+     * @todo совместить с полной заменой accessFilter на RBAC если будет возможность
+     * @see CController::filters()
+     */
+    /*public function filters()
+    {
+        return array(
+            array(
+                'ext.sweekit.filters.SwProtocolFilter - parse',
+                'mode' => 'https',
+            ),
+        )
+    }*/
+    
+    /**
+     * @see parent::behaviors()
+     * @return array
+     */
+    public function behaviors()
+    {
+        $parentBehaviors = parent::behaviors();
+        // Подключаем ко всем контроллерам проекта методы для вывода js-кода: redirectJs(), renderJs(), renderJson()
+        $behaviors = array('sweelixRendering' => array(
+            'class' => 'ext.sweekit.behaviors.SwRenderBehavior',
+        ));
+        return CMap::mergeArray($parentBehaviors, $behaviors);
+    }
 }
