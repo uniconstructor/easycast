@@ -6,6 +6,7 @@
  * @todo добавить tooltip-подсказку к каждому свойству, с кратким описанием для пользователя
  * @todo добавить метку и пояснение для группы событий
  * @todo для гостей сделать кнопку "смогу ли я участвовать?"
+ * @todo если есть доступные роли - отображать их количество
  */
 class EventBages extends CWidget
 {
@@ -31,9 +32,9 @@ class EventBages extends CWidget
      */
     public $displayFinished      = true;
     /**
-     * @var bool - отображать надпись "есть роли"
+     * @var bool - отображать надпись "вы приглашены"
      */
-    public $displayAvailable     = false;
+    public $displayAvailable     = true;
     /**
      * @var bool - отображать "нет доступных ролей"
      */
@@ -202,7 +203,7 @@ class EventBages extends CWidget
         }
         if ( $this->event->virtual )
         {
-            $this->bages['casting'] = $this->getBage('inverse', 'Онлайн-кастинг');
+            $this->bages['casting'] = $this->getBage('info', 'Онлайн-кастинг');
         }
     }
     
@@ -260,10 +261,9 @@ class EventBages extends CWidget
         {// если пользователь уже участвует в событии - то неважно, есть для него роли или нет - он уже одобрен
             return;
         }
-        
         if ( $this->hasVacancies() )
         {
-            $this->bages['available'] = $this->getBage('warning', 'Вы можете участвовать');
+            $this->bages['available'] = $this->getBage('warning', 'Вы приглашены');
         }
     }
     
