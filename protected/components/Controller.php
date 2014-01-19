@@ -34,9 +34,11 @@ class Controller extends RController
     {
         $parentBehaviors = parent::behaviors();
         // Подключаем ко всем контроллерам проекта методы для вывода js-кода: redirectJs(), renderJs(), renderJson()
-        $behaviors = array('sweelixRendering' => array(
-            'class' => 'ext.sweekit.behaviors.SwRenderBehavior',
-        ));
+        $behaviors = array(
+            'sweelixRendering' => array(
+                'class' => 'ext.sweekit.behaviors.SwRenderBehavior',
+            ),
+        );
         return CMap::mergeArray($parentBehaviors, $behaviors);
     }
 }
