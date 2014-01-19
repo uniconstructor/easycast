@@ -4,7 +4,6 @@
  */
 /* @var $this ECContacts */
 ?>
-<!--ul class="ec-contacts"-->
 <ul class="ec-contacts">
 	<li><nobr><img src="/images/icon-number.png"><span><?= $this->customerPhone; ?></span>(Заказчикам)</nobr></li>
 	<li><nobr><img src="/images/icon-number.png"><span><?= $this->userPhone; ?></span>(Пользователям)</nobr></li>
