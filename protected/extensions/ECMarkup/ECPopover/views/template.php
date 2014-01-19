@@ -8,9 +8,9 @@ echo CHtml::openTag('div', $this->htmlOptions);
 ?>
 <div class="arrow"></div>
 <div class="popover-inner">
-    <h3 class="popover-title" id="<?= $this->getId().'_title'; ?>"></h3>
+    <h3 class="popover-title" id="<?= $this->titleId; ?>" style="font-weight:bold;"></h3>
     <div class="popover-content">
-        <p id="<?= $this->getId().'_content'; ?>"></p>
+        <p id="<?= $this->contentId; ?>">&nbsp;</p>
     </div>
 </div>
 <?php 
