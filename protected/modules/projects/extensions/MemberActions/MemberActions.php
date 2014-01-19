@@ -13,7 +13,7 @@
 class MemberActions extends CWidget
 {
     /**
-     * @var ProjectMember - заявки или участник проекта, дял которого отображаются кнопки
+     * @var ProjectMember - заявка или участник проекта, для которого отображаются кнопки
      */
     public $member;
     

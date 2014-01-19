@@ -2,6 +2,7 @@
 /**
  * Отображение всех действий для заявки
  */
+/* @var $this MemberActions */
 ?>
 <div>
     <div id="<?= $this->containerId; ?>">
