@@ -176,7 +176,7 @@ class CustomerInvite extends CActiveRecord
         }
         // отправляем оповещение заказчику
         // @todo продумать, нужно ли каждый раз при создании нового приглашения сразу же отправлять сообщение
-        // $this->sendNotification();
+        $this->sendNotification();
         
         parent::afterSave();
     }
@@ -277,10 +277,16 @@ class CustomerInvite extends CActiveRecord
      */
     public function sendNotification()
     {
-        // проверяем было ли уже отправлено письмо
+        // @todo проверяем было ли уже отправлено письмо
         
+        $params = array(
+            'customerInvite' => $this,
+            'manager'        => $this->manager,
+        );
         // отправляем письмо (сразу же, без очереди)
-        
+        $subject = Yii::app()->getModule('mailComposer')->getSubject('customerInvite', $params);
+        $message = Yii::app()->getModule('mailComposer')->getMessage('customerInvite', $params);
+        Yii::app()->getModule('user')->sendMail($this->email, $subject, $message, true);
         return true;
     }
     
