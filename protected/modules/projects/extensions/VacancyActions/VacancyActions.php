@@ -52,27 +52,28 @@ class VacancyActions extends CWidget
      *               Задается только если нужно вывести какое-то сообщение сразу же рядом с кнопкой или вместо кнопки
      */
     public $message        = '';
-    
     /**
      * @var string - css-класс сообщения
      */
     public $messageClass   = 'alert alert-info';
-    
     /**
      * @var int - id участника, для которого отбражаются кнопки
      */
     public $questionaryId;
+    /**
+     * @var string - размер кнопок для действия с ролью
+     * @see TbButton
+     */
+    public $buttonSize;
     
     /**
      * @var string - id тега, содержащего текст сообщения
      */
     protected $messageId;
-    
     /**
      * @var string
      */
     protected $messageStyle = 'display:none;';
-    
     /**
      * @var array - список кнопок, которые нужно отобразить.
      *              'addApplication', 'removeApplication', //'close', 'publish', 'changePrice'
@@ -258,11 +259,17 @@ class VacancyActions extends CWidget
      */
     protected function getButtonClass($type)
     {
-        switch ($type)
+        $class = 'btn'; 
+        if ( $this->buttonSize )
         {
-            case 'addApplication':    return 'btn btn-success';
-            case 'removeApplication': return 'btn btn-primary';
+            $class .= ' btn-'.$this->buttonSize;
         }
+        switch ( $type )
+        {
+            case 'addApplication':    $class .= ' btn-success';
+            case 'removeApplication': $class .= ' btn-primary';
+        }
+        return $class;
     }
     
     /**

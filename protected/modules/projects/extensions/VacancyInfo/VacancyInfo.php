@@ -28,6 +28,12 @@ class VacancyInfo extends CWidget
      */
     public $displayMode;
     /**
+     * @var string - режим подачи заявки
+     *               normal - обычный (от авторизованного пользователя)
+     *               token  - по ключу (по одноразовой ссылке в письме)
+     */
+    public $inviteMode = 'normal';
+    /**
      * @var Questionary - анкета просматривающего роль участника (только для $this->displayMode = 'user')
      */
     public $questionary;
@@ -44,6 +50,11 @@ class VacancyInfo extends CWidget
      * @var string - режим просмотра: заказчик (customer) или участник (user)
      */
     public $userMode;
+    /**
+     * @var string - размер кнопок для действия с ролью
+     * @see TbButton
+     */
+    public $buttonSize;
     /**
      * @var bool - отображать ли список заявок на роль?
      */
@@ -217,10 +228,11 @@ class VacancyInfo extends CWidget
         }
         return $this->widget('projects.extensions.VacancyActions.VacancyActions', array(
             'isAjaxRequest' => $this->isAjaxRequest,
-            'vacancy' => $this->vacancy,
-            'mode'    => 'normal', // token
-            'invite'  => $this->invite,
-            'key'     => $this->key,
+            'buttonSize'    => $this->buttonSize,
+            'vacancy'       => $this->vacancy,
+            'mode'          => $this->inviteMode,
+            'invite'        => $this->invite,
+            'key'           => $this->key,
         ), true);
     }
 }

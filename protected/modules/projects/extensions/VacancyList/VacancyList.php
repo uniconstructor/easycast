@@ -63,7 +63,8 @@ class VacancyList extends CWidget
                 //'displayNotAvailable' => $displayNotAvailable,
                 'displayNotAvailable' => false,
                 'isAjaxRequest'       => true,
-                'isAvailable'         => $vacancy->isAvailableForUser($this->questionary->id, true)
+                'isAvailable'         => $vacancy->isAvailableForUser($this->questionary->id, true),
+                'buttonSize'          => 'large',
             ));
         }
     }

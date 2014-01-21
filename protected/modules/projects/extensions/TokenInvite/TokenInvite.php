@@ -13,12 +13,14 @@ class TokenInvite extends CWidget
      * @var EventInvite - приглашение для которого отрисовывается виджет
      */
     public $invite;
-    
+    /**
+     * @var Questionary
+     */
+    public $questionary;
     /**
      * @var ProjectEvent - мероприятие на которое пришло приглашение
      */
     public $event;
-    
     /**
      * @var string - ключ подтверждения, переданный по ссылке
      */
@@ -30,11 +32,12 @@ class TokenInvite extends CWidget
      */
     public function init()
     {
-        if ( ! $this->invite )
+        if ( ! ($this->invite instanceof EventInvite) )
         {
             throw new CException('Не передано приглашения для виджета TokenInvite');
         }
-        $this->event = $this->invite->event;
+        $this->event       = $this->invite->event;
+        $this->questionary = $this->invite->questionary;
     }
     
     /**
@@ -107,7 +110,7 @@ class TokenInvite extends CWidget
         if ( $event->type == ProjectEvent::TYPE_GROUP )
         {// отображаем вакансии для группы событий - нужен другой заголовок и дополнительное пояснение
             echo '<h4>Роли на весь период съемок</h4>';
-            echo '<div class="alert">Отправляя заявку на одну из этих позиций вам
+            echo '<div class="alert">Отправляя заявку на одну из этих ролей вам
                 нужно будет присутствовать на всех мероприятиях, перечисленных ниже.
                 Оплата производится за каждый съемочный день.</div>';
         }else
@@ -118,50 +121,20 @@ class TokenInvite extends CWidget
                 echo '<div class="alert alert-info">Вы можете подать несколько заявок одновременно.</div>';
             }
         }
-        
         foreach ( $availableVacancies as $vacancy )
         {// перебираем все доступные участнику вакансии и составляем массив для таблицы 
-            $element = array();
-            $element['id']   = $vacancy->id;
-            $element['name'] = $vacancy->name;
-            $element['description'] = $vacancy->description;
-            $element['salary']   = $vacancy->salary;
-            $element['actions'] = $this->createActionButtons($vacancy);
-            
-            $vacancies[] = $element;
+            $this->widget('projects.extensions.VacancyInfo.VacancyInfo', array(
+                'vacancy'             => $vacancy,
+                'questionary'         => $this->invite->questionary,
+                'displayNotAvailable' => false,
+                'isAjaxRequest'       => false,
+                'isAvailable'         => $vacancy->isAvailableForUser($this->invite->questionary->id, true),
+                'buttonSize'          => 'large',
+                'key'                 => $this->key,
+                'invite'              => $this->invite,
+                'inviteMode'          => 'token',
+            ));
         }
-        $vacanciesList = new CArrayDataProvider($vacancies, array(
-            'pagination' => false,
-        ));
-        
-        // выводим таблицу с доступными вакансиями
-        $this->widget('bootstrap.widgets.TbGridView', array(
-            'type'         => 'striped bordered condensed',
-            'dataProvider' => $vacanciesList,
-            'template'     => "{items}{pager}",
-            'columns' => array(
-                array(// столбец с названием вакансии
-                    'name'   => 'name',
-                    'type'   => 'html',
-                    'header' => 'Роль',//Yii::t('coreMessages', 'name'),
-                ),
-                array(// столбец с описанием вакансии
-                    'name'   => 'description',
-                    'header' => Yii::t('coreMessages', 'description'),
-                    'type'   => 'html',
-                ),
-                array(// количество человек
-                    'name'   => 'salary',
-                    'header' => 'Оплата за съемочный день',
-                    'value'  => '$data["salary"]." р."',
-                ),
-                array(// действия (подать/отозвать заявку)
-                    'name'   => 'actions',
-                    'type'   => 'raw',
-                    'header' => 'Действия',//Yii::t('coreMessages', 'actions'),
-                ),
-            ),
-        ));
     }
     
     /**
@@ -171,8 +144,7 @@ class TokenInvite extends CWidget
      */
     protected function createActionButtons($vacancy)
     {
-        return $this->widget('application.modules.projects.extensions.VacancyActions.VacancyActions', 
-            array(
+        return $this->widget('projects.extensions.VacancyActions.VacancyActions', array(
                 'vacancy' => $vacancy,
                 'mode'    => 'token',
                 'invite'  => $this->invite,
