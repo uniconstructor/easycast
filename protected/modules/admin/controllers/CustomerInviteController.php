@@ -96,7 +96,7 @@ class CustomerInviteController extends Controller
 		}
 		if ( ! $objectExists )
 		{
-		    throw new CHttpException(400, 'Не найден объект для создания приглашения');
+		    throw new CHttpException(404, 'Не найден объект для создания приглашения');
 		}
 		// связываем приглашение с нужным объектом при создании
 		$model->objecttype = $objectType;
