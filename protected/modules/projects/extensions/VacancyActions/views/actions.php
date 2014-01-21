@@ -2,6 +2,7 @@
 /**
  * Отображение всех действий для заявки
  */
+/* @var $this VacancyActions */
 ?>
 <div>
     <div id="<?= $this->containerId; ?>">

@@ -8,51 +8,55 @@
  * @todo добавить кнопки для админа
  * @todo включить мозг и придумать общий родительский класс для VacancyActions и MemberActions
  * @todo добавить проверку всех обязательных параметров в init()
+ * @todo добавить возможность подавать заявку тем у кого отключен JS
+ * @todo вынести название и контекст события для подачи заявки в параметры виджета
+ * @todo не создавать по одному sweekit-событию для каждой кнопки, а сделать его универсальным:
+ *       передавать в JS-функцию все необходимые id как параметры
+ * @todo вынести вывод обычной кнопки и вывод кнопки для загрузки по AJAX в разные функции
  */
 class VacancyActions extends CWidget
 {
     /**
+     * @var bool - загружаются ли данные виджета через AJAX?
+     *             (если да - то выводим скрипты после разметки, иначе они не подключатся)
+     */
+    public $isAjaxRequest = false;
+    /**
      * @var EventVacancy - вакансия, для которой отображаются кнопки
      */
     public $vacancy;
-    
     /**
      * @var string - режим отображения 
      *               normal - для авторизованнх пользователей
      *               token - для подачи заявки по токену
      */
     public $mode = 'normal';
-    
     /**
      * @var EventInvite - приглашение участника, дающее ему право подавать заявку
      */
     public $invite;
-    
     /**
      * @var string - ключ по которому происходит подача заявки (если заявка подается из почты, по ключу)
      */
     public $key;
-    
     /**
      * @var string - id тега, содержащего все AJAX-кнопки
      */
     public $containerId;
-    
     /**
      * @var bool - выдавать ли подтверждение перед подачей заявки?
      */
     public $confirmActions = false;
-    
     /**
      * @var string - Изначально пустая строка.
      *               Задается только если нужно вывести какое-то сообщение сразу же рядом с кнопкой или вместо кнопки
      */
-    public $message = '';
+    public $message        = '';
     
     /**
      * @var string - css-класс сообщения
      */
-    public $messageClass = 'alert alert-info';
+    public $messageClass   = 'alert alert-info';
     
     /**
      * @var int - id участника, для которого отбражаются кнопки
@@ -73,8 +77,7 @@ class VacancyActions extends CWidget
      * @var array - список кнопок, которые нужно отобразить.
      *              'addApplication', 'removeApplication', //'close', 'publish', 'changePrice'
      */
-    protected $buttons = array('addApplication'/*, 'removeApplication'*/);
-    
+    protected $buttons = array('addApplication'); // 'removeApplication'
     
     /**
      * (non-PHPdoc)
@@ -87,7 +90,7 @@ class VacancyActions extends CWidget
             case 'normal':
                 if ( ! $this->questionaryId )
                 {// берем id текущего пользователя, если он не задан вручную
-                    $this->questionaryId = Yii::app()->getModule('questionary')->getCurrentUserQuestionaryId();
+                    $this->questionaryId = Yii::app()->getModule('questionary')->getCurrentQuestionaryId();
                 }
             break;
             case 'token':
@@ -192,8 +195,27 @@ class VacancyActions extends CWidget
         $url         = $this->getButtonUrl($type);
         $ajaxOptions = $this->getButtonAjaxOptions($type);
         $htmlOptions = $this->getButtonHtmlOptions($type);
+        
+        if ( $this->isAjaxRequest )
+        {// виджет передается через AJAX: подключить скрипты заранее нет возможности: выводим их за кнопкой
+            $buttonLink   = Sweeml::raiseEventUrl('vacancy_action_'.$type.'_'.$this->vacancy->id);
+            $button       = Sweeml::link($title, $buttonLink, $htmlOptions);
+            $buttonScript = $this->getButtonEventJs($type);
+            return $button.$buttonScript;
+        }else
+        {// виджет отображается обычным способом
+            return CHtml::ajaxButton($title, $url, $ajaxOptions, $htmlOptions);
+        }
+    }
     
-        return CHtml::ajaxButton($title, $url, $ajaxOptions, $htmlOptions);
+    /**
+     * Получить скрипты, выполняющиеся при нажатии на кнопку (нужно если виджет передается через AJAX)
+     * @param string $type - тип кнопки
+     * @return string
+     */
+    protected function getButtonForAjaxLoad($type)
+    {
+         // @todo 
     }
     
     /**
@@ -250,7 +272,7 @@ class VacancyActions extends CWidget
      */
     protected function getButtonTitle($type)
     {
-        switch ($type)
+        switch ( $type )
         {
             case 'addApplication':    return 'Подать заявку';
             case 'removeApplication': return 'Отозвать заявку';
@@ -332,7 +354,7 @@ class VacancyActions extends CWidget
     {
         $buttonId = $this->getButtonId($type);
         $message  = $this->getSuccessMessage($type);
-    
+        
         $js = 'function (data, status) {';
         // скрываем все кнопки
         $js .= "$('#{$this->containerId}').hide();";
@@ -386,5 +408,20 @@ class VacancyActions extends CWidget
     protected function getButtonBeforeSendJs($type)
     {
         return '';
+    }
+    
+    /**
+     * Получить скрипт выполняющийся при нажатии кнопки (если виджет загружается по AJAX)
+     * @param string $type - тип кнопки
+     * @return string
+     */
+    protected function getButtonEventJs($type)
+    {
+        $ajax = CHtml::ajax($this->getButtonAjaxOptions($type));
+        $js   = Sweeml::registerEventScript(
+            'vacancy_action_'.$type.'_'.$this->vacancy->id,
+            "js:function(x){".$ajax."}"
+        );
+        return CHtml::script($js);
     }
 }
