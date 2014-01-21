@@ -66,9 +66,37 @@ class EventController extends Controller
     }
     
     /**
+     * Через AJAX получить список доступных ролей для события
+     * @return void
+     * 
+     * @todo сделать возможность через этот же action получать список ролей даже если заявка подается по токену
+     */
+    public function actionAjaxVacancyList()
+    {
+        if ( ! Yii::app()->request->isAjaxRequest )
+        {
+            throw new CHttpException(400, 'Wrong request type for vacancy list');
+        }
+        // получаем событие для списка ролей
+        $id    = Yii::app()->request->getParam('id', 0);
+        $event = $this->loadModel($id);
+        // анкета текущего пользователя
+        $questionary = Yii::app()->getModule('questionary')->getCurrentQuestionary();
+        // отображать ли участнику неподходящие роли?
+        $displayNotAvailable = Yii::app()->request->getParam('displayNotAvailable', true);
+        
+        $this->widget('projects.extensions.VacancyList.VacancyList', array(
+            'objectType'  => 'event',
+            'event'       => $event,
+            'questionary' => $questionary,
+        ));
+    }
+    
+    /**
      * Returns the data model based on the primary key given in the GET variable.
      * If the data model is not found, an HTTP exception will be raised.
      * @param integer the ID of the model to be loaded
+     * @return ProjectEvent
      */
     public function loadModel($id)
     {

@@ -183,7 +183,7 @@ class InviteController extends Controller
         
         $this->render('finishSelection');
     }
-    
+
     /**
      * Подать заявку на участие в мероприятии если есть только одна доступная вакансия
      * @param Questionary $questionary
