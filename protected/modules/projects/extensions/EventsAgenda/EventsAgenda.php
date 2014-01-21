@@ -29,16 +29,16 @@ class EventsAgenda extends CWidget
     /**
      * @var int - сколько событий отображать максимально? (0 - все что есть)
      */
-    public $eventLimit = 0;
+    public $eventLimit      = 0;
     /**
      * @var bool - отображать ли таймер обратного отсчета рядом с событием?
      */
-    public $displayTimers = false;
+    public $displayTimers   = false;
     /**
      * @var int - сколько последних событий будут с таймерами обратного отсчета?
      *            (0 - все события будут с таймерами)
      */
-    public $timersLimit = 0;
+    public $timersLimit     = 0;
     
     /**
      * @var string - режим просмотра: заказчик (customer) или участник (user)

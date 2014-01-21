@@ -6,6 +6,7 @@
  * Используется в слайдере событий на главной, на странице "наши события", в анкете пользователя
  * 
  * @todo решить проблему с всплывающей не в том месте подсказкой для проекта
+ * @todo при наведении на кнопку "подать заявку" выводить подсказку "нажмите чтобы посмотреть список ролей"
  * @todo добавить количество возможных ролей для кнопки "участвовать" и для заявок
  * @todo для админов вместо "мои заявки" показывать "поданые заявки"
  * @todo выводить группы событий. При отображении времени писать все дни, в которые оно проходит.
@@ -63,13 +64,13 @@ class EventInfo extends CWidget
     /**
      * @var bool - отображать ли таймер обратного отсчета рядом с событием?
      */
-    public $displayTimer = false;
+    public $displayTimer     = false;
     /**
      * @var string - где располагать таймер?
      *               description - в описании мероприятия
      *               logo - вместо логотипа (только если задано "не отображать логотип")
      */
-    public $timerPosition = 'description';
+    public $timerPosition    = 'description';
     /**
      * @var string - режим просмотра: заказчик (customer) или участник (user)
      */
@@ -77,12 +78,11 @@ class EventInfo extends CWidget
     /**
      * @var string - префикс для составления уникальных id для html элементов внутри виджета
      */
-    public $tagIdPrefix   = 'event_info';
+    public $tagIdPrefix      = 'event_info';
     /**
      * @var bool - показывать троеточие в кратком описании мероприятия как ссылку на полное описание
      */
-    public $dotsAsLink    = false;
-    
+    public $dotsAsLink       = false;
     
     /**
      * @var ProjectEvent - отображаемое событие
@@ -138,10 +138,11 @@ class EventInfo extends CWidget
         $this->_assetUrl = Yii::app()->assetManager->
             publish(Yii::getPathOfAlias('projects.extensions.EventInfo.assets').DIRECTORY_SEPARATOR);
         
-        $cs->registerCssFile($this->_assetUrl.'/EventInfo.css');
-        //$cs->registerScriptFile($this->_assetUrl.'/EventInfo.js', CClientScript::POS_END);
         $logoId     = $this->getElementId('logo', 'project');
         $initButtonScript = "$('#{$logoId}').click(function(){return false;});\n";
+        
+        $cs->registerCssFile($this->_assetUrl.'/EventInfo.css');
+        //$cs->registerScriptFile($this->_assetUrl.'/EventInfo.js', CClientScript::POS_END);
         $cs->registerScript('_initEventInfoButton#'.$this->event->id, $initButtonScript, CClientScript::POS_END);
     }
     
@@ -170,29 +171,31 @@ class EventInfo extends CWidget
             'shortEventInfo' => $this->getShortEventInfo(),
             'contentClass'   => $contentClass,
         ));
-        if ( false )
-        {// @todo доступных ролей нет - не добавляем скрипт для списка ролей
-            return;
-        }
         // Добавляем всплывающее окно с описанием проекта
         $projectInfoUrl = Yii::app()->createUrl('//projects/project/ajaxInfo');
+        $logoSelector   = '#'.$this->getElementId('logo', 'project');
         $this->widget('ext.ECMarkup.ECPopover.ECPopover', array(
-            'triggerSelector'    => '#'.$this->getElementId('logo', 'project'),
+            'triggerSelector'    => $logoSelector,
             'html'               => true,
-            'title'              => CJavaScript::encode($this->event->project->name),
+            'title'              => 'О проекте',
             'placement'          => 'bottom',
             'htmlOptions'        => array('style' => 'width:400px;max-width:400px;'),
             'contentAjaxOptions' => array(
-                'url'  => $projectInfoUrl,
-                'data' => array(
+                'url'   => $projectInfoUrl,
+                'cache' => false,
+                'type'  => 'post',
+                'data'  => array(
                     'id' => $this->event->project->id,
                     Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
                 ),
-            'cache'      => false,
-            'type'       => 'post',
-        )));
-        // добавляем на кнопку "участвовать" раскрывающийся список подходящих ролей
-        
+            ),
+        ));
+        if ( ! Yii::app()->user->isGuest OR ! $this->vacancyListMode != 'popover' )
+        {// добавляем на кнопку "участвовать" раскрывающийся список подходящих ролей
+            $buttonSelector = '#'.$this->getElementId('button', 'join');
+            $vacancyListUrl = Yii::app()->createUrl('//projects/event/ajaxVacancyList');
+            $this->displayPopover($vacancyListUrl, $buttonSelector);
+        }
     }
     
     /**
@@ -277,19 +280,16 @@ class EventInfo extends CWidget
         $projectName  = '';
         $project      = $this->event->project;
         $logoUrl      = $this->event->project->getAvatarUrl('small', true);
-        $projectUrl   = Yii::app()->createUrl('/projects/projects/view', array(
-            'id' => $project->id,
-        ));
+        $projectUrl   = Yii::app()->createUrl('/projects/projects/view', array('id' => $project->id));
         
         // логотип проекта
         $image = CHtml::image($logoUrl, '', array(
             'class' => 'ec-event-info-logo img-polaroid media-object',
+            'id'    => $this->getElementId('logo', 'project'),
         ));
         // настройки логотипа: при клике на него должно открываться окно с полной информацией о проекте
-        $imageLinkOptions = array(
-            'id' => $this->getElementId('logo', 'project'),
-        ); 
-        $image = CHtml::link($image, $projectUrl, $imageLinkOptions);
+        //$imageLinkOptions = array(); 
+        //$image = CHtml::link($image, $projectUrl, $imageLinkOptions);
         
         if ( $this->displayProjectName )
         {// отображаем название проекта под логотипом (если нужно)
@@ -297,12 +297,12 @@ class EventInfo extends CWidget
             $projectNameOptions  = array(
                 'target'         => '_blank',
                 'data-toggle'    => 'tooltip',
-                'data-title'     => 'Перейти на страницу проекта<br>(в новом окне)',
+                'data-title'     => 'Перейти на страницу проекта',
                 'data-html'      => true,
                 'data-placement' => 'bottom',
             );
-            $projectName = '<small class="muted">'.$this->event->project->name.'</small>';
-            $projectName = Html::link($projectName, $projectUrl, $projectNameOptions);
+            $projectName = '<small class="muted">'.$project->name.'</small>';
+            $projectName = CHtml::link($projectName, $projectUrl, $projectNameOptions);
         }
         
         return $this->render('_logo', array(
@@ -375,91 +375,47 @@ class EventInfo extends CWidget
      * 
      * @return string
      */
-    protected function getJoinButton()
+    protected function getTopJoinButton()
     {
         $htmlOptions = array(
-            'id'    => $this->getElementId('button', 'join'),
-            'class' => 'pull-right',
+            'id'       => $this->getElementId('button', 'join'),
+            'class'    => 'pull-right',
+            'onclick'  => 'return false;',
         );
         $type  = 'success';
         $label = 'Участвовать';
+        $icon  = 'star white';
         
         if ( Yii::app()->user->isGuest AND $this->userMode == 'user' )
         {// гость-участник просматривает страницу: надпись на кнопке "записаться", и вместо доступных ролей
             // она открывает modal-окно с регистрацией
+            $label = 'Регистрация';
+            $type  = 'primary';
+            $icon  = '';
             $htmlOptions['data-toggle'] = 'modal';
             $htmlOptions['data-target'] = '#registration-modal';
         }
         
-        // FIXME убрать отладку
-        if ( false OR Yii::app()->user->checkAccess('User') AND ! Yii::app()->user->checkAccess('Customer') )
+        if ( Yii::app()->user->checkAccess('User') AND ! Yii::app()->user->checkAccess('Customer') )
         {// кнопку видит зарегистрированный пользователь
             if ( ! $this->getVacancyCount() )
             {// нет доступных ролей - сообщим об этом участнику и выключим кнопку
                 $type  = 'default';
-                $label = 'Нет подходящих ролей';
+                $label = 'Нет ролей';
+                $icon  = 'remove';
                 $htmlOptions['disabled'] = 'disabled';
             }
         }
-        return $this->widget('bootstrap.widgets.TbButton', array(
-            'buttonType'  => 'link',
-            'type'        => $type,
-            'label'       => $label,
-            'icon'        => 'star white',
-            'url'         => '#',
-            'htmlOptions' => $htmlOptions,
-        ), true);
-    }
-    
-    /**
-     * Получить html-код кнопки "мои заявки", которая раскрывает список поданых заявок
-     * 
-     * @return string
-     */
-    protected function getRequestsButton()
-    {
-        $htmlOptions = array('id' => $this->getElementId('button', 'requests'));
-        $type        = 'info';
-        $label       = "Мои заявки";
-        if ( $count = $this->getRequestCount() )
-        {
-            $label .= " ({$count})";
-        }
-        
-        if ( Yii::app()->user->checkAccess('User') )
-        {// кнопку видит зарегистрированный пользователь
-            $htmlOptions['click'] = 'function(){alert("request");}';
-        }
-        return $this->widget('bootstrap.widgets.TbButton', array(
-            'buttonType'  => 'link',
-            'type'        => $type,
-            'label'       => $label,
-            'icon'        => 'tasks white',
-            'url'         => '#',
-            'htmlOptions' => $htmlOptions,
-        ), true);
-    }
-    
-    /**
-     * Получить html-код кнопки "О проекте"
-     * 
-     * @return string
-     */
-    /*protected function getProjectInfoButton()
-    {
-        $htmlOptions = array('id' => $this->getElementId('button', 'projectinfo'));
-        $type        = 'default';
-        $label       = "О проекте";
         
         return $this->widget('bootstrap.widgets.TbButton', array(
             'buttonType'  => 'link',
             'type'        => $type,
             'label'       => $label,
-            'icon'        => 'question-sign',
+            'icon'        => $icon,
             'url'         => '#',
             'htmlOptions' => $htmlOptions,
         ), true);
-    }*/
+    }
     
     /**
      * Получить количество поданых участником заявок 
@@ -476,7 +432,7 @@ class EventInfo extends CWidget
      */
     protected function getVacancyCount()
     {
-        
+        return $this->event->countVacanciesFor($this->questionaryId);
     }
     
     /**
@@ -489,31 +445,45 @@ class EventInfo extends CWidget
     }
     
     /**
-     * Отображать ли блок с кнопкой "участвовать" и информацией о доступных ролях?
+     * Получить список ролей под событием
      * @return bool
      */
-    protected function displayVacancyInfo()
+    protected function getVacancyList()
     {
-        
+        if ( ! $this->displayVacancies OR $this->vacancyListMode != 'list' )
+        {// список внизу не отображается: вместо него сверху кнопка "участвовать"
+            return '';
+        }
+        return $this->widget('project.extensions.VacancyList.VacancyList', array(
+            'objectType'  => 'event',
+            'event'       => $this->event,
+            'questionary' => $this->questionary,
+        ), true);
     }
     
     /**
-     * Отображать ли блок с кнопкой "мои заявки" и информацией о поданых заявках?
-     * @return bool
+     * Отобразить popover-подсказку для элемента
+     * @param string $url
+     * @param string $selector
+     * @return void
      */
-    /*protected function requestsBlockVisible()
+    protected function displayPopover($url, $selector)
     {
-        if ( $this->userMode == 'customer' OR 
-             Yii::app()->user->isGuest OR 
-             Yii::app()->user->checkAccess('Admin') OR
-             Yii::app()->user->checkAccess('Customer') )
-        {// админам, заказчикам и гостям кнопка не показывается
-            return false;
-        }
-        if ( ! $this->getRequestCount() )
-        {// нет ни одной заявки - не показываем кнопку
-            false;
-        }
-        return true;
-    }*/
+        $this->widget('ext.ECMarkup.ECPopover.ECPopover', array(
+            'triggerSelector'    => $selector,
+            'html'               => true,
+            'title'              => 'Роли в этот день',
+            'placement'          => 'bottom',
+            'htmlOptions'        => array('style' => 'width:400px;max-width:400px;'),
+            'contentAjaxOptions' => array(
+                'cache' => false,
+                'url'   => $url,
+                'type'  => 'post',
+                'data'  => array(
+                    'id'  => $this->event->id,
+                    Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
+                ),
+            ),
+        ));
+    }
 }

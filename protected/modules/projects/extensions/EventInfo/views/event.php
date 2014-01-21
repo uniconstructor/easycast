@@ -11,7 +11,9 @@
             <?= $logo; ?>
             <div class="<?= $contentClass; ?>">
                 <p style="margin-bottom:5px;">
-                    <span class="lead text-warning"><?= $event->getFormattedTimeStart(); ?></span><?= $this->getJoinButton(); ?>
+                    <span class="lead text-warning">
+                        <?= $event->getFormattedTimeStart(); ?>
+                    </span><?= $this->getTopJoinButton(); ?>
                 </p>
                 <h4 class="media-heading"><?= $event->project->name; ?></h4>
                 <?= $eventLabels; ?>
@@ -21,6 +23,9 @@
                 </p>
             </div>
         </div>
-        <?php // $this->render('_buttons'); ?>
+        
     </div>
+</div>
+<div class="row-fluid">
+    <?php $this->getVacancyList(); ?>
 </div>
