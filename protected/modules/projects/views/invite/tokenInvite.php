@@ -3,7 +3,11 @@
  * Страница подачи заявки на участие (из письма участника)
  */
 /* @var $this InviteController */
-$this->breadcrumbs = array();
+
+// навигация
+$this->breadcrumbs = array(
+	'Приглашение',
+);
 
 $this->widget('application.modules.projects.extensions.TokenInvite.TokenInvite', array(
     'key'    => $key,
