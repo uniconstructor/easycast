@@ -2,8 +2,8 @@
 /**
  * Страница подачи заявки на участие (из письма участника)
  */
-
-$this->breadcrumbs=array();
+/* @var $this InviteController */
+$this->breadcrumbs = array();
 
 $this->widget('application.modules.projects.extensions.TokenInvite.TokenInvite', array(
     'key'    => $key,
