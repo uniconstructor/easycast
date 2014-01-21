@@ -139,17 +139,16 @@ class ECPopover extends CWidget
             $popoverOptions['title'] = 'js:function(){'.CHtml::ajax($this->titleAjaxOptions).'}';
         }
         if ( $this->contentAjaxOptions )
-        {
+        {// @todo анимация загрузки
             //$progress = '<p class="lead text-center muted">Загрузка...</p><div class="progress progress-striped active"><div class="bar" style="width:100%;"></div></div>';
-            $this->contentAjaxOptions['replace']    = '#'.$this->contentId;
-            //$this->contentAjaxOptions['beforeSend'] = "js:function(){console.log('bfs'); console.log(\$('#{$this->contentId}').html());\$('#{$this->contentId}').html('ololo');}";
+            //$this->contentAjaxOptions['beforeSend'] = "js:function(){\$('#{$this->contentId}').html('ololo');}";
+            $this->contentAjaxOptions['replace'] = '#'.$this->contentId;
             $popoverOptions['content'] = 'js:function(){'.CHtml::ajax($this->contentAjaxOptions).'}';
         }
-        
         // создаем полный набор параметров для активации popover-подсказки
         $popoverOptions = CJavaScript::encode($popoverOptions);
         
-        $this->js .= "$('{$this->triggerSelector}').popover({$popoverOptions});";
+        $this->js .= "\$('{$this->triggerSelector}').popover({$popoverOptions});";
     }
     
     /**
