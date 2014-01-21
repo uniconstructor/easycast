@@ -4,9 +4,17 @@
  * Этот виджет отображает всю доступную информацию по одной роли в зависимости от контекста
  * 
  * @todo добавить проверку входных параметров
+ * @todo добавить возможность выводить скрипты после кода, чтобы этот виджет работал при получении через AJAX
+ * @todo разрешить гостям видеть роли когда будет реализована "умная регистрация"
+ *      (это когда набор полей в форме зависит от критериев роли, на которую захотел подать заявку гость)
  */
 class VacancyInfo extends CWidget
 {
+    /**
+     * @var bool - загружаются ли данные виджета через AJAX?
+     *             (если да - то выводим скрипты после разметки, иначе они не подключатся)
+     */
+    public $isAjaxRequest = false;
     /**
      * @var EventVacancy - отображаемая роль
      */
@@ -39,27 +47,27 @@ class VacancyInfo extends CWidget
     /**
      * @var bool - отображать ли список заявок на роль?
      */
-    public $displayRequests   = false;
+    public $displayRequests     = false;
     /**
      * @var bool - отображать ли размер оплаты для этой роли?
      */
-    public $displaySalary     = true;
+    public $displaySalary       = true;
     /**
      * @var bool - если оплата за съемки не предполагается (например это кастинг или некоммерческий проект), 
      *             то выводить ли об этом сообщение?
      */
-    public $displayZeroSalary = true;
+    public $displayZeroSalary   = true;
     /**
      * @var bool - подходит ли просматривающий роль участник на эту вакансию?
      * @todo когда будет создана таблица, которая хранит информацию о том какой участник на какую роль подходит -
      *       то этот параметр станет не нужен. Сейчас он добавлен только для того чтобы сократить количество
      *       сложных проверок на соответствие / не соответствие критериям роли.
      */
-    public $isAvailable           = false;
+    public $isAvailable         = false;
     /**
-     * @var bool - отображать роль участнику только если она ему доступна?
+     * @var bool - отображать роль участнику если она ему не доступна?
      */
-    public $displayOnlyIfAvailable = false;
+    public $displayNotAvailable = true;
     /**
      * @var bool - отображать ли завершенные роли (те, на которые уже набрали людей)
      */
@@ -106,6 +114,13 @@ class VacancyInfo extends CWidget
      */
     public function init()
     {
+        if ( ! in_array($this->userMode, array('user', 'customer')) )
+        {// определяем режим просмотра сайта (участник/заказчик) если он не задан
+            $this->userMode = Yii::app()->getModule('user')->getViewMode();
+        }
+        // определяем роль пользователя
+        $this->defineDisplayMode();
+        
         parent::init();
     }
     
@@ -118,14 +133,23 @@ class VacancyInfo extends CWidget
         {// роль отображать не нужно - пропускаем ее
             return;
         }
-        $salary = '';
-        if ( $this->displaySalary AND $this->vacancy->salary AND 
-           ( $this->displayMode === 'user' OR $this->displayMode === 'admin' ) )
-        {// отображаем размер оплаты только участникам или админам
-            $salary = $this->render('_salary', null, true);
+        $this->render('vacancy', array('salary' => $this->getSalary()));
+    }
+    
+    /**
+     * отобразить размер оплаты
+     * @return string
+     */
+    protected function getSalary()
+    {
+        if ( ! $this->displaySalary OR ! $this->vacancy->salary )
+        {
+            return '';
         }
-        
-        $this->render('vacancy', array('salary' => $salary));
+        if ( $this->displayMode === 'user' OR $this->displayMode === 'admin' )
+        {// отображаем размер оплаты только участникам или админам
+            return $this->render('_salary', null, true);
+        }
     }
     
     /**
@@ -142,37 +166,42 @@ class VacancyInfo extends CWidget
         {// роль закрыта и закрытые роли запрещено показывать
             return false;
         }
-        if ( ! $this->isAvailable AND $this->displayOnlyIfAvailable )
+        if ( $this->displayMode === 'user' AND ! $this->isAvailable AND ! $this->displayNotAvailable )
         {// участник не подходит на роль и неподходящие роли запрещено показывать
             return false;
         }
-        if ( ! in_array($this->userMode, array('user', 'customer')) )
-        {
-            $this->userMode = Yii::app()->getModule('user')->getViewMode();
-        }
-        if ( ! $this->displayMode )
-        {// не указано кому будет отображен виджет, поэтому пробуем догататься какой режим отображения нужен
-            // поумолчанию считаем всех гостями что бы ни случилось :)
-            $this->displayMode = 'guest';
-            if ( Yii::app()->user->checkAccess('Admin') )
-            {// это админ
-                if ( $this->userMode == 'customer' )
-                {// админ в рещиме заказчика видит почти все как у заказчика
-                    $this->displayMode = 'customer';
-                }else
-                {// админ в системе участника видит все, но не может подать ни одной заявки
-                    $this->displayMode = 'admin';
-                }
-            }elseif ( Yii::app()->user->checkAccess('Customer') )
-            {// это заказчик
-                $this->displayMode = 'customer';
-            }elseif ( Yii::app()->user->checkAccess('Customer') )
-            {// это участник
-                $this->displayMode = 'user';
-            }
-        }
         
         return true;
+    }
+    
+    /**
+     * Определить режим просмотра виджета, если он не задан
+     * @return void
+     */
+    protected function defineDisplayMode()
+    {
+        if ( $this->displayMode )
+        {// режим задан
+            return;
+        }
+        // по умолчанию считаем всех гостями что бы ни случилось :)
+        $this->displayMode = 'guest';
+        if ( Yii::app()->user->checkAccess('Admin') )
+        {// это админ
+            if ( $this->userMode == 'customer' )
+            {// админ в рещиме заказчика видит почти все как у заказчика
+                $this->displayMode = 'customer';
+            }else
+            {// админ в системе участника видит все, но не может подать ни одной заявки
+                $this->displayMode = 'admin';
+            }
+        }elseif ( Yii::app()->user->checkAccess('Customer') )
+        {// это заказчик
+            $this->displayMode = 'customer';
+        }elseif ( Yii::app()->user->checkAccess('User') )
+        {// это участник
+            $this->displayMode = 'user';
+        }
     }
     
     /**
@@ -182,12 +211,16 @@ class VacancyInfo extends CWidget
      */
     protected function createActionButtons()
     {
-        return $this->widget('projects.extensions.VacancyActions.VacancyActions',
-            array(
-                'vacancy' => $this->vacancy,
-                'mode'    => 'normal', // token
-                'invite'  => $this->invite,
-                'key'     => $this->key,
-            ), true);
+        if ( $this->displayMode != 'user' )
+        {// кнопку "подать заявку" видят только участники
+            return '';
+        }
+        return $this->widget('projects.extensions.VacancyActions.VacancyActions', array(
+            'isAjaxRequest' => $this->isAjaxRequest,
+            'vacancy' => $this->vacancy,
+            'mode'    => 'normal', // token
+            'invite'  => $this->invite,
+            'key'     => $this->key,
+        ), true);
     }
 }
