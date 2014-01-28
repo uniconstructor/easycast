@@ -133,22 +133,18 @@ class InviteController extends Controller
         $customerInvite = $this->loadCustomerInviteModel($id);
         $this->checkCustomerInviteKeys($customerInvite, $key, $key2);
         
-        if ( true OR $customerInvite->status == CustomerInvite::STATUS_PENDING )
-        {// запоминаем, что приглашением воспользовались
-            // @todo изменять статус на "использовано" только для приглашений в статусе "pending"
-            $customerInvite->setStatus(CustomerInvite::STATUS_ACTIVE);
-        }
-        
+        // запоминаем, что приглашением воспользовались
+        $customerInvite->markUsed();
+                
         if ( Yii::app()->request->getParam('done') )
         {// нажата кнопка "завершить отбор"
             if ( $this->finishSelectionAllowed($customerInvite) )
             {// если заказчик закрыл все вакансии и ничего не забыл - перенаправляем его на
                 // страницу завершения отбора
-                $this->redirect(Yii::app()->createUrl('/projects/invite/finishSelection',
-                    array(
-                        'id' => $customerInvite->id,
-                        'k1' => $customerInvite->key,
-                        'k2' => $customerInvite->key2,
+                $this->redirect(Yii::app()->createUrl('/projects/invite/finishSelection', array(
+                    'id' => $customerInvite->id,
+                    'k1' => $customerInvite->key,
+                    'k2' => $customerInvite->key2,
                 )));
             }else
             {// @todo отображаем сообщение о том, что отбор еще не закончен
