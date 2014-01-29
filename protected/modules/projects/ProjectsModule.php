@@ -40,8 +40,14 @@ class ProjectsModule extends CWebModule
 	    $criteria  = new CDbCriteria();
 	    // Показываем в списке проектов активные и завершенные проекты
 	    $criteria->addInCondition('status', array(Project::STATUS_ACTIVE, Project::STATUS_FINISHED));
-	    // Самые лучшие по рейтингу - всегда наверху
-	    $criteria->order = '`rating` DESC, `timecreated` DESC';
+	    
+	    if ( Yii::app()->getModule('user')->getViewMode() === 'customer' )
+	    {// Просмотр для заказчиков: cамые лучшие по рейтингу - всегда наверху
+	        $criteria->order = '`rating` DESC, `timecreated` DESC';
+	    }else
+	    {// Просмотр для участников: самые новые проекты - всегда наверху
+	        $criteria->order = '`timecreated` DESC';
+	    }
 	     
 	    return $criteria;
 	}
