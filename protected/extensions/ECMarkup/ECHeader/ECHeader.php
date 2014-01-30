@@ -69,7 +69,7 @@ class ECHeader extends CWidget
      */
     protected function defineNewState()
     {
-        $mode = Yii::app()->getGlobalState('userMode', 'user');
+        $mode = Yii::app()->getModule('user')->getViewMode();
         switch ( $mode )
         {
             case 'user': 

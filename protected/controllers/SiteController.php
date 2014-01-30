@@ -34,14 +34,7 @@ class SiteController extends Controller
     {
         if ( $newState = Yii::app()->request->getParam('newState') )
         {
-            if ( $newState == 'customer' )
-            {
-                Yii::app()->setGlobalState('userMode', $newState);
-            }
-            if ( $newState == 'user' )
-            {
-                Yii::app()->setGlobalState('userMode', $newState);
-            }
+            Yii::app()->getModule('user')->setViewMode($newState);
         }
         $this->render('index');
         // $this->render('application.modules.user.views.user.login');
