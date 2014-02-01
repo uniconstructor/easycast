@@ -365,7 +365,16 @@ class UserModule extends CWebModule
 	 */
 	public function getViewMode()
 	{
-	    return Yii::app()->getGlobalState('userMode', 'user');
+	    return Yii::app()->user->getState('userMode', 'user');
+	}
+	
+	/**
+	 * Получить текущий режим просмотра сайта: для участников или для заказчиков
+	 * @return string
+	 */
+	public function setViewMode($mode='user')
+	{
+	    return Yii::app()->user->setState('userMode', $mode);
 	}
 	
 	/**
