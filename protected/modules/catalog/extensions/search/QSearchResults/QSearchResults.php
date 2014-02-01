@@ -19,41 +19,34 @@ class QSearchResults extends CWidget
      * @todo убрать разделение на поиск по разделам и поиск по большой форме
      */
     public $mode;
-    
     /**
      * @var CatalogSection - раздел каталога внутри которого производится поиск
      *                       (если поиск производится внутри раздела)
      */
     public $section = null;
-    
     /**
      * @var array - данные, пришедшие из формы поиска
      */
     public $data;
-    
     /**
      * @var string - url, по которому должно поисходить обновление данных
      */
     public $route = '/catalog/catalog/ajaxSearch';
-    
     /**
      * @var array - массив параметров, которые передаются вместе с номером страницы
      */
     public $routeParams = array();
-    
     /**
      * @var string - тип объекта к которому привязаны критерии и результаты поиска
      *               (например вакансия или раздел каталога)
      * @todo заготовка для будущего рефакторинга
      */
     public $objectType = 'section';
-    
     /**
      * @var int - id объекта, к которому привязаны критерии поиска
      * @todo заготовка для будущего рефакторинга
      */
     public $objectId;
-    
     /**
      * @var CActiveRecord - модель к которой привязаны критерии и результаты поиска
      *                      Может быть вичислена на основе objectType и objectId или задана вручную
@@ -72,13 +65,15 @@ class QSearchResults extends CWidget
      */
     public function init()
     {
+        // подключаем библиотеку sweekit, чтобы отображадось видео в загружаемых по AJAX анкетах
+        Yii::app()->getClientScript()->registerSweelixScript('shadowbox');
         // эти классы нужны для отображения результатов поиска, потому что критерии поиска могут быть привязаны к ним
         Yii::import('application.modules.catalog.models.CatalogSection');
         Yii::import('application.modules.projects.models.EventVacancy');
         
         // указываем путь к классу, который занимается сборкой поискового запроса из отдельных частей
         // @todo сделать полем класса
-        $pathToAssembler = 'application.modules.catalog.extensions.search.handlers.QSearchCriteriaAssembler';
+        $pathToAssembler = 'catalog.extensions.search.handlers.QSearchCriteriaAssembler';
         if ( $this->mode == 'filter' AND ! is_object($this->searchObject) )
         {
             throw new CException('Section not found');
@@ -202,6 +197,21 @@ class QSearchResults extends CWidget
             ));
         }
         
+        if ( Yii::app()->params['useCSS3'] )
+        {
+            $this->printCss3Grid($dataProvider, $emptyText);
+        }else
+        {
+            $this->printSafeGrid($dataProvider, $emptyText);
+        }
+    }
+    
+    /**
+     * Отобразить результаты поиска (для старых браузеров)
+     * @return void
+     */
+    protected function printSafeGrid($dataProvider, $emptyText)
+    {
         $this->widget('bootstrap.widgets.TbThumbnails', array(
             'dataProvider' => $dataProvider,
             'ajaxUpdate'   => 'search_results_data',
@@ -213,6 +223,33 @@ class QSearchResults extends CWidget
             'emptyText'    => $emptyText,
         ));
     }
+    
+    /**
+     * Отобразить результаты поиска (для новых браузеров)
+     * @return void
+     */
+    protected function printCss3Grid($dataProvider, $emptyText)
+    {
+        $this->widget('ext.CdGridPreview.CdGridPreview', array(
+            'dataProvider'     => $dataProvider,
+            'listViewLocation' => 'bootstrap.widgets.TbListView',
+            'descriptionOnly'  => true,
+            'listViewOptions' => array(
+                'ajaxUpdate'   => 'search_results_data',
+                'id'           => 'search_results_data',
+                //'ajaxType'     => 'POST',
+                'ajaxUrl'      => Yii::app()->createUrl($this->route, $this->routeParams),
+                'template'     => "{summary}{items}{pager}",
+                'emptyText'    => $emptyText,
+            ),
+            'options' => array(
+                'headerClass' => ' ',
+                'textClass'   => ' ',
+            ),
+        ));
+    }
+    
+    
     
     /**
      * 
