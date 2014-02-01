@@ -16,7 +16,6 @@ class ECVideoList extends CWidget
      * @var Video[] - список роликов для отображения
      */
     public $videos;
-    
     /**
      * @var string
      */
@@ -28,11 +27,15 @@ class ECVideoList extends CWidget
     /**
      * @var int
      */
-    public $limit = 6;
+    public $limit = 12;
     /**
      * @var CDbCriteria
      */
     public $criteria;
+    /**
+     * @var bool
+     */
+    public $isAjaxRequest;
     
     /**
      * @var array - настройки для плагина shadowbox
@@ -45,10 +48,13 @@ class ECVideoList extends CWidget
      */
     public function init()
     {
-        parent::init();
-        
         $defaults = $this->getShadowBoxDefaults();
         $this->shadowBox = CMap::mergeArray($defaults, $this->shadowBox);
+        
+        if ( $this->isAjaxRequest === null )
+        {
+            $this->isAjaxRequest = Yii::app()->request->isAjaxRequest;
+        }
         
         $this->setCriteria();
     }
@@ -58,6 +64,10 @@ class ECVideoList extends CWidget
      */
     public function run()
     {
+        // @todo пока непонятно как встраивать видео из vk - не показываем его в списке, чтобы не 
+        //       давать ссылку на конкретных людей
+        $this->criteria->addCondition("`type` != 'vkontakte'");
+        
         $dataProvider = new CActiveDataProvider('Video',  array(
             'criteria'   => $this->criteria,
             'pagination' => array('pageSize' => $this->limit),
@@ -92,7 +102,7 @@ class ECVideoList extends CWidget
     protected function setCriteria()
     {
         if ( $this->criteria )
-        {
+        {// условия поиска уже заданы, не меняем их
             return;
         }
         
