@@ -216,77 +216,75 @@ class QUserInfo extends CWidget
     }
     
     /**
-     * Получить содержимое вкладки "Основное"
-     * @todo при отображении данных все поля анкеты указаны с большой буквы 
-     *        (Хотя в базе они начинаются с маленькой)
-     *        Это не ошибка, просто текущая версия Yii не запускает геттер свойства если 
-     *        название свойства совпадает с полем в базе. Это странное поведение - будем ждать исправлений
-     * 
-     * @return string - html-код содержимого вкладки
+     * Получить блок с описанием одного поля анкеты
+     * @param string $field - поле в анкете (как оно называется в базе)
+     * @return string
      */
-    protected function getMainTabContent()
+    protected function getPropertyBlock($field)
     {
-        $content = '';
         $questionary = $this->questionary;
         
-        // Внешность
-        $data       = array();
-        $attributes = array();
-        $data['id']  = 1;
+        $label       = $questionary->getAttributeLabel($field);
+        $value       = '';
+        $placeholder = '[нет данных]';
+        $affix       = '';
+        $hint        = '';
         
-        if ( $questionary->playage )
-        {// игровой возраст
-            $data['playage']      = $questionary->playage;
-            $attributes[]         = array('name'=>'playage', 'label'=>QuestionaryModule::t('playage_label'));
+        switch ( $field )
+        {
+            case 'age': 
+                $placeholder = '[не указан]';
+                $value = $this->questionary->age;
+            break;
+            case 'playage': 
+                $placeholder = '[не указан]';
+                $value = $this->questionary->playage;
+            break;
+            case 'looktype':
+                $hint = $questionary->getAttributeLabel('nativecountryid').': '.$questionary->nativecountry->name;
+                $placeholder = '[не указан]';
+                $value = $questionary->getScalarFieldDisplayValue($field, $questionary->$field);
+            break;
+            case 'height': 
+                $affix = 'см';
+                $value = $questionary->getScalarFieldDisplayValue($field, $questionary->$field);
+            break;
+            case 'weight': 
+                $affix = 'кг';
+                $value = $questionary->getScalarFieldDisplayValue($field, $questionary->$field);
+            break;
+            case 'addchar':
+                if ( ! $value = $this->getAddCharPropertyBlock() )
+                {// не выводим поле с дополнительными хакактеристиками если оно не заполнено
+                    return '';
+                }
+            break;
+            case 'titsize':
+                if ( $questionary->gender == 'female' AND $questionary->Titsize )
+                {// не выводим поле с дополнительными хакактеристиками если оно не заполнено
+                    $value = $questionary->getScalarFieldDisplayValue($field, $questionary->$field);
+                }
+            break;
+            default: $value = $questionary->getScalarFieldDisplayValue($field, $questionary->$field); break;
+        }
+        if ( ! $value )
+        {// значение не указано - выведем заглушку
+            $muted = true;
         }
         
-        if ( $questionary->Height )
-        {// рост
-            $data['height']       = $questionary->Height;
-            $attributes[]         = array('name'=>'height', 'label'=>QuestionaryModule::t('height_label'));
-        }
+        // получаем параметры для виджета с информацией об анкете
+        $options = $this->getPropertyOptions($label, $value, $placeholder, $affix, $hint);
         
-        if ( $questionary->Weight )
-        {// вес
-            $data['weight']       = $questionary->Weight;
-            $attributes[]         = array('name'=>'weight', 'label'=>QuestionaryModule::t('weight_label'));
-        }
-        
-        if ( $questionary->Physiquetype )
-        {// телосложение
-            $data['physiquetype'] = $questionary->Physiquetype;
-            $attributes[]         = array('name'=>'physiquetype', 'label'=>QuestionaryModule::t('physiquetype_label'));
-        }
-        
-        if ( $questionary->Looktype )
-        {// тип внешности
-            $data['looktype'] = $questionary->Looktype.'<br>';
-            if ( $questionary->nativecountry )
-            {
-                $data['looktype'] .= QuestionaryModule::t('nativecountry_label').': '.$questionary->nativecountry->name;
-            }
-            $attributes[] = array('name'=>'looktype', 'label'=>QuestionaryModule::t('looktype_label'), 'type' => 'html');
-        }
-        
-        if ( $questionary->hairlength )
-        {// длина волос
-            $data['hairlength'] = $questionary->getScalarFieldDisplayValue('hairlength', $questionary->hairlength);
-            $attributes[]       = array('name'=>'hairlength', 'label'=>QuestionaryModule::t('hairlength_label'));
-        }
-        
-        if ( $questionary->Haircolor )
-        {// Цвет волос
-            $data['haircolor'] = $questionary->Haircolor;
-            $attributes[]      = array('name'=>'haircolor', 'label'=>QuestionaryModule::t('haircolor_label'));
-        }
-        
-        if ( $questionary->Eyecolor )
-        {// цвет глаз
-            $data['eyecolor']     = $questionary->Eyecolor;
-            $attributes[]         = array('name'=>'eyecolor', 'label'=>QuestionaryModule::t('eyecolor_label'));
-        }
-        
-        // дополнительные характеристики внешности
+        return $this->widget('ext.ECMarkup.ECProperty.ECProperty', $options, true);
+    }
+    
+    /**
+     * Получить блок с информацией о дополнительных ракактеристиках внешности
+     * @return string
+     */
+    protected function getAddCharPropertyBlock()
+    {
+        $questionary = $this->questionary;
         $misc = '';
         if ( $addchars = $questionary->addchars )
         {
@@ -295,84 +293,78 @@ class QUserInfo extends CWidget
                 $addchar->setScenario('view');
                 if ( trim($addchar->name) )
                 {
-                    $misc .= '<li>'.$addchar->name.'</li>';
+                    $misc .= $addchar->name.'<br>';
                 }
             }
         }
-        
         if ( $questionary->isathlete )
         {// атлет
-            $misc .= '<li>'.QuestionaryModule::t('isathlete_label').'</li>';
+            $misc .= $questionary->getAttributeLabel('isathlete').'<br>';
         }
         if ( $questionary->hastatoo )
         {// татуировки
-            $misc .= '<li>'.QuestionaryModule::t('hastatoo_enabled').'</li>';
+            $misc .= QuestionaryModule::t('hastatoo_enabled').'<br>';
         }
         
-        if ( $misc )
-        {// если есть хотя бы одна дополнительная характеристика - выведем ее
-            $data['misc']  = '<ul>'.$misc.'</ul>';
-            $attributes[] = array('name'=>'misc', 'label'=>QuestionaryModule::t('addchar_label'), 'type'=>'html');
+        return $misc;
+    }
+    
+    /**
+     * Получить параметры для создания блока описанием одного поля анкеты
+     * @param string $label - пояснение для поля анкеты
+     * @param string $value - значение поля
+     * @param string $placeHolder - текст, который выводится если нет значения
+     * @param string $affix - подсказка после значения (если есть)
+     * 
+     * @return array
+     */
+    protected function getPropertyOptions($label, $value, $placeholder='[нет данных]', $affix='', $hint='')
+    {
+        $muted = false;
+        if ( ! $placeholder )
+        {
+            $placeholder = '[нет данных]';
         }
-        
-        if ( ! empty($attributes) )
-        {// Выводим первую таблицу
-            $content .= '<h3>'.QuestionaryModule::t('looks').'</h3>';
-            
-            $content .= $this->widget('bootstrap.widgets.TbDetailView', array(
-                'data'       => $data,
-                'attributes' => $attributes), true);
+        if ( ! $value )
+        {
+            $value = $placeholder;
+            $muted  = true;
         }
+        return array(
+            'label'  => $label,
+            'value'  => $value,
+            'affix'  => $affix,
+            'muted'  => $muted,
+        );
+    }
+    
+    /**
+     * Получить содержимое вкладки "Основное"
+     * @return string - html-код содержимого вкладки
+     * 
+     * @todo разделить на 2 виджета
+     */
+    protected function getMainTabContent()
+    {
+        $content = '';
+        $questionary = $this->questionary;
         
+        // Внешность
+        $data    = array();
+        $options = array();
+        $fields  = array();
         
-        // Размеры
-        $data       = array();
-        $attributes = array();
-        $data['id'] = 1;
+        // собираем в массив все поля содержащие основную информацию
+        $fields['main'] = array(
+            // внешность (первый блок)
+            'age', 'playage', 'physiquetype','looktype', 'hairlength', 'haircolor', 'eyecolor', 'addchar',
+            // остальные параметры
+            'height', 'weight', 'chestsize', 'waistsize', 'hipsize', 'wearsize', 'shoessize', 'titsize',
+        );
         
-        if ( $questionary->Chestsize )
-        {// обхват груди
-            $data['chestsize'] = $questionary->Chestsize;
-            $attributes[]     = array('name'=>'chestsize', 'label'=>QuestionaryModule::t('chestsize_label'));
-        }
-        
-        if ( $questionary->Waistsize )
-        {// талия
-            $data['waistsize'] = $questionary->Waistsize;
-            $attributes[]     = array('name'=>'waistsize', 'label'=>QuestionaryModule::t('waistsize_label'));
-        }
-        
-        if ( $questionary->Hipsize )
-        {// бедра
-            $data['hipsize']   = $questionary->Hipsize;
-            $attributes[]     = array('name'=>'hipsize', 'label'=>QuestionaryModule::t('hipsize_label'));
-        }
-        
-        if ( $questionary->wearsize )
-        {// размер одежды
-            $data['wearsize']  = $questionary->Wearsize;
-            $attributes[]     = array('name'=>'wearsize', 'label'=>QuestionaryModule::t('wearsize_label'));
-        }
-        
-        if ( $questionary->shoessize )
-        {// и обуви
-            $data['shoessize'] = $questionary->getScalarFieldDisplayValue('shoessize', $questionary->shoessize);
-            $attributes[]     = array('name'=>'shoessize', 'label'=>QuestionaryModule::t('shoessize_label'));
-        }
-        
-        if ( $questionary->gender == 'female' AND $questionary->Titsize )
-        {// размер груди (только для женщин и только если указан)
-            $data['titsize'] = $questionary->Titsize;
-            $attributes[]   = array('name'=>'titsize', 'label'=>QuestionaryModule::t('titsize_label'));
-        }
-        
-        if ( ! empty($attributes) )
-        {// Выводим вторую таблицу (размеры)
-            $content .= '<h3>'.QuestionaryModule::t('sizes').'</h3>';
-            
-            $content .= $this->widget('bootstrap.widgets.TbDetailView', array(
-                'data'       => $data,
-                'attributes' => $attributes), true);
+        foreach ( $fields['main'] as $field )
+        {// получаем блок с информацией для каждого поля анкеты
+            $data[$field] = $this->getPropertyBlock($field);
         }
         
         if ( Yii::app()->user->checkAccess('Admin') AND trim(strip_tags($questionary->privatecomment)) )
@@ -381,6 +373,9 @@ class QUserInfo extends CWidget
             $content .= '<h4>'.'Дополнительная информация для администраторов (не видна участнику)'.'</h4>';
             $content .= $questionary->privatecomment.'</div>';
         }
+        
+        // Выводим всю основную информацию
+        $content .= $this->render('main', array('data' => $data), true);
         
         return $content;
     }

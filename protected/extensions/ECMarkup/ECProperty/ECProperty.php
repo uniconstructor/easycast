@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Класс для представления короткого фрагмента информации (название-значение)
- * Отображает небольшой блок, состоящий из двух частей: стрелка с названием параметра и блок со значением
+ * Виджет для отображения одного свойства объекта
+ * Прямоугольный блок с полоской слева
  */
-class ECKeyValue extends CWidget
+class ECProperty extends CWidget
 {
     /**
      * @var string - пояснение для значения
@@ -14,6 +14,14 @@ class ECKeyValue extends CWidget
      * @var string - само значение
      */
     public $value;
+    /**
+     * @var string - краткое пояснение после значения
+     */
+    public $affix;
+    /**
+     * @var string - краткое пояснение под значением
+     */
+    public $hint;
     /**
      * @var string - тип виджета (влияет на цвет)
      *              info
@@ -25,10 +33,6 @@ class ECKeyValue extends CWidget
      */
     public $type = 'info';
     /**
-     * @var int - высота треугольника в пикселях
-     */
-    public $spacerHeight = 15;
-    /**
      * @var bool - "выключает" виджет: делает его серым
      *              (равнозначно type='default', параметр сделан для удобства)
      */
@@ -38,23 +42,29 @@ class ECKeyValue extends CWidget
      */
     public $htmlOptions = array();
     /**
-     * @var string - цвет фона под надписью
+     * @var string - контейнер внутри которого будет размещено значение
      */
-    public $captionBackground;
+    public $valueTag = 'p';
     /**
-     * @var string - цвет фона под значением
+     * @var string - htmlOptions для контейнера со значением
      */
-    public $valueBackground;
+    public $valueOptions = array(
+        'class' => 'lead',
+    );
     
     /**
      * @see CWidget::init()
      */
     public function init()
     {
-        parent::init();
-        
+        if ( $this->muted )
+        {
+            $this->type  = 'default';
+            $this->affix = '';
+            $this->valueOptions['class'] .= ' muted';
+        }
         $defaults = array(
-            'class' => 'ec-key-value-container ec-key-value-container-'.$this->type,
+            'class' => 'ec-property-container drop-shadow bottom ec-gradient-light-radial ec-left-dash-'.$this->type,
         );
         $this->htmlOptions = CMap::mergeArray($defaults, $this->htmlOptions);
     }
@@ -64,6 +74,6 @@ class ECKeyValue extends CWidget
      */
     public function run()
     {
-        $this->render('view');
+        $this->render('property');
     }
 }

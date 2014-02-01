@@ -1,15 +1,16 @@
 <?php
 /**
- * 
+ * Разметка одного блока со стрелкой
  */
 /* @var $this ECKeyValue */
+
 $keyBgClass   = 'ec-key-bg-'.$this->type;
 $valueBgClass = 'ec-value-bg-'.$this->type;
 
 echo CHtml::openTag('div', $this->htmlOptions);
 ?>
     <div class="ec-key-block  ec-key-block-<?= $this->type; ?> <?= $keyBgClass; ?>">
-        <?= $this->key; ?>
+        <?= $this->label; ?>
     </div>
     <svg class="ec-triangle-spacer ec-triangle-spacer-<?= $this->type; ?> <?= $valueBgClass; ?>" 
         preserveAspectRatio="none" viewBox="0 0 100 102" height="<?= $this->spacerHeight; ?>" width="100%" 
