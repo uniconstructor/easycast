@@ -61,7 +61,7 @@ class ECProperty extends CWidget
         {
             $this->type  = 'default';
             $this->affix = '';
-            $this->valueOptions['class'] .= ' muted';
+            $this->valueOptions['class'] = ' muted';
         }
         $defaults = array(
             'class' => 'ec-property-container drop-shadow bottom ec-gradient-light-radial ec-left-dash-'.$this->type,
