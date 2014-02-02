@@ -44,12 +44,12 @@ class ECFooter extends CWidget
     {
         $this->render('footer');
 	    
-	    if ( ! Yii::app()->user->checkAccess('Admin') )
+	    if ( ! Yii::app()->user->checkAccess('Admin') AND ! YII_DEBUG )
 	    {// Выводим счетчик Яндекса
 	        $this->printYandexCounter();
 	    }
 	    // выводим скрипт онлайн-консультанта
-	    if ( ! Yii::app()->user->checkAccess('Admin') )
+	    if ( ! Yii::app()->user->checkAccess('Admin') AND ! YII_DEBUG )
 	    {// (для всех кроме админов)
 	        $this->render('zopim');
 	    }
