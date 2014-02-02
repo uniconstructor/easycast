@@ -234,7 +234,12 @@ class QUserInfo extends CWidget
         {
             case 'age': 
                 $placeholder = '[не указан]';
-                $value = $this->questionary->age;
+                if ( $value = $this->questionary->age )
+                {
+                    $info = explode(' ', $value);
+                    $value = $info[0];
+                    $affix = $info[1];
+                }
             break;
             case 'playage': 
                 $placeholder = '[не указан]';
@@ -246,6 +251,9 @@ class QUserInfo extends CWidget
                 $value = $questionary->getScalarFieldDisplayValue($field, $questionary->$field);
             break;
             case 'height': 
+            case 'chestsize':
+            case 'waistsize':
+            case 'hipsize':
                 $affix = 'см';
                 $value = $questionary->getScalarFieldDisplayValue($field, $questionary->$field);
             break;
