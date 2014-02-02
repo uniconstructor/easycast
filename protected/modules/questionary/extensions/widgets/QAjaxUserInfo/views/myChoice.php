@@ -4,8 +4,7 @@
  */
 
 ?>
-<div class="row">
-    <div class="span12"><hr></div>
+<div class="row-fluid">
     <div class="span5">
         <?php 
         // Список фото и видео
@@ -18,7 +17,7 @@
     <div class="span7">
         <?php 
         // Выводим всю остальную информацию о пользователе
-        $this->widget('application.modules.questionary.extensions.widgets.QUserInfo.QUserInfo', array(
+        $this->widget('questionary.extensions.widgets.QUserInfo.QUserInfo', array(
             'questionary' => $questionary,
             ));
         ?>

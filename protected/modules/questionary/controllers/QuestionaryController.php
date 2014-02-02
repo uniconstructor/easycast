@@ -489,7 +489,7 @@ class QuestionaryController extends Controller
         
         // Формат отображения данных: краткий или полный
         // @todo сделать параметр обязательным
-        $displayType = Yii::app()->request->getParam('displayType');
+        $displayType = Yii::app()->request->getParam('displayType', 'myChoice');
         
         // отображаем всю нужную информацию в ответ на запрос
         $this->widget('application.modules.questionary.extensions.widgets.QAjaxUserInfo.QAjaxUserInfo', array(

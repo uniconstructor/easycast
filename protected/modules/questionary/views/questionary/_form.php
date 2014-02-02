@@ -206,8 +206,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
     
         <?php 
         // дата рождения
-        echo $form->datepickerRow(
-            $questionary,
+        echo $form->datepickerRow($questionary,
             'formattedBirthDate', array(
                 'options' => array(
                     'language'  => 'ru',
@@ -218,6 +217,8 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
                     'endDate'   => '-1y',
                     'autoclose' => true,
                 ),
+            ),
+            array(
                 'hint'    => 'Нажмите на название месяца или на год, чтобы изменить его',
                 'prepend' => '<i class="icon-calendar"></i>'
             )

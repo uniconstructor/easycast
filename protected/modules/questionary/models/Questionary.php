@@ -376,7 +376,14 @@ class Questionary extends CActiveRecord
             ),
             // проверки для простых полей формы
             'QScalarRules' => array(
-                'class' => 'application.modules.questionary.extensions.behaviors.QScalarRules',
+                'class' => 'questionary.extensions.behaviors.QScalarRules',
+            ),
+            // @todo подключать это поведение динамически и только при отображении списка анкет
+            'CdGridView' => array(
+                'class' => 'questionary.extensions.behaviors.CdGridViewQuestionaryBehavior',
+                'ajaxOptions' => array(
+                    'url' => Yii::app()->createUrl('//questionary/questionary/ajaxGetUserInfo'),
+                ),
             ),
         );
     }
@@ -535,6 +542,7 @@ class Questionary extends CActiveRecord
             'lastname' => QuestionaryModule::t('lastname_label'),
             'middlename' => QuestionaryModule::t('middlename_label'),
             'birthdate' => QuestionaryModule::t('birthdate_label'),
+            'age' => QuestionaryModule::t('age_label'),
             'formattedBirthDate' => QuestionaryModule::t('birthdate_label'),
             'gender' => QuestionaryModule::t('gender_label'),
             'timecreated' => QuestionaryModule::t('timecreated_label'),
