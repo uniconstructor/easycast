@@ -1,5 +1,5 @@
 @import "reset.css";
-@import "ec-garantiya.css";
+/*@import "ec-garantiya.css";*/
 @font-face {
     font-family: century gothic; /* Гарнитура шрифта */
     src: url(../fonts/gothic2.ttf); /* Путь к файлу со шрифтом */
@@ -16,7 +16,7 @@
 
 .ec-body {
     background: #efefef url(../images/back.png) repeat;
-    font-family: century gothic;
+    /*font-family: century gothic;*/
 }
 
 

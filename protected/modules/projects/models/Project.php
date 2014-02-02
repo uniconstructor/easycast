@@ -210,7 +210,7 @@ class Project extends CActiveRecord
                     'centeredpreview' => array(150, 150),
                 ),
                 'full' => array(
-                    'resize' => array(530, 530),
+                    'resize'          => array(530, 530),
                 ),
             ),
             // галерея будет без имени
@@ -250,6 +250,13 @@ class Project extends CActiveRecord
 	        'galleryBehavior'      => $logoSettings,
 	        // фотогалерея
 	        'photoGalleryBehavior' => $photoGallerySettings,
+	        // отображение проектов с помощью css3
+	        'CdGridViewProjectBehavior' => array(
+	            'class'       => 'projects.behaviors.CdGridViewProjectBehavior',
+	            'ajaxOptions' => array(
+	                'url' => Yii::app()->createUrl('//projects/project/ajaxInfo'),
+                ),
+	        ),
 	    );
 	}
 
