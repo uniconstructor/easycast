@@ -42,6 +42,11 @@ class QSearchForm extends SearchFilters
     );
     
     /**
+     * @var string
+     */
+    protected $_assetUrl;
+    
+    /**
      * (non-PHPdoc)
      * @see CWidget::init()
      * 
@@ -51,6 +56,11 @@ class QSearchForm extends SearchFilters
     {
         parent::init();
         $this->mode = 'form';
+        
+        // подключаем стили формы поиска
+        $this->_assetUrl = Yii::app()->assetManager->publish(
+            Yii::getPathOfAlias('catalog.extensions.search.QSearchForm.assets') . DIRECTORY_SEPARATOR);
+        Yii::app()->clientScript->registerCssFile($this->_assetUrl.'/css/search.css');
         // регистрируем скрипт обновления счетчика
         $this->createCountRefreshJs();
     }
