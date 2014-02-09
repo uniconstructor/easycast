@@ -693,11 +693,6 @@ a.ec-switch_href {
     background-position: 35px 19px;
 }
 
-.ec-choose_your_side li a.icon_dvoiniki:hover
-{
-    background-position-y:-78px;
-}
-
 .icon_music {
     background: url(../images/music.png) no-repeat;
     background-position: 35px 19px;
@@ -713,20 +708,9 @@ a.ec-switch_href {
     background-position: 35px 19px;
 }
 
-
-.ec-choose_your_side li a.no_russia:hover
-{
-    background-position-y:-80px;
-}
-
 .icon_vedushie {
     background: url(../images/vedushie.png) no-repeat;
     background-position: 35px 23px;
-}
-
-.ec-choose_your_side li a.icon_vedushie:hover
-{
-    background-position-y:-83px;
 }
 
 .icon_twins {
@@ -748,17 +732,32 @@ a.ec-switch_href {
     background-position: 35px 21px;
 }
 
-.ec-choose_your_side li a.icon_tipagi:hover
-{
-    background-position-y:-88px;
-}
-
 .icon_sport {
     background: url(../images/sport.png) no-repeat;
     background-position: 35px 21px;
 }
 
+.ec-choose_your_side li a.icon_dvoiniki:hover
+{
+    background-position-y:-78px;
+}
+
+.ec-choose_your_side li a.no_russia:hover
+{
+    background-position-y:-80px;
+}
+
+.ec-choose_your_side li a.icon_vedushie:hover
+{
+    background-position-y:-83px;
+}
+
 .ec-choose_your_side li a.icon_sport:hover
+{
+    background-position-y:-88px;
+}
+
+.ec-choose_your_side li a.icon_tipagi:hover
 {
     background-position-y:-88px;
 }
@@ -1080,7 +1079,7 @@ a.ec-switch_href {
 /*
     Стиль поиска. Используется на главной странице.
 */
-
+/*
 .main-search {
     width: 1170px;
     height: auto;
@@ -1129,7 +1128,7 @@ div.main-search div.ml20 div {
 .ec-bigsearch-link {
     float:right;
     margin:10px;
-}
+}*/
 
 
 /*
