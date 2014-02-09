@@ -293,7 +293,7 @@ return array(
 	        // все языковые строки берутся из php-файлов
 	        'class' => 'CPhpMessageSource',
 	    ),
-
+        
         // Twitter Bootstrap
         'bootstrap' => array(
             'class' => 'bootstrap.components.Bootstrap',
@@ -320,10 +320,10 @@ return array(
         // Настройки js-библиотек и скриптов
         'clientScript' => array(
             // @todo не работает настройка темы jQuery
-            'scriptMap' => array(
+            /*'scriptMap' => array(
                 'jquery-ui.css'     => '/css/jqueryui/flick/jquery-ui.css',
                 'jquery-ui.min.css' => '/css/jqueryui/flick/jquery-ui.min.css',
-            ),
+            ),*/
             // подключаем скрипты для работы js-библиотеки sweekit 
             'behaviors' => array(
                 'sweelixClientScript' => array(
@@ -412,6 +412,13 @@ return array(
                         'autoclose' => true,
                     ),
                 ),
+                
+                // плитка изображений с раскрывающимся описанием
+                'CdGridPreview' => array(
+                    // не подключаем библиотеку modernizr вместе с виджетом
+                    // (она уже включена вместе со стандартными библиотеками)
+                    'includeModernizr' => false,
+                ),
             ),
         ),
 	),
@@ -483,6 +490,7 @@ return array(
 	    
 	    // использовать ли по умочанию новые виджеты, написанные с применением технологий CSS3?
 	    // (не все браузеры их пока поддерживают)
+	    // @deprecated использовать механизм тем для этого
 	    'useCSS3'             => true,
 	),
 );
