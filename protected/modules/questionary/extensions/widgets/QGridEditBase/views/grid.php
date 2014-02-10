@@ -28,11 +28,11 @@ $this->widget('bootstrap.widgets.TbButton', array(
         'buttonType'  => 'link',
         'type'        => 'success',
         'size'        => 'large',
-        'label'       => Yii::t('coreMessages', 'add'),
+        'label'       => $this->addButtonLabel,
         'icon'        => 'plus white',
         'url'         => '#',
         'htmlOptions' => array(
-            'id'          => 'add_film_instance',
+            'id'          => $this->addButtonId,
             'class'       => 'pull-right',
             'data-toggle' => 'modal',
             'data-target' => '#'.$this->modalId,
