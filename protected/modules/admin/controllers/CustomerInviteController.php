@@ -43,7 +43,7 @@ class CustomerInviteController extends Controller
 		return array(
 			array('allow',
 				'actions' => array('admin', 'index', 'view', 'create', 'update'),
-				'users'   => array('admin'),
+				'users'   => array('@'),
 			),
 			array('deny',  // deny all users
 				'users' => array('*'),

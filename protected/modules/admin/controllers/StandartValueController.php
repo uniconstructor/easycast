@@ -6,8 +6,14 @@
  */
 class StandartValueController extends Controller
 {
+    /**
+     * @var string
+     */
     public $layout='//layouts/column2';
     
+    /**
+     * @see CController::init()
+     */
     public function init()
     {
         Yii::import('application.modules.questionary.models.*');

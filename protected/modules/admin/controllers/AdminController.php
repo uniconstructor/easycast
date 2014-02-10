@@ -165,10 +165,38 @@ class AdminController extends Controller
 	    }*/
         
 	    $invite = new CustomerInvite;
-	    $invite->email = $email;
+	    $invite->email      = $email;
 	    $invite->objecttype = $objectType;
 	    $invite->objectid   = $objectId;
 	    //$invite->name
+	}
+	
+	/**
+	 * Создать новую, ни к чему не привязанную пустую галерею и
+	 * Получить виджет GalleryManager для загрузки в нее изображений
+	 * Используется в тех случаях когда нам нужно загрузить фотографии раньше чем создать объект,
+	 * или в тех случаях когда галерея не приявязана к объекту CActiveRecord
+	 * (например как в случае с фотографиями вручную добавленных в фотовызывной участников)
+	 * 
+	 * @return void
+	 */
+	public function actionCreateNewGallery()
+	{
+	    Yii::import('ext.galleryManager.*');
+	    Yii::import('ext.galleryManager.models.*');
+	    
+	    $gallery = new PhotoGallery();
+	    $gallery->versions    = Yii::app()->getModule('questionary')->gallerySettings['versions'];
+	    $gallery->limit       = 1;
+	    $gallery->name        = 1;
+	    $gallery->description = 1;
+	    $gallery->save(false);
+	    
+	    // в качестве ответа на AJAX-запрос
+	    $this->widget('GalleryManager', array(
+	        'gallery'         => $gallery,
+	        'controllerRoute' => '/admin/gallery'
+	    ));
 	}
 	
 	/**

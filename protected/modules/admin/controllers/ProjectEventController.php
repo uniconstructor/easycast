@@ -175,7 +175,7 @@ class ProjectEventController extends Controller
 	public function actionCallList()
 	{
 	    Yii::import('reports.models.*');
-	    // получаем id мероприятия, если вызывной лист создается для сероприятия
+	    // получаем id мероприятия, если вызывной лист создается для мероприятия
 	    $eventId  = Yii::app()->request->getParam('eventId', 0);
 	    // получаем 
 	    $reportId = Yii::app()->request->getParam('id', 0);
@@ -197,8 +197,9 @@ class ProjectEventController extends Controller
 	    {// сохраняем вызывной лист - собираем все данные, сериализуем и сохраняем запись 
 	        $report->attributes = $attributes;
 	        $report->createReport($event);
-	        Yii::app()->user->setFlash('success', 'Вызывной лист создан.<br>Теперь его можно отправить по почте.');
+	        
 	        // после сохранения вызывного листа - переходим на страницу просмотра того что создалось
+	        Yii::app()->user->setFlash('success', 'Вызывной лист создан.<br>Теперь его можно отправить по почте.');
 	        $this->redirect(Yii::app()->createUrl('/admin/projectEvent/callList', array('id' => $report->id)));
 	    }
 	    if ( $email = trim(Yii::app()->request->getParam('email', '')) )
