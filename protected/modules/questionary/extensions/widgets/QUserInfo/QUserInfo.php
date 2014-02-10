@@ -246,7 +246,10 @@ class QUserInfo extends CWidget
                 $value = $this->questionary->playage;
             break;
             case 'looktype':
-                $hint = $questionary->getAttributeLabel('nativecountryid').': '.$questionary->nativecountry->name;
+                if ( $questionary->nativecountry )
+                {
+                    $hint = $questionary->getAttributeLabel('nativecountryid').': '.$questionary->nativecountry->name;
+                }
                 $placeholder = '[не указан]';
                 $value = $questionary->getScalarFieldDisplayValue($field, $questionary->$field);
             break;
