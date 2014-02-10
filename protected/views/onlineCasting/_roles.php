@@ -57,8 +57,7 @@ $this->widget('catalog.extensions.search.QSearchForm.QSearchForm', array(
         'placeholder' => 'Например "танцор"'));
     // описание роли
     echo $form->redactorRow($onlineCastingRoleForm, 'description', array(
-        'options' => array(
-            'lang' => 'ru')
+        'editorOptions' => array('lang' => 'ru')
     ));
     // роль
     echo $form->textFieldRow($onlineCastingRoleForm, 'salary', array(
@@ -81,17 +80,15 @@ $this->widget('catalog.extensions.search.QSearchForm.QSearchForm', array(
             'size'       => 'large',
             'label'      => '< Назад',
             'url'        => Yii::app()->createUrl('/onlineCasting/create', array('step' => 'info')),
-            )
-        );
+        ));
         echo '&nbsp';
         // к следующем шагу
         $form->widget('bootstrap.widgets.TbButton', array(
-                'buttonType' => 'submit',
-                'type'       => 'success',
-                'size'       => 'large',
-                'label'      => 'Следующий шаг >',
-            )
-        );
+            'buttonType' => 'submit',
+            'type'       => 'success',
+            'size'       => 'large',
+            'label'      => 'Следующий шаг >',
+        ));
         ?>
     </div>
     <?php 

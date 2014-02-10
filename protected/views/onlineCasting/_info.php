@@ -42,14 +42,12 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     
     // описание проекта
     echo $form->redactorRow($onlineCastingForm, 'projectdescription', array(
-        'options' => array(
-            'lang' => 'ru')
+        'editorOptions' => array('lang' => 'ru')
     ));
     
     // описание мероприятия
     echo $form->redactorRow($onlineCastingForm, 'eventdescription', array(
-        'options' => array(
-            'lang' => 'ru')
+        'editorOptions' => array('lang' => 'ru')
     ));
     
     // предполагаемая дата проведения
@@ -62,6 +60,8 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                 'weekStart' => 1,
                 'autoclose' => true,
             ),
+        ),
+        array(
             'hint'    => 'Если точная дата еще не известна - оставьте поле пустым',
             'prepend' => '<i class="icon-calendar"></i>',
         )

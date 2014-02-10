@@ -90,6 +90,8 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                 'weekStart' => 1,
                 'autoclose' => true,
             ),
+        ),
+        array(
             'hint'    => 'Если точная дата еще не известна - оставьте поле пустым',
             'prepend' => '<i class="icon-calendar"></i>',
         )
@@ -148,7 +150,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     ));
     // комментарий
     echo $form->redactorRow($calculationForm, 'comment', array(
-        'options' => array('lang' => 'ru'),
+        'editorOptions' => array('lang' => 'ru'),
     ));
     ?>
     <div class="form-actions">
