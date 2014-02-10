@@ -18,7 +18,7 @@ body {
 
 .fon-left {
 	background: url(../images/fon-left.png) no-repeat fixed;
-	background-position: 0 75%;
+	background-position: 0 -15%;
 	width: 100%;
 	height: auto;
 	min-height: 100%;

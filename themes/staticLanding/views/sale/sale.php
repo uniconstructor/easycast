@@ -9,8 +9,6 @@ $searchUrl        = Yii::app()->createAbsoluteUrl('//search');
 $calculationUrl   = Yii::app()->createAbsoluteUrl('//calculation');
 $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
 
-
-
 ?>
 <div class="ec-header">
 	<div class="top">
@@ -20,12 +18,12 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
 		</div>
 		<div class="top_center">
 			<div class="logo">
-				<a href="index.html"><img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/logo.png" alt="EasyCasting"/></a>
+				<a href="index.html"><img src="<?php echo Yii::app()->createAbsoluteUrl('//'); ?>/images/logo.png" alt="EasyCasting"/></a>
 			</div>
 		</div>
 		<div class="top_right">
 			<div class="join_but">
-			     <a id="header-order-button" href="#" class="btn btn-primary">Сделать заказ</a>
+			     <button type="button" id="header-order-button" class="btn btn-primary">Сделать заказ</button>
 			</div>
 		</div>
 	</div>
@@ -103,7 +101,7 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
             </div>
             <div class="span6">
                 <div class="price">
-                	<a href="#">Расчитать стоимость</a>
+                	<a href="<?= $calculationUrl; ?>">Расчитать стоимость</a>
                 </div>
             </div>
 		</div>
@@ -122,11 +120,11 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
 		<div class="lp-service-list">
             <div class="lp-service-item">
                 <div class="lp-service-icon-container">
-                    <a href="#"><img class="lp-service-icon" 
+                    <a href="<?= $searchUrl; ?>"><img class="lp-service-icon" 
                         src="<?php echo Yii::app()->theme->baseUrl; ?>/images/serv1.png"></a>
                 </div>
                 <div class="lp-service-info">
-                    <h4 class="lp-service-name">Поиск по 25 критериям и 15 разделам</h4>
+                    <h4 class="lp-service-name"><a href="<?= $searchUrl; ?>">Поиск по 25 критериям и 15 разделам</a></h4>
                     <p class="lp-service-text">
                     Ежедневно в нашей системе регистрируется множество актеров, моделей, артистов, 
                     ведущих, танцоров, музыкантов и вокалистов, ведь мы предлагаем действительно 
@@ -143,7 +141,7 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
                         src="<?php echo Yii::app()->theme->baseUrl; ?>/images/serv2.png"></a>
                 </div>
                 <div class="lp-service-info">
-                    <h4 class="lp-service-name">Заказ через персонального менеджера</h4>
+                    <h4 class="lp-service-name"><a href="#">Заказ через персонального менеджера</a></h4>
                     <p class="lp-service-text"> 
                     Данный сервис создан специально для режиссеров, продюсеров и кастинг-директоров, 
                     которые предпочитают делегировать все кастинг-задачи и контролировать лишь конечный 
@@ -155,11 +153,11 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
             </div>
             <div class="lp-service-item">
                 <div class="lp-service-icon-container">
-                    <a href="#"><img class="lp-service-icon" 
+                    <a href="<?= $onlineCastingUrl; ?>"><img class="lp-service-icon" 
                         src="<?php echo Yii::app()->theme->baseUrl; ?>/images/serv3.png"></a>
                 </div>
                 <div class="lp-service-info">
-                    <h4 class="lp-service-name">Онлайн кастинг</h4>
+                    <h4 class="lp-service-name"><a href="<?= $onlineCastingUrl; ?>">Онлайн кастинг</a></h4>
                     <p class="lp-service-text">
                     Это новый, удобный и современный формат проведения кастинга. 
                     Если вы цените свое время, то онлайн кастинг станет для вас лучшим помощником. 
@@ -177,7 +175,7 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
                         src="<?php echo Yii::app()->theme->baseUrl; ?>/images/serv4.png"></a>
                 </div>
                 <div class="lp-service-info">
-                    <h4 class="lp-service-name">Автоматизация документооборота</h4>
+                    <h4 class="lp-service-name"><a href="#">Автоматизация документооборота</a></h4>
                     <p class="lp-service-text" style="font-size:22px;">
                         Наша умная система на основе сформированного заказа система автоматически 
                         генерирует весь пакет документов, включая договор, 
@@ -195,7 +193,7 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
             </div>
             <div class="span6">
                 <div class="price">
-                	<a href="#">Расчитать стоимость</a>
+                	<a href="<?= $calculationUrl; ?>">Расчитать стоимость</a>
                 </div>
             </div>
 		</div>
@@ -205,7 +203,13 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
 <div class="section_3" id="section3" style="margin-top: 150px;">
 	 <div class="ec-wrapper">
 		<div class="lp3_title">
-			<p><span><img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/100.png"/></span> причин работать с нами</p>
+            <p style="vertical-align: top;">
+                <span><img style="vertical-align:top;" src="<?php echo Yii::app()->theme->baseUrl; ?>/images/100.png"/></span> 
+                причин работать с нами<br>
+                <span style="color:#777;display:block;font-size:14px;margin-top:-30px;">
+                    Проекты, созданные с использованием наших услуг:
+                </span>
+            </p>
 		</div>
 		    <!-- список проектов -->
 		    <?php 
@@ -217,7 +221,7 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
                 )
             );
 
-            /*$this->widget('ext.CdGridPreview.CdGridPreview', array(
+            $this->widget('ext.CdGridPreview.CdGridPreview', array(
                 'dataProvider'     => $dataProvider,
                 'listViewLocation' => 'bootstrap.widgets.TbListView',
                 'listViewOptions'  => array(
@@ -231,101 +235,19 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
                     'style' => 'min-height:100px;max-width:100px;min-width:100px;border-radius:10px;',
                     'class' => 'ec-shadow-3px',
                 ),
-            ));*/
+            ));
             ?>
             <!--/ список проектов -->
-			<div class="quality">
-                <a href="#">Гарантия качества</a>
-			</div>
-			<div class="container3">
-				<div class="list_carousel">
-					<ul id="slider_news">
-						<li>
-							<div class="single_news">
-							    <noindex>
-								<img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/photo1.png" alt="" title=""/>
-								<div class="news_content">
-									<div class="news_top">
-										<p class="lp-slogan-small">"Я возьму ваши сложности на себя"</p>
-									</div>
-									<div class="news_profile">
-									<span class="news_name">Николай Гришин </span>
-									<span ><i>управляющий партнер</i></span>
-									<div class="contact_info">
-										<span>+7 926 782 70 87</span>|<span>ceo@easycast.ru</span>|<span> +7 495 227-5-226</span>
-									</div>
-									<div class="facebook_profile"><img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/facebook_icon.png"/><span>www.facebook.com/ngrishinru</span></div>
-									</div>
-								</div>
-								</noindex>
-							</div>	
-						</li>
-						<li>
-							<div class="single_news">
-							    <noindex>
-								<img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/elarsen.png" alt="" title=""/>
-								<div class="news_content">
-									<div class="news_top">
-										<img src="images/problems.png" alt="" title=""/>
-									</div>
-									<div class="news_profile">
-									<span class="news_name">Елизавета Ларсен </span>
-									<span ><i>руководитель проектов</i></span>
-									<div class="contact_info">
-										<span>+7 967 052 20 25 </span>|<span> liza@easycast.ru</span>|<span> +7 495 227-5-226</span>
-									</div>
-									<div class="facebook_profile"><img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/facebook_icon.png"/><span>www.facebook.com/larsen.liza</span></div>
-									</div>
-								</div>
-								</noindex>
-							</div>	
-						</li>
-						<li>
-							<div class="single_news">
-							    <noindex>
-								<img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/ibyzaeva.png" alt="" title=""/>
-								<div class="news_content">
-									<div class="news_top">
-										<img src="images/problems.png" alt="" title=""/>
-									</div>
-									<div class="news_profile">
-									<span class="news_name">Ирина Бузаева </span>
-									<span ><i>руководитель проектов</i></span>
-									<div class="contact_info">
-										<span>+7 915 066 86 05 </span>|<span> irina@easycast.ru</span>|<span> +7 495 227-5-226</span>
-									</div>
-									<div class="facebook_profile"><img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/facebook_icon.png"/><span>www.facebook.com/irsen.love</span></div>
-									</div>
-								</div>
-								</noindex>
-							</div>	
-						</li>
-                        <li>
-                            <div class="single_news">
-                                <noindex>
-                                <img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/mkorolev.png" alt="" title=""/>
-                                <div class="news_content">
-                                    <div class="news_top">
-                                        <img src="images/problems.png" alt="" title=""/>
-                                    </div>
-                                    <div class="news_profile">
-                                    <span class="news_name">Максим Королев </span>
-                                    <span ><i>руководитель проектов</i></span>
-                                    <div class="contact_info">
-                                        <span>+7 926 786 86 64 </span>|<span> max@easycast.ru</span>|<span> +7 495 227-5-226</span>
-                                    </div>
-                                    <div class="facebook_profile"><img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/facebook_icon.png"/><span style="font-size:22px;">www.facebook.com/maxim.korolev.712</span></div> 
-                                    </div>
-                                </div>
-                                <noindex>
-                            </div>  
-                        </li>
-					</ul>
-					<div class="clearfix"></div>
-					<a id="prev" class="prev_news" href="#"></a>
-					<a id="next" class="next_news" href="#"></a> 
-				</div>
-			</div>	
+		<div class="quality">
+            <a href="#">Гарантия качества</a>
+		</div>
+		<div class="container3">
+            <!-- команда -->
+            <?php 
+                $this->renderPartial('_team');
+            ?>
+            <!--/ команда -->
+		</div>	
 	</div>
 </div>
 <script>
