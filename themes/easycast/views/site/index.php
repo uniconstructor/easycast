@@ -9,7 +9,7 @@ if ( Yii::app()->user->isGuest OR Yii::app()->user->checkAccess('Admin') OR Yii:
     // короткая форма поиска на главной
     Yii::import('catalog.models.*');
     $rootSection = CatalogSection::model()->findByPk(1);
-    $this->widget('catalog.extensions.search.QShortSearchForm.QShortSearchForm', array(
+    /*$this->widget('catalog.extensions.search.QShortSearchForm.QShortSearchForm', array(
         'mode'          => 'form',
         'columnFilters' => array(
             'base'   => array('system'),
@@ -19,7 +19,7 @@ if ( Yii::app()->user->isGuest OR Yii::app()->user->checkAccess('Admin') OR Yii:
         'searchObject'        => $rootSection,
         'redirectUrl'         => '/catalog/catalog/search',
         'refreshDataOnChange' => false,
-    ));
+    ));*/
     // @todo вывести список сервисов на главной вместо краткого поиска    
     //$this->widget('ext.ECMarkup.EServiceList.EServiceList', array());
 }else
