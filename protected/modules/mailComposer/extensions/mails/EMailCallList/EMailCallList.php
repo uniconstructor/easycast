@@ -16,10 +16,10 @@ class EMailCallList extends EMailBase
      */
     public $callList;
     /**
-     *
-     * @var bool
+     * @var bool - добавлять ли контактную информацию в выхывной лист?
      */
     public $addContacts = false;
+    
     /**
      *
      * @var Project
@@ -55,17 +55,17 @@ class EMailCallList extends EMailBase
         parent::init();
         
         $data = $this->callList->getData();
-        $this->event = ProjectEvent::model()->findByPk($data['event']->id);
+        $this->event   = ProjectEvent::model()->findByPk($data['event']->id);
         $this->project = Project::model()->findByPk($this->event->projectid);
         if ( $this->project->leader )
         {
             $this->manager = $this->project->leader;
             $this->mailOptions['contactPhone'] = $this->manager->questionary->mobilephone;
             $this->mailOptions['contactEmail'] = $this->manager->email;
-            $this->mailOptions['manager'] = $this->manager;
+            $this->mailOptions['manager']      = $this->manager;
             $this->mailOptions['showTopServiceLinks'] = true;
             $this->mailOptions['topBarOptions']['displayWebView'] = true;
-            $this->mailOptions['topBarOptions']['webViewLink'] = $this->getWebViewLink();
+            $this->mailOptions['topBarOptions']['webViewLink']    = $this->getWebViewLink();
         }
         // убираем дубли вакансий
         $this->clearVacancies($data['vacancies']);
@@ -139,7 +139,7 @@ class EMailCallList extends EMailBase
     }
 
     /**
-     *
+     * Добавить в фотовызывной блоки со списком ролей
      * @return void
      */
     protected function addVacancies()
@@ -150,7 +150,8 @@ class EMailCallList extends EMailBase
         }
         // добавляем дополнительный разделитель после всего списка актеров
         $this->addSegment(array(
-            'type' => 'cutRuler'));
+            'type' => 'cutRuler',
+        ));
     }
 
     /**
@@ -162,9 +163,9 @@ class EMailCallList extends EMailBase
     {
         // добавляем информацию о роли
         $vacancyInfo = array();
-        $vacancyInfo['type'] = 'subHeader';
-        $vacancyInfo['header'] = 'Роль: ' . $vacancy['name'];
-        $vacancyInfo['headerInfo'] = $this->getVacancyTimePeriod($vacancy);
+        $vacancyInfo['type']           = 'subHeader';
+        $vacancyInfo['header']         = 'Роль: ' . $vacancy['name'];
+        $vacancyInfo['headerInfo']     = $this->getVacancyTimePeriod($vacancy);
         $vacancyInfo['addHeaderRuler'] = true;
         $this->addSegment($vacancyInfo);
         
@@ -185,10 +186,10 @@ class EMailCallList extends EMailBase
     {
         $block = array();
         
-        $block['type'] = 'imageLeft';
-        $block['imageStyle'] = 'border:3px solid #c3c3c3;border-radius:10px;height:150px;width:150px;margin-top:5px;';
-        $block['imageLink'] = $questionary->getAvatarUrl('catalog');
-        $block['text'] = $this->getActorDescription($questionary);
+        $block['type']         = 'imageLeft';
+        $block['imageStyle']   = 'border:3px solid #c3c3c3;border-radius:10px;height:150px;width:150px;margin-top:5px;';
+        $block['imageLink']    = $questionary->getAvatarUrl('catalog');
+        $block['text']         = $this->getActorDescription($questionary);
         $block['addTextRuler'] = true;
         
         $this->addSegment($block);
@@ -202,10 +203,11 @@ class EMailCallList extends EMailBase
     protected function getActorDescription($questionary)
     {
         $result = '';
-        $bages = $questionary->getBages();
+        $bages  = $questionary->getBages();
         
-        $result .= '<h3 style="text-transform:uppercase;font-size:20px;font-weight:bold;color:#727272;margin:11px 0px 6px 0px;">' . $questionary->fullname . ', ' . $questionary->age . '</h3>';
-        if ( !empty($bages) )
+        $result .= '<h3 style="text-transform:uppercase;font-size:20px;font-weight:bold;color:#727272;margin:11px 0px 6px 0px;">'.
+            $questionary->fullname . ', ' . $questionary->age . '</h3>';
+        if ( ! empty($bages) )
         {
             $result .= 'Квалификация: <i>' . implode(', ', $bages) . '</i><br>';
         }
