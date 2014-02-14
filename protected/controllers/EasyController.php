@@ -48,7 +48,7 @@ class EasyController extends Controller
         {// Создаем пустую галерею
             $gallery = new Gallery();
             // Определяем в каких размерах созлдавать миниатюры изображений в галерее
-            $gallery->versions    = $this->createDefaultGalleryVersions();
+            $gallery->versions    = Yii::app()->getModule('questionary')->gallerySettings['versions'];
             $gallery->limit       = 30;
             $gallery->name        = 1;
             $gallery->description = 1;
@@ -61,29 +61,6 @@ class EasyController extends Controller
             'gallery'       => $gallery,
             'massActorForm' => $massActorForm,
         ));
-    }
-    
-    /**
-     * 
-     * @return array
-     * @todo взять эти параметры из модуля Questionary
-     */
-    protected function createDefaultGalleryVersions()
-    {
-        return array(
-            'small' => array(
-                'centeredpreview' => array(100, 100),
-            ),
-            'medium' => array(
-                'resize' => array(530, 330),
-            ),
-            'large' => array(
-                'resize' => array(800, 1000),
-            ),
-            'catalog' => array(
-                'centeredpreview' => array(150, 150),
-            ),
-        );
     }
     
     /**
