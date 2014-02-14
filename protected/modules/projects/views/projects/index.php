@@ -20,14 +20,16 @@ if ( Yii::app()->params['useCSS3'] )
     $this->widget('ext.CdGridPreview.CdGridPreview', array(
         'dataProvider'     => $dataProvider,
         'listViewLocation' => 'bootstrap.widgets.TbListView',
-        //'htmlOptions'      => array('id' => 'og-grid'),
         'listViewOptions'  => array(
             'template' => '{items}',
+        ),
+        'previewHtmlOptions' => array(
+            'style' => 'min-height:150px;max-width:150px;min-width:150px;',
+            'class' => 'ec-shadow-3px',
         ),
         'options' => array(
             'textClass'   => 'well og-details-text',
             'headerClass' => 'og-details-header ec-details-header',
-            //'detailsClass' => 'well',
         ),
     ));
 }else

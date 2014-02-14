@@ -14,13 +14,6 @@ class CdGridViewProjectBehavior extends CdGridItemBehavior
      * @var bool - load item description via AJAX if true
      */
     public $useAjax = true;
-    /**
-     * @see parent::previewHtmlOptions
-     */
-    public $previewHtmlOptions = array(
-        'style' => 'min-height:150px;max-width:150px;min-width:150px;',
-        'class' => 'ec-shadow-3px',
-    );
     
     /**
      * @see parent::getGridItemPreviewSrc()
@@ -80,10 +73,11 @@ class CdGridViewProjectBehavior extends CdGridItemBehavior
     public function getGridListItemOptions()
     {
         $defaults = parent::getGridListItemOptions();
-        $options  = array(
+        // @todo подсказка не отображается нормально в коммерческом со старыми стилями
+        $options  = array(/*
             'data-toggle' => 'tooltip',
             'data-title'  => $this->getGridItemPreviewAlt(),
-        );
+        */);
         return CMap::mergeArray($defaults, $options);
     }
     
