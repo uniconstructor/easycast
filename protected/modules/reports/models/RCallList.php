@@ -63,9 +63,14 @@ class RCallList extends Report
      */
     public function collectData($event)
     {
+        $data        = $this->getData();
         $vacancies   = array();
         $eventInfo   = $event->getAttributes();
         $projectInfo = $event->project->getAttributes();
+        if ( ! is_array($data) )
+        {// дополнительные данные (например вручную добавленные участники) еще не были присоеденины к фотовызывному
+            $data = array();
+        }
         
         foreach ( $event->vacancies as $vacancy )
         {// собираем все подтвержденные заявки для каждой роли в переданном событии
@@ -83,11 +88,36 @@ class RCallList extends Report
             unset($element);
         }
         
-        return array(
+        $newData = array(
             'project'   => (object)$projectInfo,
             'event'     => (object)$eventInfo,
             'vacancies' => $vacancies,
         );
+        
+        return CMap::mergeArray($data, $newData);
+    }
+    
+    /**
+     * Вручную добавить участника в фотовызывной. Эта операция добавляет к фотовызывному дополнительные
+     * данные, добавленные вручную участники никак не связаны с нашими анкетами (Questionary)
+     * Эта функция дает возможность вручную редактировать фотовызывной, добавляя в него людей, 
+     * которых нет в нашей базе
+     * 
+     * @param int $vacancyId - id роли к которой прикрепляется участник
+     * @param array $member - данные участника
+     *                       'hash' - уникальный id участника в списке (нужен чтобы
+     *                                вручную добавленную запись можно было удалить)
+     *                       'firstname'
+     *                       'lastname'
+     *                       'age' - возраст, целым числом (не unixtime)
+     *                       'bages' - список характеристик участника (заполняется вручную)
+     *                       'phone'
+     *                       'comment'
+     * @return bool
+     */
+    public function addExternalMember($vacancyId, $member)
+    {
+        
     }
     
     /**
