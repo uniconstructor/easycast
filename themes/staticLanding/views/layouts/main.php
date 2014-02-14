@@ -14,6 +14,8 @@
     <link href="<?php echo Yii::app()->theme->baseUrl; ?>/css/slider_index.css" rel="stylesheet" type="text/css" />
     
     <link href="<?php echo Yii::app()->baseUrl; ?>/css/helpers.css" rel="stylesheet" type='text/css'>
+    
+    <script src="<?php echo Yii::app()->baseUrl; ?>/js/modernizr.custom.min.js" type="text/javascript"></script>
 </head>
 <body>
     <div class="fon-left">  <!-- Картинки слева -->
