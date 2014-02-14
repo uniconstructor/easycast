@@ -16,10 +16,10 @@ $this->ecHeaderOptions = array(
 // форма быстрой регистрации массовки
 /* @var $form TbActiveForm */
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
-    'id' => 'mass-actors-form',
+    'id'                     => 'mass-actors-form',
     'enableAjaxValidation'   => true,
     'enableClientValidation' => false,
-    'type' => 'horizontal',
+    'type'          => 'horizontal',
     'clientOptions' => array(
         'validateOnSubmit' => true,
         'validateOnChange' => false,
@@ -68,17 +68,14 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     ?>
         <div class="controls">
         <?php
-        $form->widget(
-            'ext.ECMarkup.ECToggleInput.ECToggleInput',
-            array(
-                'model'     => $massActorForm,
-                'attribute' => 'gender',
-                'onLabel'   => 'Мужской',
-                'onValue'   => 'male',
-                'offLabel'  => 'Женский',
-                'offValue'  => 'female',
-            )
-        );
+        $form->widget('ext.ECMarkup.ECToggleInput.ECToggleInput', array(
+            'model'     => $massActorForm,
+            'attribute' => 'gender',
+            'onLabel'   => 'Мужской',
+            'onValue'   => 'male',
+            'offLabel'  => 'Женский',
+            'offValue'  => 'female',
+        ));
         echo $form->error($massActorForm, 'gender');
         ?>
         </div>
@@ -86,9 +83,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     
     <?php 
     // дата рождения
-    echo $form->datepickerRow(
-        $massActorForm,
-        'birthdate', array(
+    echo $form->datePickerRow($massActorForm, 'birthdate', array(
             'options' => array(
                 'language'  => 'ru',
                 'format'    => 'dd.mm.yyyy',
@@ -98,6 +93,8 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                 'endDate'   => '-1y',
                 'autoclose' => true,
             ),
+        ),
+        array(
             'hint'    => 'Нажмите на название месяца или на год, чтобы изменить его',
             'prepend' => '<i class="icon-calendar"></i>',
         )
@@ -108,7 +105,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     echo $form->hiddenField($massActorForm, 'galleryid');
     $this->widget('GalleryManager', array(
         'gallery'         => $gallery,
-        'controllerRoute' => '/questionary/gallery'
+        'controllerRoute' => '/questionary/gallery',
     ));
     echo $form->error($massActorForm, 'galleryid');
     
@@ -117,12 +114,11 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         <?php 
         // кнопка ренистрации
         $this->widget('bootstrap.widgets.TbButton', array(
-                'buttonType' => 'submit',
-                'type'       => 'success',
-                'size'       => 'large',
-                'label'      => 'Регистрация'
-            )
-        ); 
+            'buttonType' => 'submit',
+            'type'       => 'success',
+            'size'       => 'large',
+            'label'      => 'Регистрация'
+        )); 
         ?>
     </div>
     <?php 
