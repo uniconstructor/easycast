@@ -21,7 +21,7 @@ return CMap::mergeArray(
                             'class'     => 'ext.yii-debug-toolbar.YiiDebugToolbarRoute',
                             'ipFilters' => array('127.0.0.1', '192.168.1.215'),
                         ),
-                    )
+                    ),
                 ),
             // бонус: мой маленький робот для торговли на бирже :)
             // Он вообще к сайту никак не относится, просто воткнуть его сюда было быстрее чем
@@ -56,7 +56,7 @@ return CMap::mergeArray(
                 'accessId'          => '3191561bcf6adc2Ab125',
                 'secretKey'         => '3F62c64cf3fd6daC1c2543a45720Ed666e4d920f',
                 'defaultUserId'     => '1000027',
-                'defaultEmployeeId' => '1000000',
+                'defaultEmployeeId' => '1000004',
                 'auditors'          => array('1000004'),
                 'projectManagers'   => array('1000004'),
             ),
