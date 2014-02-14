@@ -54,20 +54,6 @@ class ECMainInformer extends CWidget
         $baseUrl = CHtml::asset(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'assets');
         $clientScript = Yii::app()->clientScript;
         
-        // register jQuery
-        $clientScript->registerCoreScript('jquery');
-    
-        if ( YII_DEBUG )
-        {
-            $script = '/ecmaininformer.js';
-        }else
-        {
-            $script = '/ecmaininformer.js';
-        }
-        // register main js lib
-        $clientScript->registerScriptFile($baseUrl . $script);
-    
-        // register CSS skin
         $clientScript->registerCssFile($baseUrl . DIRECTORY_SEPARATOR . 'ecmaininformer.css');
     }
     

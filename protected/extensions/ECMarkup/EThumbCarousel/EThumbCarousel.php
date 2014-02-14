@@ -32,6 +32,7 @@ class EThumbCarousel extends CWidget
      * @var string - текст, который выводится, когда нет ни одного изображения
      */
     public $emptyText;
+    
     /**
      * @var string
      */
