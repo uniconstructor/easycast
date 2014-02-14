@@ -71,6 +71,11 @@ class CallList extends ProjectMembers
             'header' => 'Возраст',
             'type'   => 'html'
         );
+        $columns[] = array(
+            'name'   => 'bages',
+            'header' => 'Характеристики',
+            'type'   => 'html'
+        );
         if ( $this->showContacts )
         {// нужно отобразить вызывной с контактами
             $columns[] = array(
@@ -94,9 +99,10 @@ class CallList extends ProjectMembers
     protected function getMemberData($member)
     {
         $element = array();
-        $element['id']    = $member->id;
-        $element['name']  = $this->getMemberName($member);
-        $element['age']   = $member->member->age;
+        $element['id']      = $member->id;
+        $element['name']    = $this->getMemberName($member);
+        $element['age']     = $member->member->age;
+        $element['bages']   = implode(', ', $member->member->getBages());
         if ( $this->showContacts )
         {// нужно отобразить вызывной с контактами
             $element['phone'] = $this->getMemberPhones($member->member);
