@@ -6,6 +6,7 @@
  * 
  * @todo прописать проверки обязательных полей в init
  * @todo сделать настройку помещать/не помещать формы в клип
+ * @todo сделать наследником более общего класса EditableGrid
  */
 class QGridEditBase extends CWidget
 {
@@ -20,7 +21,7 @@ class QGridEditBase extends CWidget
     /**
      * @var string - всплывающая подсказка над иконкой удаления записи
      */
-    public $deleteButtonLabel = 'Удалить';
+    public $deleteButtonLabel  = 'Удалить';
     /**
      * @var string - url по которому происходит удаление записей
      */
@@ -68,7 +69,7 @@ class QGridEditBase extends CWidget
     /**
      * @var string - заголовок всплывающего окна с формой добавления новой записи
      */
-    public $modalHeader = 'Добавить запись';
+    public $modalHeader    = 'Добавить запись';
     /**
      * @var array - список текстов-заглушек, которые отображаются в случае, когда поле не заполнено
      */
@@ -110,7 +111,7 @@ class QGridEditBase extends CWidget
         {
             $this->rowEditPrefix = $this->modelClass;
         }
-        // регистрируем клип с формой в модуле анкет джля того чтобы позже вывести его в конце формы
+        // регистрируем клип с формой в модуле анкет для того чтобы позже вывести его в конце формы
         $this->registerFormClip();
     }
     
@@ -373,10 +374,10 @@ class QGridEditBase extends CWidget
                 'url'       => $this->updateUrl,
                 'emptytext' => $this->getFieldEmptyText($field),
                 'format'    => 'yyyy',
-                'params' => array(
+                'params'    => array(
                     Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
                 ),
-                'options' => array(
+                'options'   => array(
                     'datepicker' => $this->getYearPickerOptions(),
                 ),
             ),
