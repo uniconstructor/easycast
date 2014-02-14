@@ -16,13 +16,14 @@ if ( Yii::app()->user->isGuest OR Yii::app()->user->checkAccess('Admin') OR Yii:
             'looks'  => array('age'),
             'skills' => array('gender'),
         ),
-        'searchObject' => $rootSection,
-        'redirectUrl'  => '/catalog/catalog/search',
+        'searchObject'        => $rootSection,
+        'redirectUrl'         => '/catalog/catalog/search',
         'refreshDataOnChange' => false,
-        )
-    );
+    ));
+    // @todo вывести список сервисов на главной вместо краткого поиска    
+    //$this->widget('ext.ECMarkup.EServiceList.EServiceList', array());
 }else
-{// ассорти проектов (для участников)
+{// @todo ассорти проектов (для участников)
     $this->widget('ext.ECMarkup.ECTopRated.ECTopRated');
 }
 // Выводим меню пользователя и заказчика

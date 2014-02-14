@@ -13,39 +13,36 @@
     <link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->theme->baseUrl; ?>/css/main.css" />
     <link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->theme->baseUrl; ?>/css/yii.css" />
 	<title><?php echo CHtml::encode($this->pageTitle); ?></title>
-	<?php
-	// @deprecated осталось от старой версии bootstrap
-	// @todo удалить при рефакторинге 
-    //Yii::app()->bootstrap->register();
-    ?>
+	
+	<script src="<?php echo Yii::app()->baseUrl; ?>/js/modernizr.custom.min.js" type="text/javascript"></script>
 </head>
 <body class="ec-body">
     <?php // шапка страницы
-        $ecHeaderOptions = array();
-        if ( isset($this->ecHeaderOptions) )
-        {
-            $ecHeaderOptions = $this->ecHeaderOptions;
-        }
-        $this->widget('ext.ECMarkup.ECHeader.ECHeader', $ecHeaderOptions);
+    $ecHeaderOptions = array();
+    if ( isset($this->ecHeaderOptions) )
+    {
+        $ecHeaderOptions = $this->ecHeaderOptions;
+    }
+    $this->widget('ext.ECMarkup.ECHeader.ECHeader', $ecHeaderOptions);
     ?>
-    <div class="container" id="page">
+    <div class="container" id="page"><!-- page -->
         <?php // Верхняя навигация (хлебные крошки) 
         if ( isset($this->breadcrumbs) )
         {
     	    $this->widget('bootstrap.widgets.TbBreadcrumbs', array(
-    			'links' => $this->breadcrumbs,
+    			'links'       => $this->breadcrumbs,
                 'htmlOptions' => array('class' => 'breadcrumb span12 ec-breadcrumb'),
     		)); 
         }
     	?>
     	<!-- breadcrumbs -->
     	<?php // основное содержимое страницы 
-    	    echo $content;
+	    echo $content;
 	    ?>
     	<div class="clear"></div>
         <?php // Подвал страницы
-            $this->widget('ext.ECMarkup.ECFooter.ECFooter');
+        $this->widget('ext.ECMarkup.ECFooter.ECFooter');
         ?>
-    </div><!-- page -->
+    </div><!--/ page -->
 </body>
 </html>
