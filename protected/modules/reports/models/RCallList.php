@@ -131,7 +131,7 @@ class RCallList extends Report
         $link->linktype   = 'source';
         $link->objecttype = 'event';
         $link->objectid   = $this->reportData['event']->id;
-        $link->save();
+        return $link->save();
     }
     
     /**
