@@ -80,14 +80,20 @@ class ProjectsModule extends CWebModule
 	 */
 	public static function sendNewInviteNotification($event)
 	{
+	    /* @var $invite EventInvite */
 	    $invite = $event->sender;
+	    
 	    if ( ! $invite->questionary OR ! is_object($invite->questionary->user) )
 	    {// проверка на случай нарушения целостности БД
 	        // @todo записать ошибку в лог
 	        return false;
 	    }
-	    $mailComposer = Yii::app()->getModule('mailComposer');
+	    if ( $invite->event->timestart <= time() )
+	    {// если событие уже прошло - то не отсылаем на него приглашение
+	        return true;
+	    }
 	    
+	    $mailComposer = Yii::app()->getModule('mailComposer');
 	    $email   = $invite->questionary->user->email;
 	    $subject = $mailComposer->getSubject('newInvite', array('invite' => $invite));
 	    $message = $mailComposer->getMessage('newInvite', array('invite' => $invite));
@@ -126,9 +132,12 @@ class ProjectsModule extends CWebModule
 	 * @return bool
 	 * 
 	 * @todo не отправлять письмо, если у участника уже есть подтвержденные заявки на это мероприятие
+	 * @todo временно отключено
 	 */
 	public static function sendRejectMemberNotification($event)
 	{
+	    return true;
+	    
 	    $memberData = $event->sender;
 	    if ( ! $memberData->member OR ! is_object($memberData->member->user) )
 	    {// проверка на случай нарушения целостности БД
