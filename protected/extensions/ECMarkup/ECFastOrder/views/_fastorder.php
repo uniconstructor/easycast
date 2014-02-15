@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Форма для срочного заказа в главном меню
+ * Форма для срочного заказа во всплывающем окне
  */
 
-// отображаем всплывающее окно
+// начало всплывающего окна
 $this->beginWidget('bootstrap.widgets.TbModal', array('id' => $data->modalid));
 
-// отображаем форму
+// начало формы
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
-    'id'=>$data->formid,
+    'id'                     => $data->formid,
     'enableAjaxValidation'   => true,
     'enableClientValidation' => true,
     'clientOptions' => array(
@@ -35,24 +35,23 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 </div>
 
 <div class="modal-footer">
-    <?php $this->widget('bootstrap.widgets.TbButton', array(
-			'buttonType'  => 'ajaxSubmit',
-			'type'        => 'primary',
-			'label'       =>  Yii::t('coreMessages', 'place_order'),
-            'htmlOptions' => array(
-                'id' => $data->submitid
-            ),
-            'url'     => $data->action,
-            'ajaxOptions' => array(
-                'dataType' => 'json',
-                'success'  => $data->ajaxSuccessScript,
-                'type'     => 'post',
-                'url'      => $data->action,
-                'data'     => new CJavaScriptExpression('$("#'.$data->formid.'").serialize()'),
-            ),
-		)); ?>
-    
     <?php 
+    // кнопка отправки формы через ajax: сериализует данные формы и отправляет их в специальный action
+    $this->widget('bootstrap.widgets.TbButton', array(
+		'buttonType'  => 'ajaxSubmit',
+		'type'        => 'primary',
+		'label'       =>  Yii::t('coreMessages', 'place_order'),
+        'htmlOptions' => array('id' => $data->submitid),
+        'url'         => $data->action,
+        'ajaxOptions' => array(
+            'dataType' => 'json',
+            'success'  => $data->ajaxSuccessScript,
+            'type'     => 'post',
+            'url'      => $data->action,
+            'data'     => new CJavaScriptExpression('$("#'.$data->formid.'").serialize()'),
+        ),
+	));
+    // кнопка отмены
     $this->widget('bootstrap.widgets.TbButton', array(
         'label'       => Yii::t('coreMessages', 'cancel'),
         'htmlOptions' => array('data-dismiss' => 'modal'),
