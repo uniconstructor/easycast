@@ -2,6 +2,10 @@
 
 /**
  * Класс сборки фрагмента поискового запроса для фильтра "Экстремальный спорт"
+ * @todo убрать вторую часть запроса (которая с `value` = 'custom')
+ *       после того как будет налажен механизм распознавания стандартных значений
+ *       (любые добавленные пользователем значения должны сверяться со стандартными,
+ *       и если они совпадают с ними - заменяться на стандартные)
  */
 class QSearchHandlerExtreme extends QSearchHandlerBase
 {
@@ -13,15 +17,38 @@ class QSearchHandlerExtreme extends QSearchHandlerBase
     protected function createCriteria()
     {
         $data = $this->getFilterData();
-        $values = implode("', '", $data['extremaltype']);
+        
+        $userValues = array();
+        $values     = array();
+        // проверяем, что все переданные в из формы поиска значения являются стандартными
+        // (на случай попытки sql-injection)
+        // если под видом стандартных значений передано что-то другое - то критерий просто не будет использован
+        $types = QActivityType::model()->findAllByAttributes(array(
+            'name'  => 'extremaltype',
+            'value' => $data['extremaltype'],
+        ));
+        if ( empty($types) )
+        {// вероятнее всего произошла попытка sql-injection: не используем фильтр
+            // @todo вероятность такой атаки очень низка, но все же нужно записать эту ошибку в лог, запомнив IP
+            return;
+        }
+        foreach ( $types as $type )
+        {
+            $values[]     = $type->value;
+            $userValues[] = $type->translation;
+        }
+        // подставляем в SQL-запрос только проверенные значения
+        $values     = implode("', '", $values);
+        $userValues = implode("', '", $userValues);
     
         $criteria = new CDbCriteria();
-        $criteria->with = array('extremaltypes');
+        $criteria->with     = array('extremaltypes');
         // Необходимо для корректного выполнения реляционного запроса
         $criteria->together = true;
         
         $criteria->compare('isextremal', 1);
-        $criteria->addCondition("`extremaltypes`.`value` IN ('".$values."')");
+        $criteria->addCondition("`extremaltypes`.`value` IN ('{$values}') 
+            OR (`extremaltypes`.`value` = 'custom' AND `extremaltypes`.`uservalue` IN ('{$userValues}'))");
     
         return $criteria;
     }
