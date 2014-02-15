@@ -99,9 +99,7 @@ $dateFormatter = new CDateFormatter('ru');
     	{
     	    $defaultStart = date(Yii::app()->params['outputDateFormat'], (int)$model->timestart);
     	}
-    	echo $form->datepickerRow(
-    	    $model,
-    	    'timestart', array(
+    	echo $form->datepickerRow($model, 'timestart', array(
     	        'options' => array(
     	            'language'  => 'ru',
     	            'format'    => 'dd.mm.yyyy',
@@ -109,10 +107,12 @@ $dateFormatter = new CDateFormatter('ru');
     	            'weekStart' => 1,
     	            'autoclose' => true,
     	        ),
-    	        'hint'    => 'Если дата начала точно не известна - поставьте галочку "дата начала уточняется"',
-    	        'prepend' => '<i class="icon-calendar"></i>',
                 'value'   => $defaultStart,
-    	    )
+    	    ),
+            array(
+                'hint'    => 'Если дата начала точно не известна - поставьте галочку "дата начала уточняется"',
+                'prepend' => '<i class="icon-calendar"></i>',
+            )
     	);
         // создать проект без даты начала
         echo $form->checkBoxRow($model, 'notimestart');
@@ -127,9 +127,7 @@ $dateFormatter = new CDateFormatter('ru');
     	{
     	    $defaultEnd = date(Yii::app()->params['outputDateFormat'], (int)$model->timeend);
     	}
-    	echo $form->datepickerRow(
-    	    $model,
-    	    'timeend', array(
+    	echo $form->datepickerRow($model, 'timeend', array(
     	        'options' => array(
     	            'language'  => 'ru',
     	            'format'    => 'dd.mm.yyyy',
@@ -137,10 +135,12 @@ $dateFormatter = new CDateFormatter('ru');
     	            'weekStart' => 1,
     	            'autoclose' => true,
     	        ),
-    	        'hint'    => 'Если планируется длительный проект - поставьте галочку "без даты окончания"',
-    	        'prepend' => '<i class="icon-calendar"></i>',
-                'value'   => $defaultEnd,
-    	    )
+                'value' => $defaultEnd,
+    	    ),
+            array(
+                'hint'    => 'Если планируется длительный проект - поставьте галочку "без даты окончания"',
+                'prepend' => '<i class="icon-calendar"></i>',                
+            )
     	);
         // создать "бесконечный проект" - без даты окончания
         echo $form->checkBoxRow($model, 'notimeend');
