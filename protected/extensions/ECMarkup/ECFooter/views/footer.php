@@ -20,8 +20,8 @@
     			<li>|</li>
     			<li><a href="<?= Yii::app()->createUrl('/projects'); ?>"><span>Наши проекты</span></a></li>
     			<li>|</li>
-    			<!--li><a href="#"><span>Наши события</span></a></li>
-    			<li>|</li-->
+    			<li><a href="<?= Yii::app()->createUrl('/agenda'); ?>"><span>Наши события</span></a></li>
+    			<li>|</li>
     			<li><a href="<?= Yii::app()->createUrl('/onlineCasting'); ?>"><span>Онлайн - кастинг</span></a></li>
     			<li>|</li>
     			<!--li><a href="#"><span>Онлайн - консультант</span></a></li>
