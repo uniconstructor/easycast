@@ -402,30 +402,30 @@ text-shadow: 1px 1px 0px white;
 	color:#07314a;
 }
 .order {
-	background: url(../images/but-zakaz-big.png) no-repeat; 
+	background: url(../images/button-order.png) no-repeat; 
 	width: 460px; 
-	height: 107px;
-	position: relative;
-	margin: 0 auto;
+    height: 107px;
+    position: relative;
+    margin: 0 auto;
 }
 .order a {
 	font-family: century gothic;
-	font-size: 32px;
-	font-weight: bold;
-	text-shadow: 0px 0px 0px #FFF, 0px 0px 1px rgba(255, 255, 255, 0.16);
-	-moz-text-shadow: 0px 0px 0px #FFF, 0px 0px 1px rgba(255, 255, 255, 0.16);
-	-webkit-text-shadow: 0px 0px 0px #FFF, 0px 0px 1px rgba(255, 255, 255, 0.16);
-	color: #580606;
-	width: 425px;
-	margin: 0 auto;
-	display: inline-block;
-	text-align: center;
-	margin-top: 14px;
-	padding: 27px 0px;
-	margin-left: 20px;
-	text-transform: uppercase;
-	letter-spacing: 3px;
-	text-decoration: none;
+    font-size: 25px;
+    font-weight: bold;
+    text-shadow: 0px 0px 1px rgba(255, 255, 255, 0.11), 0px 0px 1px rgba(255, 255, 255, 0.74);
+    -moz-text-shadow:  0px 0px 1px rgba(255, 255, 255, 0.11), 0px 0px 1px rgba(255, 255, 255, 0.74);
+    -webkit-text-shadow: 0px 0px 1px rgba(255, 255, 255, 0.11), 0px 0px 1px rgba(255, 255, 255, 0.74);
+    color: #174010;
+    width: 425px;
+    margin: 0 auto;
+    display: inline-block;
+    text-align: center;
+    margin-top: 14px;
+    padding: 27px 0px;
+    margin-left: 20px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-decoration: none;
 }
 
 .quality {
@@ -839,6 +839,9 @@ z-index: 10;}
  */
 .og-expander-inner {
     background-color: #eee;
+}
+.og-fullimg {
+    padding-right: 30px;
 }
 .og-grid-item {
     height: 100px;

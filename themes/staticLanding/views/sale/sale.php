@@ -6,8 +6,10 @@
 
 // получаем все ссылки
 $searchUrl        = Yii::app()->createAbsoluteUrl('//search');
+$orderUrl         = Yii::app()->createAbsoluteUrl('//order');
 $calculationUrl   = Yii::app()->createAbsoluteUrl('//calculation');
 $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
+
 
 ?>
 <div class="ec-header">
@@ -23,11 +25,20 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
 		</div>
 		<div class="top_right">
 			<div class="join_but">
-			     <button type="button" id="header-order-button" class="btn btn-primary">Сделать заказ</button>
+			     <button type="button" data-toggle="modal" data-target="#fastOrderModal" id="header-order-button" class="btn btn-primary">Сделать заказ</button>
 			</div>
 		</div>
 	</div>
+	
 </div>
+<?php
+    // все modal-окна должны находится внутри элемента ec-header, чтобы он не закрывал их при появлении 
+    // выводим скрытую форму срочного заказа: она появляется как modal-окно
+    $this->widget('ext.ECMarkup.ECFastOrder.ECFastOrder');
+    
+    // modal-окно с гарантиями
+    $this->widget('ext.ECMarkup.ECIGuaranteeIt.ECIGuaranteeIt');
+    ?>
 <div class="section_1" id="section1">
 	<div class="ec-wrapper add_padding">
 		<div class="banner">
@@ -96,12 +107,12 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
         <div class="row-fluid">
 		    <div class="span6">
                 <div class="order">
-                	<a href="#">Сделать заказ</a>
+                	<a href="<?= $orderUrl; ?>" data-toggle="modal" data-target="#fastOrderModal">Сделать заказ</a>
                 </div>
             </div>
             <div class="span6">
                 <div class="price">
-                	<a href="<?= $calculationUrl; ?>">Расчитать стоимость</a>
+                	<a href="<?= $calculationUrl; ?>" target="_blank">Расчитать стоимость</a>
                 </div>
             </div>
 		</div>
@@ -120,11 +131,11 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
 		<div class="lp-service-list">
             <div class="lp-service-item">
                 <div class="lp-service-icon-container">
-                    <a href="<?= $searchUrl; ?>"><img class="lp-service-icon" 
+                    <a href="<?= $searchUrl; ?>" target="_blank"><img class="lp-service-icon" 
                         src="<?php echo Yii::app()->theme->baseUrl; ?>/images/serv1.png"></a>
                 </div>
                 <div class="lp-service-info">
-                    <h4 class="lp-service-name"><a href="<?= $searchUrl; ?>">Поиск по 25 критериям и 15 разделам</a></h4>
+                    <h4 class="lp-service-name"><a href="<?= $searchUrl; ?>" target="_blank">Поиск по 25 критериям и 15 разделам</a></h4>
                     <p class="lp-service-text">
                     Ежедневно в нашей системе регистрируется множество актеров, моделей, артистов, 
                     ведущих, танцоров, музыкантов и вокалистов, ведь мы предлагаем действительно 
@@ -137,11 +148,11 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
             </div>
             <div class="lp-service-item">
                 <div class="lp-service-icon-container">
-                    <a href="#"><img class="lp-service-icon" 
+                    <a href="<?= $orderUrl; ?>" data-toggle="modal" data-target="#fastOrderModal"><img class="lp-service-icon" 
                         src="<?php echo Yii::app()->theme->baseUrl; ?>/images/serv2.png"></a>
                 </div>
                 <div class="lp-service-info">
-                    <h4 class="lp-service-name"><a href="#">Заказ через персонального менеджера</a></h4>
+                    <h4 class="lp-service-name"><a href="<?= $orderUrl; ?>" data-toggle="modal" data-target="#fastOrderModal">Заказ через персонального менеджера</a></h4>
                     <p class="lp-service-text"> 
                     Данный сервис создан специально для режиссеров, продюсеров и кастинг-директоров, 
                     которые предпочитают делегировать все кастинг-задачи и контролировать лишь конечный 
@@ -176,7 +187,7 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
                 </div>
                 <div class="lp-service-info">
                     <h4 class="lp-service-name"><a href="#">Автоматизация документооборота</a></h4>
-                    <p class="lp-service-text" style="font-size:22px;">
+                    <p class="lp-service-text" style="padding-top:25px;">
                         Наша умная система на основе сформированного заказа система автоматически 
                         генерирует весь пакет документов, включая договор, 
                         ведомости, смету и даже фотовызывной, содержащий всю необходимую 
@@ -188,12 +199,12 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
 		<div class="row-fluid">
 		    <div class="span6">
                 <div class="order">
-                	<a href="#">Сделать заказ</a>
+                	<a href="<?= $orderUrl; ?>" data-toggle="modal" data-target="#fastOrderModal">Сделать заказ</a>
                 </div>
             </div>
             <div class="span6">
                 <div class="price">
-                	<a href="<?= $calculationUrl; ?>">Расчитать стоимость</a>
+                	<a href="<?= $calculationUrl; ?>" target="_blank">Расчитать стоимость</a>
                 </div>
             </div>
 		</div>
@@ -207,20 +218,20 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
                 <span><img style="vertical-align:top;" src="<?php echo Yii::app()->theme->baseUrl; ?>/images/100.png"/></span> 
                 причин работать с нами<br>
                 <span style="color:#777;display:block;font-size:14px;margin-top:-30px;">
-                    Проекты, созданные с использованием наших услуг:
+                    Проекты, созданные с использованием наших услуг
                 </span>
             </p>
 		</div>
 		    <!-- список проектов -->
 		    <?php 
+		    // извлекаем 70 проектов по рейтингу
             $criteria        = Yii::app()->getModule('projects')->getProjectsCriteria();
             $criteria->limit = 70;
             $dataProvider = new CActiveDataProvider('Project', array(
-                    'criteria'   => $criteria,
-                    'pagination' => false,
-                )
-            );
-
+                'criteria'   => $criteria,
+                'pagination' => false,
+            ));
+            // раскрывающийся список проектов
             $this->widget('ext.CdGridPreview.CdGridPreview', array(
                 'dataProvider'     => $dataProvider,
                 'listViewLocation' => 'bootstrap.widgets.TbListView',
@@ -239,12 +250,12 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
             ?>
             <!--/ список проектов -->
 		<div class="quality">
-            <a href="#">Гарантия качества</a>
+            <a href="#IGuaranteeItModal" data-toggle="modal">Гарантия качества</a>
 		</div>
 		<div class="container3">
             <!-- команда -->
             <?php 
-                $this->renderPartial('_team');
+            $this->renderPartial('_team');
             ?>
             <!--/ команда -->
 		</div>	
