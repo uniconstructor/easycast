@@ -29,7 +29,6 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
 			</div>
 		</div>
 	</div>
-	
 </div>
 <?php
     // все modal-окна должны находится внутри элемента ec-header, чтобы он не закрывал их при появлении 
@@ -106,26 +105,28 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
 		</div>
         <div class="row-fluid">
 		    <div class="span6">
-                <div class="order">
+                <div class="price">
                 	<a href="<?= $orderUrl; ?>" data-toggle="modal" data-target="#fastOrderModal">Сделать заказ</a>
                 </div>
             </div>
             <div class="span6">
-                <div class="price">
+                <div class="order">
                 	<a href="<?= $calculationUrl; ?>" target="_blank">Расчитать стоимость</a>
                 </div>
             </div>
 		</div>
 	</div>
 </div>
-<div class="section_2" id="section2" style="margin-top: 150px;">
+<div class="section_2" id="section2" style="margin-top: 55px;">
     <!-- сервисы -->
 	<div class="ec-wrapper">
         <h2 style="font-size:42px;text-align:center;text-transform:uppercase;margin-bottom:40px;font-weight:200;">Ваши онлайн-сервисы</h2>
         <div class="banner">
-			<p>Мы рады вам сообщить, что благодаря восьмилетнему опыту работу и двум годам сложнейших 
-			IT-разработок мы создали ресурс, способный упорядочить все сложные процессы поиска, оповещения, 
-			отбора и утверждения артистов в простой сервис: несколько кликов - и все, кто вам нужен - в кадре!
+			<p>Мы рады вам сообщить, что благодаря восьмилетнему опыту работы<br>
+			и двум годам сложнейших IT-разработок мы создали ресурс,<br>
+			способный упорядочить все сложные процессы поиска, оповещения,<br> 
+			отбора и утверждения артистов в простой сервис:<br> 
+			несколько кликов - и все, кто вам нужен - в кадре!
 			</p>
 		</div>
 		<div class="lp-service-list">
@@ -198,68 +199,76 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
 		</div>
 		<div class="row-fluid">
 		    <div class="span6">
-                <div class="order">
+                <div class="price">
                 	<a href="<?= $orderUrl; ?>" data-toggle="modal" data-target="#fastOrderModal">Сделать заказ</a>
                 </div>
             </div>
             <div class="span6">
-                <div class="price">
+                <div class="order">
                 	<a href="<?= $calculationUrl; ?>" target="_blank">Расчитать стоимость</a>
                 </div>
             </div>
 		</div>
+		<!-- отзывы -->
+		<h2 style="font-size:42px;text-align:center;text-transform:uppercase;margin-bottom:40px;font-weight:200;margin-top:50px;">Отзывы</h2>
+    	<div class="container3">
+            <?php 
+            $this->renderPartial('_reviews');
+            ?>
+        </div>
+        <!--/ отзывы -->
 	</div>
 	<!--/ сервисы -->
 </div>
-<div class="section_3" id="section3" style="margin-top: 150px;">
-	 <div class="ec-wrapper">
-		<div class="lp3_title">
-            <p style="vertical-align: top;">
-                <span><img style="vertical-align:top;" src="<?php echo Yii::app()->theme->baseUrl; ?>/images/100.png"/></span> 
-                причин работать с нами<br>
-                <span style="color:#777;display:block;font-size:14px;margin-top:-30px;">
-                    Проекты, созданные с использованием наших услуг
-                </span>
-            </p>
-		</div>
-		    <!-- список проектов -->
-		    <?php 
-		    // извлекаем 70 проектов по рейтингу
-            $criteria        = Yii::app()->getModule('projects')->getProjectsCriteria();
-            $criteria->limit = 70;
-            $dataProvider = new CActiveDataProvider('Project', array(
-                'criteria'   => $criteria,
-                'pagination' => false,
-            ));
-            // раскрывающийся список проектов
-            $this->widget('ext.CdGridPreview.CdGridPreview', array(
-                'dataProvider'     => $dataProvider,
-                'listViewLocation' => 'bootstrap.widgets.TbListView',
-                'listViewOptions'  => array(
-                    'template' => '{items}',
-                ),
-                'options' => array(
-                    'textClass'   => 'well og-details-text',
-                    'headerClass' => 'og-details-header ec-details-header',
-                ),
-                'previewHtmlOptions' => array(
-                    'style' => 'min-height:100px;max-width:100px;min-width:100px;border-radius:10px;',
-                    'class' => 'ec-shadow-3px',
-                ),
-            ));
-            ?>
-            <!--/ список проектов -->
-		<div class="quality">
-            <a href="#IGuaranteeItModal" data-toggle="modal">Гарантия качества</a>
-		</div>
-		<div class="container3">
-            <!-- команда -->
-            <?php 
-            $this->renderPartial('_team');
-            ?>
-            <!--/ команда -->
-		</div>	
-	</div>
+<div class="section_3" id="section3" style="margin-top: 55px;">
+    <div class="ec-wrapper">
+    <div class="lp3_title">
+        <p style="vertical-align: top;">
+            <span><img style="vertical-align:top;" src="<?php echo Yii::app()->theme->baseUrl; ?>/images/100.png"/></span> 
+            причин работать с нами<br>
+            <span style="color:#777;display:block;font-size:16px;margin-top:-30px;margin-left:140px;text-transform: uppercase;">
+                Проектов, созданных с использованием наших услуг
+            </span>
+        </p>
+    </div>
+        <!-- список проектов -->
+        <?php 
+        // извлекаем 100 проектов по рейтингу
+        $criteria        = Yii::app()->getModule('projects')->getProjectsCriteria();
+        $criteria->limit = 100;
+        $dataProvider = new CActiveDataProvider('Project', array(
+            'criteria'   => $criteria,
+            'pagination' => false,
+        ));
+        // раскрывающийся список проектов
+        $this->widget('ext.CdGridPreview.CdGridPreview', array(
+            'dataProvider'     => $dataProvider,
+            'listViewLocation' => 'bootstrap.widgets.TbListView',
+            'listViewOptions'  => array(
+                'template' => '{items}',
+            ),
+            'options' => array(
+                'textClass'   => 'well og-details-text',
+                'headerClass' => 'og-details-header ec-details-header',
+            ),
+            'previewHtmlOptions' => array(
+                'style' => 'min-height:100px;max-width:100px;min-width:100px;border-radius:10px;',
+                'class' => 'ec-shadow-3px',
+            ),
+        ));
+        ?>
+        <!--/ список проектов -->
+    <div class="quality">
+        <a href="#IGuaranteeItModal" style="font-size: 28px;" data-toggle="modal">Почему именно мы&nbsp;?</a>
+    </div>
+    <div class="container3">
+        <!-- команда -->
+        <?php 
+        $this->renderPartial('_team');
+        ?>
+        <!--/ команда -->
+    	</div>	
+    </div>
 </div>
 <script>
     
