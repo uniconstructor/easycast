@@ -21,7 +21,7 @@ class QUserInfo extends CWidget
     /**
      * @var array - список тех вкладок, которые нужно отобразить (по умолчанию - все)
      */
-    public $tabNames = array();
+    public $tabNames  = array();
     /**
      * @var string - активная в начале вкладка
      * Возможные значения: 'main', 'education', 'skills', 'films', 'model', 'projects', 'awards', 'misc'
@@ -220,7 +220,7 @@ class QUserInfo extends CWidget
      * @param string $field - поле в анкете (как оно называется в базе)
      * @return string
      */
-    protected function getPropertyBlock($field)
+    protected function getPropertyData($field)
     {
         $questionary = $this->questionary;
         
@@ -267,7 +267,7 @@ class QUserInfo extends CWidget
             case 'addchar':
                 if ( ! $value = $this->getAddCharPropertyBlock() )
                 {// не выводим поле с дополнительными хакактеристиками если оно не заполнено
-                    return '';
+                    return;
                 }
             break;
             case 'titsize':
@@ -280,13 +280,15 @@ class QUserInfo extends CWidget
         }
         if ( ! $value )
         {// значение не указано - выведем заглушку
-            $muted = true;
+            return;
+            // @todo если пользователь - админ то показывать что поле не заполнено
+            // $muted = true;
         }
         
         // получаем параметры для виджета с информацией об анкете
-        $options = $this->getPropertyOptions($label, $value, $placeholder, $affix, $hint);
+        // $options = $this->getPropertyOptions($label, $value, $placeholder, $affix, $hint);
         
-        return $this->widget('ext.ECMarkup.ECProperty.ECProperty', $options, true);
+        return array($label, $value.' '.$affix);
     }
     
     /**
@@ -328,6 +330,8 @@ class QUserInfo extends CWidget
      * @param string $affix - подсказка после значения (если есть)
      * 
      * @return array
+     * 
+     * @deprecated возможно не пригодится если решим свойства в анкете всегда выводить в виде таблицы
      */
     protected function getPropertyOptions($label, $value, $placeholder='[нет данных]', $affix='', $hint='')
     {
@@ -353,7 +357,7 @@ class QUserInfo extends CWidget
      * Получить содержимое вкладки "Основное"
      * @return string - html-код содержимого вкладки
      * 
-     * @todo разделить на 2 виджета
+     * @todo разделить на 2 виджета: общая информация и параметры тела
      */
     protected function getMainTabContent()
     {
@@ -367,7 +371,7 @@ class QUserInfo extends CWidget
         
         // собираем в массив все поля содержащие основную информацию
         $fields['main'] = array(
-            // внешность (первый блок)
+            // внешность и основная информация
             'age', 'playage', 'physiquetype','looktype', 'hairlength', 'haircolor', 'eyecolor', 'addchar',
             // остальные параметры
             'height', 'weight', 'chestsize', 'waistsize', 'hipsize', 'wearsize', 'shoessize', 'titsize',
@@ -375,18 +379,25 @@ class QUserInfo extends CWidget
         
         foreach ( $fields['main'] as $field )
         {// получаем блок с информацией для каждого поля анкеты
-            $data[$field] = $this->getPropertyBlock($field);
+            if ( $result = $this->getPropertyData($field) )
+            {
+                $data[$field] = $result[1];
+                $attributes[] = array('name' => $field, 'label' => $result[0], 'type' => 'html');
+            }
         }
         
         if ( Yii::app()->user->checkAccess('Admin') AND trim(strip_tags($questionary->privatecomment)) )
         {// Только для администраторов: выводим дополнительную информацию об анкете
             $content .= '<div class="ec-round-the-corner" style="background-color:#000;padding:20px;">';
-            $content .= '<h4>'.'Дополнительная информация для администраторов (не видна участнику)'.'</h4>';
+            $content .= '<h4>Дополнительная информация для администраторов (не видна участнику)</h4>';
             $content .= $questionary->privatecomment.'</div>';
         }
         
         // Выводим всю основную информацию
-        $content .= $this->render('main', array('data' => $data), true);
+        $content .= $this->render('main', array(
+            'data'       => $data,
+            'attributes' => $attributes,
+        ), true);
         
         return $content;
     }
@@ -424,9 +435,9 @@ class QUserInfo extends CWidget
             {
                 $school->setScenario('view');
                 $item = array();
-                $item['id']       = $school->id;
-                $item['name']     = $school->school;
-                $item['year']     = $school->year;
+                $item['id']   = $school->id;
+                $item['name'] = $school->school;
+                $item['year'] = $school->year;
                 $items[] = $item;
             }
             $dataProvider = new CArrayDataProvider($items);
@@ -436,8 +447,8 @@ class QUserInfo extends CWidget
                 'dataProvider' => $dataProvider,
                 'template'     => "{items}",
                 'columns' => array(
-                    array('name'=>'name', 'header'=>QuestionaryModule::t('model_school_label')),
-                    array('name'=>'year', 'header'=>QuestionaryModule::t('finish_year')),
+                    array('name' => 'name', 'header' => QuestionaryModule::t('model_school_label')),
+                    array('name' => 'year', 'header' => QuestionaryModule::t('finish_year')),
                 ),
             ), true);
         }
@@ -468,15 +479,23 @@ class QUserInfo extends CWidget
         
         // выводим список ВУЗов
         return $this->widget('bootstrap.widgets.TbGridView', array(
-                        'type'         => 'striped bordered',
-                        'dataProvider' => $dataProvider,
-                        'template'=>"{items}",
-                        'columns'=>array(
-                                        array('name'=>'name', 'header'=>QuestionaryModule::t('university')),
-                                        array('name'=>'specialty', 'header'=>QuestionaryModule::t('specialty')),
-                                        array('name'=>'year', 'header'=>QuestionaryModule::t('finish_year')),
-                                        array('name'=>'workshop', 'header'=>QuestionaryModule::t('workshop')),
-                        ),
+            'type'         => 'striped bordered',
+            'dataProvider' => $dataProvider,
+            'template'     => "{items}",
+            'columns' => array(
+                array(
+                    'name'   => 'name',
+                    'header' => QuestionaryModule::t('university')),
+                array(
+                    'name'   => 'specialty',
+                    'header' => QuestionaryModule::t('specialty')),
+                array(
+                    'name'   => 'year',
+                    'header' => QuestionaryModule::t('finish_year')),
+                array(
+                    'name'   => 'workshop',
+                    'header' => QuestionaryModule::t('workshop')),
+            ),
         ), true);
     }
     
@@ -487,12 +506,12 @@ class QUserInfo extends CWidget
      */
     protected function getSkillsTabContent()
     {
-        $content = '';
+        $content     = '';
         $questionary = $this->questionary;
-        $bages = $questionary->getBages();
+        $bages       = $questionary->getBages();
         
         $attributes = array();
-        $data = array();
+        $data       = array();
         $data['id'] = 1;
         
         // навыки
@@ -903,10 +922,18 @@ class QUserInfo extends CWidget
                 'dataProvider' => $dataProvider,
                 'template'     => "{items}",
                 'columns' => array(
-                    array('name' => 'name', 'header' => QuestionaryModule::t('film_name_label')),
-                    array('name' => 'role', 'header' => QuestionaryModule::t('film_role_label')),
-                    array('name' => 'year', 'header' => QuestionaryModule::t('film_year_label')),
-                    array('name' => 'director', 'header' => QuestionaryModule::t('film_director_label')),
+                    array(
+                        'name'   => 'name',
+                        'header' => QuestionaryModule::t('film_name_label')),
+                    array(
+                        'name'   => 'role',
+                        'header' => QuestionaryModule::t('film_role_label')),
+                    array(
+                        'name'   => 'year',
+                        'header' => QuestionaryModule::t('film_year_label')),
+                    array(
+                        'name'   => 'director',
+                        'header' => QuestionaryModule::t('film_director_label')),
                 ),
             ), true);
         }
@@ -915,12 +942,13 @@ class QUserInfo extends CWidget
     }
     
     /**
-     * @deprecated - после переноса полей модели в раздел умений не используется. Удалить при рефакторинге
-     *  
      * Получить таблицу с послужным списком модели
      * @param arrat $jobs
      * @param string $jobLabel
-     * @return string - html-код таблицы 
+     * 
+     * @return string - html-код таблицы
+     * 
+     * @deprecated - после переноса полей модели в раздел умений не используется. Удалить при рефакторинге
      */
     protected function getModelJobsTable($jobs, $jobLabel)
     {
@@ -1123,6 +1151,7 @@ class QUserInfo extends CWidget
      * @param string $caption - всплывающая подсказка
      * @param string $textYes
      * @param string $textNo
+     * 
      * @return array
      */
     protected function getConditionRow($field, $label, $caption='', $textYes='', $textNo='')
