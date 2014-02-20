@@ -5,6 +5,7 @@
 /* @var $this SaleController */
 
 // получаем все ссылки
+$baseUrl          = Yii::app()->createAbsoluteUrl('//');
 $searchUrl        = Yii::app()->createAbsoluteUrl('//search');
 $orderUrl         = Yii::app()->createAbsoluteUrl('//order');
 $calculationUrl   = Yii::app()->createAbsoluteUrl('//calculation');
@@ -20,7 +21,7 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
 		</div>
 		<div class="top_center">
 			<div class="logo">
-				<a href="index.html"><img src="<?php echo Yii::app()->createAbsoluteUrl('//'); ?>/images/logo.png" alt="EasyCasting"/></a>
+				<a href="index.html"><img src="<?= $baseUrl; ?>/images/logo.png" alt="EasyCasting"/></a>
 			</div>
 		</div>
 		<div class="top_right">
@@ -53,53 +54,53 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
 		<div class="uslugi">
 			<ul>
 				<li>
-					<a href="#"><img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/s1.png" alt="" title=""/></a>
+					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s1.png"/></a>
 				</li>
-				<li style="margin:0px 0px -16px -56px; z-index: 27; position: relative;">
-					<a href="#"><img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/s2.png" alt="" title=""/></a>
+				<li style="margin:0px 0px -16px -56px;z-index:27;position:relative;">
+					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s2.png"/></a>
 				</li>
-				<li style="margin:0px 0px 0px -52px;  z-index: 40; position: relative;">
-					<a href="#"><img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/s3.png" alt="" title=""/></a>
+				<li style="margin:0px 0px 0px -52px;z-index:40;position:relative;">
+					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s3.png"/></a>
 				</li>
-				<li style="margin:0px 0px 0px -50px;  z-index: 35; position: relative;">
-					<a href="#"><img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/s4.png" alt="" title=""/></a>
+				<li style="margin:0px 0px 0px -50px;z-index:35;position:relative;">
+					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s4.png"/></a>
 				</li>
-				<li style="margin:0px 0px 0px -52px;  z-index: 40; position: relative;">
-					<a href="#"><img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/s5.png" alt="" title=""/></a>
+				<li style="margin:0px 0px 0px -52px;z-index:40;position:relative;">
+					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s5.png"/></a>
 				</li>
 			</ul>
 			<ul style="margin-top: -65px;">
-				<li style="margin:0px 0px 0px 5px;  z-index: 30; position: relative;">
-					<a href="#"><img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/s6.png" alt="" title=""/></a>
+				<li style="margin:0px 0px 0px 5px;z-index:30;position:relative;">
+					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s6.png"/></a>
 				</li>
-				<li style="margin:0px 0px 0px -56px; z-index: 28; position: relative;">
-					<a href="#"><img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/s7.png" alt="" title=""/></a>
+				<li style="margin:0px 0px 0px -56px;z-index:28;position:relative;">
+					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s7.png"/></a>
 				</li>
-				<li style="margin:3px 0px 0px -63px;  z-index: 40; position: relative;">
-					<a href="#"><img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/s8.png" alt="" title=""/></a>
+				<li style="margin:3px 0px 0px -63px;z-index:40;position:relative;">
+					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s8.png"/></a>
 				</li>
-				<li style="margin:0px 0px 0px -50px;  z-index: 34; position: relative;">
-					<a href="#"><img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/s9.png" alt="" title=""/></a>
+				<li style="margin:0px 0px 0px -50px;z-index:34;position:relative;">
+					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s9.png"/></a>
 				</li>
-				<li style="margin:0px 0px -10px -67px;  z-index: 40; position: relative;">
-					<a href="#"><img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/s10.png" alt="" title=""/></a>
+				<li style="margin:0px 0px -10px -67px;z-index:40;position:relative;">
+					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s10.png"/></a>
 				</li>
 			</ul> 
 			<ul style="margin-top: -63px;">
-				<li style="margin:0px 0px 0px -7px;  z-index: 27; position: relative;">
-					<a href="#"><img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/s11.png" alt="" title=""/></a>
+				<li style="margin:0px 0px 0px -7px;z-index:27;position:relative;">
+					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s11.png"/></a>
 				</li>
-				<li style="margin:0px 0px -35px -48px; z-index: 28; position: relative;">
-					<a href="#"><img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/s12.png" alt="" title=""/></a>
+				<li style="margin:0px 0px -35px -48px;z-index:28;position:relative;">
+					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s12.png"/></a>
 				</li>
-				<li style="margin:3px 0px -11px -53px;  z-index: 40; position: relative;">
-					<a href="#"><img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/s13.png" alt="" title=""/></a>
+				<li style="margin:3px 0px -11px -53px;z-index:40;position:relative;">
+					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s13.png"/></a>
 				</li>
-				<li style="margin:0px 0px -24px -57px;  z-index: 42; position: relative;">
-					<a href="#"><img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/s14.png" alt="" title=""/></a>
+				<li style="margin:0px 0px -24px -57px;z-index:42;position:relative;">
+					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s14.png"/></a>
 				</li>
-				<li style="margin:0px 0px -40px -67px;  z-index: 40; position: relative;">
-					<a href="#"><img src="<?php echo Yii::app()->theme->baseUrl; ?>/images/s15.png" alt="" title=""/></a>
+				<li style="margin:0px 0px -40px -67px;z-index:40;position:relative;">
+					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s15.png"/></a>
 				</li>
 			</ul> 
 		</div>
@@ -133,7 +134,7 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
             <div class="lp-service-item">
                 <div class="lp-service-icon-container">
                     <a href="<?= $searchUrl; ?>" target="_blank"><img class="lp-service-icon" 
-                        src="<?php echo Yii::app()->theme->baseUrl; ?>/images/serv1.png"></a>
+                        src="<?= Yii::app()->theme->baseUrl; ?>/images/serv1.png"></a>
                 </div>
                 <div class="lp-service-info">
                     <h4 class="lp-service-name"><a href="<?= $searchUrl; ?>" target="_blank">Поиск по 25 критериям и 15 разделам</a></h4>
@@ -150,7 +151,7 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
             <div class="lp-service-item">
                 <div class="lp-service-icon-container">
                     <a href="<?= $orderUrl; ?>" data-toggle="modal" data-target="#fastOrderModal"><img class="lp-service-icon" 
-                        src="<?php echo Yii::app()->theme->baseUrl; ?>/images/serv2.png"></a>
+                        src="<?= Yii::app()->theme->baseUrl; ?>/images/serv2.png"></a>
                 </div>
                 <div class="lp-service-info">
                     <h4 class="lp-service-name"><a href="<?= $orderUrl; ?>" data-toggle="modal" data-target="#fastOrderModal">Заказ через персонального менеджера</a></h4>
@@ -166,7 +167,7 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
             <div class="lp-service-item">
                 <div class="lp-service-icon-container">
                     <a href="<?= $onlineCastingUrl; ?>"><img class="lp-service-icon" 
-                        src="<?php echo Yii::app()->theme->baseUrl; ?>/images/serv3.png"></a>
+                        src="<?= Yii::app()->theme->baseUrl; ?>/images/serv3.png"></a>
                 </div>
                 <div class="lp-service-info">
                     <h4 class="lp-service-name"><a href="<?= $onlineCastingUrl; ?>">Онлайн кастинг</a></h4>
@@ -184,7 +185,7 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
             <div class="lp-service-item">
                 <div class="lp-service-icon-container">
                     <a href="#"><img class="lp-service-icon" 
-                        src="<?php echo Yii::app()->theme->baseUrl; ?>/images/serv4.png"></a>
+                        src="<?= Yii::app()->theme->baseUrl; ?>/images/serv4.png"></a>
                 </div>
                 <div class="lp-service-info">
                     <h4 class="lp-service-name"><a href="#">Автоматизация документооборота</a></h4>
