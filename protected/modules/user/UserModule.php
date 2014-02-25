@@ -7,14 +7,14 @@
  * @license http://www.opensource.org/licenses/bsd-license.php
  * @version $Id: UserModule.php 132 2011-10-30 10:45:01Z mishamx $
  */
-
 class UserModule extends CWebModule
 {
     /**
      * @var bool - log output email messages? (FOR DEBUG ONLY!)
-     *              default is false
+     *             default is false
+     * @deprecated вся работа с amazon AWS переехала в отдельный модуль - удалить эту константу при рефакторинге
      */
-    const LOG_EMAIL_MESSAGES = true;
+    const LOG_EMAIL_MESSAGES = false;
     
     /**
      * @var bool - use amazon SES to send email
@@ -113,8 +113,8 @@ class UserModule extends CWebModule
 	 */
 	//public $cacheEnable = false;
 	
-	public $tableUsers = '{{users}}';
-	public $tableProfiles = '{{profiles}}';
+	public $tableUsers         = '{{users}}';
+	public $tableProfiles      = '{{profiles}}';
 	public $tableProfileFields = '{{profiles_fields}}';
 
     public $defaultScope = array(
@@ -365,6 +365,10 @@ class UserModule extends CWebModule
 	 */
 	public function getViewMode()
 	{
+	    if ( ! Yii::app()->user->hasState('userMode') )
+	    {// инициализируем режим просмотра, если пользователь зашел первый раз, и еще не определился
+	        $this->setViewMode();
+	    }
 	    return Yii::app()->user->getState('userMode', 'user');
 	}
 	
