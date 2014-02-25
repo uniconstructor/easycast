@@ -28,7 +28,7 @@ $data    = array(
         'position' => 'руководитель проектов',
         'phone'    => '+7 915 066 86 05',
         'email'    => 'irina@easycast.ru',
-        'facebook' => '',
+        'facebook' => 'facebook.com/buzaevairina',
     ),
     array(
         'image'    => Yii::app()->theme->baseUrl.'/images/mkorolev.png',
