@@ -52,7 +52,7 @@ class ECMainMenu extends CWidget
      */
     protected function setActiveTab()
     {
-        if ( $lastState = Yii::app()->getGlobalState('userMode') )
+        if ( $lastState = Yii::app()->getModule('user')->getViewMode() )
         {
             $this->activeTab = $lastState;
         }
