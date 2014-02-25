@@ -365,9 +365,10 @@ class QUserInfo extends CWidget
         $questionary = $this->questionary;
         
         // Внешность
-        $data    = array();
-        $options = array();
-        $fields  = array();
+        $data       = array();
+        $options    = array();
+        $fields     = array();
+        $attributes = array();
         
         // собираем в массив все поля содержащие основную информацию
         $fields['main'] = array(
