@@ -137,9 +137,14 @@ class EMailOffer extends EMailBase
      * Получить ссылку на страницу оформления заказа
      * @return string
      */
-    protected function getOrderPageUrl()
+    protected function getOrderPageUrl($service=null)
     {
-        return Yii::app()->createAbsoluteUrl('/order/index', $this->getReferalParams());
+        $params = $this->getReferalParams();
+        if ( $service )
+        {
+            $params['service'] = $service;
+        }
+        return Yii::app()->createAbsoluteUrl('/order/index', $params);
     }
     
     /**
@@ -232,7 +237,7 @@ class EMailOffer extends EMailBase
             break;
             case 'castings':
                 $alt   = 'Кастинги';
-                $link  = $this->getCalculationPageUrl($name);
+                $link  = $this->getOrderPageUrl($name);
                 $imageUrl = $this->getImageUrl($imagesFolder.'s5.png');
             break;
             case 'mass_actors':
@@ -262,27 +267,27 @@ class EMailOffer extends EMailBase
             break;
             case 'circus_actors':
                 $alt   = 'Артисты циркового жанра';
-                $link  = $this->getCalculationPageUrl($name);
+                $link  = $this->getOrderPageUrl($name);
                 $imageUrl = $this->getImageUrl($imagesFolder.'s11.png');
             break;
             case 'sportsmen':
                 $alt   = 'Спортсмены';
-                $link  = $this->getCalculationPageUrl($name);
+                $link  = $this->getOrderPageUrl($name);
                 $imageUrl = $this->getImageUrl($imagesFolder.'s12.png');
             break;
             case 'types':
                 $alt   = 'Типажи';
-                $link  = $this->getCalculationPageUrl($name);
+                $link  = $this->getOrderPageUrl($name);
                 $imageUrl = $this->getImageUrl($imagesFolder.'s13.png');
             break;
             case 'animals':
                 $alt   = 'Животные';
-                $link  = $this->getCalculationPageUrl($name);
+                $link  = $this->getOrderPageUrl($name);
                 $imageUrl = $this->getImageUrl($imagesFolder.'s14.png');
             break;
             case 'transport':
                 $alt   = 'Транспорт';
-                $link  = $this->getCalculationPageUrl($name);
+                $link  = $this->getOrderPageUrl($name);
                 $imageUrl = $this->getImageUrl($imagesFolder.'s15.png');
             break;
         }

@@ -87,8 +87,7 @@ class CustomerOfferController extends Controller
 			$model->attributes = $attributes;
 			if ( $model->validate() AND $model->save() )
 			{// @todo проставить setFlash здесь и на странице отображения
-			    // отправляем письмо с приглашением
-			    $model->sendNotification();
+			    // При сохранении записи письмо отправляется автоматически
 			    
 			    $this->redirect(array('view',
 				    'id' => $model->id,
