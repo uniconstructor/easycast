@@ -201,7 +201,10 @@ class EMailOffer extends EMailBase
     protected function createServicePhoto($name)
     {
         $photo        = '';
-        $photoOptions = array('style' => 'max-width:127px;');
+        $photoOptions = array(
+            'style' => 'max-width:127px;',
+            'width' => '127',
+        );
         $alt          = '';
         $imagesFolder = '/images/offer/services/';
         

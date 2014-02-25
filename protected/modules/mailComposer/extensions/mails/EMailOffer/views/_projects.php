@@ -43,7 +43,7 @@ $projects = new CActiveDataProvider('Project', array(
 		{
 		    $logo = $this->createProjectLogo($project);
 		    echo '<td width="64">'.$logo.'</td>';
-		    if ( $i % 10 == 0 )
+		    if ( $i % 10 == 0 AND $i > 0 )
 		    {// выводим по 10 проектов в ряд
 		        echo '</tr><tr>';
 		    }
