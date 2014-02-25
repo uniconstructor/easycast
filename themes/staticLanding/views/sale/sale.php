@@ -134,7 +134,7 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
             <div class="lp-service-item">
                 <div class="lp-service-icon-container">
                     <a href="<?= $searchUrl; ?>" target="_blank"><img class="lp-service-icon" 
-                        src="<?= Yii::app()->theme->baseUrl; ?>/images/serv1.png"></a>
+                        src="<?= $baseUrl; ?>/images/offer/services/serv1.png"></a>
                 </div>
                 <div class="lp-service-info">
                     <h4 class="lp-service-name"><a href="<?= $searchUrl; ?>" target="_blank">Поиск по 25 критериям и 15 разделам</a></h4>
@@ -151,12 +151,12 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
             <div class="lp-service-item">
                 <div class="lp-service-icon-container">
                     <a href="<?= $orderUrl; ?>" data-toggle="modal" data-target="#fastOrderModal"><img class="lp-service-icon" 
-                        src="<?= Yii::app()->theme->baseUrl; ?>/images/serv2.png"></a>
+                        src="<?= $baseUrl; ?>/images/offer/services/serv2.png"></a>
                 </div>
                 <div class="lp-service-info">
                     <h4 class="lp-service-name"><a href="<?= $orderUrl; ?>" data-toggle="modal" data-target="#fastOrderModal">Заказ через персонального менеджера</a></h4>
                     <p class="lp-service-text"> 
-                    Данный сервис создан специально для режиссеров, продюсеров и кастинг-директоров, 
+                    Этот сервис создан специально для режиссеров, продюсеров и кастинг-директоров, 
                     которые предпочитают делегировать все кастинг-задачи и контролировать лишь конечный 
                     результат работы в своем личном кабинете на нашем сайте. Для вашего удобства и 
                     спокойствия - наши лучшие руководители проектов. Просто выбираете для своего проекта 
@@ -167,7 +167,7 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
             <div class="lp-service-item">
                 <div class="lp-service-icon-container">
                     <a href="<?= $onlineCastingUrl; ?>"><img class="lp-service-icon" 
-                        src="<?= Yii::app()->theme->baseUrl; ?>/images/serv3.png"></a>
+                        src="<?= $baseUrl; ?>/images/offer/services/serv3.png"></a>
                 </div>
                 <div class="lp-service-info">
                     <h4 class="lp-service-name"><a href="<?= $onlineCastingUrl; ?>">Онлайн кастинг</a></h4>
@@ -185,15 +185,15 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
             <div class="lp-service-item">
                 <div class="lp-service-icon-container">
                     <a href="#"><img class="lp-service-icon" 
-                        src="<?= Yii::app()->theme->baseUrl; ?>/images/serv4.png"></a>
+                        src="<?= $baseUrl; ?>/images/offer/services/serv4.png"></a>
                 </div>
                 <div class="lp-service-info">
                     <h4 class="lp-service-name"><a href="#">Автоматизация документооборота</a></h4>
                     <p class="lp-service-text" style="padding-top:25px;">
-                        Наша умная система на основе сформированного заказа система автоматически 
-                        генерирует весь пакет документов, включая договор, 
-                        ведомости, смету и даже фотовызывной, содержащий всю необходимую 
-                        информацию об актерах, утвержденных заказчиком.
+                    Наша умная система на основе сформированного заказа система автоматически 
+                    генерирует весь пакет документов, включая договор, 
+                    ведомости, смету и даже фотовызывной, содержащий всю необходимую 
+                    информацию об актерах, утвержденных заказчиком.
                     </p>
                 </div>
             </div>
