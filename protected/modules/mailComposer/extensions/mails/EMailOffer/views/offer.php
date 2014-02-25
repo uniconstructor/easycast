@@ -1,6 +1,6 @@
 <?php
 /**
- * Вся верстка вертикального коммерческого предложения в одном файле
+ * Верстка коммерческого предложения в письме
  * 
  */
 /* @var $this EMailOffer */
@@ -16,173 +16,135 @@
  */
 ?>
 <tr bgcolor="#dbe4f1">
-    <td id="header" class="w640" align="center" width="640" >
+    <td id="header" align="center" width="640px">
 		<div style="text-align: left" align="center">
-			<a href="<?= $orderUrl; ?>" target="_blank">
-			<img id="customHeaderImage" src="<?= $this->getImageUrl('/images/offer/header.png'); ?>" class="w640" style="display: inline" align="top" border="0" width="640">
+			<a href="<?= Yii::app()->createAbsoluteUrl('/sale'); ?>" target="_blank">
+			<img id="customHeaderImage" src="<?= $this->getImageUrl('/images/mail-header.png'); ?>" 
+                class="w640" style="display: inline" align="top" border="0" width="640">
 			</a>
 		</div>
     </td>
 </tr>
+<!-- Вступление -->
+<tr bgcolor="#dbe4f1">
+    <td>
+    <table width="640px" border="0" cellpadding="0" cellspacing="0">
+        <tbody>
+        <tr>
+            <td width="30">&nbsp;</td>
+            <td width="580">
+                <p style="text-align:center;font-weight:200;text-shadow: 0 1px 2px #E8F9FF;">
+                <?= $greeting ?>
+                Кастинговое агентство easyCast с 2005 года успешно обеспечивает актерами, моделями, 
+                типажами и артистами массовых сцен самые масштабные и сложные съемки. 
+                Мы оказываем качественные услуги по поиску, отбору и администрированию всех вышеперечисленных 
+                персонажей для производителей рекламы, кино, телепроектов, сериалов и всех других видов 
+                аудиовизуальной продукции. С помощью современных технологий мы создали мощнейшие инструменты 
+                кастинга, и даже самые сложные задачи с нами решаются быстро и удобно!
+                </p>
+            </td>
+            <td width="30">&nbsp;</td>
+        </tr>
+        </tbody>
+    </table>
+    </td>
+</tr>
+<!-- Слоган -->
 <tr bgcolor="#dbe4f1">
 	<td>
-		<!-- Слоган -->
 		<div style="text-align: left" align="center">
-			<img src="<?= $this->getImageUrl('/images/offer/slogan.png'); ?>" class="w640" style="display: inline" align="top" border="0" width="640">
+			<img src="<?= $this->getImageUrl('/images/offer/slogan.png'); ?>" class="w640" style="display:inline;" align="top" border="0" width="640">
 		</div>
 	</td>
 </tr>
+<!-- Услуги -->
 <tr bgcolor="#dbe4f1">
 	<td>
-		<!-- Услуги -->
-		<table class="w640" width="640" border="0" cellpadding="0" cellspacing="0">
-			<tbody>
-				<tr style="vertical-align:bottom;">
-					<td width="45" height="104" rowspan="2"></td>
-					<td width="120"><p style="margin:0px;padding:0px;height:104px;width: 120px;"><a href="<?= $this->getSectionUrl('actors'); ?>"><img border="0" src="<?= $this->getImageUrl('/images/offer/s1.png'); ?>" width="120"></a></p></td>
-					<td width="23" rowspan="2"></td>
-					<td width="120"><p style="margin:0px;padding:0px;height:104px;width: 120px;"><a href="<?= $this->getSectionUrl('ams'); ?>"><img border="0" src="<?= $this->getImageUrl('/images/offer/s2.png'); ?>"  width="120" /></a></p></td>
-					<td width="23" height="176" rowspan="2"></td>
-					<td width="120"><p style="margin:0px;padding:0px;height:104px;width: 120px;"><a href="<?= $this->getSectionUrl('models'); ?>"><img border="0" src="<?= $this->getImageUrl('/images/offer/s3.png'); ?>" width="120"></a></p></td>
-					<td width="23" height="176" rowspan="2"></td>
-					<td width="120"><p style="margin:0px;padding:0px;height:104px;width: 120px;"><a href="<?= $this->getSectionUrl('types'); ?>"><img border="0" src="<?= $this->getImageUrl('/images/offer/s4.png'); ?>"  width="120" /></a></p></td>
-					<td width="40" rowspan="2"></td>
-				</tr>
-				<tr valign="middle">
-					<td width="119" height="71" bgcolor="#47ad2c" align="center">
-						<a href="<?= $this->getSectionUrl('actors'); ?>" style="text-decoration:none;">
-						<font face="tahoma,sans-serif" color="#224c17" size="4">АКТЕРЫ</font></a>
-					</td>
-					<td width="120" height="71" bgcolor="#c87c1a" align="center">
-						<a href="<?= $this->getSectionUrl('ams'); ?>" style="text-decoration:none;">
-						<font face="tahoma,sans-serif" color="#65390d" size="2">АРТИСТЫ МАССОВЫХ СЦЕН</font></a>
-					</td>
-					<td width="120" height="71" bgcolor="#257cb7" align="center">
-						<a href="<?= $this->getSectionUrl('models'); ?>" style="text-decoration:none;">
-						<font face="tahoma,sans-serif" color="#09354f" size="4">МОДЕЛИ</font></a>
-					</td>
-					<td width="119" height="71" bgcolor="#7c2fce" align="center">
-						<a href="<?= $this->getSectionUrl('types'); ?>" style="text-decoration:none;">
-						<font face="tahoma,sans-serif" color="#2b0137" size="4">ТИПАЖИ</font></a>
-					</td>
-				</tr>
-			</tbody>
-		</table>
+	<?php $this->render('_services'); ?>
 	</td>
 </tr>
 <tr bgcolor="#dbe4f1">
 	<td height="20"></td>
 </tr>
+<!-- Кнопки заказа и расчета стоимости -->
 <tr bgcolor="#dbe4f1">
 	<td>
-		<!-- Кнопки -->
-		<table class="w640" width="640"  border="0" cellpadding="0" cellspacing="0">
-			<tbody>
-				<tr>
-					<td width="151" height="206" rowspan="3">
-						<img src="<?= $this->getImageUrl('/images/offer/iphones.png'); ?>">
-					</td>
-					<td width="339" height="68">
-						<a href="<?= $orderUrl; ?>">
-                            <img src="<?= $this->getImageUrl('/images/offer/zakaz.png'); ?>">
-						</a>
-					</td>
-					<td width="151" rowspan="3">
-						<img src="<?= $this->getImageUrl('/images/offer/ipad1.png'); ?>">
-					</td>
-				</tr>
-				<tr>
-					<td width="339" height="56">
-						<a href="<?= $calculationUrl; ?>">
-                            <img src="<?= $this->getImageUrl('/images/offer/price.png'); ?>">
-						</a>
-					</td>
-				</tr>
-				<tr>
-					<td width="339" height="82">
-						&nbsp;
-					</td>
-				</tr>
-			</tbody>
-		</table>
+		<?php $this->render('_buttons'); ?>
 	</td>
 </tr>
+<!-- Сервисы -->
 <tr bgcolor="#dbe4f1">
 	<td width="640" height="40" valign="middle" align="center">
-		<!-- Текст про сервисы -->
-		<font face="tahom,sans-serif" color="#17414c" size="6">ВАШИ ОНЛАЙН СЕРВИСЫ:</font>
+		<h2 style="color:#1E3D52;font-family:century gothic,sans-serif;font-weight:400;font-size:25px;">
+		ВАШИ ОНЛАЙН-СЕРВИСЫ</h2>
 	</td>
 </tr>
 <tr bgcolor="#dbe4f1">
     <td>
+        <!-- Текст про сервисы -->
     	<table class="w640" width="640" border="0" cellpadding="0" cellspacing="0">
-			<tbody>
-			    <tr>
-					<td colspan="3" height="20">
-					   <img src="<?= $this->getImageUrl('/images/offer/textfon-t.png'); ?>"/>
-				    </td>
-				</tr>
-				<tr>
-					<td width="60" height="90">
-					   <img src="<?= $this->getImageUrl('/images/offer/textfon-l.png'); ?>"/>
-					</td>
-					<td width="520" height="100" width="520" bgcolor="#FFFFFF" valign="middle" align="center">
-						<!-- Текст про сервисы -->
-						<font face="tahoma,sans-serif" color="#17414c" size="3">
-						Восьмилетний опыт и два года IT-разработок позволили нам запустить первый в России 
-						автоматизированный ресурс для предоставления полного спектра кастинговых услуг 
-						</font><br />
-						<font face="tahoma,sans-serif" color="#55B0C6" size="3"><i>при помощи нескольких кликов<i></font>  
-					</td>
-					<td width="60">
-					   <img src="<?= $this->getImageUrl('/images/offer/textfon-r.png'); ?>"/>
-					</td>
-				</tr>
-				<tr>
-					<td colspan="3" height="20">
-					   <img src="<?= $this->getImageUrl('/images/offer/textfon-b.png'); ?>"/>
-				    </td>
-				</tr>
-			</tbody>
+		<tbody>
+			<tr>
+				<td width="30">&nbsp;</td>
+				<td width="580" height="100" width="520" valign="middle">
+					<p style="font-face:century gothic,sans-serif;color:#17414c;text-align:center;font-weight:200;text-shadow: 0 1px 2px #E8F9FF;">
+					Мы рады вам сообщить, что благодаря восьмилетнему опыту работы
+                    и двум годам сложнейших IT-разработок мы создали ресурс,
+                    способный упорядочить все сложные процессы поиска, оповещения,
+                    отбора и утверждения артистов в простой сервис:
+                    несколько кликов - и все, кто вам нужен - в кадре!
+                    </p>
+				</td>
+				<td width="30">&nbsp;</td>
+			</tr>
+		</tbody>
+    	</table>
+    	<!-- Список сервисов с описанием -->
+    	<?php $this->render('_online'); ?>
+	</td>
+</tr>
+<!-- Кнопки заказа и расчета стоимости -->
+<tr bgcolor="#dbe4f1">
+	<td>
+	<?php $this->render('_buttons'); ?>
+	</td>
+</tr>
+<!-- отзывы -->
+<tr bgcolor="#dbe4f1">
+	<td>
+		<table class="w640" width="640" border="0" cellpadding="0" cellspacing="0">
+		<tbody>
+			<tr>
+                <td width="10">&nbsp;</td>
+				<td width="120"><?= CHtml::image($this->getImageUrl('/images/offer/reviews/7.jpg'), '', 
+				    array('style' => 'width:130px;box-shadow:0 0 5px 3px rgba(0, 0, 0, 0.35);border-radius:10px;')) ?></td>
+			    <td width="10">&nbsp;</td>
+				<td width="460" height="100" width="520" valign="middle">
+				    <h3><span style="color:#1E3D52;font-family:century gothic,sans-serif;font-weight:400;font-size:25px;">
+				    Тина Канделаки
+				    </span>
+				    <span style="color:#1E3D52;font-family:century gothic,sans-serif;font-weight:200;font-size:20px;">
+				    журналистка, телеведущая, продюсер, общественный деятель
+				    </span>
+				    </h3>
+					<p style="font-face:century gothic,sans-serif;color:#17414c;text-align:center;font-weight:200;text-shadow: 0 1px 2px #E8F9FF;">
+					Я знаю easyCast очень давно, и являюсь свидетелем их карьеры. Это очень приятно, 
+					так как они развивались на моих глазах и доросли до компании, которой можно доверить 
+					под ключ организовать огромный процесс. Очень мало в наше время людей, с навыками делать 
+					что-то эффективно и доводить дело до конца, взять и качественно выполнить все 
+					поставленные задачи. Команда easyCast это умеет. Я это давно наблюдаю, давно это вижу и, 
+					более того, я с easyCast работаю.
+                    </p>
+				</td>
+				<td width="30">&nbsp;</td>
+			</tr>
+		</tbody>
     	</table>
 	</td>
 </tr>
+<!-- Проекты -->
 <tr bgcolor="#dbe4f1">
 	<td>
-		<!-- Сервисы -->
-		<div style="text-align:left" align="center">
-			<img src="<?= $this->getImageUrl('/images/offer/services.png'); ?>" class="w640" style="display: inline" align="top" border="0" width="640">
-		</div>
-	</td>
-</tr>
-<tr bgcolor="#dbe4f1">
-	<td>
-		<!-- Кнопка -->
-		<table class="w640" width="640" border="0" cellpadding="0" cellspacing="0">
-			<tbody>
-				<tr>
-					<td width="131" height="93">
-						
-					</td>
-					<td width="380">
-						<a href="<?= $tourUrl; ?>">
-                            <img src="<?= $this->getImageUrl('/images/offer/tur_but.png'); ?>" 
-                                style="display: inline" align="top" border="0" width="380">
-                        </a>
-					</td>
-					<td width="132">
-						
-					</td>
-				</tr>
-			</tbody>
-		</table>
-	</td>
-</tr>
-<tr bgcolor="#dbe4f1">
-	<td>
-		<!-- Проекты -->
-		<div style="text-align: left" align="center">
-			<img src="<?= $this->getImageUrl('/images/offer/projects.png'); ?>" class="w640" style="display: inline" align="top" border="0" width="640">
-		</div>
+	<?php $this->render('_projects'); ?>	
 	</td>
 </tr>

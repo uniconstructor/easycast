@@ -10,10 +10,11 @@ class EMailOffer extends EMailBase
 {
     /**
      * @var CustomerOffer - приглашение для заказчика класса "коммерческое предложение"
+     *                      в поле user хранится имя того кому адресовано предложение
+     *                      в поле comment хранится дополнительный комментарий к отправленному предложению
      */
     public $offer;
     /**
-     *
      * @var User - руководитель проекта, от имени которого отправляется коммерческое предложение
      */
     public $manager;
@@ -31,16 +32,16 @@ class EMailOffer extends EMailBase
     
         parent::init();
         
-        if ( ! $this->manager )
+        if ( ! $this->manager OR $this->manager->username === 'admin' )
         {// Если менеджер не указан - по умолчанию возьмем Иру
             $this->manager = Yii::app()->getModule('user')->user(775);
         }
         
-        $this->mailOptions['contentPadding'] = 0;
-        $this->mailOptions['mainHeaderType'] = 'text';
-        $this->mailOptions['contactPhone'] = Yii::app()->params['customerPhone'];
-        $this->mailOptions['contactEmail'] = 'order@easycast.ru';
-        $this->mailOptions['manager'] = $this->manager;
+        $this->mailOptions['contentPadding']      = 0;
+        $this->mailOptions['mainHeaderType']      = 'text';
+        $this->mailOptions['contactPhone']        = Yii::app()->params['customerPhone'];
+        $this->mailOptions['contactEmail']        = 'order@easycast.ru';
+        $this->mailOptions['manager']             = $this->manager;
         $this->mailOptions['showTopServiceLinks'] = true;
         $this->mailOptions['topBarOptions']['displayWebView'] = true;
         $this->mailOptions['topBarOptions']['webViewLink']    = $this->getWebViewLink();
@@ -68,6 +69,8 @@ class EMailOffer extends EMailBase
     {
         $block = array();
         
+        $greeting         = $this->createOfferGreeting();
+        $managerName      = $this->manager->questionary->fullname;
         $orderUrl         = Yii::app()->createAbsoluteUrl('/order/index', $this->getReferalParams());
         $calculationUrl   = Yii::app()->createAbsoluteUrl('/calculation/index', $this->getReferalParams());
         $tourUrl          = Yii::app()->createAbsoluteUrl('/tour/index', $this->getReferalParams());
@@ -79,6 +82,7 @@ class EMailOffer extends EMailBase
             'calculationUrl'   => $calculationUrl,
             'tourUrl'          => $tourUrl,
             'onlineCastingUrl' => $onlineCastingUrl,
+            'greeting'         => $greeting,
         ), true);
         
         return $block;
@@ -94,8 +98,7 @@ class EMailOffer extends EMailBase
         
         $block['type'] = 'text640';
         $block['text'] = $this->widget(
-            'application.modules.mailComposer.extensions.widgets.EMailManagerInfo.EMailManagerInfo',
-            array(
+            'application.modules.mailComposer.extensions.widgets.EMailManagerInfo.EMailManagerInfo', array(
                 'manager' => $this->manager,
             ), true);
         
@@ -111,7 +114,7 @@ class EMailOffer extends EMailBase
         $url = $this->getSalePageUrl();
         
         $result = '<div style="color:#fff">(Если вы не видите текст или письмо отображается неправильно нажмите "показать картинки" или ';
-        $result .= CHtml::link('посмотрите полную версию письма на нашем сайте', $url, array(
+        $result .= CHtml::link('посмотрите полную версию на нашем сайте', $url, array(
             'style' => 'color:#fff;font-weight:bold;text-decoration:underline;',
         ));
         $result .= ').</div>';
@@ -131,6 +134,48 @@ class EMailOffer extends EMailBase
     }
     
     /**
+     * Получить ссылку на страницу оформления заказа
+     * @return string
+     */
+    protected function getOrderPageUrl()
+    {
+        return Yii::app()->createAbsoluteUrl('/order/index', $this->getReferalParams());
+    }
+    
+    /**
+     * Получить ссылку на страницу поиска
+     * @return string
+     */
+    protected function getSearchPageUrl()
+    {
+        return Yii::app()->createAbsoluteUrl('/search/index', $this->getReferalParams());
+    }
+    
+    /**
+     * Получить ссылку на страницу онлайн-кастинга
+     * @return string
+     */
+    protected function getCastingPageUrl()
+    {
+        return Yii::app()->createAbsoluteUrl('/onlineCasting/index', $this->getReferalParams());
+    }
+    
+    /**
+     * Получить ссылку на страницу расчета стоимости
+     * @param string $service - короткое название сервиса
+     * @return string
+     */
+    protected function getCalculationPageUrl($service=null)
+    {
+        $params = $this->getReferalParams();
+        if ( $service )
+        {
+            $params['service'] = $service;
+        }
+        return Yii::app()->createAbsoluteUrl('/calculation/index', $params);
+    }
+    
+    /**
      * Получить get-параметры для создания реферальной ссылки из с коммерческим предложением
      * 
      * @return array
@@ -146,6 +191,104 @@ class EMailOffer extends EMailBase
     }
     
     /**
+     * Получить фотографию с изображением одной услуги
+     * @param string $name - короткое имя услуги (для разделов каталога - совпадает с 
+     *                       коротким именем раздела в таблице catalog_sections)
+     * @return string - фотография услуги со ссылкой на соответствующий раздел каталога
+     *                  или на страницу оформления заказа, если нужного раздела нет
+     */
+    protected function createServicePhoto($name)
+    {
+        $photo        = '';
+        $photoOptions = array('style' => 'max-width:127px;');
+        $alt          = '';
+        $imagesFolder = '/images/offer/services/';
+        
+        switch ( $name )
+        {
+            case 'media_actors':
+                $alt   = 'Медийные артисты';
+                $link  = $this->getSectionUrl($name);
+                $imageUrl = $this->getImageUrl($imagesFolder.'s1.png');
+            break;
+            case 'actors':
+                $alt   = 'Актеры';
+                $link  = $this->getSectionUrl($name);
+                $imageUrl = $this->getImageUrl($imagesFolder.'s2.png');
+            break;
+            case 'models':
+                $alt   = 'Модели';
+                $link  = $this->getSectionUrl($name);
+                $imageUrl = $this->getImageUrl($imagesFolder.'s3.png');
+            break;
+            case 'children_section':
+                $alt   = 'Дети';
+                $link  = $this->getSectionUrl($name);
+                $imageUrl = $this->getImageUrl($imagesFolder.'s4.png');
+            break;
+            case 'castings':
+                $alt   = 'Кастинги';
+                $link  = $this->getCalculationPageUrl($name);
+                $imageUrl = $this->getImageUrl($imagesFolder.'s5.png');
+            break;
+            case 'mass_actors':
+                $alt   = 'Артисты массовых сцен';
+                $link  = $this->getSectionUrl($name);
+                $imageUrl = $this->getImageUrl($imagesFolder.'s6.png');
+            break;
+            case 'emcees':
+                $alt   = 'Ведущие';
+                $link  = $this->getSectionUrl($name);
+                $imageUrl = $this->getImageUrl($imagesFolder.'s7.png');
+            break;
+            case 'singers':
+                $alt   = 'Вокалисты и коллективы';
+                $link  = $this->getSectionUrl($name);
+                $imageUrl = $this->getImageUrl($imagesFolder.'s8.png');
+            break;
+            case 'dancers':
+                $alt   = 'Танцоры и коллективы';
+                $link  = $this->getSectionUrl($name);
+                $imageUrl = $this->getImageUrl($imagesFolder.'s9.png');
+            break;
+            case 'musicians':
+                $alt   = 'Музыканты и коллективы';
+                $link  = $this->getSectionUrl($name);
+                $imageUrl = $this->getImageUrl($imagesFolder.'s10.png');
+            break;
+            case 'circus_actors':
+                $alt   = 'Артисты циркового жанра';
+                $link  = $this->getCalculationPageUrl($name);
+                $imageUrl = $this->getImageUrl($imagesFolder.'s11.png');
+            break;
+            case 'sportsmen':
+                $alt   = 'Спортсмены';
+                $link  = $this->getCalculationPageUrl($name);
+                $imageUrl = $this->getImageUrl($imagesFolder.'s12.png');
+            break;
+            case 'types':
+                $alt   = 'Типажи';
+                $link  = $this->getCalculationPageUrl($name);
+                $imageUrl = $this->getImageUrl($imagesFolder.'s13.png');
+            break;
+            case 'animals':
+                $alt   = 'Животные';
+                $link  = $this->getCalculationPageUrl($name);
+                $imageUrl = $this->getImageUrl($imagesFolder.'s14.png');
+            break;
+            case 'transport':
+                $alt   = 'Транспорт';
+                $link  = $this->getCalculationPageUrl($name);
+                $imageUrl = $this->getImageUrl($imagesFolder.'s15.png');
+            break;
+        }
+        
+        $photo = CHtml::image($imageUrl, $alt, $photoOptions);
+        
+        return CHtml::link($photo, $link);
+    }
+    
+    /**
      * Получить ссылку на раздел каталога
      * @param string $name
      * @return string
@@ -155,13 +298,34 @@ class EMailOffer extends EMailBase
         $params = $this->getReferalParams();
         switch ( $name )
         {
-            case 'actors': $params['sectionid'] = 4; break;
-            case 'ams':    $params['sectionid'] = 17; break;
-            case 'models': $params['sectionid'] = 3; break;
-            case 'types':  $params['sectionid'] = 16; break;
+            case 'media_actors':     $params['sectionid'] = 2; break;
+            case 'actors':           $params['sectionid'] = 4; break;
+            case 'children_section': $params['sectionid'] = 5; break;
+            case 'models':           $params['sectionid'] = 3; break;
+            case 'mass_actors':      $params['sectionid'] = 17; break;
+            case 'emcees':           $params['sectionid'] = 8; break;
+            case 'singers':          $params['sectionid'] = 9; break;
+            case 'dancers':          $params['sectionid'] = 11; break;
+            case 'musicians':        $params['sectionid'] = 10; break;
+            default: return Yii::app()->createAbsoluteUrl('/search', $params);
         }
         
         return Yii::app()->createAbsoluteUrl('/catalog/catalog/index', $params);
+    }
+    
+    /**
+     * Получить лого проекта со ссылкой на страницу проекта
+     * @param Project $project
+     * @return string
+     */
+    protected function createProjectLogo($project)
+    {
+        $logoUrl    = ECPurifier::getImageProxyUrl($project->getAvatarUrl('small', true));
+        $projectUrl = Yii::app()->createAbsoluteUrl('/projects/projects/view', array('id' => $project->id));
+        $image      = CHtml::image($logoUrl, '', array('style' => 'width:64px;height:64px;'));
+        $logo       = CHtml::link($image, $projectUrl);
+        
+        return $logo;
     }
     
     /**
@@ -172,5 +336,35 @@ class EMailOffer extends EMailBase
     protected function getImageUrl($path)
     {
         return ECPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl($path));
+    }
+    
+    /**
+     * Создать приветствие для заказчика от имени руководителя проектов 
+     * @return string
+     */
+    protected function createOfferGreeting()
+    {
+        $linkParams = $this->getReferalParams();
+        $linkParams['newState'] = 'customer';
+        
+        $text = '<span style="font-size:20px;">'.$this->createGreeting($this->offer->name).'</span>';
+        if ( $this->manager )
+        {
+            $position = 'руководитель проектов';
+            if ( $this->manager->email === 'ceo@easycast.ru' )
+            {// @todo такого свойства как "должность" у нас пока еще нет и неизвестно понадобится ли оно
+                // поэтому проверяем email. Коля  -управляющий партнер, все остальные - руководители проектов
+                $position = 'управляющий партнер';
+            } 
+            $text .= 'Меня зовут '.$this->manager->questionary->fullname.
+                ', я '.$position.' кастингового агенства easyCast. Прошу вас ';
+        }else
+        {
+            $text .= 'Предлагаем вам ';
+        }
+        $text .= 'рассмотреть наше коммерческое предложение и при желании оценить
+                нашу систему подбора актеров, расположенную на сайте '.
+                CHtml::link('easycast.ru', Yii::app()->createAbsoluteUrl('/site/index', $linkParams)).'.<br><br>';
+        return $text;
     }
 }

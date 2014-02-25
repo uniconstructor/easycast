@@ -150,13 +150,40 @@ class ProjectMailsBehavior extends CBehavior
         $segments    = new CMap();
         $mailOptions = $this->getRejectMailOptions($projectMember, $mailOptions);
         $projectName = $projectMember->vacancy->event->project->name;
+        if ( $projectMember->vacancy->limit > 8 )
+        {// это массовая роль, как правило она не художественная и на нее набирается множество
+            // людей (например статисты или массовка)
+            // @todo сделать более умное определение этого параметра (по критериям поиска) 
+            $massRole = true;
+        }else
+        {// единичная роль
+            $massRole = false;
+        }
         
         // письмо состоит из одного блока
         $block = array();
         $block['text'] = $this->createUserGreeting($projectMember->member);
         $block['text'] .= 'Некоторое время назад вы подавали заявку на участие в проекте "'.
             $projectName.'", на роль "'.$projectMember->vacancy->name.'".'."<br>\n";
-        $block['text'] .= 'Мы передали вашу заявку режиссеру, она рассмотрена и отклонена.'."<br>\n";
+        
+        if ( ! $massRole )
+        {// для художественных ролей заявки отбирает режиссер
+            $block['text'] .= "Мы передали вашу заявку на рассмотрение режиссеру."; 
+        }
+        $block['text'] .= "К сожалению она была отклонена. <br> 
+            Возможноные причины:<br>\n";
+        $block['text'] .= "<ul>";
+        $block['text'] .= "<li>Анкета одного из других кандидатов оказалась ближе к образу, уведенному режиссером.</li>";
+        $block['text'] .= "<li>В вашей анкете недостаточно данных.
+                Настоятельно рекомендуем вам следить за тем чтобы ваша анкета была максимально подробно заполнена.
+                Обязательно размещайте свежие фото и видео, а также пополнять фильмографию.</li>";
+        if ( $massRole )
+        {
+            $block['text'] .= "<li>Вы подали заявку слишком поздно и достаточное количество человек уже набрано.</li>";
+        }
+        
+        $block['text'] .= "</ul>";
+        
         $segments->add(null, $block);
         
         //$message .= 'Необходимое количество человек для мероприятия "'.$eventName.'" уже набрано.'."<br>\n<br>\n";
@@ -664,9 +691,10 @@ class ProjectMailsBehavior extends CBehavior
         $vacancyName = $projectMember->vacancy->name;
         
         $block['text'] = $this->createUserGreeting($projectMember->member);
-        $block['text'] .= 'Ваша заявка на роль &laquo;'.$vacancyName.'&raquo; была направлена режиссеру, рассмотрена и подтверждена.'."<br>\n";
+        $block['text'] .= 'Некоторое время назад вы подавали заявку на роль &laquo;'.$vacancyName.'&raquo;';
+        $block['text'] .= 'Ваша заявка была подтверждена.'."<br>\n";
         $block['text'] .= 'Теперь вы участник проекта "'.$event->project->name.'".'."<br>\n";
-        $block['text'] .= 'Роль, на которую вы утверждены: "'.$projectMember->vacancy->name."\"<br>\n";
+        $block['text'] .= 'Ваша роль - "'.$projectMember->vacancy->name."\"<br>\n";
         
         if ( $event->type == 'group' )
         {
@@ -688,7 +716,7 @@ class ProjectMailsBehavior extends CBehavior
     {
         if ( is_object($questionary) AND trim($questionary->firstname) )
         {
-            return $questionary->firstname.", здравствуйте.<br>\n<br>\n";
+            return '<span style="font-size:18px;">'.$questionary->firstname.", здравствуйте.</span><br>\n<br>\n";
         }else
         {
             return "Добрый день.<br>\n<br>\n";

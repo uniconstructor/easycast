@@ -13,7 +13,6 @@ class EMailBase extends CWidget
     public $mailOptions = array();
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
      */
     public function init()
@@ -25,7 +24,6 @@ class EMailBase extends CWidget
     }
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
      */
     public function run()
