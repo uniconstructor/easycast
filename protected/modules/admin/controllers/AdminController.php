@@ -27,7 +27,7 @@ class AdminController extends Controller
         
         // загрузка картинок на сервер S3
         $this->actionUploadImages();
-	    
+	    // рассылка почты
 	    $this->actionSendMail();
 	}
 	
