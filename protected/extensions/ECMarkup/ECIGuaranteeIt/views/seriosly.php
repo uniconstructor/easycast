@@ -5,19 +5,19 @@
  */
 /* @var $this ECIguaranteeIt */
 ?>
-<div style="position: fixed;
+<!--div style="position: fixed;
 	top: 0;
 	bottom: 0;
 	left: 0;
 	right: 0;
 	overflow: auto;
-	overflow-y: auto;">
+	overflow-y: auto;"-->
     <?
     // начало всплывающего окна
     $this->beginWidget('bootstrap.widgets.TbModal', array(
         'id'          => $this->modalId,
         'htmlOptions' => array(
-            'style'       => 'width:80%;left:30%;top:1%;bottom:1%;',
+            'style' => 'width:80%;left:30%;top:1%;bottom:1%;',
         ),
     ));
     ?>
@@ -42,4 +42,4 @@
     // конец всплывающего окна
     $this->endWidget($this->modalId);
     ?>
-</div>
+<!--/div-->
