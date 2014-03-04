@@ -30,6 +30,7 @@ class SaleController extends Controller
         );*/
         
         Yii::app()->theme = 'staticLanding';
+        //Yii::app()->theme = 'landing';
     }
     
     /**
