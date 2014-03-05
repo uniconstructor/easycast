@@ -11,38 +11,32 @@ Yii::import('application.modules.mailComposer.extensions.mails.EMailBase.EMailBa
 class EMailCallList extends EMailBase
 {
     /**
-     *
      * @var RCallList - сохраненные данные фотовызывного
      */
     public $callList;
     /**
-     * @var bool - добавлять ли контактную информацию в выхывной лист?
+     * @var bool - добавлять ли контактную информацию в вызывной лист?
      */
     public $addContacts = false;
     
     /**
-     *
      * @var Project
      */
     protected $project;
     /**
-     *
      * @var ProjectEvent
      */
     protected $event;
     /**
-     *
-     * @var EventVacancy[]
+     * @var EventVacancy[] - список ролей в событии
      */
     protected $vacancies;
     /**
-     *
      * @var User - руководитель проекта
      */
     protected $manager;
 
     /**
-     *
      * @see EMailBase::init()
      */
     public function init()
@@ -67,10 +61,12 @@ class EMailCallList extends EMailBase
             $this->mailOptions['topBarOptions']['displayWebView'] = true;
             $this->mailOptions['topBarOptions']['webViewLink']    = $this->getWebViewLink();
         }
-        // убираем дубли вакансий
+        // убираем дубли вакансий (ролей)
+        // это нужно для тех случаев, когда несколько ролей ничем не отличаются друг от друга кроме
+        // времени, к которому ожидаются люди
+        // @todo удалить эту функцию после того как будет введено время для ролей (то есть когда можно будет
+        //       в рамках одного дня назначать несколько ролей на разное время)
         $this->clearVacancies($data['vacancies']);
-        
-        // CVarDumper::dump($this->vacancies, 3, true);
     }
 
     /**
@@ -155,7 +151,7 @@ class EMailCallList extends EMailBase
     }
 
     /**
-     *
+     * Добавить в письмо блок с описанием роли и всех утвержденных на нее актеров
      * @param EventVacancy $vacancy
      * @return void
      */
@@ -178,7 +174,7 @@ class EMailCallList extends EMailBase
     }
 
     /**
-     *
+     * Добавить в письмо блок с фотографией и описанием одного актера
      * @param Questionary $questionary
      * @return void
      */
@@ -196,7 +192,7 @@ class EMailCallList extends EMailBase
     }
 
     /**
-     *
+     * Описание одного актера
      * @param Questionary $questionary
      * @return string
      */
@@ -205,7 +201,7 @@ class EMailCallList extends EMailBase
         $result = '';
         $bages  = $questionary->getBages();
         
-        $result .= '<h3 style="text-transform:uppercase;font-size:20px;font-weight:bold;color:#727272;margin:11px 0px 6px 0px;">'.
+        $result .= '<h3 style="text-transform:uppercase;font-size:20px;font-weight:bold;color:#286B84;margin:11px 0px 6px 0px;">'.
             $questionary->fullname . ', ' . $questionary->age . '</h3>';
         if ( ! empty($bages) )
         {
@@ -328,11 +324,13 @@ class EMailCallList extends EMailBase
     {
         $url = Yii::app()->createAbsoluteUrl('/mailComposer/mail/display', array(
             'type' => 'callList', 
-            'id' => $this->callList->id, 
-            'key' => $this->callList->key, 
-            'style' => 'color:#ffffff;font-weight:bold;'));
+            'id'   => $this->callList->id, 
+            'key'  => $this->callList->key,
+        ));
         return CHtml::link('Версия для печати', $url, array(
-            'target' => '_blank'));
+            'target' => '_blank',
+            'style'  => 'color:#fff;font-weight:bold;'
+        ));
     }
 
     /**
