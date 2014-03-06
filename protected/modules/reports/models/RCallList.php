@@ -6,7 +6,6 @@
 class RCallList extends Report
 {
     /**
-     * (non-PHPdoc)
      * @see CActiveRecord::init()
      */
     public function init()

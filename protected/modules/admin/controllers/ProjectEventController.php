@@ -205,7 +205,14 @@ class ProjectEventController extends Controller
 	    if ( $email = trim(Yii::app()->request->getParam('email', '')) )
 	    {// отправляем вызывной лист по почте
 	        $showContacts = Yii::app()->request->getParam('showContacts', false);
-	        $this->sendCallList($report, $email, $showContacts);
+	        $castingList = Yii::app()->request->getParam('castingList', false);
+	        if ( $castingList )
+	        {
+	            $this->sendCastingList($report, $email, $showContacts);
+	        }else
+	        {
+	            $this->sendCallList($report, $email, $showContacts);
+	        }
 	        
 	        Yii::app()->user->setFlash('success', "Вызывной лист отправлен на <b>{$email}</b>.");
 	        if ( $showContacts )
@@ -262,8 +269,23 @@ class ProjectEventController extends Controller
 	protected function sendCallList($report, $email, $showContacts=false)
 	{
 	    $eventId = $report->reportData['event']->id;
-	    $module = Yii::app()->getModule('mailComposer');
+	    $module  = Yii::app()->getModule('mailComposer');
 	    $message = $module::getMessage('callList', array('callList' => $report, 'addContacts' => $showContacts));
 	    UserModule::sendMail($email, $report->name, $message, true);
+	}
+	
+	/**
+	 * Отправить кастинг-лист по почте
+	 * @param RCallList $report - id вызывной лист
+	 * @param string $email
+	 * @param string $showContacts
+	 * @return null
+	 */
+	protected function sendCastingList($report, $email, $showContacts=false)
+	{
+	    $eventId = $report->reportData['event']->id;
+	    $module  = Yii::app()->getModule('mailComposer');
+	    $message = $module::getMessage('castingList', array('castingList' => $report, 'addContacts' => $showContacts));
+	    UserModule::sendMail($email, 'Кастинг-лист', $message, true);
 	}
 }

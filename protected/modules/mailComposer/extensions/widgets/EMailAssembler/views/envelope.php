@@ -80,11 +80,11 @@ body, td { font-family: HelveticaNeue, sans-serif; }
 .article-title a { color: #286b84; text-decoration: none; }
 .article-title.with-meta {margin-bottom: 0;}
 .article-meta { font-size: 13px; line-height: 20px; color: #ccc; font-weight: bold; margin-top: 0;}
-.article-content { font-size: 13px; line-height: 18px; color: #6d6d6d; margin-top: 0px; margin-bottom: 18px; font-family: HelveticaNeue, sans-serif; }
+.article-content { font-size: 13px; line-height: 18px; color: #aaaa; margin-top: 0px; margin-bottom: 18px; font-family: HelveticaNeue, sans-serif; }
 .article-content a { color: #00707b; font-weight:bold; text-decoration:none; }
 .article-content img { max-width: 100% }
 .article-content ol, .article-content ul { margin-top:0px; margin-bottom:18px; margin-left:19px; padding:0; }
-.article-content li { font-size: 13px; line-height: 18px; color: #6d6d6d; }
+.article-content li { font-size: 13px; line-height: 18px; color: #aaa; }
 .article-content li a { color: #00707b; text-decoration:underline; }
 .article-content p {margin-bottom: 15px;}
 .footer-content-left { font-size: 12px; line-height: 15px; color: #ffffff; margin-top: 0px; margin-bottom: 15px; }
@@ -113,7 +113,7 @@ body, td { font-family: HelveticaNeue, sans-serif; }
             <tr>
                 <td bgcolor="#e0e0e0" align="center">
                     <table class="w640" style="margin: 0 10px;" width="640" border="0" cellpadding="0"
-                        cellspacing="0" style="color:#6d6d6d;">
+                        cellspacing="0" style="color:#aaa;">
                         <tbody>
                             <?php
                             // основное содержимое письма идет здесь 

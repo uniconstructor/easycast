@@ -154,6 +154,19 @@ class MailComposerModule extends CWebModule
                 }
                 return $mailComposer->createCallListMailText($params['callList'], $addContacts);
             break;
+            // кастинг-лист
+            case 'castingList':
+                $addContacts = false;
+                if ( ! isset($params['castingList']) )
+                {
+                    throw new CException('callList for mail is not set');
+                }
+                if ( isset($params['addContacts']) AND $params['addContacts'] )
+                {
+                    $addContacts = true;
+                }
+                return $mailComposer->createCastingListMailText($params['castingList'], $addContacts);
+            break;
             // коммерческое предложение
             case 'offer':
                 $manager = null;

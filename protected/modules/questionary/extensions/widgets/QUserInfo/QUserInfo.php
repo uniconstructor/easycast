@@ -234,7 +234,7 @@ class QUserInfo extends CWidget
         {
             case 'age': 
                 $placeholder = '[не указан]';
-                if ( $value = $this->questionary->age )
+                if ( $value = $questionary->age )
                 {
                     $info = explode(' ', $value);
                     $value = $info[0];
@@ -243,7 +243,7 @@ class QUserInfo extends CWidget
             break;
             case 'playage': 
                 $placeholder = '[не указан]';
-                $value = $this->questionary->playage;
+                $value = $questionary->playage;
             break;
             case 'looktype':
                 if ( $questionary->nativecountry )

@@ -136,8 +136,6 @@ class ProjectsModule extends CWebModule
 	 */
 	public static function sendRejectMemberNotification($event)
 	{
-	    return true;
-	    
 	    $memberData = $event->sender;
 	    if ( ! $memberData->member OR ! is_object($memberData->member->user) )
 	    {// проверка на случай нарушения целостности БД

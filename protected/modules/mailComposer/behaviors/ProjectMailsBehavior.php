@@ -171,7 +171,7 @@ class ProjectMailsBehavior extends CBehavior
             $block['text'] .= "Мы передали вашу заявку на рассмотрение режиссеру."; 
         }
         $block['text'] .= "К сожалению она была отклонена. <br> 
-            Возможноные причины:<br>\n";
+            Возможные причины:<br>\n";
         $block['text'] .= "<ul>";
         $block['text'] .= "<li>Анкета одного из других кандидатов оказалась ближе к образу, уведенному режиссером.</li>";
         $block['text'] .= "<li>В вашей анкете недостаточно данных.
@@ -319,6 +319,19 @@ class ProjectMailsBehavior extends CBehavior
     {
         return $this->owner->widget('application.modules.mailComposer.extensions.mails.EMailCallList.EMailCallList',
             array('callList' => $callList, 'addContacts' => $addContacts),
+            true);
+    }
+    
+    /**
+     * Создать письмо с кастинг-листом
+     * @param RCallList $castingList
+     * @param bool $addContacts
+     * @return string
+     */
+    public function createCastingListMailText($castingList, $addContacts=false)
+    {
+        return $this->owner->widget('application.modules.mailComposer.extensions.mails.EMailCastingList.EMailCastingList',
+            array('callList' => $castingList, 'addContacts' => $addContacts),
             true);
     }
     

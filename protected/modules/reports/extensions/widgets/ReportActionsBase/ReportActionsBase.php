@@ -2,6 +2,8 @@
 
 /**
  * Виджет отображающий все возможные действия с отчетом
+ * 
+ * @todo убрать параметр $allowCastingList, вместо него создать класс-наследник от ReportActionsBase
  */
 class ReportActionsBase extends CWidget
 {
@@ -13,6 +15,8 @@ class ReportActionsBase extends CWidget
     public $allowSave = true;
     
     public $allowSendMail = true;
+    
+    public $allowCastingList = true;
     
     public $savePath = '';
     

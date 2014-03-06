@@ -6,7 +6,7 @@
 ?>
 <layout>
 <table class="w<?= $this->blockWidth; ?>" width="<?= $this->blockWidth; ?>" border="0" cellpadding="0" 
-    cellspacing="0" style="page-break-after:auto;">
+    cellspacing="0" style="page-break-after:<?= $this->pageBreakAfter; ?>;">
     <tbody>
         <tr>
             <td class="w<?= $this->fullPadding; ?>" width="<?= $this->fullPadding; ?>">&nbsp;</td>

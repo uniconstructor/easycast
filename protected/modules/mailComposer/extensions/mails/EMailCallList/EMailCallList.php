@@ -106,10 +106,10 @@ class EMailCallList extends EMailBase
     {
         $block = array();
         
-        $block['type'] = 'imageLeft';
-        $block['imageStyle'] = 'border:3px solid #c3c3c3;border-radius:10px;height:150px;width:150px;margin-top:5px;';
-        $block['imageLink'] = $this->project->getAvatarUrl();
-        $block['text'] = $this->getProjectDescription();
+        $block['type']        = 'imageLeft';
+        $block['imageStyle']  = 'border:3px solid #c3c3c3;border-radius:10px;height:150px;width:150px;margin-top:5px;';
+        $block['imageLink']   = $this->project->getAvatarUrl();
+        $block['text']        = $this->getProjectDescription();
         $block['addCutRuler'] = true;
         
         return $block;
@@ -312,7 +312,7 @@ class EMailCallList extends EMailBase
      */
     protected function getManagerName()
     {
-        return $this->manager->questionary->firstname . ' ' . $this->manager->questionary->lastname;
+        return $this->manager->questionary->firstname.' '.$this->manager->questionary->lastname;
     }
 
     /**
@@ -329,7 +329,7 @@ class EMailCallList extends EMailBase
         ));
         return CHtml::link('Версия для печати', $url, array(
             'target' => '_blank',
-            'style'  => 'color:#fff;font-weight:bold;'
+            'style'  => 'color:#fff;font-weight:bold;',
         ));
     }
 
@@ -341,9 +341,9 @@ class EMailCallList extends EMailBase
     protected function getVacancyTimePeriod($vacancy)
     {
         $start = $this->event->timestart;
-        $end = $this->event->timeend;
+        $end   = $this->event->timeend;
         $start = Yii::app()->getDateFormatter()->format('HH:mm', $start);
-        $end = Yii::app()->getDateFormatter()->format('HH:mm', $end);
+        $end   = Yii::app()->getDateFormatter()->format('HH:mm', $end);
         
         return 'с ' . $start . ' до ' . $end;
     }

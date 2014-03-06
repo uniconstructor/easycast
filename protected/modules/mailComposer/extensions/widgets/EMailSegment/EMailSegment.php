@@ -22,7 +22,7 @@ class EMailSegment extends CWidget
     /**
      * @var int - отступ содержимого от края блока
      */
-    public $padding = 0;
+    public $padding     = 0;
     /**
      * @var int - 
      */
@@ -68,7 +68,7 @@ class EMailSegment extends CWidget
     /**
      * @var string - цвет текста в блоке
      */
-    public $textColor = '#6d6d6d';
+    public $textColor   = '#6d6d6d';
     /**
      * @var string - цвет текста для заголовков
      */
@@ -105,6 +105,11 @@ class EMailSegment extends CWidget
      * @var string - слиль разделителя по умолчанию
      */
     public $defaultRulerStyle = 'border-bottom:1px dotted #a3a3a3;';
+    /**
+     * @var string - как разделять страницы при печати блока
+     * @see http://htmlbook.ru/css/page-break-after
+     */
+    public $pageBreakAfter = 'auto';
     
     /**
      * @var int - ширина блока по умолчанию

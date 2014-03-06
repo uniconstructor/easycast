@@ -9,7 +9,6 @@
 class MailController extends Controller
 {
     /**
-     * (non-PHPdoc)
      * @see CController::init()
      */
     public function init()
@@ -89,6 +88,16 @@ class MailController extends Controller
                 'order'  => $order,
                 'target' => $subType,
             ));
+        }elseif ( $type == 'newInvite' )
+        {
+            $invite = EventInvite::model()->findByPk($id);
+            echo MailComposerModule::getMessage('newInvite', array(
+                'invite'  => $invite,
+            ));
+        }elseif ( $type == 'castingList' )
+        {
+            $castingList = RCallList::model()->findByPk($id);
+            echo MailComposerModule::getMessage('castingList', array('castingList' => $castingList));
         }
     }
     
@@ -117,6 +126,20 @@ class MailController extends Controller
                 throw new CHttpException('404', 'Страница не найдена');
             }
             echo MailComposerModule::getMessage('callList', array('callList' => $callList));
+        }
+        if ( $type == 'castingList' )
+        {
+            Yii::import('reports.models.*');
+            
+            if ( ! $castingList = RCallList::model()->findByPk($id) )
+            {
+                throw new CHttpException('404', 'Страница не найдена');
+            }
+            if ( $castingList->key != $key AND ! Yii::app()->user->checkAccess('Admin') )
+            {
+                throw new CHttpException('404', 'Страница не найдена');
+            }
+            echo MailComposerModule::getMessage('castingList', array('castingList' => $castingList));
         }
     }
     

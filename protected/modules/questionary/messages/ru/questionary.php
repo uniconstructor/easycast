@@ -255,9 +255,9 @@ return array
     'customlanguage_label' => 'Другой иностранный язык',
     'languages_label' => 'Иностранные языки',
     // Музыкальные ВУЗы
-    'music_universities_label' => 'Музыкальные ВУЗы',
+    'music_universities_label' => 'Музыкальное образование',
     // Театральные ВУЗы
-    'actor_universities_label' => 'Театральные ВУЗы',
+    'actor_universities_label' => 'Театральное образование',
     // Фильмография
     'films_label' => 'Фильмография',
     'film_name_label' => 'Название',

@@ -2,6 +2,7 @@
 /**
  * Форма отправки отчета по почте
  */
+/* @var $this ReportActionsBase */
 
 echo CHtml::beginForm($this->mailPath);
 // id отчета, отправляемого по почте
@@ -17,6 +18,12 @@ echo CHtml::textField('email', '', array('id' => 'report_email_address'));
 <?php 
 if ( $this->allowSendMail )
 {
+    if ( $this->allowCastingList )
+    {
+        echo CHtml::checkBox('castingList');
+        echo '<b>Преобразовать в кастинг-лист (указать все возможные данные, 
+                при печати каждый актер будет на отдельной странице)</b>';
+    }
     $this->widget('bootstrap.widgets.TbButton', array(
         'buttonType' => 'submit',
         'type'       => 'inverse',
@@ -27,5 +34,6 @@ if ( $this->allowSendMail )
         ),
     ));
 }
+
 
 echo CHtml::endForm();

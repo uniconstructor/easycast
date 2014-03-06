@@ -4,7 +4,8 @@
  */
 /* @var $this EMailSegment */
 ?>
-<table class="w<?= $this->blockWidth; ?>" width="<?= $this->blockWidth; ?>" border="0" cellpadding="0" cellspacing="0">
+<table class="w<?= $this->blockWidth; ?>" width="<?= $this->blockWidth; ?>" 
+    border="0" cellpadding="0" cellspacing="0" style="page-break-after:<?= $this->pageBreakAfter; ?>;">
     <tbody>
         <tr>
             <td class="w<?= $this->blockWidth; ?>" width="<?= $this->blockWidth; ?>">
