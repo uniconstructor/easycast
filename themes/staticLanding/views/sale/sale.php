@@ -4,14 +4,16 @@
  */
 /* @var $this SaleController */
 
-// получаем все ссылки
+// получаем ссылки для кнопок
 $baseUrl          = Yii::app()->createAbsoluteUrl('//');
 $searchUrl        = Yii::app()->createAbsoluteUrl('//search');
 $orderUrl         = Yii::app()->createAbsoluteUrl('//order');
 $calculationUrl   = Yii::app()->createAbsoluteUrl('//calculation');
 $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
 
-
+// получаем ссылки на разделы каталога
+$serviceLinks = array();
+$serviceLinks['media_actors'] = Yii::app()->createAbsoluteUrl('//catalog/', array('sectionid' => 2));
 ?>
 <div class="ec-header">
 	<div class="top">
@@ -32,13 +34,11 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
 	</div>
 </div>
 <?php
-    // все modal-окна должны находится внутри элемента ec-header, чтобы он не закрывал их при появлении 
-    // выводим скрытую форму срочного заказа: она появляется как modal-окно
-    $this->widget('ext.ECMarkup.ECFastOrder.ECFastOrder');
-    
-    // modal-окно с гарантиями
-    $this->widget('ext.ECMarkup.ECIGuaranteeIt.ECIGuaranteeIt');
-    ?>
+// выводим скрытую форму срочного заказа: она появляется как modal-окно
+$this->widget('ext.ECMarkup.ECFastOrder.ECFastOrder');
+// modal-окно с гарантиями
+$this->widget('ext.ECMarkup.ECIGuaranteeIt.ECIGuaranteeIt');
+?>
 <div class="section_1" id="section1">
 	<div class="ec-wrapper add_padding">
 		<div class="banner">
@@ -51,59 +51,7 @@ $onlineCastingUrl = Yii::app()->createAbsoluteUrl('//onlineCasting');
             кастинга, и даже самые сложные задачи с нами решаются быстро и удобно!</p>
 			<p class="slogan">Все сложное с нами легко!</p>
 		</div>
-		<div class="uslugi">
-			<ul>
-				<li>
-					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s1.png"/></a>
-				</li>
-				<li style="margin:0px 0px -16px -56px;z-index:27;position:relative;">
-					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s2.png"/></a>
-				</li>
-				<li style="margin:0px 0px 0px -52px;z-index:40;position:relative;">
-					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s3.png"/></a>
-				</li>
-				<li style="margin:0px 0px 0px -50px;z-index:35;position:relative;">
-					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s4.png"/></a>
-				</li>
-				<li style="margin:0px 0px 0px -52px;z-index:40;position:relative;">
-					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s5.png"/></a>
-				</li>
-			</ul>
-			<ul style="margin-top: -65px;">
-				<li style="margin:0px 0px 0px 5px;z-index:30;position:relative;">
-					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s6.png"/></a>
-				</li>
-				<li style="margin:0px 0px 0px -56px;z-index:28;position:relative;">
-					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s7.png"/></a>
-				</li>
-				<li style="margin:3px 0px 0px -63px;z-index:40;position:relative;">
-					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s8.png"/></a>
-				</li>
-				<li style="margin:0px 0px 0px -50px;z-index:34;position:relative;">
-					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s9.png"/></a>
-				</li>
-				<li style="margin:0px 0px -10px -67px;z-index:40;position:relative;">
-					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s10.png"/></a>
-				</li>
-			</ul> 
-			<ul style="margin-top: -63px;">
-				<li style="margin:0px 0px 0px -7px;z-index:27;position:relative;">
-					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s11.png"/></a>
-				</li>
-				<li style="margin:0px 0px -35px -48px;z-index:28;position:relative;">
-					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s12.png"/></a>
-				</li>
-				<li style="margin:3px 0px -11px -53px;z-index:40;position:relative;">
-					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s13.png"/></a>
-				</li>
-				<li style="margin:0px 0px -24px -57px;z-index:42;position:relative;">
-					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s14.png"/></a>
-				</li>
-				<li style="margin:0px 0px -40px -67px;z-index:40;position:relative;">
-					<a href="<?= $calculationUrl; ?>" target="_blank"><img src="<?= $baseUrl; ?>/images/offer/services/s15.png"/></a>
-				</li>
-			</ul> 
-		</div>
+		<?php $this->widget('ext.ECMarkup.EServiceList.EServiceList'); ?>
         <div class="row-fluid">
 		    <div class="span6">
                 <div class="price">

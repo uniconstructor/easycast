@@ -33,8 +33,8 @@ class EMailOffer extends EMailBase
         parent::init();
         
         if ( ! $this->manager OR $this->manager->username === 'admin' )
-        {// Если менеджер не указан - по умолчанию возьмем Иру
-            $this->manager = Yii::app()->getModule('user')->user(775);
+        {// Если менеджер не указан - по умолчанию возьмем Колю
+            $this->manager = Yii::app()->getModule('user')->user(104);
         }
         
         $this->mailOptions['contentPadding']      = 0;

@@ -4,26 +4,27 @@
  */
 /* @var $this EMailOffer */
 ?>
-<table class="w640" width="640"  border="0" cellpadding="0" cellspacing="0">
+<table class="w640" width="640" border="0" cellpadding="0" cellspacing="0"  style="text-align:center;">
 <tbody>
 	<tr>
-		<td width="151" height="206" rowspan="3">&nbsp;</td>
-		<td width="339" height="68">
+		<td>
 			<a href="<?= $this->getOrderPageUrl(); ?>">
-                <img src="<?= $this->getImageUrl('/images/offer/zakaz.png'); ?>">
+                <img src="<?= $this->getImageUrl('/images/offer/order-mail-button.png'); ?>" style="max-height:50px;display:inline;">
 			</a>
 		</td>
-		<td width="151" rowspan="3">&nbsp;</td>
 	</tr>
 	<tr>
-		<td width="339" height="56">
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td style="text-align:center;">
 			<a href="<?= $this->getCalculationPageUrl(); ?>">
-                <img src="<?= $this->getImageUrl('/images/offer/price.png'); ?>">
+                <img src="<?= $this->getImageUrl('/images/offer/calculation-mail-button.png'); ?>" style="max-height:50px;display:inline;">
 			</a>
 		</td>
 	</tr>
 	<tr>
-		<td width="339" height="82">&nbsp;</td>
+		<td>&nbsp;</td>
 	</tr>
 </tbody>
 </table>

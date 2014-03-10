@@ -142,9 +142,23 @@
     	</table>
 	</td>
 </tr>
+<!-- Кнопка "остальные отзыввы" -->
+<tr bgcolor="#dbe4f1">
+    <td style="text-align:center;">
+        <a href="<?= $this->getSalePageUrl(); ?>">
+        <img src="<?= $this->getImageUrl('/images/offer/reviews-mail-button.png'); ?>" style="max-height:50px;display:inline;">
+        </a>
+    </td>
+</tr>
 <!-- Проекты -->
 <tr bgcolor="#dbe4f1">
-	<td>
-	<?php $this->render('_projects'); ?>	
-	</td>
+	<td><?php $this->render('_projects'); ?></td>
+</tr>
+<!-- Кнопка "почему именно мы?" -->
+<tr bgcolor="#dbe4f1">
+    <td style="text-align:center;">
+        <a href="<?= $this->getSalePageUrl(); ?>">
+        <img src="<?= $this->getImageUrl('/images/offer/guarantee-mail-button.png'); ?>" style="max-height:50px;display:inline;">
+        </a>
+    </td>
 </tr>
