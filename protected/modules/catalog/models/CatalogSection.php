@@ -22,6 +22,8 @@
  * @property CatalogTab[] $tabs - прикрепленные вкладки
  * @property CatalogFilter[] $searchFilters
  * @property CatalogTabInstance[] $tabInstances
+ * 
+ * @todo написать миграцию, удаляющую старые фрагменты критериев поиска (для условий типа field, sort и т. д.)
  */
 class CatalogSection extends CActiveRecord
 {
@@ -324,7 +326,7 @@ class CatalogSection extends CActiveRecord
 	    // сериализуем и сохраняем новые критерии выборки
 	    $condition->type  = 'serialized';
 	    $condition->value = serialize($criteria);
-	
+	    
 	    return $condition->save();
 	}
 	
