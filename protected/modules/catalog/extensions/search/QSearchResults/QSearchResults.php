@@ -196,7 +196,7 @@ class QSearchResults extends CWidget
                 ),
             ));
         }
-        CVarDumper::dump($criteria->toArray(), 10, true);
+        
         if ( Yii::app()->params['useCSS3'] )
         {
             $this->printCss3Grid($dataProvider, $emptyText);
