@@ -12,9 +12,7 @@
     <link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->baseUrl; ?>/css/helpers.css" />
     <link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->theme->baseUrl; ?>/css/main.css" />
     <link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->theme->baseUrl; ?>/css/yii.css" />
-	<title><?php echo CHtml::encode($this->pageTitle); ?></title>
-	
-	<script src="<?php echo Yii::app()->baseUrl; ?>/js/modernizr.custom.min.js" type="text/javascript"></script>
+	<title><?= CHtml::encode($this->pageTitle); ?></title>
 </head>
 <body class="ec-body">
     <?php // шапка страницы
@@ -44,5 +42,6 @@
         $this->widget('ext.ECMarkup.ECFooter.ECFooter');
         ?>
     </div><!--/ page -->
+    <script src="<?= Yii::app()->baseUrl; ?>/js/modernizr.custom.min.js" type="text/javascript"></script>
 </body>
 </html>
