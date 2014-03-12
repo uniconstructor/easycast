@@ -5,7 +5,7 @@
 /* @var $this EServiceList */
 $imgPathPrefix = Yii::app()->baseUrl.'/images/offer/services/';
 ?>
-<div class="uslugi">
+<div class="ec-services">
     <ul>
 		<li>
 			<a href="<?= $this->getServiceLink('media_actors'); ?>"><img src="<?= $imgPathPrefix; ?>s1.png" alt="" title=""/></a>
@@ -45,16 +45,16 @@ $imgPathPrefix = Yii::app()->baseUrl.'/images/offer/services/';
 			<a href="<?= $this->getServiceLink('circus_actors'); ?>"><img src="<?= $imgPathPrefix; ?>s11.png" alt="" title=""/></a>
 		</li>
 		<li style="margin:0px 0px -35px -48px; z-index: 28; position: relative;">
-			<a href="<?= $this->getServiceLink(''); ?>"><img src="<?= $imgPathPrefix; ?>s12.png" alt="" title=""/></a>
+			<a href="<?= $this->getServiceLink('sportsmen'); ?>"><img src="<?= $imgPathPrefix; ?>s12.png" alt="" title=""/></a>
 		</li>
 		<li style="margin:3px 0px -11px -53px;  z-index: 40; position: relative;">
-			<a href="<?= $this->getServiceLink(''); ?>"><img src="<?= $imgPathPrefix; ?>s13.png" alt="" title=""/></a>
+			<a href="<?= $this->getServiceLink('types'); ?>"><img src="<?= $imgPathPrefix; ?>s13.png" alt="" title=""/></a>
 		</li>
 		<li style="margin:0px 0px -24px -57px;  z-index: 42; position: relative;">
-			<a href="<?= $this->getServiceLink(''); ?>"><img src="<?= $imgPathPrefix; ?>s14.png" alt="" title=""/></a>
+			<a href="<?= $this->getServiceLink('animals'); ?>"><img src="<?= $imgPathPrefix; ?>s14.png" alt="" title=""/></a>
 		</li>
 		<li style="margin:0px 0px -40px -67px;  z-index: 40; position: relative;">
-			<a href="<?= $this->getServiceLink(''); ?>"><img src="<?= $imgPathPrefix; ?>s15.png" alt="" title=""/></a>
+			<a href="<?= $this->getServiceLink('transport'); ?>"><img src="<?= $imgPathPrefix; ?>s15.png" alt="" title=""/></a>
 		</li>
 	</ul> 
 </div>

@@ -1,0 +1,10 @@
+.ec-services {
+    height: 690px;
+    margin: 0 auto;
+    position: relative;
+    width: 1150px;
+}
+
+.ec-services ul li {
+    display: inline-block;
+}

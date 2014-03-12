@@ -12,10 +12,18 @@
 class EServiceList extends CWidget
 {
     /**
+     * @var string - путь к папке со стилями и скриптами виджета
+     */
+    protected $assetUrl;
+    
+    /**
      * @see CWidget::run()
      */
     public function init()
     {
+        $this->assetUrl = Yii::app()->assetManager->publish(
+            Yii::getPathOfAlias('ext.ECMarkup.EServiceList.assets').DIRECTORY_SEPARATOR);
+        Yii::app()->clientScript->registerCssFile($this->assetUrl.'/eservicelist.css');
         parent::init();
     }
     
