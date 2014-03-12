@@ -141,7 +141,7 @@ class SearchScope extends CActiveRecord
         $criteria = new CDbCriteria();
 	    
         foreach ( $this->scopeConditions as $condition )
-        {
+        {/* @var $condition ScopeCondition */
             $operator = $condition->combine;
             $conditionCriteria = $condition->getCombinedCriteria();
             $criteria->mergeWith($conditionCriteria, $operator);

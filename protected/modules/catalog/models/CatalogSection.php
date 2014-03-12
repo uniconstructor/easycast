@@ -37,7 +37,7 @@ class CatalogSection extends CActiveRecord
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
-	 * @return CatalogSection the static model class
+	 * @return CatalogSection - the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
@@ -283,12 +283,10 @@ class CatalogSection extends CActiveRecord
 	public function getFilterSearchData($namePrefix)
 	{
 	    $searchData = $this->getSearchData();
-	     
 	    if ( ! isset($searchData[$namePrefix]) )
-	    {
+	    {// поисковый фильтр не используется
 	        return array();
 	    }
-	     
 	    return $searchData[$namePrefix];
 	}
 	
@@ -324,6 +322,7 @@ class CatalogSection extends CActiveRecord
 	    // заново получаем из данных формы поиска критерии для выборки участников
 	    $criteria  = CatalogModule::createSearchCriteria($newData, CatalogModule::getFullFilterKit());
 	    // сериализуем и сохраняем новые критерии выборки
+	    $condition->type  = 'serialized';
 	    $condition->value = serialize($criteria);
 	
 	    return $condition->save();

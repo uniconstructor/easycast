@@ -111,13 +111,13 @@ class ScopeCondition extends CActiveRecord
 	    switch ( $this->type )
 	    {
 	        case 'field': $criteria = $this->getFieldCriteria($criteria); break;
-	        case 'sort': $criteria = $this->getSortCriteria($criteria); break;
+	        case 'sort':  $criteria = $this->getSortCriteria($criteria); break;
 	        case 'scope':
 	            $scope = SearchScope::model()->findByPk($this->value);
 	            $scopeCriteria = $scope->getCombinedCriteria();
 	            $criteria->mergeWith($scopeCriteria);
             break;
-	        case 'condition': $criteria = $this->getConditionCriteria($criteria); break;
+	        case 'condition':  $criteria = $this->getConditionCriteria($criteria); break;
 	        case 'serialized': $criteria = $this->getSerializedCriteria($criteria); break;
 	    }
 	    
@@ -295,7 +295,6 @@ class ScopeCondition extends CActiveRecord
 	    {
 	        return $newCriteria;
 	    }
-	    
 	    return $criteria;
 	}
 }

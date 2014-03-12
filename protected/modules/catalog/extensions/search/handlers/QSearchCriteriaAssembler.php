@@ -201,7 +201,7 @@ class QSearchCriteriaAssembler extends CComponent
             $filterCriteria = $this->addFilterCriteria($filter);
         }
         if ( ! $this->_hasFilters )
-        {
+        {// не использован ни один фильтр поиска
             return false;
         }
         
@@ -231,7 +231,7 @@ class QSearchCriteriaAssembler extends CComponent
         /* @var $handler QSearchHandlerBase */
         $handler = Yii::createComponent($config);
         if ( ! $handler->enabled() )
-        {// пользователю не разрешен поиск по этому критерию - идем дальше, даже не начинаем собирать запрос
+        {// пользователю не разрешен поиск по этому критерию - идем дальше, даже не начинаем собирать SQL-запрос
             return;
         }
         
@@ -274,11 +274,11 @@ class QSearchCriteriaAssembler extends CComponent
             $this->startCriteria = $this->criteria;
         }
         /*elseif ( is_object($this->section) )
-         {// происходит поиск по фильтрам
-        // @todo оставлено для совместимости - удалить эту логическую ветку при рефакторинге
-        // Получаем условие поиска по разделу (к нему будут добавляться все остальные фильтры)
-        $this->startCriteria = $this->section->scope->getCombinedCriteria();
-        $this->criteria = $this->startCriteria;
+        {// происходит поиск по фильтрам
+            // @todo оставлено для совместимости - удалить эту логическую ветку при рефакторинге
+            // Получаем условие поиска по разделу (к нему будут добавляться все остальные фильтры)
+            $this->startCriteria = $this->section->scope->getCombinedCriteria();
+            $this->criteria = $this->startCriteria;
         }*/
     }
 }
