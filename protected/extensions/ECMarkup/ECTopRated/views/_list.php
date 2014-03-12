@@ -21,7 +21,7 @@
     		<div class="clearfix"></div>
     		<a id="prev" class="prev" href="#"></a>
     		<a id="next" class="next" href="#"></a>
-    		<a href="<?= Yii::app()->createAbsoluteUrl('//catalog/catalog/faces'); ?>" class="all_people">Все участники &gt;</a>
+    		<?= $this->viewAll; ?>
     	</div>
     </div>
 </div>
