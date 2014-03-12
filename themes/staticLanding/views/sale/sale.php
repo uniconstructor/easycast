@@ -51,6 +51,7 @@ $this->widget('ext.ECMarkup.ECIGuaranteeIt.ECIGuaranteeIt');
             кастинга, и даже самые сложные задачи с нами решаются быстро и удобно!</p>
 			<p class="slogan">Все сложное с нами легко!</p>
 		</div>
+		<!-- список услуг (одтельным виджетом) -->
 		<?php $this->widget('ext.ECMarkup.EServiceList.EServiceList'); ?>
         <div class="row-fluid">
 		    <div class="span6">
