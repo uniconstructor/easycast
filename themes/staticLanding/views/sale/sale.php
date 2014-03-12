@@ -23,7 +23,7 @@ $serviceLinks['media_actors'] = Yii::app()->createAbsoluteUrl('//catalog/', arra
 		</div>
 		<div class="top_center">
 			<div class="logo">
-				<a href="index.html"><img src="<?= $baseUrl; ?>/images/logo.png" alt="EasyCasting"/></a>
+				<a href="<?= $baseUrl; ?>"><img src="<?= $baseUrl; ?>/images/logo.png" alt="EasyCasting"/></a>
 			</div>
 		</div>
 		<div class="top_right">
