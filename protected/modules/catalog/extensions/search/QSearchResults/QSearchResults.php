@@ -237,7 +237,6 @@ class QSearchResults extends CWidget
             'listViewOptions' => array(
                 'ajaxUpdate'   => 'search_results_data',
                 'id'           => 'search_results_data',
-                //'ajaxType'     => 'POST',
                 'ajaxUrl'      => Yii::app()->createUrl($this->route, $this->routeParams),
                 'template'     => "{summary}{items}{pager}",
                 'emptyText'    => $emptyText,

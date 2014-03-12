@@ -382,7 +382,8 @@ class Questionary extends CActiveRecord
             'CdGridView' => array(
                 'class' => 'questionary.extensions.behaviors.CdGridViewQuestionaryBehavior',
                 'ajaxOptions' => array(
-                    'url' => Yii::app()->createUrl('//questionary/questionary/ajaxGetUserInfo'),
+                    'url'  => Yii::app()->createUrl('//questionary/questionary/ajaxGetUserInfo'),
+                    'data' => array('displayType' => 'searchResults'),
                 ),
             ),
         );

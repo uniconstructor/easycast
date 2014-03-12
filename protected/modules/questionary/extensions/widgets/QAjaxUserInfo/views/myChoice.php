@@ -2,7 +2,7 @@
 /**
  * Отображение полной информации о пользователе при AJAX-запросе со страницы "Мой выбор"
  */
-
+/* @var $this QAjaxUserInfo */
 ?>
 <div class="row-fluid">
     <div class="span5">

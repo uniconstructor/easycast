@@ -10,20 +10,17 @@ class QAjaxUserInfo extends CWidget
      * @var string - Как отображать данные. Зависит от того, откуда запрашивается информация.
      */
     public $displayType;
-    
     /**
      * @var array - какие части информации из анкеты отобразить
      *              По умолчанию array('photo', 'info') - фотографии и всю информацию 
      */
     public $sections = array();
-    
     /**
      * @var array - список тех вкладок с информацией, которые нужно отобразить 
      *              (для виджета QUserInfo)
      *              Если не задано - отображаются все доступные для просмотра разделы анкеты
      */
     public $tabNames = array();
-    
     /**
      * @var int - id анкеты по которой отображается информация
      */
@@ -49,7 +46,7 @@ class QAjaxUserInfo extends CWidget
             throw new CHttpException('404', 'Не указан id анкеты');
         }
         
-        $this->sections = $this->getSectionsByDisplayType($this->displayType);
+        $this->sections    = $this->getSectionsByDisplayType($this->displayType);
         $this->questionary = Questionary::model()->findByPk($this->id);
         
         parent::init();
@@ -63,7 +60,9 @@ class QAjaxUserInfo extends CWidget
     {
         switch ( $this->displayType )
         {
-            case 'myChoice': $this->displayMyChoice();
+            case 'myChoice':      $this->displayMyChoice(); break;
+            case 'searchResults': $this->displaySearchResults(); break;
+            default: $this->displaySearchResults();
         }
     }
     
@@ -75,6 +74,18 @@ class QAjaxUserInfo extends CWidget
     protected function displayMyChoice()
     {
         $this->render('myChoice', array(
+            'questionary'   => $this->questionary,
+        ));
+    }
+    
+    /**
+     * Отобразить информацию для раздела "мой выбор"
+     * 
+     * @return null
+     */
+    protected function displaySearchResults()
+    {
+        $this->render('searchResults', array(
             'questionary' => $this->questionary,
         ));
     }
@@ -88,7 +99,8 @@ class QAjaxUserInfo extends CWidget
     {
         switch ( $displayType )
         {
-            case 'myChoice': return array('photo', 'info');
+            case 'myChoice':      return array('photo', 'info');
+            case 'searchResults': return array('photo', 'info');
             default: return array('photo', 'info');
         }
     }

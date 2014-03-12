@@ -487,7 +487,8 @@ class QuestionaryController extends Controller
         $id = Yii::app()->request->getParam('id');
         $questionary = $this->loadModel($id);
         
-        // Формат отображения данных: краткий или полный
+        // Формат отображения данных анкеты: зависит от того, куда загружаются данные
+        // (виджет "мой выбор", результаты поиска, и т. д.)
         // @todo сделать параметр обязательным
         $displayType = Yii::app()->request->getParam('displayType', 'myChoice');
         

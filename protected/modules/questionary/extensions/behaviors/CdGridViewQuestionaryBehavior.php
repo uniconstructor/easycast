@@ -52,11 +52,11 @@ class CdGridViewQuestionaryBehavior extends CdGridItemBehavior
      */
     public function getGridItemTitle()
     {
-        return $this->getGridItemPreviewAlt();
+        return CHtml::link($this->getGridItemPreviewAlt(), $this->getGridItemNoJsUrl(), array('target' => '_blank'));
     }
     
     /**
-     * 
+     * @see CdGridItemBehavior::getGridListItemContent()
      */
     protected function getGridItemDescriptionContent()
     {
