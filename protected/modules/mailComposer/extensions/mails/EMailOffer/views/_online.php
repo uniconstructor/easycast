@@ -6,7 +6,7 @@
 
 $headerLinkOptions = array('style' => 'text-decoration:none;color:#2B6893;font-weight:400;');
 $imageOptions      = array('style' => 'max-width:120px;');
-$textStyle         = 'font-face:tahoma,sans-serif;color:#17414c;text-align:left;font-weight:200;background-color:#fff;border-radius:10px;padding:8px;';
+$textStyle         = 'font-face:tahoma,sans-serif;color:#17414c;text-align:justify;font-weight:200;background-color:#fff;border-radius:10px;padding:8px;';
 
 $searchImage  = CHtml::image($this->getImageUrl('/images/offer/services/serv1.png'), 'Поиск', $imageOptions);
 $searchIcon   = CHtml::link($searchImage, $this->getSearchPageUrl());

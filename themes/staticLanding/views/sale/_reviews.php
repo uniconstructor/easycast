@@ -4,13 +4,14 @@
  */
 /* @var $this SaleController */
 
-$reviews = array();
+$reviews      = array();
 $baseImageUrl = Yii::app()->createAbsoluteUrl('/images/offer/reviews/').'/';
+
 $data    = array(
     array(
         'image'     => $baseImageUrl.'7.jpg',
         'name'      => 'Тина Канделаки',
-        'position'  => 'Журналистка, телеведущая, продюсер, общественный деятель',
+        'position'  => 'продюсер, телеведущая, общественный деятель',
         'company'   => '',
         'text'      => 'Я знаю easyCast очень давно, и являюсь свидетелем их карьеры. 
             Это очень приятно, так как они развивались на моих глазах и доросли до компании, 

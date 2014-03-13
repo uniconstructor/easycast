@@ -18,8 +18,8 @@ $serviceLinks['media_actors'] = Yii::app()->createAbsoluteUrl('//catalog/', arra
 <div class="ec-header">
 	<div class="top">
 		<div class="top_left">
-			<span>+7 495 227-5-226</span>
-			<span>easycast.ru</span>
+			<span style="font-size:23px;">+7 495 227-5-226</span>
+			<span style="font-size:17px;">Звоните, мы рады вам помочь!</span>
 		</div>
 		<div class="top_center">
 			<div class="logo">
@@ -50,6 +50,7 @@ $this->widget('ext.ECMarkup.ECIGuaranteeIt.ECIGuaranteeIt');
             С помощью современных технологий мы создали мощнейшие инструменты
             кастинга, и даже самые сложные задачи с нами решаются быстро и удобно!</p>
 			<p class="slogan">Все сложное с нами легко!</p>
+			<h2 style="font-size:42px;text-align:center;text-transform:uppercase;margin-bottom:30px;margin-top:50px;font-weight:200;">Наши услуги</h2>
 		</div>
 		<!-- список услуг (одтельным виджетом) -->
 		<?php $this->widget('ext.ECMarkup.EServiceList.EServiceList'); ?>
@@ -72,10 +73,10 @@ $this->widget('ext.ECMarkup.ECIGuaranteeIt.ECIGuaranteeIt');
 	<div class="ec-wrapper">
         <h2 style="font-size:42px;text-align:center;text-transform:uppercase;margin-bottom:40px;font-weight:200;">Ваши онлайн-сервисы</h2>
         <div class="banner">
-			<p>Мы рады вам сообщить, что благодаря восьмилетнему опыту работы<br>
-			и двум годам сложнейших IT-разработок мы создали ресурс,<br>
-			способный упорядочить все сложные процессы поиска, оповещения,<br> 
-			отбора и утверждения артистов в простой сервис:<br> 
+			<p>Мы рады вам сообщить, что благодаря восьмилетнему опыту работы 
+			и двум годам сложнейших IT-разработок мы создали ресурс, 
+			способный упорядочить все сложные процессы поиска, оповещения, 
+			отбора и утверждения артистов в простой сервис:
 			несколько кликов - и все, кто вам нужен - в кадре!
 			</p>
 		</div>
@@ -148,15 +149,8 @@ $this->widget('ext.ECMarkup.ECIGuaranteeIt.ECIGuaranteeIt');
             </div>
 		</div>
 		<div class="row-fluid">
-		    <div class="span6">
-                <div class="price">
-                	<a href="<?= $orderUrl; ?>" data-toggle="modal" data-target="#fastOrderModal">Сделать заказ</a>
-                </div>
-            </div>
-            <div class="span6">
-                <div class="order">
-                	<a href="<?= $calculationUrl; ?>" target="_blank">Расчитать стоимость</a>
-                </div>
+		    <div class="quality">
+                <a href="#IGuaranteeItModal" style="font-size: 28px;" data-toggle="modal">Почему именно мы&nbsp;?</a>
             </div>
 		</div>
 		<!-- отзывы -->
@@ -176,7 +170,7 @@ $this->widget('ext.ECMarkup.ECIGuaranteeIt.ECIGuaranteeIt');
         <p style="vertical-align: top;">
             <span><img style="vertical-align:top;" src="<?php echo Yii::app()->theme->baseUrl; ?>/images/100.png"/></span> 
             причин работать с нами<br>
-            <span style="color:#777;display:block;font-size:16px;margin-top:-30px;margin-left:140px;text-transform: uppercase;">
+            <span style="color:#777;display:block;font-size:16px;margin-top:-30px;margin-left:140px;text-transform:uppercase;">
                 Проектов, созданных с использованием наших услуг
             </span>
         </p>
@@ -186,6 +180,7 @@ $this->widget('ext.ECMarkup.ECIGuaranteeIt.ECIGuaranteeIt');
         // извлекаем 100 проектов по рейтингу
         $criteria        = Yii::app()->getModule('projects')->getProjectsCriteria();
         $criteria->limit = 100;
+        $criteria->order = '`rating` DESC';
         $dataProvider = new CActiveDataProvider('Project', array(
             'criteria'   => $criteria,
             'pagination' => false,
@@ -194,6 +189,7 @@ $this->widget('ext.ECMarkup.ECIGuaranteeIt.ECIGuaranteeIt');
         $this->widget('ext.CdGridPreview.CdGridPreview', array(
             'dataProvider'     => $dataProvider,
             'listViewLocation' => 'bootstrap.widgets.TbListView',
+            'includeModernizr' => true,
             'listViewOptions'  => array(
                 'template' => '{items}',
             ),
@@ -208,8 +204,8 @@ $this->widget('ext.ECMarkup.ECIGuaranteeIt.ECIGuaranteeIt');
         ));
         ?>
         <!--/ список проектов -->
-    <div class="quality">
-        <a href="#IGuaranteeItModal" style="font-size: 28px;" data-toggle="modal">Почему именно мы&nbsp;?</a>
+    <div class="price">
+    	<a href="<?= $orderUrl; ?>" data-toggle="modal" data-target="#fastOrderModal">Сделать заказ</a>
     </div>
     <div class="container3">
         <!-- команда -->

@@ -43,6 +43,7 @@ class EMailOffer extends EMailBase
         $this->mailOptions['contactEmail']        = 'order@easycast.ru';
         $this->mailOptions['manager']             = $this->manager;
         $this->mailOptions['showTopServiceLinks'] = true;
+        $this->mailOptions['showContactPhone']    = true;
         $this->mailOptions['topBarOptions']['displayWebView'] = true;
         $this->mailOptions['topBarOptions']['webViewLink']    = $this->getWebViewLink();
     }
@@ -331,7 +332,7 @@ class EMailOffer extends EMailBase
     {
         $logoUrl    = ECPurifier::getImageProxyUrl($project->getAvatarUrl('small', true));
         $projectUrl = Yii::app()->createAbsoluteUrl('/projects/projects/view', array('id' => $project->id));
-        $image      = CHtml::image($logoUrl, '', array('style' => 'width:64px;height:64px;'));
+        $image      = CHtml::image($logoUrl, '', array('style' => 'width:64px;height:64px;border-radius:5px;'));
         $logo       = CHtml::link($image, $projectUrl);
         
         return $logo;

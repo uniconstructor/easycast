@@ -9,17 +9,12 @@
 	<tr>
 		<td>
 			<a href="<?= $this->getOrderPageUrl(); ?>">
-                <img src="<?= $this->getImageUrl('/images/offer/order-mail-button.png'); ?>" style="max-height:50px;display:inline;">
+                <img src="<?= $this->getImageUrl('/images/offer/order-mail-button.png'); ?>" style="max-height:40px;display:inline;">
 			</a>
 		</td>
-	</tr>
-	<tr>
-		<td>&nbsp;</td>
-	</tr>
-	<tr>
 		<td style="text-align:center;">
 			<a href="<?= $this->getCalculationPageUrl(); ?>">
-                <img src="<?= $this->getImageUrl('/images/offer/calculation-mail-button.png'); ?>" style="max-height:50px;display:inline;">
+                <img src="<?= $this->getImageUrl('/images/offer/calculation-mail-button.png'); ?>" style="max-height:40px;display:inline;">
 			</a>
 		</td>
 	</tr>

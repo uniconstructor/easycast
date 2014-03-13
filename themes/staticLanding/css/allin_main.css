@@ -237,7 +237,7 @@ input[type=submit], input[type=reset], input[type=button], button, .button { fon
 }
 
 .banner p {
-	text-align:center;
+	text-align:justify;
 	color:#1e3d52;
 	font-size:20px;
 	text-shadow: 0px 1px 2px #E8F9FF;
@@ -415,7 +415,8 @@ text-shadow: 1px 1px 0px white;
     text-shadow: 0px 0px 1px rgba(255, 255, 255, 0.11), 0px 0px 1px rgba(255, 255, 255, 0.74);
     -moz-text-shadow:  0px 0px 1px rgba(255, 255, 255, 0.11), 0px 0px 1px rgba(255, 255, 255, 0.74);
     -webkit-text-shadow: 0px 0px 1px rgba(255, 255, 255, 0.11), 0px 0px 1px rgba(255, 255, 255, 0.74);
-    color: #174010;
+    /*color: #174010;*/
+    color: #fff;
     width: 425px;
     margin: 0 auto;
     display: inline-block;
@@ -442,7 +443,8 @@ text-shadow: 1px 1px 0px white;
 	text-shadow: 0px 0px 1px rgba(255, 255, 255, 0.11), 0px 0px 1px rgba(255, 255, 255, 0.74);
 	-moz-text-shadow: 0px 0px 1px rgba(255, 255, 255, 0.11), 0px 0px 1px rgba(255, 255, 255, 0.74);
 	-webkit-text-shadow: 0px 0px 1px rgba(255, 255, 255, 0.11), 0px 0px 1px rgba(255, 255, 255, 0.74);
-	color: #174010;
+	/*color: #174010;*/
+	color: #fff;
 	width: 425px;
 	margin: 0 auto;
 	display: inline-block;
@@ -469,7 +471,8 @@ text-shadow: 1px 1px 0px white;
 	text-shadow: 0px 0px 1px rgba(255, 255, 255, 0.11), 0px 0px 1px rgba(255, 255, 255, 0.74);
 	-moz-text-shadow:  0px 0px 1px rgba(255, 255, 255, 0.11), 0px 0px 1px rgba(255, 255, 255, 0.74);
 	-webkit-text-shadow: 0px 0px 1px rgba(255, 255, 255, 0.11), 0px 0px 1px rgba(255, 255, 255, 0.74);
-	color: #174010;
+	/*color: #174010;*/
+	color: #fff;
 	width: 425px;
 	margin: 0 auto;
 	display: inline-block;
@@ -579,7 +582,7 @@ text-shadow: 1px 1px 0px white;
 	text-align: center;
 }
 .top_left span{
-    font-size: 23px;
+    font-size: 17px;
     color: #7b7b7b;
     text-align: center;
 }
@@ -886,6 +889,7 @@ z-index: 10;}
 .lp-service-text {
     padding-left: 74px;
     padding-right: 45px;
+    text-align: justify;
 }
 .lp-slogan-small {
     text-shadow: 0 1px 2px #E8F9FF;

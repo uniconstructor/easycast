@@ -3,9 +3,11 @@
  * Список проектов
  */
 /* @var $this EMailOffer */
+/* @var $criteria CDbCriteria */
 
 $criteria        = Yii::app()->getModule('projects')->getProjectsCriteria();
 $criteria->limit = 100;
+$criteria->order = '`rating` DESC';
 $projects = new CActiveDataProvider('Project', array(
     'criteria'   => $criteria,
     'pagination' => false,

@@ -10,6 +10,7 @@
     <div class="news_content">
         <div class="news_profile">
             <span class="news_name" style="text-shadow: 0 1px 2px #E8F9FF; color: #1E3D52;"><?= $review['name']; ?></span>
+            <br>
             <span><i style="text-shadow: 0 1px 2px #E8F9FF; color: #1E3D52;"><?= $review['position']; ?>
                 <?php 
                 if ( $review['company'] )
@@ -19,7 +20,7 @@
                 ?>
             </i></span>
             <div class="contact_info">
-            <p style="line-height:1.2em;font-size:20px;margin-top:20px; text-shadow: 0 1px 2px #E8F9FF; color: #1E3D52;">
+            <p style="line-height:1.2em;font-size:20px;margin-top:20px;text-shadow: 0 1px 2px #E8F9FF; color:#1E3D52;text-align:justify;">
             <?= $review['text']; ?>
             </p>
             </div>
