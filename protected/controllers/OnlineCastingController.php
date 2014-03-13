@@ -127,7 +127,6 @@ class OnlineCastingController extends Controller
         
         Yii::app()->end();
     }
-
     
     /**
      * Сохранить критерии поиска для роли
@@ -263,7 +262,7 @@ class OnlineCastingController extends Controller
         $order->orderdata  = serialize($orderData);
         if ( ! $order->save() )
         {
-            throw new CHttpException(500, 'Не удалось сохранить заявку на онлайн-кастинг. '.
+            throw new CException('Не удалось сохранить заявку на онлайн-кастинг. '.
                 $this->getCustomerErrorMessage());
         }
         
@@ -271,7 +270,7 @@ class OnlineCastingController extends Controller
         $project->orderid = $order->id;
         if ( ! $project->save(true, array('orderid')) )
         {// @todo не выбрасывать исключение. просто писать ошибку в лог
-            throw new CHttpException(500, 'Не удалось привязать заказу к проекту. '.
+            throw new CException('Не удалось привязать заказу к проекту. '.
                 $this->getCustomerErrorMessage());
         }
         
@@ -289,7 +288,6 @@ class OnlineCastingController extends Controller
     protected function getCustomerErrorMessage()
     {
         return 'Отчет отправлен в нашу техническую службу, пожалуйста обратитесь к нашему оператору
-            (онлайн-помощь внизу экрана), 
-            чтобы мы все равно смогли создать для вас кастинг несмотря ни на что :)';
+            (онлайн-помощь внизу экрана)';
     }
 }

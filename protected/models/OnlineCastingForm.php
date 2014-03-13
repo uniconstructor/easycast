@@ -58,8 +58,8 @@ class OnlineCastingForm extends CFormModel
             // Сохраняем номер телефона в правильном формате (10 цифр)
             array('phone', 'LPNValidator', 'defaultCountry' => 'RU', 'allowEmpty' => true),
             array('email', 'email'),
-            array('plandate', 'safe'), //comment
-            array('projectname, projecttype, projectdescription, eventdescription, name, lastname, email', 'required'),
+            array('plandate', 'safe'),
+            array('projectname, projecttype, phone, projectdescription, eventdescription, name, lastname, email', 'required'),
         );
     }
     
