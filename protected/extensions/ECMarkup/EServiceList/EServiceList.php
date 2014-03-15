@@ -64,7 +64,7 @@ class EServiceList extends CWidget
             $link = Yii::app()->createAbsoluteUrl('//catalog/catalog/index', array('sectionid' => $sectionId));
         }else
         {
-            $link = Yii::app()->createAbsoluteUrl('//calculation');
+            $link = Yii::app()->createAbsoluteUrl('//order/index', array('service' => $service));
         }
         
         return $link;
