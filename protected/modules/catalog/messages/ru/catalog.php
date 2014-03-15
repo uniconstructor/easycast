@@ -8,4 +8,5 @@ return array(
     'fullinfo_order_item_caption' => 'Вся информация',
     'shortinfo_order_item_caption' => 'Свернуть',
     'order_after_delete_message' => 'Участник удален',
-    );
+    'project_faces' => 'Наши лица',
+);

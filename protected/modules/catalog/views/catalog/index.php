@@ -3,13 +3,13 @@
 
 if ( $sectionid != 1 AND $section = CatalogSection::model()->findByPk($sectionid) )
 {// Просматривается раздел каталога
-    $this->breadcrumbs=array(
+    $this->breadcrumbs = array(
         CatalogModule::t('catalog') => '/catalog/catalog/faces',
     );
     $this->breadcrumbs[] = $section->name;
 }else
 {
-   $this->breadcrumbs=array(
+   $this->breadcrumbs = array(
        CatalogModule::t('catalog'),
    );
 }
