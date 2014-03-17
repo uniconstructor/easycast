@@ -9,7 +9,7 @@ class ECObjectSlider extends CWidget
     /**
      * @var array - массив объектов для вывода в слайдере: каждый элемент - это строка HTML-кода
      */
-    public $objects = array();
+    public $objects   = array();
     /**
      * @var bool - подключать ли JS-библиотеку слайдера?
      */
@@ -17,7 +17,7 @@ class ECObjectSlider extends CWidget
     /**
      * @var array - параметры для js-виджета carouFredSel
      */
-    public $options = array(
+    public $options   = array(
         'width'  => 1040,
         'height' => 250,
         'auto'   => false,
@@ -29,11 +29,11 @@ class ECObjectSlider extends CWidget
     /**
      * @var string - id элемента со стрелкой назад
      */
-    public $prevId = 'prev';
+    public $prevId      = 'prev';
     /**
      * @var string - id элемента со стрелкой вперед
      */
-    public $nextId = 'next';
+    public $nextId      = 'next';
     
     /**
      * @var string

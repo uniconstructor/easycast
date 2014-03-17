@@ -59,6 +59,7 @@ class EventsAgenda extends CWidget
         {// если не отображать ни активные ни завершенные события - то список всегда будет пустым
             throw new CException('Нужно выбрать хотя бы какие-то (активные или завершенные) события');
         }
+        // получаем список последних событий с сайта
         $this->loadEvents();
         
         parent::init();
@@ -78,8 +79,9 @@ class EventsAgenda extends CWidget
      */
     protected function loadEvents()
     {
-        $statuses = array();
-        $criteria = new CDbCriteria();
+        $statuses   = array();
+        $pagination = false;
+        $criteria   = new CDbCriteria();
         
         if ( $this->displayActive )
         {
@@ -92,9 +94,6 @@ class EventsAgenda extends CWidget
         if ( $this->eventLimit > 0 )
         {
             $pagination = array('pageSize' => $this->eventLimit);
-        }else
-        {
-            $pagination = false;
         }
         if ( ! $this->displayCastings )
         {
