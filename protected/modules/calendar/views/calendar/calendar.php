@@ -1,19 +1,21 @@
 <?php
 /**
  * Главная страница календаря
+ * @todo после замены основной темы сайта исправить проблему с позиционированием календаря после навигации 
  */
 /* @var $this CalendarController */
 
-$this->pageTitle = 'Календарь съемок - easyCast';
-
+$this->pageTitle = 'Календарь съемок';
 $this->breadcrumbs = array(
-    'Календарь'
+    'Календарь',
 );
-
+?>
+<br><br><br><br><br>
+<?php 
 // Выводим календарь со всеми событиями
 $this->widget('ext.efullcalendar.EFullCalendar', array(
-        //'themeCssFile'=>'dot-luv/theme.css',
-        //'themeCssFile'=>'css/jqueryui/flick/jquery-ui.css',
+        //'themeCssFile' => 'dot-luv/theme.css',
+        //'themeCssFile' => 'css/jqueryui/flick/jquery-ui.css',
         'lang'    => 'ru',
         'options' => array(
             //'allDayText' => CalendarModule::t('all_day'),
