@@ -72,25 +72,25 @@ return array(
 	    // Пользователи
         'user' => array(
             // encrypting method (php hash function)
-            'hash' => 'sha1',
+            'hash'                => 'sha1',
             // send activation email
-            'sendActivationMail' => true,
+            'sendActivationMail'  => true,
             // allow access for non-activated users
-            'loginNotActiv' => true,
+            'loginNotActiv'       => true,
             // activate user on registration (only sendActivationMail = false)
             'activeAfterRegister' => false,
             // automatically login from registration
-            'autoLogin' => true,
+            'autoLogin'           => true,
             // registration path
-            'registrationUrl' => array('/user/registration'),
+            'registrationUrl'     => array('/user/registration'),
             // recovery password path
-            'recoveryUrl' => array('/user/recovery'),
+            'recoveryUrl'         => array('/user/recovery'),
             // login form path
-            'loginUrl' => array('/user/login'),
+            'loginUrl'            => array('/user/login'),
             // page after login
-            'returnUrl' => array('//questionary/questionary/view'),
+            'returnUrl'           => array('//questionary/questionary/view'),
             // page after logout
-            'returnLogoutUrl' => array('//site/index'),
+            'returnLogoutUrl'     => array('//site/index'),
         ),
 	    
         // Права доступа (RBAC)
@@ -296,7 +296,11 @@ return array(
         
         // Twitter Bootstrap
         'bootstrap' => array(
-            'class' => 'bootstrap.components.Bootstrap',
+            'class'          => 'bootstrap.components.Bootstrap',
+            // подключаем набор иконок "Font Awesome"
+            'fontAwesomeCss' => true,
+            // сжимаем скрипты и стили
+            'minify'         => true,
         ),
 
         // библиотека для работы с изображениями (требуется для плагина galleryManager)
@@ -312,7 +316,7 @@ return array(
             'autoStart' => true,
             // стандартное время хранения сессии: 2 месяца
             // @todo вынести время хранения сессии в настройку
-            'timeout' => 3600 * 24 * 60,
+            'timeout'   => 3600 * 24 * 60,
             //'connectionID'           => 'db',
             //'autoCreateSessionTable' => true,
         ),
@@ -416,7 +420,7 @@ return array(
                 // плитка изображений с раскрывающимся описанием
                 'CdGridPreview' => array(
                     // не подключаем библиотеку modernizr вместе с виджетом
-                    // (она уже включена вместе со стандартными библиотеками)
+                    // (она уже включена вместе со стандартными библиотеками в теме оформления, layouts/main.php)
                     'includeModernizr' => false,
                 ),
             ),
