@@ -25,33 +25,13 @@
 </tr>
 <!-- Вступление -->
 <tr bgcolor="#dbe4f1">
-    <td>
-    <table width="640px" border="0" cellpadding="0" cellspacing="0">
-        <tbody>
-        <tr>
-            <td width="30">&nbsp;</td>
-            <td width="580">
-                <p style="text-align:justify;font-weight:200;text-shadow: 0 1px 2px #E8F9FF;">
-                <?= $greeting ?>
-                Кастинговое агентство easyCast с 2005 года успешно обеспечивает актерами, моделями, 
-                типажами и артистами массовых сцен самые масштабные и сложные съемки. 
-                Мы оказываем качественные услуги по поиску, отбору и администрированию всех вышеперечисленных 
-                персонажей для производителей рекламы, кино, телепроектов, сериалов и всех других видов 
-                аудиовизуальной продукции. С помощью современных технологий мы создали мощнейшие инструменты 
-                кастинга, и даже самые сложные задачи с нами решаются быстро и удобно!
-                </p>
-            </td>
-            <td width="30">&nbsp;</td>
-        </tr>
-        </tbody>
-    </table>
-    </td>
+    <td><?php $this->render('_about', array('greeting' => $greeting)); ?></td>
 </tr>
 <!-- Слоган -->
 <tr bgcolor="#dbe4f1">
 	<td>
 		<div style="text-align: left" align="center">
-			<img src="<?= $this->getImageUrl('/images/offer/slogan.png'); ?>" class="w640" style="display:inline;" align="top" border="0" width="640">
+		<img src="<?= $this->getImageUrl('/images/offer/slogan.png'); ?>" class="w640" style="display:inline;" align="top" border="0" width="640">
 		</div>
 	</td>
 </tr>
@@ -144,10 +124,16 @@
 </tr>
 <!-- Кнопка "остальные отзывы" -->
 <tr bgcolor="#dbe4f1">
-    <td style="text-align:center;">
-        <a href="<?= $this->getSalePageUrl(); ?>">
-        <img src="<?= $this->getImageUrl('/images/offer/reviews-mail-button.png'); ?>" style="max-height:40px;display:inline;margin-top:30px;margin-bottom:30px;">
-        </a>
+    <td>
+    <table class="w640" width="640" border="0" cellpadding="0" cellspacing="0"><tbody><tr>
+        <td style="width:200px;">&nbsp;</td>
+        <td style="width:240px;">
+            <a href="<?= $this->getSalePageUrl(); ?>">
+            <img src="<?= $this->getImageUrl('/images/offer/reviews-mail-button.png'); ?>" style="width:240px;margin-top:30px;margin-bottom:30px;">
+            </a>
+        </td>
+        <td style="width:200px;">&nbsp;</td>
+    </tr></tbody></table>
     </td>
 </tr>
 <!-- Проекты -->
@@ -157,8 +143,14 @@
 <!-- Кнопка "сделать заказ" в самом низу -->
 <tr bgcolor="#dbe4f1" style="text-align:center;">
     <td>
-    	<a href="<?= $this->getOrderPageUrl(); ?>">
-            <img src="<?= $this->getImageUrl('/images/offer/order-mail-button.png'); ?>" style="max-height:40px;display:inline;margin-top:30px;margin-bottom:30px;">
-    	</a>
+    <table class="w640" width="640" border="0" cellpadding="0" cellspacing="0"><tbody><tr>
+        <td style="width:200px;">&nbsp;</td>
+        <td style="width:240px;">
+        	<a href="<?= $this->getOrderPageUrl(); ?>">
+            <img src="<?= $this->getImageUrl('/images/offer/order-mail-button.png'); ?>" style="width:240px;margin-top:30px;margin-bottom:30px;">
+        	</a>
+        </td>
+        <td style="width:200px;">&nbsp;</td>
+    </tr></tbody></table>
     </td>
 </tr>
