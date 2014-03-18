@@ -23,8 +23,6 @@ $castingHeader = CHtml::link('Онлайн кастинг', $this->getCastingPag
 $docsImage  = CHtml::image($this->getImageUrl('/images/offer/services/serv4.png'), 'Документооборот', $imageOptions);
 $docsIcon   = $docsImage;
 $docsHeader = CHtml::openTag('span', $headerLinkOptions).'Автоматизация документооборота'.CHtml::closeTag('span');
-
-
 ?>
 <table class="w640" width="640" border="0" cellpadding="0" cellspacing="0">
 <tbody>

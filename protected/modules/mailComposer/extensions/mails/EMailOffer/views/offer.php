@@ -37,6 +37,12 @@
 </tr>
 <!-- Услуги -->
 <tr bgcolor="#dbe4f1">
+	<td width="640" height="40" valign="middle" align="center">
+		<h2 style="color:#1E3D52;font-family:century gothic,sans-serif;font-weight:400;font-size:25px;">
+		НАШИ УСЛУГИ</h2>
+	</td>
+</tr>
+<tr bgcolor="#dbe4f1">
 	<td>
 	<?php $this->render('_services'); ?>
 	</td>
@@ -59,7 +65,6 @@
 </tr>
 <tr bgcolor="#dbe4f1">
     <td>
-        <!-- Текст про сервисы -->
     	<table class="w640" width="640" border="0" cellpadding="0" cellspacing="0">
 		<tbody>
 			<tr>
