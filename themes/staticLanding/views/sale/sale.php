@@ -41,17 +41,11 @@ $this->widget('ext.ECMarkup.ECIGuaranteeIt.ECIGuaranteeIt');
 ?>
 <div class="section_1" id="section1">
 	<div class="ec-wrapper add_padding">
-		<div class="banner">
-			<p>Кастинговое агентство <strong>easyCast</strong> с 2005 года успешно обеспечивает актерами, 
-            моделями, типажами и артистами массовых сцен самые масштабные и сложные съемки.
-            Мы оказываем качественные услуги по поиску, отбору и администрированию
-            всех вышеперечисленных персонажей для производителей рекламы, кино,
-            телепроектов, сериалов и всех других видов аудиовизуальной продукции. 
-            С помощью современных технологий мы создали мощнейшие инструменты
-            кастинга, и даже самые сложные задачи с нами решаются быстро и удобно!</p>
-			<p class="slogan">Все сложное с нами легко!</p>
-			<h2 style="font-size:42px;text-align:center;text-transform:uppercase;margin-bottom:30px;margin-top:50px;font-weight:200;">Наши услуги</h2>
-		</div>
+		<!-- общая информация о компании -->
+		<?php $this->renderPartial('_about'); ?>
+		<div class="banner" style="margin-top:75px;">
+            <h2 style="font-size:42px;text-align:center;text-transform:uppercase;margin-bottom:30px;margin-top:50px;font-weight:200;">Наши услуги</h2>
+        </div>
 		<!-- список услуг (одтельным виджетом) -->
 		<?php $this->widget('ext.ECMarkup.EServiceList.EServiceList'); ?>
         <div class="row-fluid">
@@ -68,7 +62,7 @@ $this->widget('ext.ECMarkup.ECIGuaranteeIt.ECIGuaranteeIt');
 		</div>
 	</div>
 </div>
-<div class="section_2" id="section2" style="margin-top: 55px;">
+<div class="section_2" id="section2" style="margin-top:55px;">
     <!-- сервисы -->
 	<div class="ec-wrapper">
         <h2 style="font-size:42px;text-align:center;text-transform:uppercase;margin-bottom:40px;font-weight:200;">Ваши онлайн-сервисы</h2>
@@ -148,6 +142,7 @@ $this->widget('ext.ECMarkup.ECIGuaranteeIt.ECIGuaranteeIt');
                 </div>
             </div>
 		</div>
+		<a name="reviews-section"></a>
 		<div class="row-fluid">
 		    <div class="quality">
                 <a href="#IGuaranteeItModal" style="font-size: 28px;" data-toggle="modal">Почему именно мы&nbsp;?</a>
@@ -168,7 +163,7 @@ $this->widget('ext.ECMarkup.ECIGuaranteeIt.ECIGuaranteeIt');
     <div class="ec-wrapper">
     <div class="lp3_title">
         <p style="vertical-align: top;">
-            <span><img style="vertical-align:top;" src="<?php echo Yii::app()->theme->baseUrl; ?>/images/100.png"/></span> 
+            <span><img style="vertical-align:top;" src="<?= Yii::app()->theme->baseUrl; ?>/images/100.png"/></span> 
             причин работать с нами<br>
             <span style="color:#777;display:block;font-size:16px;margin-top:-30px;margin-left:140px;text-transform:uppercase;">
                 Проектов, созданных с использованием наших услуг
@@ -209,13 +204,8 @@ $this->widget('ext.ECMarkup.ECIGuaranteeIt.ECIGuaranteeIt');
     </div>
     <div class="container3">
         <!-- команда -->
-        <?php 
-        $this->renderPartial('_team');
-        ?>
+        <?php $this->renderPartial('_team'); ?>
         <!--/ команда -->
     	</div>	
     </div>
 </div>
-<script>
-    
-</script>

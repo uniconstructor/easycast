@@ -89,7 +89,7 @@
 <!-- Кнопка "почему именно мы?" -->
 <tr bgcolor="#dbe4f1">
     <td style="text-align:center;">
-        <a href="<?= $this->getSalePageUrl(); ?>">
+        <a href="<?= $this->getSalePageUrl('#reviews-section'); ?>">
         <img src="<?= $this->getImageUrl('/images/offer/guarantee-mail-button.png'); ?>" style="max-height:40px;display:inline;margin-top:30px;margin-bottom:30px;">
         </a>
     </td>
@@ -133,7 +133,7 @@
     <table class="w640" width="640" border="0" cellpadding="0" cellspacing="0"><tbody><tr>
         <td style="width:200px;">&nbsp;</td>
         <td style="width:240px;">
-            <a href="<?= $this->getSalePageUrl(); ?>">
+            <a href="<?= $this->getSalePageUrl('#reviews-section'); ?>">
             <img src="<?= $this->getImageUrl('/images/offer/reviews-mail-button.png'); ?>" style="width:240px;margin-top:30px;margin-bottom:30px;">
             </a>
         </td>

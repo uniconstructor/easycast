@@ -298,7 +298,7 @@ return array(
         'bootstrap' => array(
             'class'          => 'bootstrap.components.Bootstrap',
             // подключаем набор иконок "Font Awesome"
-            'fontAwesomeCss' => true,
+            //'fontAwesomeCss' => true,
             // сжимаем скрипты и стили
             'minify'         => true,
         ),
