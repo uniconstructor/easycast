@@ -69,7 +69,7 @@
 			<tr>
 				<td width="30">&nbsp;</td>
 				<td width="580" height="100" width="520" valign="middle">
-					<p style="font-face:century gothic,sans-serif;color:#17414c;text-align:justify;font-weight:200;text-shadow: 0 1px 2px #E8F9FF;">
+					<p style="text-indent:20px;font-face:century gothic,sans-serif;color:#17414c;text-align:justify;font-weight:200;text-shadow: 0 1px 2px #E8F9FF;">
 					Мы рады вам сообщить, что благодаря восьмилетнему опыту работы
                     и двум годам сложнейших IT-разработок мы создали ресурс,
                     способный упорядочить все сложные процессы поиска, оповещения,
@@ -89,7 +89,7 @@
 <tr bgcolor="#dbe4f1">
     <td style="text-align:center;">
         <a href="<?= $this->getSalePageUrl('#reviews-section'); ?>">
-        <img src="<?= $this->getImageUrl('/images/offer/guarantee-mail-button.png'); ?>" style="max-width:245px;max-height:40px;display:inline;margin-top:30px;margin-bottom:30px;">
+        <img src="<?= $this->getImageUrl('/images/offer/guarantee-mail-button.png'); ?>" style="width:245px;max-height:40px;display:inline;margin-top:30px;margin-bottom:30px;">
         </a>
     </td>
 </tr>
@@ -111,7 +111,7 @@
 				    продюсер, телеведущая, общественный деятель
 				    </span>
 				    </h3>
-					<p style="font-face:century gothic,sans-serif;color:#17414c;text-align:justify;font-weight:200;text-shadow: 0 1px 2px #E8F9FF;">
+					<p style="text-indent:20px;font-face:century gothic,sans-serif;color:#17414c;text-align:justify;font-weight:200;text-shadow: 0 1px 2px #E8F9FF;">
 					Я знаю easyCast очень давно, и являюсь свидетелем их карьеры. Это очень приятно, 
 					так как они развивались на моих глазах и доросли до компании, которой можно доверить 
 					под ключ организовать огромный процесс. Очень мало в наше время людей, с навыками делать 

@@ -357,16 +357,16 @@ class EMailOffer extends EMailBase
         $linkParams = $this->getReferalParams();
         $linkParams['newState'] = 'customer';
         
-        $text = '<span style="font-size:20px;">'.$this->createGreeting($this->offer->name).'</span>';
+        $text = '<p style="text-indent:20px;text-align:center;"><span style="font-size:20px;">'.$this->createGreeting($this->offer->name).'</span></p>';
         if ( $this->manager )
         {
             $position = 'руководитель проектов';
             if ( $this->manager->email === 'ceo@easycast.ru' )
             {// @todo такого свойства как "должность" у нас пока еще нет и неизвестно понадобится ли оно
-                // поэтому проверяем email. Коля  -управляющий партнер, все остальные - руководители проектов
+                // поэтому проверяем email. Коля - управляющий партнер, все остальные - руководители проектов
                 $position = 'управляющий партнер';
             } 
-            $text .= 'Меня зовут '.$this->manager->questionary->fullname.
+            $text .= '<p style="text-indent:20px;">Меня зовут '.$this->manager->questionary->fullname.
                 ', я '.$position.' кастингового агенства easyCast. Прошу вас ';
         }else
         {
@@ -374,7 +374,7 @@ class EMailOffer extends EMailBase
         }
         $text .= 'рассмотреть наше коммерческое предложение и при желании оценить
                 нашу систему подбора актеров, расположенную на сайте '.
-                CHtml::link('easycast.ru', Yii::app()->createAbsoluteUrl('/site/index', $linkParams)).'.<br><br>';
+                CHtml::link('easycast.ru', Yii::app()->createAbsoluteUrl('/site/index', $linkParams)).'.</p><br><br>';
         return $text;
     }
 }
