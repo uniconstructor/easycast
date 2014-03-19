@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Администрирование пользователей
+ */
 class AdminController extends Controller
 {
 	public $defaultAction = 'admin';

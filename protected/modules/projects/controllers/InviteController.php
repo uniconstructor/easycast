@@ -25,9 +25,11 @@ class InviteController extends Controller
      */
     public function filters()
     {
-        return array(
-            'accessControl', // perform access control
-        );
+        $baseFilters = parent::filters();
+	    $newFilters  = array(
+	        'accessControl',
+	    );
+	    return CMap::mergeArray($baseFilters, $newFilters);
     }
     
     /**

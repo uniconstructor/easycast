@@ -6,6 +6,7 @@
  *       таким образом, чтобы обращение по короткому адресу easycast.ru/calculation
  *       приводило к выполнению действия SiteController 
  * @todo подставлять автоматически email и имя при заходе по реферал-ссылке из комерческого предложения
+ * @todo настроить права доступа
  */
 class CalculationController extends Controller
 {

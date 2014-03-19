@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Контроллер для работы с фотогалереями
+ * @todo с подключением модуля galleryManager стал не нужен - удалить при рефакторинге
+ */
 class PhotoGalleryController extends Controller
 {
 	/**
@@ -23,9 +27,12 @@ class PhotoGalleryController extends Controller
 	 */
 	public function filters()
 	{
-		return array(
-			'accessControl', // perform access control for CRUD operations
-		);
+		$baseFilters = parent::filters();
+	    $newFilters  = array(
+	        'accessControl',
+	        'postOnly + delete',
+	    );
+	    return CMap::mergeArray($baseFilters, $newFilters);
 	}
 
 	/**

@@ -1,9 +1,12 @@
 <?php
 
+/**
+ * Активации пользователя и все что связано
+ * @todo настроить права доступа
+ */
 class ActivationController extends Controller
 {
 	public $defaultAction = 'activation';
-
 	
 	/**
 	 * Activation user account

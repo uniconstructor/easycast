@@ -1,11 +1,11 @@
 <?php
 /**
  * Контроллер для отображения новостей пользователю
+ * @todo не используется - включить или удалить, в зависимости от того будем мы использовать
+ *       на сайте новости или нет
  */
 class NewsController extends Controller
 {
-    //public $layout='//layouts/column1';
-
     /**
      * (non-PHPdoc)
      * @see CController::init()
@@ -20,7 +20,8 @@ class NewsController extends Controller
      */
     public function actionIndex()
     {
-        $this->render('/news/index');
+        //$this->render('//news/index');
+        $this->redirect(Yii::app()->createUrl('//site/index'));
     }
     
     /**

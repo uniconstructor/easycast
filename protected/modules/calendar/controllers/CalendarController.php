@@ -2,6 +2,7 @@
 
 /**
  * Контроллер для календаря событий
+ * @todo настроить права доступа
  */
 class CalendarController extends Controller
 {

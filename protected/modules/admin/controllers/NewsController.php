@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Контроллер для работы с новостями
+ * @todo пока что не используется, удалить если не пригодится
+ */
 class NewsController extends Controller
 {
 	/**
@@ -23,9 +27,12 @@ class NewsController extends Controller
 	 */
 	public function filters()
 	{
-		return array(
-			'accessControl', // perform access control for CRUD operations
-		);
+		$baseFilters = parent::filters();
+	    $newFilters  = array(
+	        'accessControl',
+	        'postOnly + delete',
+	    );
+	    return CMap::mergeArray($baseFilters, $newFilters);
 	}
 
 	/**

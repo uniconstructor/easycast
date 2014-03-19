@@ -2,6 +2,7 @@
 
 /**
  * Главный контроллер сайта
+ * @todo настроить права доступа
  */
 class SiteController extends Controller
 {

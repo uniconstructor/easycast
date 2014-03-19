@@ -2,6 +2,7 @@
 
 /**
  * Административные действия с анкетой
+ * @todo настроить права доступа
  */
 class QuestionaryController extends Controller
 {

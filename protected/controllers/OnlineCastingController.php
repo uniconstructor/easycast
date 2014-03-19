@@ -5,6 +5,7 @@
  * 
  * @TODO добавить оплату при создании роли в онлайн-кастинге
  * @todo переименовать статистов в "типажи"
+ * @todo настроить права доступа
  */
 class OnlineCastingController extends Controller
 {

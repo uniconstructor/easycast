@@ -5,6 +5,7 @@
  * 
  * @package easycast
  * @todo перенести сюда все функции для работы с заказами из siteController
+ * @todo настроить права доступа
  */
 class OrderController extends Controller
 {

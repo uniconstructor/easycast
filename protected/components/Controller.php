@@ -11,20 +11,23 @@ class Controller extends RController
     public $ecHeaderOptions = array();
     
     /**
-     * @todo (запланировано) фильтр, который заставляет пользователей использовать только защищенное соединение
-     * @todo перед включением обновить методы filters во всех контроллерах
+     * 
      * @todo совместить с полной заменой accessFilter на RBAC если будет возможность
      * @see CController::filters()
      */
-    /*public function filters()
+    public function filters()
     {
         return array(
             array(
+                'application.filters.ECReferalFilter',
+            ),
+            // @todo (запланировано) фильтр, который заставляет пользователей использовать только защищенное соединение
+            /*array(
                 'ext.sweekit.filters.SwProtocolFilter - parse',
                 'mode' => 'https',
-            ),
-        )
-    }*/
+            ),*/
+        );
+    }
     
     /**
      * @see parent::behaviors()

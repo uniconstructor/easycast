@@ -10,9 +10,11 @@ class ProjectController extends Controller
      */
     public function filters()
     {
-        return array(
-            'accessControl',
-        );
+        $baseFilters = parent::filters();
+	    $newFilters  = array(
+	        'accessControl',
+	    );
+	    return CMap::mergeArray($baseFilters, $newFilters);
     }
     
     /**

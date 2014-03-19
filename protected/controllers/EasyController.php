@@ -2,6 +2,7 @@
 
 /**
  * Контроллер для быстрой регистрации 
+ * @todo настроить права доступа
  */
 class EasyController extends Controller
 {

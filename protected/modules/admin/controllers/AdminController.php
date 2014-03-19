@@ -2,6 +2,7 @@
 
 /**
  * Контроллер главной страницы админки
+ * @todo настроить права доступа
  */
 class AdminController extends Controller
 {
