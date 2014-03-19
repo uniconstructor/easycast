@@ -262,7 +262,7 @@ class CustomerInvite extends CActiveRecord
         {// админ просто проверяет приглашение перед отправкой - ничего не нужно делать
             return true;
         }
-        if ( $this->status !== self::STATUS_PENDING )
+        if ( $this->status === self::STATUS_ACTIVE )
         {// статус уже изменен
             return true;
         }
