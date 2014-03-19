@@ -67,7 +67,7 @@ $this->widget('ext.ECMarkup.ECIGuaranteeIt.ECIGuaranteeIt');
 	<div class="ec-wrapper">
         <h2 style="font-size:42px;text-align:center;text-transform:uppercase;margin-bottom:40px;font-weight:200;">Ваши онлайн-сервисы</h2>
         <div class="banner">
-			<p>Мы рады вам сообщить, что благодаря восьмилетнему опыту работы 
+			<p style="text-indent:20px;">Мы рады вам сообщить, что благодаря восьмилетнему опыту работы 
 			и двум годам сложнейших IT-разработок мы создали ресурс, 
 			способный упорядочить все сложные процессы поиска, оповещения, 
 			отбора и утверждения артистов в простой сервис:

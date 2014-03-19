@@ -107,7 +107,7 @@
 				    <h3><span style="color:#1E3D52;font-family:century gothic,sans-serif;font-weight:400;font-size:25px;">
 				    Тина Канделаки
 				    </span><br>
-				    <span style="color:#1E3D52;font-family:century gothic,sans-serif;font-weight:200;font-size:20px;">
+				    <span style="color:#1E3D52;font-family:century gothic,sans-serif;font-weight:200;font-size:17px;">
 				    продюсер, телеведущая, общественный деятель
 				    </span>
 				    </h3>
