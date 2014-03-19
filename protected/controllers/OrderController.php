@@ -16,6 +16,17 @@ class OrderController extends Controller
     public function actionIndex()
     {
         $order = new FastOrder();
+        if ( $offer = Yii::app()->session->get('activeOffer') )
+        {/* @var $offer CustomerOffer */
+            if ( $offer->email )
+            {
+                $order->email = $offer->email;
+            }
+            if ( $offer->name )
+            {
+                $order->name = $offer->name;
+            }
+        }
         $this->render('index', array('order' => $order));
     }
 }

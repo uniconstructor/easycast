@@ -53,26 +53,21 @@ class Address extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
-			array('floor, encrypted', 'numerical', 'integerOnly'=>true),
+			array('floor, encrypted', 'numerical', 'integerOnly' => true),
 		    
 			array('latitude, longitude', 'numerical'),
-			array('objecttype', 'length', 'max'=>12),
-			array('objectid, type, timecreated, timemodified, countryid, regionid, cityid', 'length', 'max'=>11),
-			array('postalcode', 'length', 'max'=>10),
-			array('city, streetname, description', 'length', 'max'=>4095),
+			array('objecttype', 'length', 'max' => 12),
+			array('objectid, type, timecreated, timemodified, countryid, regionid, cityid', 'length', 'max' => 11),
+			array('postalcode', 'length', 'max' => 10),
+			array('city, streetname, description', 'length', 'max' => 4095),
 			
-			array('streettype, number, housing, apartment', 'length', 'max'=>16),
-			array('gate', 'length', 'max'=>8),
-			array('status', 'length', 'max'=>7),
+			array('streettype, number, housing, apartment', 'length', 'max' => 16),
+			array('gate', 'length', 'max' => 8),
+			array('status', 'length', 'max' => 16),
 		    
 		    array('floor,latitude,longitude,postalcode,city,streetname,
-		        description,streettype,number,housing,apartment,gate', 'filter', 'filter'=>'trim'),
-			// The following rule is used by search().
-			// Please remove those attributes that should not be searched.
-			array('id, objecttype, objectid, type, postalcode, countryid, regionid, city, cityid, streettype, streetname, number, housing, gate, floor, apartment, timecreated, timemodified, latitude, longitude, description, status, encrypted', 'safe', 'on'=>'search'),
+		        description,streettype,number,housing,apartment,gate', 'filter', 'filter' => 'trim'),
 		);
 	}
 
@@ -158,45 +153,5 @@ class Address extends CActiveRecord
 			'status' => Yii::t('address','status_label'),
 			'encrypted' => Yii::t('address','encrypted_label'),
 		);
-	}
-
-	/**
-	 * Retrieves a list of models based on the current search/filter conditions.
-	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
-	 */
-	public function search()
-	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
-
-		$criteria=new CDbCriteria;
-
-		$criteria->compare('id',$this->id);
-		$criteria->compare('objecttype',$this->objecttype,true);
-		$criteria->compare('objectid',$this->objectid,true);
-		$criteria->compare('type',$this->type,true);
-		$criteria->compare('postalcode',$this->postalcode,true);
-		$criteria->compare('countryid',$this->country,true);
-		$criteria->compare('regionid',$this->region,true);
-		$criteria->compare('city',$this->city,true);
-		$criteria->compare('cityid',$this->city,true);
-		$criteria->compare('streettype',$this->streettype,true);
-		$criteria->compare('streetname',$this->streetname,true);
-		$criteria->compare('number',$this->number,true);
-		$criteria->compare('housing',$this->housing,true);
-		$criteria->compare('gate',$this->gate,true);
-		$criteria->compare('floor',$this->floor);
-		$criteria->compare('apartment',$this->apartment,true);
-		$criteria->compare('timecreated',$this->timecreated,true);
-		$criteria->compare('timemodified',$this->timemodified,true);
-		$criteria->compare('latitude',$this->latitude);
-		$criteria->compare('longitude',$this->longitude);
-		$criteria->compare('description',$this->description,true);
-		$criteria->compare('status',$this->status,true);
-		$criteria->compare('encrypted',$this->encrypted);
-
-		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
-		));
 	}
 }
