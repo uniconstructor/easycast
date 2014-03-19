@@ -53,4 +53,16 @@ class CustomerOffer extends CustomerInvite
         Yii::app()->getModule('user')->sendMail($this->email, 'Коммерческое предложение проекта easyCast', $message, true);
         return true;
     }
+    
+    /**
+     * @see CustomerInvite::markUsed()
+     * @todo проверить что предыдущая смена статуса завершилась успешно
+     */
+    public function markUsed()
+    {
+        parent::markUsed();
+        
+        $this->timefinished = time();
+        return $this->setStatus(self::STATUS_FINISHED);
+    }
 }

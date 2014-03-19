@@ -189,7 +189,7 @@ class EMailOffer extends EMailBase
     protected function getReferalParams()
     {
         return array(
-            'offerid'  => $this->offer->id,
+            'offerId'  => $this->offer->id,
             // защищаем свой реферал ключом, чтобы никто не смог выдать себя за заказчика
             // просто перебрав все id приглашений
             'key'      => $this->offer->key,
