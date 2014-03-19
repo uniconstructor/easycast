@@ -273,7 +273,7 @@ class ProjectEvent extends CActiveRecord
 		    // проект к которому привязано мероприятие
 		    'project' => array(self::BELONGS_TO, 'Project', 'projectid'),
 		    // адрес, по которому проходит мероприятие
-		    'address' => array(self::HAS_ONE, 'Address', 'addressid',
+		    'address' => array(self::HAS_ONE, 'Address', 'objectid',
 		        'condition' => "`address`.`objecttype`='event'"),
 		    // группа мероприятия (если это мероприятие входит в группу)
 		    'group' => array(self::BELONGS_TO, 'ProjectEvent', 'parentid'),
