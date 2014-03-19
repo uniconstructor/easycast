@@ -18,11 +18,11 @@ class OrderController extends Controller
         $order = new FastOrder();
         if ( $offer = Yii::app()->session->get('activeOffer') )
         {/* @var $offer CustomerOffer */
-            if ( $offer->email )
+            if ( $offer->email AND ! $order->email )
             {
                 $order->email = $offer->email;
             }
-            if ( $offer->name )
+            if ( $offer->name AND ! $order->name )
             {
                 $order->name = $offer->name;
             }

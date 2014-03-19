@@ -31,6 +31,18 @@ class CalculationController extends Controller
         // AJAX-проверка введенных данных
         $this->performAjaxValidation($calculationForm);
         
+        if ( $offer = Yii::app()->session->get('activeOffer') )
+        {/* @var $offer CustomerOffer */
+            if ( $offer->email AND ! $calculationForm->email )
+            {
+                $calculationForm->email = $offer->email;
+            }
+            if ( $offer->name AND ! $calculationForm->name )
+            {
+                $calculationForm->name = $offer->name;
+            }
+        }
+        
         // получаем все возможные типы проекта
         $projectTypes = Project::model()->getTypeList();
         // получаем все возможные разделы каталога
@@ -42,7 +54,7 @@ class CalculationController extends Controller
         $categories = array();
         foreach ($sections as $section)
         {
-            //$categories[$section->id] = $section->name;
+            //$categories[$section->id] = $section->id;
             $categories[$section->name] = $section->name;
         }
         $categories = ECPurifier::getSelect2Options($categories);
@@ -50,8 +62,6 @@ class CalculationController extends Controller
         if ( $formData = Yii::app()->request->getPost('CalculationForm') )
         {// пришли данные из формы расчета стоимости
             $calculationForm->attributes = $formData;
-            //CVarDumper::dump($formData, 10, true);die;
-            
             if ( $calculationForm->validate() )
             {// все данные формы верны
                 if ( $user = $calculationForm->save() )
