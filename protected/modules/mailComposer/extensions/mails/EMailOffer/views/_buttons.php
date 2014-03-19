@@ -10,13 +10,13 @@
         <td style="width:50px;">&nbsp;</td>
         <td style="width:245px;">
         	<a href="<?= $this->getOrderPageUrl(); ?>">
-                <img src="<?= $this->getImageUrl('/images/offer/order-mail-button.png'); ?>" style="max-height:40px;display:inline;">
+                <img src="<?= $this->getImageUrl('/images/offer/order-mail-button.png'); ?>" style="max-height:40px;max-width:245px;display:inline;">
         	</a>
         </td>
         <td style="width:50px;">&nbsp;</td>
         <td style="width:245px;">
         	<a href="<?= $this->getCalculationPageUrl(); ?>">
-                <img src="<?= $this->getImageUrl('/images/offer/calculation-mail-button.png'); ?>" style="max-height:40px;display:inline;">
+                <img src="<?= $this->getImageUrl('/images/offer/calculation-mail-button.png'); ?>" style="max-height:40px;max-width:245px;display:inline;">
         	</a>
         </td>
         <td style="width:50px;">&nbsp;</td>

@@ -38,8 +38,7 @@
 <!-- Услуги -->
 <tr bgcolor="#dbe4f1">
 	<td width="640" height="40" valign="middle" align="center">
-		<h2 style="color:#1E3D52;font-family:century gothic,sans-serif;font-weight:400;font-size:25px;">
-		НАШИ УСЛУГИ</h2>
+		<h2 style="color:#1E3D52;font-family:century gothic,sans-serif;font-weight:400;font-size:25px;">НАШИ УСЛУГИ</h2>
 	</td>
 </tr>
 <tr bgcolor="#dbe4f1">
@@ -90,7 +89,7 @@
 <tr bgcolor="#dbe4f1">
     <td style="text-align:center;">
         <a href="<?= $this->getSalePageUrl('#reviews-section'); ?>">
-        <img src="<?= $this->getImageUrl('/images/offer/guarantee-mail-button.png'); ?>" style="max-height:40px;display:inline;margin-top:30px;margin-bottom:30px;">
+        <img src="<?= $this->getImageUrl('/images/offer/guarantee-mail-button.png'); ?>" style="max-width:245px;max-height:40px;display:inline;margin-top:30px;margin-bottom:30px;">
         </a>
     </td>
 </tr>
