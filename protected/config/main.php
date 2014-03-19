@@ -29,13 +29,13 @@ return array(
     // Название проекта 
     'name'    => 'easyCast',
     // Короткие имена для вызова популярных библиотек
-    /*'aliases' => array(
-        
-    ),*/
+    //'aliases' => array(),
     
 	// autoloading model and component classes
     'import' => array(
+        // основные компоненты приложения
 		'application.models.*',
+		'application.filters.*',
 		'application.components.*',
 	    'application.extensions.*',
         // Выбор страны и города
@@ -52,8 +52,6 @@ return array(
 	    'application.modules.questionary.models.*',
         // Модуль загрузки изображений
         'ext.galleryManager.models.*',
-        // Image manipulation library
-        //'ext.YiiImage.CImageComponent',
         // Виджеты Twitter Bootstrap
         'application.extensions.bootstrap.widgets.*',
         // старый виджет выбора "да/нет"
