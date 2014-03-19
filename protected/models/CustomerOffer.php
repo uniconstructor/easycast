@@ -60,8 +60,16 @@ class CustomerOffer extends CustomerInvite
      */
     public function markUsed()
     {
-        parent::markUsed();
+        if ( $this->status === self::STATUS_FINISHED )
+        {// приглашение уже использовано
+            return true;
+        }
+        if ( Yii::app()->user->checkAccess('Admin') )
+        {// админ просто проверяет приглашение перед отправкой
+            return true;
+        }
         
+        parent::markUsed();
         $this->timefinished = time();
         return $this->setStatus(self::STATUS_FINISHED);
     }
