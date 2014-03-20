@@ -63,9 +63,9 @@
 				
 				// callback function
 				function(){
-					$(element).parent().prev().css("color","#222222");
+					$(element).parent().prev().css("color","#fff");
                     $(element).parent().prev().css("font-weight","normal");
-					$(element).parent().next().css("color","#ffffff");
+					$(element).parent().next().css("color","#222");
                     $(element).parent().next().css("font-weight","bold");
                     
 					$(element).parent().css("background-color", settings.off_bg_color);
@@ -80,9 +80,9 @@
 				
 				// callback function
 				function(){
-					$(element).parent().prev().css("color","#ffffff");
+					$(element).parent().prev().css("color","#222");
                     $(element).parent().prev().css("font-weight","bold");
-					$(element).parent().next().css("color","#222222");
+					$(element).parent().next().css("color","#fff");
                     $(element).parent().next().css("font-weight","normal");
                     
 					$(element).parent().css("background-color", settings.on_bg_color);
@@ -102,10 +102,10 @@
         // insert the new toggle markup
         if( $('#' + this.selector).attr("checked") == true || $('#' + this.selector).attr("checked") == 'checked' )
         {
-            $('#' + this.selector).after('<div class="toggleSwitch"><span class="leftLabel" style="font-weight:bold;color:#ffffff;">'+settings.on_label+'<\/span><div class="switchArea" style="background-color: '+settings.on_bg_color+'"><span class="switchHandle left" style="margin-left: 0em;"><\/span><\/div><span class="rightLabel" style="color:#222222;">'+settings.off_label+'<\/span><\/div>');
+            $('#' + this.selector).after('<div class="toggleSwitch"><span class="leftLabel" style="font-weight:bold;color:#222;">'+settings.on_label+'<\/span><div class="switchArea" style="background-color: '+settings.on_bg_color+'"><span class="switchHandle left" style="margin-left: 0em;"><\/span><\/div><span class="rightLabel" style="color:#fff;">'+settings.off_label+'<\/span><\/div>');
         }else
         {
-            $('#' + this.selector).after('<div class="toggleSwitch"><span class="leftLabel" style="color:#222222;">'+settings.on_label+'<\/span><div class="switchArea" style="background-color: '+settings.off_bg_color+'"><span class="switchHandle right" style="margin-left:2.125em"><\/span><\/div><span class="rightLabel" style="font-weight:bold;color:#ffffff;">'+settings.off_label+'<\/span><\/div>');
+            $('#' + this.selector).after('<div class="toggleSwitch"><span class="leftLabel" style="color:#fff;">'+settings.on_label+'<\/span><div class="switchArea" style="background-color: '+settings.off_bg_color+'"><span class="switchHandle right" style="margin-left:2.125em"><\/span><\/div><span class="rightLabel" style="font-weight:bold;color:#222;">'+settings.off_label+'<\/span><\/div>');
         }			
         //console.log($('#' + this.selector).attr("checked"));
         //console.log(this.attr("checked"));
