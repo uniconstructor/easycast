@@ -141,7 +141,6 @@ class ProjectEvent extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::beforeSave()
 	 * 
 	 * @todo устанавливать автоматически поля "nodates", "showtimestart", "timestart", "timeend" 
@@ -171,7 +170,6 @@ class ProjectEvent extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::afterDelete()
 	 */
 	protected function afterDelete()
@@ -282,7 +280,8 @@ class ProjectEvent extends CActiveRecord
 		        'order' => "`vacancies`.`name` ASC",),
 		    // активные вакансии мероприятия
 		    'activevacancies' => array(self::HAS_MANY, 'EventVacancy', 'eventid',
-		        'condition' => "`activevacancies`.`status`='active'", 'order' => "`activevacancies`.`name` ASC"),
+		        'condition' => "`activevacancies`.`status`='active'",
+		        'order'     => "`activevacancies`.`name` ASC"),
 		    // Приглашения на мероприятие
 		    'invites' => array(self::HAS_MANY, 'EventInvite', 'eventid'),
 		    // Видео c мероприятия
@@ -322,32 +321,6 @@ class ProjectEvent extends CActiveRecord
 		);
 	}
 
-	/**
-	 * Retrieves a list of models based on the current search/filter conditions.
-	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
-	 * 
-	 * @todo удалить, не используется
-	 */
-	/**public function search()
-	{
-		$criteria=new CDbCriteria;
-
-		$criteria->compare('id',$this->id);
-		$criteria->compare('projectid',$this->projectid,true);
-		$criteria->compare('name',$this->name,true);
-		$criteria->compare('description',$this->description,true);
-		$criteria->compare('timestart',$this->timestart,true);
-		$criteria->compare('timeend',$this->timeend,true);
-		$criteria->compare('timecreated',$this->timecreated,true);
-		$criteria->compare('timemodified',$this->timemodified,true);
-		$criteria->compare('addressid',$this->addressid,true);
-		$criteria->compare('status',$this->status,true);
-
-		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
-		));
-	}*/
-	
 	/**
 	 * Получить список событий для календаря
 	 * @param string $timestart - начало периода

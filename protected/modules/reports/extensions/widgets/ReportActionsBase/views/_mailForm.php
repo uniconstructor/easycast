@@ -24,9 +24,10 @@ if ( $this->allowSendMail )
         echo '<b>Преобразовать в кастинг-лист (указать все возможные данные, 
                 при печати каждый актер будет на отдельной странице)</b>';
     }
+    echo '<br>';
     $this->widget('bootstrap.widgets.TbButton', array(
         'buttonType' => 'submit',
-        'type'       => 'inverse',
+        'type'       => 'warning',
         'size'       => 'large',
         'label'      => 'Отправить письмом',
         'htmlOptions' => array(
@@ -35,5 +36,5 @@ if ( $this->allowSendMail )
     ));
 }
 
-
 echo CHtml::endForm();
+

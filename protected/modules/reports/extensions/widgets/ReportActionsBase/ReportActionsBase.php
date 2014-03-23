@@ -8,27 +8,36 @@
 class ReportActionsBase extends CWidget
 {
     /**
-     * @var Report
+     * @var Report - отчет с которым производятся действия
      */
     public $report;
-    
-    public $allowSave = true;
-    
-    public $allowSendMail = true;
-    
+    /**
+     * @var bool - разрешить сохранение фотовызывного (добавляет галочку в форму)
+     */
+    public $allowSave        = true;
+    /**
+     * @var bool - разрешить отправку фотовызывного по email (добавляет галочку в форму)
+     */
+    public $allowSendMail    = true;
+    /**
+     * @var bool - разрешить преобразование фотовызывного в кастинг-лист
+     * @todo перенести это поле в класс CallListActions
+     */
     public $allowCastingList = true;
-    
+    /**
+     * @var string - путь к контроллеру выполняющему сохранение отчета
+     */
     public $savePath = '';
-    
+    /**
+     * @var string - путь к контроллеру выполняющему отправку отчета
+     */
     public $mailPath = '';
-    
     /**
      * @var array дополнительные параметры для отчета (свои для каждого типа)
      */
     public $saveParams = array();
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
      * 
      * @todo проверить наличие объекта в $this->report
@@ -42,19 +51,11 @@ class ReportActionsBase extends CWidget
     }
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::run()
      */
     public function run()
     {
-        echo '<div class="row">';
-        echo '<div class="span4">';
-        $this->displaySaveAction();
-        echo '</div>';
-        echo '<div class="span4">';
-        $this->displaySaveSendMailAction();
-        echo '</div>';
-        echo '</div>';
+        $this->render('reports.extensions.widgets.ReportActionsBase.views.actions');
     }
     
     /**
@@ -67,19 +68,19 @@ class ReportActionsBase extends CWidget
         {
             return;
         }
-        $this->render('_saveForm');
+        $this->render('reports.extensions.widgets.ReportActionsBase.views._saveForm');
     }
     
     /**
      * Отобразить форму отправки отчета по email
      * @return null
      */
-    protected function displaySaveSendMailAction()
+    protected function displaySendMailAction()
     {
         if ( ! $this->allowSendMail )
         {
             return;
         }
-        $this->render('_mailForm');
+        $this->render('reports.extensions.widgets.ReportActionsBase.views._mailForm');
     }
 }

@@ -75,7 +75,6 @@ class ProjectMember extends CActiveRecord
     const STATUS_FAILED    = 'failed';
     
     /**
-     * (non-PHPdoc)
      * @see CActiveRecord::init()
      */
     public function init()
@@ -190,6 +189,38 @@ class ProjectMember extends CActiveRecord
     	        'condition' => "`status` IN ('".self::STATUS_DRAFT."', '".self::STATUS_PENDING."')"
     	    ),
         );
+	}
+	
+	/**
+	 * Именованная группа условий поиска - выбрать заявки с определенными статусами
+	 * @param array|string $statuses - статусы заявок, которые учитываются извлечении или строка, если статус один
+	 * @return ProjectMember
+	 */
+	public function withStatus($statuses=array(self::STATUS_ACTIVE, self::STATUS_FINISHED))
+	{
+	     if ( ! is_array($statuses) )
+	     {// нужен только один статус, и он передан строкой - сделаем из нее массив
+	         $statuses = array($statuses);
+	     }
+	     $criteria = new CDbCriteria();
+	     $criteria->addInCondition('status', $statuses);
+	     
+	     $this->getDbCriteria()->mergeWith($criteria);
+	     return $this;
+	}
+	
+	/**
+	 * Именованная группа условий поиска - получить заявки принадлежащие определенному мероприятию
+	 * @param int $vacancyId - id роли, на которую подана заявка
+	 * @return ProjectMember
+	 */
+	public function forVacancy($vacancyId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('vacancyid', $vacancyId);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    return $this;
 	}
 
 	/**

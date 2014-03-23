@@ -195,7 +195,7 @@ class EMailAssembler extends CWidget
      */
     protected function createSignatureFeedbackNotice()
     {
-        $message = 'Если у вас есть вопросы - то вы можете задать их, просто ответив на это письмо';
+        $message = 'Если у вас есть вопросы - то вы можете задать их, ответив на это письмо';
         if ( $this->showContactPhone AND $this->contactPhone )
         {// оставляем возможность не указывать телефон для обычной рассылки
             $message .= ' или позвонив по телефону.<br> На сайте работает чат для онлайн-консультаций.';

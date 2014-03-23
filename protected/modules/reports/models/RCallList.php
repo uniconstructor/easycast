@@ -6,14 +6,6 @@
 class RCallList extends Report
 {
     /**
-     * @see CActiveRecord::init()
-     */
-    public function init()
-    {
-        parent::init();
-    }
-    
-    /**
      * Именованная группа условий: извлечь только вызывные листы для определенного события (мероприятия в проекте)
      * @param int $eventId - id события (модель ProjectEvent)
      */
@@ -34,7 +26,6 @@ class RCallList extends Report
     }
     
     /**
-     * (non-PHPdoc)
      * @see Report::beforeSave()
      */
     public function beforeSave()
@@ -47,41 +38,39 @@ class RCallList extends Report
     }
     
     /**
-     * (non-PHPdoc)
-     * @see CActiveRecord::afterSave()
-     */
-    public function afterSave()
-    {
-        parent::afterSave();
-    }
-    
-    /**
-     * (non-PHPdoc)
      * @see Report::collectData()
-     * @var ProjectEvent $event
+     * @var array $options
      */
-    public function collectData($event)
+    public function collectData($options)
     {
+        // ранее сохраненные данные отчета
         $data        = $this->getData();
+        // мероприятие для которого создается фотовызывной
+        $event       = $options['event'];
+        // статусы заявок, которые попадают в фотовызывной
+        $statuses    = $options['statuses'];
         $vacancies   = array();
+        // информация по проекту и мероприятию: getAttributes() используется для того чтобы сериализовывать
+        // меньше данных, иначе отчет не всегда помещается даже в поле TEXT длиной 64 Kb
         $eventInfo   = $event->getAttributes();
         $projectInfo = $event->project->getAttributes();
+        
         if ( ! is_array($data) )
-        {// дополнительные данные (например вручную добавленные участники) еще не были присоеденины к фотовызывному
+        {// дополнительные данные еще не были присоеденины к фотовызывному
             $data = array();
         }
         
         foreach ( $event->vacancies as $vacancy )
         {// собираем все подтвержденные заявки для каждой роли в переданном событии
-            if ( ! $vacancy->members )
+            if ( ! ProjectMember::model()->forVacancy($vacancy->id)->exists() )
             {// если на роль нет ни одного участника - не помещаем ее в вызывной
                 continue;
             }
             
             $vacancyInfo = $vacancy->getAttributes();
-            $element = array(
+            $element     = array(
                 'vacancy' => (object)$vacancyInfo,
-                'members' => $this->getMembersInfo($vacancy),
+                'members' => $this->getMembersInfo($vacancy, $statuses),
             );
             $vacancies[$vacancy->id] = $element;
             unset($element);
@@ -91,6 +80,7 @@ class RCallList extends Report
             'project'   => (object)$projectInfo,
             'event'     => (object)$eventInfo,
             'vacancies' => $vacancies,
+            'statuses'  => $statuses,
         );
         
         return CMap::mergeArray($data, $newData);
@@ -113,6 +103,8 @@ class RCallList extends Report
      *                       'phone'
      *                       'comment'
      * @return bool
+     * 
+     * @deprecated не используется, удалить при рефакторинге как и все связанные функции
      */
     public function addExternalMember($vacancyId, $member)
     {
@@ -120,7 +112,6 @@ class RCallList extends Report
     }
     
     /**
-     * (non-PHPdoc)
      * @see Report::createLinks()
      */
     protected function createLinks()
@@ -130,24 +121,25 @@ class RCallList extends Report
         $link->linktype   = 'source';
         $link->objecttype = 'event';
         $link->objectid   = $this->reportData['event']->id;
+        
         return $link->save();
     }
     
     /**
-     *
-     * @param EventVacancy $vacancy
-     * @return stdClass
+     * Получить информацию об участниках для выбранной роли
+     * @param EventVacancy $vacancy - роль для которой получается список участников со всей информацией
+     * @return array
      */
-    protected function getMembersInfo($vacancy)
+    protected function getMembersInfo($vacancy, $statuses)
     {
-        $result = array();
+        $result  = array();
+        $members = ProjectMember::model()->forVacancy($vacancy->id)->withStatus($statuses)->findAll();
         
-        foreach ( $vacancy->members as $member )
+        foreach ( $members as $member )
         {
             $memberInfo = $member->getAttributes();
             $result[$member->questionary->id] = (object)$memberInfo;
         }
-        
         return $result;
     }
 }

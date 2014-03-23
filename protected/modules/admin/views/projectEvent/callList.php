@@ -16,12 +16,11 @@ $this->breadcrumbs = $breadcrumbs;
 // отображаем сообщение о совершенном действии (если есть)
 $this->widget('bootstrap.widgets.TbAlert');
 
-// отображаем вызывной лист
+// отображаем вызывной лист (вместе с формой доступных действий)
 $this->widget('reports.extensions.widgets.CallListReport.CallListReport', array(
     'event'  => $event,
     'report' => $report,
 ));
-
 
 // отображаем ранее созданные вызывные листы на это мероприятие
 $this->widget('reports.extensions.widgets.ReportList.ReportList', array(

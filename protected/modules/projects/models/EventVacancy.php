@@ -39,16 +39,14 @@ class EventVacancy extends CActiveRecord
      * @var string - статус вакансии: черновик. Вакансия еще только создана, не отображается участникам.
      *               Условия подбора людей на вакансию можно задавать и менять только в этом статусе.
      */
-    const STATUS_DRAFT     = 'draft';
-    
+    const STATUS_DRAFT    = 'draft';
     /**
      * @var string - статус вакансии: опубликована. Вакансия полностью настроена и описана, заданы критерии
      *               подбора людей. На нее можно подавать заявки. При переходе в этот статус всем подходящим
      *               участникам проекта рассылаются приглашения.
      *               Критерии подбора людей менять нельзя.
      */
-    const STATUS_ACTIVE    = 'active';
-    
+    const STATUS_ACTIVE   = 'active';
     /**
      * @var string - статус вакансии: закрыта. Или набрано необходимое количество людей, или мероприятие
      *               уже началось и подавать заявки и вписывать людей больше нельзя - мероприятие
@@ -56,7 +54,7 @@ class EventVacancy extends CActiveRecord
      *               При переходе в этот статус отменяются все неподтвержденные заявки.
      *               Критерии подбора людей менять нельзя.
      */
-    const STATUS_FINISHED  = 'finished';
+    const STATUS_FINISHED = 'finished';
     
     /**
      * (non-PHPdoc)
@@ -135,7 +133,6 @@ class EventVacancy extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::beforeDelete()
 	 */
 	protected function beforeDelete()
@@ -181,7 +178,6 @@ class EventVacancy extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::beforeSave()
 	 * 
 	 * если понадобится - можно добавить возможность создавать вакансии вообще без фильтров
@@ -212,7 +208,6 @@ class EventVacancy extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::defaultScope()
 	 */
 	public function defaultScope()
@@ -221,7 +216,7 @@ class EventVacancy extends CActiveRecord
 	        'order' => '`timecreated` DESC',
 	    );
 	}
-
+	
 	/**
 	 * @return array validation rules for model attributes.
 	 */
@@ -229,16 +224,13 @@ class EventVacancy extends CActiveRecord
 	{
 		return array(
 			array('name, limit', 'required'),
-			array('salary, autoconfirm, eventid, scopeid, timecreated, timemodified, timestart, timeend', 'length', 'max'=>11),
+			array('salary, autoconfirm, eventid, scopeid, timecreated, timemodified, timestart, timeend', 'length', 'max' => 11),
 			array('name', 'length', 'max' => 255),
 			array('description', 'length', 'max' => 4095),
 			array('limit', 'length', 'max' => 6),
 			array('status', 'length', 'max' => 9),
 		    // @todo придумать более безопасный фильтр для условий поиска людей на вакансию 
 		    array('searchdata', 'safe'),
-		    
-			// The following rule is used by search().
-			array('id, eventid, name, description, scopeid, limit, timecreated, timemodified, status', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -253,17 +245,14 @@ class EventVacancy extends CActiveRecord
 		    // критерий поиска, по которому выбираются подходящие на вакансию участники 
 		    'scope' => array(self::BELONGS_TO, 'SearchScope', 'scopeid'),
 		    
-		    // Заявки на участие
-		    // @todo переписать через именованные группы условий
-		    'requests' => array(self::HAS_MANY, 'MemberRequest', 'vacancyid'),
-		    // одобренные заявки на вакансию
-		    // @todo переписать через именованные группы условий
-		    'members' => array(self::HAS_MANY, 'ProjectMember', 'vacancyid', 
-		        'condition' => "`members`.`status` = 'active' OR `members`.`status` = 'finished'"),
 		    // доступные фильтры поиска для этой вакансии
 		    'searchFilters' => array(self::MANY_MANY, 'CatalogFilter',
 		        "{{catalog_filter_instances}}(linkid, filterid)",
 		        'condition' => "`linktype` = 'vacancy'"),
+		    
+		    // Заявки на участие
+		    // @todo переписать через именованные группы условий
+		    'requests' => array(self::HAS_MANY, 'MemberRequest', 'vacancyid'),
 		    
 		    // Статистика
 		    // Количество поданых заявок
@@ -272,14 +261,20 @@ class EventVacancy extends CActiveRecord
 		    'membersCount' => array(self::STAT, 'ProjectMember', 'vacancyid', 
 		        'condition' => "status = 'active' OR status = 'finished'"),
 		    
-		    
+		    // одобренные заявки на вакансию
+		    // @todo переписать через именованные группы условий
+		    // @deprecated - переписано: используется функция members(), связь оставлена для совместимости
+		    //               со старым кодом, удалить ее при рефакторинге
+		    'members' => array(self::HAS_MANY, 'ProjectMember', 'vacancyid',
+		        'condition' => "`members`.`status` = 'active' OR `members`.`status` = 'finished'"),
 		    // отклоненные заявки на вакансию
-		    // @deprecated
+		    // @deprecated - переписано: используется функция members(), связь оставлена для совместимости
+		    //               со старым кодом, удалить ее при рефакторинге
 		    // @todo переписать через именованные группы условий, удалить при рефакторинге
 		    'rejectedmembers' => array(self::HAS_MANY, 'ProjectMember', 'vacancyid',
 		        'condition' => "status='rejected'"),
-		        // ссылки на доступные фильтры поиска для этой вакансии
-		    // @deprecated использовалось пока я не умел писать связи типа "мост"
+	        // ссылки на доступные фильтры поиска для этой вакансии
+		    // @deprecated - использовалось пока я не умел писать связи типа "мост"
 		    // @todo удалить при рефакторинге, вместо нее использовать связь searchFilters
 		    'filterinstances' => array(self::HAS_MANY, 'CatalogFilterInstance', 'linkid',
 		        'condition' => "`linktype` = 'vacancy'"),
@@ -307,31 +302,6 @@ class EventVacancy extends CActiveRecord
 			'timeend' => 'Время окончания',
 		);
 	}
-
-	/**
-	 * Retrieves a list of models based on the current search/filter conditions.
-	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
-	 * 
-	 * @todo удалить, не используется
-	 */
-	/*public function search()
-	{
-		$criteria = new CDbCriteria;
-
-		$criteria->compare('id',$this->id);
-		$criteria->compare('eventid',$this->eventid,true);
-		$criteria->compare('name',$this->name,true);
-		$criteria->compare('description',$this->description,true);
-		$criteria->compare('scopeid',$this->scopeid,true);
-		$criteria->compare('limit',$this->limit,true);
-		$criteria->compare('timecreated',$this->timecreated,true);
-		$criteria->compare('timemodified',$this->timemodified,true);
-		$criteria->compare('status',$this->status,true);
-
-		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
-		));
-	}*/
 	
 	/**
 	 * Подсчитать количество участников, которые подходят по условиям вакансии (потенциальных соискателей)
@@ -357,6 +327,7 @@ class EventVacancy extends CActiveRecord
 	{
 	    // получаем условия выборки для этой вакансии
 	    $criteria = $this->getSearchCriteria();
+	    // @todo заменить использование псевдонима "t" на имя/alias таблицы
 	    $criteria->select = '`t`.`id`';
 	    
 	    $users = Questionary::model()->findAll($criteria);

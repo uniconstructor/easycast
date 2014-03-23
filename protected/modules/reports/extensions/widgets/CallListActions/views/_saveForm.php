@@ -31,6 +31,14 @@ $this->widget('ext.imperavi-redactor-widget.ImperaviRedactorWidget', array(
 ));
 echo $form->error($this->report, 'comment');
 echo '<br>';
+
+// галочки для выбора статусов заявок, которые будут включены в фотовызывной
+echo CHtml::checkBoxList('statuses', array('active'), array(
+    ProjectMember::STATUS_ACTIVE  => 'Утвержденные',
+    ProjectMember::STATUS_PENDING => 'Предварительно одобренные',
+    ProjectMember::STATUS_DRAFT   => 'На рассмотрении',
+));
+
 if ( $this->allowSave )
 {// Кнопка сохранения отчета
     $this->widget('bootstrap.widgets.TbButton', array(

@@ -177,16 +177,18 @@ class ProjectEventController extends Controller
 	public function actionCallList()
 	{
 	    Yii::import('reports.models.*');
+	    // Отображаем фотовызывной в одну колонку
+	    $this->layout = '//layouts/column1';
 	    // получаем id мероприятия, если вызывной лист создается для мероприятия
 	    $eventId  = Yii::app()->request->getParam('eventId', 0);
-	    // получаем 
+	    // получаем id отчета (если отображается существующий отчет)
 	    $reportId = Yii::app()->request->getParam('id', 0);
 	    
 	    if ( ! $report = RCallList::model()->findByPk($reportId) )
 	    {// будем создавать новый вызывной лист
 	        if ( ! $event = ProjectEvent::model()->findByPk($eventId) AND ! $reportId )
 	        {
-	            throw new CHttpException(500, 'Невозможно отобразить вызывной лист: мероприятие не найдено');
+	            throw new CException('Невозможно отобразить вызывной лист: мероприятие не найдено');
 	        }
 	        $report = new RCallList;
 	        $report->name = 'Вызывной лист на '.$event->getFormattedTimePeriod();
@@ -198,7 +200,13 @@ class ProjectEventController extends Controller
 	    if ( $attributes = Yii::app()->request->getParam('RCallList') )
 	    {// сохраняем вызывной лист - собираем все данные, сериализуем и сохраняем запись 
 	        $report->attributes = $attributes;
-	        $report->createReport($event);
+	        // определяем, анкеты с какими статусами входят в отчет
+	        $statuses = Yii::app()->request->getParam('statuses', array('active'));
+	        $options = array(
+	            'event'    => $event,
+	            'statuses' => $statuses,
+	        );
+	        $report->createReport($options);
 	        
 	        // после сохранения вызывного листа - переходим на страницу просмотра того что создалось
 	        Yii::app()->user->setFlash('success', 'Вызывной лист создан.<br>Теперь его можно отправить по почте.');
@@ -207,12 +215,12 @@ class ProjectEventController extends Controller
 	    if ( $email = trim(Yii::app()->request->getParam('email', '')) )
 	    {// отправляем вызывной лист по почте
 	        $showContacts = Yii::app()->request->getParam('showContacts', false);
-	        $castingList = Yii::app()->request->getParam('castingList', false);
+	        $castingList  = Yii::app()->request->getParam('castingList', false);
 	        if ( $castingList )
-	        {
+	        {// преобразуем в кастинг-лист (включаем максимальное количество данных)
 	            $this->sendCastingList($report, $email, $showContacts);
 	        }else
-	        {
+	        {// обычный вызывной лист (минимум данных)
 	            $this->sendCallList($report, $email, $showContacts);
 	        }
 	        
@@ -237,6 +245,7 @@ class ProjectEventController extends Controller
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.
 	 * @param integer the ID of the model to be loaded
+	 * @return ProjectEvent 
 	 */
 	public function loadModel($id)
 	{

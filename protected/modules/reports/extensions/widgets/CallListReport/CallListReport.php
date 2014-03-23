@@ -19,15 +19,17 @@ class CallListReport extends ReportViewBase
      * @var ProjectEvent
      */
     public $event;
-    
     /**
      * @var bool - отображать ли контакты в вызывном листе
      */
     public $displayContacts = false;
+    /**
+     * @var string - класс формы, которая отвечает за действия с отчетом
+     *               по умолчанию доступны только стандартные действия - сохранить и отправить по email
+     */
+    public $actionsClass = 'CallListActions';
     
     /**
-     * 
-     * (non-PHPdoc)
      * @see ReportViewBase::init()
      */
     public function init()
@@ -40,7 +42,6 @@ class CallListReport extends ReportViewBase
     }
     
     /**
-     * (non-PHPdoc)
      * @see ReportViewBase::displayReportData()
      */
     protected function displayReportData()
@@ -52,15 +53,13 @@ class CallListReport extends ReportViewBase
     }
     
     /**
-     * (non-PHPdoc)
      * @see ReportViewBase::createActionsParams()
      */
     protected function createActionsParams()
     {
         $params    = parent::createActionsParams();
         $newParams = array(
-            //'savePath' => 'admin.projectEvent.createCallListReport',
-            //'mailPath' => 'admin.projectEvent.sendCallListReport',
+            'allowCastingList' => true,
         );
         return CMap::mergeArray($params, $newParams);
     }

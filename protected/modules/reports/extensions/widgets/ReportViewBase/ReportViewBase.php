@@ -9,14 +9,17 @@ class ReportViewBase extends CWidget
      * @var Report
      */
     public $report;
-    
     /**
-     * @var Отображать ли гоголовок отчета?
+     * @var string - отображать ли гоголовок отчета?
      */
     public $showHeader = false;
+    /**
+     * @var string - класс формы, которая отвечает за действия с отчетом
+     *               по умолчанию доступны только стандартные действия - сохранить и отправить по email
+     */
+    public $actionsClass = 'ReportActionsBase';
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
      */
     public function init()
@@ -29,7 +32,6 @@ class ReportViewBase extends CWidget
     }
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::run()
      */
     public function run()
@@ -77,13 +79,13 @@ class ReportViewBase extends CWidget
      */
     protected function createActions()
     {
-        return $this->widget('reports.extensions.widgets.ReportActionsBase.ReportActionsBase',
+        return $this->widget("reports.extensions.widgets.{$this->actionsClass}.{$this->actionsClass}",
             $this->createActionsParams(), true);
-        
     }
     
     /**
-     * Получить параметры для создания формы со списком действий для отчета
+     * Получить параметры для создания формы со списком действий для отчета,
+     * эти параметры будут использоваться в виджете ReportActionsBase
      * @return array
      */
     protected function createActionsParams()
@@ -95,7 +97,7 @@ class ReportViewBase extends CWidget
         {
             $allowSave = true;
         }
-        if ( $this->report->status == Report::STATUS_FINISHED )
+        if ( $this->report->status === Report::STATUS_FINISHED )
         {
             $allowSendMail = true;
         }
