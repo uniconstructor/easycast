@@ -110,12 +110,12 @@ $this->widget('bootstrap.widgets.TbDetailView',array(
         ),
 		array(
 	        'label' => ProjectsModule::t('project_leaderid'),
-	        'value' => $model->leader->fullname,
+	        'value' => $model->leader->fullname.' ',
             'type'  => 'text',
 	    ),
 		array(
 	        'label' => ProjectsModule::t('project_supportid'),
-	        'value' => $model->support ? $model->support->fullname : Yii::t('coreMessages', 'no'),
+	        'value' => $model->support ? $model->support->fullname.' ' : Yii::t('coreMessages', 'no'),
             'type'  => 'text',
 	    ),
 		//'customerid',
