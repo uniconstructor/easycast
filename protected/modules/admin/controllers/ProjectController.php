@@ -79,15 +79,14 @@ class ProjectController extends Controller
 			$model->attributes = $_POST['Project'];
 			if ( $model->save() )
 			{
-			    $this->redirect(array('view','id'=>$model->id));
+			    $this->redirect(array('view','id' => $model->id));
 			}
 		}
 
 		$this->render('create',array(
-			'model'=>$model,
-		    
-			'video'=>$video,
-		    'validatedVideos'=>$validatedVideos,
+			'model' => $model,
+			'video' => $video,
+		    'validatedVideos' => $validatedVideos,
 		));
 	}
 

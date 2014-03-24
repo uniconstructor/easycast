@@ -21,7 +21,6 @@ for ( $i=0; $i<=1000; $i++ )
 }
 $dateFormatter = new CDateFormatter('ru');
 
-
     
 echo Yii::t('coreMessages', 'form_required_fields', array('{mark}' => '<span class="required">*</span>'));
 echo $form->errorSummary($model);
