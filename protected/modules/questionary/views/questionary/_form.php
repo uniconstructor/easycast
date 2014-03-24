@@ -178,10 +178,12 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
 	<p class="note">
         <?php echo Yii::t('coreMessages', 'form_required_fields', array('{mark}' => '<span class="required">*</span>')); ?>
     </p>
-	<?php echo $form->errorSummary($questionary, null, null, array('id' => 'questionary-form-upper-es')); ?>
-    
-    <?php 
+	<?php 
+	
+	echo $form->errorSummary($questionary, null, null, array('id' => 'questionary-form-upper-es')); 
+	
     // id анкеты
+    // @todo возможно не понадобится, удалить при рефакторинге
     echo CHtml::hiddenField('qid', $questionary->id);
     
     // рейтинг анкеты (выставляется только администрацией)
@@ -199,9 +201,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
     </legend>
 
         <?php echo $form->textFieldRow($questionary,'lastname',array('size' => 60,'maxlength' => 128)); ?>
-    
         <?php echo $form->textFieldRow($questionary,'firstname',array('size' => 60,'maxlength' => 128)); ?>
-    
         <?php echo $form->textFieldRow($questionary,'middlename',array('size' => 60,'maxlength' => 128)); ?>
     
         <?php 
@@ -232,23 +232,27 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         </div>
     
         <?php echo $form->dropDownListRow($questionary, 'gender', $questionary->getFieldVariants('gender')); ?>
-    
         <?php echo $form->textFieldRow($questionary, 'height', array('size' => 3, 'maxlength' => 6)); ?>
-    
         <?php echo $form->textFieldRow($questionary,'weight', array('size' => 3, 'maxlength' => 6)); ?>
-        
         <?php echo $form->dropDownListRow($questionary, 'wearsize', $questionary->getFieldVariants('wearsize')); ?>
-    
         <?php echo $form->dropDownListRow($questionary, 'shoessize', $questionary->getFieldVariants('shoessize')); ?>
-    
-        <?php echo $form->labelEx($questionary,'cityid'); ?>
-        <?php
+        
+        <?php 
+        // страна проживания/гражданство
+        // @todo разделить эти понятия
+        echo $form->labelEx($questionary,'countryid');
+        echo $countrySelector->countryActiveField('countryid', $questionary);
+        echo $form->error($questionary,'countryid');
+        
+        // город проживания
+        // @todo сделать выпадающий список городов зависимым от списка стран
+        echo $form->labelEx($questionary,'cityid');
             $cityOptions = array(
-                'sourceUrl'=>Yii::app()->createUrl('questionary/questionary/ajax?type=city&parenttype=country&parentid=RU'),
+                'sourceUrl' => Yii::app()->createUrl('questionary/questionary/ajax?type=city&parenttype=country&parentid=RU'),
                 );
             $countrySelector->cityActiveField('cityid', $questionary, $cityOptions);
+        echo $form->error($questionary,'cityid');
         ?>
-        <?php echo $form->error($questionary,'cityid'); ?>
         <hr>
 	</fieldset>
 
@@ -1197,14 +1201,10 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
 		    'end_year'      => date("Y", time()),
 		));
 		echo $form->error($questionary,'passportdate');
-		?>
-		<?php echo $form->textFieldRow($questionary, 'passportorg', array('size' => 60, 'maxlength' => 255)); ?>
-
-        <?php echo $form->labelEx($questionary,'countryid'); ?>
-        <?php echo $countrySelector->countryActiveField('countryid', $questionary); ?>
-        <?php echo $form->error($questionary,'countryid'); ?>
-
-        <?php 
+		
+		// кем выдан паспорт
+		echo $form->textFieldRow($questionary, 'passportorg', array('maxlength' => 255));
+        
 		// Имеется ли медицинская страховка
         $this->widget('ext.EToggleBox.EToggleBox', array(
             'model'     => $questionary,
