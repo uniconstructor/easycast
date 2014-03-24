@@ -19,9 +19,8 @@ if ( $sectionid != 1 AND $section = CatalogSection::model()->findByPk($sectionid
 
 // Выводим страницу с фотоальбомами одним виджетом
 $this->widget('application.modules.catalog.extensions.CatalogData.CatalogData', array(
-        'sectionid' => $sectionid,
-    )
-);
+    'sectionid' => $sectionid,
+));
 
 ?>
 </div>

@@ -90,16 +90,15 @@ class CatalogData extends CWidget
     protected function getTabs()
     {
         $tabs = array();
-        
         // первая вкладка - всегда название раздела
         $tabs[] = $this->getMainTab();
         
         // ищем все вкладки, прикрепленные к разделу
         // @todo вынести в init
         $instances = CatalogTabInstance::model()->findAll(
-                'sectionid = :sectionid AND visible = 1', 
-                array(':sectionid' => $this->sectionid)
-            );
+            'sectionid = :sectionid AND visible = 1', 
+            array(':sectionid' => $this->sectionid)
+        );
         
         foreach ( $instances as $instance )
         {
@@ -183,11 +182,9 @@ class CatalogData extends CWidget
         $sectionCriteria = $this->section->scope->getCombinedCriteria();
         // получаем критерий выборки по вкладке
         $criteria = $tab->scope->getCombinedCriteria($sectionCriteria);
-        
         $criteria->addCondition("`status` = 'active'");
         
-        $dataProvider = new CActiveDataProvider('Questionary', 
-            array(
+        $dataProvider = new CActiveDataProvider('Questionary', array(
                 'criteria'   => $criteria,
                 'pagination' => array('pageSize' => self::MAX_SECTION_ITEMS),
             )
@@ -263,13 +260,16 @@ class CatalogData extends CWidget
     {
         switch ( $type )
         {
-            case 'users':    
+            case 'users':
+                // в разделе содержатся участники
                 $view     = '/_user';
                 $template = "{summary}{items}{pager}";
             break;
-            case 'sections': 
-                $view     = '/_subsection';
-                $template = "{items}{pager}";
+            case 'sections':
+                // в разделе содержаться другие разделы
+                // @todo мы отказались от этой идеи - сейчас просто выводим список всех услуг
+                //       вместо списка подразделдов
+                return $this->widget('ext.ECMarkup.EServiceList.EServiceList', array(), true);
             break;
         }
         

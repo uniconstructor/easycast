@@ -42,25 +42,18 @@ class CatalogController extends Controller
 	    CatalogModule::setNavigationParam('page', $page);
 	    
 	    // Получаем дополнительные данные для поиска (если пользователь захотел свой поиск)
-	    $search = Yii::app()->request->getPost('search');
-	    
+	    $search   = Yii::app()->request->getPost('search');
 	    $criteria = Yii::app()->getModule('catalog')->getCatalogCriteria();
-	    $dataProvider = new CActiveDataProvider('Questionary', 
-	        array(
-	            'criteria' => $criteria, 
-	            'pagination' => array(
-                    'pageSize' => CatalogModule::PAGE_ITEMS_COUNT,
-                    ),
-	            )
-	    );
+	    $dataProvider = new CActiveDataProvider('Questionary', array(
+            'criteria'   => $criteria, 
+            'pagination' => array('pageSize' => CatalogModule::PAGE_ITEMS_COUNT),
+        ));
 	    
-		$this->render('/catalog/index', 
-		    array(
-		        'dataProvider' => $dataProvider,
-		        'sectionid'    => $sectionid,
-		        'tab'          => $tab,
-	        )
-		);
+		$this->render('/catalog/index', array(
+	        'dataProvider' => $dataProvider,
+	        'sectionid'    => $sectionid,
+	        'tab'          => $tab,
+        ));
 	}
 	
 	/**
