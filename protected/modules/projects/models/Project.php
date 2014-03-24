@@ -167,7 +167,6 @@ class Project extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::beforeSave()
 	 */
 	protected function beforeSave()
@@ -176,7 +175,6 @@ class Project extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::beforeDelete()
 	 */
 	protected function beforeDelete()
@@ -311,6 +309,8 @@ class Project extends CActiveRecord
 		return array(
 		    // Руководитель проекта
 		    'leader' => array(self::BELONGS_TO, 'User', 'leaderid'),
+		    // Помошник руководителя
+		    'support' => array(self::BELONGS_TO, 'User', 'supportid'),
 		    
 		    // Все группы проекта
 		    'groups' => array(self::HAS_MANY, 'ProjectEvent', 'projectid', 
@@ -817,17 +817,4 @@ class Project extends CActiveRecord
 	        }
 	    }
 	}
-	
-	/**
-	 * Установить дату окончания проекта
-	 * @param string $value
-	 * @return void
-	 */
-	/*public function settimeend($value)
-	{
-	    if ( $timeend = CDateTimeParser::parse($date, Yii::app()->params['inputDateFormat']) )
-	    {
-	        $this->timeend = $timeend;
-	    }
-	}*/
 }
