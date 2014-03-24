@@ -2,21 +2,22 @@
 /**
  * Отображение одного проекта в админке
  */
+/* @var $model Project */
 
-$this->breadcrumbs=array(
+$this->breadcrumbs = array(
     'Администрирование' => array('/admin'),
-	'Проекты' => array('/admin/project/admin'),
+	'Проекты'           => array('/admin/project/admin'),
 	$model->name,
 );
 
 $this->menu = array(
 	//array('label'=>'Список проектов','url'=>array('/admin/project/admin')),
 	array('label' => 'Создать проект', 'url' => array('/admin/project/create')),
-	array('label' => 'Редактировать проект', 'url' => array('/admin/project/update','id'=>$model->id)),
-    array('label' => 'Добавить мероприятие', 'url' => array('/admin/projectEvent/create', 'projectid'=>$model->id)),
-    array('label' => 'Создать группу мероприятий', 'url' => array('/admin/projectEvent/create', 'projectid'=>$model->id, 'type'=>'group')),
-    array('label' => 'Заявки', 'url' => array('/admin/projectMember/index', 'projectid'=>$model->id, 'type' => 'applications')),
-    array('label' => 'Подтвержденные участники', 'url' => array('/admin/projectMember/index', 'projectid'=>$model->id, 'type' => 'members')),
+	array('label' => 'Редактировать проект', 'url' => array('/admin/project/update','id' => $model->id)),
+    array('label' => 'Добавить мероприятие', 'url' => array('/admin/projectEvent/create', 'projectid' => $model->id)),
+    array('label' => 'Создать группу мероприятий', 'url' => array('/admin/projectEvent/create', 'projectid' => $model->id, 'type' => 'group')),
+    array('label' => 'Заявки', 'url' => array('/admin/projectMember/index', 'projectid' => $model->id, 'type' => 'applications')),
+    array('label' => 'Подтвержденные участники', 'url' => array('/admin/projectMember/index', 'projectid' => $model->id, 'type' => 'members')),
 );
 
 if ( $model->status == Project::STATUS_DRAFT )
@@ -66,12 +67,25 @@ $this->widget('bootstrap.widgets.TbAlert', array(
 ));
 
 $dateFormatter = new CDateFormatter('ru');
+$timeStart     = Yii::t('coreMessages', 'not_set');
+$timeEnd       = Yii::t('coreMessages', 'not_set');
+if ( $model->timestart )
+{
+    $timeStart = $dateFormatter->format('dd.MM.yyyy', $model->timestart);
+}
+if ( $model->timeend )
+{
+    $timeEnd = $dateFormatter->format('dd.MM.yyyy', $model->timestart);
+}
+
 ?>
 
 <h1>Проект "<?php echo $model->name; ?>"</h1>
 
-<?php $this->widget('bootstrap.widgets.TbDetailView',array(
-	'data' => $model,
+<?php 
+
+$this->widget('bootstrap.widgets.TbDetailView',array(
+	'data'       => $model,
 	'attributes' => array(
 		array(
             'label' => '&nbsp;',
@@ -88,11 +102,11 @@ $dateFormatter = new CDateFormatter('ru');
         'customerdescription:raw',
         array(
             'label' => ProjectsModule::t('timestart'),
-            'value' => $dateFormatter->format('dd/MM/yyyy', $model->timestart), 
+            'value' => $timeStart, 
         ),
 		array(
             'label' => ProjectsModule::t('timeend'),
-            'value' => $dateFormatter->format('dd/MM/yyyy', $model->timeend), 
+            'value' => $timeEnd, 
         ),
 		array(
 	        'label' => ProjectsModule::t('project_leaderid'),
@@ -104,14 +118,15 @@ $dateFormatter = new CDateFormatter('ru');
 		//'memberscount',
 		'statustext',
 	),
-)); ?>
+));
+?>
 
 <h2>Мероприятия проекта</h2>
 
 <?php 
 // таблица со списком мероприятий
 $eventsList = new CActiveDataProvider('ProjectEvent', array(
-    'data' => $model->events,
+    'data'       => $model->events,
     'pagination' => false,
 ));
 $this->widget('bootstrap.widgets.TbGridView', array(
@@ -126,10 +141,10 @@ $this->widget('bootstrap.widgets.TbGridView', array(
             'type'   => 'html'
         ),
         array(
-            'name'    => 'groupname',
-            'header'  => 'Группа',
-            'value'   => '$data->group ? CHtml::link($data->group->name, Yii::app()->createUrl("/admin/ProjectEvent/view", array("id" => $data->group->id))): "Нет";',
-            'type'    => 'html',
+            'name'   => 'groupname',
+            'header' => 'Группа',
+            'value'  => '$data->group ? CHtml::link($data->group->name, Yii::app()->createUrl("/admin/ProjectEvent/view", array("id" => $data->group->id))): "Нет";',
+            'type'   => 'html',
         ),
         array(
             'name'   => 'timestart',
@@ -143,6 +158,4 @@ $this->widget('bootstrap.widgets.TbGridView', array(
         ),
     ),
 ));
-
-?>
 

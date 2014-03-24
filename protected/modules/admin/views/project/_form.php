@@ -77,96 +77,101 @@ $dateFormatter = new CDateFormatter('ru');
         }else
         {
             $this->widget('GalleryManager', array(
-                 'gallery' => $model->galleryBehavior->getGallery(),
+                 'gallery'         => $model->galleryBehavior->getGallery(),
                  'controllerRoute' => '/admin/gallery'
             ));
         }
     ?>
     
     <?php 
-	    // дата начала проекта
-        $defaultStart = '';
-    	if ( isset($formData['timestart']) )
-    	{
-    	    $defaultStart = $formData['timestart'];
-    	}elseif ( $model->timestart )
-    	{
-    	    $defaultStart = date(Yii::app()->params['outputDateFormat'], (int)$model->timestart);
-    	}
-    	echo $form->datepickerRow($model, 'timestart', array(
-    	        'options' => array(
-    	            'language'  => 'ru',
-    	            'format'    => 'dd.mm.yyyy',
-    	            'startView' => 'month',
-    	            'weekStart' => 1,
-    	            'autoclose' => true,
-    	        ),
-                'value'   => $defaultStart,
-    	    ),
-            array(
-                'hint'    => 'Если дата начала точно не известна - поставьте галочку "дата начала уточняется"',
-                'prepend' => '<i class="icon-calendar"></i>',
-            )
-    	);
-        // создать проект без даты начала
-        echo $form->checkBoxRow($model, 'notimestart');
-	?>
+    // дата начала проекта
+    $defaultStart = '';
+	if ( isset($formData['timestart']) )
+	{
+	    $model->timestart = $formData['timestart'];
+	}elseif ( $model->timestart )
+	{
+	    $model->timestart = date(Yii::app()->params['outputDateFormat'], (int)$model->timestart);
+	}
+	echo $form->datepickerRow($model, 'timestart', array(
+	        'options' => array(
+	            'language'       => 'ru',
+	            'format'         => 'dd.mm.yyyy',
+	            'startView'      => 'month',
+	            'weekStart'      => 1,
+	            'autoclose'      => true,
+                'todayHighlight' => true,
+	        ),
+            // @todo удалить
+            //'value'   => $defaultStart,
+	    ),
+        array(
+            'hint'    => 'Если дата начала точно не известна - поставьте галочку "дата начала уточняется"',
+            'prepend' => '<i class="icon-calendar"></i>',
+        )
+	);
+    // создать проект без даты начала
+    echo $form->checkBoxRow($model, 'notimestart');
 
-	<?php // дата окончания проекта
-	    $defaultEnd = '';
-    	if ( isset($formData['timeend']) )
-    	{
-    	    $defaultEnd = $formData['timeend'];
-    	}elseif ( $model->timeend )
-    	{
-    	    $defaultEnd = date(Yii::app()->params['outputDateFormat'], (int)$model->timeend);
-    	}
-    	echo $form->datepickerRow($model, 'timeend', array(
-    	        'options' => array(
-    	            'language'  => 'ru',
-    	            'format'    => 'dd.mm.yyyy',
-    	            'startView' => 'month',
-    	            'weekStart' => 1,
-    	            'autoclose' => true,
-    	        ),
-                'value' => $defaultEnd,
-    	    ),
-            array(
-                'hint'    => 'Если планируется длительный проект - поставьте галочку "без даты окончания"',
-                'prepend' => '<i class="icon-calendar"></i>',                
-            )
-    	);
-        // создать "бесконечный проект" - без даты окончания
-        echo $form->checkBoxRow($model, 'notimeend');
-	?>
-
-	<?php echo $form->dropDownListRow($model,'leaderid',  $model->getManagerList()); ?>
-	<?php echo $form->dropDownListRow($model,'supportid', $model->getManagerList(true)); ?>
-	<?php // echo $form->textFieldRow($model,'customerid',array('class'=>'span5','maxlength'=>11)); ?>
-	<?php // echo $form->textFieldRow($model,'orderid',array('class'=>'span5','maxlength'=>11)); ?>
-	<?php echo $form->checkBoxRow($model, 'isfree', array('class' => 'span5')); ?>
+	// дата окончания проекта
+    $defaultEnd = '';
+	if ( isset($formData['timeend']) )
+	{
+	    $model->timeend = $formData['timeend'];
+	}elseif ( $model->timeend )
+	{
+	    $model->timeend = date(Yii::app()->params['outputDateFormat'], (int)$model->timeend);
+	}
+	echo $form->datepickerRow($model, 'timeend', array(
+	        'options' => array(
+	            'language'       => 'ru',
+	            'format'         => 'dd.mm.yyyy',
+	            'startView'      => 'month',
+	            'weekStart'      => 1,
+	            'autoclose'      => true,
+                'todayHighlight' => true,
+	        ),
+            // @todo удалить
+            //'value' => $defaultEnd,
+	    ),
+        array(
+            'hint'    => 'Если планируется длительный проект - поставьте галочку "без даты окончания"',
+            'prepend' => '<i class="icon-calendar"></i>',                
+        )
+	);
+    // создать "бесконечный проект" - без даты окончания
+    echo $form->checkBoxRow($model, 'notimeend');
 	
-    <?php
-        echo '<div>Фотогалерея</div>';
-        if ( $model->photoGalleryBehavior->getGallery() === null )
-        {
-            echo '<div class="alert">Нужно сохранить проект перед загрузкой фотографий</div>';
-        }else
-        {
-            $this->widget('GalleryManager', array(
-                 'gallery' => $model->photoGalleryBehavior->getGallery(),
-                 'controllerRoute' => '/admin/gallery'
-            ));
-        }
+	// руководитель проекта
+    echo $form->dropDownListRow($model,'leaderid',  $model->getManagerList());
+    // помошник 
+	echo $form->dropDownListRow($model,'supportid', $model->getManagerList(true)); 
+	// заказчик
+	// echo $form->textFieldRow($model,'customerid',array('class'=>'span5','maxlength'=>11));
+	// некоммерческий проект 
+	echo $form->checkBoxRow($model, 'isfree', array('class' => 'span5'));
+	 
+    echo '<div>Фотогалерея</div>';
+    if ( $model->photoGalleryBehavior->getGallery() === null )
+    {
+        echo '<div class="alert">Нужно сохранить проект перед загрузкой фотографий</div>';
+    }else
+    {
+        $this->widget('GalleryManager', array(
+             'gallery' => $model->photoGalleryBehavior->getGallery(),
+             'controllerRoute' => '/admin/gallery'
+        ));
+    }
     ?>
     
     <fieldset>
         <legend>Видео</legend>
         <?php
+        // список видео
+        // @todo убрать использование multiModelForm, заменить на нашу версию Grid view
         if ( ! $model->isNewRecord )
         {// не показываем добавление видео при создании проекта - оно там не нужно и отвлекает
             echo $form->errorSummary($validatedVideos);
-            // список видео
             $videoFormConfig = $video->formConfig();
             $this->widget('ext.multimodelform.MultiModelForm',array(
                 'addItemText'   => Yii::t('coreMessages','add'),
@@ -186,12 +191,13 @@ $dateFormatter = new CDateFormatter('ru');
         ?>
     </fieldset>
 
-	<?php 
-    	$this->widget('bootstrap.widgets.TbButton', array(
-    		'buttonType' => 'submit',
-    		'type'       => 'primary',
-    		'label'      => $model->isNewRecord ? 'Создать' : 'Сохранить',
-    	)); 
+	<?php
+	// кнопка сохранения 
+	$this->widget('bootstrap.widgets.TbButton', array(
+		'buttonType' => 'submit',
+		'type'       => 'primary',
+		'label'      => $model->isNewRecord ? 'Создать' : 'Сохранить',
+	)); 
 	?>
 	
 <?php $this->endWidget(); ?>
