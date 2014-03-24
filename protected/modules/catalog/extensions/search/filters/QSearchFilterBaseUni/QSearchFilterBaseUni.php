@@ -187,7 +187,6 @@ class QSearchFilterBaseUni extends QSearchFilterBaseSelect2
     }
     
     /**
-     * (non-PHPdoc)
      * @see QSearchFilterBase::createClearFormDataJs()
      */
     protected function createClearFormDataJs()
@@ -202,7 +201,6 @@ class QSearchFilterBaseUni extends QSearchFilterBaseSelect2
     }
     
     /**
-     * (non-PHPdoc)
      * @see QSearchFilterBase::createAttachInputToggleJs()
      */
     protected function createAttachInputToggleJs()
