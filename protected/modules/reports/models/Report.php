@@ -18,19 +18,32 @@
  * 
  * @property string $reportData
  * 
- * @todo описать все статусы
  * @todo языковые строки
  * @todo добавить какую-то общую проверку для сериализуемого массива data 
  * @todo сделать создание ссылок по событиям
  */
 class Report extends CActiveRecord
 {
+    /**
+     * @var string - статус отчета: черновик - отчет в этом статусе представляет собой заготовку без данных. 
+     *               Это промежуточный статус, он присваивается всем отчетам вне зависимости от типа, 
+     *               сразу же после создания
+     */
     const STATUS_DRAFT    = 'draft';
-    
+    /**
+     * @var string - статус отчета: запланирован. Этот статус нужен для отчетов, создающихся по расписанию:
+     *               они находятся в нем до того момента когда придет время собирать данные.
+     */
     const STATUS_PLAN     = 'plan';
-    
+    /**
+     * @var string - статус отчета: завершен. Отчет сформирован, данные собраны, дальнейшее изменение данных не 
+     *               планируется, поэтому отчеты в этос статусе редактировать нельзя.
+     */
     const STATUS_FINISHED = 'finished';
-    
+    /**
+     * @var string - статус отчета: удален. Этот статус используется для работы "мягкого удаления",
+     *               чтобы не терять данные
+     */
     const STATUS_DELETED  = 'deleted';
     
     /**
@@ -109,7 +122,6 @@ class Report extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CModel::behaviors()
 	 */
 	public function behaviors()
@@ -125,7 +137,6 @@ class Report extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::beforeSave()
 	 */
 	public function beforeSave()
