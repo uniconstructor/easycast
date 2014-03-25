@@ -127,4 +127,4 @@ return array(
     'application_approved' => 'Заявка одобрена',
     'application_removed' => 'Заявка отозвана',
     // '' => '',
-    );
+);

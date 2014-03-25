@@ -3,25 +3,23 @@
  * Форма создания вакансии (роли)
  */
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm',array(
-	'id'=>'event-vacancy-form',
-	'enableAjaxValidation'=>false,
+	'id'                   => 'event-vacancy-form',
+	'enableAjaxValidation' => false,
 )); 
 ?>
 	<?php echo $form->errorSummary($model); ?>
-	<?php echo $form->textFieldRow($model, 'name', array('class'=>'span5','maxlength'=>255)); ?>
+	<?php echo $form->textFieldRow($model, 'name', array('maxlength'=>255)); ?>
 	<?php // описание роли
 	echo $form->labelEx($model,'description'); 
     $this->widget('ext.imperavi-redactor-widget.ImperaviRedactorWidget', array(
-    	'model' => $model,
+    	'model'     => $model,
     	'attribute' => 'description',
-    	'options' => array(
-    		'lang' => 'ru',
-            ),
+    	'options'   => array('lang' => 'ru'),
     ));
     echo $form->error($model,'description');
     ?>
-	<?php echo $form->textFieldRow($model, 'limit', array('class'=>'span5','maxlength'=>6)); ?>
-	<?php echo $form->textFieldRow($model, 'salary', array('class'=>'span5','maxlength'=>7)); ?>
+	<?php echo $form->textFieldRow($model, 'limit', array('maxlength'=>6)); ?>
+	<?php echo $form->textFieldRow($model, 'salary', array('maxlength'=>7)); ?>
     <br>
 	<?php 
 	$this->widget('bootstrap.widgets.TbButton', array(
