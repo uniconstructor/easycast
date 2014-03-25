@@ -51,6 +51,7 @@ class EMailCallList extends EMailBase
         $data = $this->callList->getData();
         $this->event   = ProjectEvent::model()->findByPk($data['event']->id);
         $this->project = Project::model()->findByPk($this->event->projectid);
+        $this->mailOptions['target']       = 'customer';
         if ( $this->project->leader )
         {
             $this->manager = $this->project->leader;

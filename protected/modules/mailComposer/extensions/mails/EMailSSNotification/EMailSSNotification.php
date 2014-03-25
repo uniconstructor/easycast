@@ -20,7 +20,15 @@ class EMailSSNotification extends EMailBase
     public $questionary;
     
     /**
-     * (non-PHPdoc)
+     * @see EMailBase::init()
+     */
+    public function init()
+    {
+        parent::init();
+        $this->mailOptions['target'] = 'user';
+    }
+    
+    /**
      * @see CWidget::run()
      */
     public function run()

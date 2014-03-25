@@ -2,8 +2,8 @@
 /**
  * Главный файл для построения письма.
  * Из статического кода содержит только отступы сверху и снизу
- * @var EMailAssembler $this
  */
+/* @var $this EMailAssembler */
 ?>
 <tr>
     <td class="w640" height="20" width="640"></td>

@@ -17,8 +17,8 @@
     <td id="header" align="center" width="640px">
 		<div style="text-align: left" align="center">
 			<a href="<?= Yii::app()->createAbsoluteUrl('/sale'); ?>" target="_blank">
-			<img id="customHeaderImage" src="<?= $this->getImageUrl('/images/mail-header.png'); ?>" 
-                class="w640" style="display: inline" align="top" border="0" width="640">
+			<img id="customHeaderImage" src="<?= $this->getImageUrl('/images/mail-header-customer.png'); ?>" 
+                class="w640" style="display:inline" align="top" border="0" width="640">
 			</a>
 		</div>
     </td>
@@ -52,7 +52,7 @@
 <!-- Кнопки заказа и расчета стоимости -->
 <tr bgcolor="#dbe4f1">
 	<td>
-		<?php $this->render('_buttons'); ?>
+	<?php $this->render('_buttons'); ?>
 	</td>
 </tr>
 <!-- Сервисы -->

@@ -11,7 +11,7 @@ class EMailAssembler extends CWidget
     /**
      * @var bool - отображать ли служебные ссылки "отписаться/мои настройки/веб-версия"
      */
-    public $showTopServiceLinks = false;
+    public $showTopServiceLinks    = false;
     /**
      * @var bool - отображать ли служебные ссылки "отписаться/мои настройки/веб-версия"
      */
@@ -19,27 +19,27 @@ class EMailAssembler extends CWidget
     /**
      * @var bool - отоборажать ли кнопки соцсетей сверху в письме
      */
-    public $showSocialButtons = false;
+    public $showSocialButtons      = false;
     /**
      * @var bool - отображать ли контактный телефон
      */
-    public $showContactPhone = true;
+    public $showContactPhone       = true;
     /**
      * @var bool - отображать ли контактный email
      */
-    public $showContactEmail = true;
+    public $showContactEmail       = true;
     /**
      * @var string - контактный телефон в конце письма
      */
-    public $contactPhone = '';
+    public $contactPhone   = '';
     /**
      * @var string - контактный email в конце письма
      */
-    public $contactEmail = '';
+    public $contactEmail   = '';
     /**
      * @var string - главный заголовок всего письма
      */
-    public $mainHeader = '';
+    public $mainHeader     = '';
     /**
      * @var 'image'|'text' - тип отображения главного заголовка всего письма
      *                     text - просто заголовок h1
@@ -53,7 +53,7 @@ class EMailAssembler extends CWidget
     /**
      * @var array - массив, состоящий из массивов настроек для виджета EMailContent
      */
-    public $segments = array();
+    public $segments  = array();
     /**
      * @var string - дополнительный текст над стандартной подписью внизу письма
      */
@@ -71,7 +71,7 @@ class EMailAssembler extends CWidget
      *             Если не входил - то нужно напомнить ему об этом, и предложить восстановить пароль
      *             (по умолчанию считаем, что участник хотя бы раз вродил на сайт и пароль помнит)
      */
-    public $userHasFirstAccess = true;
+    public $userHasFirstAccess       = true;
     /**
      * @var User
      */
@@ -80,6 +80,12 @@ class EMailAssembler extends CWidget
      * @var array - параметры отображения верхнего колонтитула письма (синяя полоска сверху которая)
      */
     public $topBarOptions = array();
+    /**
+     * @var string - для кого составляется письмо
+     *               user - для участника
+     *               customer - для заказчика
+     */
+    public $target = 'user';
     
     protected $_pluginsPrefix = 'application.modules.mailComposer.extensions.widgets.';
     
@@ -153,10 +159,10 @@ class EMailAssembler extends CWidget
     protected function displayMainHeader()
     {
         $this->widget($this->_pluginsPrefix.'EMailHeader.EMailHeader', array(
-                'header' => $this->mainHeader,
-                'type'   => $this->mainHeaderType,
-            )
-        );
+            'header' => $this->mainHeader,
+            'type'   => $this->mainHeaderType,
+            'target' => $this->target,
+        ));
     }
     
     /**
@@ -167,10 +173,9 @@ class EMailAssembler extends CWidget
     protected function displayContent()
     {
         $this->widget($this->_pluginsPrefix.'EMailContent.EMailContent', array(
-                'segments' => $this->segments,
-                'padding'  => $this->contentPadding,
-            )
-        );
+            'segments' => $this->segments,
+            'padding'  => $this->contentPadding,
+        ));
     }
     
     /**
@@ -180,13 +185,11 @@ class EMailAssembler extends CWidget
      */
     protected function displayFooter()
     {
-        $this->widget($this->_pluginsPrefix.'EMailFooter.EMailFooter',
-            array(
-                'contactEmail' => $this->contactEmail,
-                'contactPhone' => $this->contactPhone,
-                'signature'    => $this->signature,
-            )
-        );
+        $this->widget($this->_pluginsPrefix.'EMailFooter.EMailFooter', array(
+            'contactEmail' => $this->contactEmail,
+            'contactPhone' => $this->contactPhone,
+            'signature'    => $this->signature,
+        ));
     }
     
     /**

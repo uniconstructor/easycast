@@ -43,6 +43,9 @@ class EMailOrder extends EMailBase
         if ( ! $this->target OR ! in_array($this->target, array('team', 'customer')) )
         {
             throw new CException('Не указано для кого составлять письмо');
+        }else
+        {
+            $this->mailOptions['target'] = 'customer';
         }
         
         $this->descriptionParams = array(
