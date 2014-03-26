@@ -14,14 +14,14 @@ class CalendarController extends Controller
     public function actionIndex()
     {
         $projectType = Yii::app()->request->getParam('type');
-        $projectId = Yii::app()->request->getParam('projectid');
-        $userId = Yii::app()->request->getParam('userid');
-        $onlyActive = Yii::app()->request->getParam('onlyactive', false);
+        $projectId   = Yii::app()->request->getParam('projectid');
+        $userId      = Yii::app()->request->getParam('userid');
+        $onlyActive  = Yii::app()->request->getParam('onlyactive', false);
         
         $this->render('calendar', array(
-            'type' => $projectType,
-            'projectid' => $projectId,
-            'userid' => $userId,
+            'type'       => $projectType,
+            'projectid'  => $projectId,
+            'userid'     => $userId,
             'onlyactive' => $onlyActive,
         ));
     }
@@ -37,21 +37,21 @@ class CalendarController extends Controller
         Yii::import('projects.models.*');
         
         $timeStart = Yii::app()->request->getParam('start');
-        $timeEnd = Yii::app()->request->getParam('end');
+        $timeEnd   = Yii::app()->request->getParam('end');
         $projectId = Yii::app()->request->getParam('projectid');
-        $userId = null;
+        $userId    = null;
+        
         if ( ! Yii::app()->user->isGuest )
         {
-            if ( Yii::app()->user->isSuperuser OR
-            Yii::app()->getModule('user')->user()->id == Yii::app()->request->getParam('userid') )
+            if ( Yii::app()->user->checkAccess('Admin') OR
+                 Yii::app()->getModule('user')->user()->id == Yii::app()->request->getParam('userid') )
             {
                 $userId = Yii::app()->request->getParam('userid');
             }
         }
         
         $projectType = Yii::app()->request->getParam('type');
-        $onlyActive = Yii::app()->request->getParam('onlyactive', false);
-        
+        $onlyActive  = Yii::app()->request->getParam('onlyactive', false);
         $events = ProjectEvent::model()->getCalendarEvents($timeStart,$timeEnd,$projectId,$userId,$projectType,$onlyActive);
         
         echo $events;

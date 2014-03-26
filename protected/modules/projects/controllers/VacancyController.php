@@ -25,7 +25,7 @@ class VacancyController extends Controller
             throw new CHttpException(400, 'Operation not permitted');
         }
         // получаем вакансию
-        $vacancyId = Yii::app()->request->getPost('vacancyId', null);
+        $vacancyId = Yii::app()->request->getParam('vacancyId', 0);
         $vacancy   = $this->loadModel($vacancyId);
     
         // Создаем и сохраняем новый запрос на участие
@@ -53,7 +53,6 @@ class VacancyController extends Controller
         {// разрешаем только POST AJAX-запросы
             throw new CHttpException(400, 'Only AJAX request allowed');
         }
-        
         if ( ! $key = Yii::app()->request->getPost('key', null) )
         {// не передан токен
             throw new CHttpException(500, 'Token not found');
@@ -80,7 +79,6 @@ class VacancyController extends Controller
         {
             echo 'ERROR';
         }
-        
         Yii::app()->end();
     }
     
@@ -114,6 +112,7 @@ class VacancyController extends Controller
      * Returns the data model based on the primary key given in the GET variable.
      * If the data model is not found, an HTTP exception will be raised.
      * @param integer the ID of the model to be loaded
+     * @return EventVacancy
      */
     public function loadModel($id)
     {

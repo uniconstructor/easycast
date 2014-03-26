@@ -10,9 +10,13 @@ class CalendarModule extends CWebModule
      * @var CDbCriteria - условия по которым будут выбираться события в календаре
      */
     public $criteria;
-    
+    /**
+     * @var string 
+     */
     public $defaultController = 'calendar';
-    
+    /**
+     * @var array
+     */
     public $controllerMap = array(
         'index' => array(
                 'class'=>'application.modules.calendar.controllers.CalendarController',
@@ -25,12 +29,13 @@ class CalendarModule extends CWebModule
      * @param $dic
      * @return string
      */
-    public static function t($str='',$params=array(),$dic='calendar') {
-        if (Yii::t("CalendarModule", $str)==$str)
+    public static function t($str='', $params=array(), $dic='calendar')
+    {
+        if ( Yii::t("CalendarModule", $str) == $str )
         {
             return Yii::t("CalendarModule.".$dic, $str, $params);
         }else
-       {
+        {
             return Yii::t("CalendarModule", $str, $params);
         }
     }
