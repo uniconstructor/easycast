@@ -76,9 +76,10 @@ class ProjectEventController extends Controller
 		$projectid = Yii::app()->request->getParam('projectid', 0);
 		$groupid   = Yii::app()->request->getParam('parentid', 0);
 		$type      = Yii::app()->request->getParam('type', 'event');
+		
 		if ( ! $project = Project::model()->findByPk($projectid) )
 		{
-		    throw new CHttpException(404,'Необходимо указать id проекта');
+		    throw new CHttpException(404, 'Необходимо указать id проекта');
 		}
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
@@ -87,9 +88,10 @@ class ProjectEventController extends Controller
 		{
 		    $_POST['ProjectEvent']['projectid'] = $projectid;
 			$model->attributes = $_POST['ProjectEvent'];
+			
 			if ( $model->save() )
 			{
-			    $this->redirect(array('view', 'id'=>$model->id));
+			    $this->redirect(array('view', 'id' => $model->id));
 			}
 		}
 
@@ -108,20 +110,22 @@ class ProjectEventController extends Controller
 	 */
 	public function actionUpdate($id)
 	{
-		$model=$this->loadModel($id);
+		$model = $this->loadModel($id);
 
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
-		if(isset($_POST['ProjectEvent']))
+		if ( isset($_POST['ProjectEvent']) )
 		{
-			$model->attributes=$_POST['ProjectEvent'];
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->id));
+			$model->attributes = $_POST['ProjectEvent'];
+			if ( $model->save() )
+			{
+			    $this->redirect(array('view','id'=>$model->id));
+			}
 		}
 
-		$this->render('update',array(
-			'model'=>$model,
+		$this->render('update', array(
+			'model' => $model,
 		));
 	}
 

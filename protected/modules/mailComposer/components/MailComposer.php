@@ -21,7 +21,6 @@ class MailComposer extends CApplicationComponent
     public $controller;
     
     /**
-     * (non-PHPdoc)
      * @see CController::init()
      */
     public function init()

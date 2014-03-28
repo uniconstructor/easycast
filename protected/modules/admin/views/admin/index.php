@@ -21,9 +21,9 @@ $this->menu = array(
     array('label' => 'Пользователи', 'url' => array('/user/admin')),
     array('label' => 'Каталог и анкеты', 'url' => array('/admin/questionary')),
     array('label' => 'Галерея','url' => array('/admin/photoGallery/admin')),
-    //array('label' => 'Новости','url' => array('/admin/news/admin')),
     array('label' => 'Отправка коммерческих приглашений', 'url' => array('/admin/customerOffer/create')),
-    //array('label' => 'Статьи','url' => array('/admin/article/admin')),
+    array('label' => 'Выполнить действия по расписанию (cron)', 'url' => array('/admin/admin/cron')),
+    //array('label' => 'Новости','url' => array('/admin/news/admin')),
     //array('label' => '', 'url' => array('')),
 );
 

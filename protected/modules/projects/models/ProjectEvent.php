@@ -159,10 +159,13 @@ class ProjectEvent extends CActiveRecord
 	        $this->timeend = $timeend;
 	    }
 	    if ( $this->type == self::TYPE_GROUP )
-	    {// группы мероприятий не имеют продолжительности
+	    {// группы мероприятий не имеют конкретной даты
+	        $this->nodates   = 1;
+	    }
+	    if ( $this->nodates )
+	    {// события без конкретной даты не могут иметь продолжительности
 	        $this->timestart = 0;
 	        $this->timeend   = 0;
-	        $this->nodates   = 1;
 	    }
 	    
 	    // выполняем служебные действия ActiveRecord
@@ -599,13 +602,13 @@ class ProjectEvent extends CActiveRecord
 	        }
 	        foreach ( $this->invites as $invite )
 	        {// все неотвеченные приглашения сгорают с завершением мероприятия
-	            if ( $invite->status == EventInvite::STATUS_PENDING )
-	            {
+	            if ( $invite->status == EventInvite::STATUS_PENDING  )
+	            {/* @var $invite EventInvite */
+	                $invite->deleted = 1;
 	                $invite->setStatus(EventInvite::STATUS_EXPIRED);
 	            }
 	        }
 	    }
-	     
 	    return true;
 	}
 	
