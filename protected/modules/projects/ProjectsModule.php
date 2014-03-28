@@ -13,7 +13,6 @@ class ProjectsModule extends CWebModule
     public $defaultController = 'projects';
     
     /**
-     * (non-PHPdoc)
      * @see CModule::init()
      */
 	public function init()

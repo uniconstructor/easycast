@@ -56,11 +56,11 @@ class EventInvite extends CActiveRecord
     const STATUS_CANCELED = 'canceled';
     
     /**
-     * (non-PHPdoc)
      * @see CActiveRecord::init()
      */
     public function init()
     {
+        parent::init();
         Yii::import('application.modules.projects.ProjectsModule');
         
         // регистрируем обработчики событий
@@ -87,7 +87,6 @@ class EventInvite extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CModel::behaviors()
 	 */
 	public function behaviors()
@@ -103,7 +102,6 @@ class EventInvite extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::beforeSave()
 	 */
 	protected function beforeSave()
@@ -118,7 +116,6 @@ class EventInvite extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::afterSave()
 	 */
 	protected function afterSave()
@@ -135,7 +132,6 @@ class EventInvite extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::defaultScope()
 	 */
 	public function defaultScope()
