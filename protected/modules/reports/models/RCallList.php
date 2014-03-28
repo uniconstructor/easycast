@@ -43,13 +43,16 @@ class RCallList extends Report
      */
     public function collectData($options)
     {
+        $vacancies   = array();
         // ранее сохраненные данные отчета
         $data        = $this->getData();
         // мероприятие для которого создается фотовызывной
         $event       = $options['event'];
         // статусы заявок, которые попадают в фотовызывной
         $statuses    = $options['statuses'];
-        $vacancies   = array();
+        // язык на котором сформирован фотовызывной
+        $language    = $options['language'];
+        
         // информация по проекту и мероприятию: getAttributes() используется для того чтобы сериализовывать
         // меньше данных, иначе отчет не всегда помещается даже в поле TEXT длиной 64 Kb
         $eventInfo   = $event->getAttributes();
@@ -81,34 +84,10 @@ class RCallList extends Report
             'event'     => (object)$eventInfo,
             'vacancies' => $vacancies,
             'statuses'  => $statuses,
+            'language'  => $language,
         );
         
         return CMap::mergeArray($data, $newData);
-    }
-    
-    /**
-     * Вручную добавить участника в фотовызывной. Эта операция добавляет к фотовызывному дополнительные
-     * данные, добавленные вручную участники никак не связаны с нашими анкетами (Questionary)
-     * Эта функция дает возможность вручную редактировать фотовызывной, добавляя в него людей, 
-     * которых нет в нашей базе
-     * 
-     * @param int $vacancyId - id роли к которой прикрепляется участник
-     * @param array $member - данные участника
-     *                       'hash' - уникальный id участника в списке (нужен чтобы
-     *                                вручную добавленную запись можно было удалить)
-     *                       'firstname'
-     *                       'lastname'
-     *                       'age' - возраст, целым числом (не unixtime)
-     *                       'bages' - список характеристик участника (заполняется вручную)
-     *                       'phone'
-     *                       'comment'
-     * @return bool
-     * 
-     * @deprecated не используется, удалить при рефакторинге как и все связанные функции
-     */
-    public function addExternalMember($vacancyId, $member)
-    {
-        
     }
     
     /**
@@ -141,5 +120,37 @@ class RCallList extends Report
             $result[$member->questionary->id] = (object)$memberInfo;
         }
         return $result;
+    }
+    
+    /**
+     * Получить информацию о мероприятии
+     * @param ProjectEvent $event
+     * @return array
+     */
+    protected function getEventInfo($event)
+    {
+        $info = $event->getAttributes();
+        
+        if ( Yii::app()->getLanguage() === 'en' )
+        {// @todo заменять название мероприятия на данные из формы если фотовызывной формируется на английском
+            
+        }
+        return $info;
+    }
+    
+    /**
+     * Получить информацию о проекте
+     * @param Project $project
+     * @return array
+     */
+    protected function getProjectInfo($project)
+    {
+        $info = $project->getAttributes();
+        
+        if ( Yii::app()->getLanguage() === 'en' )
+        {// @todo заменять название проекта на данные из формы если фотовызывной формируется на английском
+            
+        }
+        return $info;
     }
 }

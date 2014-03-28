@@ -164,13 +164,13 @@ class Questionary extends CActiveRecord
     const LAST_INVITES_COUNT = 20;
     
     /**
-     * (non-PHPdoc)
      * @see CActiveRecord::init()
      */
     public function init()
     {
         Yii::import('application.modules.questionary.extensions.behaviors.*');
         Yii::import('application.modules.projects.models.*');
+        
         parent::init();
     }
     
@@ -183,7 +183,17 @@ class Questionary extends CActiveRecord
     {
         return parent::model($className);
     }
-
+    
+    /**
+     * Определить, нужно ли отображать значение транслитом 
+     * @param string $fieldName
+     * @return bool
+     */
+    /*public static function displayAsTranslit($fieldName)
+    {
+        
+    }*/
+    
     /**
      * @return string the associated database table name
      */
@@ -390,7 +400,6 @@ class Questionary extends CActiveRecord
     }
     
     /**
-     * (non-PHPdoc)
      * @see CActiveRecord::beforeSave()
      */
     protected function beforeSave()
@@ -427,7 +436,6 @@ class Questionary extends CActiveRecord
     
     /**
      * @see CActiveRecord::afterSave()
-     * @return null
      * 
      * @todo добавить исключения если связанные записи не создались
      */
@@ -661,7 +669,7 @@ class Questionary extends CActiveRecord
                 $bages[] = QuestionaryModule::t('actor');
             }else
             {
-               $bages[] = QuestionaryModule::t('actress');
+                $bages[] = QuestionaryModule::t('actress');
             }
         }
         // непрофессиональный актер
@@ -1082,7 +1090,7 @@ class Questionary extends CActiveRecord
     public function getQuestionaryAuthor()
     {
         if ( ! $creationRecord = QCreationHistory::model()->findByAttributes(array('questionaryid' => $this->id)) )
-        {
+        {// отсутствует информация о том кто создал эту анкету
             return null;
         }
         if ( ! $user = User::model()->findByPk($creationRecord->userid) )

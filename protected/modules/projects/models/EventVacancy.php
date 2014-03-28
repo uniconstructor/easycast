@@ -57,7 +57,6 @@ class EventVacancy extends CActiveRecord
     const STATUS_FINISHED = 'finished';
     
     /**
-     * (non-PHPdoc)
      * @see CActiveRecord::init()
      */
     public function init()
@@ -194,7 +193,6 @@ class EventVacancy extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::afterSave()
 	 */
 	protected function afterSave()

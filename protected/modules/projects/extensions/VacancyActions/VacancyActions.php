@@ -81,7 +81,6 @@ class VacancyActions extends CWidget
     protected $buttons = array('addApplication'); // 'removeApplication'
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
      */
     public function init()
@@ -107,7 +106,6 @@ class VacancyActions extends CWidget
     }
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::run()
      */
     public function run()
@@ -221,25 +219,33 @@ class VacancyActions extends CWidget
     
     /**
      * Получить URL по которому будет происходить AJAX-запрос от кнопки
-     * @param string $type - тип кнопки
+     * @param string $type - тип кнопки (чаще всего совпадает с выполняемым action-действием)
+     *                       
      * @return string
      */
     protected function getButtonUrl($type)
     {
-        if ( $this->mode == 'normal' )
+        if ( $this->mode === 'normal' )
         {// подача заявки от авторизованного участника
-            switch ($type)
+            switch ( $type )
             {
-                case 'addApplication': return Yii::app()->createUrl('/projects/vacancy/addApplication');
+                case 'addApplication':
+                    return Yii::app()->createUrl('/projects/vacancy/addApplication',
+                        array('vacancyId' => $this->vacancy->id)
+                    );
+                break;
             }
-        }elseif ( $this->mode == 'token' )
-        {// подача заявки по ключу
-            switch ($type)
+        }elseif ( $this->mode === 'token' )
+        {// подача заявки по ключу (по ссылке из почты, без захода на сайт)
+            switch ( $type )
             {
-                case 'addApplication': return Yii::app()->createUrl('/projects/vacancy/addApplicationByToken');
+                case 'addApplication':
+                    return Yii::app()->createUrl('/projects/vacancy/addApplicationByToken',
+                        array('vacancyId' => $this->vacancy->id)
+                    );
+                break;
             }
         }
-        
     }
     
     /**
@@ -331,12 +337,12 @@ class VacancyActions extends CWidget
     protected function getButtonPostData($type)
     {
         $data = array();
-        switch ($type)
+        switch ( $type )
         {
             // добавить заявку
             case 'addApplication':
                 $data['vacancyId'] = $this->vacancy->id;
-                if ( $this->mode == 'token' )
+                if ( $this->mode === 'token' )
                 {// по токену
                     $data['key']      = $this->key;
                     $data['inviteId'] = $this->invite->id;
@@ -347,6 +353,7 @@ class VacancyActions extends CWidget
                 $data['vacancyId'] = $this->vacancy->id;
             break;
         }
+        // CSRF-подпись для выполнения POST-запроса
         $data[Yii::app()->request->csrfTokenName] = Yii::app()->request->csrfToken;
     
         return $data;
@@ -364,10 +371,10 @@ class VacancyActions extends CWidget
         
         $js = 'function (data, status) {';
         // скрываем все кнопки
-        $js .= "$('#{$this->containerId}').hide();";
+        $js .= "\$('#{$this->containerId}').hide();";
         // показываем сообщение
-        $js .= "$('#{$this->messageId}').text('{$message}');";
-        $js .= "$('#{$this->messageId}').show();}";
+        $js .= "\$('#{$this->messageId}').text('{$message}');";
+        $js .= "\$('#{$this->messageId}').show();}";
     
         return $js;
     }
@@ -379,7 +386,7 @@ class VacancyActions extends CWidget
      */
     protected function getSuccessMessage($type)
     {
-        switch ($type)
+        switch ( $type )
         {
             case 'addApplication':    return 'Заявка отправлена';
             case 'removeApplication': return 'Заявка отозвана';

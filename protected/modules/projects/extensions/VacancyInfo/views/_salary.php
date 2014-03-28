@@ -7,4 +7,3 @@
 <span class="alert alert-info">
     Оплата: <b><?= $this->vacancy->salary; ?> р.</b>
 </span>
-<br>

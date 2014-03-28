@@ -11,7 +11,8 @@
             <p><?= $this->vacancy->description; ?></p>
         </div>
         <div class="row-fluid">
-            <?= $salary; ?><br>
+            <?= $salary; ?>
+            <br><br>
             <?= $this->createActionButtons(); ?>
         </div>
     </div>

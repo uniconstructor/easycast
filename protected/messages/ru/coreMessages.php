@@ -1,4 +1,5 @@
 <?php
+
 return array(
     /////////////////////////////
     // УНИВЕРСАЛЬНЫЕ СООБЩЕНИЯ //
@@ -8,7 +9,8 @@ return array(
     'no' => 'Нет',
     '1' => 'Да',
     '0' => 'Нет',
-    'project_name' => 'Тестовое приложение (пример системы оповещения)',
+    'project_name' => 'easyCast',
+    
     'email' => 'Email',
     'password' => 'Пароль',
     'password_confirmation' => 'Пароль еще раз',
@@ -35,7 +37,7 @@ return array(
     'lang' => 'Язык',
     'country' => 'Страна',
     'city' => 'Город',
-    'emailstop' => 'Не получать сообщения с сайна на email',
+    'emailstop' => 'Не получать сообщения с сайта на email',
     'description' => 'Описание',
     'role' => 'Роль',
     'remember_me' => 'Запомнить меня',
@@ -52,6 +54,7 @@ return array(
     'operations' => 'Операции',
     'edit' => 'Редактировать',
     'delete' => 'Удалить',
+    'status' => 'Статус',
     'add' => 'Добавить',
     'save' => 'Сохранить',
     'create' => 'Создать',
@@ -60,6 +63,10 @@ return array(
     'read_more' => 'Подробнее...',
     'from' => 'от',
     'to' => 'до',
+    'no_data' => 'Нет данных',
+    'cm' => 'см',
+    'kg' => 'кг',
+    'printer_friendly_version' => 'Версия для печати',
     
     // Формы
     'form_required_fields' => 'Поля, помеченные звездочкой {mark} - обязательные',
@@ -89,11 +96,11 @@ return array(
     'mainmenu_item_gallery' => 'Галерея',
     'mainmenu_item_news' => 'Новости',
     'mainmenu_item_fast_order' => 'Срочный заказ',
-    'mainmenu_item_catalog' => 'База актеров',
+    'mainmenu_item_catalog' => 'Наши лица',
     'mainmenu_item_search' => 'Поиск',
     'mainmenu_item_specialist_base' => 'База специалистов',
     'mainmenu_item_my_choice' => 'Мой выбор',
-    'mainmenu_item_online_casting' => 'Online кастинг',
+    'mainmenu_item_online_casting' => 'Онлайн-кастинг',
     'mainmenu_item_team' => 'Наша команда',
     'mainmenu_item_services' => 'Наши услуги',
     'mainmenu_item_forum' => 'Форум',
@@ -110,21 +117,18 @@ return array(
     'db_user_confirmed' => 'Пройдена активация',
     'db_user_suspended' => 'Заблокирован',
     'db_user_picture' => 'Аватар',
-    'db_user_description' => 'Несколько слов о себе',
+    'db_user_description' => 'Описание',
     'db_user_lastip' => 'Последний использованный IP',
     
-    // срочный заказ
+    // заказ
     'db_fastorder_timecreated' => 'Отправлен на сайт',
     'db_fastorder_timemodified' => 'Помечен обработанным',
     'db_fastorder_name' => 'Имя',
-    //'phone' => 'Телефон',
-    //'email' => 'Email',
-    //'status' => 'Статус',
     'db_fastorder_comment' => 'Дополнительная информация',
     'db_fastorder_ourcomment' => 'Наш комментарий',
     'db_fastorder_solverid' => 'Ответственный',
     'db_fastorder_customerid' => 'Заказчик',
-    'place_order_success' => 'Ваш заказ принят. Мы свяжемся с вами в течении часа.',
+    'place_order_success' => 'Ваш заказ принят. Мы свяжемся с вами в течении часа.', // они никогда не могут этого сделать :)
     'order_status_active'   => 'Ждет звонка',
     'order_status_pending'  => 'В обработке',
     'order_status_closed'   => 'Обработан',
@@ -153,6 +157,4 @@ return array(
     'rbac_edit_user' => 'Редактировать профиль любого пользователя',
     'rbac_edit_my_user' => 'Редактировать свой профиль',
     'rbac_change_user_role' => 'Изменять роль пользователя',
-    
 );
-//    '' => '',

@@ -236,13 +236,14 @@ class MailComposerModule extends CWebModule
      * @param $dic
      * @return string
      */
-    public static function t($str='', $params=array(), $dic='mailComposer') {
-        if (Yii::t("MailComposer", $str)==$str)
+    public static function t($str='', $params=array(), $dic='mailComposer')
+    {
+        if ( Yii::t("MailComposerModule", $str) === $str )
         {
-            return Yii::t("MailComposer.".$dic, $str, $params);
+            return Yii::t("MailComposerModule.".$dic, $str, $params);
         }else
         {
-            return Yii::t("MailComposer", $str, $params);
+            return Yii::t("MailComposerModule", $str, $params);
         }
     }
 } 

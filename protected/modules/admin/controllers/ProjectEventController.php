@@ -183,15 +183,17 @@ class ProjectEventController extends Controller
 	    $eventId  = Yii::app()->request->getParam('eventId', 0);
 	    // получаем id отчета (если отображается существующий отчет)
 	    $reportId = Yii::app()->request->getParam('id', 0);
+	    // определяем на каком языке формировать фотовызывной
+	    $language = Yii::app()->request->getParam('language', 'ru');
 	    
 	    if ( ! $report = RCallList::model()->findByPk($reportId) )
 	    {// будем создавать новый вызывной лист
+	        /* @var $event ProjectEvent */
 	        if ( ! $event = ProjectEvent::model()->findByPk($eventId) AND ! $reportId )
 	        {
 	            throw new CException('Невозможно отобразить вызывной лист: мероприятие не найдено');
 	        }
 	        $report = new RCallList;
-	        $report->name = 'Вызывной лист на '.$event->getFormattedTimePeriod();
 	    }else
 	    {// отображаем существующий вызывной лист
 	        $event = $this->loadModel($report->reportData['event']->id);
@@ -202,11 +204,25 @@ class ProjectEventController extends Controller
 	        $report->attributes = $attributes;
 	        // определяем, анкеты с какими статусами входят в отчет
 	        $statuses = Yii::app()->request->getParam('statuses', array('active'));
-	        $options = array(
+	        $options  = array(
 	            'event'    => $event,
 	            'statuses' => $statuses,
+	            'language' => $language,
 	        );
+	        
+	        if ( $language === 'en' )
+	        {// формируем фотовызывной на английском языке: временно переключаем на английский все приложение
+    	        Yii::app()->setLanguage('en');
+    	        $defaultReportName = AdminModule::t('call_list').' '.$event->getFormattedTimePeriod();
+	        }
+	        if ( ! trim($report->name) )
+	        {// название фотовызывного не задано - используем стандартное
+	           $report->name = $defaultReportName;
+	        }
+	        // собираем и сохраняем данные для отчета
 	        $report->createReport($options);
+	        // фотовызыной сформирован, переключаем язык обратно на русский
+	        Yii::app()->setLanguage('ru');
 	        
 	        // после сохранения вызывного листа - переходим на страницу просмотра того что создалось
 	        Yii::app()->user->setFlash('success', 'Вызывной лист создан.<br>Теперь его можно отправить по почте.');
@@ -252,7 +268,7 @@ class ProjectEventController extends Controller
 		$model = ProjectEvent::model()->findByPk($id);
 		if ( $model === null )
 		{
-		    throw new CHttpException(404, 'The requested page does not exist.');
+		    throw new CHttpException(404, Yii::t('coreMessages', 'the_requested_page_does_not_exist'));
 		}
 		return $model;
 	}

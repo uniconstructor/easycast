@@ -341,6 +341,10 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
         }
     }
     
+    /**
+     * 
+     * @return number
+     */
     public function getHasforeignpassport()
     {
         if ( $this->owner->recordingconditions )
@@ -349,6 +353,10 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
         }
     }
     
+    /**
+     * Получить размер оплаты
+     * @return string|NULL
+     */
     public function getSalary()
     {
         if ( $this->owner->recordingconditions )
@@ -440,6 +448,10 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
         {// Если пользователь еще не заолнил анкету - выводим только его логин
             $fullname = $this->owner->user->username;
         }
+        if ( Yii::app()->language != 'ru' )
+        {// если язык выбран любой язык, кроме русского - выводим ФИО транслитом
+            $fullname = ECPurifier::translit($fullname);
+        }
         
         return CHtml::encode($fullname);
     }
@@ -471,20 +483,6 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
     }
     
     /**
-     * @deprecated
-     * Получить тип лица
-     */
-    public function getFacetype()
-    {
-        if ( $this->owner->scenario == 'view' AND $this->owner->facetype )
-        {
-            return $this->getScalarFieldDisplayValue('facetype', $this->owner->facetype);
-        }
-    
-        return $this->owner->facetype;
-    }
-    
-    /**
      * Получить значение скалярного поля для отображения пользователю
      * 
      * @param string $field - название поля
@@ -494,13 +492,34 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
     public function getScalarFieldDisplayValue($field, $value)
     {
         $variants = $this->owner->getFieldVariants($field);
-        if ( isset($variants[Questionary::VALUE_NOT_SET]) ) unset($variants[Questionary::VALUE_NOT_SET]);
         
+        if ( isset($variants[Questionary::VALUE_NOT_SET]) )
+        {
+            unset($variants[Questionary::VALUE_NOT_SET]);
+        }
         if ( ! isset($variants[$value]) )
         {
-            return $value;//'[['.$value.']](translation not found)';
+            if ( Yii::app()->language === 'ru' )
+            {
+                return $value;//'[['.$value.']](translation not found)';
+            }else
+            {
+                switch ( $field )
+                {
+                    case 'shoessize': 
+                    case 'wearsize': 
+                    case 'hipsize': 
+                    case 'waistsize': 
+                    case 'chestsize': 
+                    case 'weight': 
+                    case 'height': 
+                    case 'hairlength': 
+                        return $value;
+                    break;
+                }
+                return QuestionaryModule::t($field.'_'.$value);
+            }
         }
-        
         return $variants[$value];
     }
     
@@ -510,7 +529,7 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
      */
     public function getDefaultCityId()
     {
-        // @todo Сейчас стоит москва - возможно потом это следует сделать настройкой
+        // @todo Сейчас стоит Москва - возможно потом это следует сделать настройкой
         return 4400;
     }
 }

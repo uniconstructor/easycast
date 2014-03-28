@@ -52,11 +52,29 @@ class AdminModule extends CWebModule
             if ( ! Yii::app()->user->checkAccess('Admin') )
             {// если нет прав доступа - делаем вид что админки здесь нет
                 throw new CHttpException(404, 'Страница не найдена');
+                return false;
             }
 			return true;
 		}else
 		{
 		    return false;
 		}
+	}
+	
+	/**
+	 * @param $str
+	 * @param $params
+	 * @param $dic
+	 * @return string
+	 */
+	public static function t($str='', $params=array(), $dic='admin')
+	{
+	    if ( Yii::t("AdminModule", $str) == $str )
+	    {
+	        return Yii::t("AdminModule.".$dic, $str, $params);
+	    }else
+	    {
+	        return Yii::t("AdminModule", $str, $params);
+	    }
 	}
 }

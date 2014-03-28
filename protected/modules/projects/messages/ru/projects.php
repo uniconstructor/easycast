@@ -126,5 +126,6 @@ return array(
     'application_added' => 'Заявка отправлена',
     'application_approved' => 'Заявка одобрена',
     'application_removed' => 'Заявка отозвана',
+    'date_and_time' => 'Дата и время',
     // '' => '',
 );

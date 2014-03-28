@@ -35,6 +35,10 @@ class EMailCallList extends EMailBase
      * @var User - руководитель проекта
      */
     protected $manager;
+    /**
+     * @var string - язык на котором формируется фотовызывной
+     */
+    protected $language = 'en';
 
     /**
      * @see EMailBase::init()
@@ -51,13 +55,24 @@ class EMailCallList extends EMailBase
         $data = $this->callList->getData();
         $this->event   = ProjectEvent::model()->findByPk($data['event']->id);
         $this->project = Project::model()->findByPk($this->event->projectid);
-        $this->mailOptions['target']       = 'customer';
+        
+        if ( isset($data['language']) )
+        {// язык на котором следует составить фотовызывной
+            $this->language = $data['language'];
+        }
+        Yii::app()->setLanguage('en');
+        
         if ( $this->project->leader )
-        {
+        {// узнаем и получаем контакты руководителя проекта
             $this->manager = $this->project->leader;
+            // телефон и email: отображаются внизу письма, в подписи
             $this->mailOptions['contactPhone'] = $this->manager->questionary->mobilephone;
             $this->mailOptions['contactEmail'] = $this->manager->email;
+            // руководитель проекта для персонализации внизу письма
             $this->mailOptions['manager']      = $this->manager;
+            // подставить шапку письма с телефоном для заказчика
+            $this->mailOptions['target']       = 'customer';
+            // показываем в шапке письма ссылку на веб-версию письма
             $this->mailOptions['showTopServiceLinks'] = true;
             $this->mailOptions['topBarOptions']['displayWebView'] = true;
             $this->mailOptions['topBarOptions']['webViewLink']    = $this->getWebViewLink();
@@ -93,9 +108,10 @@ class EMailCallList extends EMailBase
      */
     protected function getHeaderBlock()
     {
-        $block = $this->textBlock('', 'ФОТОВЫЗЫВНОЙ');
+        $block = $this->textBlock('', mb_strtoupper(MailComposerModule::t('casting_list')));
         $block['headerAlign'] = 'center';
         $block['addCutRuler'] = true;
+        
         return $block;
     }
 
@@ -112,6 +128,7 @@ class EMailCallList extends EMailBase
         $block['imageLink']   = $this->project->getAvatarUrl();
         $block['text']        = $this->getProjectDescription();
         $block['addCutRuler'] = true;
+        $block['textColor']   = '#000';
         
         return $block;
     }
@@ -119,18 +136,20 @@ class EMailCallList extends EMailBase
     /**
      * Получить описание проекта
      * @return string
+     * 
+     * @todo вынести в отдельный виджет
      */
     protected function getProjectDescription()
     {
         $result = '<div style="font-size:16px;line-height:23px;">';
-        $result .= '<b>Проект:</b> ' . $this->project->name . '<br>';
-        $result .= '<b>Мероприятие:</b> ' . $this->event->name . '<br>';
-        $result .= '<b>Дата и время:</b> ' . $this->event->getFormattedTimePeriod() . '<br>';
+        $result .= '<b>'.ProjectsModule::t('project').':</b> '.$this->project->name.'<br>';
+        $result .= '<b>'.ProjectsModule::t('event').':</b> '.$this->event->name.'<br>';
+        $result .= '<b>'.ProjectsModule::t('date_and_time').':</b> '.$this->event->getFormattedTimePeriod().'<br>';
         $result .= '</div>';
         
         $result .= '<hr>';
-        $result .= '<b>Руководитель проекта:</b> ' . $this->getManagerName() . '<br>';
-        $result .= '<b>Контактный телефон:</b> ' . $this->getManagerPhone() . '<br>';
+        $result .= '<b>'.ProjectsModule::t('project_manager').':</b> '.$this->getManagerName().'<br>';
+        $result .= '<b>'.Yii::t('coreMessages', 'phone').':</b> '.$this->getManagerPhone().'<br>';
         
         return $result;
     }
@@ -164,12 +183,18 @@ class EMailCallList extends EMailBase
         $vacancyInfo['header']         = 'Роль: ' . $vacancy['name'];
         $vacancyInfo['headerInfo']     = $this->getVacancyTimePeriod($vacancy);
         $vacancyInfo['addHeaderRuler'] = true;
+        // и упаковываем ее в блок письма
         $this->addSegment($vacancyInfo);
         
         // добавляем всех участников роли
         foreach ( $vacancy['members'] as $qid => $member )
         {
-            $questionary = Questionary::model()->findByPk($qid);
+            if ( ! $questionary = Questionary::model()->findByPk($qid) )
+            {// на момент формирования фотовызывного участник в базе был, а в момент отправки или отображения
+                // его нет - не можем показать его анкету
+                // @todo достаточно редкая ситуация, но все равно нужно записать эту ошибку в лог
+                continue;
+            }
             $this->addActor($questionary);
         }
     }
@@ -203,20 +228,20 @@ class EMailCallList extends EMailBase
         $bages  = $questionary->getBages();
         
         $result .= '<h3 style="text-transform:uppercase;font-size:20px;font-weight:bold;color:#286B84;margin:11px 0px 6px 0px;">'.
-            $questionary->fullname . ', ' . $questionary->age . '</h3>';
+            $questionary->fullname.', '.$questionary->age.'</h3>';
         if ( ! empty($bages) )
         {
-            $result .= 'Квалификация: <i>' . implode(', ', $bages) . '</i><br>';
+            $result .= MailComposerModule::t('qualification').': <i>'.implode(', ', $bages).'</i><br>';
         }
         if ( $this->addContacts )
         {
             $result .= '<br/>';
-            $result .= 'Телефон (моб.): ' . $questionary->mobilephone . '<br>';
+            $result .= QuestionaryModule::t('mobilephone_label').': '.$questionary->mobilephone.'<br>';
             if ( $questionary->homephone )
             {
-                $result .= 'Телефон (дом.):' . $questionary->mobilephone . '<br>';
+                $result .= QuestionaryModule::t('homephone_label').': '.$questionary->mobilephone.'<br>';
             }
-            $result .= 'email: ' . $questionary->user->email . '<br>';
+            $result .= 'email: '.$questionary->user->email.'<br>';
         
         }
         $result .= $this->getNotesField();
@@ -225,17 +250,17 @@ class EMailCallList extends EMailBase
     }
 
     /**
-     *
+     * Добавить блок с информацией о менеджере
      * @return void
      */
     protected function addManagerInfo()
     {
         $block = array();
         
-        $block['type'] = 'imageLeft';
+        $block['type']       = 'imageLeft';
         $block['imageStyle'] = 'border:3px solid #c3c3c3;border-radius:75px;height:150px;width:150px;margin-top:5px;';
-        $block['imageLink'] = $this->manager->questionary->getAvatarUrl('catalog');
-        $block['text'] = $this->getManagerDescription();
+        $block['imageLink']  = $this->manager->questionary->getAvatarUrl('catalog');
+        $block['text']       = $this->getManagerDescription();
         
         $this->addSegment($block);
     }
@@ -250,19 +275,19 @@ class EMailCallList extends EMailBase
         $result = '';
         
         $result .= '<img style="padding-top:10px;" src="' . Yii::app()->createAbsoluteUrl('/') . '/images/i-take-care.png" width="100%">';
-        $result .= '<h3>' . $this->manager->questionary->fullname . '</h3>';
-        $result .= '<span>Руководитель проектов</span><br>';
-        $result .= '<span style="display:block;">' . $this->getManagerPhone() . ' | ' . $this->manager->email . '</span>';
+        $result .= '<h3>'.$this->manager->questionary->fullname.'</h3>';
+        $result .= '<span>'.ProjectsModule::t('project_manager').'</span><br>';
+        $result .= '<span style="display:block;">'.$this->getManagerPhone().' | '.$this->manager->email.' | +7(495)227-5-226</span>';
+        
         if ( $this->manager->questionary->fbprofile )
         {
             // $fbIcon = '<img src="'. Yii::app()->createAbsoluteUrl('/') .'/images/facebook_icon.png">&nbsp;&nbsp;&nbsp;';
             $fbIcon = '';
             $fbLink = CHtml::link($fbIcon . $this->manager->questionary->fbprofile, $this->manager->questionary->fbprofile, array(
                 'target' => '_blank'));
-            $result .= '<span style="display:block;width:100%;">' . $fbLink . '</span>';
+            $result .= '<span style="display:block;width:100%;">'.$fbLink.'</span>';
         }
-        $result .= '<span style="display:block;text-align:center;"><b>+7 495 227-5-226</b></span>';
-        $result .= '<span style="width:100%;text-align:right;"><img style="float:right;width:220px;" src="' . Yii::app()->createAbsoluteUrl('/') . '/images/24-7-365.png" width="220"></span>';
+        //$result .= '<span style="width:100%;text-align:right;"><img style="float:right;width:220px;" src="' . Yii::app()->createAbsoluteUrl('/') . '/images/24-7-365.png" width="220"></span>';
         
         return $result;
     }
@@ -275,6 +300,7 @@ class EMailCallList extends EMailBase
     protected function clearVacancies($vacancies)
     {
         $this->vacancies = array();
+        
         foreach ( $vacancies as $item )
         {
             $vacancy = $item['vacancy'];
@@ -288,8 +314,9 @@ class EMailCallList extends EMailBase
             }else
             {
                 $vacancyInfo = array(
-                    'name' => $name, 
-                    'members' => $members);
+                    'name'    => $name, 
+                    'members' => $members,
+                );
                 $this->vacancies[$name] = $vacancyInfo;
             }
             unset($members);
@@ -313,7 +340,13 @@ class EMailCallList extends EMailBase
      */
     protected function getManagerName()
     {
-        return $this->manager->questionary->firstname.' '.$this->manager->questionary->lastname;
+        if ( $this->language != 'ru' )
+        {
+            return ECPurifier::translit($this->manager->questionary->firstname.' '.$this->manager->questionary->lastname);
+        }else
+        {
+            return $this->manager->questionary->firstname.' '.$this->manager->questionary->lastname;
+        }
     }
 
     /**
@@ -346,7 +379,7 @@ class EMailCallList extends EMailBase
         $start = Yii::app()->getDateFormatter()->format('HH:mm', $start);
         $end   = Yii::app()->getDateFormatter()->format('HH:mm', $end);
         
-        return 'с ' . $start . ' до ' . $end;
+        return $start.'-'.$end;
     }
 
     /**

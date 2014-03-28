@@ -23,10 +23,19 @@ class CallListActions extends ReportActionsBase
     /**
      * @see ReportActionsBase::displaySendMailAction()
      */
-    public function displaySendMailAction()
+    protected function displaySendMailAction()
     {
         parent::displaySendMailAction();
         // указываем заявки с какими статусами включены в фотовызывной
+        $this->displayApplicationStatuses();
+    }
+    
+    /**
+     * Отобразить статусы заявок, которые включены в фотовызывной
+     * @return void
+     */
+    protected function displayApplicationStatuses()
+    {
         $data = $this->report->getData();
         if ( isset($data['statuses']) AND ! empty($data['statuses']) )
         {
@@ -34,7 +43,7 @@ class CallListActions extends ReportActionsBase
             {
                 switch ( $status )
                 {
-                    case ProjectMember::STATUS_ACTIVE: 
+                    case ProjectMember::STATUS_ACTIVE:
                         $this->widget('bootstrap.widgets.TbLabel', array(
                             'type'  => 'success',
                             'label' => 'Одобренные',
@@ -53,6 +62,7 @@ class CallListActions extends ReportActionsBase
                         ));
                     break;
                 }
+                echo '<br>';
             }
         }
     }
