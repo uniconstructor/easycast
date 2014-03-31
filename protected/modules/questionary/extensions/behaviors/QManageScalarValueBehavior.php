@@ -133,10 +133,11 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
      *
      * @return int
      * @todo разобраться с тем как флексия слов настраивается через языковые строки
+     *       использовать QuestionaryModule::t('age', array('{age}' => $age)); ну или что-то типа того
      */
     public function getAge()
     {
-        $age = floor((time() - $this->owner->birthdate) / (3600 * 24 * 365) );
+        $age = floor((time() - $this->owner->birthdate) / (3600 * 24 * 365));
         if ( $this->owner->birthdate AND $age > 0 )
         {
             switch ( mb_substr($age, -1) )
@@ -147,8 +148,13 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
                 case '4': $langString = 'года'; break;
                 default : $langString = 'лет'; break;
             }
-            return $age.' '.$langString;
-            //return QuestionaryModule::t('age', array('{age}' => $age));
+            if ( Yii::app()->language == 'ru' )
+            {// в русском языке принято писать "возраст: 23 года", а в английском просто "age: 23"
+                return $age.' '.$langString;
+            }else
+            {
+                return $age.' ';
+            }
         }
         return null;
     }
@@ -163,7 +169,6 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
         {
             return $this->getScalarFieldDisplayValue('looktype', $this->owner->looktype);
         }
-        
         return $this->owner->looktype;
     }
     
@@ -289,7 +294,6 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
         {
             return $this->owner->weight.' '.QuestionaryModule::t('kg');
         }
-    
         return $this->owner->weight;
     }
     
@@ -517,7 +521,14 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
                         return $value;
                     break;
                 }
-                return QuestionaryModule::t($field.'_'.$value);
+                if ( $value )
+                {// если значение указано - выведем его перевод
+                    return QuestionaryModule::t($field.'_'.$value);
+                }else
+                {// если значение не указано - ничего не выводим, чтобы в переводе не присутствовало строк вроде 
+                    // "looktype_"
+                    return '';
+                }
             }
         }
         return $variants[$value];
