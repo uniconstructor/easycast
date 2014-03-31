@@ -206,6 +206,9 @@ class ProjectEventController extends Controller
 	    if ( $attributes = Yii::app()->request->getParam('RCallList') )
 	    {// сохраняем вызывной лист - собираем все данные, сериализуем и сохраняем запись 
 	        $report->attributes = $attributes;
+	        // определяем стандартное название фотовызывного, на сулчай если оно не задано вручную
+	        // (а оно в большинстве случаев не задано вручную) 
+	        $defaultReportName = AdminModule::t('call_list').' '.$event->getFormattedTimePeriod();
 	        // определяем, анкеты с какими статусами входят в отчет
 	        $statuses = Yii::app()->request->getParam('statuses', array('active'));
 	        $options  = array(
@@ -217,7 +220,6 @@ class ProjectEventController extends Controller
 	        if ( $language === 'en' )
 	        {// формируем фотовызывной на английском языке: временно переключаем на английский все приложение
     	        Yii::app()->setLanguage('en');
-    	        $defaultReportName = AdminModule::t('call_list').' '.$event->getFormattedTimePeriod();
 	        }
 	        if ( ! trim($report->name) )
 	        {// название фотовызывного не задано - используем стандартное
