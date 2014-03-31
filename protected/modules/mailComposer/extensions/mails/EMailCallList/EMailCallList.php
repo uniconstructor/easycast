@@ -38,7 +38,23 @@ class EMailCallList extends EMailBase
     /**
      * @var string - язык на котором формируется фотовызывной
      */
-    protected $language = 'en';
+    protected $language = 'ru';
+    /**
+     * @var array - массив с дополнительными строками для перевода тех частей 
+     *              фотовызывного, которые нельзя перевести автоматически 
+     *              (названия ролей, название проекта, название события)
+     *              Структура массива
+     *              array(
+     *                  'event'   => 'Название мероприятия',
+     *                  'project' => 'Название проекта',
+     *                  'vacancy' => array(
+     *                      '55' => 'Название роли id=55',
+     *                      '83' => 'Название роли id=83s',
+     *                      ...
+     *                  ),
+     *              )
+     */
+    protected $translation = array();
 
     /**
      * @see EMailBase::init()
@@ -59,9 +75,14 @@ class EMailCallList extends EMailBase
         if ( isset($data['language']) )
         {// язык на котором следует составить фотовызывной
             $this->language = $data['language'];
+            Yii::app()->setLanguage($this->language);
         }
-        Yii::app()->setLanguage('en');
-        
+        if ( isset($data['translation']) AND is_array($data['translation']) )
+        {// если фотовызывной должен быть сформирован на иностранном языке - то обычно он содержит 
+            // дополнительные строки перевода, которые нельзя сформировать автоматически
+            $this->translation = $data['translation'];
+        }
+        //CVarDumper::dump($data, 10, true);die;
         if ( $this->project->leader )
         {// узнаем и получаем контакты руководителя проекта
             $this->manager = $this->project->leader;
@@ -77,6 +98,7 @@ class EMailCallList extends EMailBase
             $this->mailOptions['topBarOptions']['displayWebView'] = true;
             $this->mailOptions['topBarOptions']['webViewLink']    = $this->getWebViewLink();
         }
+        
         // убираем дубли вакансий (ролей)
         // это нужно для тех случаев, когда несколько ролей ничем не отличаются друг от друга кроме
         // времени, к которому ожидаются люди
@@ -128,6 +150,7 @@ class EMailCallList extends EMailBase
         $block['imageLink']   = $this->project->getAvatarUrl();
         $block['text']        = $this->getProjectDescription();
         $block['addCutRuler'] = true;
+        // вся информация о пректе и мероприятии будет выведена черным цветом
         $block['textColor']   = '#000';
         
         return $block;
@@ -141,9 +164,20 @@ class EMailCallList extends EMailBase
      */
     protected function getProjectDescription()
     {
-        $result = '<div style="font-size:16px;line-height:23px;">';
-        $result .= '<b>'.ProjectsModule::t('project').':</b> '.$this->project->name.'<br>';
-        $result .= '<b>'.ProjectsModule::t('event').':</b> '.$this->event->name.'<br>';
+        $projectName = $this->project->name;
+        if ( $this->language != 'ru' AND isset($this->translation['project']) )
+        {
+            $projectName = $this->translation['project'];
+        }
+        $eventName = $this->event->name;
+        if ( $this->language != 'ru' AND isset($this->translation['event']) )
+        {
+            $eventName = $this->translation['event'];
+        }
+        
+        $result  = '<div style="font-size:16px;line-height:23px;">';
+        $result .= '<b>'.ProjectsModule::t('project').':</b> '.$projectName.'<br>';
+        $result .= '<b>'.ProjectsModule::t('event').':</b> '.$eventName.'<br>';
         $result .= '<b>'.ProjectsModule::t('date_and_time').':</b> '.$this->event->getFormattedTimePeriod().'<br>';
         $result .= '</div>';
         
@@ -179,10 +213,19 @@ class EMailCallList extends EMailBase
     {
         // добавляем информацию о роли
         $vacancyInfo = array();
-        $vacancyInfo['type']           = 'subHeader';
-        $vacancyInfo['header']         = 'Роль: ' . $vacancy['name'];
+        $vacancyInfo['type']   = 'subHeader';
+        $vacancyInfo['header'] = ProjectsModule::t('role').': ';
+        if ( $this->language != 'ru' AND isset($vacancy['translation']) )
+        {
+            $vacancyInfo['header'] .= $vacancy['translation'];
+        }else
+        {
+            $vacancyInfo['header'] .= $vacancy['name'];
+        }
         $vacancyInfo['headerInfo']     = $this->getVacancyTimePeriod($vacancy);
         $vacancyInfo['addHeaderRuler'] = true;
+        
+        //CVarDumper::dump($vacancy, 10, true);die;
         // и упаковываем ее в блок письма
         $this->addSegment($vacancyInfo);
         
@@ -301,10 +344,15 @@ class EMailCallList extends EMailBase
     {
         $this->vacancies = array();
         
-        foreach ( $vacancies as $item )
+        foreach ( $vacancies as $id => $item )
         {
-            $vacancy = $item['vacancy'];
-            $members = $item['members'];
+            $vacancy     = $item['vacancy'];
+            $members     = $item['members'];
+            $translation = '';
+            if ( isset($item['translation']) )
+            {
+                $translation = $item['translation'];
+            }
             
             $name = trim(mb_ereg_replace('[0-9 ]{1-3}:[0-9 ]{1-3}', '', $vacancy->name));
             
@@ -314,8 +362,9 @@ class EMailCallList extends EMailBase
             }else
             {
                 $vacancyInfo = array(
-                    'name'    => $name, 
-                    'members' => $members,
+                    'name'        => $name, 
+                    'members'     => $members,
+                    'translation' => $translation,
                 );
                 $this->vacancies[$name] = $vacancyInfo;
             }

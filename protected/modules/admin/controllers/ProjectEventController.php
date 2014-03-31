@@ -210,11 +210,16 @@ class ProjectEventController extends Controller
 	        // (а оно в большинстве случаев не задано вручную) 
 	        $defaultReportName = AdminModule::t('call_list').' '.$event->getFormattedTimePeriod();
 	        // определяем, анкеты с какими статусами входят в отчет
-	        $statuses = Yii::app()->request->getParam('statuses', array('active'));
+	        $statuses    = Yii::app()->request->getParam('statuses', array('active'));
+	        // получаем перевод ролей, мероприятия и проекта (если требуется)
+	        $translation = Yii::app()->request->getParam('translation', array());
+	        //CVarDumper::dump($_POST, 10, true);die;
+	        
 	        $options  = array(
-	            'event'    => $event,
-	            'statuses' => $statuses,
-	            'language' => $language,
+	            'event'       => $event,
+	            'statuses'    => $statuses,
+	            'language'    => $language,
+	            'translation' => $translation,
 	        );
 	        
 	        if ( $language === 'en' )

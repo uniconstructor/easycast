@@ -9,7 +9,9 @@ return array(
     'invite_timecreated' => 'Время',
     // Вакансии
     'vacancy' => 'Роль',
+    'role' => 'Роль',
     'vacancies' => 'Роли',
+    'roles' => 'Роли',
     'vacancy_scopeid' => 'Критерии отбора',
     'vacancy_limit' => 'Количество человек',
     // Заявки и участники

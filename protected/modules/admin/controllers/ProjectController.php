@@ -163,7 +163,8 @@ class ProjectController extends Controller
 	 */
 	public function actionIndex()
 	{
-		$dataProvider = new CActiveDataProvider('Project', array(
+	    $this->actionAdmin();
+		/*$dataProvider = new CActiveDataProvider('Project', array(
 		    'pagination' => false,
 		    )
 		);
@@ -174,7 +175,7 @@ class ProjectController extends Controller
 		
 		$this->render('index',array(
 			'dataProvider' => $dataProvider,
-		));
+		));*/
 	}
 
 	/**

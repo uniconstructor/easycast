@@ -24,7 +24,7 @@ $this->widget('reports.extensions.widgets.CallListReport.CallListReport', array(
 
 // отображаем ранее созданные вызывные листы на это мероприятие
 $this->widget('reports.extensions.widgets.ReportList.ReportList', array(
-    'reportClass'  => 'RCallList',
-    'criteria'     => $reportListCriteria,
-    'header'       => 'Ранее созданные вызывные для этого съемочного дня',
+    'reportClass' => 'RCallList',
+    'criteria'    => $reportListCriteria,
+    'header'      => 'Ранее созданные вызывные для этого съемочного дня',
 ));

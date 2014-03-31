@@ -9,6 +9,11 @@ Yii::import('reports.extensions.widgets.ReportActionsBase.ReportActionsBase');
 class CallListActions extends ReportActionsBase
 {
     /**
+     * @var ProjectEvent - мероприятие для которого создается фотовызывной 
+     */
+    public $event;
+    
+    /**
      * @see ReportActionsBase::displaySaveAction()
      */
     public function displaySaveAction()
@@ -65,5 +70,14 @@ class CallListActions extends ReportActionsBase
                 echo '<br>';
             }
         }
+    }
+    
+    /**
+     * Отобразить форму с переводом названия проекта, мероприятия и всех ролей
+     * @return void
+     */
+    protected function displayTranslationForm()
+    {
+        $this->render('_translationForm');
     }
 }

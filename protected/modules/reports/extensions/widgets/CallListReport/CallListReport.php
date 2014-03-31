@@ -60,6 +60,7 @@ class CallListReport extends ReportViewBase
         $params    = parent::createActionsParams();
         $newParams = array(
             'allowCastingList' => true,
+            'event'            => $this->event,
         );
         return CMap::mergeArray($params, $newParams);
     }

@@ -52,6 +52,7 @@ class RCallList extends Report
         $statuses    = $options['statuses'];
         // язык на котором сформирован фотовызывной
         $language    = $options['language'];
+        $translation = $options['translation'];
         
         // информация по проекту и мероприятию: getAttributes() используется для того чтобы сериализовывать
         // меньше данных, иначе отчет не всегда помещается даже в поле TEXT длиной 64 Kb
@@ -72,19 +73,21 @@ class RCallList extends Report
             
             $vacancyInfo = $vacancy->getAttributes();
             $element     = array(
-                'vacancy' => (object)$vacancyInfo,
-                'members' => $this->getMembersInfo($vacancy, $statuses),
+                'vacancy'     => (object)$vacancyInfo,
+                'translation' => $translation['vacancy'][$vacancy->id],
+                'members'     => $this->getMembersInfo($vacancy, $statuses),
             );
             $vacancies[$vacancy->id] = $element;
             unset($element);
         }
         
         $newData = array(
-            'project'   => (object)$projectInfo,
-            'event'     => (object)$eventInfo,
-            'vacancies' => $vacancies,
-            'statuses'  => $statuses,
-            'language'  => $language,
+            'project'     => (object)$projectInfo,
+            'event'       => (object)$eventInfo,
+            'vacancies'   => $vacancies,
+            'statuses'    => $statuses,
+            'language'    => $language,
+            'translation' => $translation,
         );
         
         return CMap::mergeArray($data, $newData);

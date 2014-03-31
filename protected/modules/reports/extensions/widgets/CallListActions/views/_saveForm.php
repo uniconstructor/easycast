@@ -44,8 +44,8 @@ echo CHtml::checkBoxList('statuses', array('active'), array(
 );
 
 // на каком языке сформировать фотовызывной?
-echo CHtml::label('Язык', 'lang_0');
-echo CHtml::radioButtonList('lang', 'ru', array(
+echo CHtml::label('Язык', 'language_0');
+echo CHtml::radioButtonList('language', 'ru', array(
         'ru' => 'Русский',
         'en' => 'Английский',
     ),
@@ -54,6 +54,9 @@ echo CHtml::radioButtonList('lang', 'ru', array(
     )
 );
 echo '<br>';
+
+// для перевола фотовызывного на английский язык: отображаем форму с переводом каждой роли
+$this->displayTranslationForm();
 
 if ( $this->allowSave )
 {// Кнопка сохранения отчета

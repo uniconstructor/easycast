@@ -518,6 +518,7 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
                     case 'weight': 
                     case 'height': 
                     case 'hairlength': 
+                    case 'titsize': 
                         return $value;
                     break;
                 }
