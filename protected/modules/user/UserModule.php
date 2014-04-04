@@ -294,14 +294,14 @@ class UserModule extends CWebModule
 	/**
 	 * Send mail method
 	 */
-	public static function sendMail($email, $subject, $message, $sendNow=false)
+	public static function sendMail($email, $subject, $message, $sendNow=false, $from=null)
 	{
 	    if ( $sendNow )
 	    {// нужно отправить письмо прямо сейчас
-	        Yii::app()->getComponent('ecawsapi')->sendMail($email, $subject, $message);
+	        Yii::app()->getComponent('ecawsapi')->sendMail($email, $subject, $message, $from);
 	    }else
 	    {// отправить письмо в очередь (через некоторой время)
-	        Yii::app()->getComponent('ecawsapi')->pushMail($email, $subject, $message);
+	        Yii::app()->getComponent('ecawsapi')->pushMail($email, $subject, $message, $from);
 	    }
 	}
 	

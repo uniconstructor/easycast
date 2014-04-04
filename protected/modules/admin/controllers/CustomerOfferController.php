@@ -75,7 +75,7 @@ class CustomerOfferController extends Controller
 		
 		// тип коммерческого предложения всегда одинаковый
 		$objectType = 'offer';
-		$objectId = Yii::app()->request->getParam('objectId', 0);
+		$objectId   = Yii::app()->request->getParam('objectId', 0);
 		
 		// Uncomment the following line if AJAX validation is needed
 		$this->performAjaxValidation($model);

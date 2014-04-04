@@ -49,8 +49,20 @@ class CustomerOffer extends CustomerInvite
             'manager' => $this->manager,
         );
         // отправляем письмо (сразу же, без очереди)
-        $message = Yii::app()->getModule('mailComposer')->getMessage('offer', $params);
-        Yii::app()->getModule('user')->sendMail($this->email, 'Коммерческое предложение проекта easyCast', $message, true);
+        $message   = Yii::app()->getModule('mailComposer')->getMessage('offer', $params);
+        $subject   = 'Коммерческое предложение проекта easyCast';
+        $userEmail = Yii::app()->getModule('user')->user()->email;
+        $fullName  = Yii::app()->getModule('user')->user()->fullname;
+        
+        if ( Yii::app()->user->id == 1 OR ! in_array($userEmail, Yii::app()->params['verifiedSenders']) )
+        {// если email не в списке проверенных адресов - отправляем письмо от имени руководителя
+            $from = 'ceo@easycast.ru';
+        }else
+        {
+            $from = $userEmail;
+        }
+        
+        Yii::app()->getModule('user')->sendMail($this->email, $subject, $message, true, $from);
         return true;
     }
     

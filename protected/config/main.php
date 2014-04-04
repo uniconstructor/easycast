@@ -30,6 +30,8 @@ return array(
     'name'    => 'easyCast',
     // Короткие имена для вызова популярных библиотек
     //'aliases' => array(),
+    // Используем собственную тему оформления для сайта
+    'theme' => 'easycast',
     
 	// autoloading model and component classes
     'import' => array(
@@ -425,9 +427,6 @@ return array(
         ),
 	),
 
-    // Используем собственную тему оформления для сайта
-    'theme' => 'easycast',
-
 	// application-level parameters that can be accessed
 	// using Yii::app()->params['paramName']
 	// @todo полностью переместить в params.php
@@ -443,6 +442,21 @@ return array(
 	    // password salt для хеширования паролей
 	    // @todo переместить в настройки сервера amazon (как логин/пароль к БД)
 	    'hashSalt'      => '68xc7mtux0',
+	    // список администраторов, от имени которых система может отправлять письма
+	    // как правило это руководители проектов
+	    // список разрешенных email-адресов можно посмотреть и отредактировать в админской панели Amazon SES:
+	    // @see https://console.aws.amazon.com/ses/home?region=us-east-1#verified-senders-email:
+	    'verifiedSenders' => array(
+	       'ad@easycast.ru',
+	       'admin@easycast.ru',
+	       'alena@easycast.ru',
+	       'anton@easycast.ru',
+	       'ceo@easycast.ru',
+	       'irina@easycast.ru',
+	       'liza@easycast.ru',
+	       'max@easycast.ru',
+	       'mr@easycast.ru',
+        ),
 	    
 	    ////////////////////////////////////////////////////////////////////
 	    ///////// ВАЖНО: стандарт форматирования дат во всех формах ////////

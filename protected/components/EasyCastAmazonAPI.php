@@ -114,8 +114,13 @@ class EasyCastAmazonAPI extends CComponent
      * @todo анализировать ответ сервера и проверять правильность выполнения отправки точнее чем по 
      *       отсутствию исключений
      */
-    public function sendMail($email, $subject, $message)
+    public function sendMail($email, $subject, $message, $from=null)
     {
+        $result = true;
+        if ( ! $from )
+        {
+            $from = Yii::app()->params['adminEmail'];
+        }
         if ( ! Yii::app()->params['useAmazonSES'] )
         {// это тестовый стенд или машина разработчика - не отправляем письма на реальные адреса
             if ( ! Yii::app()->params['AWSSendMessages'] )
@@ -127,11 +132,10 @@ class EasyCastAmazonAPI extends CComponent
             $email   = 'frost@easycast.ru';
             $subject = $subject.' [TEST]';
         }
-        $result = true;
         // Подключаем почтовую службу
         $this->initSES();
         // создаем параметры запроса по всем правилам
-        $args = $this->createSESEmail($email, $subject, $message);
+        $args = $this->createSESEmail($email, $subject, $message, $from);
         
         // отправляем почту
         $this->trace('Sending mail to '.$email.' : ', false);
@@ -174,10 +178,10 @@ class EasyCastAmazonAPI extends CComponent
      * @todo добавить настройку "присылать письма как текст или как HTML"
      * @todo делать striptags для сообщений длиннее 64Кб 
      */
-    protected function createSESEmail($email, $subject, $message)
+    protected function createSESEmail($email, $subject, $message, $from)
     {
         return array(
-            'Source' => Yii::app()->params['adminEmail'],
+            'Source' => $from,
             'Destination' => array(
                 'ToAddresses' => array($email),
             ),
@@ -205,21 +209,27 @@ class EasyCastAmazonAPI extends CComponent
      * @param string $email - адрес получателя
      * @param string $subject - тема письма
      * @param string $message - текст сообщения
+     * @param string $from - адрес отправителя
      * 
      * @return string|bool - id отправленного сообщения или false если сообщение не удалось отправить
      * 
      * @todo сделать более подробный анализ ошибок
      * @todo сделать ограничение на длину сообщения 64Кбайта (согласно документации)
      */
-    public function pushMail($email, $subject, $message)
+    public function pushMail($email, $subject, $message, $from=null)
     {
+        $result = true;
         if ( ! Yii::app()->params['useAmazonSQS'] )
         {// это тестовый стенд или машина разработчика - не отправляем письма на реальные адреса
             // return true;
             //$subject = $subject;
             $email   = 'frost@easycast.ru';
         }
-        $result = true;
+        if ( ! $from )
+        {
+            $from = Yii::app()->params['adminEmail'];
+        }
+        
         $this->initSQS();
         // Конвертируем письмо в JSON чтобы его можно было хранить в очереди
         $JSON = $this->convertEmailToJSON($email, $subject, $message);
@@ -274,8 +284,14 @@ class EasyCastAmazonAPI extends CComponent
         {// достаем каждое сообщение и пробуем его отправить
             // получаем все данные письма
             $data = CJSON::decode($message['Body']);
+            // по умолчанию отправляем письма от админа, если не указано иное
+            $from = Yii::app()->params['adminEmail'];
+            if ( isset($data['from']) AND $data['from'] )
+            {
+                $from = $data['from'];
+            }
             // пробуем отправить письмо
-            if ( $this->sendMail($data['email'], $data['subject'], $data['message']) )
+            if ( $this->sendMail($data['email'], $data['subject'], $data['message'], $from) )
             {// письмо успешно удалось отправить - удаляем его из очереди
                 // (неотправленные сообщения в очереди остаются и будут отправлены позже)
                 $this->deleteSQSMessage($message['ReceiptHandle']);
@@ -297,7 +313,7 @@ class EasyCastAmazonAPI extends CComponent
     {
         $result = true;
         // устанавливаем параметры для запроса удаления сообщения
-        $url = $this->getEmailQueueUrl();
+        $url  = $this->getEmailQueueUrl();
         $args = array(
             'QueueUrl'      => $url,
             'ReceiptHandle' => $receiptHandle,
@@ -400,6 +416,7 @@ class EasyCastAmazonAPI extends CComponent
     protected function getEmailQueueUrl()
     {
         $this->initSQS();
+        
         if ( $this->queueUrl )
         {// url очереди уже был запрошен - не обращаемся к сервису второй раз
             return $this->queueUrl;
@@ -436,12 +453,13 @@ class EasyCastAmazonAPI extends CComponent
      * 
      * @return string - JSON-строка с получателем, темой и телом письма
      */
-    protected function convertEmailToJSON($email, $subject, $message)
+    protected function convertEmailToJSON($email, $subject, $message, $from)
     {
         $data = array(
             'email'   => $email,
             'subject' => $subject,
             'message' => $message,
+            'from'    => $from,
         );
         
         return CJSON::encode($data);
@@ -456,7 +474,7 @@ class EasyCastAmazonAPI extends CComponent
     {
         $url = $this->getEmailQueueUrl();
         $args = array(
-            'QueueUrl' => $url,
+            'QueueUrl'       => $url,
             'AttributeNames' => array(
                 'ApproximateNumberOfMessages',
                 'ApproximateNumberOfMessagesNotVisible',
