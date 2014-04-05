@@ -25,7 +25,7 @@
                         <h3 style="font-size: 20px; font-weight: bold; color: #727272; margin: -3px 0px 6px 13px; ">
                             <?= $fullName; ?>
                             <span style="font-size:16px;font-weight:normal;font-style:italic;margin-left:10px;">
-                                 руководитель проектов
+                            <?= $position; ?>
                             </span>
                         </h3>
                         <span style="display:block;margin:-3px 0px 6px 13px;font-size:14px;">

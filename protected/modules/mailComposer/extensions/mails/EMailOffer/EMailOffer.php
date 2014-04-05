@@ -55,9 +55,8 @@ class EMailOffer extends EMailBase
     {
         // добавляем основное содержимое страницы
         $this->addSegment($this->getOfferContent());
-        
+        // персонализация
         $this->addSegment($this->getPersonalizationBlock());
-        
         // выводим виджет со всеми данными
         parent::run();
     }

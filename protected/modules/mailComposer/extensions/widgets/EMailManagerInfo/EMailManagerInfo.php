@@ -21,11 +21,18 @@ class EMailManagerInfo extends CWidget
         $mainImageUrl   = $this->manager->questionary->getAvatarUrl('catalog');
         $managerPhoto   = ECPurifier::getImageProxyUrl($mainImageUrl);
         
+        $position = 'руководитель проектов';
+        if ( $email === 'ceo@easycast.ru' )
+        {
+            $position = 'основатель и управляющий';
+        }
+        
         $this->render('manager', array(
             'managerPhoto'   => $managerPhoto,
             'anyTimeImage'   => $anyTimeImage,
             'iTakeCareImage' => $iTakeCareImage,
             'fullName'       => $this->manager->fullname,
+            'position'       => $position,
             'phone'          => $this->manager->questionary->mobilephone,
             'email'          => $this->manager->email,
             'fbUrl'          => $this->manager->questionary->fbprofile,
