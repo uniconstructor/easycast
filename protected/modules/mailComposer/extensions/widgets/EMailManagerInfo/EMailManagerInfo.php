@@ -22,7 +22,7 @@ class EMailManagerInfo extends CWidget
         $managerPhoto   = ECPurifier::getImageProxyUrl($mainImageUrl);
         
         $position = 'руководитель проектов';
-        if ( $email === 'ceo@easycast.ru' )
+        if ( $this->manager->email === 'ceo@easycast.ru' )
         {
             $position = 'основатель и управляющий';
         }
