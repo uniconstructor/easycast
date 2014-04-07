@@ -232,7 +232,7 @@ class EasyCastAmazonAPI extends CComponent
         
         $this->initSQS();
         // Конвертируем письмо в JSON чтобы его можно было хранить в очереди
-        $JSON = $this->convertEmailToJSON($email, $subject, $message);
+        $JSON = $this->convertEmailToJSON($email, $subject, $message, $from);
         // Создаем массив нужной структуры, со всеми аргументами
         $args = $this->createSQSPushArgs($JSON);
         
