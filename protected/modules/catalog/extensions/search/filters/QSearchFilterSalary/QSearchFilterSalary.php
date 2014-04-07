@@ -35,7 +35,7 @@ class QSearchFilterSalary extends QSearchFilterBaseSlider
      */
     protected function getMaxValue()
     {
-        return 15000;
+        return 75000;
     }
     
     /**
