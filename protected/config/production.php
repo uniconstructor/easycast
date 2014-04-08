@@ -15,6 +15,16 @@ return CMap::mergeArray(
 			    'password'         => $_SERVER['RDS_PASS'],
             ),
             
+            'user' => array(
+                // делаем так чтобы авторизация по cookie работала на easycast.ru и www.easycast.ru
+                'identityCookie' => array('domain' => '.easycast.ru'),
+            ),
+            
+            'session' => array(
+                // делаем так чтобы авторизация по cookie работала на easycast.ru и www.easycast.ru
+                'cookieParams' => array('domain' => '.easycast.ru'),
+            ),
+            
             // API для работы с Мегапланом
             'megaplan' => array(
                 'debug'             => false,
@@ -40,20 +50,21 @@ return CMap::mergeArray(
             ),
             
             'log' => array(
-                'class' => 'CLogRouter',
+                'class'  => 'CLogRouter',
                 'routes' => array(
                     array(
                         'class' => 'CDbLogRoute',
                         // @todo хранить логи отдельно ото всех остальных данных для лучшей безопасности
-                        'connectionID' => 'db',
-                        'levels' => 'error, warning, info, application, AWS',
+                        // @todo о, сюрприз! их еще и дорого хранить на RDS, ну отлично просто
+                        'connectionID'       => 'db',
+                        'levels'             => 'error, warning, info, application, AWS',
                         'autoCreateLogTable' => false,
                     ),
                 ),
             ),
         ),
         
-        'params'=>array(
+        'params' => array(
             // API ID на vkontakte.ru (чтобы работал виджет "мне нравится")
             'vkontakteApiId' => '3534064',
             

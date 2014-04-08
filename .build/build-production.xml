@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Сборка EasyCast для production-сервера " default="finish" basedir="../">
-    <!-- Указываем путь к Yii -->
+<project name="Сборка EasyCast для production-сервера" default="finish" basedir="../">
+    <tstamp>
+        <format property="current.time" pattern="dd.MM.yyyy_hhmm" />
+    </tstamp>
+    <!-- Указываем путь к Yii -->           
     <property name="yii.dir" value="../yiisoft/yii/"/>
-    <!-- Указываем путь к ядру EasyCast -->
-    <property name="core.dir" value="/home/frost/git/easycast/"/>
+    <!-- Указываем путь к ядру EasyCast -->    
+    <property name="core.dir" value="/home/frost/git/easycast(core)/"/>
     <!-- Указываем путь к проекту с плагинами -->
     <property name="plugins.dir" value="/home/frost/git/easycast(plugins)/"/>
     <!-- Путь к папке с файлами для версии разработчика -->
@@ -67,7 +70,7 @@
     </target>
     
     <target name="setup-project-enviroment" depends="minifying-scripts">
-        <echo>Устанавливаем настройки среды исполнения в режим разработчика</echo>
+        <echo>Устанавливаем настройки среды исполнения в режим production-сервера</echo>
         <copy todir="${production_output.dir}" overwrite="true">
             <fileset dir="${production.dir}">
                 <include name="**"/>
@@ -97,16 +100,15 @@
 	
 	<target name="zipzip" depends="release">
         <echo>Делаем zip-архив с файлами релизной сборки</echo>
-		<zip destfile="${production_output.dir}/production.zip"
+		<zip destfile="${production_output.dir}/production_${current.time}.zip"
 		       basedir="${production_output.dir}"
 			   defaultexcludes="false"
-		       update="true"
-		  />
+		       update="true"/>
     </target>
     
     <target name="finish" depends="zipzip">
     	<echo>Release version successfully assembled.</echo>
-        <echo>I'm ready to initiate deploying procedure, Commander</echo>
+        <echo>I'm ready to initiate deploying procedure, Commander.</echo>
     </target>
     
 </project>
