@@ -11,8 +11,7 @@
 <!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
 <!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
 <!--[if (IE 9)]><html class="no-js ie9" lang="en"><![endif]-->
-<!--[if gt IE 8]><![endif]-->
-<html>
+<!--[if gt IE 8]><!--> <html lang="ru"> <!--<![endif]-->
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="language" content="ru" />
@@ -39,13 +38,21 @@
 </head>
 <body>
 <?php
-// @todo шапка страницы
+// шапка страницы
 $this->widget('ext.ECMarkup.ECResponsiveHeader.ECResponsiveHeader');
+if ( isset($this->breadcrumbs) )
+{// дополнительная навигация
+    $this->widget('bootstrap.widgets.TbBreadcrumbs', array(
+        'links'       => $this->breadcrumbs,
+    ));
+}
 // основное содержимое страницы
 echo $content;
+// подвал страницы
+$this->widget('ext.ECMarkup.ECResponsiveFooter.ECResponsiveFooter');
 ?>
 <!-- Bootstrap skin JS -->
-<script src="<?= Yii::app()->theme->baseUrl; ?>/js/bootstrap.min.js" type="text/javascript"></script>
+<!--script src="<?= Yii::app()->theme->baseUrl; ?>/js/bootstrap.min.js" type="text/javascript"></script-->
 <script src="<?= Yii::app()->theme->baseUrl; ?>/js/jquery.flexslider-min.js" type="text/javascript"></script>
 <script src="<?= Yii::app()->theme->baseUrl; ?>/js/jquery.isotope.js" type="text/javascript"></script>
 <script src="<?= Yii::app()->theme->baseUrl; ?>/js/placeholder.js" type="text/javascript"></script>
