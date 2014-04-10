@@ -275,7 +275,7 @@ if ( $model->group )
             array(
                 'name'   => 'status',
                 'header' => ProjectsModule::t('status'),
-                'value'  => 'ProjectsModule::t("event_status_".$data->status)',
+                'value'  => 'ProjectsModule::t("vacancy_status_".$data->status)',
             ),
         ),
     ));

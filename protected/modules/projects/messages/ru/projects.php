@@ -109,7 +109,7 @@ return array(
     'member_status_canceled' => 'Отменена участником',
     // Статусы мероприятия
     'event_status_draft' => 'Черновик',
-    'event_status_active' => 'Запущено',
+    'event_status_active' => 'Идет набор',
     'event_status_suspended' => 'Приостановлено',
     'event_status_finished' => 'Завершено',
     
