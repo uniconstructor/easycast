@@ -1491,7 +1491,7 @@ opacity: 0.99;
 
 #footer {
 	position: relative;
-	width: 100%;
+	/*width: 100%;*/
 	height: auto;
 	background: #26292E;
 	text-align: center;
