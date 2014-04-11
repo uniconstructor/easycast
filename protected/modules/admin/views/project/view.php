@@ -75,7 +75,7 @@ if ( $model->timestart )
 }
 if ( $model->timeend )
 {
-    $timeEnd = $dateFormatter->format('dd.MM.yyyy', $model->timestart);
+    $timeEnd = $dateFormatter->format('dd.MM.yyyy', $model->timeend);
 }
 
 ?>
