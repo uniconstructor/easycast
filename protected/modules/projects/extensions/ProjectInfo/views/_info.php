@@ -3,8 +3,6 @@
  * Фрагмент виджета с краткой информацией о проекте или мероприятии
  */
 ?>
-<div class="span3" style="padding-top:20px;">
-    <?= $image; ?>
-    <p><?= $description; ?></p>
-    <p><?= $adminButton; ?></p>
-</div>
+<?= $image; ?>
+<p><?= $description; ?></p>
+<p class="text-center"><?= $adminButton; ?></p>

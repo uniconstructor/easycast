@@ -13,43 +13,36 @@ class ProjectInfo extends CWidget
 {
     /**
      * @var int - id отображаемого проекта.
-     *             Не указывается, если отображается мероприятие или вакансия
+     *            Не указывается, если отображается мероприятие или вакансия
      */
     public $projectId;
-    
     /**
      * @var int - id отображаемого мероприятия
-     *             Не указывается, если отображается проект или вакансия
+     *            Не указывается, если отображается проект или вакансия
      */
     public $eventId;
-    
     /**
      * @var int - id отображаемой вакансии
      */
     public $vacancyId;
-    
     /**
      * @var array - список тех вкладок, которые нужно отобразить (по умолчанию - все)
      */
     public $displayTabs = array();
-    
     /**
      * @var array - список блоков с информацией,которые нужно отобразить (по умолчанию - все) 
-     *               Возможные значения: 'title', 'info', 'data'
+     *              Возможные значения: 'title', 'info', 'data'
      */
     public $displaySections = array();
-    
     /**
      * @var array - Какую информацию отображать в разделе "краткое описание" (project, event)
      */
     public $displayInfo = array('project');
-    
     /**
      * @var string - активная при загрузке виджета вкладка информации о проекте (если отображается проект)
-     * Возможные значения: 'main', 'photo', 'video', 'events', 'vacancies'
+     *               Возможные значения: 'main', 'photo', 'video', 'events', 'vacancies'
      */
     public $activeTab = 'main';
-    
     /**
      * @var bool - делать ли заголовок виджета ссылкой на отображаемый объект?
      */
@@ -59,19 +52,16 @@ class ProjectInfo extends CWidget
      * @var Project
      */
     protected $project;
-    
     /**
      * @var ProjectEvent
      */
     protected $event;
-    
     /**
      * @var EventVacancy
      */
     protected $vacancy;
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
      */
     public function init()
@@ -107,7 +97,7 @@ class ProjectInfo extends CWidget
         }
         if ( ! $this->projectId OR ! $project= Project::model()->findByPk($this->projectId) )
         {// Нужно отобразить проект, но его id не указан - это ошибка
-            throw new CHttpException(500, 'Не указан id проекта, мероприятия или вакансии для отображения');
+            throw new CException(500, 'Не указан id проекта, мероприятия или вакансии для отображения');
         }
         $this->project = $project;
     }
@@ -118,14 +108,18 @@ class ProjectInfo extends CWidget
      */
     public function run()
     {
-        echo '<div class="row span12">';
         // отображаем заголовок
-        $this->displayTitleSection();
+        $title = $this->displayTitleSection();
         // Отображаем краткую информацию
-        $this->displayInfoSection();
+        $info = $this->displayInfoSection();
         // отображаем полную информацию
-        $this->displayDataSection();
-        echo '</div>';
+        $data = $this->displayDataSection();
+        
+        $this->render('project', array(
+            'title' => $title,
+            'info'  => $info,
+            'data'  => $data,
+        ));
     }
     
     /**
@@ -155,23 +149,28 @@ class ProjectInfo extends CWidget
     }
     
     /**
-     * отобразить заголовок наверху виджета (название проекта или название мероприятия)
+     * Отобразить заголовок наверху виджета (название проекта или название мероприятия)
      * 
-     * @return null
+     * @return string
      * 
      * @todo предусмотреть многодневные события
      */
     protected function displayTitleSection()
     {
         $title = '';
+        $type  = '';
         
         if ( $this->eventId )
         {// отображается мероприятие
-            $title = CHtml::encode($this->event->name);
-            $title .= ' '.$this->event->getFormattedTimePeriod();
+            $title  = CHtml::encode($this->event->name);
+            $type   = $this->event->getFormattedTimePeriod();
             if ( $this->linkTitle )
             {// показываем название как ссылку
                 $title = CHtml::link($title, $this->getEventUrl());
+            }
+            if ( $this->event->type != 'event' )
+            {// если для события задан тип - покажем его
+                $type = $this->event->getTypeLabel().'<br>'.$type;
             }
         }else
         {// отображается проект
@@ -180,46 +179,54 @@ class ProjectInfo extends CWidget
            {// показываем название как ссылку
                $title = CHtml::link($title, $this->getProjectUrl());
            }
+           $type = $this->project->getTypeLabel();
         }
         
-        $title = '<h1>'.$title.'</h1>';
-        
-        echo $title;
+        return $this->render('_title', array(
+            'title' => $title,
+            'type'  => $type,
+        ), true);
     }
     
     /**
      * Отобразить краткую информацию о проекте или мероприятии
      * 
-     * @return null
+     * @return string
      */
     protected function displayInfoSection()
     {
+        $result = '';
+        // кнопка "настройки" для проекта или мероприятия  - ее видят только администраторы
+        // сделана для удобства перехода в админку и обратно
         $adminButton = $this->createAdminButton();
+        
         if ( in_array('project', $this->displayInfo) )
         {// нужно отобразить информацию о проекте
-            $imageUrl = $this->project->getAvatarUrl('full');
-            $image = CHtml::image($imageUrl, CHtml::encode($this->project->name));
-            $image = '<p class="text-center">'.CHtml::link($image, $this->getProjectUrl()).'</p>';
+            $imageUrl    = $this->project->getAvatarUrl('full');
+            $image       = CHtml::image($imageUrl, CHtml::encode($this->project->name), array('style' => 'max-width:100%;'));
+            $image       = '<p class="text-center">'.CHtml::link($image, $this->getProjectUrl()).'</p>';
             $description = $this->project->shortdescription;
             
-            $this->render('_info', array(
+            $result .= $this->render('_info', array(
                 'image'       => $image,
                 'description' => $description,
                 'adminButton' => $adminButton,
-            ));
+            ), true);
         }
         if ( $this->eventId AND in_array('event', $this->displayInfo) )
         {// Нужно отобразить информацию о событии
-            $image = '';
+            $image       = '';
             $description = $this->event->description;
-            echo '<hr>';
             
-            $this->render('_info', array(
+            $result .= '<hr>';
+            $result .= $this->render('_info', array(
                 'image'       => $image,
                 'description' => $description,
                 'adminButton' => $adminButton,
-            ));
+            ), true);
         }
+        
+        return $result;
     }
     
     /**
@@ -233,17 +240,15 @@ class ProjectInfo extends CWidget
         {// выводим информацию о мероприятии
             $tabs = $this->getEventTabs();
         }else
-       {// выводим информацию о проекте
+        {// выводим информацию о проекте
             $tabs = $this->getProjectTabs();
         }
-        echo '<div class="span8">';
         // Выводим сам виджет с вкладками
-        $this->widget('bootstrap.widgets.TbTabs', array(
+        return $this->widget('bootstrap.widgets.TbTabs', array(
             'type'      => 'tabs',
             'placement' => 'right',
             'tabs'      => $tabs,
-        ));
-        echo '</div>';
+        ), true);
     }
     
     /**
@@ -270,17 +275,17 @@ class ProjectInfo extends CWidget
      * Получить вкладку с информацией о проекте (используется при просмотре проекта)
      *
      * @param string $name - короткое название отображаемой вкладки
-     * @return array|bool - вкладка вместе содержимым или false если вкладку отображать не нужно
+     * @return array|false - вкладка вместе содержимым или false если вкладку отображать не нужно
      */
     protected function getProjectTab($name)
     {
         $content = '';
+        $active  = false;
         
         if ( ! in_array($name, $this->displayTabs) )
         {// вкладку с информацией не нужно отображать
             return false;
         }
-    
         switch ( $name )
         {// определяем, из какой вкладки отображать информацию
             case 'main':      $content = $this->getProjectMainTab(); break;
@@ -290,22 +295,21 @@ class ProjectInfo extends CWidget
             case 'vacancies': $content = $this->getProjectVacanciesTab(); break;
             case 'requests':  $content = $this->getProjectRequestsTab(); break;
         }
-        
         if ( ! $content )
         {// во вкладке нет никакой информации - значит отображать ее не нужно
             return false;
         }
-        
-        // во вкладке есть информация - соберем из нее нужный массив
-        $tab = array();
-        $tab['label']   = ProjectsModule::t('projectinfo_section_'.$name);
-        $tab['content'] = $content;
-        if ( $name == $this->activeTab )
+        if ( $name === $this->activeTab )
         {// делаем вкладку активной если нужно
-            $tab['active'] = true;
+            $active = true;
         }
         
-        return $tab;
+        // соберем массив для создания вкладки в элементе TbTabs
+        return array(
+            'content' => $content,
+            'label'   => ProjectsModule::t('projectinfo_section_'.$name),
+            'active'  => $active,
+        );
     }
     
     /**
@@ -318,7 +322,7 @@ class ProjectInfo extends CWidget
      */
     protected function getProjectMainTab()
     {
-        $content = '<h3>'.ProjectsModule::t('projectinfo_section_main').'</h3>';
+        $content = '';
         if ( $this->customerView() )
         {// заказчикам показываем описание для заказчика
             $content .= '<p>'.$this->getProjectDescription($this->project).'</p>';
@@ -362,8 +366,7 @@ class ProjectInfo extends CWidget
             return false;
         }
         
-        $content = '<h3>'.ProjectsModule::t('projectinfo_section_photo').'</h3>'; 
-        
+        $content  = '<h3>'.ProjectsModule::t('projectinfo_section_photo').'</h3>'; 
         $content .= $this->widget('ext.ECMarkup.EThumbCarousel.EThumbCarousel', array(
             'previews'    => $this->project->getBootstrapPhotos('small'),
             'photos'      => $this->project->getBootstrapPhotos('medium'),
@@ -381,14 +384,10 @@ class ProjectInfo extends CWidget
      */
     protected function getProjectVideoTab()
     {
-        $content = '';
-        
-        $content .= $this->widget('ext.ECMarkup.ECVideoList.ECVideoList', array(
+        return $this->widget('ext.ECMarkup.ECVideoList.ECVideoList', array(
             'objectType' => 'project',
             'objectId'   => $this->project->id,
         ), true);
-        
-        return $content;
     }
     
     /**
@@ -414,15 +413,14 @@ class ProjectInfo extends CWidget
         {// нет доступных пользователю мероприятий
             return false;
         }
-        
         foreach ( $this->project->activeevents as $event )
         {// выводим активные мероприятия
-            $bages = '';
+            $bages        = '';
             $signInButton = $this->createSignInButton($event);
             
             $content .= $this->render('_event', array(
-                'event' => $event,
-                'bages' => $bages,
+                'event'        => $event,
+                'bages'        => $bages,
                 'signInButton' => $signInButton,
             ), true);
         }
@@ -439,8 +437,8 @@ class ProjectInfo extends CWidget
                 ), true).' ';
             }
             $content .= $this->render('_event', array(
-                'event' => $event,
-                'bages' => $bages,
+                'event'        => $event,
+                'bages'        => $bages,
                 'signInButton' => $signInButton,
             ), true);
         }
@@ -481,9 +479,9 @@ class ProjectInfo extends CWidget
             return;
         }
         return $this->widget('admin.extensions.ProjectMembers.ProjectMembers',array(
-            'objectType'  => 'project',
-            'objectId'    => $this->project->id,
-            'displayType' => 'applications',
+            'objectType'           => 'project',
+            'objectId'             => $this->project->id,
+            'displayType'          => 'applications',
             'displayTimeColumn'    => false,
             'displayVacancyColumn' => false,
             'displayHeader'        => false,
@@ -513,7 +511,7 @@ class ProjectInfo extends CWidget
         }
         
         if ( ! $vacancies )
-        {// Участнику не подходит ни одна вакансия - сообщим об этом
+        {// Участнику не подходит ни одна роль - сообщим об этом
             $content .= '<div class="alert alert-info">В этом проекте нет подходящих ролей</div>';
             return $content;
         }
@@ -624,10 +622,7 @@ class ProjectInfo extends CWidget
      */
     protected function getEventMainTab()
     {
-        $content = '<h3>'.ProjectsModule::t('projectinfo_section_main').'</h3>';
-        $content .= '<p>'.$this->event->description.'</p>';
-                
-        return $content;
+        return '<p>'.$this->event->description.'</p>';
     }
     
     /**
@@ -652,9 +647,9 @@ class ProjectInfo extends CWidget
             return;
         }
         return $this->widget('admin.extensions.ProjectMembers.ProjectMembers',array(
-            'objectType'  => 'event',
-            'objectId'    => $this->event->id,
-            'displayType' => 'applications',
+            'objectType'           => 'event',
+            'objectId'             => $this->event->id,
+            'displayType'          => 'applications',
             'displayTimeColumn'    => false,
             'displayVacancyColumn' => false,
             'displayHeader'        => false,
@@ -669,14 +664,10 @@ class ProjectInfo extends CWidget
      */
     protected function getEventVideoTab()
     {
-        $content = '';
-    
-        $content .= $this->widget('ext.ECMarkup.ECVideoList.ECVideoList', array(
+        return $this->widget('ext.ECMarkup.ECVideoList.ECVideoList', array(
             'objectType' => 'event',
             'objectId'   => $this->event->id,
         ), true);
-    
-        return $content;
     }
     
     /**
@@ -763,29 +754,30 @@ class ProjectInfo extends CWidget
     }
     
     /**
-     * 
+     * Отобразить кнопкцу "настройки" для администрирования проекта или мероприятия
      * @return string
      */
     protected function createAdminButton()
     {
-        if ( $this->adminView() )
+        if ( ! $this->adminView() )
         {
-            if ( $this->eventId )
-            {// отображается мероприятие
-                $url = Yii::app()->createUrl('/admin/projectEvent/view', array('id' => $this->eventId));
-            }else
-            {// отображается проект
-                $url = Yii::app()->createUrl('/admin/project/view', array('id' => $this->projectId));
-            }
-            return $this->widget('bootstrap.widgets.TbButton', array(
-                'buttonType' => 'link',
-                'type'       => 'warning',
-                'size'       => 'large',
-                'label'      => 'Настройки',
-                'url'        => $url,
-                //'icon' => 'remove white',
-            ), true);
+            return '';
         }
-        return '';
+        
+        if ( $this->eventId )
+        {// отображается мероприятие
+            $url = Yii::app()->createUrl('/admin/projectEvent/view', array('id' => $this->eventId));
+        }else
+        {// отображается проект
+            $url = Yii::app()->createUrl('/admin/project/view', array('id' => $this->projectId));
+        }
+        return $this->widget('bootstrap.widgets.TbButton', array(
+            'buttonType' => 'link',
+            'type'       => 'warning',
+            'size'       => 'large',
+            'label'      => 'Настройки',
+            'url'        => $url,
+            'icon'       => 'icon-gear white',
+        ), true);
     }
 }

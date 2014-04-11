@@ -3,7 +3,7 @@
  * Отображение одной вакансии
  */
 ?>
-<div class="row span6">
+<div class="row-fluid">
     <h4><?= CHtml::encode($vacancy->name); ?></h4>
     <?= $vacancy->description; ?>
     <?php
