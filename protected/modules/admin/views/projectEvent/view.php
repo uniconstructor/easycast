@@ -10,7 +10,7 @@ $addRoleLabel = 'Добавить роль';
 $groupId      = $model->parentid;
 $showDates    = true;
 $showNewGroupEvent = ($model->group AND ($model->group->status != ProjectEvent::STATUS_FINISHED));
-if ( $model->type == 'group' )
+if ( $model->type === 'group' )
 {
     $pageTitle   .= ' [Группа мероприятий]';
     $addRoleLabel = 'Добавить роль (на все дни группы)';
@@ -23,7 +23,7 @@ if ( $model->type == 'group' )
 
 
 $this->breadcrumbs = array(
-    'Администрирование' =>array('/admin'),
+    'Администрирование' => array('/admin'),
     'Проекты' => array('/admin/project'),
     $model->project->name => array('/admin/project/view', 'id' => $model->project->id),
 );
@@ -34,37 +34,43 @@ if ( $model->group )
 $this->breadcrumbs[] = $model->name;
 
 $this->menu = array(
-	array('label' => 'Новое событие в проекте',
-	    'url' => array(
+	array(
+	    'label' => 'Новое событие в проекте',
+	    'url'   => array(
 	        '/admin/projectEvent/create',
-	        'projectid' => $model->project->id),
+	        'projectid' => $model->project->id,
+	    ),
 	    'visible' => ! $showNewGroupEvent,
     ),
-	array('label' => 'Новое событие в этой группе', 
-	    'url' => array(
+	array(
+	    'label' => 'Новое событие в этой группе', 
+	    'url'   => array(
 	        '/admin/projectEvent/create',
 	        'projectid' => $model->project->id,
 	        'parentid'  => $groupId),
 	    'visible' => $showNewGroupEvent,
     ),
-	array('label' => 'Редактировать', 'url'=>array('update','id'=>$model->id)),
-    array('label' => $addRoleLabel, 'url'=>array('/admin/eventVacancy/create', 'eventid'=>$model->id)),
-    array('label' => 'Заявки', 'url'=>array('/admin/projectMember/index', 'eventid'=>$model->id, 'type' => 'applications')),
-    array('label' => 'Участники', 'url'=>array('/admin/projectMember/index', 'eventid'=>$model->id, 'type' => 'members')),
+	array('label' => 'Редактировать', 'url' => array('update','id' => $model->id)),
+    array('label' => $addRoleLabel, 'url' => array('/admin/eventVacancy/create', 'eventid' => $model->id)),
+    array('label' => 'Заявки', 'url' => array('/admin/projectMember/index', 'eventid' => $model->id, 'type' => 'applications')),
+    array('label' => 'Участники', 'url' => array('/admin/projectMember/index', 'eventid' => $model->id, 'type' => 'members')),
 );
 
-if ( $model->status == ProjectEvent::STATUS_DRAFT )
+if ( $model->status === ProjectEvent::STATUS_DRAFT )
 {// разрешаем удалять мероприятие или группу в статусе "черновик"
     $confirmDeleteText = 'Вы уверены, что хотите удалить это мероприятие?';
-    if ( $model->type == 'group' )
+    if ( $model->type === 'group' )
     {
         $confirmDeleteText = 'Вы уверены, что хотите удалить эту группу? Все входящие в нее мероприятия также будут удалены.';
     }
-    $this->menu[] = array('label'=>'Удалить','url'=>'#',
+    $this->menu[] = array(
+        'label' => 'Удалить',
+        'url'   => '#',
 	    'linkOptions' => array(
 	        'submit'  => array('delete', 'id' => $model->id),
 	        'confirm' => $confirmDeleteText,
-	        'csrf' => true)
+	        'csrf'    => true,
+	    ),
     );
 }
 if ( $model->status == ProjectEvent::STATUS_ACTIVE )
@@ -103,7 +109,7 @@ $this->widget('bootstrap.widgets.TbAlert', array(
     'fade'      => true, // use transitions?
     'closeText' => '&times;', // close link text - if set to false, no close link is displayed
     'alerts' => array( // configurations per alert type
-        'success' => array('block'=>true, 'fade'=>true, 'closeText'=>'&times;'), // success, info, warning, error or danger
+        'success' => array('block' => true, 'fade' => true, 'closeText' => '&times;'), // success, info, warning, error or danger
     ),
 ));
 ?>
@@ -113,7 +119,7 @@ $this->widget('bootstrap.widgets.TbAlert', array(
 <?php 
 // информация о событии или группе
 $this->widget('bootstrap.widgets.TbDetailView',array(
-	'data' => $model,
+	'data'       => $model,
 	'attributes' => array(
         //'addressid',
 	    'name',
@@ -127,20 +133,20 @@ $this->widget('bootstrap.widgets.TbDetailView',array(
 	        'value' => $model->getTypeLabel(),
 	    ),
         array(
-            'label' => $model->getAttributeLabel('timestart'),
-            'value' => Yii::app()->getDateFormatter()->format("d MMMM yyyy, HH:mm", $model->timestart),
+            'label'   => $model->getAttributeLabel('timestart'),
+            'value'   => Yii::app()->getDateFormatter()->format("d MMMM yyyy, HH:mm", $model->timestart),
             'visible' => $showDates,
         ),
         array(
-            'label' => $model->getAttributeLabel('timeend'),
-            'value' => Yii::app()->getDateFormatter()->format("d MMMM yyyy, HH:mm", $model->timeend),
+            'label'   => $model->getAttributeLabel('timeend'),
+            'value'   => Yii::app()->getDateFormatter()->format("d MMMM yyyy, HH:mm", $model->timeend),
             'visible' => $showDates,
         ),
 		'description:raw',
 		'memberinfo:html',
         array(
-            'label' => $model->getAttributeLabel('eta'),
-            'value' => 'За '.($model->eta / 60).' мин',
+            'label'   => $model->getAttributeLabel('eta'),
+            'value'   => 'За '.($model->eta / 60).' мин',
             'visible' => (bool)$model->eta,
         ),
         array(
@@ -157,29 +163,29 @@ if ( $model->type == 'group' )
     echo '<h2>События в этой группе</h2>';
 
     $eventsList = new CActiveDataProvider('ProjectEvent', array(
-        'data' => $model->events,
+        'data'       => $model->events,
         'pagination' => false,
     ));
 
     $this->widget('bootstrap.widgets.TbGridView', array(
         'type'         => 'striped bordered condensed',
         'dataProvider' => $eventsList,
-        'template' => "{summary}{items}",
-        'columns'  => array(
+        'template'     => "{summary}{items}",
+        'columns'      => array(
             array(
-                'name' => 'name',
+                'name'   => 'name',
                 'header' => ProjectsModule::t('name'),
-                'value' => 'CHtml::link($data->name, Yii::app()->createUrl("/admin/ProjectEvent/view", array("id" => $data->id)));',
-                'type' => 'html'),
+                'value'  => 'CHtml::link($data->name, Yii::app()->createUrl("/admin/ProjectEvent/view", array("id" => $data->id)));',
+                'type'   => 'html'),
             array(
-                'name' => 'timestart',
+                'name'   => 'timestart',
                 'header' => ProjectsModule::t('timestart'),
-                'value' => 'Yii::app()->getDateFormatter()->format("d MMMM yyyy, HH:mm", $data->timestart)',
+                'value'  => 'Yii::app()->getDateFormatter()->format("d MMMM yyyy, HH:mm", $data->timestart)',
             ),
             array(
-                'name' => 'timeend',
+                'name'   => 'timeend',
                 'header' => ProjectsModule::t('timeend'),
-                'value' => 'Yii::app()->getDateFormatter()->format("d MMMM yyyy, HH:mm", $data->timeend)',
+                'value'  => 'Yii::app()->getDateFormatter()->format("d MMMM yyyy, HH:mm", $data->timeend)',
             ),
             array(
                 'name'   => 'status',
@@ -212,14 +218,14 @@ if ( $model->type == 'group' )
 <?php 
 // Список всех вакансий
 $vacanciesList = new CActiveDataProvider('EventVacancy', array(
-        'data' => $model->vacancies,
+        'data'       => $model->vacancies,
         'pagination' => false,
     ));
 $this->widget('bootstrap.widgets.TbGridView', array(
     'type'         => 'striped bordered condensed',
     'dataProvider' => $vacanciesList,
-    'template' => "{summary}{items}",
-    'columns'  => array(
+    'template'     => "{summary}{items}",
+    'columns'      => array(
         array(
             'name'   => 'name',
             'header' => ProjectsModule::t('name'),
@@ -254,8 +260,8 @@ if ( $model->group )
     $this->widget('bootstrap.widgets.TbGridView', array(
         'type'         => 'striped bordered condensed',
         'dataProvider' => $groupVacanciesList,
-        'template' => "{summary}{items}",
-        'columns'  => array(
+        'template'     => "{summary}{items}",
+        'columns'      => array(
             array(
                 'name'   => 'name',
                 'header' => ProjectsModule::t('name'),
