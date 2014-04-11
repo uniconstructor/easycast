@@ -49,55 +49,50 @@ if ( $canEdit )
 }
 
 ?>
-<div class="row">
-    <div class="span12" style="margin-bottom:-10px;">
-        <div id="order_message" 
-            class="<?php echo $orderMessageClass; ?>" 
-            style="margin-top:20px;<?php echo $orderMessageStyle; ?>">
-            <?php // сообщение о том что участник приглашен на съемки
-                echo $orderMessage; 
-                echo '<br><br>';
-                echo $dismissButton;
-            ?>
-        </div>
-        <h2 class="pull-right">
-            <?php // Имя, фамилия, возраст 
-                echo $questionary->user->fullname;
-                if ( $questionary->age )
-                {
-                    echo ', '.$questionary->age;
-                }
-            ?>
-            <?php // кнопки "редактировать" и "пригласить" 
-                echo '&nbsp;'.$editIcon.$inviteButton;
-            ?>
-        </h2>
+<div class="row-fluid">
+    <div id="order_message" 
+        class="<?php echo $orderMessageClass; ?>" 
+        style="margin-top:20px;<?php echo $orderMessageStyle; ?>">
+        <?php // сообщение о том что участник приглашен на съемки
+            echo $orderMessage; 
+            echo '<br><br>';
+            echo $dismissButton;
+        ?>
     </div>
+    <h2 class="pull-right">
+        <?php // Имя, фамилия, возраст 
+            echo $questionary->user->fullname;
+            if ( $questionary->age )
+            {
+                echo ', '.$questionary->age;
+            }
+        ?>
+        <?php // кнопки "редактировать" и "пригласить" 
+            echo '&nbsp;'.$editIcon.$inviteButton;
+        ?>
+    </h2>
 </div>
-<div class="row">
+<div class="row-fluid">
     <div class="span5">
         <div>
-        <?php 
-        // Список фото и видео
-        $this->widget('questionary.extensions.widgets.QUserMedia.QUserMedia', array(
-            'questionary' => $questionary,
-        ));
-        ?>
+            <?php 
+            // Список фото и видео
+            $this->widget('questionary.extensions.widgets.QUserMedia.QUserMedia', array(
+                'questionary' => $questionary,
+            ));
+            ?>
         </div>
     </div>
     <div class="span7">
         <div class="row">
-            <div class="span6">
-                <?php 
-                // выводим список умений и достижений участника 
-                $this->widget('questionary.extensions.widgets.QUserBages.QUserBages', array(
-                    'bages' => $questionary->bages,
-                ));
-                ?>
-            </div>
+            <?php 
+            // выводим список умений и достижений участника 
+            $this->widget('questionary.extensions.widgets.QUserBages.QUserBages', array(
+                'bages' => $questionary->bages,
+            ));
+            ?>
         </div>
         <div class="row">
-            <div class="span7">
             <?php 
             // Выводим всю остальную информацию о пользователе
             $this->widget('questionary.extensions.widgets.QUserInfo.QUserInfo', array(
@@ -105,7 +100,6 @@ if ( $canEdit )
                 'activeTab'   => $activeTab,
             ));
             ?>
-            </div>
         </div>
     </div>
 </div>
