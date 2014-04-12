@@ -17,7 +17,7 @@ if ( $cover = $data->getAvatarUrl('catalog') )
 if ( $data AND isset($data->user) )
 {
 ?>
-<li style="margin-right:0px;" rel="tooltip" title=""
+<li rel="tooltip" title=""
     data-original-title="<?= implode(', ', array($data->user->fullname, $data->age)); ?>"  data-placement="top" 
     data-toggle="tooltip">
     <a href="<?= Yii::app()->createUrl(Yii::app()->getModule('questionary')->profileUrl, array('id' => $data->id));?>" 
