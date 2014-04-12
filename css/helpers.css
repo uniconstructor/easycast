@@ -1,33 +1,31 @@
+/* ==================================================
+ Часто используемые css-классы для выполнения универсальных задач
+ Помещаемые в этом файле стили должны работать одинаково в любой теме оформления
+ Любые создаваемые css-классы должны иметь префикс "ec-"
+ Создание селекторов по имени тега без указания класса (например li{}) запрещается без крайней необходимости
+  
+ @todo удалить из этой папки bg.gif (если откажемся от фона) и все остальные файлы стилей кроме этого, 
+       проследив чтобы коммерческое предложение (easycast.ru/sale) не пострадало 
+       (если оно вдруг использует отсюда что-то)
+================================================== */
+
 /**
- * Исправвление позиционирования элементов в разных браузерах
+ * Исправление позиционирования блочных элементов в разных браузерах
+ * Это правило сильно уменьшает количество проблем с кроссбраузерной версткой
  * @see http://tympanus.net/codrops/2012/10/25/kick-start-your-project-a-collection-of-handy-css-snippets/
  */
 *, *:before, *:after {
     -webkit-box-sizing: border-box;
     -moz-box-sizing:    border-box;
+    -o-box-sizing:      border-box;
     box-sizing:         border-box;
 }
-
-/**
- * Исправление размера input-полей для bootstrap
- */
-input, div.input-prepend, span.add-on {
-    box-sizing:         content-box;
-    -moz-box-sizing:    content-box;
-    -webkit-box-sizing: content-box;
-    -o-box-sizing:      content-box;
-}
-
 /**
  * Скругленные уголки у аватарок всех пользователей
  */
-.ec-rounded-avatar {
+.ec-rounded-avatar, .ec-round-the-corner {
     border-radius: 10px;
 }
-.ec-round-the-corner {
-    border-radius: 10px;
-}
-
 /**
  * Стиль для раскрывающихся блоков меню: более темный, чтобы казалось что это "внутренняя часть" страницы
  */
@@ -90,18 +88,19 @@ input, div.input-prepend, span.add-on {
 }
 
 /**
- * Заголовок информационного блока
+ * Стили для заголовков информационных блоков (например название проекта или роли) 
+ * добавляют горизонтальную линию под заголовком для более четкого разделения названия и описания объекта
  */
 .ec-details-header {
     border-bottom: 5px solid #47A3DA;
 }
-
 .ec-details-subheader {
     border-bottom: 1px dashed #CCC;
 }
 
 /**
  * Стили для блоков с треугольными стрелками (помещены здесь чтобы не подключать их при загрузке по AJAX)
+ * @todo не пригодились, удалить при рефакторинге
  */
 .ec-key-value-container {
     text-align: center;
@@ -125,7 +124,6 @@ svg.ec-triangle-spacer {
 .ec-triangle-spacer:after, .ec-triangle-spacer:before {
     -moz-box-sizing: border-box;
 }
-
 .ec-key-bg-info {
     background: none repeat scroll 0 0 #3498DB;
 }
@@ -158,9 +156,13 @@ svg.ec-triangle-spacer {
     stroke: #3498DB;
     stroke-width: 2;
 }
+/* (конец стилей для блоков с треугольными стрелками) */
 
 /**
- * Класс для отображения свойства объекта (например тип внешности в анкете)
+ * Класс для отображения одного свойства объекта (например тип внешности в анкете)
+ * Выглядит как маленький блок с цветной полоской слева и справа (или только слева)
+ * Может выводить основную и дополнительную информацию, дополнительная информация выводится под основной
+ * полупрозрачным цветом
  */
 .ec-property-container {
     width:100%;
@@ -174,19 +176,44 @@ svg.ec-triangle-spacer {
     margin-bottom: 5px;
     text-align:center;
 }
-
 .ec-property-container p {
     margin-top: 0px;
     margin-bottom: 0px;
 }
 .ec-property-caption {
-    color:#a2a2a2;font-weight: 400;font-size: 1.2em;
+    opacity: 0.5;
+    font-weight: 400;
+    font-size: 1.2em;
 }
-.ec-left-dash-info {
+.ec-dash-info {
     border-left: 5px solid #4183C4;
     border-right: 5px solid #4183C4;
 }
-.ec-left-dash-default {
+.ec-dash-default {
     border-left: 5px solid #888;
     border-right: 5px solid #888;
+}
+.ec-left-dash-info {
+    border-left: 5px solid #4183C4;
+}
+.ec-left-dash-default {
+    border-left: 5px solid #888;
+}
+
+/* ===================================================================================
+ ДОПОЛНИТЕЛЬНЫЕ ПРАВИЛА ДЛЯ ВСЕХ ПОДКЛЮЧАЕМЫХ ТЕМ ОФОРМЛЕНИЯ НА БАЗЕ BOOTSTRAP 2.3.2
+====================================================================================== */
+/**
+ * Исправление размера input-полей и других элементов bootstrap, которые неверно масштабировались (сжимались)
+ * после применения box-sizing: border-box;
+ */
+input, div.input-prepend, span.add-on, span.badge {
+    box-sizing:         content-box;
+    -moz-box-sizing:    content-box;
+    -webkit-box-sizing: content-box;
+    -o-box-sizing:      content-box;
+}
+/* Исправление размера плашек (bages) */
+.badge {
+    padding-bottom: 3px;
 }
