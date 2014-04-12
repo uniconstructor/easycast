@@ -9,6 +9,16 @@
 }
 
 /**
+ * Исправление размера input-полей для bootstrap
+ */
+input, div.input-prepend, span.add-on {
+    box-sizing:         content-box;
+    -moz-box-sizing:    content-box;
+    -webkit-box-sizing: content-box;
+    -o-box-sizing:      content-box;
+}
+
+/**
  * Скругленные уголки у аватарок всех пользователей
  */
 .ec-rounded-avatar {
