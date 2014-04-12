@@ -53,7 +53,7 @@ $this->widget('ext.ECMarkup.ECResponsiveFooter.ECResponsiveFooter');
 ?>
 <!-- Bootstrap skin JS -->
 <!--script src="<?= Yii::app()->theme->baseUrl; ?>/js/bootstrap.min.js" type="text/javascript"></script-->
-<script src="<?= Yii::app()->theme->baseUrl; ?>/js/jquery.flexslider-min.js" type="text/javascript"></script>
+<!--script src="<?= Yii::app()->theme->baseUrl; ?>/js/jquery.flexslider-min.js" type="text/javascript"></script-->
 <script src="<?= Yii::app()->theme->baseUrl; ?>/js/jquery.isotope.js" type="text/javascript"></script>
 <script src="<?= Yii::app()->theme->baseUrl; ?>/js/placeholder.js" type="text/javascript"></script>
 <script src="<?= Yii::app()->theme->baseUrl; ?>/js/plugins.js" type="text/javascript"></script>
