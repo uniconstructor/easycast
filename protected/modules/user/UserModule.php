@@ -361,7 +361,7 @@ class UserModule extends CWebModule
 	
 	/**
 	 * Получить текущий режим просмотра сайта: для участников или для заказчиков
-	 * @return string
+	 * @return 'user'|'customer'
 	 */
 	public function getViewMode()
 	{
