@@ -67,6 +67,9 @@ return array(
     'cm' => 'см',
     'kg' => 'кг',
     'printer_friendly_version' => 'Версия для печати',
+    'guest' => 'Гость',
+    'customer' => 'Заказчик',
+    'user' => 'Участник',
     
     // Формы
     'form_required_fields' => 'Поля, помеченные звездочкой {mark} - обязательные',
@@ -82,6 +85,9 @@ return array(
     'send_feedback' => 'Обратная связь',
     'join_in' => 'Регистрация',
     'entrance' => 'Вход',
+    'sign_in' => 'Вход',
+    'sign_up' => 'Регистрация',
+    'sign_up_user' => 'Стать участником',
     'exit' => 'Выход ({username})',
     'logout' => 'Выход',
     'menu' => 'Меню',
