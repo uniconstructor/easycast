@@ -2540,3 +2540,11 @@ blockquote small:before {
 		 -o-transform: rotateY(180deg);
 			transform: rotateY(180deg);
 }
+
+/* ==================================================
+          ДОПОЛНИТЕЛЬНЫЕ СТИЛИ EASYCAST
+================================================== */
+/* Главное меню/информер участника */
+div.ec-user-informer > div {
+    line-height:20px;
+}
