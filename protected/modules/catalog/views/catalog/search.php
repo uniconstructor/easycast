@@ -1,8 +1,8 @@
 <?php
 /**
- * Большая форма поиска, в которой есть все
- * Форма не использует модель
+ * Страница формы поиска в разделе каталога или по всей базе
  */
+/* @var $this CatalogController */
 ?>
 <?php
 // верхняя полоска со списком разделов каталога
@@ -13,7 +13,7 @@ $this->widget('catalog.extensions.search.QSectionHelper.QSectionHelper', array(
     'searchObject' => $rootSection,
 ));
 ?>
-<div class="row">
+<div class="row-fluid">
     <div class="span9" id="search_results" style="margin-top:10px;">
         <?php
         // Выводим виджет поисковых результатов

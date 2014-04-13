@@ -1,4 +1,7 @@
 <?php
+/**
+ * Страница каталога: отображает один из разделов каталога или список всех разделов
+ */
 /* @var $this CatalogController */
 
 if ( $sectionid != 1 AND $section = CatalogSection::model()->findByPk($sectionid) )
@@ -8,19 +11,19 @@ if ( $sectionid != 1 AND $section = CatalogSection::model()->findByPk($sectionid
     );
     $this->breadcrumbs[] = $section->name;
 }else
-{
+{// просматриваются все разделы
    $this->breadcrumbs = array(
        CatalogModule::t('catalog'),
    );
 }
 ?>
-<div class="span12" style="margin-left:0px;">
-<?php 
-
-// Выводим страницу с фотоальбомами одним виджетом
-$this->widget('application.modules.catalog.extensions.CatalogData.CatalogData', array(
-    'sectionid' => $sectionid,
-));
-
-?>
+<div class="page-alternate">
+    <div class="row-fluid">
+        <?php 
+        // Выводим страницу с фотоальбомами одним виджетом
+        $this->widget('application.modules.catalog.extensions.CatalogData.CatalogData', array(
+            'sectionid' => $sectionid,
+        ));
+        ?>
+    </div>
 </div>
