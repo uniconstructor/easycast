@@ -25,7 +25,6 @@
 <div id="footer">
     <div class="container">
         <div class="row sections">
-
             <div class="span4 profile">
                 <div class="span4 twitter">
                     <h3 class="footer_header">Twitter Feed</h3>
@@ -45,7 +44,7 @@
                 </div>
             </div>
 
-            <div class="span4 profile">
+            <!--div class="span4 profile">
                 <div class="span4 flickrwidget">
                     <h3 class="footer_header">Flickr Photos</h3>
                     <div class="post">
@@ -54,24 +53,21 @@
                             href="blog_post.html"><img class="flickr-photos" src="_include/img/profile/profile-02.jpg" alt="box1"></a> <a
                             href="blog_post.html"><img class="flickr-photos" src="_include/img/profile/profile-02.jpg" alt="box1"></a>
                     </div>
-
                     <div class="post">
                         <a href="blog_post.html"><img class="flickr-photos" src="_include/img/profile/profile-02.jpg" alt="box1"></a> <a
                             href="blog_post.html"><img class="flickr-photos" src="_include/img/profile/profile-02.jpg" alt="box1"></a> <a
                             href="blog_post.html"><img class="flickr-photos" src="_include/img/profile/profile-02.jpg" alt="box1"></a> <a
                             href="blog_post.html"><img class="flickr-photos" src="_include/img/profile/profile-02.jpg" alt="box1"></a>
                     </div>
-
                     <div class="post">
                         <a href="blog_post.html"><img class="flickr-photos" src="_include/img/profile/profile-02.jpg" alt="box1"></a> <a
                             href="blog_post.html"><img class="flickr-photos" src="_include/img/profile/profile-02.jpg" alt="box1"></a> <a
                             href="blog_post.html"><img class="flickr-photos" src="_include/img/profile/profile-02.jpg" alt="box1"></a> <a
                             href="blog_post.html"><img class="flickr-photos" src="_include/img/profile/profile-02.jpg" alt="box1"></a>
                     </div>
-
                     <a href="#">Full Gallery</a>
                 </div>
-            </div>
+            </div-->
         </div>
     </div>
     <!-- End Footer -->
