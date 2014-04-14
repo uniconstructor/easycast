@@ -2,7 +2,11 @@
 
 /**
  * Фильтр формы поиска содержащий только список иконок с разделами каталога
- * Отображается как длинная полоска с иконками разделов каталога вверху страницы
+ * Отображается как длинная горизонтальная полоска с названиями разделов каталога 
+ * (при отображении результатов поиска)
+ * или как вертикальный столбец с разделами каталога
+ * 
+ * @todo возможно стоит добавить иконку для каждого раздела, желательно векторную
  */
 class QSearchFilterIconList extends QSearchFilterBase
 {
@@ -16,16 +20,61 @@ class QSearchFilterIconList extends QSearchFilterBase
      * @var bool - очищать ли выбранные категории по событию очистки формы? 
      */
     public $clearByEvent = false;
+    /**
+     * @var string - как располагать кнопки с разделами?
+     *               horizontal - горизонтально, по 6 элементов в строке
+     *               vertical   - вертикально, в один столбец по всей ширине столбца
+     * @todo вместо этого параметра использовать $this->display со значением 'helper'
+     *       когда в класс QSearchFilterBase будет добавлен такой режим просмотра
+     */
+    public $buttonAlignment = 'horizontal';
     
+    /**
+     * @var string
+     */
     protected $_iconsAssetUrl;
-    
     /**
      * @var array - список имен input-полей, которые содержатся в фрагменте формы
      */
     protected $elements = array('sections');
     
     /**
-     * (non-PHPdoc)
+     * @see SearchFilters::init()
+     */
+    public function init()
+    {
+        parent::init();
+        // Подключаем картинки, стили и скрипты для оформления
+        $this->_iconsAssetUrl = Yii::app()->assetManager->publish(
+            Yii::getPathOfAlias('catalog.extensions.search.filters.QSearchFilterIconList.assets').DIRECTORY_SEPARATOR);
+    
+        $refreshJs = '';
+        if ( $this->refreshDataOnChange )
+        {// если нужно сразу же обновлять результаты поиска при изменении критериев поиска
+            // то добавляем скрипт который создает jQuery-событие "критерии поиска изменены"
+            // виджет результатов поиска (QSearchResult) перехватит это событие и обновить свое
+            // содержимое через AJAX 
+            $refreshJs = '$("body").trigger("'.$this->refreshDataEvent.'");';
+        }
+        // устанавливаем скрипт активации кнопки для каждого раздела каталога
+        foreach ( $this->getCatalogSections() as $section )
+        {
+            $js = '$("#QSearchsections_button_'.$section->id.'").click(function(){
+                $(this).toggleClass("btn-primary");
+                if ( $(this).hasClass("btn-primary") )
+                {
+                    $("#QSearchsections_hidden_'.$section->id.'").prop("checked", true);
+                }else
+                {
+                    $("#QSearchsections_hidden_'.$section->id.'").prop("checked", false);
+                }
+                '.$refreshJs.'
+            });';
+            Yii::app()->clientScript->registerScript('#toggleSearchSectionIcon'.$section->id, $js, CClientScript::POS_END);
+        }
+    }
+    
+    /**
      * @see QSearchFilterBase::getTitle()
     */
     protected function getTitle()
@@ -42,44 +91,20 @@ class QSearchFilterIconList extends QSearchFilterBase
     }
     
     /**
-     * @see SearchFilters::init()
-     */
-    public function init()
-    {
-        parent::init();
-        // Подключаем картинки, стили и скрипты для оформления
-        $this->_iconsAssetUrl = Yii::app()->assetManager->publish(
-            Yii::getPathOfAlias('catalog.extensions.search.filters.QSearchFilterIconList.assets').DIRECTORY_SEPARATOR);
-        
-        $refreshJs = '';
-        if ( $this->refreshDataOnChange )
-        {
-            $refreshJs = '$("body").trigger("'.$this->refreshDataEvent.'");';
-        }
-        // устанавливаем скрипт активации кнопки для каждого раздела
-        foreach ( $this->getCatalogSections() as $section )
-        {
-            $js = '$("#QSearchsections_button_'.$section->id.'").click(function(){
-                $(this).toggleClass("ec-search-section-active");
-                if ( $(this).hasClass("ec-search-section-active") )
-                {
-                    $("#QSearchsections_hidden_'.$section->id.'").prop("checked", true);
-                }else
-                {
-                    $("#QSearchsections_hidden_'.$section->id.'").prop("checked", false);
-                }
-                '.$refreshJs.'
-            });';
-            Yii::app()->clientScript->registerScript('#toggleSearchSectionIcon'.$section->id, $js, CClientScript::POS_END);
-        }
-    }
-    
-    /**
      * @see QSearchFilterBase::getContent()
      */
     protected function getContent()
     {
-        return $this->render('sections', array('sections' => $this->getCatalogSections()), true);
+        // загружаем отображаемые разделы каталога
+        $sections = $this->getCatalogSections();
+        // вспоминаем, какие разделы были выбраны в последний раз
+        $data     = $this->loadLastSearchParams();
+        
+        $displayOptions = array(
+            'sections' => $sections,
+            'data'     => $data,
+        );
+        return $this->render($this->buttonAlignment, $displayOptions, true);
     }
     
     /**
@@ -117,7 +142,6 @@ class QSearchFilterIconList extends QSearchFilterBase
             }
             return data;
         };";
-        //return $js;
     }
     
     /**
