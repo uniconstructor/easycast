@@ -124,6 +124,28 @@ class SearchFilters extends CWidget
      */
     public $refreshDataOnChange = true;
     /**
+     * @var array - параметры отображения для кнопки "Найти"
+     */
+    public $searchButtonHtmlOptions = array(
+        'class' => 'btn btn-success',
+        'id'    => 'search_button',
+    );
+    /**
+     * @var array - параметры отображения для кнопки "Очистить"
+     */
+    public $clearButtonHtmlOptions = array(
+        'class' => 'btn btn-primary',
+        'id'    => 'clear_search',
+    );
+    /**
+     * @var array - параметры отображения для кнопки "Вернуться в расширенный поиск"
+     */
+    public $backToFormButtonHtmlOptions = array(
+        'class' => 'btn btn-warning',
+    );
+    
+    
+    /**
      * @var array - допустимые режимы отображения виджета
      *              form    - большая форма поиска: критерии поиска не сворачиваются, список разделов отображается
      *                        как большая полоска со списком кнопок наверху
@@ -140,7 +162,6 @@ class SearchFilters extends CWidget
     protected $displayModes = array('form', 'filter', 'vacancy', 'section', 'tab');
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
      */
     public function init()
@@ -191,7 +212,6 @@ class SearchFilters extends CWidget
     }
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::run()
      */
     public function run()
@@ -347,13 +367,10 @@ class SearchFilters extends CWidget
      */
     protected function displaySearchButton()
     {
-        $ajaxUrl = Yii::app()->createUrl($this->searchUrl);
+        $ajaxUrl     = Yii::app()->createUrl($this->searchUrl);
         $ajaxOptions = $this->getAjaxSearchOptions();
         
-        echo CHtml::ajaxButton($this->searchButtonTitle, $ajaxUrl, $ajaxOptions, array(
-            'class' => 'btn btn-success',
-            'id'    => 'search_button',
-        ));
+        echo CHtml::ajaxButton($this->searchButtonTitle, $ajaxUrl, $ajaxOptions, $this->searchButtonHtmlOptions);
     }
     
     /**
@@ -461,10 +478,7 @@ class SearchFilters extends CWidget
             'success'    => 'function(data, status){'.$refreshJs.'}',
         );
         
-        echo CHtml::ajaxButton('Очистить', $clearUrl, $ajaxOptions, array(
-            'class' => 'btn btn-primary',
-            'id'    => 'clear_search'
-        ));
+        echo CHtml::ajaxButton('Очистить', $clearUrl, $ajaxOptions, $this->clearButtonHtmlOptions);
     }
     
     /**
@@ -474,12 +488,12 @@ class SearchFilters extends CWidget
     protected function displayBackToFormButton()
     {
         if ( ! $this->backToFormUrl )
-        {
+        {// а не нужно ее отображать :)
             return;
         }
         $backToFormUrl = Yii::app()->createUrl($this->backToFormUrl);
         
-        echo '<br><br>'.CHtml::link('В расширенный поиск', $backToFormUrl, array('class' => 'btn btn-warning'));
+        echo '<br><br>'.CHtml::link('В расширенный поиск', $backToFormUrl, $this->backToFormButtonHtmlOptions);
     }
     
     /**
