@@ -10,6 +10,8 @@ Yii::import('catalog.extensions.search.SearchFilters.SearchFilters');
  * 
  * Форма собирает себя по фрагметам, для каждого поля используя специальный виджет
  * Виджеты полей общие для фильтров и для формы поиска
+ * 
+ * @todo удалить старые css-стили и старые изображения из папки images
  */
 class QSearchForm extends SearchFilters
 {
@@ -36,9 +38,23 @@ class QSearchForm extends SearchFilters
      * @var array - распределение фильтров по колонкам формы поиска
      */
     public $columnFilters = array(
-        'base'   => array('name', 'gender', 'age', 'playage', 'height'),
+        'base'   => array('gender', 'age', 'playage', 'height', 'name'),
         'looks'  => array('looktype', 'weight', 'haircolor', 'hairlength', 'eyecolor', 'body', 'shoessize', 'hastatoo'),
         'skills' => array('dancer', 'voicetimbre', 'instrument', 'sporttype', 'extremaltype', 'language', 'driver'),
+    );
+    /**
+     * @var array - параметры отображения для кнопки "Найти"
+     */
+    public $searchButtonHtmlOptions = array(
+        'class' => 'btn btn-success btn-large',
+        'id'    => 'search_button',
+    );
+    /**
+     * @var array - параметры отображения для кнопки "Очистить"
+     */
+    public $clearButtonHtmlOptions = array(
+        'class' => 'btn btn-primary btn-large',
+        'id'    => 'clear_search',
     );
     
     /**
@@ -47,10 +63,7 @@ class QSearchForm extends SearchFilters
     protected $_assetUrl;
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
-     * 
-     * @todo удалить
      */
     public function init()
     {
@@ -58,15 +71,15 @@ class QSearchForm extends SearchFilters
         $this->mode = 'form';
         
         // подключаем стили формы поиска
-        $this->_assetUrl = Yii::app()->assetManager->publish(
+        /*$this->_assetUrl = Yii::app()->assetManager->publish(
             Yii::getPathOfAlias('catalog.extensions.search.QSearchForm.assets') . DIRECTORY_SEPARATOR);
-        Yii::app()->clientScript->registerCssFile($this->_assetUrl.'/css/search.css');
-        // регистрируем скрипт обновления счетчика
+        Yii::app()->clientScript->registerCssFile($this->_assetUrl.'/css/search.css');*/
+        // регистрируем скрипт счетчика - он автоматически обновляет количество подходящих участников
+        // при каждом изменении критериев поиска
         $this->createCountRefreshJs();
     }
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::run()
      */
     public function run()
