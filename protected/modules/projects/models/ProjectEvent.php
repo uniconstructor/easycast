@@ -124,7 +124,6 @@ class ProjectEvent extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::init()
 	 */
 	public function init()
@@ -754,6 +753,25 @@ class ProjectEvent extends CActiveRecord
 	    
 	    return $this->getFormattedTimeStart().' - '.Yii::app()->getDateFormatter()->format('HH:mm', $this->timeend);
 	}
+	
+	/**
+	 * Получить дату события в стандартном формате
+	 * @return string
+	 */
+    public function getFormattedDate()
+    {
+        return Yii::app()->getDateFormatter()->format('d MMMM', $this->timestart);
+    }
+    
+    /**
+     * Получить ссылку на просмотр этого события
+     * @param array $params - дополнительные параметры для ссылки (если нужно)
+     * @return string
+     */
+    public function getUrl($params=array())
+    {
+        return Yii::app()->createUrl('//projects/projects/view', array('eventid' => $this->id));
+    }
 	
 	/**
 	 * Получить список всех возможных типов мероприятия (для select-списков)
