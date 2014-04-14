@@ -179,9 +179,20 @@ class EventsAgenda extends CWidget
      */
     protected function getTimeLineEvent($event)
     {
-        $time = Yii::app()->getDateFormatter()->format('HH:mm', $event->timestart).' &ndash; '.
-                Yii::app()->getDateFormatter()->format('HH:mm', $event->timeend);
+        
+        
         $name = CHtml::link($event->project->name, $event->url);
+        if ( $event->nodates )
+        {// мероприятие без конкретной даты - пишем "дата уточняется"
+            $time = '[Дата уточняется]';
+            $date = '';
+        }else
+        {
+            $time = Yii::app()->getDateFormatter()->format('HH:mm', $event->timestart).'-'.
+                    Yii::app()->getDateFormatter()->format('HH:mm', $event->timeend);
+            $date = '<nobr>'.$event->getFormattedDate().'</nobr>';
+        }
+        
         $containerOptions = array();
         if ( $this->questionary AND $event->hasMember($this->questionary->id) )
         {// если пользователь участвует в событии - выделим его другим цветом 
@@ -196,13 +207,13 @@ class EventsAgenda extends CWidget
         $iconImage = $event->project->getAvatarUrl();
         
         $result = array(
-            'date'             => $event->getFormattedDate(),
+            'date'             => $date,
             'time'             => $time,
             'name'             => $name,
             'description'      => $event->description,
             'itemOptions'      => $itemOptions,
-            'dateOptions'      => array('style' => 'font-weight:400;font-size:1.9em;line-height:1.5em;'),
-            'timeOptions'      => array('style' => 'font-weight:700;'),
+            'dateOptions'      => array('style' => 'font-weight:300;font-size:1.5em;line-height:1.5em;'),
+            'timeOptions'      => array('style' => 'font-weight:300;font-size:0.9em;color:#888;'),
             'containerOptions' => $containerOptions,
             //'iconOptions' => array('class' => 'cbp_tmicon-phone'),
             'iconImage'        => $iconImage,
