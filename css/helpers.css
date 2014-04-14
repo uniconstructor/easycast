@@ -225,3 +225,7 @@ input, div.input-prepend, span.add-on, span.badge {
 .badge {
     padding-bottom: 3px;
 }
+
+.page-alternate {
+    padding-top: 0px;
+}
