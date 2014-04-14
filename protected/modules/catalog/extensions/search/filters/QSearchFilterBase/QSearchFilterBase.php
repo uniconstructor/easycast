@@ -175,6 +175,7 @@ class QSearchFilterBase extends CWidget
      *             отслеживать в реальном времени
      */
     public $raizeEventOnChange  = false;
+    
     /**
      * @var string - название функции, которая проверяет, используется ли фильтр поиска
      *                (выбрано ли хотя бы одно значение)
@@ -241,7 +242,6 @@ class QSearchFilterBase extends CWidget
     protected $_assetUrl;
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
      */
     public function init()
@@ -379,7 +379,6 @@ class QSearchFilterBase extends CWidget
     }
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::run()
      */
     public function run()
