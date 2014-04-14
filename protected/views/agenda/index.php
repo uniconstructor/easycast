@@ -8,10 +8,13 @@ $this->breadcrumbs = array(
     'Наши события',
 );
 ?>
-
-<?php 
-// все текущие события выводятся одним виджетом
-$this->widget('projects.extensions.EventsAgenda.EventsAgenda', array(
-    'displayActive' => true,
-));
-?>
+<div class="page-alternate">
+    <div class="container">
+        <?php 
+        // все текущие события выводятся одним виджетом
+        $this->widget('projects.extensions.EventsAgenda.EventsAgenda', array(
+            'displayActive' => true,
+        ));
+        ?>
+    </div>
+</div>

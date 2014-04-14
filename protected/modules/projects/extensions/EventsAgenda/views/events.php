@@ -6,7 +6,7 @@
 
 $this->widget('bootstrap.widgets.TbThumbnails', array(
     'dataProvider' => $this->dataProvider,
-    'itemView'     => '_event',
+    'itemView'     => '_thumbnailEvent',
     'emptyText'    => 'nodata',
     'template'     => '{items}',
 ));

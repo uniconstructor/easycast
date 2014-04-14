@@ -38,7 +38,13 @@ class EventsAgenda extends CWidget
      * @var int - сколько последних событий будут с таймерами обратного отсчета?
      *            (0 - все события будут с таймерами)
      */
-    public $timersLimit     = 0;
+    public $timersCount     = 0;
+    /**
+     * @var string - режим отображения списка событий
+     *               thumbnails - список блоков при помощи TbThumbnails
+     *               timeline   - временная ось при помощи Timeline Blueprint
+     */
+    public $displayMode     = 'timeline';
     
     /**
      * @var string - режим просмотра: заказчик (customer) или участник (user)
@@ -46,8 +52,18 @@ class EventsAgenda extends CWidget
     protected $userMode;
     /**
      * @var CActiveDataProvider - источник данных для получения списка событий
+     *                            (используется в режиме отображения thumbnails)
      */
     protected $dataProvider;
+    /**
+     * @var array - список событий (массив нужной структуры для виджета CdVerticalTimeLine)
+     *              (используется в режиме отображения timeline)
+     */
+    protected $events;
+    /**
+     * @var Questionary|null - анкета участника, просматривающего страницу или null если это гость или заказчик
+     */
+    protected $questionary;
     
     /**
      * @see CWidget::init()
@@ -58,6 +74,14 @@ class EventsAgenda extends CWidget
         if ( ! $this->displayActive AND ! $this->displayFinished )
         {// если не отображать ни активные ни завершенные события - то список всегда будет пустым
             throw new CException('Нужно выбрать хотя бы какие-то (активные или завершенные) события');
+        }
+        if ( ! in_array($this->displayMode, array('thumbnails', 'timeline')) )
+        {
+            throw new CException('Не выбран режим просмотра');
+        }
+        if ( $this->userMode === 'user' AND ! Yii::app()->user->isGuest )
+        {
+            $this->questionary = Yii::app()->getModule('user')->user()->questionary;
         }
         // получаем список последних событий с сайта
         $this->loadEvents();
@@ -70,7 +94,20 @@ class EventsAgenda extends CWidget
      */
     public function run()
     {
-        $this->render('events');
+        if ( $this->displayMode === 'thumbnails' )
+        {
+            $this->widget('bootstrap.widgets.TbThumbnails', array(
+                'dataProvider' => $this->dataProvider,
+                'itemView'     => '_thumbnailEvent',
+                'emptyText'    => 'nodata',
+                'template'     => '{items}',
+            ));
+        }else
+        {
+            $this->widget('ext.CdVerticalTimeLine.CdVerticalTimeLine', array(
+                'events' => $this->events,
+            ));
+        }
     }
     
     /**
@@ -103,9 +140,80 @@ class EventsAgenda extends CWidget
         $criteria->addInCondition('status', $statuses);
         $criteria->order = "`timestart` DESC";
         
-        $this->dataProvider = new CActiveDataProvider('ProjectEvent', array(
-            'criteria'   => $criteria,
-            'pagination' => $pagination,
-        ));
+        if ( $this->displayMode === 'thumbnails' )
+        {
+            $this->dataProvider = new CActiveDataProvider('ProjectEvent', array(
+                'criteria'   => $criteria,
+                'pagination' => $pagination,
+            ));
+        }else
+        {
+            $this->events = $this->getTimeLineEvents($criteria);
+        }
+    }
+    
+    /**
+     * Получить массив событий для использования в элементе CdVerticalTimeLine
+     * @param CDbCriteria $criteria
+     * @return array
+     */
+    protected function getTimeLineEvents($criteria)
+    {
+        $events = ProjectEvent::model()->findAll($criteria);
+        $result = array();
+        
+        foreach ( $events as $event )
+        {
+            $result[] = $this->getTimeLineEvent($event);
+        }
+        
+        return $result;
+    }
+    
+    /**
+     * Получить массив с данными одного события для использования в элементе CdVerticalTimeLine
+     * @param ProjectEvent $event
+     * @return array
+     * 
+     * @todo для подтвержденных участников добавлять место сбора, доп. информацию и все остальное
+     */
+    protected function getTimeLineEvent($event)
+    {
+        $time = Yii::app()->getDateFormatter()->format('HH:mm', $event->timestart).' &ndash; '.
+                Yii::app()->getDateFormatter()->format('HH:mm', $event->timeend);
+        $name = CHtml::link($event->project->name, $event->url);
+        $containerOptions = array();
+        if ( $this->questionary AND $event->hasMember($this->questionary->id) )
+        {// если пользователь участвует в событии - выделим его другим цветом 
+            $containerOptions['style'] = 'background-color:#468847;';
+            $name .= ' (вы участвуете)';
+        }
+        $itemOptions = array();
+        if ( $event->isExpired() )
+        {// если пользователь участвует в событии - выделим его другим цветом 
+            //$itemOptions['style'] = 'opacity:0.8;';
+        }
+        $iconImage = $event->project->getAvatarUrl();
+        
+        $result = array(
+            'date'             => $event->getFormattedDate(),
+            'time'             => $time,
+            'name'             => $name,
+            'description'      => $event->description,
+            'itemOptions'      => $itemOptions,
+            'dateOptions'      => array('style' => 'font-weight:400;font-size:1.9em;line-height:1.5em;'),
+            'timeOptions'      => array('style' => 'font-weight:700;'),
+            'containerOptions' => $containerOptions,
+            //'iconOptions' => array('class' => 'cbp_tmicon-phone'),
+            'iconImage'        => $iconImage,
+            //'iconImageOptions' => array(),
+            'iconLink'         => $event->url,
+            'iconLinkOptions'  => array(
+                'data-toggle' => 'tooltip',
+                'data-title'  => CHtml::encode($event->project->name),
+            ),
+        );
+        
+        return $result;
     }
 }
