@@ -21,17 +21,7 @@ class SaleController extends Controller
         Yii::import('application.modules.catalog.models.*');
         
         // для коммерческого предложения используется специальная тема оформления
-        /* Yii::app()->theme = 'landing';
-        Yii::app()->bootstrap->packages = array(
-            'bootstrap.css' => array(
-                'basePath' => 'webroot.themes.responsive.bootstrap',
-                'baseUrl'  => null,
-                'css'      => array('css/bootstrap.css'),
-            )
-        );*/
-        
         Yii::app()->theme = 'staticLanding';
-        //Yii::app()->theme = 'landing';
     }
     
     /**
