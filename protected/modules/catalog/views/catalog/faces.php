@@ -7,9 +7,16 @@
 $this->breadcrumbs = array(
     CatalogModule::t('project_faces'),
 );
-
-// список сервисов на главной (только для заказчиков)  
-$this->widget('ext.ECMarkup.EServiceList.EServiceList', array());
-
 ?>
-<div style="margin-bottom:100px;">&nbsp;</div>
+<div class="page-alternate">
+    <div class="title-page">
+        <h1 class="title"><?= CatalogModule::t('project_faces'); ?></h1>
+    </div>
+    <div class="row">
+        <?php
+        // список сервисов  
+        $this->widget('ext.ECMarkup.EServiceList.EServiceList', array());
+        ?>
+    </div>
+    <div style="margin-bottom:100px;">&nbsp;</div>
+</div>
