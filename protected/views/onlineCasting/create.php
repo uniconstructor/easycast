@@ -54,7 +54,7 @@ $this->widget('bootstrap.widgets.TbWizard', array(
             'onTabClick' => 'js:function(tab, navigation, index) {return false;}',
         ),
         'htmlOptions' => array(
-            'class' => 'row span12',
+            'class' => 'row-fluid',
         ),
         'tabs' => array(
             array(
