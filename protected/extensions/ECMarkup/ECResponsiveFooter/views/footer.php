@@ -24,57 +24,33 @@
 <!-- Footer -->
 <div id="footer">
     <div class="container">
-        <div class="row sections">
-            <div class="span4 profile">
-                <div class="span4 twitter">
-                    <h3 class="footer_header">Twitter Feed</h3>
-                    <div class="wrapper">
-                        <!-- Footer Latest Tweets -->
-                        <div class="twitter_footer">
-                            <p>
-                                <a href="">@micaelteixeira_</a> At vero eos et accusamus et iusto odio dignissimos. <a href="#">http://t.co/sBav7dm</a><br />
-                                <span>5 hours ago</span>
-                            </p>
-                            <p>
-                                <a href="">@maximal</a> At vero eos et accusamus et iusto odio dignissimos. <a href="#">http://t.co/f58Ddg4</a>
-                                <br /> <span>8 hours ago</span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
+        <div class="row-fluid text-center" style="text-transform: uppercase;">
+			<?php $this->printFooterMenu(); ?>
+        </div>
+        <div class="row-fluid text-center" style="color:#fff;padding-top:60px;padding-bottom:60px;">
+            <div class="span6">
+                <span style="text-transform:uppercase;">Горячая линия для заказчиков (24 часа):</span>
+                <?= Yii::app()->params['customerPhone']; ?>
+                <br>
+                order@easycast.ru
             </div>
-
-            <!--div class="span4 profile">
-                <div class="span4 flickrwidget">
-                    <h3 class="footer_header">Flickr Photos</h3>
-                    <div class="post">
-                        <a href="blog_post.html"><img class="flickr-photos" src="_include/img/profile/profile-02.jpg" alt="box1"></a> <a
-                            href="blog_post.html"><img class="flickr-photos" src="_include/img/profile/profile-02.jpg" alt="box1"></a> <a
-                            href="blog_post.html"><img class="flickr-photos" src="_include/img/profile/profile-02.jpg" alt="box1"></a> <a
-                            href="blog_post.html"><img class="flickr-photos" src="_include/img/profile/profile-02.jpg" alt="box1"></a>
-                    </div>
-                    <div class="post">
-                        <a href="blog_post.html"><img class="flickr-photos" src="_include/img/profile/profile-02.jpg" alt="box1"></a> <a
-                            href="blog_post.html"><img class="flickr-photos" src="_include/img/profile/profile-02.jpg" alt="box1"></a> <a
-                            href="blog_post.html"><img class="flickr-photos" src="_include/img/profile/profile-02.jpg" alt="box1"></a> <a
-                            href="blog_post.html"><img class="flickr-photos" src="_include/img/profile/profile-02.jpg" alt="box1"></a>
-                    </div>
-                    <div class="post">
-                        <a href="blog_post.html"><img class="flickr-photos" src="_include/img/profile/profile-02.jpg" alt="box1"></a> <a
-                            href="blog_post.html"><img class="flickr-photos" src="_include/img/profile/profile-02.jpg" alt="box1"></a> <a
-                            href="blog_post.html"><img class="flickr-photos" src="_include/img/profile/profile-02.jpg" alt="box1"></a> <a
-                            href="blog_post.html"><img class="flickr-photos" src="_include/img/profile/profile-02.jpg" alt="box1"></a>
-                    </div>
-                    <a href="#">Full Gallery</a>
-                </div>
-            </div-->
+        	<div class="span6">
+        	    <span style="text-transform:uppercase;">Техническая поддержка для пользователей:</span>
+                <?= Yii::app()->params['userPhone']; ?>
+                <br>
+                mail@easycast.ru
+            </div>
         </div>
     </div>
     <!-- End Footer -->
 
     <p class="credits">
-        &copy;2005-<?= date('Y'); ?> Кастинговое агенство «<a href="<?= Yii::app()->createAbsoluteUrl('//'); ?>" title="Кастинговое агенство easyCast">easyCast</a>». Все права защищены.
-        <br><small><a href="<?= Yii::app()->createAbsoluteUrl('/site/page/view/license'); ?>">Пользовательское соглашение</a></small>
+        &copy;2005-<?= date('Y'); ?>
+        Кастинговое агенство 
+        «<a href="<?= Yii::app()->createAbsoluteUrl('//'); ?>" title="Кастинговое агенство easyCast">easyCast</a>».
+        Все права защищены.
+        <br>
+        <small><a href="<?= Yii::app()->createAbsoluteUrl('/site/page/view/license'); ?>">Пользовательское соглашение</a></small>
     </p>
     <!-- Back To Top -->
     <a id="back-to-top" href="#"><i class="icon-arrow-up"></i></a>
