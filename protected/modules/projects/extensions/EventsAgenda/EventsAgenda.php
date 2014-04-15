@@ -179,9 +179,7 @@ class EventsAgenda extends CWidget
      */
     protected function getTimeLineEvent($event)
     {
-        
-        
-        $name = CHtml::link($event->project->name, $event->url);
+        $name = CHtml::link($event->project->name, $event->url, array('style' => 'font-weight:normal;color:#fff;text-transform:capitalize;'));
         if ( $event->nodates )
         {// мероприятие без конкретной даты - пишем "дата уточняется"
             $time = '[Дата уточняется]';
@@ -197,12 +195,12 @@ class EventsAgenda extends CWidget
         if ( $this->questionary AND $event->hasMember($this->questionary->id) )
         {// если пользователь участвует в событии - выделим его другим цветом 
             $containerOptions['style'] = 'background-color:#468847;';
-            $name .= ' (вы участвуете)';
+            $name .= ' [вы участвуете]';
         }
         $itemOptions = array();
         if ( $event->isExpired() )
         {// если пользователь участвует в событии - выделим его другим цветом 
-            //$itemOptions['style'] = 'opacity:0.8;';
+            $itemOptions['style'] = 'opacity:0.8;';
         }
         $iconImage = $event->project->getAvatarUrl();
         
