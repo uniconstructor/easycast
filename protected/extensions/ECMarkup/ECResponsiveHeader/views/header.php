@@ -22,9 +22,12 @@
         </div>
         <div class="span3 text-right">
             <div class="ec-user-informer">
-                <?php $this->widget('ext.ECMarkup.ECUserInformer.ECUserInformer'); ?>
+                <?= $this->infoBlockContent; ?>
             </div>
         </div>
     </div>
 </header>
 <!-- End Header -->
+<?php 
+$this->widget('ext.ECMarkup.ECRegister.ECRegister');
+?>
