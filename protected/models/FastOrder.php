@@ -462,8 +462,6 @@ class FastOrder extends CActiveRecord
 	{
 	    // отправляем оповещение по почте
 	    $this->sendEmailNotification();
-	    // отправляем оповещение в Мегаплан
-	    $this->sendMegaplanNotification();
 	    // @todo отправляем оповещение по SMS
 	}
 	
@@ -567,6 +565,10 @@ class FastOrder extends CActiveRecord
 	/**
 	 * Отправить оповещение о новом заказе в Мегаплан
 	 * @return void
+	 * 
+	 * @todo затея с Мегапланом провалилась, почтим ее память.
+	 *       Удалить эту функцию и связанный модуль при рефакторинге
+	 * @deprecated
 	 */
 	protected function sendMegaplanNotification()
 	{

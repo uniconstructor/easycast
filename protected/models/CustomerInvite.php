@@ -94,7 +94,7 @@ class CustomerInvite extends CActiveRecord
             array('key, key2', 'length', 'max'=>40),
             array('status', 'length', 'max'=>50),
             array('email, name', 'length', 'max'=>255),
-            array('email, name', 'required'),
+            array('email', 'required'),
             array('email', 'email'),
             array('comment, feedback', 'length', 'max'=>4095),
             
@@ -125,7 +125,6 @@ class CustomerInvite extends CActiveRecord
     }
     
     /**
-     * (non-PHPdoc)
      * @see CModel::behaviors()
      */
     public function behaviors()
@@ -141,7 +140,6 @@ class CustomerInvite extends CActiveRecord
     }
     
     /**
-     * (non-PHPdoc)
      * @see CActiveRecord::beforeSave()
      */
     protected function beforeSave()
