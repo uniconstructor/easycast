@@ -96,7 +96,7 @@ class RegistrationController extends Controller
 	        if ((Yii::app()->controller->module->loginNotActiv||(Yii::app()->controller->module->activeAfterRegister&&Yii::app()->controller->module->sendActivationMail==false))&&Yii::app()->controller->module->autoLogin) {
 	            $identity=new UserIdentity($model->username, $soucePassword);
 	            $identity->authenticate();
-	            Yii::app()->user->login($identity, 0);
+	            Yii::app()->user->login($identity, 3600*24*30);
 	            if ( $redirect )
 	            {
 	                $this->redirect(Yii::app()->controller->module->returnUrl);

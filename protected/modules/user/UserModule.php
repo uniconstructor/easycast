@@ -361,11 +361,14 @@ class UserModule extends CWebModule
 	
 	/**
 	 * Получить текущий режим просмотра сайта: для участников или для заказчиков
-	 * @return 'user'|'customer'
+	 * @param bool $forceDefault - устанавливать ли режим просмотра автоматически, если он не задан?
+	 *                             Используется для того чтобы определить, впервые ли пользователь на сайте
+	 *                             Если впервые - то при заходе на главную страницу он должен будет выбрать режим просмотра
+	 * @return string|null
 	 */
-	public function getViewMode()
+	public function getViewMode($forceDefault=true)
 	{
-	    if ( ! Yii::app()->user->hasState('userMode') )
+	    if ( ! Yii::app()->user->hasState('userMode') AND $forceDefault )
 	    {// инициализируем режим просмотра, если пользователь зашел первый раз, и еще не определился
 	        $this->setViewMode();
 	    }
@@ -373,12 +376,26 @@ class UserModule extends CWebModule
 	}
 	
 	/**
-	 * Получить текущий режим просмотра сайта: для участников или для заказчиков
+	 * Изменить текущий режим просмотра сайта: для участников или для заказчиков
+	 * @param string $mode - новый режим просмотра сайта
+	 *                     user
+	 *                     customer
 	 * @return string
+	 * 
+	 * @todo проверка на недопустимые значения
 	 */
 	public function setViewMode($mode='user')
 	{
 	    return Yii::app()->user->setState('userMode', $mode);
+	}
+	
+	/**
+	 * Очистить текущий режим просмотра - используется для того чтобы вернуться к странице выбора на главной
+	 * @return void
+	 */
+	public function crearViewMode()
+	{
+	    Yii::app()->user->clearStates(array('userMode'));
 	}
 	
 	/**
