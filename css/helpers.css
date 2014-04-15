@@ -229,3 +229,7 @@ input, div.input-prepend, span.add-on, span.badge {
 .page-alternate {
     padding-top: 0px;
 }
+
+.og-expander-inner {
+    background-color: #fff;
+}
