@@ -30,4 +30,5 @@
 <!-- End Header -->
 <?php 
 $this->widget('ext.ECMarkup.ECRegister.ECRegister');
+$this->widget('ext.ECMarkup.ECFastOrder.ECFastOrder');
 ?>
