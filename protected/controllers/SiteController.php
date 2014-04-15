@@ -33,13 +33,36 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
+        if ( Yii::app()->request->getParam('selectState') )
+        {// нужно вернуться к выбору режима (для авторизованых пользователей тоже доступно)
+            // отображаем виджет с разделителем и больше ничего не делаем
+            $this->render('selector');
+            return;
+        }
         if ( $newState = Yii::app()->request->getParam('newState') )
-        {
+        {// выбран новый режим просмотра - запомним его
             Yii::app()->getModule('user')->setViewMode($newState);
         }
-        $this->render('index');
-        // $this->render('application.modules.user.views.user.login');
-        // $this->redirect(Yii::app()->getModule('user')->loginUrl);
+        
+        // определяем текущий режим просмотра
+        if ( ! $view = Yii::app()->getModule('user')->getViewMode(false) )
+        {// текущий режим просмотра не ранее и не выбран пользователем сейчас
+            if ( Yii::app()->user->checkAccess('Admin') )
+            {// для администраторов: показываем страницу заказчика
+                $view = 'customer';
+            }elseif ( Yii::app()->user->checkAccess('Customer') )
+            {// @todo для зарегистрированых заказчиков - их страница
+                $view = 'customer';
+            }elseif ( Yii::app()->user->checkAccess('User') )
+            {// для участников - страница с событиями и всем остальным
+                $view = 'user';
+            }else
+            {// для всех остальных - страница выбора
+                $view = 'selector';
+            }
+        }
+        // выводим нужную страницу
+        $this->render($view);
     }
 
     /**
