@@ -68,7 +68,7 @@ $imageOptions = array(
         <?= CHtml::image($baseImageUrl.'13.jpg', 'Антон Калинкин', $imageOptions); ?>
     </div>
     <div class="span9">
-        <h3 class="profile-name">Константин Маньковский</h3>
+        <h3 class="profile-name">Антон Калинкин</h3>
         <p class="profile-description" style="font-weight:500;color:#497A89;">
             Генеральный продюсер
         </p>
