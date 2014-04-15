@@ -28,7 +28,9 @@
     </div>
 </header>
 <!-- End Header -->
-<?php 
+<?php
+// всплывающая форма регистрации 
 $this->widget('ext.ECMarkup.ECRegister.ECRegister');
+// всплывающая форма заказа
 $this->widget('ext.ECMarkup.ECFastOrder.ECFastOrder');
 ?>

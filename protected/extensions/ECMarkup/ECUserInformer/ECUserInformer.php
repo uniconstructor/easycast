@@ -12,6 +12,7 @@ Yii::import('ext.CdCustomDropDown.CdCustomDropDown');
  * @todo пункт меню для гостя-заказчика "срочный заказ"
  * @todo пункт меню для гостя-заказчика "заявка на расчет стоимости"
  * @todo пункт меню для участника "настройки"
+ * @todo сделать так чтобы при нажатии на пункт "регистрация" появлялась modal-форма
  * 
  * @todo языковые строки
  */
@@ -264,6 +265,10 @@ class ECUserInformer extends CdCustomDropDown
                     'icon'        => '<i class="icon-plus"></i>',
                     'text'        => Yii::t('coreMessages', 'sign_up'),
                     'itemOptions' => $this->defaultItemOptions,
+                    /*'linkOptions' => array(
+                        'data-target' => '#registration-form',
+                        'data-toggle' => 'modal',
+                    ),*/
                 ),
             );
         }else
