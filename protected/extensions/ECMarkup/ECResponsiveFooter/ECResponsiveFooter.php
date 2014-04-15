@@ -28,19 +28,23 @@ class ECResponsiveFooter extends CWidget
      */
     protected function printFooterMenu()
     {
-        $mode = Yii::app()->getModule('user')->getViewMode();
+        $links = array();
+        $mode = Yii::app()->getModule('user')->getViewMode(false);
+        
         if ( $mode === 'user' )
         {
             $items = $this->getUserMenu();
-        }else
+        }elseif ( $mode === 'customer' )
         {
             $items = $this->getCustomerMenu();
+        }else
+        {// не показываем дополнительную навинацию пока не выбран режим просмотра
+            return;
         }
-        $links = array();
+        
         foreach ( $items as $item )
         {
             $url  = Yii::app()->createAbsoluteUrl($item['url']);
-            //$text = mb_strtoupper($item['text']);
             $links[] = CHtml::link($item['text'], $url).' ';
         }
         
@@ -74,7 +78,7 @@ class ECResponsiveFooter extends CWidget
         if ( Yii::app()->user->isGuest )
         {
             $items[] = array(
-                'url'  => Yii::app()->user->registrationUrl,
+                'url'  => current(Yii::app()->getModule('user')->registrationUrl),
                 'text' => 'Регистрация',
             );
         }else
