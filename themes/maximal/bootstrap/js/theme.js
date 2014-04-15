@@ -5,8 +5,8 @@ var MAXIMAL = window.MAXIMAL || {};
 /* ==================================================
    Mobile Navigation
 ================================================== */
-var mobileMenuClone = $('#menu').clone().attr('id', 'navigation-mobile');
-
+//var mobileMenuClone = $('#menu').clone().attr('id', 'navigation-mobile');
+/*
 MAXIMAL.mobileNav = function(){
 	var windowWidth = $(window).width();
 	
@@ -40,7 +40,7 @@ MAXIMAL.listenerMenu = function(){
 		$('#navigation-mobile').slideUp(350, 'easeOutExpo');
 	});
 }
-
+*/
 /* ==================================================
    Slider Settings
 ================================================== */
@@ -166,7 +166,7 @@ MAXIMAL.slider = function(){
 /* ==================================================
    Filter Works
 ================================================== */
-
+/*
 MAXIMAL.filter = function (){
 	if($('#projects').length > 0){		
 		var $container = $('#projects');
@@ -211,13 +211,13 @@ MAXIMAL.filter = function (){
 			return false;
 		});
 	}
-}
+}*/
 
 /* ==================================================
 	Flexslider
 ================================================== */
 
-
+/*
 MAXIMAL.flexslider = function(){
  
   // store the slider in a local variable
@@ -251,12 +251,12 @@ MAXIMAL.flexslider = function(){
     flexslider.vars.minItems = gridSize;
     flexslider.vars.maxItems = gridSize;
   });
-};
+};*/
 
 /* ==================================================
 	Scroll to Top
 ================================================== */
-
+/*
 MAXIMAL.scrollToTop = function(){
 	var windowWidth = $(window).width(),
 		didScroll = false;
@@ -283,13 +283,13 @@ MAXIMAL.scrollToTop = function(){
 			}
 		}
 	}, 250);
-}
+}*/
 
 /* ==================================================
    Thumbs / Social Effects
 ================================================== */
 
-MAXIMAL.utils = function(){
+/*MAXIMAL.utils = function(){
 	
 	$('.item-thumbs').bind('touchstart', function(){
 		$(".active").removeClass("active");
@@ -306,7 +306,7 @@ MAXIMAL.utils = function(){
       	$(this).addClass('active');
     });
 	
-}
+}*/
 
 /* ==================================================
 	Init
@@ -316,7 +316,7 @@ MAXIMAL.slider();
 
 $(document).ready(function(){
 	// Call placeholder.js to enable Placeholder Property for IE9
-	Modernizr.load([
+	/*Modernizr.load([
 	{
 		test: Modernizr.input.placeholder,
 		nope: '_include/js/placeholder.js', 
@@ -331,19 +331,19 @@ $(document).ready(function(){
 				}
 		}
 	}
-	]);
+	]);*/
 	
 
 	
-	MAXIMAL.mobileNav();
-	MAXIMAL.listenerMenu();
-	MAXIMAL.filter();
-	MAXIMAL.scrollToTop();
-	MAXIMAL.flexslider();
+	//MAXIMAL.mobileNav();
+	//MAXIMAL.listenerMenu();
+	//MAXIMAL.filter();
+	//MAXIMAL.scrollToTop();
+	//MAXIMAL.flexslider();
 });
 
-$(window).resize(function(){
+/*$(window).resize(function(){
 	MAXIMAL.mobileNav();
-});
+});*/
 
 });
