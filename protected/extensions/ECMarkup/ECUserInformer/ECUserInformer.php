@@ -281,6 +281,12 @@ class ECUserInformer extends CdCustomDropDown
                     'itemOptions' => $this->defaultItemOptions,
                     'linkOptions' => array('target' => '_blank'),
                 ),
+                array(
+                    'url'         => $loginUrl,
+                    'icon'        => '<i class="icon-lock"></i>',
+                    'text'        => Yii::t('coreMessages', 'sign_in'),
+                    'itemOptions' => $this->defaultItemOptions,
+                ),
             );
         }
         // всем гостям на всякий случай предлагаем вернуться к выбору режима
