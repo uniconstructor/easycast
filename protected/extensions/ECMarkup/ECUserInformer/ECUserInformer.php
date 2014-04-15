@@ -176,6 +176,12 @@ class ECUserInformer extends CdCustomDropDown
                 'text'        => 'Панель управления',
                 'itemOptions' => $this->defaultItemOptions,
             ),
+            array(
+                'url'         => Yii::app()->createUrl('//site/index', array('selectState' => 1)),
+                'icon'        => '<i class="icon-repeat"></i>',
+                'text'        => 'Вернуться на страницу выбора',
+                'itemOptions' => $this->defaultItemOptions,
+            ),
         );
         $userItems = $this->getUserItems();
         
@@ -222,19 +228,16 @@ class ECUserInformer extends CdCustomDropDown
      */
     protected function getCustomerItems()
     {
-        return array(
+        $guestItems    = $this->getGuestItems();
+        $customerItems = array(
             array(
                 'url'         => Yii::app()->createUrl('//catalog/catalog/myChoice'),
                 'html'        => '<i class="icon-flag-checkered"></i>Перейти к заказу',
                 'itemOptions' => $this->defaultItemOptions,
             ),
-            /*array(
-                'url'         => Yii::app()->createUrl('//user/logout'),
-                'icon'        => '<i class="icon-remove"></i>',
-                'text'        => Yii::t('coreMessages', 'logout'),
-                'itemOptions' => $this->defaultItemOptions,
-            ),*/
         );
+        
+        return CMap::mergeArray($guestItems, $customerItems);
     }
     
     /**
@@ -245,6 +248,7 @@ class ECUserInformer extends CdCustomDropDown
     {
         $loginUrl        = Yii::app()->createUrl(current(Yii::app()->getModule('user')->loginUrl));
         $registrationUrl = Yii::app()->createUrl(current(Yii::app()->getModule('user')->registrationUrl));
+        $selectStateUrl  = Yii::app()->createUrl('//site/index', array('selectState' => 1));
         
         if ( Yii::app()->getModule('user')->viewMode === 'user' )
         {// участнику предлагаем вход и регистрацию
@@ -276,11 +280,10 @@ class ECUserInformer extends CdCustomDropDown
         }
         // всем гостям на всякий случай предлагаем вернуться к выбору режима
         $items[] = array(
-            'url'         => $loginUrl,
+            'url'         => $selectStateUrl,
             'icon'        => '<i class="icon-repeat"></i>',
-            'text'        => 'Вернуться к выбору участник/заказчик',
+            'text'        => 'Вернуться на страницу выбора',
             'itemOptions' => $this->defaultItemOptions,
-            'linkOptions' => array('target' => '_blank'),
         );
         
         return $items;
