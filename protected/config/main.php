@@ -23,6 +23,7 @@ return array(
 	'basePath' => dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
     // язык приложения
     'language'       => 'ru',
+    // язык исходников (установлен английский потому что он основной для большинства сторонних модулей)
     'sourceLanguage' => 'en_us',
     // предварительно загружаемые компоненты
     'preload' => array('log', 'messages', 'bootstrap'),
@@ -31,7 +32,7 @@ return array(
     // Короткие имена для вызова популярных библиотек
     //'aliases' => array(),
     // Используем собственную тему оформления для сайта
-    'theme' => 'easycast',
+    'theme' => 'maximal',
     
 	// autoloading model and component classes
     'import' => array(
@@ -78,15 +79,15 @@ return array(
             // allow access for non-activated users
             'loginNotActiv'       => true,
             // activate user on registration (only sendActivationMail = false)
-            'activeAfterRegister' => false,
+            'activeAfterRegister' => true,
             // automatically login from registration
             'autoLogin'           => true,
             // registration path
-            'registrationUrl'     => array('/user/registration'),
+            'registrationUrl'     => array('//user/registration'),
             // recovery password path
-            'recoveryUrl'         => array('/user/recovery'),
+            'recoveryUrl'         => array('//user/recovery'),
             // login form path
-            'loginUrl'            => array('/user/login'),
+            'loginUrl'            => array('//user/login'),
             // page after login
             'returnUrl'           => array('//questionary/questionary/view'),
             // page after logout
@@ -301,6 +302,10 @@ return array(
             //'fontAwesomeCss' => true,
             // сжимаем скрипты и стили
             'minify'         => true,
+            // отключаем базовые css для bootstrap при использовании темы maximal
+            'coreCss'        => false,
+            'bootstrapCss'   => false,
+            'responsiveCss'  => false,
         ),
 
         // библиотека для работы с изображениями (требуется для плагина galleryManager)
@@ -464,7 +469,7 @@ return array(
 	    
 	    // При работе с виджетами выбора даты и времени нужно знать важную особенность:
 	    // стандарты форматирования даты jQuery и PHP НЕСОВМЕСТИМЫ, хотя и очень похожи. 
-	    // Поэтому настройки виджетов ввода даты/времени используют один стандарт форматирования даты 
+	    // Настройки виджетов ввода даты/времени используют один стандарт форматирования даты 
 	    // (как в jquery), а функция date() в PHP - другой
 	    // Поэтому НЕЛЬЗЯ одновременно использовать одну и ту же запись формата даты/времени 
 	    // для преобразования unixtime в дату (в форме, для установки значения по умолчанию)
