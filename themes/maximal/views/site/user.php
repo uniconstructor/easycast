@@ -6,9 +6,6 @@
 
 ?>
 <div class="page-alternate">
-    <div class="title-page">
-        <h4 class="title">Меню</h4>
-    </div>
     <?php $this->widget('ext.ECMarkup.ECResponsiveMenu.ECResponsiveMenu'); ?>
 </div>
 <div class="page-alternate">
