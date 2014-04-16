@@ -36,6 +36,10 @@ class SiteController extends Controller
         if ( Yii::app()->request->getParam('selectState') )
         {// нужно вернуться к выбору режима (для авторизованых пользователей тоже доступно)
             // отображаем виджет с разделителем и больше ничего не делаем
+            if ( Yii::app()->user->isGuest )
+            {
+                Yii::app()->getModule('user')->clearViewMode();
+            }
             $this->render('selector');
             return;
         }

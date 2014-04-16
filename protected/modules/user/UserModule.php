@@ -393,9 +393,10 @@ class UserModule extends CWebModule
 	 * Очистить текущий режим просмотра - используется для того чтобы вернуться к странице выбора на главной
 	 * @return void
 	 */
-	public function crearViewMode()
+	public function clearViewMode()
 	{
-	    Yii::app()->user->clearStates(array('userMode'));
+	    //Yii::app()->user->clearStates(array('userMode'));
+	    $this->setViewMode('');
 	}
 	
 	/**
