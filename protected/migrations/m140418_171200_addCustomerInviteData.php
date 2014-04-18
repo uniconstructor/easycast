@@ -3,7 +3,7 @@
 /**
  * 
  */
-class m140418_171200_addInviteData extends CDbMigration
+class m140418_171200_addCustomerInviteData extends CDbMigration
 {
     /**
      * @see CDbMigration::safeUp()
