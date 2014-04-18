@@ -5,10 +5,10 @@
 /* @var $this SiteController */
 
 ?>
-<?php $this->widget('ext.ECMarkup.ECResponsiveSlider.ECResponsiveSlider'); ?>
-<div class="page-alternate">
+<div class="page">
     <?php $this->widget('ext.ECMarkup.ECResponsiveMenu.ECResponsiveMenu'); ?>
 </div>
+<?php $this->widget('ext.ECMarkup.ECResponsiveSlider.ECResponsiveSlider'); ?>
 <div class="page">
     <div class="title-page">
         <h4 class="title">Наши услуги</h4>
