@@ -12,17 +12,15 @@ class ProjectMembers extends CWidget
 {
     /**
      * @var string - для какого объекта отображается список участников
-     *               project
-     *               event
-     *               vacancy
+     *               project - все участники проекта
+     *               event - все участники мероприятия
+     *               vacancy - все участники роли
      */
     public $objectType;
-
     /**
      * @var int - id объекта для которого отображается список участников
      */
     public $objectId;
-
     /**
      * @var string - режим отображения: 
      *               заявки (applications) 
@@ -31,39 +29,36 @@ class ProjectMembers extends CWidget
      *               отклоненные (rejected)
      */
     public $displayType;
-    
     /**
      * @var bool - отображать ли заголовок?
      */
     public $displayHeader = true;
-    
     /**
      * @var отображать ли столбец "роль" в списке заявок? (для краткого вида заявок)
      */
     public $displayVacancyColumn = true;
-    
     /**
      * @var отображать ли столбец "время подачи заявки" в списке заявок?
      */
     public $displayTimeColumn = true;
-    
     /**
      * @var bool - отображать ли полную анкету участника в заявке?
      */
     public $displayFullInfo = false;
 
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
      */
     public function init()
     {
+        // регистрируем shadowbox-библиотеку для того чтобы отображать видео участников при просмотре 
+        // подробной информации в анкетеы
         Yii::app()->getClientScript()->registerSweelixScript('shadowbox');
+        
         parent::init();
     }
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::run()
      */
     public function run()
