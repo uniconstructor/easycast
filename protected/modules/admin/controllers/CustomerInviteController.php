@@ -12,7 +12,6 @@ class CustomerInviteController extends Controller
 	public $layout = '//layouts/column2';
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CController::init()
 	 */
 	public function init()
@@ -74,7 +73,7 @@ class CustomerInviteController extends Controller
 	{
 		$model = new CustomerInvite;
 		
-		// Uncomment the following line if AJAX validation is needed
+		// AJAX validation
 		$this->performAjaxValidation($model);
 		
 		// Определяем куда создается приглашение
@@ -109,9 +108,17 @@ class CustomerInviteController extends Controller
 			$model->attributes = $attributes;
 			if ( $model->validate() AND $model->save() )
 			{// @todo проставить setFlash здесь и на странице отображения
-			    $this->redirect(array('view',
-				    'id' => $model->id,
-			    ));
+			    // получаем список статусов, которые должны присутствовать в приглашении
+			    $statuses = Yii::app()->request->getParam('statuses');
+			    if ( empty($statuses) )
+			    {
+			        throw new CHttpException(400, 'Нужно выбрать хотя бы одну галочку в списке статусов');
+			    }
+			    // сохраняем статусы, которые нужно отобразить заказчику
+			    $model->saveData(array('statuses' => $statuses));
+			    // после создания приглашения перенаправляем пользователя на страницу просмотра 
+			    // (охуенная идея, да? что там смотреть?)
+			    $this->redirect(array('view', 'id' => $model->id));
 			}
 		}
 
