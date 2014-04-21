@@ -14,18 +14,28 @@ class TokenSelection extends ProjectMembers
      * @var CustomerInvite - приглашение, дающее доступ заказчику
      */
     public $customerInvite;
-    
     /**
      * @var bool - отображать ли полную анкету участника в заявке?
      */
     public $displayFullInfo = true;
+    /**
+     * @var string - по умолчанию показываем заявки и предварительно подтвержденных участников
+     */
+    public $displayType = 'applications';
     
     /**
-     * (non-PHPdoc)
      * @see ProjectMembers::init()
      */
     public function init()
     {
+        if ( ! ( $this->customerInvite instanceof CustomerInvite ) )
+        {
+            throw new CException('В виджет отбора актеров не передано приглашение');
+        }
+        // тип и id объекта берем из приглашения
+        $this->objectType = $this->customerInvite->objecttype;
+        $this->objectId   = $this->customerInvite->objectid;
+        
         parent::init();
     }
     
@@ -56,6 +66,45 @@ class TokenSelection extends ProjectMembers
             'member'         => $member,
             'customerInvite' => $this->customerInvite,
         ), true);
+    }
+    
+    /**
+     * Посмотреть заявки на вакансию, а также утвержденных на вакансию участников
+     * @param EventVacancy $vacancy - просматриваемая вакансия
+     * @return string - html-код таблицы с участниками
+     */
+    protected function getVacancyMembers($vacancy=null)
+    {
+        $result = '';
+        if ( ! $vacancy )
+        {// отображается одна роль отдельно, а не все роли мероприятия
+            $vacancy = EventVacancy::model()->findByPk($this->objectId);
+        }
+        
+        if ( $customerData = $this->customerInvite->loadData() )
+        {// нужны только заявки с определенными статусами
+            $members = ProjectMember::model()->forVacancy($vacancy->id)->withStatus($customerData['statuses'])->findAll();
+        }else
+        {
+            $members = $vacancy->requests;
+        }
+        // получаем краткое описание вакансии
+        $result .= $this->getVacancySummary($vacancy);
+        if ( ! $members )
+        {// для этой роли нет участников или заявок - так и напишем
+            $result .= '<div class="alert">(Пусто)</div>';
+            return $result;
+        }
+        // участники или заявки есть - отобразим их
+        if ( $this->displayFullInfo )
+        {// выводим полную анкету для каждого участника
+            $result .= $this->getFullMembersList($members);
+        }else
+        {// выводим краткую таблицу
+            $result .= $this->getShortMembersList($members);
+        }
+    
+        return $result;
     }
     
     /**

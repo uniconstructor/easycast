@@ -15,7 +15,7 @@ $this->breadcrumbs = array(
             <div class="span12">
                 <div class="title-page">
                     <h1 class="title">Приглашение</h1>
-                    <h4 class="intro-description">Если ролей несколько - подать заявку можно на каждую.</h4>
+                    <!--h4 class="intro-description">Если ролей несколько - подать заявку можно на каждую.</h4-->
                 </div>
             </div>
         </div>

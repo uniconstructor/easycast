@@ -14,7 +14,7 @@ class TokenInvite extends CWidget
      */
     public $invite;
     /**
-     * @var Questionary
+     * @var Questionary - анкета для которой отображается приглашение
      */
     public $questionary;
     /**
@@ -27,7 +27,6 @@ class TokenInvite extends CWidget
     public $key;
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
      */
     public function init()
@@ -41,12 +40,11 @@ class TokenInvite extends CWidget
     }
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::run()
      */
     public function run()
     {
-        if ( $this->event->type == ProjectEvent::TYPE_GROUP )
+        if ( $this->event->type === ProjectEvent::TYPE_GROUP )
         {
             $this->displayGroup();
         }else
@@ -107,7 +105,7 @@ class TokenInvite extends CWidget
             return '';
         }
         
-        if ( $event->type == ProjectEvent::TYPE_GROUP )
+        if ( $event->type === ProjectEvent::TYPE_GROUP )
         {// отображаем вакансии для группы событий - нужен другой заголовок и дополнительное пояснение
             echo '<h4>Роли на весь период съемок</h4>';
             echo '<div class="alert">Отправляя заявку на одну из этих ролей вам
