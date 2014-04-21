@@ -317,4 +317,28 @@ class CustomerInvite extends CActiveRecord
         $this->status = $newStatus;
         return $this->save(false);
     }
+    
+    /**
+     * Сохранить данные приглашения
+     * @param array $data
+     * @return null
+     */
+    public function saveData($data)
+    {
+        $this->data = serialize($data);
+        return $this->save();
+    }
+    
+    /**
+     * Получить данные заказа в структурированном виде
+     * @return null|array - зависит от версии заказа
+     */
+    public function loadData()
+    {
+        if ( ! $this->data )
+        {
+            return null;
+        }
+        return unserialize($this->data);
+    }
 }
