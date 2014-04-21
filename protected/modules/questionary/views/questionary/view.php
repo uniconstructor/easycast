@@ -113,6 +113,6 @@ if ( Yii::app()->user->checkAccess('Admin') )
     $loginAsLink = CHtml::link('<i class="icon-user icon-large"></i>&nbsp;Зайти под этим участником',
         Yii::app()->createUrl('//questionary/questionary/loginAs', array('id' => $questionary->id)),
         array('class' => 'btn btn-large'));
-    echo '<div class="row span12" style="text-align:center;"><br>'.$newUserLink.'&nbsp;'.$loginAsLink.'</div>';
+    echo '<div class="row" style="text-align:center;"><br>'.$newUserLink.'&nbsp;'.$loginAsLink.'</div>';
 }
 ?>
