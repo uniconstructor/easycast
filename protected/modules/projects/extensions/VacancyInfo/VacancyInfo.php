@@ -58,44 +58,44 @@ class VacancyInfo extends CWidget
     /**
      * @var bool - отображать ли список заявок на роль?
      */
-    public $displayRequests     = false;
+    public $displayRequests       = false;
     /**
      * @var bool - отображать ли размер оплаты для этой роли?
      */
-    public $displaySalary       = true;
+    public $displaySalary         = true;
     /**
      * @var bool - если оплата за съемки не предполагается (например это кастинг или некоммерческий проект), 
      *             то выводить ли об этом сообщение?
      */
-    public $displayZeroSalary   = true;
+    public $displayZeroSalary     = true;
     /**
      * @var bool - подходит ли просматривающий роль участник на эту вакансию?
      * @todo когда будет создана таблица, которая хранит информацию о том какой участник на какую роль подходит -
      *       то этот параметр станет не нужен. Сейчас он добавлен только для того чтобы сократить количество
      *       сложных проверок на соответствие / не соответствие критериям роли.
      */
-    public $isAvailable         = false;
+    public $isAvailable           = false;
     /**
      * @var bool - отображать роль участнику если она ему не доступна?
      */
-    public $displayNotAvailable = true;
+    public $displayNotAvailable   = true;
     /**
      * @var bool - отображать ли завершенные роли (те, на которые уже набрали людей)
      */
-    public $displayFinished  = false;
+    public $displayFinished       = false;
     /**
      * @var bool - Показывать ли роль гостю?
      */
-    public $displayToGuest   = true;
+    public $displayToGuest        = true;
     /**
      * @var bool - скрыть ли блок с ролью сразу после подачи заявки?
      */
-    public $hideAfterRequest = false;
+    public $hideAfterRequest      = false;
     /**
      * @var bool - отображать ли период времени, в который планируется на съемка?
      * @todo пока не введена таблица интервалов времени для событий этот параметр не используется
      */
-    public $displayTime      = false;
+    public $displayTime           = false;
     /**
      * @var bool - отобразить ли условия, по которым происходит отбор на роль?
      *            (составляется автоматически из условий поиска)
@@ -103,7 +103,7 @@ class VacancyInfo extends CWidget
      * @todo возможно следует показать их также тем участникам, которые подпадают под эти критерии,
      *       но это сложный вопрос 
      */
-    public $displayCriteria  = false;
+    public $displayCriteria       = false;
     /**
      * @var bool - отображать ли в списке те роли, на которые участник подходит по всем параметрам, кроме
      *             оплаты за съемочный день. (То есть предлагать ли ему гарантированно доступные роли, но
@@ -113,12 +113,12 @@ class VacancyInfo extends CWidget
     /**
      * @var bool - отображать ли перед подачей заявки диалоговое окно с подтверждением?
      */
-    public $confirmRequest   = false;
+    public $confirmRequest        = false;
     /**
      * @var bool - отображать ли перед отменой (отзывом) заявки диалоговое окно с подтверждением?
      *            (к сведению: заявки нельзя отменить после того как они были хотя бы предварительно одобрены)
      */
-    public $confirmCancel    = true;
+    public $confirmCancel         = true;
 
     /**
      * @see CWidget::init()
@@ -222,12 +222,13 @@ class VacancyInfo extends CWidget
      */
     protected function createActionButtons()
     {
-        if ( $this->displayMode != 'user' )
-        {// кнопку "подать заявку" видят только участники
+        if ( $this->displayMode === 'customer' )
+        {// кнопку "подать заявку" видят только участники и админы (когда подают заявку от чужого имени)
             return '';
         }
         return $this->widget('projects.extensions.VacancyActions.VacancyActions', array(
             'isAjaxRequest' => $this->isAjaxRequest,
+            'questionaryId' => $this->questionary->id,
             'buttonSize'    => $this->buttonSize,
             'vacancy'       => $this->vacancy,
             'mode'          => $this->inviteMode,
