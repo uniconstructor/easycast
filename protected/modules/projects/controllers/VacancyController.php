@@ -36,7 +36,7 @@ class VacancyController extends Controller
         // Создаем и сохраняем новый запрос на участие
         if ( $this->createApplication($vacancy, $questionaryId) )
         {
-            echo 'OR';
+            echo 'OK';
         }else
         {
             echo 'ERROR';
