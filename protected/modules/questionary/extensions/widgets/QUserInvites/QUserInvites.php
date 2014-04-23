@@ -5,7 +5,8 @@
  * 
  * @todo языковые строки
  * @todo отображать принятые и отклоненные приглашения, отображать в приглашениях их статус
- * @todo вывести все возможные вакансии с возможностью подать и отозвать заявку
+ * @todo если приглашение принято, но заявка на роль не подана - то отображать приглашение
+ *       до тех пор пока мероприятие активно, чтобы участник продолжал видеть список ролей 
  */
 class QUserInvites extends CWidget
 {
@@ -13,7 +14,6 @@ class QUserInvites extends CWidget
      * @var Questionary - анкета для которой отображаются приглашения
      */
     public $questionary;
-    
     /**
      * @var string - какие приглашения выводить
      *               new - только новые
@@ -22,7 +22,6 @@ class QUserInvites extends CWidget
     public $mode = 'new';
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
      */
     public function init()
@@ -55,7 +54,6 @@ class QUserInvites extends CWidget
     }
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::run()
      */
     public function run()
@@ -96,10 +94,10 @@ class QUserInvites extends CWidget
         $ajaxOptions = $this->createAjaxOptions('accept', $invite);
         $url = Yii::app()->createUrl('/projects/invite/accept');
         
-        return CHtml::ajaxButton('Принять', $url, $ajaxOptions, 
-            array(
-            'class' => 'btn btn-success pull-left',
-            'id'    => 'accept_button'.$invite->id));
+        return CHtml::ajaxButton('Посмотреть роли', $url, $ajaxOptions, array(
+            'class' => 'btn btn-success btn-block',
+            'id'    => 'accept_button'.$invite->id,
+        ));
     }
     
     /**
@@ -113,10 +111,10 @@ class QUserInvites extends CWidget
         $ajaxOptions = $this->createAjaxOptions('reject', $invite);
         $url = Yii::app()->createUrl('/projects/invite/reject');
         
-        return CHtml::ajaxButton('Отказаться', $url, $ajaxOptions, 
-            array(
-                'class' => 'btn btn-primary pull-right',
-                'id'    => 'reject_button'.$invite->id));
+        return CHtml::ajaxButton('Не участвовать', $url, $ajaxOptions, array(
+            'class' => 'btn btn-default btn-block',
+            'id'    => 'reject_button'.$invite->id,
+        ));
     }
     
     /**
@@ -132,7 +130,7 @@ class QUserInvites extends CWidget
     {
         if ( $action == 'accept' )
         {
-            $message = 'Приглашение принято';
+            $message = 'Пожалуйста выберите роль';
         }else
         {
             $message = 'Приглашение отклонено';
