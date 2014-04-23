@@ -24,7 +24,6 @@ $eventUrl = Yii::app()->createUrl('/projects/projects/view', array('eventid' => 
         
         <p><b><?= $invite->event->getFormattedTimeStart(); ?></b></p>
         <?= $invite->event->description; ?>
-        <div id="invite_message<?= $invite->id; ?>" class="alert alert-success text-center" style="display:none;"></div>
         <div id="invite_buttons<?= $invite->id; ?>">
             <div class="row-fluid">
                 <div class="span6">
@@ -34,6 +33,7 @@ $eventUrl = Yii::app()->createUrl('/projects/projects/view', array('eventid' => 
                     <?= $this->createAcceptButton($invite); ?>
                 </div>
             </div>
+            <div id="invite_message<?= $invite->id; ?>" class="alert alert-success text-center" style="display:none;"></div>
             <div class="row-fluid" id="invite_roles<?= $invite->id; ?>" style="display:none;">
                 <?php
                 // список возможных ролей 
@@ -45,6 +45,6 @@ $eventUrl = Yii::app()->createUrl('/projects/projects/view', array('eventid' => 
                 ?>
             </div>
         </div>
+        <hr>
     </div>
 </div>
-<hr>
