@@ -17,12 +17,10 @@ class CatalogData extends CWidget
      * @var int id раздела каталога,который отображается
      */
     public $sectionid;
-    
     /**
      * @var string - id активной в данной момент вкладки
      */
     public $tab = null;
-    
     /**
      * @var array - условия формы поиска (если они есть) 
      */
@@ -32,16 +30,16 @@ class CatalogData extends CWidget
      * @var CatalogSection|null
      */
     protected $section = null;
-    
     /**
      * @var string - скрипты для запоминания активной вкладки в сессии при переключении вкладок
      */
     protected $_tabScripts = null;
-    
+    /**
+     * @var string
+     */
     protected $_assetUrl;
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
      */
     public function init()
@@ -66,7 +64,6 @@ class CatalogData extends CWidget
     
     /**
      * Отображет список анкет в каталоге или список разделов каталога
-     * (non-PHPdoc)
      * @see CWidget::run()
      */
     public function run()
