@@ -1288,14 +1288,16 @@ class QUserInfo extends CWidget
      * Получить содержимое вкладки "мои приглашения"
      * 
      * @return string
+     * @deprecated приглашения теперь отображаются под информацией из анкеты
      */
     protected function getInvitesTabContent()
     {
-        if ( ! $this->isMyQuestionary() AND ! Yii::app()->user->checkAccess('Admin') )
+        return '';
+        /*if ( ! $this->isMyQuestionary() AND ! Yii::app()->user->checkAccess('Admin') )
         {// приглашения показываются только в своей анкете
             return '';
         }
-        $content = '';
+        $content  = '';
         $content .= '<h3>'.QuestionaryModule::t('userinfo_section_invites').'</h3>';
         
         // За отображение приглашений на съемки отвечает отдельный виджет
@@ -1303,7 +1305,7 @@ class QUserInfo extends CWidget
             'questionary' => $this->questionary,
         ), true);
         
-        return $content;
+        return $content;*/
     }
     
     /**
