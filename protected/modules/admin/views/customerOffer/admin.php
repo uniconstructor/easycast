@@ -38,14 +38,14 @@ $this->renderPartial('_search', array(
 ?>
 </div><!-- search-form -->
 
-<?php $this->widget('bootstrap.widgets.TbGridView',array(
+<?php 
+
+$this->widget('bootstrap.widgets.TbGridView',array(
 	'id'           => 'customer-offer-grid',
 	'dataProvider' => $model->search(),
 	'filter'       => $model,
 	'columns' => array(
 		'id',
-		//'objecttype',
-		//'objectid',
 		'email',
         'name',
         // кто отправил ссылку
@@ -63,7 +63,6 @@ $this->renderPartial('_search', array(
             'type'    => 'html',
         ),
         // время использования
-		'timeused',
         array(
             'name'    => 'timeused',
             'value'   => '($data->timeused ? date("Y-m-d H:i", $data->timeused): "Не использовано")',
@@ -79,4 +78,4 @@ $this->renderPartial('_search', array(
             'updateButtonUrl' => 'Yii::app()->controller->createUrl("/questionary/questionary/update", array("id" => $data->questionaryid))',
 		),*/
 	),
-)); ?>
+));
