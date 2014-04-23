@@ -375,7 +375,7 @@ class EventVacancy extends CActiveRecord
 	        $questionaryId = $this->getCurrentUserQuestionaryId();
 	    }
 	    
-	    if ( ! $ignoreApplication AND $this->hasApplication($questionaryId) )
+	    if ( $this->hasApplication($questionaryId) AND ! $ignoreApplication )
 	    {// участник уже подал заявку на эту вакансию
 	        return false;
 	    }
