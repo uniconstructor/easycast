@@ -27,9 +27,14 @@ class VacancyController extends Controller
         // получаем вакансию
         $vacancyId = Yii::app()->request->getParam('vacancyId', 0);
         $vacancy   = $this->loadModel($vacancyId);
+        
+        // для админов (подача заявки от имени участника) - получаем id анкеты участника, 
+        // от имени которого подается заявка
+        $questionaryId = Yii::app()->request->getParam('questionaryId', 0);
+        
     
         // Создаем и сохраняем новый запрос на участие
-        if ( $this->createApplication($vacancy) )
+        if ( $this->createApplication($vacancy, $questionaryId) )
         {
             echo 'OR';
         }else
@@ -93,8 +98,8 @@ class VacancyController extends Controller
      */
     protected function createApplication($vacancy, $questionaryId=null)
     {
-        if ( ! $questionaryId )
-        {
+        if ( ! $questionaryId OR ! Yii::app()->user->checkAccess('Admin') )
+        {// подавать заявку от имени другого участника могут только админы
             $questionaryId = Yii::app()->getModule('user')->user()->questionary->id;
         }
         if ( ! $vacancy->isAvailableForUser($questionaryId) )
