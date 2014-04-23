@@ -38,9 +38,11 @@ $eventUrl = Yii::app()->createUrl('/projects/projects/view', array('eventid' => 
                 <?php
                 // список возможных ролей 
                 $this->widget('projects.extensions.VacancyList.VacancyList', array(
-                    'objectType'  => 'event',
-                    'event'       => $invite->event,
-                    'questionary' => $this->questionary,
+                    'objectType'          => 'event',
+                    'event'               => $invite->event,
+                    'questionary'         => $this->questionary,
+                    // админам показываем все роли, даже те, на которые нельзя подать заявки
+                    'displayNotAvailable' => Yii::app()->user->checkAccess('Admin'),
                 ));
                 ?>
             </div>
