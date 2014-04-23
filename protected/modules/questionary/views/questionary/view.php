@@ -52,7 +52,7 @@ if ( $canEdit )
 <div class="row-fluid">
     <div id="order_message" 
         class="<?php echo $orderMessageClass; ?>" 
-        style="margin-top:20px;<?php echo $orderMessageStyle; ?>">
+        style="margin-top:20px;<?= $orderMessageStyle; ?>">
         <?php // сообщение о том что участник приглашен на съемки
             echo $orderMessage; 
             echo '<br><br>';
@@ -74,17 +74,15 @@ if ( $canEdit )
 </div>
 <div class="row-fluid">
     <div class="span5">
-        <div>
-            <?php 
-            // Список фото и видео
-            $this->widget('questionary.extensions.widgets.QUserMedia.QUserMedia', array(
-                'questionary' => $questionary,
-            ));
-            ?>
-        </div>
+        <?php 
+        // Список фото и видео
+        $this->widget('questionary.extensions.widgets.QUserMedia.QUserMedia', array(
+            'questionary' => $questionary,
+        ));
+        ?>
     </div>
     <div class="span7">
-        <div class="row">
+        <div class="row-fluid">
             <?php 
             // выводим список умений и достижений участника 
             $this->widget('questionary.extensions.widgets.QUserBages.QUserBages', array(
@@ -92,7 +90,7 @@ if ( $canEdit )
             ));
             ?>
         </div>
-        <div class="row">
+        <div class="row-fluid">
             <?php 
             // Выводим всю остальную информацию о пользователе
             $this->widget('questionary.extensions.widgets.QUserInfo.QUserInfo', array(
@@ -113,6 +111,6 @@ if ( Yii::app()->user->checkAccess('Admin') )
     $loginAsLink = CHtml::link('<i class="icon-user icon-large"></i>&nbsp;Зайти под этим участником',
         Yii::app()->createUrl('//questionary/questionary/loginAs', array('id' => $questionary->id)),
         array('class' => 'btn btn-large'));
-    echo '<div class="row" style="text-align:center;"><br>'.$newUserLink.'&nbsp;'.$loginAsLink.'</div>';
+    echo '<div class="row-fluid" style="text-align:center;"><br>'.$newUserLink.'&nbsp;'.$loginAsLink.'</div>';
 }
 ?>
