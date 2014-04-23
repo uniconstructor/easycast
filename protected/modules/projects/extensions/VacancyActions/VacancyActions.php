@@ -7,6 +7,7 @@
  * @todo добавить кнопку отмены подачи заявки (кроме заявок, поданных по токену)
  * @todo добавить кнопки для админа
  * @todo включить мозг и придумать общий родительский класс для VacancyActions и MemberActions
+ *       (идея в том, чтобы выводить набор кнопок с доступными действиями в зависимости от контекста)
  * @todo добавить проверку всех обязательных параметров в init()
  * @todo добавить возможность подавать заявку тем у кого отключен JS
  * @todo вынести название и контекст события для подачи заявки в параметры виджета
@@ -115,8 +116,10 @@ class VacancyActions extends CWidget
             $this->messageStyle = 'display:block;';
         }
         $this->render('actions');
+        
+        //CVarDumper::dump($this->questionaryId, 10, true);
+        //CVarDumper::dump($this->vacancy->isAvailableForUser($this->questionaryId), 10, true);
         //CVarDumper::dump($this->isAllowed('addApplication'), 10, true);die;
-        //CVarDumper::dump(Yii::app()->user->checkAccess('User'), 10, true);die;
     }
     
     /**
@@ -151,8 +154,17 @@ class VacancyActions extends CWidget
         }else
         {
             if ( Yii::app()->user->checkAccess('Admin') )
-            {// не показываем админам кнопки подачи заявок - они им не нужны
-                return false;
+            {// не показываем админам кнопки подачи заявок,
+                if ( $this->questionaryId != Yii::app()->getModule('user')->user()->questionary->id 
+                     AND $this->vacancy->isAvailableForUser($this->questionaryId) )
+                {// если только это не кнопка подачи заявки от имени другого участника
+                    // и этому участнику эта роль доступна
+                    return true;
+                }else
+                {// сами от себя админы заявок не подают, и подать заявку от имени другого участника
+                    // если он не подходит по критериям поиска тоже нельзя
+                    return false;
+                }
             }
         }
         
@@ -282,6 +294,9 @@ class VacancyActions extends CWidget
      * Получить надпись на кнопке
      * @param string $type - тип кнопки
      * @return string
+     * 
+     * @todo если кнопка отображается админу, и переданный id анкеты не совпадает с id анкеты админа 
+     *       то писать на кнопке подачи заявки "подать заявку от имени ..."
      */
     protected function getButtonTitle($type)
     {
@@ -346,6 +361,11 @@ class VacancyActions extends CWidget
                 {// по токену
                     $data['key']      = $this->key;
                     $data['inviteId'] = $this->invite->id;
+                }
+                if ( $this->questionaryId AND Yii::app()->user->checkAccess('Admin') )
+                {// если админ подает заявку от чужого имени - добавим id участника
+                    // от имени которого подается заявка
+                    $data['questionaryId'] = $this->questionaryId;
                 }
             break;
             // отклонить заявку
