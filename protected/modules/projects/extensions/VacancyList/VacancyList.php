@@ -31,6 +31,10 @@ class VacancyList extends CWidget
      *                    список ролей
      */
     public $questionary;
+    /**
+     * @var bool - отображать ли те роли, которые не доступны участнику?
+     */
+    public $displayNotAvailable = true;
     
     /**
      * @see CWidget::init()
@@ -64,7 +68,7 @@ class VacancyList extends CWidget
             $this->widget('projects.extensions.VacancyInfo.VacancyInfo', array(
                 'vacancy'             => $vacancy,
                 'questionary'         => $this->questionary,
-                //'displayNotAvailable' => $displayNotAvailable,
+                'displayNotAvailable' => $this->displayNotAvailable,
                 'displayNotAvailable' => false,
                 'isAjaxRequest'       => true,
                 'isAvailable'         => $vacancy->isAvailableForUser($this->questionary->id, true),
