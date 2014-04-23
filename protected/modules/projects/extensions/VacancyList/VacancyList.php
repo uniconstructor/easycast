@@ -4,6 +4,9 @@
  * Список ролей для мероприятия, проекта или участника
  * 
  * @todo добавить проверку входных параметров
+ * @todo добавить параметр objectId, сделать получение ролей по objectType + objectId
+ *       оставить параметр event как public. Добавить параметр project. Проверять сначала начилие project 
+ *       и event, а только потом objectType и objectId
  * @todo настройка: выводить ли сообщение если нет подходящих ролей
  */
 class VacancyList extends CWidget
@@ -24,7 +27,8 @@ class VacancyList extends CWidget
      */
     public $project;
     /**
-     * @var Questionary - анкета просматривающего роль участника (только для $this->displayMode = 'user')
+     * @var Questionary - анкета просматривающего роль участника или участника для которого должен быть отображен
+     *                    список ролей
      */
     public $questionary;
     
