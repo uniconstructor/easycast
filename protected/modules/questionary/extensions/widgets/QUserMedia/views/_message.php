@@ -13,5 +13,3 @@ $noPhotoMessage = '<div class="alert alert-danger alert-block">
             В анкете обязательно должна быть хотя бы одна ваша фотография.
             Без них ваша анкета не будет видна в каталоге или выводиться в поиске.</div>';
 }
-// выводим предупреждения, если они есть
-$this->widget('bootstrap.widgets.TbAlert');
