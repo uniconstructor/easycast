@@ -114,3 +114,11 @@ if ( Yii::app()->user->checkAccess('Admin') )
     echo '<div class="row-fluid" style="text-align:center;"><br>'.$newUserLink.'&nbsp;'.$loginAsLink.'</div>';
 }
 ?>
+<div class="container">
+    <?php
+    // список приглашений участника
+    $this->widget('questionary.extensions.widgets.QUserInvites.QUserInvites', array(
+        'questionary' => $questionary,
+    ));
+    ?>
+</div>
