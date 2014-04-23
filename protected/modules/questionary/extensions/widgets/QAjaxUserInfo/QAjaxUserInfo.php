@@ -32,7 +32,6 @@ class QAjaxUserInfo extends CWidget
     protected $questionary;
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
      */
     public function init()
@@ -53,7 +52,6 @@ class QAjaxUserInfo extends CWidget
     }
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::run()
      */
     public function run()
