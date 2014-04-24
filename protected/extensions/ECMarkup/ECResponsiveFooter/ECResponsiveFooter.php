@@ -88,6 +88,13 @@ class ECResponsiveFooter extends CWidget
                 'text' => 'Моя страница',
             );
         }
+        if ( Yii::app()->user->checkAccess('Admin') )
+        {
+            $items[] = array(
+                'url'  => '//search',
+                'text' => 'Поиск',
+            );
+        }
         return $items;
     }
     
@@ -101,6 +108,10 @@ class ECResponsiveFooter extends CWidget
             array(
                 'url'  => '//site/index',
                 'text' => 'На главную',
+            ),
+            array(
+                'url'  => '//search',
+                'text' => 'Поиск',
             ),
             array(
                 'url'  => '//catalog',
@@ -118,11 +129,23 @@ class ECResponsiveFooter extends CWidget
                 'url'  => '//sale',
                 'text' => 'Коммерческое предложение',
             ),
-            /*array(
+            array(
+                'url'  => '//calculation',
+                'text' => 'Рассчитать стоимость съемки',
+            ),
+        );
+        if ( Yii::app()->user->checkAccess('Admin') )
+        {// упрощаем админам навигацию по сайту
+            $items[] = array(
                 'url'  => '//site/index',
                 'text' => 'На страницу выбора',
-            ),*/
-        );
+            );
+            $items[] = array(
+                'url'  => '//admin',
+                'text' => 'Администрирование',
+            );
+        }
+        
         return $items;
     }
 }
