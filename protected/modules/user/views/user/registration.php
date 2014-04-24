@@ -10,11 +10,11 @@ $this->pageTitle = Yii::app()->name . ' - '.UserModule::t("Registration");
 	UserModule::t("Registration"),
 );*/
 
-// убираем из заголовка все лишнее
-$this->ecHeaderOptions = array(
+// @deprecated убираем из заголовка все лишнее
+/*$this->ecHeaderOptions = array(
     'displayloginTool' => true,
     'displayInformer'  => false,
-);
+);*/
 
 $this->widget('bootstrap.widgets.TbAlert');
 ?>
@@ -67,7 +67,8 @@ $this->widget('bootstrap.widgets.TbAlert');
             	
             	<!-- Сворачивающийся блок с дополнительными полями -->
                 <div class="accordion" id="accordion2">
-                    <?php $this->beginWidget('bootstrap.widgets.TbCollapse', array(
+                    <?php 
+                    $this->beginWidget('bootstrap.widgets.TbCollapse', array(
                         'toggle' => false,
                     ));
                     ?>
@@ -98,17 +99,21 @@ $this->widget('bootstrap.widgets.TbAlert');
                             </div>
                         </div>
                     </div>
-                    <?php $this->endWidget();?>
+                    <?php
+                    // конец виджета "accordion" (сворачивающегося блока) 
+                    $this->endWidget();
+                    ?>
                 </div>
-                <!-- Конец скрытого блока -->
+                <!-- Конец свернутого блока -->
                 <div style="display:block;text-align:center;">
-                    <?php // кнопка регистрации 
-                	    $this->widget('bootstrap.widgets.TbButton', array(
-                          'buttonType' => 'submit',
-                          'type'  => 'primary',
-                          'label' => UserModule::t("Register"),
-                          'htmlOptions' => array('class' => 'btn btn-large btn-success'),
-                        ));
+                    <?php 
+                    // кнопка регистрации 
+            	    $this->widget('bootstrap.widgets.TbButton', array(
+                        'buttonType'  => 'submit',
+                        'type'        => 'primary',
+                        'label'       => UserModule::t("Register"),
+                        'htmlOptions' => array('class' => 'btn btn-large btn-success'),
+                    ));
                     ?>
                 </div>
                 <?php
