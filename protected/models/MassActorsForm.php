@@ -3,17 +3,44 @@
 /**
  * Форма быстрой регистрации для массовки
  * 
- * @todo документировать все поля
+ * @todo если не указать номер телефона - то выводится сообщение "phone cannot be blank"
+ *       которое появляется непонятно откуда. Нужно понять почему это происходит и исправить
  */
 class MassActorsForm extends CFormModel
 {
-    public $firstname; 
-    public $lastname; 
-    public $email; 
+    /**
+     * @var string - имя
+     */
+    public $firstname;
+    /**
+     * @var string - фамилия
+     */
+    public $lastname;
+    /**
+     * @var string - email участника
+     */
+    public $email;
+    /**
+     * @var string - мобильный телефон
+     */
     public $phone;
-    public $birthdate; 
-    public $gender; 
+    /**
+     * @var string - дата рождения 
+     */
+    public $birthdate;
+    /**
+     * @var string - пол (male/female)
+     */
+    public $gender;
+    /**
+     * @var int - id галереи изображений, которая создается при загрузке фотографий 
+     *            (и только потом привязывается к созданному пользователю)
+     */
     public $galleryid;
+    /**
+     * @var bool - согласие с условиями использования сайта
+     */
+    public $policyagreed;
     
     /**
      * @see CFormModel::init()
@@ -35,12 +62,27 @@ class MassActorsForm extends CFormModel
         return array(
             array('firstname, lastname, email, phone, birthdate, gender, galleryid', 'filter', 'filter' => 'trim'),
             // Сохраняем номер телефона в правильном формате (10 цифр)
-            array('phone', 'LPNValidator', 'defaultCountry' => 'RU'),
-            array('birthdate', 'filter', 'filter' => array($this, 'checkBirthDate')),
+            array('phone', 'LPNValidator', 
+                'defaultCountry' => 'RU',
+                'message'        => 'Неправильно указан номер телефона',
+                'allowEmpty'     => false,
+            ),
+            // проверяем дату рождения отдельным фильтром
+            array('birthdate', 'filter', 
+                'filter'  => array($this, 'checkBirthDate'),
+                'message' => 'Нужно указать дату рождения в формате дд.мм.гггг',
+            ),
             array('email', 'email'),
-            array('email', 'unique', /*'criteria' => array(),*/ 'className' => 'User'),
+            array('email', 'unique', 'className' => 'User'),
+            // галочка согласия с условиями обязательно должна стоять
+            array('policyagreed', 'compare', 
+                'allowEmpty'   => false,
+                'compareValue' => 1,
+                'message'      => 'Согласие с условиями использования сайта обязательно', 
+            ),
+            
             // все поля формы обязательные
-            array('firstname, lastname, email, phone, birthdate, gender, galleryid', 'required'),
+            array('firstname, lastname, email, phone, birthdate, gender, galleryid, policyagreed', 'required'),
         );
     }
     
@@ -49,14 +91,18 @@ class MassActorsForm extends CFormModel
      */
     public function attributeLabels()
     {
+        $policyUrl  = Yii::app()->createUrl('//site/page/view/license');
+        $policyLink = CHtml::link('условиями использования', $policyUrl, array('target' => '_blank'));
+        
         return array(
-            'firstname' => 'Имя',
-            'lastname'  => 'Фамилия',
-            'email'     => 'email',
-            'phone'     => 'Мобильный телефон',
-            'birthdate' => 'Дата рождения',
-            'gender'    => 'Пол',
-            'galleryid' => 'Фотографии',
+            'firstname'    => 'Имя',
+            'lastname'     => 'Фамилия',
+            'email'        => 'email',
+            'phone'        => 'Мобильный телефон',
+            'birthdate'    => 'Дата рождения',
+            'gender'       => 'Пол',
+            'galleryid'    => 'Фотографии',
+            'policyagreed' => 'Соглашаюсь с '.$policyLink.' сайта',
         );
     }
     
