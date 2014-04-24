@@ -2547,6 +2547,7 @@ blockquote small:before {
 div.ec-user-informer > div {
     line-height:20px;
 }
+/* Звездочки к обязательным полям во всех формах */
 span.required {
     color: red;
 }
