@@ -2547,3 +2547,6 @@ blockquote small:before {
 div.ec-user-informer > div {
     line-height:20px;
 }
+span.required {
+    color: red;
+}
