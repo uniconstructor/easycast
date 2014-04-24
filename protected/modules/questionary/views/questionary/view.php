@@ -15,11 +15,14 @@ if ( $sectionId = CatalogModule::getNavigationParam('sectionId') AND $sectionId 
     {
         $page = 1;
     }
-    $section = CatalogSection::model()->findByPk($sectionId);
-    $this->breadcrumbs[$section->name] = array('/catalog/catalog',
-        'sectionid'        => $sectionId,
-        'Questionary_page' => $page);
-    if ( $tabName )
+    if ( $section = CatalogSection::model()->findByPk($sectionId) )
+    {
+        $this->breadcrumbs[$section->name] = array('/catalog/catalog',
+            'sectionid'        => $sectionId,
+            'Questionary_page' => $page,
+        );
+    }
+    if ( $tabName AND $section )
     {
         foreach ( $section->instances as $tabInstance )
         {
