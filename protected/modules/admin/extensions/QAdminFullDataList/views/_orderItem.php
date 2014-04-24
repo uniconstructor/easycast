@@ -3,20 +3,27 @@
  * Отображение одной анкеты из заказа пользователя
  * Имя, возраст, все достижения 
  */
+/* @var $this QAdminFullDataList */
 
 ?>
 
-<div class="row well well-small" style="border-radius:10px;" id="<?php echo $data['baseContainerId']; ?>">
-    <div class="span2" style="vertical-align:middle;"><?php echo $data["avatar"]; ?></div>
-    <div class="span7" id="<?php echo $data['shortInfoContainerId']; ?>">
-        <h3><?php echo $data['fullName']; ?></h3>
-        <?php echo $data['bages']; ?>
-        <br><br>
-        <?php echo $data['fullInfoButton']; echo $data['shortInfoButton']; ?>
+<div class="well well-small row-fluid" style="border-radius:10px;" id="<?= $data['baseContainerId']; ?>">
+    <div class="row-fluid">
+        <div class="span2" style="vertical-align:middle;"><?= $data["avatar"]; ?></div>
+        <div class="span8" id="<?= $data['shortInfoContainerId']; ?>">
+            <h3><?= $data['fullName']; ?></h3>
+            <?= $data['bages']; ?>
+            <br><br>
+            <?= $data['fullInfoButton']; ?><?= $data['shortInfoButton']; ?>
+        </div>
+        <div class="span2">
+            <div id="<?= $data['messageContainerId']; ?>" style="display:none;"></div>
+            <div><?= $data['actionButtons']; ?></div>    
+        </div>
     </div>
-    <div class="span2" id="<?php echo $data['messageContainerId']; ?>" style="display:none;"></div>
-    <div class="span2"><?php echo $data['actionButtons']; ?></div>
-    
-    <div id="<?php echo $data['fullInfoContainerId']; ?>"></div>
-    <input type="hidden" id="<?php echo $data['fullInfoLoadedId']; ?>" name="<?php echo $data['fullInfoLoadedId']; ?>_flag" value="0">
+    <div class="row-fluid">
+        <div id="<?= $data['fullInfoContainerId']; ?>"></div>
+        <input type="hidden" id="<?= $data['fullInfoLoadedId']; ?>" 
+            name="<?= $data['fullInfoLoadedId']; ?>_flag" value="0">
+    </div>
 </div>

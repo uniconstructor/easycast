@@ -19,7 +19,6 @@ class QAdminFullDataList extends CWidget
     public $members;
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
      */
     public function init()
@@ -33,7 +32,6 @@ class QAdminFullDataList extends CWidget
     }
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::run()
      */
     public function run()
