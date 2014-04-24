@@ -221,15 +221,7 @@ input, div.input-prepend, span.add-on, span.badge {
     -webkit-box-sizing: content-box;
     -o-box-sizing:      content-box;
 }
-/* Исправление размера плашек (bages) */
-.badge {
-    padding-bottom: 3px;
-}
-
-.page-alternate {
-    padding-top: 0px;
-}
-
+/* Исправление раскрывающихся результатов поиска */
 .og-expander-inner {
     background-color: #fff;
 }

@@ -2551,3 +2551,15 @@ div.ec-user-informer > div {
 span.required {
     color: red;
 }
+/* Исправление для текста на кнопках */
+.btn {
+    font-weight: normal;
+}
+/* Исправление размера плашек (bages) */
+.badge {
+    padding-bottom: 3px;
+}
+/* Исправление отступов страницы */
+.page-alternate {
+    padding-top: 0px;
+}

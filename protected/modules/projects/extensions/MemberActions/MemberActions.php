@@ -16,49 +16,40 @@ class MemberActions extends CWidget
      * @var ProjectMember - заявка или участник проекта, для которого отображаются кнопки
      */
     public $member;
-    
     /**
      * @var CustomerInvite - приглашение заказчика для отбора актеров
      *                       (для случаев, когда происходит отбор актеров по одноразовой ссылке)
      */
     public $customerInvite;
-    
     /**
      * @var bool - выдавать ли подтверждение перед изменением статуса?
      */
     public $confirmActions = true;
-    
     /**
      * @var bool - показывать ли доступные кнопки действий заново после изменения статуса заявки
      */
     public $refreshButtons = false;
-    
     /**
      * @var bool - всегда ли отображать текущий статус заявки над действиями?
      */
     public $forceDisplayStatus = false;
-    
     /**
      * @var string - id тега, содержащего все AJAX-кнопки
      */
     public $containerId;
-    
     /**
      * @var string - Сообщение над кнопками (изначально пустая строка)
      *               Задается только если нужно вывести какое-то сообщение сразу же рядом с кнопкой или вместо кнопки
      */
     public $message = '';
-    
     /**
      * @var string - css-класс сообщения
      */
     public $messageClass = 'alert alert-info';
-    
     /**
      * @var string - id тега, содержащего текст сообщения
      */
     protected $messageId;
-    
     /**
      * @var string 
      */
@@ -72,7 +63,6 @@ class MemberActions extends CWidget
     protected $buttons = array();
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
      */
     public function init()
@@ -90,7 +80,6 @@ class MemberActions extends CWidget
     }
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::run()
      */
     public function run()
@@ -265,9 +254,9 @@ class MemberActions extends CWidget
         {
             case 'canceled': return 'btn btn-primary';
             case 'draft':    return 'btn btn-success';
-            case 'pending':  return 'btn btn-warning';
-            case 'active':   return 'btn btn-success';
-            case 'rejected': return 'btn btn-danger';
+            case 'pending':  return 'btn btn-block btn-warning';
+            case 'active':   return 'btn btn-block btn-success';
+            case 'rejected': return 'btn btn-block btn-danger';
             case 'succeed':  return 'btn btn-success';
             case 'failed':   return 'btn btn-danger';
         }
