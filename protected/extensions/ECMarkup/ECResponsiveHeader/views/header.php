@@ -29,8 +29,11 @@
 </header>
 <!-- End Header -->
 <?php
-// всплывающая форма регистрации 
-$this->widget('ext.ECMarkup.ECRegister.ECRegister');
+// скрытые блоки всплывающих modal-окон
+if ( Yii::app()->user->isGuest )
+{// всплывающая форма регистрации (только для гостей)
+    $this->widget('ext.ECMarkup.ECRegister.ECRegister');
+}
 // всплывающая форма заказа
 $this->widget('ext.ECMarkup.ECFastOrder.ECFastOrder');
 ?>
