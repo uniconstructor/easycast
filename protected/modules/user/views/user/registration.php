@@ -41,30 +41,33 @@ $this->widget('bootstrap.widgets.TbAlert');
                 )); 
                 ?>
             
-            	<?php echo $form->errorSummary(array($model, $profile)); ?>
-            	<?php echo $form->textFieldRow($model,'email'); ?>
+            	<?= $form->errorSummary(array($model, $profile)); ?>
+            	<?= $form->textFieldRow($model,'email'); ?>
             	
             	<?php if (UserModule::doCaptcha('registration')): ?>
-            		<br>
-            		<?php $this->widget('CCaptcha', array(
-            		    'captchaAction' => '//site/captcha',
-                            'buttonOptions' => array(
-                                'style' => 'width:100px;height:45px;',
-                                'class' => 'btn btn-small'
-                                )
-            		        )
-            		    ); 
-                    ?>
-            		<?php echo $form->textFieldRow($model,'verifyCode'); ?>
-            		<div class="alert">
-                		<small>
-                		    <?php echo UserModule::t("Please enter the letters as they are shown in the image above."); ?>
-                		    <br/>
-                		    <?php echo UserModule::t("Letters are not case-sensitive."); ?>
-                	    </small>
-            	    </div>
+        		<br>
+        		<?php $this->widget('CCaptcha', array(
+        		    'captchaAction' => '//site/captcha',
+                        'buttonOptions' => array(
+                            'style' => 'width:100px;height:45px;',
+                            'class' => 'btn btn-small'
+                            )
+        		        )
+        		    ); 
+                ?>
+        		<?= $form->textFieldRow($model,'verifyCode'); ?>
+        		<div class="alert">
+            		<small>
+            		    <?php echo UserModule::t("Please enter the letters as they are shown in the image above."); ?>
+            		    <br/>
+            		    <?php echo UserModule::t("Letters are not case-sensitive."); ?>
+            	    </small>
+        	    </div>
             	<?php endif; ?>
-            	
+            	<?php 
+            	// согласие с условиями использования
+            	echo $form->checkBoxRow($model, 'policyagreed');
+            	?>
             	<!-- Сворачивающийся блок с дополнительными полями -->
                 <div class="accordion" id="accordion2">
                     <?php 
