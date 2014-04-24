@@ -7,6 +7,7 @@ Yii::import('ext.EditableGrid.EditableGrid');
  * Виджет для ручного добавления дополнительных участников в фотовызывной
  * 
  * @property ExternalMemberForm $model
+ * @deprecated задача отменена. Удалить при рефакторинге
  */
 class CallListExternalMembers extends EditableGrid
 {
