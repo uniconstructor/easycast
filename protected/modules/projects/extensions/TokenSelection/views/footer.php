@@ -2,6 +2,7 @@
 /**
  * Нижняя часть списка заявок на участие в проекте с кнопкой "завершить отбор"
  */
+/* @var $this TokenSelection */
 ?>
 
 <div style="text-align:center;">
