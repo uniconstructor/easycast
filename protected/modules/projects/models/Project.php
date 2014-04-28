@@ -71,13 +71,21 @@ class Project extends CActiveRecord
      */
     const TYPE_PROJECT     = 'project';
     /**
-     * @var string - тип проекта: реклама
+     * @var string - тип проекта: фотореклама
      */
     const TYPE_AD          = 'ad';
+    /**
+     * @var string - тип проекта: видеореклама
+     */
+    const TYPE_VIDEOAD     = 'videoad';
     /**
      * @var string - тип проекта: полнометражный фильм
      */
     const TYPE_FILM        = 'film';
+    /**
+     * @var string - тип проекта: документальный фильм
+     */
+    const TYPE_DOCUMENTARY = 'documentary';
     /**
      * @var string - тип проекта: сериал
      */
@@ -98,6 +106,10 @@ class Project extends CActiveRecord
      * @var string - тип проекта: флешмоб
      */
     const TYPE_FLASHMOB    = 'flashmob';
+    /**
+     * @var string - тип проекта: видеоролик (например для канала youtube)
+     */
+    const TYPE_VIDEO       = 'video';
     /**
      * @var string - тип проекта: видеоклип
      */
@@ -141,7 +153,7 @@ class Project extends CActiveRecord
     /**
      * @var string - онлайн-кастинг
      */
-    const TYPE_ONLINECASTING = 'festival';
+    const TYPE_ONLINECASTING = 'onlinecasting';
     
     /**
      * @var int - максимальное количество фотогрфвий в галерее проекта
@@ -481,14 +493,17 @@ class Project extends CActiveRecord
 	 */
 	public function getTypeList()
 	{
-	    $result = array('' => Yii::t('coreMessages', 'choose'));
-	    $types = array('ad', 'film', 'series', 'tvshow', 'expo', 'promo', 'flashmob', 'videoclip',
-	        'docureality', 'realityshow', 'shortfilm', 'conference', 'concert', 'theatreperfomance',
-	        'musical', 'corporate', 'festival');
+	    $result = array('' => '--- '.Yii::t('coreMessages', 'choose').' ---');
+	    $types  = array('ad', 'videoad', 'film', 'documentary', 'series', 'tvshow', 'expo', 'promo',
+	        'flashmob', 'videoclip', 'video', 'docureality', 'realityshow', 'shortfilm', 'conference', 
+	        'concert', 'theatreperfomance', 'musical', 'corporate', 'festival');
 	    foreach ( $types as $type )
 	    {
 	        $result[$type] = ProjectsModule::t('project_type_'.$type);
 	    }
+	    asort($result);
+	    
+	    $result = CMap::mergeArray(array('' => Yii::t('coreMessages', 'choose')), $result);
 	    return $result;
 	}
 	
