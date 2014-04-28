@@ -77,6 +77,8 @@
  * @property integer $hastatoo
  * @property integer $ownerid
  * @property integer $ismassactor
+ * @property integer $isamateuractor
+ * @property integer $istheatreactor
  * 
  * Relations:
  * @property User $user 
@@ -830,30 +832,41 @@ class Questionary extends CActiveRecord
     protected function autoModeration()
     {
         $dependences = array(
-            'isactor' => 'actoruniversities',
-            'hasfilms' => 'films',
-            'isemcee' => 'emceelist',
-            'istvshowmen' => 'tvshows',
-            'isparodist' => 'parodistlist',
-            'istwin' => 'twinlist',
-            'isdancer' => 'dancetypes',
-            'haslanuages' => 'languages',
-            'hasawards' => 'awards',
+            'isactor'        => 'actoruniversities',
+            'hasfilms'       => 'films',
+            'isemcee'        => 'emceelist',
+            'istvshowmen'    => 'tvshows',
+            'isparodist'     => 'parodistlist',
+            'istwin'         => 'twinlist',
+            'isdancer'       => 'dancetypes',
+            'haslanuages'    => 'languages',
+            'hasawards'      => 'awards',
             'istheatreactor' => 'theatres',
         );
         
         foreach ( $dependences as $field => $relation )
-        {
-            // Перезагружаем связаные записи чтобы не наткнуться на кеш
+        {// Перезагружаем связаные записи чтобы не наткнуться на кеш
+            // поэтому используем getRelated()
             $data = $this->getRelated($relation, true);
             if ( isset($this->$field) AND $this->$field AND ! $data )
             {// галочка выставлена, а необходимых данных нет - сбросим ее обратно
                 $this->$field = 0;
             }
         }
+        if ( $this->isamateuractor  )
+        {// если поставлена галочка "непрофессиональный актер"
+            // то должен быть указан или театр или фильмография
+            if ( ! $this->istheatreactor AND ! $this->hasfilms )
+            {
+                $this->isamateuractor = 0;
+            }
+            // а также сбрасывается галочка "профессиональный актер"
+            $this->isactor = 0;
+        }
         
         if ( $this->isactor )
-        {// если участник - профессиональный актер - уберем галочку "непрофессиональный"
+        {// если участник - профессиональный актер - уберем галочку "непрофессиональный актер"
+            // потому что это взаимоисключающие пункты
             $this->isamateuractor = 0;
         }
     }
@@ -1041,11 +1054,11 @@ class Questionary extends CActiveRecord
         $old = $this::model()->findByPk($this->id);
         $new = $this;
         
-        if ( $old->status == 'delayed' AND $old->status != $new->status )
+        if ( $old->status === 'delayed' AND $old->status != $new->status )
         {// анкета перестает быть отложеной
             return true;
         }
-        if ( $old->status == 'draft' AND $new->status != 'delayed' )
+        if ( $old->status === 'draft' AND $new->status != 'delayed' )
         {// сохраняется черновик анкеты, и анкета не откладывается администратором чтобы заполнить позже
             return true;
         }

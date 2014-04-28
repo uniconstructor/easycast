@@ -425,6 +425,10 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
                      )
                 ),
             ));
+            // пояснение для списка фильмов
+            $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription',
+                array('field' => 'isamateuractor')
+            );
             ?>
         </div>
     </div>
