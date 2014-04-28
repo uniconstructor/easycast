@@ -108,7 +108,7 @@ class EventInvite extends CActiveRecord
 	{
 	    if ( $this->isNewRecord )
 	    {// при создании записи установим начальный статус
-	        $this->status = self::STATUS_PENDING;
+	        $this->status       = self::STATUS_PENDING;
 	        $this->subscribekey = sha1(microtime().Yii::app()->params['hashSalt']);
 	    }
 	    
