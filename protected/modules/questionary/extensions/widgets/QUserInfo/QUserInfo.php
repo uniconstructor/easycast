@@ -395,7 +395,7 @@ class QUserInfo extends CWidget
         
         if ( Yii::app()->user->checkAccess('Admin') AND trim(strip_tags($questionary->privatecomment)) )
         {// Только для администраторов: выводим дополнительную информацию об анкете
-            $content .= '<div class="ec-round-the-corner" style="background-color:#000;padding:20px;">';
+            $content .= '<div class="ec-round-the-corner" style="padding:20px;">';
             $content .= '<h4>Дополнительная информация для администраторов (не видна участнику)</h4>';
             $content .= $questionary->privatecomment.'</div>';
         }
