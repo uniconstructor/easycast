@@ -6,29 +6,28 @@ return CMap::mergeArray(
         'modules' => array(
             // для версии разработчика включаем Gii-генерацию кода
             'gii' => array(
-                'class'    => 'system.gii.GiiModule',
-                'password' => '12345',
-                // If removed, Gii defaults to localhost only. Edit carefully to taste.
+                'class'     => 'system.gii.GiiModule',
+                'password'  => '12345',
                 'ipFilters' => array('127.0.0.1','::1'),
                 'generatorPaths' => array(
-                    'application.gii',  // Model and Crud templates
+                    'application.gii',
                     'bootstrap.gii',
                 ),
             ),
             'log' => array(
                 'routes' => array(
-                        array(
-                            'class'     => 'ext.yii-debug-toolbar.YiiDebugToolbarRoute',
-                            'ipFilters' => array('127.0.0.1', '192.168.1.215'),
-                        ),
+                    array(
+                        'class'     => 'ext.yii-debug-toolbar.YiiDebugToolbarRoute',
+                        'ipFilters' => array('127.0.0.1'),
                     ),
                 ),
+            ),
             // бонус: мой маленький робот для торговли на бирже :)
             // Он вообще к сайту никак не относится, просто воткнуть его сюда было быстрее чем
             // создавать новый проект :)
-            /*'trader' => array(
+            'trader' => array(
                 'class' => 'application.modules.trader.TraderModule',
-            ),*/
+            ),
             
             'questionary' => array(
                 'controllerMap' => array(
@@ -46,8 +45,8 @@ return CMap::mergeArray(
             'db' => array(
                 // данные для работы сайта локально (для разработки)
                 'connectionString' => 'mysql:host=localhost;dbname=easycast',
-                'username' => 'root',
-                'password' => 'root',
+                'username'         => 'root',
+                'password'         => 'root',
             ),
             // API для работы с Мегапланом: в среде разработчика создаем задачи только для себя,
             // не указывая никого в качестве соисполнителей или аудиторов, чтобы не отвлекать от работы остальных
@@ -68,7 +67,7 @@ return CMap::mergeArray(
             'vkontakteApiId' => '3534064',
             
             // Настройки хостинга Amazon
-            // Данные для доступа к кластеру Amazon (отключено, чтобы не посылать запросы с машины разработчика)
+            // Данные для доступа к кластеру Amazon (можно отключить, чтобы не посылать запросы с машины разработчика)
             'AWSAccessKey' => 'AKIAISQJ47JQQ2QOGBKA',
             'AWSSecret'    => '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',
             //'AWSAccessKey' => '',
@@ -84,7 +83,7 @@ return CMap::mergeArray(
             // использовать сервисы amazon SES для отправки почты
             'useAmazonSES'  => false,
             // SQS
-            // использовать Amazon SES для отправки большого количества почты (через очередь)
+            // использовать Amazon SQS для отправки большого количества почты (через очередь)
             'useAmazonSQS'      => true,
             'AWSEmailQueueUrl'  => 'https://sqs.us-east-1.amazonaws.com/507109426938/test_easycast_mail',
             'AWSEmailQueueName' => 'test_easycast_mail',
