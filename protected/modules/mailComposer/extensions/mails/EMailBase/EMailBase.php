@@ -144,7 +144,7 @@ class EMailBase extends CWidget
             return $name.", здравствуйте.<br>\n<br>\n";
         }else
         {
-            return "Добрый день.<br>\n<br>\n";
+            return "Здравствуйте.<br>\n<br>\n";
         }
     }
 }
