@@ -152,18 +152,6 @@ class AdminController extends Controller
 	    $this->render('create',array(
 	        'model' => $model,
 	    ));
-	    /*if ( ! $email = Yii::app()->request->getParam('email', '') )
-	    {
-	        throw new CHttpException(400, 'Не указан email');
-	    }
-	    if ( ! $objectType = Yii::app()->request->getParam('objectType', '') )
-	    {
-	        throw new CHttpException(400, 'Не указан objectType');
-	    }
-	    if ( ! $objectId = Yii::app()->request->getParam('objectId', 0) )
-	    {
-	        throw new CHttpException(400, 'Не указан objectId');
-	    }*/
         
 	    $invite = new CustomerInvite;
 	    $invite->email      = $email;
