@@ -171,4 +171,18 @@ class MailController extends Controller
         $widget->init();
         return $widget;
     }
+    
+    /**
+     * Получить параметры для отображения письма
+     * @param string $type
+     * @param int $id
+     * @return array
+     * 
+     * @todo [отложено] Будет использоваться для того чтобы посмотреть в админке любое письмо
+     *       по любому поводу перед отправкой
+     */
+    protected function getMailOptions($type, $id)
+    {
+        
+    }
 }
