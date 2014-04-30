@@ -50,7 +50,7 @@ class CustomerOffer extends CustomerInvite
         );
         // отправляем письмо (сразу же, без очереди)
         $message   = Yii::app()->getModule('mailComposer')->getMessage('offer', $params);
-        $subject   = 'Коммерческое предложение проекта easyCast';
+        $subject   = 'Коммерческое предложение кастингового агентства easyCast';
         $userEmail = Yii::app()->getModule('user')->user()->email;
         $fullName  = Yii::app()->getModule('user')->user()->fullname;
         
