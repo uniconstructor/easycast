@@ -92,9 +92,7 @@ class CustomerOfferController extends Controller
 			{// @todo проставить setFlash здесь и на странице отображения
 			    // При сохранении записи письмо отправляется автоматически
 			    
-			    $this->redirect(array('view',
-				    'id' => $model->id,
-			    ));
+			    $this->redirect(array('create'));
 			}
 		}
 
