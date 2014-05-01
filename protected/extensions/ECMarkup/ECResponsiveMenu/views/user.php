@@ -7,7 +7,7 @@
 <div class="row-fluid">
     <?php if ( Yii::app()->user->isGuest ) { ?>
     <div class="span3">            
-        <a class="box" href="/order" data-toggle='modal' data-target="#registration-modal">
+        <a class="box" href="/easy">
             <div class="icon">
                 <i class="icon-plus"></i>
             </div>
