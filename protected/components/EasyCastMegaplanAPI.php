@@ -2,6 +2,8 @@
 
 /**
  * Наш API для работы с мегапланом
+ * @deprecated Мегаплан больше не используется
+ * @todo убрать из проекта, код выложить на github чтобы не пропадать добру
  */
 class EasyCastMegaplanAPI extends CApplicationComponent
 {
