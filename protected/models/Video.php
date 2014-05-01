@@ -24,21 +24,8 @@
  * 
  * @todo прописать константы для всех типов
  */
-class Video extends CActiveRecord
+class Video extends SWActiveRecord
 {
-    /**
-     * @var string - статус видеоролика: видео загружено участником и ждет проверки
-     */
-    const STATUS_PENDING  = 'pending';
-    /**
-     * @var string - статус видеоролика: видео проверено администратором и одобрено (или загружено администратором)
-     */
-    const STATUS_APPROVED = 'approved';
-    /**
-     * @var string - статус видеоролика: видео отклонено администратором (нельзя такое публиковать)
-     */
-    const STATUS_REJECTED = 'rejected';
-    
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
@@ -58,26 +45,33 @@ class Video extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
-	 * @see CActiveRecord::beforeSave()
+	 * Отправить событие о начале рабочего процесса (workflow)
+	 * @param SWEvent $event
+	 * @return void
 	 */
-	public function beforeSave()
+	public function onEnterWorkflow($event)
 	{
-	    if ( $this->isNewRecord )
-	    {// запоминаем того кто загрузил
-	        $this->uploaderid = Yii::app()->getModule('user')->user()->id;
-	        // определяем тип видео
-	        $this->type = $this->defineVideoType($this->link);
-	    }
+	    $this->raiseEvent('onEnterWorkflow', $event);
+	}
+	
+	/**
+	 * Обработать событие "начало работы с объектом"
+	 * @param SWEvent $event
+	 * @return void
+	 */
+	public function enterWorkflow($event)
+	{
+	    // запоминаем того кто загрузил
+	    $this->uploaderid = Yii::app()->getModule('user')->user()->id;
+	    // определяем тип видео
+	    $this->type = $this->defineVideoType($this->link);
+	     
 	    if ( ! $this->externalid )
 	    {// определяем id видео на портале, чтобы потом генерировать правильные ссылки на него
-	        $this->extractExternalId();
+	       $this->extractExternalId();
 	    }
-	    
-	    
-	    return parent::beforeSave();
 	}
-
+	
 	/**
 	 * @return array validation rules for model attributes.
 	 */
@@ -121,9 +115,9 @@ class Video extends CActiveRecord
 	            'updateAttribute' => 'timemodified',
 	        ),
 	        // подключаем расширение для работы со статусами
-	        /*'swBehavior'=>array(
+	        'swBehavior' => array(
 	            'class' => 'application.extensions.simpleWorkflow.SWActiveRecordBehavior',
-	        ),*/
+	        ),
         );
 	}
 
