@@ -18,9 +18,9 @@
  * @property string $size
  * @property string $externalid - id видео на внешнем портале
  * @property string $status - статус видеоролика
- *                         pending - видео загружено участником и ждет проверки
- *                         approved - видео проверено администратором и одобрено (или загружено администратором)
- *                         rejected - видео отклонено администратором (нельзя такое публиковать)
+ *                         swVideo/pending - видео загружено участником и ждет проверки
+ *                         swVideo/approved - видео проверено администратором и одобрено (или загружено администратором)
+ *                         swVideo/rejected - видео отклонено администратором (нельзя такое публиковать)
  * 
  * @todo прописать константы для всех типов
  */
@@ -65,10 +65,10 @@ class Video extends SWActiveRecord
 	    $this->uploaderid = Yii::app()->getModule('user')->user()->id;
 	    // определяем тип видео
 	    $this->type = $this->defineVideoType($this->link);
-	     
+	    
 	    if ( ! $this->externalid )
 	    {// определяем id видео на портале, чтобы потом генерировать правильные ссылки на него
-	       $this->extractExternalId();
+	        $this->extractExternalId();
 	    }
 	}
 	
@@ -81,7 +81,8 @@ class Video extends SWActiveRecord
 		    array('link, name', 'filter', 'filter' => 'trim'),
 		    array('link, name', 'required'),
 		    
-			array('objecttype, type, status', 'length', 'max' => 20),
+			array('objecttype, type', 'length', 'max' => 20),
+			array('status', 'length', 'max' => 50),
 			array('timemodified, objectid, timecreated, uploaderid, size', 'length', 'max' => 11),
 			array('name, description, link, externalid', 'length', 'max' => 255),
 			array('md5', 'length', 'max' => 128),
