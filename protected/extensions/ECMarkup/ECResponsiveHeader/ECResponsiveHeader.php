@@ -28,14 +28,14 @@ class ECResponsiveHeader extends CWidget
             }else
             {// режим просмотра не выбран - покажем только кнопки "вход" и "регистрация"
                 $loginUrl        = Yii::app()->createUrl(current(Yii::app()->getModule('user')->loginUrl));
-                $registrationUrl = Yii::app()->createUrl(current(Yii::app()->getModule('user')->registrationUrl));
+                $registrationUrl = Yii::app()->createUrl('//easy');
                 $loginButton        = CHtml::link('Вход', $loginUrl, array('class' => 'btn btn-primary btn-large'));
-                //$registrationButton = CHtml::link('Регистрация', $registrationUrl, array('class' => 'btn btn-info btn-large'));
-                $registrationButton = CHtml::link('Регистрация', '#', array(
+                $registrationButton = CHtml::link('Регистрация', $registrationUrl, array('class' => 'btn btn-info btn-large'));
+                /*$registrationButton = CHtml::link('Регистрация', '#', array(
                     'class' => 'btn btn-info btn-large',
                     'data-toggle' => 'modal',
                     'data-target' => '#registration-modal',
-                ));
+                ));*/
                 
                 $this->infoBlockContent = $loginButton.' '.$registrationButton;
             }
