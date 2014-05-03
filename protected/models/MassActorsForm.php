@@ -210,10 +210,8 @@ class MassActorsForm extends CFormModel
         $questionary->birthdate   = $this->birthdate;
         $questionary->mobilephone = $this->phone;
         $questionary->gender      = $this->gender;
-        $questionary->ismassactor = 1;
         $questionary->status      = Questionary::STATUS_PENDING;
         // Устанавливаем и сохраняем условия съемок
-        $questionary->recordingconditions->salary = 500;
         $questionary->recordingconditions->save();
         
         // заменяем галерею
