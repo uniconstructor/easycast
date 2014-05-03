@@ -19,7 +19,7 @@ Yii::import('ext.ActiveDateSelect');
 Yii::import('ext.CountryCitySelectorRu.*');
 
 // Загружаем дополнительные стили для формы:
-$assetsUrl = CHtml::asset($this->module->basePath.DIRECTORY_SEPARATOR.'assets');
+$assetsUrl = CHtml::asset($this->module->basePath.DIRECTORY_SEPARATOR . 'assets');
 Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 
     'questionary-form.css');
 
@@ -238,12 +238,6 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         <?php echo $form->dropDownListRow($questionary, 'shoessize', $questionary->getFieldVariants('shoessize')); ?>
         
         <?php 
-        // страна проживания/гражданство
-        // @todo разделить эти понятия
-        echo $form->labelEx($questionary,'countryid');
-        echo $countrySelector->countryActiveField('countryid', $questionary);
-        echo $form->error($questionary,'countryid');
-        
         // город проживания
         // @todo сделать выпадающий список городов зависимым от списка стран
         echo $form->labelEx($questionary,'cityid');
@@ -251,7 +245,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
                 'sourceUrl' => Yii::app()->createUrl('questionary/questionary/ajax?type=city&parenttype=country&parentid=RU'),
                 );
             $countrySelector->cityActiveField('cityid', $questionary, $cityOptions);
-        echo $form->error($questionary,'cityid');
+        echo $form->error($questionary, 'cityid');
         ?>
         <hr>
 	</fieldset>
@@ -355,6 +349,25 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         </div>
     </div>
 
+    <div class="control-group">
+        <?php 
+        // пол
+        //echo $form->labelEx($questionary, 'hastatoo', array('class' => 'control-label'));
+        ?>
+        <div class="controls">
+        <?php
+        /*$form->widget('ext.ECMarkup.ECToggleInput.ECToggleInput', array(
+            'model'     => $questionary,
+            'attribute' => 'hastatoo',
+            'onLabel'   => 'Да',
+            'onValue'   => '1',
+            'offLabel'  => 'Нет',
+            'offValue'  => '0',
+        ));
+        echo $form->error($questionary, 'hastatoo');*/
+        ?>
+        </div>
+    </div>
     <?php 
     // татуировки
     $this->widget('ext.EToggleBox.EToggleBox', array(
@@ -623,13 +636,15 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
     <div>
 	<fieldset id="parodist" class="qform_subsection">
     	<?php 
+    	// список образов для пародиста
     	$this->widget(
     	'application.modules.questionary.extensions.QEditParodistList.QEditParodistList',
         	 array(
         	    'SelectedValues' => $questionary->parodistlist,
         	    'textFieldLabel' => QuestionaryModule::t('parodist_images'),
         	    'hideSelect'     => 'asmSelect1',
-        	 ));
+        	 )
+    	 );
     	?>
     	<?php echo $form->error($questionary,'parodist'); ?>
 	</fieldset>
