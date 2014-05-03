@@ -7,7 +7,7 @@ Yii::import('ext.asmselect.JAMSelect');
  * (например тембр голоса, вид спорта или образ двойника)
  * @author frost
  * 
- * @todo вынести верстку в отдельные файлы
+ * @deprecated вместо этого элемента теперь используется select2
  */
 class QEditSimpleActivity extends JAMSelect
 {
