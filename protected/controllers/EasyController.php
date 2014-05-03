@@ -53,7 +53,14 @@ class EasyController extends Controller
             $gallery->limit       = 30;
             $gallery->name        = 1;
             $gallery->description = 1;
-            $gallery->save(false);
+            $gallery->save();
+            if ( ! $gallery->subfolder )
+            {// @todo beforeSave не может знать id для записи в subfolder до сохранения записи
+                // поэтому загрузка изображений происходила в неправильные директории
+                // этот код можно будет убрать после того как будет переписан класс gallery
+                $gallery->subfolder = $gallery->id;
+                $gallery->save();
+            }
             $massActorForm->galleryid = $gallery->id;
         }
                 
