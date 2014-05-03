@@ -159,7 +159,6 @@ class Questionary extends CActiveRecord
      * @var string - значение стоящее в select-списках на пункте "выбрать"
      */
     const VALUE_NOT_SET = "";
-    
     /**
      * @var string - отображаемое количество последних приглашений
      */
@@ -187,14 +186,36 @@ class Questionary extends CActiveRecord
     }
     
     /**
-     * Определить, нужно ли отображать значение транслитом 
-     * @param string $fieldName
-     * @return bool
+     * Получить полный список всех полей, которые могут присутствовать в форме анкеты
+     * @return array
      */
-    /*public static function displayAsTranslit($fieldName)
+    public static function getAllFields()
     {
-        
-    }*/
+        return array(
+            // поля анкеты
+            'firstname', 'lastname', 'middlename', 'birthdate', 'gender', 'height', 
+            'weight', 'shoessize', 'cityid', 'mobilephone', 'homephone', 
+            'addphone', 'vkprofile', 'looktype', 'haircolor', 'eyecolor', 'physiquetype', 
+            'isactor', 'hasfilms', 'isemcee', 'isparodist', 'istwin', 'ismodel', 'titsize', 
+            'chestsize', 'waistsize', 'hipsize', 'isdancer', 'hasawards', 'isstripper', 'striptype', 
+            'striplevel', 'issinger', 'singlevel', 'ismusician', 'issportsman', 'isextremal', 
+            'isathlete', 'hasskills', 'hastricks', 'haslanuages',
+            'status', 'isphotomodel', 'ispromomodel', 'rating', 
+            'fbprofile', 'okprofile', 'hastatoo', 'isamateuractor', 'istvshowmen', 
+            'isstatist', 'ismassactor', 'nativecountryid', 'admincomment', 'playagemin', 
+            'playagemax', 'hairlength', 'istheatreactor', 'ismediaactor', 
+            'privatecomment', 'wearsize',
+            // поля модели User
+            'email', 'policyagreed',
+            // условия съемки
+            //'',
+            // сложные значения
+            'addchars', 'actoruniversities', 'films', 'emceelist', 'parodistlist', 'twinlist', 'modelschools',
+            'modeljobs', 'photomodeljobs', 'promomodeljobs', 'dancetypes', 'awards', 'vocaltypes',
+            'voicetimbres', 'instruments', 'musicuniversities', 'sporttypes', 'extremaltypes',
+            'tricks', 'skills', 'languages', 'tvshows', 'theatres', 'video', 'photo',
+        );
+    }
     
     /**
      * @return string the associated database table name
@@ -274,7 +295,7 @@ class Questionary extends CActiveRecord
             // образы двойника
             'twinlist' => array(self::HAS_MANY, 'QTwin', 'questionaryid'),
             // модельные школы
-            'modelschools'=> array(self::HAS_MANY, 'QModelSchool', 'questionaryid'),
+            'modelschools' => array(self::HAS_MANY, 'QModelSchool', 'questionaryid'),
             // показы
             'modeljobs' => array(self::HAS_MANY, 'QModelJob', 'questionaryid'),
             // работы в качестве фотомодели
@@ -521,6 +542,105 @@ class Questionary extends CActiveRecord
     }
     
     /**
+     * Получить все поля для одного раздела при редактировании анкеты
+     * @param string $section - название раздела анкеты
+     * @return array - полный список полей которые относятся к переданому разделу
+     * 
+     * @todo при отображении и редактировании разделы отличаются. Нужно учесть этот момент
+     * @todo нужно сначала спросить, в каких съемках человек хотел бы участвовать, затем в каком качестве
+     *       (актер, модель пародист и т. д.) и только потом всю необходимую для этого информацию
+     */
+    public function getSectionFields($section, $type='edit')
+    {
+        $fields = array();
+        $fields['main'] = array(
+            'email', 'firstname', 'lastname', 'middlename', 'birthdate', 
+            'playagemin', 'playagemax', 'gender', 'password', 'cityid',
+        );
+        $fields['contacts'] = array(
+            'mobilephone', 'homephone', 'addphone', 'vkprofile', 'fbprofile', 'okprofile',
+        );
+        $fields['looks'] = array(
+            'photo', 'video', 'looktype', 'haircolor', 'hairlength', 'eyecolor', 'physiquetype',
+            'chestsize', 'waistsize', 'hipsize',
+            'height', 'weight', 'wearsize', 'shoessize', 'hastatoo', 'addchars',
+        );
+        $fields['skills'] = array(
+            'isactor', 'isamateuractor', 'hasfilms', 'istheatreactor', 'isstatist', 'ismassactor',
+            'isemcee', 'istvshowmen', 'isparodist', 'istwin', 'ismodel', 'isphotomodel', 'ispromomodel',
+            'isdancer', 'isstripper', 'issinger', 'ismusician', 'issportsman', 'isextremal',
+            'isathlete', 'hasskills', 'hastricks', 'haslanuages', 'hasawards',
+        );
+        $fields['conditions'] = array(
+            'isnightrecording', 'istoplessrecording', 'isfreerecording', 'wantsbusinesstrips',
+            'hasforeignpassport', 'salary', 'custom',
+        );
+        $fields['settings'] = array(
+            
+        );
+        $fields['admin'] = array(
+            'rating', 'status', 'ismediaactor', 'privatecomment', 
+        );
+        if ( ! isset($fields[$section]) )
+        {
+            throw new CException('Неизвестный раздел анкеты: '.$section);
+        }
+        
+        return $fields[$section];
+    }
+    
+    /**
+     * Получить дополнительную информацию об одном поле анкеты
+     * @param string $field
+     * @return array массив с дополнительной информацией о поле анкеты
+     * Формат массива:
+     *      displaySection - раздел анкеты при отображении
+     *      editSection    - раздел анкеты при редактировании
+     *      scalar - простое поле или сложное (массив значений: например фильмография или список языков)
+     *      type - тип значения (для сложных значений - навык, фильм или ВУЗ, для простых: характеристика или просто поле)
+     *      subType - подтип значения (только для сложных значений)
+     *      external - находится в этой таблице или в другой
+     *      displayFor - массив с названиями полей, которые разрешают отображение этого поля
+     *                   Считается, что поле нужно отображать, если выбрано "да" хотя бы в одном поле 
+     *                   и скрыть только тогда когда выбрано "нет" в обоих (либо оба поля не заполнены)
+     *      requiredFor - массив полей, значение "да" в которых не будет засчитано без данных этого
+     *      recommendedFor - массив полей, значение "да" для которых будет означать рекомендацию
+     *                       к заполнению этого поля (например при выборе поля "модель" мы будем советовать
+     *                       указать модельную школу или указать что модельной школы нет)
+     *      
+     */
+    public function getFieldOptions($field)
+    {
+        return array(
+            //'displaySection' => $this->getFieldSection($field, 'display'),
+            'editSection'    => $this->getFieldSection($field, 'edit'),
+            'scalar'         => true,
+            'external'       => false,
+            'type'           => '',
+            'subType'        => '',
+            'displayFor'     => array(),
+            'requiredFor'    => array(),
+            'recommendedFor' => array(),
+        );
+    }
+    
+    /**
+     * Определить раздел анкеты, в котором должно находится поле
+     * @param string $field - название поля
+     * @param string $sectionType - тип раздела: отображение или редактирование
+     * @return string
+     * 
+     * @todo добавить определение раздела для отображения, решить могут ли быть разные типы отображения
+     */
+    public function getFieldSection($field, $sectionType)
+    {
+        if ( $sectionType === 'edit' )
+        {
+            
+        }
+    }
+    
+    /**
      * Определить, загружена ли хотя бы одна фотография
      * @param int $galleryId
      * @return boolean
@@ -531,7 +651,6 @@ class Questionary extends CActiveRecord
     {
         if ( ! $gallery = Gallery::model()->findByPk($galleryId) )
         {
-            //throw new CException('Ошибка при сохранении фотографий: невозможно найти галерею изображений');
             return false;
         }
         if ( $gallery->galleryPhotos )
@@ -877,7 +996,6 @@ class Questionary extends CActiveRecord
      * (например спортсмен, музыкант, вокал, и т. п.)
      * Исключение - актер массовых сцен и статист - эти поля могут быть указаны кем угодно и не требуют проверки
      * модератором
-     * @todo переделать проверку прав
      * 
      * @return bool
      */
@@ -1165,7 +1283,7 @@ class Questionary extends CActiveRecord
                 {// значение уже существует - не добавляем его
                     continue;
                 }else
-              {// добавлено новое значение = записываем его в БД
+                {// добавлено новое значение = записываем его в БД
                     $activity = new QActivity();
                     $activity->questionaryid = $this->id;
                     $activity->type          = $type;
@@ -1173,7 +1291,7 @@ class Questionary extends CActiveRecord
                     $activity->save();
                 }
             }else
-           {// введенное пользователем значение
+            {// введенное пользователем значение
                 $activity = new QActivity();
                 $activity->questionaryid = $this->id;
                 $activity->type          = $type;
