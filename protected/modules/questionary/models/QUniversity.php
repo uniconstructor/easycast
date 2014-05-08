@@ -2,6 +2,9 @@
 
 /**
  * Модель для хранения музыкального или театрального ВУЗа
+ * 
+ * @todo проставить property-поля для работы code competetion
+ * @todo удалить поле system
  */
 class QUniversity extends CActiveRecord
 {
@@ -13,6 +16,7 @@ class QUniversity extends CActiveRecord
      * @var string - тип ВУЗа: музыкальный
      */
     const TYPE_MUSIC = 'music';
+    
     /**
      * 
      * @param system $className
@@ -24,7 +28,6 @@ class QUniversity extends CActiveRecord
 	}
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::tableName()
 	 */
 	public function tableName()
@@ -33,7 +36,6 @@ class QUniversity extends CActiveRecord
 	}
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CModel::rules()
 	 */
 	public function rules()
@@ -44,34 +46,36 @@ class QUniversity extends CActiveRecord
 			array('name', 'length', 'max' => 128),
 			array('name', 'required'),
 			array('link', 'length', 'max' => 255),
-            array('system', 'numerical', 'integerOnly'=>true),
+            array('system, form, search, timecreated, timemodified', 'numerical', 'integerOnly'=>true),
 			array('id, type, name, link, system', 'safe', 'on'=>'search'),
 		);
 	}
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::relations()
 	 */
 	public function relations()
 	{
 		return array(
+		    
 		);
 	}
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CModel::behaviors()
 	 */
 	public function behaviors()
 	{
-		return array('CAdvancedArBehavior',
-				array('class' => 'ext.CAdvancedArBehavior')
-				);
+		return array(
+		    'CTimestampBehavior' => array(
+		        'class'           => 'zii.behaviors.CTimestampBehavior',
+		        'createAttribute' => 'timecreated',
+		        'updateAttribute' => 'timemodified',
+		    ),
+		);
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::beforeDelete()
 	 */
 	protected function beforeDelete()
@@ -85,7 +89,6 @@ class QUniversity extends CActiveRecord
 	}
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CModel::attributeLabels()
 	 */
 	public function attributeLabels()
@@ -96,6 +99,8 @@ class QUniversity extends CActiveRecord
 			'name' => Yii::t('coreMessages', 'name'),
 			'link' => Yii::t('app', 'Link'),
 			'system' => 'Отображать в меню?',
+			'form' => 'Предлагать в форме поиска?',
+			'search' => 'Предлагать при заполнении анкеты?',
 		);
 	}
 
@@ -130,9 +135,9 @@ class QUniversity extends CActiveRecord
     public function universityExists($name)
     {
         $id = intval($name);
-        if ( is_numeric($name) AND $this->exists("id = :id", array(':id' => $name)) )
+        if ( is_numeric($id) AND $this->exists("id = :id", array(':id' => $id)) )
         {// есть ВУЗ с таким id
-            return (int)$name;
+            return $id;
         }elseif ( $universities = $this->findAll('name = :name', array(':name' => $name)) )
         {// есть ВУЗ с таким названием
             $university = current($universities);
