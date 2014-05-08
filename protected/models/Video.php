@@ -61,8 +61,10 @@ class Video extends SWActiveRecord
 	 */
 	public function enterWorkflow($event)
 	{
-	    // запоминаем того кто загрузил
-	    $this->uploaderid = Yii::app()->getModule('user')->user()->id;
+	    if ( Yii::app()->getModule('user')->user() )
+	    {// запоминаем того кто загрузил видео
+	        $this->uploaderid = Yii::app()->getModule('user')->user()->id;
+	    }
 	    // определяем тип видео
 	    $this->type = $this->defineVideoType($this->link);
 	    
