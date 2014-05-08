@@ -19,7 +19,7 @@ Yii::import('ext.ActiveDateSelect');
 Yii::import('ext.CountryCitySelectorRu.*');
 
 // Загружаем дополнительные стили для формы:
-$assetsUrl = CHtml::asset($this->module->basePath.DIRECTORY_SEPARATOR . 'assets');
+$assetsUrl = CHtml::asset($this->module->basePath . DIRECTORY_SEPARATOR . 'assets');
 Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 
     'questionary-form.css');
 
@@ -111,7 +111,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         $this->widget('ext.slidetoggle.ESlidetoggle', $slideToggleOptions);
         // добавляем всплывающие подсказки к каждому заголовку раздела формы
         $sectionTooltipJsId = '_qSectionTooltip'.$formPartItem['itemSelector'];
-        $sectionTooltipJs = '$("'.$slideToggleOptions['titleSelector'].' > a").tooltip({title:"Нажмите чтобы развернуть",placement:"top"})';
+        $sectionTooltipJs   = '$("'.$slideToggleOptions['titleSelector'].' > a").tooltip({title:"Нажмите чтобы развернуть",placement:"top"})';
         $clientScriptManager->registerScript($sectionTooltipJsId, $sectionTooltipJs, CClientScript::POS_END);
     }
 
@@ -324,8 +324,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
                 <?php echo QuestionaryModule::t('addchar_label'); ?>
             </legend>
             <?php 
-                $this->widget(
-                'application.modules.questionary.extensions.QEditAddChars.QEditAddChars',
+                $this->widget('questionary.extensions.QEditAddChars.QEditAddChars',
                      array(
                         'data'           => $questionary->getFieldVariants('addchar', false),
                         'SelectedValues' => $questionary->addchars,
@@ -351,7 +350,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
 
     <div class="control-group">
         <?php 
-        // пол
+        // татуировки
         //echo $form->labelEx($questionary, 'hastatoo', array('class' => 'control-label'));
         ?>
         <div class="controls">
@@ -415,11 +414,11 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
             <?php
             // пояснение для списка учебных заведений
             $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                array('field' => 'actoruniversity'));
+                array('field' => 'actoruniversity')
+            );
             // список театральных ВУЗов
-            $this->widget('questionary.extensions.widgets.QEditActorUniversities.QEditActorUniversities', array(
-                    'questionary' => $questionary,
-                )
+            $this->widget('questionary.extensions.widgets.QEditActorUniversities.QEditActorUniversities', 
+                array('questionary' => $questionary)
             );
             ?>
         </fieldset>
@@ -434,7 +433,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
               'attribute' => 'isamateuractor',
               'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
                       'after_on'  => 'js:function () {$("#films_part").fadeIn(200);}',
-                      'after_off' => 'js:function () {$("#films_part").fadeOut(200);}'
+                      'after_off' => 'js:function () {$("#films_part").fadeOut(200);}',
                      )
                 ),
             ));
@@ -497,8 +496,10 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         'model'     => $questionary,
         'attribute' => 'istheatreactor',
         'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
-              'after_on'  => 'js:function () {$("#actortheatres").fadeIn(200);}',
-              'after_off' => 'js:function () {$("#actortheatres").fadeOut(200);}'))
+                    'after_on'  => 'js:function () {$("#actortheatres").fadeIn(200);}',
+                    'after_off' => 'js:function () {$("#actortheatres").fadeOut(200);}',
+                )
+            )
         ));
     ?>
     
@@ -506,13 +507,16 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         <fieldset id="actortheatres" class="qform_subsection">
             <legend class="qform_subsection_label"><?php echo QuestionaryModule::t('theatres'); ?></legend>
             <?php
-            echo $form->errorSummary($validatedActorTheatres);
+            //echo $form->errorSummary($validatedActorTheatres);
             // пояснение для списка театров
-            $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+            $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
                 array('field' => 'actortheatres')
             );
             // список театров
-            $actorTheatreFormConfig = $actorTheatre->formConfig();
+            $this->widget('questionary.extensions.widgets.QEditTheatres.QEditTheatres', array(
+                'questionary' => $questionary,
+            ));
+            /*$actorTheatreFormConfig = $actorTheatre->formConfig();
             $this->widget('ext.multimodelform.MultiModelForm',
                 array(
                    'addItemText'   => Yii::t('coreMessages','add'),
@@ -531,7 +535,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
                    'jsAfterNewId' => 
                         MultiModelForm::afterNewIdComboBox($actorTheatreFormConfig['elements']['theatreid'], 
                             'theatreid', 'name'), 
-              ));
+            ));*/
             ?>
         </fieldset>
     </div>
@@ -543,7 +547,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         'attribute' => 'isstatist',
         'options'   => $toggleBoxJsOptions));
     // пояснение для статиста
-    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+    $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
         array('field' => 'isstatist'));
     ?>
     
@@ -554,7 +558,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         'attribute' => 'ismassactor',
         'options'   => $toggleBoxJsOptions));
     // пояснение для актера массовых сцен
-    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+    $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
         array('field' => 'ismassactor'));
     ?>
 
@@ -589,8 +593,8 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         'model'     => $questionary,
         'attribute' => 'istvshowmen',
         'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
-              'after_on'  => 'js:function () {$("#tvshows").fadeIn(200);}',
-              'after_off' => 'js:function () {$("#tvshows").fadeOut(200);}'))
+            'after_on'  => 'js:function () {$("#tvshows").fadeIn(200);}',
+            'after_off' => 'js:function () {$("#tvshows").fadeOut(200);}'))
         ));
     
     $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
@@ -630,16 +634,15 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         ));
     
     $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-        array('field' => 'isparodist'));
+        array('field' => 'isparodist')
+    );
     ?>
 	
     <div>
 	<fieldset id="parodist" class="qform_subsection">
     	<?php 
     	// список образов для пародиста
-    	$this->widget(
-    	'application.modules.questionary.extensions.QEditParodistList.QEditParodistList',
-        	 array(
+    	$this->widget('questionary.extensions.QEditParodistList.QEditParodistList', array(
         	    'SelectedValues' => $questionary->parodistlist,
         	    'textFieldLabel' => QuestionaryModule::t('parodist_images'),
         	    'hideSelect'     => 'asmSelect1',
@@ -668,14 +671,13 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
 	<fieldset id="twin" class="qform_subsection">
     	<?php 
     	// список образов двойника
-    	$this->widget(
-    	   'questionary.extensions.QEditTwinList.QEditTwinList', array(
-        	    'SelectedValues' => $questionary->twinlist,
-        	    'textFieldLabel' => QuestionaryModule::t('twin_images'),
-        	    'hideSelect'     => 'asmSelect2',
-        	 ));
+    	$this->widget('questionary.extensions.QEditTwinList.QEditTwinList', array(
+    	    'SelectedValues' => $questionary->twinlist,
+    	    'textFieldLabel' => QuestionaryModule::t('twin_images'),
+    	    'hideSelect'     => 'asmSelect2',
+    	));
     	?>
-    	<?php echo $form->error($questionary,'twin'); ?>
+    	<?php echo $form->error($questionary, 'twin'); ?>
 	</fieldset>
     </div>
 
@@ -800,7 +802,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
               'after_off' => 'js:function () {$("#dancetypes").fadeOut(200);}'))
            ));
         
-        $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+        $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
                 array('field' => 'isdancer'));
     ?>
 
@@ -889,7 +891,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
 	    // тип вокала
 	    echo $form->labelEx($questionary,'type');
     	$this->widget(
-    	'application.modules.questionary.extensions.QEditVocalTypes.QEditVocalTypes',
+    	'questionary.extensions.QEditVocalTypes.QEditVocalTypes',
         	 array(
         	    'data'           => $questionary->getFieldVariants('vocaltype', false),
         	    'SelectedValues' => $questionary->vocaltypes,
@@ -901,9 +903,8 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
     <fieldset id="voicetimbres" class="qform_subsection">
 	    <?php
 	    // тембр голоса 
-	    echo $form->labelEx($questionary,'voicetimbre');
-    	$this->widget(
-    	'application.modules.questionary.extensions.QEditVoiceTimbres.QEditVoiceTimbres',
+	    echo $form->labelEx($questionary, 'voicetimbre');
+    	$this->widget('questionary.extensions.QEditVoiceTimbres.QEditVoiceTimbres',
         	 array(
         	    'data'           => $questionary->getFieldVariants('voicetimbre', false),
         	    'SelectedValues' => $questionary->voicetimbres,
