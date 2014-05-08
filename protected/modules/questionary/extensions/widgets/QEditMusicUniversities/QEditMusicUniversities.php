@@ -104,41 +104,21 @@ class QEditMusicUniversities extends QGridEditBase
      * Получить настройки для колонок таблицы с данными
      *
      * @return array
-     *
-     * @todo запретить всем кроме админов редактировать ВУЗы
      */
     protected function getDataColumns()
     {
-        if ( Yii::app()->user->checkAccess('Admin') )
-        {// редактировать данные об обучении можно только админам
-            return array(
-                // название ВУЗа (нельзя менять если запись уже создана)
-                array(
-                    'name'  => 'name',
-                    'value' => '$data->name;',
-                ),
-                // специальность
-                $this->getTextColumnOptions('specialty'),
-                // год окончания
-                $this->getYearColumnOptions('year'),
-                // мастерская
-                $this->getTextColumnOptions('workshop'),
-            );
-        }else
-        {
-            return array(
-                // название ВУЗа (нельзя менять если запись уже создана)
-                array(
-                    'name'  => 'name',
-                    'value' => '$data->name;',
-                ),
-                // специальность
-                $this->getTextColumnOptions('specialty'),
-                // год окончания
-                $this->getYearColumnOptions('year'),
-                // мастерская
-                $this->getTextColumnOptions('workshop'),
-            );
-        }
+        return array(
+            // название ВУЗа (нельзя менять если запись уже создана)
+            array(
+                'name'  => 'name',
+                'value' => '$data->name;',
+            ),
+            // специальность
+            $this->getTextColumnOptions('specialty'),
+            // год окончания
+            $this->getYearColumnOptions('year'),
+            // мастерская
+            $this->getTextColumnOptions('workshop'),
+        );
     }
 }
