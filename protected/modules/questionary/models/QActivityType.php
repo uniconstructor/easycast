@@ -8,7 +8,7 @@
  * стили танца, и т. п.).
  * Добавленные пользователем собственные (нестандартные) значения не хранятся здесь - они находятся в QActivity
  *
- * @todo возможно в будущем следует реализовать админский интерфейс, в котором можно будет
+ * @todo в будущем следует реализовать админский интерфейс, в котором можно будет
  *       добавлять дополнительные типы деятельности из пользовательских.
  *       (когда пользовательских наберется достаточно много)
  *       при этом у пользовательского значения (QActivity) слово custom в поле value,
@@ -26,7 +26,6 @@ class QActivityType extends CActiveRecord
 	}
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::tableName()
 	 */
 	public function tableName()
@@ -35,45 +34,43 @@ class QActivityType extends CActiveRecord
 	}
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CModel::rules()
 	 */
 	public function rules()
 	{
 		return array(
-			array('name', 'length', 'max'=>20),
+			array('name', 'length', 'max' => 20),
 			array('name', 'required'),
-			array('value', 'length', 'max'=>32),
+			array('value', 'length', 'max' => 32),
 		    array('value', 'required'),
-			array('translation', 'length', 'max'=>255),
+			array('translation', 'length', 'max' => 255),
 		    array('translation', 'required'),
-			array('id, name, value', 'safe', 'on'=>'search'),
+		    array('form, search', 'numerical', 'integerOnly' => true),
+			array('id, name, value', 'safe', 'on' => 'search'),
 		);
 	}
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::relations()
 	 */
 	public function relations()
 	{
 		return array(
+            
 		);
 	}
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CModel::behaviors()
 	 */
 	public function behaviors()
 	{
-		return array('CAdvancedArBehavior',
-				array('class' => 'ext.CAdvancedArBehavior')
-				);
+		return array(
+		    
+		);
 	}
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CModel::attributeLabels()
 	 */
 	public function attributeLabels()
@@ -83,6 +80,8 @@ class QActivityType extends CActiveRecord
 			'name' => 'Тип значения',
 			'value' => 'Короткое название. Без пробелов и кавычек, только латинскими буквами, лучше всего перевод на английский. Например: "Горные лыжи" => "ski". Если слов несколько то их нужно разделять_подчеркиванием.',
 			'translation' => 'Текст (отображается пользователю)',
+		    'form' => 'Предлагать при заполнении анкеты?',
+		    'search' => 'Предлагать в форме поиска?',
 		);
 	}
 
@@ -106,7 +105,6 @@ class QActivityType extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::beforeSave()
 	 */
 	protected function beforeSave()
@@ -119,7 +117,7 @@ class QActivityType extends CActiveRecord
     	        return false;
 	        }
 	    }else
-       {// запись обновляется
+        {// запись обновляется
 	        // старые данные записи
 	        $old = $this::model()->findByPk($this->id);
 	        // новые данные записи
@@ -145,7 +143,6 @@ class QActivityType extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::afterSave()
 	 */
 	protected function afterSave()
@@ -175,7 +172,6 @@ class QActivityType extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::beforeDelete()
 	 */
 	protected function beforeDelete()
@@ -298,7 +294,7 @@ class QActivityType extends CActiveRecord
 	        $name = $this->name;
 	    }
 	    
-	    if ( ! trim($value) or $value=='custom' )
+	    if ( ! trim($value) OR $value === 'custom' )
 	    {// само значение тоже должно быть не пустым
 	        // слово "custom" - служебное
 	        return false;
@@ -318,7 +314,7 @@ class QActivityType extends CActiveRecord
 	        $params[':id'] = $this->id;
 	        $condition = "`name` = :name AND `value` = :value AND `id` <> :id";
 	    }else
-       {
+        {
             $condition = "`name` = :name AND `value` = :value";
 	    }
 	    
