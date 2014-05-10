@@ -16,7 +16,6 @@ class QUniversityInstance extends CActiveRecord
 	}
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::tableName()
 	 */
 	public function tableName()
@@ -25,7 +24,6 @@ class QUniversityInstance extends CActiveRecord
 	}
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CModel::rules()
 	 */
 	public function rules()
@@ -50,7 +48,6 @@ class QUniversityInstance extends CActiveRecord
 	}
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::relations()
 	 */
 	public function relations()
@@ -62,7 +59,6 @@ class QUniversityInstance extends CActiveRecord
 	}
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CModel::behaviors()
 	 */
 	public function behaviors()
@@ -77,8 +73,6 @@ class QUniversityInstance extends CActiveRecord
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see CModel::attributeLabels()
 	 */
 	public function attributeLabels()
 	{
@@ -230,6 +224,7 @@ class QUniversityInstance extends CActiveRecord
      * Данные для создания формы одного ВУЗа при помощи расширения multiModelForm
      * Подробнее см. http://www.yiiframework.com/doc/guide/1.1/en/form.table
      * @return array
+     * @deprecated использовалось для multimodelform, удалить при рефакторинге
      */
     public function formConfig()
     {
