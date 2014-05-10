@@ -1,7 +1,8 @@
 <?php
 
 /**
- * Класс для работы с одним экземпляром фильма
+ * Модель элемента фильмографии.
+ * Один элемент фильмографии - это связь анкеты и фильмы.
  * 
  * @property int $id
  * @property int $questionaryid
@@ -19,9 +20,7 @@
  */
 class QFilmInstance extends CActiveRecord
 {
-    //public $year; 
     /**
-     * 
      * @param system $className
      * @return QFilmInstance
      */
@@ -31,7 +30,6 @@ class QFilmInstance extends CActiveRecord
 	}
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::tableName()
 	 */
 	public function tableName()
@@ -40,7 +38,6 @@ class QFilmInstance extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::defaultScope()
 	 */
 	public function defaultScope()
@@ -52,7 +49,6 @@ class QFilmInstance extends CActiveRecord
 	}
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CModel::rules()
 	 */
 	public function rules()
@@ -98,14 +94,13 @@ class QFilmInstance extends CActiveRecord
 	public function behaviors()
 	{
 		return array(
-            'CAdvancedArBehavior' => array('class' => 'ext.CAdvancedArBehavior'),
-            'QSaveYearBehavior'   => array(
-                'class' => 'questionary.extensions.behaviors.QSaveYearBehavior',
+            'QSaveYearBehavior' => array(
+                'class'     => 'questionary.extensions.behaviors.QSaveYearBehavior',
                 'yearfield' => 'date',
             ),
 		    // автоматическое заполнение дат создания и изменения
 		    'CTimestampBehavior'  => array(
-		        'class' => 'zii.behaviors.CTimestampBehavior',
+		        'class'           => 'zii.behaviors.CTimestampBehavior',
 		        'createAttribute' => 'timecreated',
 		        'updateAttribute' => 'timemodified',
 		    ),
@@ -196,7 +191,12 @@ class QFilmInstance extends CActiveRecord
         $name = ECPurifier::trimQuotes($name);
         $this->name = $name;
     }
-
+    
+    /**
+     * 
+     * @param int $id
+     * @return void
+     */
     public function setFilmid($id)
     {
         if ( QFilm::model()->exists('id = :id', array(':id' => $id)) )
