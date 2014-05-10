@@ -38,13 +38,11 @@ class QTheatreInstance extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
 		    array('startyear, stopyear, name', 'required'),
-			array('questionaryid, theatreid, timestart, timeend, timecreated, timemodified', 'length', 'max'=>11),
-			array('director, name', 'length', 'max'=>255),
-		    array('director, name', 'filter', 'filter'=>'trim'),
+			array('questionaryid, theatreid, timestart, timeend, timecreated, timemodified', 'length', 'max' => 11),
+			array('director, name', 'length', 'max' => 255),
+		    array('director, name', 'filter', 'filter' => 'trim'),
 		    
 		    // если указан свой вариант - он не должен быть пустым
 		    array('theatreid', 'ext.YiiConditionalValidator',
@@ -80,10 +78,17 @@ class QTheatreInstance extends CActiveRecord
 	 */
 	public function behaviors()
 	{
-	    Yii::import('application.modules.questionary.extensions.behaviors.QSaveYearBehavior');
+	    Yii::import('questionary.extensions.behaviors.QSaveYearBehavior');
 	    return array(
-	        'QSaveYearBehavior',
-	        array('class' => 'application.modules.questionary.extensions.behaviors.QSaveYearBehavior'),
+	        'QSaveYearBehavior' => array(
+               'class' => 'questionary.extensions.behaviors.QSaveYearBehavior',
+	        ),
+	        // автоматическое заполнение дат создания и изменения
+	        'CTimestampBehavior' => array(
+	            'class'           => 'zii.behaviors.CTimestampBehavior',
+	            'createAttribute' => 'timecreated',
+	            'updateAttribute' => 'timemodified',
+	        ),
 	    );
 	}
 
@@ -93,13 +98,6 @@ class QTheatreInstance extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			/*'id' => 'ID',
-			'questionaryid' => 'Questionaryid',
-			'timestart' => 'Timestart',
-			'timeend' => 'Timeend',
-			'timecreated' => 'Timecreated',
-			'timemodified' => 'Timemodified',*/
-		    
 		    'director'   => QuestionaryModule::t('theatre_director'),
 		    'name'       => QuestionaryModule::t('theatre'),
 		    'theatreid'  => QuestionaryModule::t('theatre'),
@@ -115,9 +113,6 @@ class QTheatreInstance extends CActiveRecord
 	 */
 	public function search()
 	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
-
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
@@ -233,10 +228,6 @@ class QTheatreInstance extends CActiveRecord
 	    $result = array();
 	
 	    $criteria = new CDbCriteria();
-	    if ( QuestionaryModule::SYSTEM_DEFAULTS_ONLY )
-	    {// разрешены только одобренные администратором театры
-	        $criteria->addCondition('system = 1');
-	    }
 	    $criteria->order = 'name';
 	
 	    if ( ! $theatres = QTheatre::model()->findAll($criteria) )
@@ -282,6 +273,8 @@ class QTheatreInstance extends CActiveRecord
 	 * Данные для создания формы одного театра при помощи расширения multiModelForm
 	 * Подробнее см. http://www.yiiframework.com/doc/guide/1.1/en/form.table
 	 * @return array
+	 * 
+	 * @deprecated использовалось для multimodelform. Удалить при рефакторинге
 	 */
 	public function formConfig()
 	{

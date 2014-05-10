@@ -7,6 +7,10 @@
  * @property integer $id
  * @property string $name
  * @property integer $system
+ * @property integer $timecreated
+ * @property integer $timemodified
+ * 
+ * @todo удалить поле "system"
  */
 class QTheatre extends CActiveRecord
 {
@@ -33,15 +37,26 @@ class QTheatre extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
-			array('system', 'numerical', 'integerOnly'=>true),
-			array('name', 'length', 'max'=>255),
-			// The following rule is used by search().
-			// Please remove those attributes that should not be searched.
-			array('id, name, system', 'safe', 'on'=>'search'),
+			array('system, timecreated, timemodified', 'numerical', 'integerOnly' => true),
+			array('name', 'length', 'max' => 255),
+		    
+			array('id, name, system', 'safe', 'on' => 'search'),
 		);
+	}
+	
+	/**
+	 * @see CModel::behaviors()
+	 */
+	public function behaviors()
+	{
+	    return array(
+	        'CTimestampBehavior' => array(
+	            'class'           => 'zii.behaviors.CTimestampBehavior',
+	            'createAttribute' => 'timecreated',
+	            'updateAttribute' => 'timemodified',
+	        ),
+	    );
 	}
 
 	/**
@@ -49,9 +64,8 @@ class QTheatre extends CActiveRecord
 	 */
 	public function relations()
 	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
 		return array(
+		    
 		);
 	}
 
@@ -73,9 +87,6 @@ class QTheatre extends CActiveRecord
 	 */
 	public function search()
 	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
-
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
@@ -96,13 +107,18 @@ class QTheatre extends CActiveRecord
 	 */
 	public function theatreExists($name)
 	{
-	    if ( ! $theatres = $this->findAll('name = :name', array(':name' => $name)) )
-	    {
-	        return false;
-	    }
-	
-	    $theatre = current($theatres);
-	    return $theatre->id;
+	    $id = intval($name);
+        if ( is_numeric($name) AND $this->exists("id = :id", array(':id' => $id)) )
+        {// есть театр с таким id
+            return $id;
+        }elseif ( $theatres = $this->findAll('name = :name', array(':name' => $name)) )
+        {// есть театр с таким названием
+            $theatre = current($theatres);
+            return $theatre->id;
+        }
+        
+        // такого театра еще нет в базе
+        return 0;
 	}
 	
 	/**
