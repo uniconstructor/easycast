@@ -23,7 +23,6 @@ class QFilm extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::tableName()
 	 */
 	public function tableName()
@@ -59,10 +58,9 @@ class QFilm extends CActiveRecord
 	public function behaviors()
 	{
 		return array(
-		    'CAdvancedArBehavior' => array('class' => 'ext.CAdvancedArBehavior'),
 		    // автоматическое заполнение дат создания и изменения
 		    'CTimestampBehavior' => array(
-		        'class' => 'zii.behaviors.CTimestampBehavior',
+		        'class'           => 'zii.behaviors.CTimestampBehavior',
 		        'createAttribute' => 'timecreated',
 		        'updateAttribute' => 'timemodified',
 		    ),
@@ -82,7 +80,10 @@ class QFilm extends CActiveRecord
 			'director' => Yii::t('app', 'Director'),
 		);
 	}
-
+    
+	/**
+	 * @return CActiveDataProvider
+	 */
 	public function search()
 	{
 		$criteria = new CDbCriteria;
