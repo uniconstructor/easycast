@@ -225,7 +225,8 @@ class CustomerInvite extends CActiveRecord
         $criteria->compare('timeused',$this->timeused,true);
 
         return new CActiveDataProvider($this, array(
-            'criteria'=>$criteria,
+            'criteria'   => $criteria,
+            'pagination' => false,
         ));
     }
     
