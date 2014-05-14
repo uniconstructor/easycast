@@ -263,7 +263,11 @@ class QDynamicFormModel extends CFormModel
      * @var string
      */
     public $salary;
-    // сложные поля: содержат несколько значений из других таблиц
+    
+    /**
+     * @var Questionary - редактируемая анкета
+     */
+    protected $questionary;
     
     
     /**
