@@ -5,17 +5,12 @@
  * Таблица этой модели не содержит поля "дата изменения", потому принцип работы со всеми
  * значениями класса QActivity не предусматривает их изменения: при редактировании таких полей
  * весь старый набор значений удаляется и заменяется новым
+ * 
+ * @todo языковые строки
  */
 class QActivity extends CActiveRecord
 {
     /**
-     * @var array
-     * @deprecated
-     */
-    protected $fieldMap = array();
-    
-    /**
-     * (non-PHPdoc)
      * @see CActiveRecord::init()
      */
     public function init()
@@ -25,19 +20,15 @@ class QActivity extends CActiveRecord
     }
     
     /**
-     * 
      * @param system $className
-     * @return Ambigous <CActiveRecord, unknown, multitype:>
-     * @return null
+     * @return QActivity
      */
 	public static function model($className=__CLASS__)
 	{
-	    Yii::import('application.modules.questionary.extensions.behaviors.*');
 		return parent::model($className);
 	}
     
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::tableName()
 	 */
 	public function tableName()
@@ -46,23 +37,22 @@ class QActivity extends CActiveRecord
 	}
     
 	/**
-	 * (non-PHPdoc)
 	 * @see CModel::rules()
 	 */
 	public function rules()
 	{
 		return array(
-			array('questionaryid, timestart, timeend, timecreated', 'length', 'max'=>11),
-			array('type, value', 'length', 'max'=>32),
-			array('uservalue', 'length', 'max'=>128),
-			array('level', 'length', 'max'=>20),
+			array('questionaryid, timestart, timeend, timecreated, timemodified', 'length', 'max' => 11),
+			array('type, value', 'length', 'max' => 32),
+			array('uservalue', 'length', 'max' => 128),
+			array('level', 'length', 'max' => 20),
 		    
-			array('id, questionaryid, type, value, uservalue, level, timestart, timeend, timecreated', 'safe', 'on'=>'search'),
+			array('id, questionaryid, type, value, uservalue, level, timestart, 
+			    timeend, timecreated, timemodified', 'safe', 'on' => 'search'),
 		);
 	}
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::relations()
 	 */
 	public function relations()
@@ -73,7 +63,6 @@ class QActivity extends CActiveRecord
 	}
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CModel::behaviors()
 	 */
 	public function behaviors()
@@ -85,24 +74,16 @@ class QActivity extends CActiveRecord
             'QManageDefaultValuesBehavior' => array(
               'class' => 'questionary.extensions.behaviors.QManageDefaultValuesBehavior',
             ),
+		    // автоматическое заполнение дат создания и изменения
+		    'CTimestampBehavior' => array(
+		        'class'           => 'zii.behaviors.CTimestampBehavior',
+		        'createAttribute' => 'timecreated',
+		        'updateAttribute' => 'timemodified',
+		    ),
 		);
 	}
 
     /**
-     * @see parent::beforeSave
-     */
-    protected function beforeSave()
-    {
-        if ( $this->isNewRecord )
-        {
-            $this->timecreated = time();
-        }
-
-        return parent::beforeSave();
-    }
-
-    /**
-     * (non-PHPdoc)
      * @see CModel::attributeLabels()
      */
 	public function attributeLabels()
@@ -117,6 +98,7 @@ class QActivity extends CActiveRecord
 			'timestart' => Yii::t('app', 'Timestart'),
 			'timeend' => Yii::t('app', 'Timeend'),
 			'timecreated' => Yii::t('app', 'Timecreated'),
+			'timecreated' => Yii::t('app', 'Timemodified'),
 		);
 	}
 
@@ -127,36 +109,37 @@ class QActivity extends CActiveRecord
 	 */
 	public function search()
 	{
-		$criteria=new CDbCriteria;
+		$criteria = new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
-
 		$criteria->compare('questionaryid',$this->questionaryid,true);
-
 		$criteria->compare('type',$this->type,true);
-
 		$criteria->compare('value',$this->value,true);
-
 		$criteria->compare('uservalue',$this->uservalue,true);
-
 		$criteria->compare('level',$this->level,true);
-
 		$criteria->compare('timestart',$this->timestart,true);
-
 		$criteria->compare('timeend',$this->timeend,true);
-
 		$criteria->compare('timecreated',$this->timecreated,true);
+		$criteria->compare('timemodified',$this->timemodified,true);
 
 		return new CActiveDataProvider(get_class($this), array(
-			'criteria'=>$criteria,
+			'criteria' => $criteria,
 		));
 	}
 	
+	/**
+	 * Получить добавленное пользователем название умения или навыка
+	 * @return string
+	 */
 	public function getUservalue()
 	{
 	    return CHtml::encode($this->uservalue);
 	}
 	
+	/**
+	 * Получить название умения или навыка
+	 * @return string
+	 */
 	public function getName()
 	{
 	    if ( $this->value == 'custom' )
@@ -173,7 +156,7 @@ class QActivity extends CActiveRecord
 	}
 	
 	/**
-	 * 
+	 * Сохранить название умения/навыка: стандартное или введенное пользователем
 	 * @param string $name
 	 * @return null
 	 */
@@ -189,33 +172,31 @@ class QActivity extends CActiveRecord
 	}
 	
 	/**
-	 * Определить, изменилось ли значение
+	 * Определить, изменилось ли значение сложного поля
 	 * @param int $questionaryid
 	 * @param string $type - тип поля
 	 * @param array $newData - новые значения в сложном поле формы
 	 */
 	public function valueIsChanged($questionaryid, $type, $newData)
 	{
-	    switch ( $type )
-	    {
-	        case 'voicetimbre': return $this->simpleActivityIsChanged($questionaryid, $type, $newData); break;
-	        case 'addchar': return $this->simpleActivityIsChanged($questionaryid, $type, $newData); break;
-	        case 'parodist': return $this->simpleActivityIsChanged($questionaryid, $type, $newData); break;
-	        case 'twin': return $this->simpleActivityIsChanged($questionaryid, $type, $newData); break;
-	        case 'vocaltype': return $this->simpleActivityIsChanged($questionaryid, $type, $newData); break;
-	        case 'sporttype': return $this->simpleActivityIsChanged($questionaryid, $type, $newData); break;
-	        case 'extremaltype': return $this->simpleActivityIsChanged($questionaryid, $type, $newData); break;
-	        case 'trick': return $this->simpleActivityIsChanged($questionaryid, $type, $newData); break;
-	        case 'skill': return $this->simpleActivityIsChanged($questionaryid, $type, $newData); break;
-	        default: throw new CException(get_class($this).' valueIsChanged($type, $newData) - incorrect $value parameter: "'.$value.'"');
+	    $activities = array('voicetimbre', 'addchar', 'parodist', 'twin', 'vocaltype', 'sporttype', 
+	       'extremaltype', 'trick', 'skill');
+	    if ( ! in_array($type, $activities) )
+	    {// неизвестный тип навыка
+	        throw new CException(get_class($this).
+	            ' valueIsChanged($type, $newData) - incorrect $value parameter: "'.$value.'"');
 	    }
+	    return $this->simpleActivityIsChanged($questionaryid, $type, $newData);
 	}
 	
 	/**
-	 * Изменилось ли значение простой характеристики (у которой есть только имя: например вид спорта или тембр голоса)
+	 * Изменилось ли значение простой характеристики 
+	 * (умение или навык у которой есть только название и нет уровня владения: 
+	 * например вид спорта или тембр голоса)
+	 * 
 	 * @param int $questionaryid - id анкеты
 	 * @param string $type - тип сложного значения
-	 * @param array $newData - данные из формы
+	 * @param array $newData - новый список значений в поле формы
 	 * 
 	 * @return bool
 	 */
@@ -223,84 +204,75 @@ class QActivity extends CActiveRecord
 	{
 	    if ( (int)$this->countFieldValues($questionaryid, $type) != count($newData) )
 	    {// количество значений в старом и новом списке не совпадает - что-то изменилось
-	    return true;
+            return true;
 	    }
 	     
 	    foreach ( $newData as $key => $value )
-	    {
+	    {// просматриваем все значения из поля анкеты
 	        if ( ! $value )
 	        {// Добавлен новый элемент - значение поля изменено
 	            return true;
 	        }
 	        $criteria = new CDbCriteria();
-	        $criteria->addCondition("questionaryid = :questionaryid");
-	        $criteria->addCondition("type = :type");
-	         
-	        $params = array(
-	            ':questionaryid' => $questionaryid,
-	            ':type'          => $type);
-	         
+	        $criteria->compare('questionaryid', $questionaryid);
+	        $criteria->compare('type', $type);
+	        
 	        if ( is_numeric($value) )
-	        {// введенное пользователем значение
-	            $params[':id'] = $value;
-	            $criteria->addCondition("id = :id");
-	        }else
 	        {// значение из стандартного списка
-	            $params[':value'] = $value;
-	            $criteria->addCondition("value = :value");
+	            $criteria->compare('id', $value);
+	        }else
+	        {// введенное пользователем значение
+	            $criteria->compare('value', $value);
 	        }
-	         
-	        $criteria->params = $params;
-	         
 	        if ( ! $this->exists($criteria) )
-	        {// добавлено новое значение
+	        {// добавлено новое значение: данные в поле редактировались
 	            return true;
 	        }
 	    }
-	     
+	    // данные в поле не редактировались
 	    return false;
 	}
 	
 	/**
-	 * Существует ли переданный экземпляр сложного значения внутри поля
-	 * @param unknown_type $questionaryid
-	 * @param unknown_type $type
-	 * @param unknown_type $value
-	 * @param unknown_type $standard
+	 * Есть ли название переданного умения или навыка в списке значений сложного поля?
+	 * 
+	 * @param int $questionaryid
+	 * @param string $type
+	 * @param string $value
+	 * @param bool $standard
+	 * 
+	 * @return bool
+	 * 
+	 * @todo переименовать в activityExists
 	 */
 	public function valueIsExists($questionaryid, $type, $value, $standard=true)
 	{
 	    $criteria = new CDbCriteria();
-	    $criteria->addCondition("questionaryid = :questionaryid");
-	    $criteria->addCondition("type = :type");
-	    $criteria->addCondition("value = :value");
-	    
-	    $params = array(
-	        ':questionaryid' => $questionaryid,
-	        ':type'          => $type);
+	    $criteria->compare('questionaryid', $questionaryid);
+	    $criteria->compare('type', $type);
+	    $criteria->compare('value', $value);
 	    
 	    if ( $standard )
 	    {// ищем стандартные значения
-	        $params[':value'] = $value;
+	        $criteria->compare('value', $value);
 	    }else
-	   {// ищем пользовательские значения
-	       $params[':value'] = 'custom';
-	       $criteria->addCondition("uservalue = :uservalue");
-	       $params[':uservalue'] = $value;
+	    {// ищем пользовательские значения
+            $criteria->compare('value', 'custom');
+            $criteria->compare('uservalue', $value);
 	    }
-	    
-	    $criteria->params = $params;
 	    
 	    return $this->exists($criteria);
 	}
 	
 	/**
-	 * Получить все сложные значения указанного поля
-	 * @param unknown_type $questionaryid
-	 * @param unknown_type $type
-	 * @param string $values - all - все значения
-	 *                          standard - только стандартные
-	 *                          user - только введенные пользователем
+	 * Получить все умения или навыки из указанного поля
+	 * 
+	 * @param int $questionaryid
+	 * @param string $type - тип навыка
+	 * @param string $values - какие значения получать?
+	 *     all - все значения
+	 *     standard - только стандартные
+	 *     user - только введенные пользователем
 	 * @return array
 	 */
 	public function getFieldValues($questionaryid, $type, $values='all')
@@ -309,12 +281,15 @@ class QActivity extends CActiveRecord
 	}
 	
 	/**
-	 * Получить количество значений внутри поля
-	 * @param unknown_type $questionaryid
-	 * @param unknown_type $type
-	 * @param string $values - all - все значения
-	 *                          standard - только стандартные
-	 *                          user - только введенные пользователем
+	 * Получить количество умений/навыков внутри поля
+	 * 
+	 * @param int $questionaryid
+	 * @param string $type
+	 * @param string $values - какие значения получать?
+	 *     all - все значения
+	 *     standard - только стандартные
+	 *     user - только введенные пользователем
+	 * @return int
 	 */
 	public function countFieldValues($questionaryid, $type, $values='all')
 	{
@@ -324,12 +299,14 @@ class QActivity extends CActiveRecord
 	
 	/**
 	 * Удалить все значения из поля одной анкеты
-	 * @param unknown_type $questionaryid
-	 * @param unknown_type $type
-	 * @param string $values - all - все значения
-	 *                          standard - только стандартные
-	 *                          user - только введенные пользователем
-	 * @return number
+	 * 
+	 * @param int $questionaryid
+	 * @param string $type
+	 * @param string $values - какие значения получать?
+	 *     all - все значения
+	 *     standard - только стандартные
+	 *     user - только введенные пользователем
+	 * @return int
 	 */
 	public function deleteFieldValues($questionaryid, $type, $values='all')
 	{
@@ -338,49 +315,27 @@ class QActivity extends CActiveRecord
 	
 	/**
 	 * Получить критерий для выбора всех значений из одного поля анкеты
-	 * @param unknown_type $questionaryid
-	 * @param unknown_type $type
-	 * @param string $values - all - все значения
-	 *                          standard - только стандартные
-	 *                          user - только введенные пользователем
+	 * 
+	 * @param int $questionaryid
+	 * @param string $type
+	 * @param string $values - какие значения получать?
+	 *     all - все значения
+	 *     standard - только стандартные
+	 *     user - только введенные пользователем
+	 * @return CDbCriteria
 	 */
 	protected function fieldValuesCriteria($questionaryid, $type, $values='all')
 	{
-	    $params = array();
-	    $params[':questionaryid'] = $questionaryid;
-	    $params[':type']          = $type;
-	    
-	    if ( $values == 'standard' OR $values == 'user' )
-	    {
-	        $params[':value'] = 'custom';
-	    }
-	     
 	    $criteria = new CDbCriteria();
-	    $criteria->addCondition("questionaryid = :questionaryid");
-	    $criteria->addCondition("type = :type");
+	    $criteria->compare('questionaryid', $questionaryid);
+	    $criteria->compare('type', $type);
+	    
 	    switch ( $values )
 	    {// нужно получить только стандартные или только пользовательские значения
-	        case 'user':     $criteria->addCondition("value = :value"); break;
-	        case 'standard': $criteria->addCondition("value != :value"); break;
+	        case 'user':     $criteria->compare('value', 'custom'); break;
+	        case 'standard': $criteria->compare('value', '<>custom'); break;
 	    }
-	    
-	    $criteria->params = $params;
 	    
 	    return $criteria;
 	}
-	
-    /**
-     * 
-     * @param string $field
-     * @return void
-     * @deprecated
-     */
-    public function getRealFieldName($field)
-    {
-        if ( isset($this->fieldMap[$field]) )
-        {
-            return $this->fieldMap[$field];
-        }
-        return $field;
-    }
 }
