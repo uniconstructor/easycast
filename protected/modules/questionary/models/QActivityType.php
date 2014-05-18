@@ -14,9 +14,19 @@
  *       при этом у пользовательского значения (QActivity) слово custom в поле value,
  *       и заменяется на введенное админом короткое обозначение.
  *       После этого по базе ищутся все использования этого значения и заменяются на стандартные
+ * @todo прописать relations когда все введенные пользователем значения будут перенесены в эту таблицу
  */
 class QActivityType extends CActiveRecord
 {
+    /**
+     * @see CActiveRecord::init()
+     */
+    public function init()
+    {
+        Yii::import('questionary.models.QActivity');
+        parent::init();
+    }
+    
     /**
      * @return QActivityType|CActiveRecord
      */
@@ -39,6 +49,7 @@ class QActivityType extends CActiveRecord
 	public function rules()
 	{
 		return array(
+		    array('timecreated, timemodified', 'length', 'max' => 11),
 			array('name', 'length', 'max' => 20),
 			array('name', 'required'),
 			array('value', 'length', 'max' => 32),
@@ -46,7 +57,7 @@ class QActivityType extends CActiveRecord
 			array('translation', 'length', 'max' => 255),
 		    array('translation', 'required'),
 		    array('form, search', 'numerical', 'integerOnly' => true),
-			array('id, name, value', 'safe', 'on' => 'search'),
+			array('id, name, value, timecreated, timemodified', 'safe', 'on' => 'search'),
 		);
 	}
 
@@ -66,7 +77,12 @@ class QActivityType extends CActiveRecord
 	public function behaviors()
 	{
 		return array(
-		    
+		    // автоматическое заполнение дат создания и изменения
+		    'CTimestampBehavior' => array(
+		        'class'           => 'zii.behaviors.CTimestampBehavior',
+		        'createAttribute' => 'timecreated',
+		        'updateAttribute' => 'timemodified',
+		    ),
 		);
 	}
 
@@ -76,7 +92,7 @@ class QActivityType extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'id' => Yii::t('app', 'ID'),
+			'id' => 'ID',
 			'name' => 'Тип значения',
 			'value' => 'Короткое название. Без пробелов и кавычек, только латинскими буквами, лучше всего перевод на английский. Например: "Горные лыжи" => "ski". Если слов несколько то их нужно разделять_подчеркиванием.',
 			'translation' => 'Текст (отображается пользователю)',
@@ -94,10 +110,10 @@ class QActivityType extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
-
 		$criteria->compare('name',$this->name,true);
-
 		$criteria->compare('value',$this->value,true);
+		$criteria->compare('timecreated',$this->timecreated,true);
+		$criteria->compare('timemodified',$this->timemodified,true);
 
 		return new CActiveDataProvider(get_class($this), array(
 			'criteria'=>$criteria,
@@ -113,6 +129,7 @@ class QActivityType extends CActiveRecord
 	    {
 	        if ( ! $this->isUniqueShortName($this->value) )
 	        {// короткое название не уникально - так не должно быть
+	            // @todo перенести эту проверку в rules()
     	        throw new CDbException('New short value is not unique');
     	        return false;
 	        }
@@ -124,13 +141,12 @@ class QActivityType extends CActiveRecord
 	        $new = $this;
 	        
 	        if ( $old->value != $new->value )
-	        {// короткое название значения изменилось - обновим все связяные записи
+	        {// короткое название значения изменилось - обновим все связанные записи
     	        if ( ! $this->isUniqueShortName($new->value) )
     	        {// короткое название не уникально - так не должно быть
         	        throw new CDbException('New short value is not unique');
         	        return false;
     	        }
-    	         
     	        if ( ! $this->updateRelatedActivities($old->value, $new->value) )
     	        {// не удалось обновить связанные записи
         	        throw new CDbException('Unable to update related activities');
@@ -153,11 +169,10 @@ class QActivityType extends CActiveRecord
 	    if ( $this->isNewRecord )
 	    {// обновляем существующие анкеты только если новое стандартное значение добавляется
 	        $criteria = new CDbCriteria();
-	        $criteria->condition = "`type` = :type AND `value` = 'custom' AND `uservalue` = :uservalue";
-	        $criteria->params = array(
-	            ':type'      => $this->name,
-	            ':uservalue' => $this->translation,
-	        );
+	        $criteria->compare('type', $this->name);
+	        $criteria->compare('value', 'custom');
+	        $criteria->compare('uservalue', $this->translation);
+	        // находим все записи с таким же значением
 	        $activities = QActivity::model()->findAll($criteria);
 	        
 	        foreach ( $activities as $activity )
@@ -185,28 +200,28 @@ class QActivityType extends CActiveRecord
 	}
 	
 	/**
-	 * Получить список вариантов для одного вида деятельности (для использования в select-элементах)
+	 * Получить список стандартных вариантов для одного 
+	 * вида умения или навыка (для использования в select-элементах)
+	 * 
 	 * @param string $name - тип деятельности (вид спорта, вокал, и т. п.)
+	 * @return array
 	 */
 	public function activityVariants($name)
 	{
-	    $result = array();
-        	    
+	    $result   = array();
 	    $criteria = new CDbCriteria();
-	    $criteria->addCondition('name = :name');
-	    $criteria->params = array(':name' => $name);
-	    $criteria->order  = '`translation` ASC';
+	    $criteria->compare('name', $name);
+	    $criteria->order = '`translation` ASC';
 	    
 	    if ( ! $variants = $this->findAll($criteria) )
-	    {
+	    {// ищем все стандартные варианты для умения/навыка
 	        return array();
 	    }
-	
 	    foreach ( $variants as $variant )
 	    {
 	        $result[$variant->value] = CHtml::encode($variant->translation);
 	    }
-	
+	    
 	    return $result;
 	}
 	
@@ -237,16 +252,14 @@ class QActivityType extends CActiveRecord
 	public function updateRelatedActivities($oldValue, $newValue)
 	{
 	    if ( ! $oldValue OR ! $newValue OR ! $this->name )
-	    {
+	    {// @todo понять нужно ли здесь выбрасывать исключение вместо return false
 	        return false;
 	    }
-	    
-	    Yii::import('application.modules.questionary.models.QActivity');
-	    
 	    // получаем все связанные записи со старым значением
 	    $criteria = new CDbCriteria();
-	    $criteria->condition = "`type` = :type AND `value` = :value";
-	    $criteria->params = array(':type' => $this->name, ':value' => $oldValue);
+	    $criteria->compare('type', $this->name);
+	    $criteria->compare('value', $oldValue);
+	    
 	    $activities = QActivity::model()->findAll($criteria);
 	    
 	    foreach ($activities as $activity)
@@ -260,7 +273,7 @@ class QActivityType extends CActiveRecord
 	
 	/**
 	 * Определить, есть ли в базе анкеты, использующие это стандартное значение
-	 * @return boolean
+	 * @return bool
 	 */
 	public function hasRelatedActivities()
 	{
@@ -268,11 +281,10 @@ class QActivityType extends CActiveRecord
 	    {
 	        return false;
 	    }
-	    Yii::import('application.modules.questionary.models.QActivity');
 	    
 	    $criteria = new CDbCriteria();
-	    $criteria->condition = "`type` = :type AND `value` = :value";
-	    $criteria->params = array(':type' => $this->name, ':value' => $this->value);
+	    $criteria->compare('type', $this->name);
+	    $criteria->compare('value', $this->value);
 	    
 	    return QActivity::model()->exists($criteria);
 	}
@@ -293,17 +305,14 @@ class QActivityType extends CActiveRecord
 	        }
 	        $name = $this->name;
 	    }
-	    
 	    if ( ! trim($value) OR $value === 'custom' )
-	    {// само значение тоже должно быть не пустым
-	        // слово "custom" - служебное
+	    {// само значение тоже должно быть не пустым (слово "custom" - служебное)
 	        return false;
 	    }
 	    
-	    $params = array(
-	        ':name' => $name,
-	        ':value' => $value,
-	    );
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('name', $name);
+	    $criteria->compare('value', $value);
 	    
 	    if ( $excludeSelf )
 	    {
@@ -311,13 +320,9 @@ class QActivityType extends CActiveRecord
 	        {
 	            return false;
 	        }
-	        $params[':id'] = $this->id;
-	        $condition = "`name` = :name AND `value` = :value AND `id` <> :id";
-	    }else
-        {
-            $condition = "`name` = :name AND `value` = :value";
+	        $criteria->compare('id', '<>'.$this->id);
 	    }
 	    
-	    return ! QActivityType::model()->exists($condition, $params);
+	    return ! (bool)QActivityType::model()->exists($condition, $params);
 	}
 }
