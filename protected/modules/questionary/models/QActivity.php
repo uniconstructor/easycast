@@ -15,7 +15,9 @@ class QActivity extends CActiveRecord
      */
     public function init()
     {
+        Yii::import('questionary.models.QActivityType');
         Yii::import('application.modules.questionary.extensions.behaviors.*');
+        
         parent::init();
     }
     
