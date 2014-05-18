@@ -310,6 +310,7 @@ return array(
     'theatre' => 'Theatre',
     'theatres' => 'Theatres',
     'theatre_director' => 'Theatre director',
+    'theatre_currently' => 'По настоящее время',
     
     
     // остальные строки
@@ -358,6 +359,7 @@ return array(
     'specialty' => 'Specialty',
     'video' => 'Video',
     'add_video' => 'Add video',
+    'currently' => 'По настоящее время',
     
     // дополнительные строки для отображения информации в анкете
     'foreign_passport_enabled' => 'Есть загран паспорт',
