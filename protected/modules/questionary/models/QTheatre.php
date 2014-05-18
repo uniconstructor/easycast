@@ -1,9 +1,9 @@
 <?php
 
 /**
- * This is the model class for table "{{q_theatres}}".
+ * Информация о театре (для опыта работы)
  *
- * The followings are the available columns in table '{{q_theatres}}':
+ * Таблица '{{q_theatres}}':
  * @property integer $id
  * @property string $name
  * @property integer $system
@@ -11,6 +11,9 @@
  * @property integer $timemodified
  * 
  * @todo удалить поле "system"
+ * @todo прописать связи
+ * @todo языковые строки
+ * @todo добавить очистку для добавляемого имени театра
  */
 class QTheatre extends CActiveRecord
 {
@@ -38,10 +41,10 @@ class QTheatre extends CActiveRecord
 	public function rules()
 	{
 		return array(
-			array('system, timecreated, timemodified', 'numerical', 'integerOnly' => true),
+			array('system, search, form, timecreated, timemodified', 'numerical', 'integerOnly' => true),
 			array('name', 'length', 'max' => 255),
 		    
-			array('id, name, system', 'safe', 'on' => 'search'),
+			array('id, name, system, search, form', 'safe', 'on' => 'search'),
 		);
 	}
 	
@@ -78,6 +81,8 @@ class QTheatre extends CActiveRecord
 			'id' => 'ID',
 			'name' => 'Name',
 			'system' => 'System',
+			'search' => 'Отображать в поиске?',
+			'form' => 'Предлагать при заполнении формы?',
 		);
 	}
 
@@ -87,14 +92,16 @@ class QTheatre extends CActiveRecord
 	 */
 	public function search()
 	{
-		$criteria=new CDbCriteria;
+		$criteria = new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
 		$criteria->compare('name',$this->name,true);
 		$criteria->compare('system',$this->system);
+		$criteria->compare('search',$this->search);
+		$criteria->compare('form',$this->form);
 
 		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
+			'criteria' => $criteria,
 		));
 	}
 	
@@ -108,6 +115,7 @@ class QTheatre extends CActiveRecord
 	public function theatreExists($name)
 	{
 	    $id = intval($name);
+	    
         if ( is_numeric($name) AND $this->exists("id = :id", array(':id' => $id)) )
         {// есть театр с таким id
             return $id;
@@ -116,7 +124,6 @@ class QTheatre extends CActiveRecord
             $theatre = current($theatres);
             return $theatre->id;
         }
-        
         // такого театра еще нет в базе
         return 0;
 	}
@@ -131,9 +138,8 @@ class QTheatre extends CActiveRecord
 	{
 	    $theatre = new QTheatre;
 	    
-	    $theatre->name   = CHtml::encode($name);
+	    $theatre->name   = $name;
 	    $theatre->system = 0;
-	
 	    $theatre->save();
 	
 	    return $theatre->id;

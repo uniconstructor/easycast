@@ -9,12 +9,6 @@ Yii::import('application.modules.questionary.extensions.behaviors.QSaveYearBehav
 class QEmcee extends QActivity
 {
     /**
-     * @var array
-     */
-    protected $fieldMap = array('event' => 'uservalue');
-    
-    /**
-     * (non-PHPdoc)
      * @see CActiveRecord::defaultScope()
      */
     public function defaultScope()
@@ -25,6 +19,7 @@ class QEmcee extends QActivity
             'order'     => "`emceelist`.`timeend` DESC",
         );
     }
+    
     /**
      * @todo добавить дополнительную проверку для поля "событие"
      * @see parent::rules()

@@ -3,7 +3,7 @@
 /**
  * Модель для работы с проектами телеведущего
  *
- * The followings are the available columns in table '{{q_tvshow_instances}}':
+ * Таблица '{{q_tvshow_instances}}':
  * @property integer $id
  * @property string $questionaryid
  * @property string $channelname
@@ -11,9 +11,21 @@
  * @property string $timestart
  * @property string $timeend
  * @property string $timecreated
+ * 
+ * @todo прописать ConditionalValidator для полей stopyear и currently
+ * @todo добавить очистку для полей "канал" и "телепроект"
  */
 class QTvshowInstance extends CActiveRecord
 {
+    /**
+     * @see CActiveRecord::init()
+     */
+    public function init()
+    {
+        Yii::import('questionary.extensions.behaviors.QSaveYearBehavior');
+        parent::init();
+    }
+    
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
@@ -33,13 +45,13 @@ class QTvshowInstance extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::defaultScope()
 	 */
 	public function defaultScope()
 	{
 	    return array(
-	        'order' => 'timeend DESC');
+	        'order' => '`timeend` DESC',
+	    );
 	}
 
 	/**
@@ -48,13 +60,16 @@ class QTvshowInstance extends CActiveRecord
 	public function rules()
 	{
 		return array(
-			array('questionaryid, timestart, timeend, timecreated, startyear, stopyear', 'length', 'max'=>11),
-			array('channelname, projectname', 'length', 'max'=>255),
-		    array('channelname, projectname, startyear, stopyear', 'filter', 'filter'=>'trim'),
-			array('channelname, projectname, startyear, stopyear', 'required'),
+			array('questionaryid, timestart, timeend, timecreated, timemodified, startyear, stopyear', 
+			    'length', 'max' => 11),
+			array('channelname, projectname', 'length', 'max' => 255),
+		    array('channelname, projectname, startyear, stopyear', 'filter', 'filter' => 'trim'),
+			array('channelname, projectname, startyear', 'required'),
+		    array('startyear, stopyear, currently', 'numerical', 'integerOnly' => true),
+			
 			// The following rule is used by search().
-			// Please remove those attributes that should not be searched.
-			array('id, questionaryid, channelname, projectname, timestart, timeend, timecreated', 'safe', 'on'=>'search'),
+			array('id, questionaryid, channelname, projectname, timestart, timeend, 
+			    timecreated, timemodified, currently', 'safe', 'on' => 'search'),
 		);
 	}
 
@@ -81,6 +96,8 @@ class QTvshowInstance extends CActiveRecord
 			'startyear' => QuestionaryModule::t('tvshowmen_startyear'),
 			'stopyear' => QuestionaryModule::t('tvshowmen_stopyear'),
 			'timecreated' => QuestionaryModule::t('timecreated'),
+			'timemodified' => QuestionaryModule::t('timemodified'),
+			'currently' => QuestionaryModule::t('currently'),
 		);
 	}
 
@@ -90,10 +107,7 @@ class QTvshowInstance extends CActiveRecord
 	 */
 	public function search()
 	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
-
-		$criteria=new CDbCriteria;
+		$criteria = new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
 		$criteria->compare('questionaryid',$this->questionaryid,true);
@@ -102,31 +116,35 @@ class QTvshowInstance extends CActiveRecord
 		$criteria->compare('timestart',$this->timestart,true);
 		$criteria->compare('timeend',$this->timeend,true);
 		$criteria->compare('timecreated',$this->timecreated,true);
+		$criteria->compare('timemodified',$this->timemodified,true);
+		$criteria->compare('currently',$this->currently,true);
 
 		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
+			'criteria' => $criteria,
 		));
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CModel::behaviors()
 	 */
 	public function behaviors()
 	{
-	    Yii::import('application.modules.questionary.extensions.behaviors.QSaveYearBehavior');
 	    return array(
-	        'CAdvancedArBehavior',
-	        array('class' => 'ext.CAdvancedArBehavior'),
-	        'QSaveYearBehavior',
-	        array('class' => 'application.modules.questionary.extensions.behaviors.QSaveYearBehavior'),
+	        'QSaveYearBehavior' => array(
+	            'class' => 'questionary.extensions.behaviors.QSaveYearBehavior'
+	        ),
+	        // автоматическое заполнение дат создания и изменения
+	        'CTimestampBehavior' => array(
+	            'class'           => 'zii.behaviors.CTimestampBehavior',
+	            'createAttribute' => 'timecreated',
+	            'updateAttribute' => 'timemodified',
+	        ),
 	    );
 	}
 	
 	/**
 	 * Установить год начала
 	 * @param int $year
-	 * return_type
 	 */
 	public function setStartyear($year)
 	{
@@ -146,7 +164,7 @@ class QTvshowInstance extends CActiveRecord
 	    {
 	        return date('Y', (int)$this->timestart);
 	    }
-	    return 0;
+	    return null;
 	}
 	
 	/**
@@ -172,7 +190,7 @@ class QTvshowInstance extends CActiveRecord
 	    {
 	        return date('Y', (int)$this->timeend);
 	    }
-	    return 0;
+	    return null;
 	}
 	
 	/**
@@ -198,7 +216,7 @@ class QTvshowInstance extends CActiveRecord
 	}
 	
 	/**
-	 * 
+	 * @todo заменить использованием rules()
 	 */
 	public function setProjectname($name)
 	{
@@ -206,7 +224,9 @@ class QTvshowInstance extends CActiveRecord
 	}
 	
 	/**
+	 * @param string $channel - название канала
 	 * 
+	 * @todo заменить использованием rules()
 	 */
 	public function setChannelname($channel)
 	{
@@ -218,6 +238,7 @@ class QTvshowInstance extends CActiveRecord
 	 * Данные для создания формы одного ВУЗа при помощи расширения multiModelForm
 	 * Подробнее см. http://www.yiiframework.com/doc/guide/1.1/en/form.table
 	 * @return array
+	 * @deprecated использовалось для multimodelform. Удалить при рефакторинге.
 	 */
 	public function formConfig()
 	{

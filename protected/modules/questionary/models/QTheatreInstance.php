@@ -1,20 +1,33 @@
 <?php
 
 /**
- * This is the model class for table "{{q_theatre_instances}}".
+ * Хранит опыт работы участника в театре, связывает анкету и театр.
+ * Помимо этого хранит информацию о годе выпуска, режиссере и мастерской
  *
- * The followings are the available columns in table '{{q_theatre_instances}}':
- * @property integer $id
- * @property string $questionaryid
- * @property string $theatreid
- * @property string $timestart
- * @property string $timeend
+ * Таблица '{{q_theatre_instances}}':
+ * @property int $id
+ * @property int $questionaryid
+ * @property int $theatreid
+ * @property int $timestart
+ * @property int $timeend
  * @property string $director
- * @property string $timecreated
- * @property string $timemodified
+ * @property int $timecreated
+ * @property int $timemodified
+ * @property int $currently
+ * 
+ * @todo прописать ConditionalValidator для полей stopyear и currently
  */
 class QTheatreInstance extends CActiveRecord
 {
+    /**
+     * @see CActiveRecord::init()
+     */
+    public function init()
+    {
+        Yii::import('questionary.extensions.behaviors.QSaveYearBehavior');
+        parent::init();
+    }
+    
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
@@ -39,25 +52,24 @@ class QTheatreInstance extends CActiveRecord
 	public function rules()
 	{
 		return array(
-		    array('startyear, stopyear, name', 'required'),
+		    array('startyear, name', 'required'),
 			array('questionaryid, theatreid, timestart, timeend, timecreated, timemodified', 'length', 'max' => 11),
 			array('director, name', 'length', 'max' => 255),
 		    array('director, name', 'filter', 'filter' => 'trim'),
-		    
-		    // если указан свой вариант - он не должен быть пустым
+		    // если указан свой вариант названия театра - то он не должен быть пустым
 		    array('theatreid', 'ext.YiiConditionalValidator',
 		        'if' => array(
-		            array('name', 'compare', 'compareValue'=>""),
+		            array('name', 'compare', 'compareValue' => ""),
 		        ),
 		        'then' => array(
 		            array('theatreid', 'required'),
 		        ),
 		    ),
+		    array('startyear, stopyear, currently', 'numerical', 'integerOnly' => true),
 		    
-		    array('startyear, stopyear', 'numerical', 'integerOnly'=>true),
 			// The following rule is used by search().
-			// Please remove those attributes that should not be searched.
-			array('id, questionaryid, theatreid, timestart, timeend, director, timecreated, timemodified', 'safe', 'on'=>'search'),
+			array('id, questionaryid, theatreid, timestart, timeend, director, timecreated, timemodified, currently', 
+			    'safe', 'on'=>'search'),
 		);
 	}
 
@@ -73,12 +85,10 @@ class QTheatreInstance extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CModel::behaviors()
 	 */
 	public function behaviors()
 	{
-	    Yii::import('questionary.extensions.behaviors.QSaveYearBehavior');
 	    return array(
 	        'QSaveYearBehavior' => array(
                'class' => 'questionary.extensions.behaviors.QSaveYearBehavior',
@@ -104,6 +114,7 @@ class QTheatreInstance extends CActiveRecord
 		    'startyear'  => QuestionaryModule::t('theatre_startyear'),
 		    'stopyear'   => QuestionaryModule::t('theatre_stopyear'),
 		    'workperiod' => QuestionaryModule::t('theatre_workperiod'),
+		    'currently'  => QuestionaryModule::t('theatre_currently'),
 		);
 	}
 
@@ -113,7 +124,7 @@ class QTheatreInstance extends CActiveRecord
 	 */
 	public function search()
 	{
-		$criteria=new CDbCriteria;
+		$criteria = new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
 		$criteria->compare('questionaryid',$this->questionaryid,true);
@@ -123,9 +134,10 @@ class QTheatreInstance extends CActiveRecord
 		$criteria->compare('director',$this->director,true);
 		$criteria->compare('timecreated',$this->timecreated,true);
 		$criteria->compare('timemodified',$this->timemodified,true);
+		$criteria->compare('currently',$this->currently,true);
 
 		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
+			'criteria' => $criteria,
 		));
 	}
 	
@@ -152,24 +164,21 @@ class QTheatreInstance extends CActiveRecord
 	    {// театр выбран из выпадающего списка - нам передан id
 	        return;
 	    }
-	    
 	    if ( ! trim($name) )
 	    {// название пустое - не сохраняем его
 	        return;
 	    }
-	
 	    if ( $id = QTheatre::model()->theatreExists($name) )
 	    {// нашли театр по названию - запишем его id
 	        $this->theatreid = $id;
 	        return;
 	    }
-	
 	    // театр не выбран из списка и не найден по названию - добавим его в наш справочник
 	    $this->theatreid = QTheatre::model()->addUserTheatre($name);
 	}
 	
 	/**
-	 * Установить год начала
+	 * Установить год начала работы
 	 * @param int $year
 	 */
 	public function setStartyear($year)
@@ -182,7 +191,7 @@ class QTheatreInstance extends CActiveRecord
 	}
 	
 	/**
-	 * Получить поле "год"
+	 * Получить поле "год начала работы"
 	 */
 	public function getStartyear()
 	{
@@ -190,11 +199,11 @@ class QTheatreInstance extends CActiveRecord
 	    {
 	        return date('Y', (int)$this->timestart);
 	    }
-	    return 0;
+	    return null;
 	}
 	
 	/**
-	 * Установить год начала
+	 * Установить год окончания работы
 	 * @param int $year
 	 */
 	public function setStopyear($year)
@@ -207,7 +216,7 @@ class QTheatreInstance extends CActiveRecord
 	}
 	
 	/**
-	 * Получить поле "год"
+	 * Получить поле "год окончания работы"
 	 */
 	public function getStopyear()
 	{
@@ -215,7 +224,7 @@ class QTheatreInstance extends CActiveRecord
 	    {
 	        return date('Y', (int)$this->timeend);
 	    }
-	    return 0;
+	    return null;
 	}
 	
 	/**
@@ -225,8 +234,7 @@ class QTheatreInstance extends CActiveRecord
 	 */
 	public function getTheatreList()
 	{
-	    $result = array();
-	
+	    $result   = array();
 	    $criteria = new CDbCriteria();
 	    $criteria->order = 'name';
 	
@@ -234,7 +242,6 @@ class QTheatreInstance extends CActiveRecord
 	    {
 	        return array();
 	    }
-	
 	    foreach ( $theatres as $theatre )
 	    {
 	        $result[$theatre->id] = $theatre->name;

@@ -2,11 +2,21 @@
 
 /**
  * Класс для работы с одним ВУЗом в котором учился пользователь
+ * 
+ * @todo прописать property-теги
  */
 class QUniversityInstance extends CActiveRecord
 {
     /**
-     * 
+     * @see CActiveRecord::init()
+     */
+    public function init()
+    {
+        Yii::import('questionary.extensions.behaviors.QSaveYearBehavior');
+        parent::init();
+    }
+    
+    /**
      * @param system $className
      * @return QUniversityInstance
      */
@@ -29,21 +39,21 @@ class QUniversityInstance extends CActiveRecord
 	public function rules()
 	{
 		return array(
-			array('questionaryid, universityid, timestart, timeend, timecreated', 'length', 'max'=>11),
+			array('questionaryid, universityid, timestart, timeend, timecreated, timemodified', 
+			    'length', 'max' => 11),
             // ВУЗ
-            array('name, specialty', 'length', 'max'=>255),
+            array('name, specialty', 'length', 'max' => 255),
 		    array('name', 'filter', 'filter' => 'trim'),
-		    
             // год окончания
-            array('year', 'numerical', 'integerOnly'=>true),
-		    array('year', 'filter', 'filter'=>'trim'),
+            array('year', 'numerical', 'integerOnly' => true),
+		    array('year', 'filter', 'filter' => 'trim'),
 		    array('year', 'required'),
-		    
             // Мастерская
-            array('workshop', 'length', 'max'=>255),
-		    array('workshop', 'filter', 'filter'=>'trim'),
+            array('workshop', 'length', 'max' => 255),
+		    array('workshop', 'filter', 'filter' => 'trim'),
 
-			array('id, type, questionaryid, universityid, timestart, timeend, workshop, timecreated', 'safe', 'on'=>'search'),
+			array('id, type, questionaryid, universityid, timestart, timeend, 
+			    workshop, timecreated, timemodified', 'safe', 'on' => 'search'),
 		);
 	}
 
@@ -54,7 +64,7 @@ class QUniversityInstance extends CActiveRecord
 	{
 		return array(
 		    'questionary' => array(self::BELONGS_TO, 'Questionary', 'questionaryid'),
-		    'university' => array(self::BELONGS_TO, 'QUniversity', 'universityid'),
+		    'university'  => array(self::BELONGS_TO, 'QUniversity', 'universityid'),
 		);
 	}
 
@@ -63,16 +73,21 @@ class QUniversityInstance extends CActiveRecord
 	 */
 	public function behaviors()
 	{
-	    Yii::import('application.modules.questionary.extensions.behaviors.QSaveYearBehavior');
 		return array(
-            'CAdvancedArBehavior',
-				array('class' => 'ext.CAdvancedArBehavior'),
-            'QSaveYearBehavior',
-                  array('class' => 'application.modules.questionary.extensions.behaviors.QSaveYearBehavior'),
+            'QSaveYearBehavior' => array(
+                  'class' => 'questionary.extensions.behaviors.QSaveYearBehavior',
+            ),
+		    // автоматическое заполнение дат создания и изменения
+		    'CTimestampBehavior' => array(
+		        'class'           => 'zii.behaviors.CTimestampBehavior',
+		        'createAttribute' => 'timecreated',
+		        'updateAttribute' => 'timemodified',
+		    ),
         );
 	}
 
 	/**
+	 * @see CModel::attributeLabels()
 	 */
 	public function attributeLabels()
 	{
@@ -86,13 +101,11 @@ class QUniversityInstance extends CActiveRecord
 	}
 
 	/**
-	 * 
 	 * @return CActiveDataProvider
-	 * @return null
 	 */
 	public function search()
 	{
-		$criteria=new CDbCriteria;
+		$criteria = new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
 		$criteria->compare('type',$this->type,true);
@@ -102,9 +115,10 @@ class QUniversityInstance extends CActiveRecord
 		$criteria->compare('timeend',$this->timeend,true);
 		$criteria->compare('workshop',$this->workshop,true);
 		$criteria->compare('timecreated',$this->timecreated,true);
+		$criteria->compare('timemodified',$this->timemodified,true);
 
 		return new CActiveDataProvider(get_class($this), array(
-			'criteria'=>$criteria,
+			'criteria' => $criteria,
 		));
 	}
 
@@ -118,7 +132,6 @@ class QUniversityInstance extends CActiveRecord
             $this->timecreated = time();
             $this->timestart    = null;
         }
-
         if ( ! isset($this->workshop) OR ! $this->workshop )
         {
             $this->workshop = null;
@@ -154,7 +167,7 @@ class QUniversityInstance extends CActiveRecord
 
     /**
      * Установить ВУЗ введенный пользователем
-     * @param $event
+     * @param string $name
      */
     public function setname($name)
     {
@@ -162,24 +175,21 @@ class QUniversityInstance extends CActiveRecord
         {// ВУЗ выбран из выпадающего списка - нам передан id
             return;
         }
-        
         if ( ! trim($name) )
         {// название пустое - не сохраняем его
             return;
         }
-        
         if ( $id = QUniversity::model()->universityExists($name) )
         {// нашли ВУЗ по названию - запишем его id
             $this->universityid = $id;
             return;
         }
-        
         // ВУЗ не выбран из списка и не найден по названию - добавим его в наш справочник
         $this->universityid = QUniversity::model()->addUserUniversity($name, $this->defaultType);
     }
 
     /**
-     * @param $id - id ВУЗа в справочнике
+     * @param int $id - id ВУЗа в справочнике
      */
     public function setuniversityid($id)
     {
@@ -197,21 +207,19 @@ class QUniversityInstance extends CActiveRecord
      */
     public function getUniversityList($type)
     {
-        $result = array();
-        
+        $result   = array();
         $criteria = new CDbCriteria();
         $criteria->compare('type', $type);
+        $criteria->order = 'name';
+        
         if ( QuestionaryModule::SYSTEM_DEFAULTS_ONLY )
         {// разрешены только одобренные администратором ВУЗы
             $criteria->compare('system', 1);
         }
-        $criteria->order = 'name';
-        
         if ( ! $universities = QUniversity::model()->findAll($criteria) )
         {// ни одного ВУЗа не найдено
             return array();
         }
-        
         foreach ( $universities as $university )
         {
             $result[$university->id] = $university->name;

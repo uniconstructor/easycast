@@ -1,19 +1,22 @@
 <?php
 
-// Выбор страны из списка
-Yii::import('ext.CountryCitySelectorRu.*');
-
 /**
- * Класс для работы с одним званием, призом или наградой, которую раньше получил пользователь
+ * Модель для работы со списком званий призов и наград участника
+ * 
+ * @todo прописать property-свойства для работы автодополнения
+ * @todo языковые строки
  */
 class QAward extends CActiveRecord
 {
     /**
-     * @var string - поле таблицы куда записывается значение поля "год"
-     * @deprecated
+     * @see CActiveRecord::init()
      */
-    public $yearfield = 'date';
-
+    public function init()
+    {
+        Yii::import('ext.CountryCitySelectorRu.models.*');
+        parent::init();
+    }
+    
     /**
      * @param system $className
      * @return QAward
@@ -24,7 +27,6 @@ class QAward extends CActiveRecord
 	}
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::tableName()
 	 */
 	public function tableName()
@@ -33,29 +35,28 @@ class QAward extends CActiveRecord
 	}
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CModel::rules()
 	 */
 	public function rules()
 	{
 		return array(
-			array('questionaryid, countryid, date, timecreated, timemodified', 'length', 'max'=>11),
+			array('questionaryid, countryid, date, timecreated, timemodified', 'length', 'max' => 11),
             // название награды
-			array('name', 'length', 'max'=>128),
-		    array('name', 'filter', 'filter'=>'trim'),
+			array('name', 'length', 'max' => 128),
+		    array('name', 'filter', 'filter' => 'trim'),
             array('name', 'required'),
             // Номинация
-			array('nomination', 'length', 'max'=>255),
-		    array('nomination', 'filter', 'filter'=>'trim'),
+			array('nomination', 'length', 'max' => 255),
+		    array('nomination', 'filter', 'filter' => 'trim'),
             // год
-            array('year', 'numerical', 'integerOnly'=>true),
+            array('year', 'numerical', 'integerOnly' => true),
 
-			array('id, questionaryid, name, nomination, countryid, date, timecreated, timemodified', 'safe', 'on'=>'search'),
+			array('id, questionaryid, name, nomination, countryid, date, timecreated, timemodified', 
+			    'safe', 'on' => 'search'),
 		);
 	}
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::relations()
 	 */
 	public function relations()
@@ -72,16 +73,21 @@ class QAward extends CActiveRecord
 	public function behaviors()
 	{
         return array(
-            'CAdvancedArBehavior' => array('class' => 'ext.CAdvancedArBehavior'),
-            'QSaveYearBehavior'   => array(
+            // сохранение поля "год"
+            'QSaveYearBehavior' => array(
                 'class'     => 'questionary.extensions.behaviors.QSaveYearBehavior',
                 'yearfield' => 'date',
+            ),
+            // автоматическое заполнение дат создания и изменения
+            'CTimestampBehavior' => array(
+                'class'           => 'zii.behaviors.CTimestampBehavior',
+                'createAttribute' => 'timecreated',
+                'updateAttribute' => 'timemodified',
             ),
         );
 	}
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CModel::attributeLabels()
 	 */
 	public function attributeLabels()
@@ -94,8 +100,8 @@ class QAward extends CActiveRecord
 			'countryid' => QuestionaryModule::t('award_country_label'),
 			'date' => QuestionaryModule::t('year_label'),
 			'year' => QuestionaryModule::t('year_label'),
-			'timecreated' => Yii::t('app', 'Timecreated'),
-			'timemodified' => Yii::t('app', 'Timemodified'),
+			'timecreated' => Yii::t('coreMessages', 'timecreated'),
+			'timemodified' => Yii::t('coreMessages', 'timemodified'),
 		);
 	}
 
@@ -105,26 +111,19 @@ class QAward extends CActiveRecord
 	 */
 	public function search()
 	{
-		$criteria=new CDbCriteria;
+		$criteria = new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
-
 		$criteria->compare('questionaryid',$this->questionaryid,true);
-
 		$criteria->compare('name',$this->name,true);
-
 		$criteria->compare('nomination',$this->nomination,true);
-
 		$criteria->compare('countryid',$this->countryid,true);
-
 		$criteria->compare('date',$this->date,true);
-
 		$criteria->compare('timecreated',$this->timecreated,true);
-
 		$criteria->compare('timemodified',$this->timemodified,true);
 
 		return new CActiveDataProvider(get_class($this), array(
-			'criteria'=>$criteria,
+			'criteria' => $criteria,
 		));
 	}
 
@@ -150,6 +149,7 @@ class QAward extends CActiveRecord
      * Данные для создания формы одного фильма при помощи расширения multiModelForm
      * Подробнее см. http://www.yiiframework.com/doc/guide/1.1/en/form.table
      * @return array
+     * @deprecated использовалось для multimodelform, удалить при рефакторинге
      */
     public function formConfig()
     {

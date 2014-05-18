@@ -28,7 +28,8 @@ class QActivityType extends CActiveRecord
     }
     
     /**
-     * @return QActivityType|CActiveRecord
+     * @param system $className
+     * @return QActivityType
      */
 	public static function model($className=__CLASS__)
 	{

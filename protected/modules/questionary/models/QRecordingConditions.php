@@ -3,7 +3,7 @@
 /**
  * Класс для работы с условиями участия актера в съемках
  *
- * The followings are the available columns in table '{{q_recording_conditions}}':
+ * Таблица '{{q_recording_conditions}}':
  * @property integer $id
  * @property string $questionaryid
  * @property string $salary
@@ -14,6 +14,8 @@
  * @property integer $istoplessrecording
  * @property integer $isfreerecording
  * @property string $custom
+ * @property integer $timecreated
+ * @property integer $timemodified
  */
 class QRecordingConditions extends CActiveRecord
 {
@@ -40,16 +42,16 @@ class QRecordingConditions extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
-			array('wantsbusinesstrips, hasforeignpassport, isnightrecording, istoplessrecording, isfreerecording', 'numerical', 'integerOnly'=>true),
-			array('questionaryid, salary', 'length', 'max'=>11),
-			array('custom', 'length', 'max'=>255),
+			array('wantsbusinesstrips, hasforeignpassport, isnightrecording, istoplessrecording, isfreerecording', 
+			    'numerical', 'integerOnly' => true),
+			array('questionaryid, salary, timecreated, timemodified', 'length', 'max' => 11),
+			array('custom', 'length', 'max' => 255),
 		    array('passportexpires', 'safe'),
 			// The following rule is used by search().
-			// Please remove those attributes that should not be searched.
-			array('id, questionaryid, salary, wantsbusinesstrips, hasforeignpassport, passportexpires, isnightrecording, istoplessrecording, isfreerecording, custom', 'safe', 'on'=>'search'),
+			array('id, questionaryid, salary, wantsbusinesstrips, hasforeignpassport, 
+			    passportexpires, isnightrecording, istoplessrecording, isfreerecording, custom', 
+			    'safe', 'on' => 'search'),
 		);
 	}
 
@@ -58,11 +60,24 @@ class QRecordingConditions extends CActiveRecord
 	 */
 	public function relations()
 	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
 		return array(
 		    'questionary' => array(self::BELONGS_TO, 'Questionary', 'questionaryid'),
 		);
+	}
+	
+	/**
+	 * @see parent::behaviors()
+	 */
+	public function behaviors()
+	{
+	    return array(
+	        // автоматическое заполнение дат создания и изменения
+	        'CTimestampBehavior' => array(
+	            'class'           => 'zii.behaviors.CTimestampBehavior',
+	            'createAttribute' => 'timecreated',
+	            'updateAttribute' => 'timemodified',
+	        ),
+	    );
 	}
 
 	/**
@@ -81,6 +96,8 @@ class QRecordingConditions extends CActiveRecord
 			'istoplessrecording' => QuestionaryModule::t('istoplessrecording_label'),
 			'isfreerecording' => QuestionaryModule::t('isfreerecording_label'),
 			'custom' => QuestionaryModule::t('сustom_conditions'),
+		    'timecreated' => Yii::t('coreMessages', 'timecreated'),
+		    'timemodified' => Yii::t('coreMessages', 'timemodified'),
 		);
 	}
 
@@ -90,10 +107,7 @@ class QRecordingConditions extends CActiveRecord
 	 */
 	public function search()
 	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
-
-		$criteria=new CDbCriteria;
+		$criteria = new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
 		$criteria->compare('questionaryid',$this->questionaryid,true);
@@ -105,9 +119,11 @@ class QRecordingConditions extends CActiveRecord
 		$criteria->compare('istoplessrecording',$this->istoplessrecording);
 		$criteria->compare('isfreerecording',$this->isfreerecording);
 		$criteria->compare('custom',$this->custom,true);
+		$criteria->compare('timecreated',$this->timecreated,true);
+		$criteria->compare('timemodified',$this->timemodified,true);
 
 		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
+			'criteria' => $criteria,
 		));
 	}
 	
@@ -116,11 +132,10 @@ class QRecordingConditions extends CActiveRecord
 	 */
 	public function getPassportexpires($value)
 	{
-	    if ( $this->scenario == 'view' )
+	    if ( $this->scenario === 'view' )
 	    {
 	        return date('d.m.Y', $this->passportexpires);
 	    }
-	
 	    return $this->passportexpires;
 	}
 	
