@@ -6,9 +6,9 @@ Yii::import('questionary.controllers.QComplexValueController');
 /**
  * Контроллер для работы с показами модели
  *
- * @package easycast
+ * @package    easycast
  * @subpackage questionary
-*/
+ */
 class QModelJobController extends QComplexValueController
 {
     /**

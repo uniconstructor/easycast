@@ -6,7 +6,7 @@ Yii::import('questionary.controllers.QComplexValueController');
 /**
  * Контроллер для работы со списком иностранных языков
  *
- * @package easycast
+ * @package    easycast
  * @subpackage questionary
  */
 class QLanguageController extends QComplexValueController

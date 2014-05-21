@@ -6,7 +6,7 @@ Yii::import('questionary.controllers.QComplexValueController');
 /**
  * Контроллер для работы с фильмографией
  * 
- * @package easycast
+ * @package    easycast
  * @subpackage questionary
  */
 class QFilmInstanceController extends QComplexValueController

@@ -3,7 +3,7 @@
 /**
  * Базовый класс контроллера для работы со сложными значениями
  * 
- * @package easycast
+ * @package    easycast
  * @subpackage questionary
  */
 class QComplexValueController extends Controller

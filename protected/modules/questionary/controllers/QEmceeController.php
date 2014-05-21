@@ -6,7 +6,7 @@ Yii::import('questionary.controllers.QComplexValueController');
 /**
  * Контроллер для работы с мероприятиями ведущего
  * 
- * @package easycast
+ * @package    easycast
  * @subpackage questionary
  */
 class QEmceeController extends QComplexValueController

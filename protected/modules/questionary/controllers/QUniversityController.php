@@ -8,7 +8,7 @@ Yii::import('questionary.controllers.QComplexValueController');
  *
  * @package    easycast
  * @subpackage questionary
-*/
+ */
 class QUniversityController extends QComplexValueController
 {
     /**

@@ -6,7 +6,7 @@ Yii::import('questionary.controllers.QComplexValueController');
 /**
  * Контроллер для работы со списком модельных школ
  *
- * @package easycast
+ * @package    easycast
  * @subpackage questionary
  */
 class QModelSchoolController extends QComplexValueController
