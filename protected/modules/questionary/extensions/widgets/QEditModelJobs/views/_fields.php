@@ -1,11 +1,11 @@
 <?php
 /**
  * Список полей формы во всплывающем modal-окне
-* Структура своя для каждого виджета
-*/
-/* @var $form TbActiveForm */
-/* @var $this QEditFilms */
-/* @var $model QFilmInstance */
+ * Структура своя для каждого виджета
+ */
+/* @var $form  TbActiveForm */
+/* @var $this  QEditModelJobs */
+/* @var $model QModelJob */
 
 // ошибки формы
 echo $form->errorSummary(array($model), null, null, array('id' => $this->formId.'_errors'));

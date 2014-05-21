@@ -6,7 +6,7 @@ Yii::import('questionary.extensions.widgets.QGridEditBase.QGridEditBase');
 /**
  * Виджет для редактирования показов модели
  *
- * @package easycast
+ * @package    easycast
  * @subpackage questionary
  */
 class QEditModelJobs extends QGridEditBase
