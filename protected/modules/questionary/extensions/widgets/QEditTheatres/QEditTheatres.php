@@ -38,7 +38,7 @@ class QEditTheatres extends QGridEditBase
     public $fields = array('name', 'startyear', 'stopyear', 'director');
     /**
      * @var string - html-id формы для ввода новой записи
-    */
+     */
     public $formId = 'theatre-instance-form';
     /**
      * @var string - html-id modal-окна для ввода новой записи
@@ -76,6 +76,7 @@ class QEditTheatres extends QGridEditBase
     {
         $this->render('_fields', array('model' => $this->model, 'form' => $form));
     }
+    
     /**
      * js для очистки полей формы после добавления новой записи
      * @return string
