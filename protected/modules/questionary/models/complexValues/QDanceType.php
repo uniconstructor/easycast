@@ -6,18 +6,25 @@ Yii::import('questionary.models.QActivity');
 /**
  * Класс для работы с одним типом танца (стиль + уровень владения)
  * Все используемые классы поведений подключаются в родительском init(),
- * так что не забудь его вызвать если будешь переопределять 
+ * так что не забудь вызвать parent::init при переопределении 
  */
 class QDanceType extends QActivity
 {
     /**
+     * Это условие выборки присутствует во всех классах сложных значений, наследуемых от QActivity
+     * Поскольку все классы моделей-наследников QActivity хранят данные в одной таблице, то
+     * это условие нужно для того чтобы, например, при всех операциях моделью "Тип танца" 
+     * быть уверенным в том что не будут задет соседние значения другого типа: оно автоматически
+     * применяется перед каждым SQL-запросом к модели.
+     * Подробнее см. справку по defaultScope
+     * 
      * @see CActiveRecord::defaultScope()
      */
     public function defaultScope()
     {
         return array(
             'alias'     => "dancetypes",
-            'condition' => "`dancetypes`.`type`='dancetype'",
+            'condition' => "`dancetypes`.`type` = 'dancetype'",
         );
     }
     
@@ -76,12 +83,14 @@ class QDanceType extends QActivity
     protected function beforeSave()
     {
         if ( $this->isNewRecord )
-        {
+        {// установка значений по усолчанию
             $this->type = 'dancetype';
             if ( ! isset($this->value) OR ! $this->value )
             {
                 $this->value = null;
             }
+            // @todo после миграции, которая навела порядок с использованием null во всех таблицах анкеты
+            // неизвестно нужно ли теперь устанавливать null здесь. Проверить и удалить если больше не нужно
             $this->timestart = null;
             $this->timeend   = null;
         }
