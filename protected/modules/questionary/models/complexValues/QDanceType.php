@@ -46,9 +46,9 @@ class QDanceType extends QActivity
             array('name', 'length', 'max' => 255),
             array('name', 'filter', 'filter' => 'trim'),
             
-            // если указан свой вариант - он не должен быть пустым
+            // если указан свой вариант - то он не должен быть пустым
             array('dancetype', 'ext.YiiConditionalValidator',
-                'if'   => array(
+                'if' => array(
                     array('name', 'compare', 'compareValue' => ""),
                 ),
                 'then' => array(
@@ -109,7 +109,7 @@ class QDanceType extends QActivity
                 'class' => 'questionary.extensions.behaviors.QSaveSkillLevelBehavior',
             ),
         );
-        // добавляем behavior для работы с полем "уровень владения" и добавляем его к родительским
+        // совмещаем с уже прикрепленными
         return CMap::mergeArray($parentBehaviors, $newBehaviors);
     }
 
