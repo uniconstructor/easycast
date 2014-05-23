@@ -16,7 +16,7 @@ class QActivity extends CActiveRecord
     public function init()
     {
         Yii::import('questionary.models.QActivityType');
-        Yii::import('application.modules.questionary.extensions.behaviors.*');
+        Yii::import('questionary.extensions.behaviors.*');
         
         parent::init();
     }
@@ -179,6 +179,9 @@ class QActivity extends CActiveRecord
 	 */
 	public function valueIsChanged($questionaryid, $type, $newData)
 	{
+	    // список сложных полей анкеты в которых указывается только название умения/навыка
+	    // (не храним о каждом экземпляре значения никакой доа. информации типа уровня вледения)
+	    // @todo этот список следует брать из модели анкеты
 	    $activities = array('voicetimbre', 'addchar', 'parodist', 'twin', 'vocaltype', 'sporttype', 
 	       'extremaltype', 'trick', 'skill');
 	    if ( ! in_array($type, $activities) )
