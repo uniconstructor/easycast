@@ -28,6 +28,12 @@
  *       а потом, после закрытия основной формы выводить все скопом.
  * @todo сделать наследником более общего класса EditableGrid, чтобы можно было делать редактируемые таблицы
  *       не только для анкеты а для любых целей
+ * @todo добавить asset со скриптом: общей JS-функцией для очистки полей modal-формы после добавления
+ *       новой строки в таблицу. Получает массив, в котором ключи - названия полей формы и значения
+ *       типы полей (синтаксис очистки обычных селектов и select2 различается)
+ *       Вызывать эту функцию каждый рас после успешного добавления, убрать из дочерних плагинов
+ *       использование createClearFormJs(). Она станет нужна только для тех случаем когда требуется нестандартная
+ *       очистка формы (например если захотим там использовать какие-то экзотические виджеты ввода)
  */
 class QGridEditBase extends CWidget
 {
@@ -116,20 +122,23 @@ class QGridEditBase extends CWidget
      */
     public function init()
     {
+        // вызов родительского init()
+        // @todo понадобится когда растянем цепочку наследования и сделаем этот виджет не только для анкеты
         parent::init();
-        
+        // подключаем все модели, которые будем редактировать
         Yii::import('questionary.models.*');
         Yii::import('questionary.models.complexValues.*');
         
         if ( ! ( $this->questionary instanceof Questionary ) )
-        {
+        {// модель анкеты необходима для работы всех виджетов
             throw new CException('В виджет '.get_class($this).' не передана анкета');
         }
-        // создаем пустую модель для формы
+        // создаем пустую модель для modal-формы добавления новой строки в таблицу
         $this->initModel();
         
         if ( ! $this->rowEditPrefix )
-        {
+        {// создаем свой префикс для генерации уникальных id элементов внутри строки таблицы 
+            // (используется для виджетов XEditable) 
             $this->rowEditPrefix = $this->modelClass;
         }
         // регистрируем клип с формой в модуле анкет для того чтобы позже вывести его в конце формы
@@ -301,8 +310,8 @@ class QGridEditBase extends CWidget
     protected function getTextColumnOptions($field, $value=null)
     {
         $options = array(
-            'name'  => $field,
-            'class' => 'bootstrap.widgets.TbEditableColumn',
+            'name'     => $field,
+            'class'    => 'bootstrap.widgets.TbEditableColumn',
             'editable' => array(
                 'type'      => 'text',
                 'title'     => $this->model->getAttributeLabel($field),
@@ -313,9 +322,8 @@ class QGridEditBase extends CWidget
                 ),
             ),
         );
-        
         if ( $value )
-        {
+        {// подставляем значение по умолчанию (если есть)
             $options['value'] = $value;
         }
         
@@ -332,19 +340,19 @@ class QGridEditBase extends CWidget
     protected function getStaticSelect2ColumnOptions($field, $variants, $valueField='level', $allowCustom=false)
     {
         $options = array(
-            'name'  => $field,
-            'class' => 'bootstrap.widgets.TbEditableColumn',
-            'value' => '$data->'.$valueField.';',
+            'name'     => $field,
+            'class'    => 'bootstrap.widgets.TbEditableColumn',
+            'value'    => '$data->'.$valueField.';',
             'editable' => array(
                 'type'      => 'select2',
                 'title'     => $this->model->getAttributeLabel($field),
                 'url'       => $this->updateUrl,
                 'emptytext' => $this->getFieldEmptyText($field),
-                'params' => array(
+                'params'    => array(
                     Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
                 ),
                 'select2' => $this->getSelect2Options($variants, 'static', $allowCustom),
-                'source' => $variants,
+                'source'  => $variants,
             ),
         );
         
@@ -352,24 +360,36 @@ class QGridEditBase extends CWidget
     }
     
     /**
+     * Получить общие параметры для создания select2-виджета с выбором одного значения из списка стандартных.
      * 
-     * @param array $variants
-     * @param string $type
-     * @param string $allowCustom
+     * @param array $variants - значения для выпадающего списка
+     * @param string $type - способ подгрузки вариантов значений в список
+     *                       static - все варианты задаются изначально и не меняются (для небольших списков)
+     * @param string $allowCustom - разрешить ли вводить и сохранять свое значение в этом поле?
+     *                              true: можно ввести и сохранить в поле свое значение 
+     *                              если в выпадающем списке нет ничего подходящего
+     *                              false: можно выбрать и сохранить только разрешенный вариант из списка
      * @return array
+     * 
+     * @todo доделать вариант с динамической подгрузкой значений по AJAX, 
+     *       но похоже что параметры этой функции этого не позволят, так что будет проще написать отдельный метод
+     *       Понять, можно ли не меняя набор параметров, 
+     *       пользуясь только полями класса получить всё необходимое для настройки
+     *       select2 с подгрузкой элементов по AJAX
+     * @todo выяснить зачем планировался параметр $type и стоит ли удалять его
      */
     protected function getSelect2Options($variants, $type='static', $allowCustom=false)
     {
         $options = array(
             'maximumSelectionSize' => 0,
-            'placeholder'       => 'Выбрать...',
-            'placeholderOption' => '',
-            'multiple'          => false,
+            'placeholder'          => 'Выбрать...',
+            'placeholderOption'    => '',
+            'multiple'             => false,
         );
         $variants = ECPurifier::getSelect2Options($variants);
         
         if ( $allowCustom )
-        {
+        {// разрешить ли вводить и сохранять свое значение в этом поле?
             $options['tags'] = $variants;
             $options['maximumSelectionSize'] = 1;
         }
