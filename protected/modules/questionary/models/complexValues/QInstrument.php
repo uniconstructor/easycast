@@ -1,20 +1,11 @@
 <?php
 /**
  * Класс для работы с одним музыкальным инструментом (тип + уровень владения)
+ * @todo вынести очистку данных в фильтры модели
  */
 class QInstrument extends QActivity
 {
     /**
-     * (non-PHPdoc)
-     * @see QActivity::init()
-     */
-    public function init()
-    {
-        parent::init();
-        Yii::import('questionary.extensions.behaviors.QSaveSkillLevelBehavior');
-    }
-    /**
-     * (non-PHPdoc)
      * @see CActiveRecord::defaultScope()
      */
     public function defaultScope()
@@ -36,14 +27,14 @@ class QInstrument extends QActivity
         // создаем новые правила проверки для полей "музыкальный инструмент" и "уровень"
         $customRules = array(
             // поле "инструмент"
-            array('instrument', 'length', 'max'=>255 ),
+            array('instrument', 'length', 'max' => 255 ),
             array('instrument', 'required'),
+            // алиас для поля "инструмент"
+            array('name', 'length', 'max' => 255),
+            array('name', 'filter', 'filter' => 'trim'),
             
-            array('name', 'length', 'max'=>255),
-            array('name', 'filter', 'filter'=>'trim'),
-            
-            // поле "уровень владения (професиогнал/непрофессионал)"
-            array('level', 'in', 'range'=> array('amateur', 'professional'), 'allowEmpty' => false),
+            // поле "уровень владения (професионал/непрофессионал)"
+            array('level', 'in', 'range' => array('amateur', 'professional'), 'allowEmpty' => false),
             array('level', 'required'),
         );
         // совмещаем старые проверки с новыми
@@ -88,12 +79,12 @@ class QInstrument extends QActivity
     public function behaviors()
     {
         $parentBehaviors = parent::behaviors();
-        $newBehaviors = array('QSaveSkillLevelBehavior',
-            array(
+        $newBehaviors    = array(
+            'QSaveSkillLevelBehavior' => array(
                 'class' => 'questionary.extensions.behaviors.QSaveSkillLevelBehavior'
             ),
         );
-        
+        // добавляем функции для работы с уровнем навыка к родительскому набору поведений
         return CMap::mergeArray($parentBehaviors, $newBehaviors);
     }
 
@@ -128,14 +119,13 @@ class QInstrument extends QActivity
         {
             return CHtml::encode($this->uservalue);
         }else
-       {
+        {
             return $this->value;
         }
     }
     
     /**
      * Получить название инструмента
-     * (non-PHPdoc)
      * @see QActivity::getName()
      */
     public function getName()
@@ -146,7 +136,6 @@ class QInstrument extends QActivity
         }
         if ( $this->value == 'custom'  )
         {
-    
             return $this->uservalue;
         }else
         {
@@ -166,29 +155,33 @@ class QInstrument extends QActivity
             $this->uservalue = null;
             return;
         }
-    
-        // если инструмент введен вручную - то попробуем сначала найти его у нас по названию
-        $condition = ' name = "instrument" AND translation = :name ';
-        $params    = array(':name' => $name );
-        if ( $instrument = QActivityType::model()->find($condition, $params) )
-        {
+        // если инструмент введен вручную - то попробуем сначала найти его у нас в списке стандартных по названию
+        // (на случай если инструмент введен руками, игнорируя все подсказки формы)
+        $criteria = new CDbCriteria();
+        $criteria->compare('name', 'instrument');
+        $criteria->compare('translation', $name);
+        
+        if ( $instrument = QActivityType::model()->find($criteria) )
+        {// нашлось, ставим стандартное значение (всеми силами сохраняем однородность данных)
             $this->value = $instrument->value;
             return;
         }
     
         // Введет тот инструмент, которого нет у нас в списке
         $this->value     = 'custom';
-        $this->uservalue = strip_tags($name);
+        $this->uservalue = ECPurifier::trimQuotes(ECPurifier::purify($name));
     }
 
     /**
-     * Сохранить введенный пользователем инструмент
+     * Сохранить введенный пользователем музыкальный инструмент, которого нет в нашем списке
      * @param string $customtype - введенное пользователем значение
+     * 
+     * @todo выяснить, нужна ли еще эта функция и если нет - удалить (возможно требовалась только для старого элемента)
      */
-    public function setcustominstrument($customtype)
+    public function setCustomInstrument($customtype)
     {
         $this->value     = 'custom';
-        $this->uservalue = $customtype;
+        $this->uservalue = ECPurifier::trimQuotes(ECPurifier::purify($customtype));
     }
 
     /**
@@ -197,6 +190,7 @@ class QInstrument extends QActivity
      * Подробнее см. http://www.yiiframework.com/doc/guide/1.1/en/form.table
      *
      * @return array
+     * @deprecated удалить при рефакторинге, использовалось для старого виджета ввода
      */
     public function formConfig()
     {
