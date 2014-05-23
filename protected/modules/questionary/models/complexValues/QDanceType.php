@@ -1,15 +1,16 @@
 <?php
 
-Yii::import('application.modules.questionary.models.QActivity');
-Yii::import('application.modules.questionary.extensions.behaviors.QSaveSkillLevelBehavior');
+// родительский класс сложных значений
+Yii::import('questionary.models.QActivity');
 
 /**
  * Класс для работы с одним типом танца (стиль + уровень владения)
+ * Все используемые классы поведений подключаются в родительском init(),
+ * так что не забудь его вызвать если будешь переопределять 
  */
 class QDanceType extends QActivity
 {
     /**
-     * (non-PHPdoc)
      * @see CActiveRecord::defaultScope()
      */
     public function defaultScope()
@@ -19,29 +20,29 @@ class QDanceType extends QActivity
             'condition' => "`dancetypes`.`type`='dancetype'",
         );
     }
+    
     /**
      * @see parent::rules()
      * @return array
      */
     public function rules()
     {
-        // наследуем общие проверки от базового класса
+        // берем все общие проверки из базового класса
         $rules = parent::rules();
 
         // создаем новые правила проверки для полей "тип танца" и "уровень владения"
         $customRules = array(
             // поле "тип танца" ()
-            array('dancetype', 'length', 'max'=>255),
-            array('dancetype', 'filter', 'filter'=>'trim'),
-            
+            array('dancetype', 'length', 'max' => 255),
+            array('dancetype', 'filter', 'filter' => 'trim'),
             // поле "тип танца" (если введен свой вариант)
-            array('name', 'length', 'max'=>255),
-            array('name', 'filter', 'filter'=>'trim'),
+            array('name', 'length', 'max' => 255),
+            array('name', 'filter', 'filter' => 'trim'),
             
             // если указан свой вариант - он не должен быть пустым
             array('dancetype', 'ext.YiiConditionalValidator',
-                'if' => array(
-                    array('name', 'compare', 'compareValue'=>""),
+                'if'   => array(
+                    array('name', 'compare', 'compareValue' => ""),
                 ),
                 'then' => array(
                     array('dancetype', 'required'),
@@ -49,10 +50,10 @@ class QDanceType extends QActivity
             ),
             
             // поле "уровень владения (професиогнал/непрофессионал)"
-            array('level', 'in', 'range'=> array('amateur', 'professional'), 'allowEmpty' => false),
+            array('level', 'in', 'range' => array('amateur', 'professional'), 'allowEmpty' => false),
             array('level', 'required'),
         );
-        // совмещаем старые проверки с новыми
+        // совмещаем старые правила проверки с новыми
         return CMap::mergeArray($rules, $customRules);
     }
 
@@ -93,17 +94,22 @@ class QDanceType extends QActivity
      */
     public function behaviors()
     {
-        return CMap::mergeArray(parent::behaviors(),
-                         array('QSaveSkillLevelBehavior',
-                             array('class' => 'application.modules.questionary.extensions.behaviors.QSaveSkillLevelBehavior'),
-        ));
+        $parentBehaviors = parent::behaviors();
+        $newBehaviors    = array(
+            'QSaveSkillLevelBehavior' => array(
+                'class' => 'questionary.extensions.behaviors.QSaveSkillLevelBehavior',
+            ),
+        );
+        // добавляем behavior для работы с полем "уровень владения" и добавляем его к родительским
+        return CMap::mergeArray($parentBehaviors, $newBehaviors);
     }
 
     /**
      * Сеттер для поля "тип танца" - используется, если нужно сохранить стандартный тип танца
      * @param string $dancetype - предустановленный тип танца (короткое название латинскими буквами)
+     * @return null
      */
-    public function setdancetype($dancetype)
+    public function setDanceType($dancetype)
     {
         if ( ! trim($dancetype) OR $dancetype == 'custom' )
         {// Указан собственный тип танца
@@ -121,23 +127,23 @@ class QDanceType extends QActivity
 
     /**
      * Геттер для поля "тип танца" - используется для получения значения типа танца
-     * (неважно, стандартного или добавленного пользователем)
+     * (не важно, стандартного или добавленного пользователем)
+     * 
      * @return string
      */
-    public function getdancetype()
+    public function getDanceType()
     {
         if ( ! $this->value OR $this->value == 'custom' )
         {
             return CHtml::encode($this->uservalue);
         }else
-       {
+        {
             return $this->value;
         }
     }
     
     /**
-     * Получить название танца
-     * (non-PHPdoc)
+     * Получить название танца (отображаемое пользователю)
      * @see QActivity::getName()
      */
     public function getName()
@@ -148,10 +154,9 @@ class QDanceType extends QActivity
         }
         if ( $this->value == 'custom'  )
         {
-            
             return $this->uservalue;
         }else
-       {
+        {
             $variants = QActivityType::model()->activityVariants('dancetype');
             return $variants[$this->value];
         }
@@ -160,6 +165,7 @@ class QDanceType extends QActivity
     /**
      * Сохранить название стиля танца
      * @param string $name
+     * @return null
      */
     public function setName($name)
     {
@@ -168,7 +174,6 @@ class QDanceType extends QActivity
             $this->uservalue = null;
             return;
         }
-        
         // если стиль танца введен вручную - то попробуем сначала найти его у нас по названию
         $condition = ' name = "dancetype" AND translation = :dancename ';
         $params    = array(':dancename' => $name );
@@ -177,8 +182,7 @@ class QDanceType extends QActivity
             $this->value = $danceType->value;
             return;
         }
-        
-        // Введет тот стиль танца, которого нет у нас в списке
+        // Введен тот стиль танца, которого нет у нас в списке
         $this->value     = 'custom';
         $this->uservalue = strip_tags($name);
     }
@@ -189,23 +193,24 @@ class QDanceType extends QActivity
      * Подробнее см. http://www.yiiframework.com/doc/guide/1.1/en/form.table
      *
      * @return array
+     * @deprecated не используется, было нужно для multimodelform, удалить при рефакторинге
      */
     public function formConfig()
     {
         return array(
-            'elements'=>array(
+            'elements' => array(
                 // тип танца
-                'dancetype'=>array(
+                'dancetype' => array(
                     'type'    => 'ext.combobox.EJuiComboBox',
                     'data'    => QActivityType::model()->activityVariants('dancetype'),
-                    'textFieldName' => 'name',
+                    'textFieldName'      => 'name',
                     'textFieldAttribute' => 'name',
                     'assoc'   => true,
                     'visible' => true,
                 ),
                 // уровень владения
-                'level'=>array(
-                    'type'    =>'dropdownlist',
+                'level' => array(
+                    'type'    => 'dropdownlist',
                     'items'   => $this->levelList(),
                     'prompt'  => Yii::t('coreMessages','choose'),
                     'visible' => true,
