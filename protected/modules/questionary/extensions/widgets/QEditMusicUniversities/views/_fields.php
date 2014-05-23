@@ -3,9 +3,9 @@
  * Список полей формы во всплывающем modal-окне
  * Структура своя для каждого виджета
  */
-/* @var $form TbActiveForm */
-/* @var $this QEditFilms */
-/* @var $model QEditActorUniversity */
+/* @var $form  TbActiveForm */
+/* @var $this  QEditMusicUniversities */
+/* @var $model QActorUniversity */
 
 // ошибки формы
 echo $form->errorSummary(array($model), null, null, array('id' => $this->formId.'_errors'));
@@ -14,10 +14,10 @@ echo CHtml::hiddenField('qid', $this->questionary->id);
 // ВУЗ
 echo $form->select2Row($model, 'name',  array(
     'asDropDownList' => false,
-    //'data' => $this->questionary->getFieldVariants('language'),
+    // настройки оригинального JS-плагина "select2"
     'options' => array(
-        // допускаем вводсвоих вариантов
-        'tags' => true,
+        // допускаем ввод своих вариантов
+        'tags'                 => true,
         // не разрешаем выбирать больше 1 ВУЗа
         'maximumSelectionSize' => 1,
         // начинаем поиск с 2 символов
@@ -50,7 +50,6 @@ echo $form->select2Row($model, 'name',  array(
             'results' => "js:function(data, page) {
                 return {
                     'results': data,
-                    //'more':    false
                 };
             }",
         ),

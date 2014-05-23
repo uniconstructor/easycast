@@ -3,9 +3,9 @@
  * Список полей формы во всплывающем modal-окне
  * Структура своя для каждого виджета
  */
-/* @var $form TbActiveForm */
-/* @var $this QEditFilms */
-/* @var $model QEditActorUniversity */
+/* @var $form  TbActiveForm */
+/* @var $this  QEditFilms */
+/* @var $model QActorUniversity */
 
 // ошибки формы
 echo $form->errorSummary(array($model), null, null, array('id' => $this->formId.'_errors'));
@@ -19,7 +19,7 @@ echo $form->select2Row($model, 'name',  array(
     // параметры для JS-элемента select2
     'options' => array(
         // допускаем вводсвоих вариантов
-        'tags' => true,
+        'tags'                 => true,
         // не разрешаем выбирать больше 1 ВУЗа
         'maximumSelectionSize' => 1,
         // начинаем поиск с 2 символов
@@ -52,7 +52,6 @@ echo $form->select2Row($model, 'name',  array(
             'results' => "js:function(data, page) {
                 return {
                     'results': data,
-                    //'more':    false
                 };
             }",
         ),

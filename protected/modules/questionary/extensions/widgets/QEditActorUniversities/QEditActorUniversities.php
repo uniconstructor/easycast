@@ -8,6 +8,11 @@ Yii::import('questionary.extensions.widgets.QGridEditBase.QGridEditBase');
  *
  * @package    easycast
  * @subpackage questionary
+ * 
+ * @todo пользователи тупят при вводе ВУЗа. Предлагать изначально 10 самых популярных,
+ *       и только потом, при попытке ввести название текстом начинать предлагать autocomplete-варианты
+ *       Другое возможное решение: перед select2 поместить radio со списком топ-10 ВУЗов, радио и select2
+ *       взаимоисключают друг друга: при выборе значения в одном сбрасывается значение другого
  */
 class QEditActorUniversities extends QGridEditBase
 {
