@@ -58,7 +58,7 @@ class QEditModelSchools extends QGridEditBase
     /**
      * @var string - заголовок всплывающего окна с формой добавления новой записи
      */
-    public $modalHeader = 'Добавить модельную школу';
+    public $modalHeader = 'Указать школу';
     /**
      * @var array - список текстов-заглушек, которые отображаются в случае, когда поле не заполнено
      */
