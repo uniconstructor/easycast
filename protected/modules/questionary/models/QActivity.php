@@ -70,9 +70,7 @@ class QActivity extends CActiveRecord
 	public function behaviors()
 	{
 		return array(
-            'CAdvancedArBehavior' => array(
-              'class' => 'ext.CAdvancedArBehavior',
-            ),
+            // функции для работы со стандартными значениями, выбираемыми внутри сложных полей анкеты
             'QManageDefaultValuesBehavior' => array(
               'class' => 'questionary.extensions.behaviors.QManageDefaultValuesBehavior',
             ),
