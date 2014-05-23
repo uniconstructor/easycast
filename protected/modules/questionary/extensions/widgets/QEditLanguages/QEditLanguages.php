@@ -6,7 +6,7 @@ Yii::import('questionary.extensions.widgets.QGridEditBase.QGridEditBase');
 /**
  * Виджет для редактирования списка иностранных языков
  *
- * @package easycast
+ * @package    easycast
  * @subpackage questionary
  */
 class QEditLanguages extends QGridEditBase
