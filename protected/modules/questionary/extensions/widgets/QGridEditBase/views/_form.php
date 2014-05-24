@@ -4,10 +4,10 @@
  * Структура общая для всех дочерних виджетов
  * 
  * @todo языковые строки
+ * @todo разобраться со скрытым полем qid, убрать его из дочерних виджетов, если оно дублируется 
  */
 /* @var $form TbActiveForm */
-/* @var $this QEditFilms */
-/* @var $model QFilmInstance */
+/* @var $this QGridEditBase */
 
 // отображаем всплывающее окно
 $this->beginWidget('bootstrap.widgets.TbModal', array('id' => $this->modalId));
@@ -21,6 +21,7 @@ $form = $this->beginWidget('TbActiveForm', array(
         'validateOnSubmit' => true,
         'validateOnChange' => false,
     ),
+    'type'   => 'horizontal',
     'action' => $this->createUrl,
 ));
 ?>
