@@ -6,6 +6,8 @@
  * 
  * @package    easycast
  * @subpackage questionary
+ * 
+ * @todo прописать права для действия toggle
  */
 class QTheatreInstanceController extends QComplexValueController
 {
@@ -30,7 +32,7 @@ class QTheatreInstanceController extends QComplexValueController
     {
         return array(
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'delete'),
+                'actions' => array('create', 'update', 'delete', 'toggle'),
                 'users'   => array('@'),
             ),
             array('allow', // позволяем всем получать общий список ВУЗов, чтобы гости могли пользоваться поиском
@@ -40,6 +42,19 @@ class QTheatreInstanceController extends QComplexValueController
             array('deny',  // deny all users
                 'users' => array('*'),
             ),
+        );
+    }
+    
+    /**
+     * @see CController::actions()
+     */
+    public function actions()
+    {
+        return array(
+            'toggle' => array(
+                'class'     => 'bootstrap.actions.TbToggleAction',
+                'modelName' => $this->modelClass,
+            )
         );
     }
     
