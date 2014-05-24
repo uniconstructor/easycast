@@ -126,6 +126,19 @@ class QAward extends CActiveRecord
 			'criteria' => $criteria,
 		));
 	}
+	
+	/**
+	 * Получить название страны текстом
+	 * @return void
+	 */
+	public function getCountryName()
+	{
+	    if ( ! $this->country )
+	    {
+	        return null;
+	    }
+	    return $this->country->name;
+	}
 
     /**
      * @see parent::beforeSave
