@@ -81,8 +81,8 @@ class QTheatre extends CActiveRecord
 			'id' => 'ID',
 			'name' => 'Name',
 			'system' => 'System',
-			'search' => 'Отображать в поиске?',
-			'form' => 'Предлагать при заполнении формы?',
+			'search' => 'Отображать в форме поиска?',
+			'form' => 'Предлагать при заполнении формы анкеты?',
 		);
 	}
 

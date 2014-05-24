@@ -97,7 +97,7 @@ class QTvshowInstance extends CActiveRecord
 			'stopyear' => QuestionaryModule::t('tvshowmen_stopyear'),
 			'timecreated' => QuestionaryModule::t('timecreated'),
 			'timemodified' => QuestionaryModule::t('timemodified'),
-			'currently' => QuestionaryModule::t('currently'),
+			'currently' => QuestionaryModule::t('this_is_current_workplace'),
 		);
 	}
 

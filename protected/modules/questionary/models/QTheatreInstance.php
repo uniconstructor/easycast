@@ -114,7 +114,7 @@ class QTheatreInstance extends CActiveRecord
 		    'startyear'  => QuestionaryModule::t('theatre_startyear'),
 		    'stopyear'   => QuestionaryModule::t('theatre_stopyear'),
 		    'workperiod' => QuestionaryModule::t('theatre_workperiod'),
-		    'currently'  => QuestionaryModule::t('theatre_currently'),
+		    'currently'  => QuestionaryModule::t('this_is_current_workplace'),
 		);
 	}
 
