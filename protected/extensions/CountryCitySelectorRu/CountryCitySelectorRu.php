@@ -12,7 +12,11 @@
  * @license GPL v3
  * @category UI
  * @version 1.0
- *
+ * 
+ * @todo этот устаревший модуль должен быть полностью переписан либо заменен более новым
+ *       он используеься в нескольких местах системы (в основном в анкете), все вызовы 
+ *       при рефакторинге должны быть проверены и переписаны.
+ *       После замены этого виджета на новый следует удалить этот модуль из системы полностью
  */
 class CountryCitySelectorRu extends CComponent
 {
@@ -684,4 +688,4 @@ class CountryCitySelectorRu extends CComponent
         
         return $options;
     }
-}// * @param CSGeoCity|CSGeoCountry|CSGeoRegion - model class
+}
