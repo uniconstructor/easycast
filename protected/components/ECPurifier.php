@@ -47,6 +47,9 @@ class ECPurifier extends CHtmlPurifier
      *      
      * @param string $url - ссылка на изображение
      * @return string
+     * 
+     * @todo сделать CFilter на основе этой функции, и применять его на production ко всему html
+     *       в исходящих письмах. После этого убрать все вызовы этой функции из модуля CMailComposer.
      */
     public static function getImageProxyUrl($url)
     {
