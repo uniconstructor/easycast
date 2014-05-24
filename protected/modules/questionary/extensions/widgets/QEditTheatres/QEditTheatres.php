@@ -27,7 +27,7 @@ class QEditTheatres extends QGridEditBase
     /**
      * @var string - префикс html-id для каждой строки таблицы (чтобы можно было удалять строки)
      */
-    public $rowIdPrefix = 'theatre_row_';
+    public $rowIdPrefix = 'theatre_instance_row_';
     /**
      * @var string - пустой класс модели (для создания формы добавления объекта)
      */
@@ -35,7 +35,7 @@ class QEditTheatres extends QGridEditBase
     /**
      * @var array - список редактируемых полей в том порядке, в котором они идут в таблице
      */
-    public $fields = array('name', 'startyear', 'stopyear', 'director');
+    public $fields = array('name', 'startyear', 'stopyear', 'currently', 'director');
     /**
      * @var string - html-id формы для ввода новой записи
      */
@@ -58,7 +58,7 @@ class QEditTheatres extends QGridEditBase
     public $emptyTextVariants = array(
         'name'      => '[не указано]',
         'startyear' => '[не указан]',
-        'stopyear'  => '[не указан]',
+        'stopyear'  => '[...]',
         'director'  => '[не указан]',
     );
     /**
@@ -89,6 +89,10 @@ class QEditTheatres extends QGridEditBase
         $js .= "\$('#{$this->modelClass}_startyear').val('');\n";
         $js .= "\$('#{$this->modelClass}_stopyear').val('');\n";
         $js .= "\$('#{$this->modelClass}_director').val('');\n";
+        // сбрасываем кнопку "да/нет" в исходное состояние
+        $js .= "\$('#{$this->modelClass}_currently').val('');\n";
+        $js .= "\$('#{$this->id}_currently_on_button').removeClass('btn-primary');\n";
+        $js .= "\$('#{$this->id}_currently_off_button').removeClass('btn-primary');\n";
     
         return $js;
     }
@@ -110,6 +114,8 @@ class QEditTheatres extends QGridEditBase
             $this->getYearColumnOptions('startyear'),
             // год окончания
             $this->getYearColumnOptions('stopyear'),
+            // текущее место работы
+            $this->getToggleColumnOptions('currently', '//questionary/qTheatreInstance/toggle'),
             // режиссер
             $this->getTextColumnOptions('director'),
         );
