@@ -50,11 +50,11 @@ class QEditLanguages extends QGridEditBase
     /**
      * @var string - заголовок всплывающего окна с формой добавления новой записи
      */
-    public $modalHeader = 'Добавить язык';
+    public $modalHeader = 'Добавить иностранный язык';
     /**
      * @var string - надпись на кнопке добавления новой записи
      */
-    public $addButtonLabel = 'Добавить иностранный язык';
+    public $addButtonLabel = 'Добавить';
     /**
      * @var array - список текстов-заглушек, которые отображаются в случае, когда поле не заполнено
      */

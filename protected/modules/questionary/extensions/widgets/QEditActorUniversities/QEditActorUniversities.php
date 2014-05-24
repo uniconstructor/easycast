@@ -59,7 +59,7 @@ class QEditActorUniversities extends QGridEditBase
     /**
      * @var string - заголовок всплывающего окна с формой добавления новой записи
      */
-    public $addButtonLabel = 'Добавить театральный ВУЗ';
+    public $addButtonLabel = 'Добавить';
     /**
      * @var string - заголовок всплывающего окна с формой добавления новой записи
      */

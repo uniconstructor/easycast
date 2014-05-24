@@ -59,7 +59,7 @@ class QEditMusicUniversities extends QGridEditBase
     /**
      * @var string - заголовок всплывающего окна с формой добавления новой записи
      */
-    public $addButtonLabel = 'Добавить ВУЗ';
+    public $addButtonLabel = 'Добавить';
     /**
      * @var string - заголовок всплывающего окна с формой добавления новой записи
      */

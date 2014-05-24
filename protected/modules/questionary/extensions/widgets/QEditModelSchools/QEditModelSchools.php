@@ -48,17 +48,17 @@ class QEditModelSchools extends QGridEditBase
      */
     public $modalId = 'modelschool-instance-modal';
     /**
-     * @var string - надпись на кнопке добавления новой записи
-     */
-    public $addButtonLabel = 'Добавить модельную школу';
-    /**
      * @var string - html-id кнопки для ввода новой записи
      */
     public $addButtonId = 'add-modelschool-instance-button';
     /**
      * @var string - заголовок всплывающего окна с формой добавления новой записи
      */
-    public $modalHeader = 'Указать школу';
+    public $modalHeader = 'Добавить модельную школу';
+    /**
+     * @var string - надпись на кнопке добавления новой записи
+     */
+    public $addButtonLabel = 'Добавить школу';
     /**
      * @var array - список текстов-заглушек, которые отображаются в случае, когда поле не заполнено
      */

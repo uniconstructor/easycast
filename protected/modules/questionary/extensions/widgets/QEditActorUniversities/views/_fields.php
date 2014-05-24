@@ -4,7 +4,7 @@
  * Структура своя для каждого виджета
  */
 /* @var $form  TbActiveForm */
-/* @var $this  QEditFilms */
+/* @var $this  QEditActorUniversities */
 /* @var $model QActorUniversity */
 
 // ошибки формы
@@ -28,7 +28,7 @@ echo $form->select2Row($model, 'name',  array(
         'placeholder'          => '(Не выбран)',
         // что отправляется если ничего не выбрано
         'placeholderOption'    => '',
-        // разделители ввода (не допускаем пробел, чтобы можно было ввести )
+        // разделители ввода (не допускаем пробел, чтобы можно было ввести несколько слов в названии)
         'tokenSeparators'      => array(',', "\n"),
         // добавляем возможность вводить несколько вариантов (нужно для добавления своего врянта)
         'multiplie'            => true,

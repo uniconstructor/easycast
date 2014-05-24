@@ -58,7 +58,7 @@ class QEditEmceeEvents extends QGridEditBase
     /**
      * @var string - надпись на кнопке добавления новой записи
      */
-    public $addButtonLabel = 'Добавить мероприятие';
+    public $addButtonLabel = 'Добавить';
     /**
      * @var array - список текстов-заглушек, которые отображаются в случае, когда поле не заполнено
      */
