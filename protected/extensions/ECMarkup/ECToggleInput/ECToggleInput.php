@@ -4,28 +4,29 @@
  * Виджет для выбора из трех состояний "да", "нет" и "не указано"
  * 
  * @todo документировать все методы и поля класса
+ * @todo расширить функционал и позволить выбирать более чем из 2 вариантов
  */
 class ECToggleInput extends CInputWidget
 {
     /**
-     * @var string
+     * @var string - текст на кнопке "да"
      */
     public $onLabel;
     /**
-     * @var string
+     * @var string - текст на кнопке "нет"
      */
     public $offLabel;
     /**
-     * @var string
-     * @see TbButton
+     * @var string - тип не нажатой кнопки (допустимы варианты кнопое из twitter bootstrap)
+     * @see TbButton::type
      */
     public $defaultType = 'default';
     /**
-     * @var string
+     * @var string - тип кнопки "да"
      */
     public $onType = 'primary';
     /**
-     * @var string
+     * @var string - тип кнопки "нет"
      */
     public $offType = 'primary';
     /**
@@ -73,12 +74,17 @@ class ECToggleInput extends CInputWidget
      */
     public $value;
     /**
-     * @var array
+     * @var array - параметры html для скрытого input-тега
      */
     public $hiddenHtmlOptions = array();
+    /**
+     * @var string - тип отображения виджета
+     *               default: просто bootstrap-кнопка, никакого форматирования выравнивания и подписей
+     */
+    public $displayMode = 'default';
     
     /**
-     * @var string
+     * @var string - id скрытого тега
      */
     protected $hiddenId;
     
@@ -140,8 +146,7 @@ class ECToggleInput extends CInputWidget
             echo CHtml::hiddenField($this->name, $this->value, $this->hiddenHtmlOptions);
         }
         
-        $this->widget(
-            'bootstrap.widgets.TbButtonGroup',
+        $this->widget('bootstrap.widgets.TbButtonGroup',
             array(
                 'type'   => $this->defaultType,
                 'toggle' => 'radio',
