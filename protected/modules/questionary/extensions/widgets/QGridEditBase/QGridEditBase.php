@@ -293,7 +293,6 @@ class QGridEditBase extends CWidget
     {
         return array(
             'minViewMode' => 'years',
-            // @todo для русского языка виджет не работает - обновиться и исправить
             'language'    => 'en',
             'format'      => 'yyyy',
             'autoclose'   => true,
@@ -407,7 +406,7 @@ class QGridEditBase extends CWidget
     {
         return array(
             'name'  => $field,
-            'value' => '$data->'.$field.';',
+            'value' => 'trim($data->'.$field.');',
             'class' => 'bootstrap.widgets.TbEditableColumn',
             'editable' => array(
                 'type'      => 'date',
@@ -422,6 +421,30 @@ class QGridEditBase extends CWidget
                     'datepicker' => $this->getYearPickerOptions(),
                 ),
             ),
+        );
+    }
+    
+    /**
+     * Получить параметры для создания editable-колонки "вкл/выкл" в таблице
+     *
+     * @param string $field - поле модели для которого создается редактируемая колонка таблицы
+     * @return array
+     */
+    protected function getToggleColumnOptions($field, $action)
+    {
+        return array(
+            'toggleAction'  => $action,
+            'name'          => $field,
+            'value'         => '$data->'.$field.';',
+            'class'         => 'bootstrap.widgets.TbToggleColumn',
+            'checkedIcon'   => false,
+            'uncheckedIcon' => false,
+            'emptyIcon'     => false,
+            'displayText'   => true,
+            'sortable'      => false,
+            'checkedButtonLabel'   => Yii::t('coreMessages', 'yes'),
+            'uncheckedButtonLabel' => Yii::t('coreMessages', 'no'),
+            'emptyButtonLabel'     => Yii::t('coreMessages', 'not_set'),
         );
     }
     

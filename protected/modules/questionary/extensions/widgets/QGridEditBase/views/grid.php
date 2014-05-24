@@ -2,12 +2,10 @@
 /**
  * Отображение таблицы со списком записей и всплывающего modal-окна с формой добавления новой записи
  */
-/* @var $this QEditFilms */
+/* @var $this QGridEditBase */
 
 // виджет с таблицей
-$grid = $this->widget(
-    'bootstrap.widgets.TbExtendedGridView',
-    array(
+$grid = $this->widget('bootstrap.widgets.TbExtendedGridView', array(
         'type'         => 'striped bordered',
         'dataProvider' => new CActiveDataProvider($this->modelClass, array(
             'criteria' => $this->getGridCriteria(),
