@@ -25,7 +25,7 @@ class ECPurifier extends CHtmlPurifier
     /**
      * Получить массив значений для использования в элементе select2
      * @param array $data - значения для select-списка 
-     *                      формат массива соответствует возвращаемому из CHtml::listData() значению
+     *                      формат массива соответствует возвращаемому из CHtml::listData()
      * @return array
      */
     public static function getSelect2Options($data)

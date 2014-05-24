@@ -32,6 +32,9 @@
  * @license New BSD License
  * @category UI
  * @version 2.1
+ * 
+ * @todo этот устаревший модуль используется во многих местах системы (в основном анкета),
+ *       но его следует или полностью переписать либо заменить более качественным
  */
 class ECountryCodes extends CComponent
 {
