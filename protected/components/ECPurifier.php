@@ -24,7 +24,8 @@ class ECPurifier extends CHtmlPurifier
     
     /**
      * Получить массив значений для использования в элементе select2
-     * @param array $data - значения по умолчанию в формате ключ-значение
+     * @param array $data - значения для select-списка 
+     *                      формат массива соответствует возвращаемому из CHtml::listData() значению
      * @return array
      */
     public static function getSelect2Options($data)
@@ -34,13 +35,16 @@ class ECPurifier extends CHtmlPurifier
         {
             $options[] = array('id' => $id, 'text' => CHtml::encode($text));
         }
-        
         return $options;
     }
     
     /**
      * Получить URL для отображения изображений через прокси-сервера google
-     * Используется для того чтобы получать ссылки на картинки, которые сразу же отображаются в письмах
+     * Используется для того чтобы получать ссылки на картинки, которые сразу же отображаются в письмах,
+     * отправляемых сайтом
+     * @see http://www.campaignmonitor.com/resources/will-it-work/image-blocking/
+     *      (тут можно посмотреть таблицу о том в каких клиентах и сервисах как отображаются картинки из писем)
+     *      
      * @param string $url - ссылка на изображение
      * @return string
      */
