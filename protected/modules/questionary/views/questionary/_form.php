@@ -157,16 +157,6 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         });';
     $clientScriptManager->registerScript($hideSubsectionScriptId, $hideSubsectionScript, CClientScript::POS_END);
     
-    // Не разрешаем сохранять форму, пока пользователь не даст согласия с условиями сайта
-    // @todo изменить проверку прав
-    /*if ( ! $user->policyagreed AND ! Yii::app()->user->isSuperuser )
-    {// отключаем кнопку сохранения только если пользователь не согласен с условиями сайта,
-        // и он не админ 
-        $hideSubmitScriptId = '_qHideSubmit';
-        $hideSubmitScript   = '$("#save_questionary").addClass("disabled");$("#save_questionary").attr("disabled", "disabled");';
-        $clientScriptManager->registerScript($hideSubmitScriptId, $hideSubmitScript, CClientScript::POS_END);
-    }*/
-    
     // выводим специальный скрытый элемент, который каждую минуту посылает запрос на сайт, чтобы при длительном
     // заполнении анкеты не произошла потеря сессии и все данные не пропали
     $this->widget('ext.EHiddenKeepAlive.EHiddenKeepAlive', array(
@@ -255,12 +245,12 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
 	        <a class="btn btn-large btn-warning">
 	        <i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('contact_information'); ?></a>
 	    </legend>
-        <?php echo $form->textFieldRow($questionary, 'mobilephone', array('size'=>32,'maxlength'=>32)); ?>
-        <?php echo $form->textFieldRow($questionary, 'homephone', array('size'=>32,'maxlength'=>32)); ?>
-        <?php echo $form->textFieldRow($questionary, 'addphone', array('size'=>32,'maxlength'=>32)); ?>
-        <?php echo $form->textFieldRow($questionary, 'vkprofile', array('size'=>60,'maxlength'=>255)); ?>
-        <?php echo $form->textFieldRow($questionary, 'fbprofile', array('size'=>60,'maxlength'=>255)); ?>
-        <?php echo $form->textFieldRow($questionary, 'okprofile', array('size'=>60,'maxlength'=>255)); ?>
+        <?= $form->textFieldRow($questionary, 'mobilephone', array('size'=>32,'maxlength'=>32)); ?>
+        <?= $form->textFieldRow($questionary, 'homephone', array('size'=>32,'maxlength'=>32)); ?>
+        <?= $form->textFieldRow($questionary, 'addphone', array('size'=>32,'maxlength'=>32)); ?>
+        <?= $form->textFieldRow($questionary, 'vkprofile', array('size'=>60,'maxlength'=>255)); ?>
+        <?= $form->textFieldRow($questionary, 'fbprofile', array('size'=>60,'maxlength'=>255)); ?>
+        <?= $form->textFieldRow($questionary, 'okprofile', array('size'=>60,'maxlength'=>255)); ?>
         <hr>
 	</fieldset>
 
@@ -351,11 +341,11 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
     <div class="control-group">
         <?php 
         // татуировки
-        //echo $form->labelEx($questionary, 'hastatoo', array('class' => 'control-label'));
+        echo $form->labelEx($questionary, 'hastatoo', array('class' => 'control-label'));
         ?>
         <div class="controls">
         <?php
-        /*$form->widget('ext.ECMarkup.ECToggleInput.ECToggleInput', array(
+        $form->widget('ext.ECMarkup.ECToggleInput.ECToggleInput', array(
             'model'     => $questionary,
             'attribute' => 'hastatoo',
             'onLabel'   => 'Да',
@@ -363,18 +353,10 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
             'offLabel'  => 'Нет',
             'offValue'  => '0',
         ));
-        echo $form->error($questionary, 'hastatoo');*/
+        echo $form->error($questionary, 'hastatoo');
         ?>
         </div>
     </div>
-    <?php 
-    // татуировки
-    $this->widget('ext.EToggleBox.EToggleBox', array(
-        'model'     => $questionary,
-        'attribute' => 'hastatoo',
-        'options'   => $toggleBoxJsOptions,
-    ));
-    ?>
     <hr>
 	</fieldset>
 
@@ -385,7 +367,8 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
             </a>
         </legend>
 
-        <?php // Профессиональный актер
+        <?php 
+        // Профессиональный актер
         $this->widget('ext.EToggleBox.EToggleBox', array(
               'model'     => $questionary,
               'attribute' => 'isactor',
@@ -516,26 +499,6 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
             $this->widget('questionary.extensions.widgets.QEditTheatres.QEditTheatres', array(
                 'questionary' => $questionary,
             ));
-            /*$actorTheatreFormConfig = $actorTheatre->formConfig();
-            $this->widget('ext.multimodelform.MultiModelForm',
-                array(
-                   'addItemText'   => Yii::t('coreMessages','add'),
-                   'removeText'    => Yii::t('coreMessages','delete'),
-                   'removeConfirm' => QuestionaryModule::t('multimodel_remove_confirm'),
-                   'id'            => 'id_actortheatre', //the unique widget id
-                   'formConfig'    => $actorTheatreFormConfig, //the form configuration array
-                   'model'         => $actorTheatre, //instance of the form model
-    
-                   'validatedItems' => $validatedActorTheatres,
-    
-                   // ранее сохраненные театры
-                   'data' => $questionary->theatres,
-                    
-                    // JS для корректного копирования элементов combobox
-                   'jsAfterNewId' => 
-                        MultiModelForm::afterNewIdComboBox($actorTheatreFormConfig['elements']['theatreid'], 
-                            'theatreid', 'name'), 
-            ));*/
             ?>
         </fieldset>
     </div>
@@ -605,20 +568,9 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
 	<fieldset id="tvshows" class="qform_subsection">
     <?php
     // опыт работы телеведущим
-    echo $form->errorSummary($validatedTvShows);
-    $this->widget('ext.multimodelform.MultiModelForm',array(
-               'addItemText'   => QuestionaryModule::t('tvshowmen_add_tvshow'),
-               'removeText'    => Yii::t('coreMessages','delete'),
-               'removeConfirm' => QuestionaryModule::t('multimodel_remove_confirm'),
-               'id'            => 'id_tvshow', //the unique widget id
-               'formConfig'    => $tvShow->formConfig(), //the form configuration array
-               'model'         => $tvShow, //instance of the form model
-               
-               'validatedItems' => $validatedTvShows,
-
-               // Ранее добавленные шоу телеведущего
-               'data' => $questionary->tvshows,
-          ));
+    $this->widget('questionary.extensions.widgets.QEditTvshows.QEditTvshows', array(
+        'questionary' => $questionary,
+    ));
     ?>
 	</fieldset>
     </div>
@@ -701,8 +653,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         // Модельные школы
         $this->widget('questionary.extensions.widgets.QEditModelSchools.QEditModelSchools', array(
             'questionary' => $questionary,
-            )
-        );
+        ));
         ?>
 	</fieldset>
     </div>
@@ -712,8 +663,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         // опыт работы моделью
         $this->widget('questionary.extensions.widgets.QEditModelJobs.QEditModelJobs', array(
             'questionary' => $questionary,
-            )
-        );
+        ));
         ?>
     </fieldset>
     </div>
@@ -727,31 +677,17 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
                 'after_on'  => 'js:function () {$("#photomodeljobs").fadeIn(200);}',
                 'after_off' => 'js:function () {$("#photomodeljobs").fadeOut(200);}'))
         ));
- 
     $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
         array('field' => 'isphotomodel')
     );
     ?>
-
     <div>
     <fieldset id="photomodeljobs" class="qform_subsection">
         <?php
         // опыт работы фотомоделью
-        echo $form->errorSummary($validatedPhotoModelJobs);
-        $this->widget('ext.multimodelform.MultiModelForm', 
-            array(
-               'addItemText'   => Yii::t('coreMessages','add'),
-               'removeText'    => Yii::t('coreMessages','delete'),
-               'removeConfirm' => QuestionaryModule::t('multimodel_remove_confirm'),
-               'id'            => 'id_photomodeljob', //the unique widget id
-               'formConfig'    => $photoModelJob->formConfig(), //the form configuration array
-               'model'         => $photoModelJob, //instance of the form model
-               
-               'validatedItems' => $validatedPhotoModelJobs,
-
-               // сохраненная ранее информация о работе фотомоделью
-               'data' => $questionary->photomodeljobs,
-          ));
+        $this->widget('questionary.extensions.widgets.QEditPhotoModelJobs.QEditPhotoModelJobs', array(
+            'questionary' => $questionary,
+        ));
         ?>
     </fieldset>
     </div>
@@ -764,7 +700,6 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
               'after_on'  => 'js:function () {$("#promomodeljobs").fadeIn(200);}',
               'after_off' => 'js:function () {$("#promomodeljobs").fadeOut(200);}'))
            ));
-        
         $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
             array('field' => 'ispromomodel'));
     ?>
@@ -773,21 +708,9 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
     <fieldset id="promomodeljobs" class="qform_subsection">
         <?php
         // опыт работы промо-моделью
-        echo $form->errorSummary($validatedPromoModelJobs);
-        $this->widget('ext.multimodelform.MultiModelForm', 
-            array(
-               'addItemText'   => Yii::t('coreMessages','add'),
-               'removeText'    => Yii::t('coreMessages','delete'),
-               'removeConfirm' => QuestionaryModule::t('multimodel_remove_confirm'),
-               'id'            => 'id_promomodeljob', //the unique widget id
-               'formConfig'    => $promoModelJob->formConfig(), //the form configuration array
-               'model'         => $promoModelJob, //instance of the form model
-               
-               'validatedItems' => $validatedPromoModelJobs,
-
-               // сохраненные ранее мероприятия промо-модели
-               'data' => $questionary->promomodeljobs,
-            ));
+        $this->widget('questionary.extensions.widgets.QEditPromoModelJobs.QEditPromoModelJobs', array(
+            'questionary' => $questionary,
+        ));
         ?>
     </fieldset>
     </div>
@@ -803,33 +726,18 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
            ));
         
         $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                array('field' => 'isdancer'));
+                array('field' => 'isdancer')
+        );
     ?>
 
     <div>
     <fieldset id="dancetypes" class="qform_subsection">
     <legend class="qform_subsection_label"><?php echo QuestionaryModule::t('dancetypes_label'); ?></legend>
         <?php
-        // список стандартных стилей танца
-        echo $form->errorSummary($validatedDanceTypes);
-        $danceTypeFormConfig = $danceType->formConfig();
-        $this->widget('ext.multimodelform.MultiModelForm',array(
-            'addItemText'   => Yii::t('coreMessages','add'),
-            'removeText'    => Yii::t('coreMessages','delete'),
-            'removeConfirm' => QuestionaryModule::t('multimodel_remove_confirm'),
-            'id'            => 'id_dancetype', //the unique widget id
-            'formConfig'    => $danceType->formConfig(), //the form configuration array
-            'model'         => $danceType, //instance of the form model
-            //if submitted not empty from the controller,
-            //the form will be rendered with validation errors
-            'validatedItems' => $validatedDanceTypes,
-            // ранее сохраненные стили танца
-            'data' => $questionary->dancetypes,
-            // JS для корректного копирования элементов combobox
-            'jsAfterNewId' => 
-                MultiModelForm::afterNewIdComboBox($danceTypeFormConfig['elements']['dancetype'], 
-                    'dancetype', 'name'),
-          ));
+        // список стилей танца
+        $this->widget('questionary.extensions.widgets.QEditDanceTypes.QEditDanceTypes', array(
+            'questionary' => $questionary,
+        ));
         ?>
     </fieldset>
     </div>
@@ -949,28 +857,10 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
     <fieldset id="instruments" class="qform_subsection">
         <legend class="qform_subsection_label"><?php echo QuestionaryModule::t('instruments_label'); ?></legend>
         <?php
-        // список стандартных музыкальных инструментов
-        echo $form->errorSummary($validatedInstruments);
-        $instrumentFormConfig = $instrument->formConfig();
-        $this->widget('ext.multimodelform.MultiModelForm',array(
-               'addItemText'   => Yii::t('coreMessages','add'),
-               'removeText'    => Yii::t('coreMessages','delete'),
-               'removeConfirm' => QuestionaryModule::t('multimodel_remove_confirm'),
-               'id'            => 'id_instrument', //the unique widget id
-               'formConfig'    => $instrumentFormConfig, //the form configuration array
-               'model'         => $instrument, //instance of the form model
-               //if submitted not empty from the controller,
-               //the form will be rendered with validation errors
-               'validatedItems' => $validatedInstruments,
-
-               // ранее сохраненные музыкальные инструменты
-               'data' => $questionary->instruments,
-
-               // JS для корректного копирования элементов combobox
-               'jsAfterNewId' => 
-                    MultiModelForm::afterNewIdComboBox($instrumentFormConfig['elements']['instrument'], 
-                        'instrument', 'name'),
-          ));
+        // список освоеных музыкальных инструментов
+        $this->widget('questionary.extensions.widgets.QEditInstruments.QEditInstruments', array(
+            'questionary' => $questionary,
+        ));
         ?>
     </fieldset>
     </div>
@@ -1079,7 +969,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
             'after_on'  => 'js:function () {$("#skills").fadeIn(200);}',
             'after_off' => 'js:function () {$("#skills").fadeOut(200);}'))
        ));
-    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+    $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
         array('field' => 'hasskills'));
     ?>
 	
@@ -1172,23 +1062,10 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
    <div>
        <fieldset id="awards" class="qform_subsection">
            <?php
-           // сообщения об ошибках при заполнении списка званий и наград
-           echo $form->errorSummary($validatedAwards);
-           // список званий, призов и наград
-           $this->widget('ext.multimodelform.MultiModelForm',array(
-                  'addItemText'   => Yii::t('coreMessages','add'),
-                  'removeText'    => Yii::t('coreMessages','delete'),
-                  'removeConfirm' => QuestionaryModule::t('multimodel_remove_confirm'),
-                  'id'            => 'id_award', //the unique widget id
-                  'formConfig'    => $award->formConfig(), //the form configuration array
-                  'model'         => $award, //instance of the form model
-                  //if submitted not empty from the controller,
-                  //the form will be rendered with validation errors
-                  'validatedItems' => $validatedAwards,
-
-                  // ранее сохраненные призы и награды
-                  'data' => $questionary->awards,
-             ));
+            // список достижений и наград
+            $this->widget('questionary.extensions.widgets.QEditAwards.QEditAwards', array(
+               'questionary' => $questionary,
+            ));
            ?>
        </fieldset>
     </div>
@@ -1198,11 +1075,11 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
 	<fieldset id="passportdata_part">
 	    <legend id="passportdata_part_label">
 	        <a class="btn btn-large btn-warning">
-	           <i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('passport_data'); ?>
+	           <i class="icon-chevron-down"></i>&nbsp;<?= QuestionaryModule::t('passport_data'); ?>
            </a>
 	    </legend>
     	<?php
-	    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription',
+	    $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription',
 	        array('field' => 'passportdata'));
     	?>
 		<?php echo $form->textFieldRow($questionary,'passportserial',array('size'=>10,'maxlength'=>10)); ?>
