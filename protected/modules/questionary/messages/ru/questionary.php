@@ -278,7 +278,7 @@ return array(
     'theatre' => 'Театр',
     'theatres' => 'Театры',
     'theatre_director' => 'Художественный руководитель',
-    'theatre_currently' => 'По настоящее время',
+    'theatre_currently' => 'Это ваше текущее место работы?',
 
 
     // остальные строки
@@ -327,7 +327,8 @@ return array(
     'specialty' => 'Специальность',
     'video' => 'Видео',
     'add_video' => 'Добавить видео',
-    'currently' => 'По настоящее время',
+    'this_is_current_workplace' => 'Это ваше текущее место работы?',
+    'only_for_work_history' => 'Указыватся только для прошлых мест работы',
         
     // дополнительные строки для отображения информации в анкете
     'foreign_passport_enabled' => 'Есть загранпаспорт',
