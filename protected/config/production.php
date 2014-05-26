@@ -55,9 +55,9 @@ return CMap::mergeArray(
                     array(
                         'class' => 'CDbLogRoute',
                         // @todo хранить логи отдельно ото всех остальных данных для лучшей безопасности
-                        // @todo о, сюрприз! их еще и дорого хранить на RDS, ну отлично просто
                         'connectionID'       => 'db',
-                        'levels'             => 'error, warning, info, application, AWS',
+                        // не храним логи о 404 страницах - и логи simpleWorkflow
+                        'except'             => array('exception.CHttpException.404', 'application.simpleWorkflow'),
                         'autoCreateLogTable' => false,
                     ),
                 ),
