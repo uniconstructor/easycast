@@ -12,6 +12,7 @@ return CMap::mergeArray(
                 'generatorPaths' => array(
                     'application.gii',
                     'bootstrap.gii',
+                    'ext.simpleWorkflow.command.gii',
                 ),
             ),
             'log' => array(
@@ -79,9 +80,14 @@ return CMap::mergeArray(
             'AWSBucket'     => 'test.easycast.ru',
             'AWSBucketPath' => 'http://bglance',
             //'AWSBucketPath' => 'http://test.easycast.ru.s3.amazonaws.com',
+            
             // SES
-            // использовать сервисы amazon SES для отправки почты
+            // использовать сервис Amazon SES для отправки почты на реальные адреса
+            // должно быть выключено в этом файле (dev.php)
+            // включается только на production
+            // в положении false все письма уходят только на один тестовый адрес
             'useAmazonSES'  => false,
+            
             // SQS
             // использовать Amazon SQS для отправки большого количества почты (через очередь)
             'useAmazonSQS'      => true,
