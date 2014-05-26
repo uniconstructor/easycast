@@ -270,7 +270,6 @@ return array(
 				array(
 					'class'              => 'CDbLogRoute',
 					'connectionID'       => 'db',
-					'levels'             => 'error, warning, info, application, AWS',
 					// отключаем проверку и автоматическое создание таблицы логов (ускоряет работу сайта)
 				    'autoCreateLogTable' => false,
 				),
@@ -461,6 +460,7 @@ return array(
 	       'liza@easycast.ru',
 	       'max@easycast.ru',
 	       'mr@easycast.ru',
+	       //@todo 'ron@easycast.ru',
         ),
 	    
 	    ////////////////////////////////////////////////////////////////////
