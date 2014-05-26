@@ -1,9 +1,20 @@
 <?php
 /**
- * Отображение стандартных значений
+ * Отображение стандартных значений формы анкеты и поиска
+ * 
+ * (исполняется под музыку диснеевского винни-пуха)
+ * 
+ * Время пришло в админку направится -
+ * Ждет тебя старинный друг!
+ * Он добрый и славный
+ * твой друг самый главный -
+ * 
+ * РЕ-ДАК-ТОР СТАНДАРТНЫХ ЗНАЧЕНИЙ!
+ * Кто с не знаком - 
+ * по этой ссылке жмем: http://easycast.ru/admin/standartValue/index :)
  */
 
-$this->breadcrumbs=array(
+$this->breadcrumbs = array(
     'Администрирование' => array('/admin'),
     'Анкеты' => array('/admin/questionary'),
     'Редактор стандартных значений',
@@ -12,10 +23,10 @@ $this->breadcrumbs=array(
 
 <h1>Редактор стандартных значений</h1>
 
-<h4><?php echo $header; ?></h4>
+<h4><?= $header; ?></h4>
 
 <?php 
-$this->menu=array(
+$this->menu = array(
     array('label'=>'Музыкальные ВУЗы','url'=>array('/admin/standartValue/index', 'class'=>'university', 'type'=>'music')),
     array('label'=>'Театральные ВУЗы','url'=>array('/admin/standartValue/index', 'class'=>'university', 'type'=>'theatre')),
     array('label'=>'Тип внешности','url'=>array('/admin/standartValue/index', 'class'=>'activity', 'type'=>'looktype')),
@@ -35,11 +46,9 @@ $this->menu=array(
     array('label'=>'Уровень владения языком','url'=>array('/admin/standartValue/index', 'class'=>'activity', 'type'=>'languagelevel')),
     //array('label'=>'Размер одежды','url'=>array('/admin/standartValue/index', 'class'=>'activity', 'type'=>'wearsize')),
     array('label'=>'Размер обуви','url'=>array('/admin/standartValue/index', 'class'=>'activity', 'type'=>'shoessize')),
-    array('label'=>'Размер груди','url'=>array('/admin/standartValue/index', 'class'=>'activity', 'type'=>'titsize')),
+    //array('label'=>'Размер груди','url'=>array('/admin/standartValue/index', 'class'=>'activity', 'type'=>'titsize')),
     //array('label'=>'Рейтинг','url'=>array('/admin/standartValue/index', 'class'=>'activity', 'type'=>'rating')),
 );
-
-//Yii::import('application.modules.admin.extensions.QDefaults.QDefaults');
 
 // Выводим список значений
 $this->widget('admin.extensions.QDefaults.QDefaults', array(
