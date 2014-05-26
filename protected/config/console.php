@@ -5,8 +5,6 @@ $consoleConfig = CMap::mergeArray(
     require(dirname(__FILE__).'/dev.php'),
     array(
         'basePath' => $basePath,
-        'language' => 'ru',
-        'sourceLanguage' => 'en_us',
     
         // autoloading model and component classes
         'import' => array(
@@ -17,25 +15,11 @@ $consoleConfig = CMap::mergeArray(
             'application.extensions.*'
         ),
     
-        // preloading 'log' component
+        // preloading components
         'preload' => array('log', 'messages'),
-    
-        /*'modules'=>array(
-            'user'=>array(),
-            'questionary' => array(),
-            'catalog' => array(),
-            'admin' => array(),
-            'projects' => array(),
-            'calendar' => array(),
-            'yii-forum' => array(),
-            'rights'=>array(
-                'install'=>false,
-            ),
-        ),*/
     
         // application components
         'components' => array(
-            
             // устанавливаем пареметр hostInfo для того чтобы из консоли могли создаваться абсолютные ссылки
             // ( http://www.yiiframework.com/forum/index.php/topic/14825-problem-with-createurl-and-createabsoluteurl-in-console-application/ )
             'request' => array(
@@ -50,13 +34,8 @@ $consoleConfig = CMap::mergeArray(
                     array(
                         'class'        => 'CDbLogRoute',
                         'connectionID' => 'db',
-                        'levels'       => 'error, warning, info',
+                        'levels'       => 'error, warning, info, AWS',
                         'autoCreateLogTable' => true,
-                    ),
-                    array(
-                        'class'  => 'CEmailLogRoute',
-                        'levels' => 'error, warning',
-                        'emails' => 'php1602agregator@gmail.com',
                     ),
                 ),
             ),
