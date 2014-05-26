@@ -26,6 +26,7 @@ return CMap::mergeArray(
             ),
             
             // API для работы с Мегапланом
+            // @todo не используется, удалить при рефакторинге
             'megaplan' => array(
                 'debug'             => false,
                 'accessId'          => '3191561bcf6adc2Ab125',
@@ -57,7 +58,7 @@ return CMap::mergeArray(
                         // @todo хранить логи отдельно ото всех остальных данных для лучшей безопасности
                         'connectionID'       => 'db',
                         // не храним логи о 404 страницах - и логи simpleWorkflow
-                        'except'             => array('exception.CHttpException.404', 'application.simpleWorkflow'),
+                        'except'             => array('CHttpException.404', 'simpleWorkflow'),
                         'autoCreateLogTable' => false,
                     ),
                 ),
@@ -69,6 +70,7 @@ return CMap::mergeArray(
             'vkontakteApiId' => '3534064',
             
             // Данные для доступа к кластеру Amazon
+            // @todo убрать из кода, использовать серверные переменные, как с паролем в БД
             'AWSAccessKey' => 'AKIAISQJ47JQQ2QOGBKA',
             'AWSSecret'    => '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',
             
