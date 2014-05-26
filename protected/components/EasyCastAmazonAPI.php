@@ -2,18 +2,22 @@
 
 /**
  * API сайта easycast.ru для взаимодействия с сервисами Amazon
- * Использует A2.amazon.components 
  * Реализует только те функции, которые используются на сайте
- * (отправка сообщений, управление очередью сообщений, загрузка картинок)
+ * (отправка сообщений, управление очередью сообщений, загрузка файлов)
+ * Устанавливает настройки сервисов по умолчанию
  * 
  * @todo вынести все циклы с try-catch в одну функцию
  * @todo добавить функцию пакетной отправки сообщений в очередь
  * @todo считать время, затраченное на отправку всех email, тормозить если их больше 5 в секунду
  * @todo добавить функцию очистки очереди сообщений (работает только на тестовых серверах)
- * @todo добавить параноидальную проверку в init(): на тестовом стенде никогда не должны быть включена функция
+ * @todo добавить проверку в init(): на тестовом стенде никогда не должны быть включена функция
  *       отправки сообщений на реальные адреса
+ * @todo использовать только родные компоненты Amazon вместо плагина yii-aws
+ *       (он не оправадал оказанного ему высокого доверия)
+ * @todo переименовать в ECAmazonApi
+ * @todo при рассылке писем из очереди не хранить текст письма, а только данные для его составления
  */
-class EasyCastAmazonAPI extends CComponent
+class EasyCastAmazonAPI extends CApplicationComponent
 {
     /**
      * @var bool - настройка: использовать ли url очереди сообщений, заданный в настройках сайта?
@@ -21,18 +25,15 @@ class EasyCastAmazonAPI extends CComponent
      *             точный полный адрес очереди сообщений через AmazonAPI)
      */
     const USE_CONFIG_QUEUE_URL = true;
-    
     /**
      * @var int - количество попыток, которые следует предпринять, 
      *            если обращение к сервису Amazon не удалось
      */
     const ATTEMPT_COUNT = 6;
-    
     /**
      * @var int - пауза между попытками в секундах
      */
     const ATTEMPT_TIMEOUT = 1;
-    
     /**
      * @var int - время (в секундах), на которое полученные сообщения будут скрыты от других получателей
      *            Используется при работе с очередью сообщений.
@@ -40,7 +41,6 @@ class EasyCastAmazonAPI extends CComponent
      *            не пытались отправить одни и те же сообщения по 2 раза
      */
     const HIDE_READ_MESSAGES_TIMEOUT = 10;
-    
     /**
      * @var int - максимальное количество сообщений в секунду, которое позволяет отправлять Amazon SES 
      */
@@ -56,12 +56,10 @@ class EasyCastAmazonAPI extends CComponent
      * @var A2Ses - объект для работы с сервисом Amazon SES (отправка почты)
      */
     protected $ses;
-    
     /**
      * @var A2Sqs - объект для работы с сервисом Amazon SQS (очередь сообщений)
      */
     protected $sqs;
-    
     /**
      * @var string - url очереди, из которой достаются email-сообщения, ожидающие отправки
      */
@@ -73,7 +71,8 @@ class EasyCastAmazonAPI extends CComponent
      */
     public function init()
     {
-        
+        $this->initSQS();
+        $this->initSES();
     }
     
     /**
@@ -132,8 +131,6 @@ class EasyCastAmazonAPI extends CComponent
             $email   = 'frost@easycast.ru';
             $subject = $subject.' [TEST]';
         }
-        // Подключаем почтовую службу
-        $this->initSES();
         // создаем параметры запроса по всем правилам
         $args = $this->createSESEmail($email, $subject, $message, $from);
         
@@ -230,7 +227,6 @@ class EasyCastAmazonAPI extends CComponent
             $from = Yii::app()->params['adminEmail'];
         }
         
-        $this->initSQS();
         // Конвертируем письмо в JSON чтобы его можно было хранить в очереди
         $JSON = $this->convertEmailToJSON($email, $subject, $message, $from);
         // Создаем массив нужной структуры, со всеми аргументами
@@ -349,7 +345,6 @@ class EasyCastAmazonAPI extends CComponent
     public function popMail($count=self::MAX_MESSAGES_PER_SECOND)
     {
         $messages = array();
-        $this->initSQS();
         // Создаем массив нужной структуры, со всеми аргументами
         $args = $this->createSQSPopArgs($count);
         
@@ -415,8 +410,6 @@ class EasyCastAmazonAPI extends CComponent
      */
     protected function getEmailQueueUrl()
     {
-        $this->initSQS();
-        
         if ( $this->queueUrl )
         {// url очереди уже был запрошен - не обращаемся к сервису второй раз
             return $this->queueUrl;
