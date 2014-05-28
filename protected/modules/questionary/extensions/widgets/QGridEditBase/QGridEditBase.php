@@ -34,6 +34,8 @@
  *       Вызывать эту функцию каждый рас после успешного добавления, убрать из дочерних плагинов
  *       использование createClearFormJs(). Она станет нужна только для тех случаем когда требуется нестандартная
  *       очистка формы (например если захотим там использовать какие-то экзотические виджеты ввода)
+ * @todo при удалении последней записи (напримеру ВУЗа), проверять нужно ли теперь 
+ *       сбросить обратно галочку (проф. актер), которая ставится только при наличии актерского образования 
  */
 class QGridEditBase extends CWidget
 {
@@ -137,8 +139,7 @@ class QGridEditBase extends CWidget
         $this->initModel();
         
         if ( ! $this->rowEditPrefix )
-        {// создаем свой префикс для генерации уникальных id элементов внутри строки таблицы 
-            // (используется для виджетов XEditable) 
+        { 
             $this->rowEditPrefix = $this->modelClass;
         }
         // регистрируем клип с формой в модуле анкет для того чтобы позже вывести его в конце формы
@@ -270,7 +271,7 @@ class QGridEditBase extends CWidget
     protected function getActionsColumn()
     {
         return array(
-            'header'      => 'Действия',
+            'header'      => '&nbsp;',
             'htmlOptions' => array('nowrap' => 'nowrap', 'style' => 'text-align:center;'),
             'class'       => 'bootstrap.widgets.TbButtonColumn',
             'template'    => '{delete}',
@@ -304,7 +305,7 @@ class QGridEditBase extends CWidget
      * Получить параметры для создания editable-колонки в таблице (текстовое поле)
      *
      * @param string $field - поле модели для которого создается редактируемая колонка таблицы
-     * @return void
+     * @return array
      */
     protected function getTextColumnOptions($field, $value=null)
     {
@@ -330,11 +331,40 @@ class QGridEditBase extends CWidget
     }
     
     /**
+     * Получить параметры для создания editable-колонки в таблице (многосторочное текстовое поле)
+     *
+     * @param string $field - поле модели для которого создается редактируемая колонка таблицы
+     * @return array
+     */
+    protected function getTextAreaColumnOptions($field, $value=null)
+    {
+        $options = array(
+            'name'     => $field,
+            'class'    => 'bootstrap.widgets.TbEditableColumn',
+            'editable' => array(
+                'type'      => 'textarea',
+                'title'     => $this->model->getAttributeLabel($field),
+                'url'       => $this->updateUrl,
+                'emptytext' => $this->getFieldEmptyText($field),
+                'params' => array(
+                    Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
+                ),
+            ),
+        );
+        if ( $value )
+        {// подставляем значение по умолчанию (если есть)
+            $options['value'] = $value;
+        }
+        
+        return $options;
+    }
+    
+    /**
      * Получить параметры для создания editable-колонки в таблице (select2 без подгрузки элементов по AJAX)
      *
      * @param string $field - поле модели для которого создается редактируемая колонка таблицы
      * @param array $variants - список вариантов для выбора
-     * @return void
+     * @return array
      */
     protected function getStaticSelect2ColumnOptions($field, $variants, $valueField='level', $allowCustom=false)
     {
