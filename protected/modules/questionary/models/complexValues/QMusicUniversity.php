@@ -13,7 +13,6 @@ class QMusicUniversity extends QUniversityInstance
     protected $defaultType = 'music';
 
     /**
-     * (non-PHPdoc)
      * @see CActiveRecord::defaultScope()
      */
     public function defaultScope()
@@ -26,6 +25,7 @@ class QMusicUniversity extends QUniversityInstance
                     'condition' => "`university`.`type`='{$this->defaultType}'",
                 ),
             ),
-            'order' => '`musicuniversities`.`timeend` DESC');
+            'order' => '`musicuniversities`.`timeend` DESC',
+        );
     }
 }
