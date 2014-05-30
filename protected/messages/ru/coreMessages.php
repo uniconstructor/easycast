@@ -135,7 +135,7 @@ return array(
     'db_fastorder_ourcomment' => 'Наш комментарий',
     'db_fastorder_solverid' => 'Ответственный',
     'db_fastorder_customerid' => 'Заказчик',
-    'place_order_success' => 'Ваш заказ принят. Мы свяжемся с вами в течении часа.', // они никогда не могут этого сделать :)
+    'place_order_success' => 'Ваш заказ принят. Мы свяжемся с вами в ближайшее время.',
     'order_status_active'   => 'Ждет звонка',
     'order_status_pending'  => 'В обработке',
     'order_status_closed'   => 'Обработан',
