@@ -6,7 +6,6 @@
 class MemberRequest extends ProjectMember
 {
     /**
-     * (non-PHPdoc)
      * @see ProjectMember::init()
      */
     public function init()
@@ -15,31 +14,30 @@ class MemberRequest extends ProjectMember
     }
     
     /**
-     * (non-PHPdoc)
      * @see CActiveRecord::defaultScope()
      */
     public function defaultScope()
     {
         return array(
             'condition' => "`status`='draft' OR `status`='pending'",
-            'order'     => '`timecreated` DESC');
+            'order'     => '`timecreated` DESC',
+        );
     }
     
     /**
-     * (non-PHPdoc)
      * @see CActiveRecord::scopes()
      */
     public function scopes()
     {
         return array(
             'rejected' => array(
-                'condition'=>"`status` = ".self::STATUS_REJECTED."'",
+                'condition' => "`status` = '".self::STATUS_REJECTED."'",
             ),
-            'draft' => array(
-                'condition'=>"`status` = '".self::STATUS_DRAFT."'",
+            'draft'    => array(
+                'condition' => "`status` = '".self::STATUS_DRAFT."'",
             ),
-            'pending' => array(
-                'condition'=>"`status` = '".self::STATUS_PENDING."'",
+            'pending'  => array(
+                'condition' => "`status` = '".self::STATUS_PENDING."'",
             ),
         );
     }
