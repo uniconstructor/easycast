@@ -22,6 +22,9 @@
  * @property User         $manager
  * @property EventVacancy $vacancy
  * @property ProjectEvent $event
+ * 
+ * @todo внедрить workflow-модель: увеличить поле "статус" до 50 символов, обновить все старые записи
+ *       переименовав статусы, наследовать от SWActiveRecord подключить swBehavior
  */
 class ProjectMember extends CActiveRecord
 {
@@ -122,21 +125,19 @@ class ProjectMember extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::afterSave()
 	 */
 	protected function afterSave()
 	{
 	    if ( $this->isNewRecord )
-	    {// @todo при создании новой заявки сообщать участнику что она принята
-	        
-	        // автоматически переводим приглашение в статус "принято" если участник подал заявку на это мероприятие
+	    {// @todo в зависимости от настроек оповещений: при создании новой заявки сообщать участнику что она принята
+	        // автоматически переводим приглашение в статус "принято": 
+	        // если участник подал заявку на это мероприятие, значит он соглаен участвовать
 	        $this->autoConfirmInvite();
 	    }
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::defaultScope()
 	 */
     public function defaultScope()
@@ -162,7 +163,6 @@ class ProjectMember extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::scopes()
 	 */
 	public function scopes()
@@ -193,7 +193,8 @@ class ProjectMember extends CActiveRecord
 	
 	/**
 	 * Именованная группа условий поиска - выбрать заявки с определенными статусами
-	 * @param array|string $statuses - статусы заявок, которые учитываются извлечении или строка, если статус один
+	 * @param array|string $statuses - статусы заявок, которые учитываются извлечении
+	 *                                 если статус один - то его можно просто передать строкой
 	 * @return ProjectMember
 	 */
 	public function withStatus($statuses=array(self::STATUS_ACTIVE, self::STATUS_FINISHED))
@@ -206,6 +207,7 @@ class ProjectMember extends CActiveRecord
 	     $criteria->addInCondition('status', $statuses);
 	     
 	     $this->getDbCriteria()->mergeWith($criteria);
+	     
 	     return $this;
 	}
 	
@@ -220,6 +222,7 @@ class ProjectMember extends CActiveRecord
 	    $criteria->compare('vacancyid', $vacancyId);
 	    
 	    $this->getDbCriteria()->mergeWith($criteria);
+	    
 	    return $this;
 	}
 
@@ -458,11 +461,10 @@ class ProjectMember extends CActiveRecord
 	
 	/**
 	 * Автоматически подтвердить приглашение на участие в мероприятии.
-	 * Выполняется только в том случае, если участник подал заявку, не просмотрев приглашения
+	 * Выполняется только в том случае, если участник подал заявку, не просмотрев приглашение в анкете
 	 * После подтверждения приглашение удаляется
 	 * 
 	 * @return null
-	 * @todo написать проверки на случай если модель не найдена 
 	 */
 	protected function autoConfirmInvite()
 	{
@@ -470,7 +472,10 @@ class ProjectMember extends CActiveRecord
 	    $criteria->compare('eventid', $this->vacancy->event->id);
 	    $criteria->compare('questionaryid', $this->memberid);
 	    
-	    $invite = EventInvite::model()->find($criteria);
+	    if ( ! $invite = EventInvite::model()->find($criteria) )
+	    {// @todo записать в лог ошибку
+	        return;
+	    }
 	    $invite->setStatus(EventInvite::STATUS_ACCEPTED);
 	    $invite->deleted = 1;
 	    $invite->save();
