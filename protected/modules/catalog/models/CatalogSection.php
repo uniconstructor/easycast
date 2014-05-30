@@ -78,9 +78,9 @@ class CatalogSection extends CActiveRecord
 	    return array(
 	        // настройки сохранения логотипа
 	        'galleryBehavior' => array(
-    	        'class' => 'GalleryBehavior',
+    	        'class'       => 'GalleryBehavior',
     	        'idAttribute' => 'galleryid',
-    	        'limit' => 1,
+    	        'limit'       => 1,
     	        'versions' => array(
     	            'small' => array(
     	                'centeredpreview' => array(150, 150),
@@ -91,7 +91,7 @@ class CatalogSection extends CActiveRecord
     	    ),
 	        // настройки для прикрепляемых фильтров поиска
 	        'filtersBehavior' => array(
-	            'class' => 'catalog.extensions.search.SearchFiltersBehavior',
+	            'class'    => 'catalog.extensions.search.SearchFiltersBehavior',
 	            'linkType' => 'section',
             ),
 	    );

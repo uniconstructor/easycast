@@ -57,7 +57,6 @@ class CatalogModule extends CWebModule
     );
     
     /**
-     * (non-PHPdoc)
      * @see CModule::init()
      */
 	public function init()
@@ -69,7 +68,6 @@ class CatalogModule extends CWebModule
 	}
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CWebModule::beforeControllerAction()
 	 */
 	public function beforeControllerAction($controller, $action)
