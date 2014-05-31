@@ -9,20 +9,18 @@
 
 // ошибки формы
 echo $form->errorSummary(array($model), null, null, array('id' => $this->formId.'_errors'));
-// id анкеты
-echo CHtml::hiddenField('qid', $this->questionary->id);
 
 // стиль танца
-echo $form->select2Row($model, 'dancetype',  array(
+echo $form->select2Row($model, 'name',  array(
     'asDropDownList' => false,
     'options' => array(
             // список вариантов указываем в tags а не в data уровнем выше, иначе не получится
             // добавить свой вариант (которого нет в списке)
-            'tags' => ECPurifier::getSelect2Options($this->questionary->getFieldVariants('dancetype', false)),
+            'tags' => $this->getActivityOptions('dancetype'),
             'maximumSelectionSize' => 1,
             'placeholder'          => '(Не выбран)',
             'placeholderOption'    => '',
-            'tokenSeparators'      => array(',')
+            'tokenSeparators'      => array(',', ' ')
         ),
     )
 );

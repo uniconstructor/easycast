@@ -39,7 +39,7 @@ class QEditDanceTypes extends QGridEditBase
     /**
      * @var array - список редактируемых полей в том порядке, в котором они идут в таблице
      */
-    public $fields = array('dancetype', 'level');
+    public $fields = array('name', 'level');
     /**
      * @var string - html-id формы для ввода новой записи
      */
@@ -86,7 +86,7 @@ class QEditDanceTypes extends QGridEditBase
     protected function createClearFormJs()
     {
         $js  = '';
-        $js .= "\$('#{$this->modelClass}_dancetype').select2('val', '');\n";
+        $js .= "\$('#{$this->modelClass}_name').select2('val', '');\n";
         $js .= "\$('#{$this->modelClass}_level').select2('val', '');\n";
         
         return $js;
@@ -104,13 +104,12 @@ class QEditDanceTypes extends QGridEditBase
         return array(
             // стиль танца
             array(
-                'name'  => 'dancetype',
+                'name'  => 'name',
                 'value' => '$data->name;',
             ),
             // уровень навыка
             $this->getStaticSelect2ColumnOptions('level',
-                $this->questionary->getFieldVariants('level', false),
-                'getSkillLevel()'
+                $this->getActivityOptions('level'), 'getSkillLevel()'
             ),
         );
     }
