@@ -39,7 +39,7 @@ class QEditInstruments extends QGridEditBase
     /**
      * @var array - список редактируемых полей в том порядке, в котором они идут в таблице
      */
-    public $fields = array('instrument', 'level');
+    public $fields = array('name', 'level');
     /**
      * @var string - html-id формы для ввода новой записи
      */
@@ -59,13 +59,13 @@ class QEditInstruments extends QGridEditBase
     /**
      * @var string - заголовок всплывающего окна с формой добавления новой записи
      */
-    public $modalHeader    = 'Добавить';
+    public $modalHeader    = 'Добавить музыкальный инструмент';
     /**
      * @var array - список текстов-заглушек, которые отображаются в случае, когда поле не заполнено
      */
     public $emptyTextVariants = array(
-        'instrument' => '[не указан]',
-        'level'      => '[не указан]',
+        'name'  => '[не указан]',
+        'level' => '[не указан]',
     );
     
     /**
@@ -86,7 +86,7 @@ class QEditInstruments extends QGridEditBase
     protected function createClearFormJs()
     {
         $js  = '';
-        $js .= "\$('#{$this->modelClass}_instrument').select2('val', '');\n";
+        $js .= "\$('#{$this->modelClass}_name').select2('val', '');\n";
         $js .= "\$('#{$this->modelClass}_level').select2('val', '');\n";
         
         return $js;
@@ -104,7 +104,7 @@ class QEditInstruments extends QGridEditBase
         return array(
             // музыкальный инструмент
             array(
-                'name'  => 'instrument',
+                'name'  => 'name',
                 'value' => '$data->name;',
             ),
             // уровень навыка
