@@ -6,7 +6,7 @@ Yii::import('questionary.extensions.widgets.QGridEditBase.QGridEditBase');
 /**
  * Виджет для редактирования мероприятий ведущего
  *
- * @package easycast
+ * @package    easycast
  * @subpackage questionary
  */
 class QEditModelSchools extends QGridEditBase
@@ -38,7 +38,7 @@ class QEditModelSchools extends QGridEditBase
     /**
      * @var array - список редактируемых полей в том порядке, в котором они идут в таблице
      */
-    public $fields = array('school', 'year');
+    public $fields = array('name', 'year');
     /**
      * @var string - html-id формы для ввода новой записи
     */
@@ -58,13 +58,13 @@ class QEditModelSchools extends QGridEditBase
     /**
      * @var string - надпись на кнопке добавления новой записи
      */
-    public $addButtonLabel = 'Добавить школу';
+    public $addButtonLabel = 'Добавить';
     /**
      * @var array - список текстов-заглушек, которые отображаются в случае, когда поле не заполнено
      */
     public $emptyTextVariants = array(
-        'school'  => '[не указана]',
-        'year'    => '[не указан]',
+        'name'  => '[не указана]',
+        'year'  => '[не указан]',
     );
     
     /**
@@ -87,7 +87,7 @@ class QEditModelSchools extends QGridEditBase
     {
         return array(
             // название мероприятия
-            $this->getTextColumnOptions('school'),
+            $this->getTextColumnOptions('name'),
             // год
             $this->getYearColumnOptions('year'),
         );
