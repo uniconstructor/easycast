@@ -4,28 +4,27 @@
  */
 /* @var $this OnlineCastingController */
 
-$this->pageTitle = 'Онлайн-кастинг';
-
+$this->pageTitle   = 'Онлайн-кастинг';
 $this->breadcrumbs = array(
     'Онлайн-кастинг',
 );
 
 $castingTabContent = '';
-if ( $step == 'info' )
+if ( $step === 'info' )
 {
     $castingTabContent = $this->renderPartial('_info', array(
         'onlineCastingForm' => $onlineCastingForm,
     ), true);
 }
 $roleTabContent = '';
-if ( $step == 'roles' )
+if ( $step === 'roles' )
 {
     $roleTabContent = $this->renderPartial('_roles', array(
         'onlineCastingRoleForm' => $onlineCastingRoleForm,
     ), true);
 }
 $finishTabContent = '';
-if ( $step == 'finish' )
+if ( $step === 'finish' )
 {
     $finishTabContent = $this->renderPartial('_finish', array(
         'onlineCastingRoleForm' => $onlineCastingRoleForm,
@@ -36,7 +35,6 @@ if ( $step == 'finish' )
 
 <?php 
 // wizard с формой создания кастинга и отбора людей
-// @todo невозможно проставить overflow:hidden для tab-content, поэтому горизонтальная прокрутка пока остается
 $this->widget('bootstrap.widgets.TbWizard', array(
         'type'         => 'pills', // 'tabs' or 'pills'
         'pagerContent' => $this->renderPartial('_pager', null, true),
@@ -60,22 +58,19 @@ $this->widget('bootstrap.widgets.TbWizard', array(
             array(
                 'label'   => 'Информация о кастинге',
                 'content' => $castingTabContent,
-                'active'  => ($step == 'info'),
+                'active'  => ($step === 'info'),
             ),
             array(
                 'label'   => 'Требования к участникам',
                 'content' => $roleTabContent,
-                'active'  => ($step == 'roles'),
+                'active'  => ($step === 'roles'),
             ),
             array(
                 'label'   => 'Готово',
                 'content' => $finishTabContent,
-                'active'  => ($step == 'finish'),
+                'active'  => ($step === 'finish'),
             ),
         ),
     )
 );
 
-//CVarDumper::dump(OnlineCastingForm::getCastingInfo(), 10, true);
-//CVarDumper::dump(OnlineCastingForm::getRoleInfo(), 10, true);
-?>
