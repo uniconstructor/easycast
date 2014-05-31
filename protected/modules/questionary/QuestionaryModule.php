@@ -44,14 +44,6 @@ class QuestionaryModule extends CWebModule
      */
     public $profileUrl = '/questionary/questionary/view';
     /**
-     * @property string the path to the layout file to use for displaying questionary.
-     */
-    //public $layout = 'application.modules.questionary.views.layouts.main';
-    /**
-     * @property string the path to the application layout file.
-     */
-    //public $appLayout = 'application.views.layouts.main';
-    /**
      * @property string 
      */
     public $questionaryTable = '{{questionaries}}';
@@ -63,7 +55,7 @@ class QuestionaryModule extends CWebModule
      * @var array настройки галереи изображений анкеты пользователя
      */
     public $gallerySettings = array(
-        'class' => 'GalleryBehavior',
+        'class'       => 'GalleryBehavior',
         'idAttribute' => 'galleryid',
         // максимальное количество картинок участника - 30
         'limit' => 30,
@@ -93,12 +85,13 @@ class QuestionaryModule extends CWebModule
      *              Подробнее см. документацию класса CClipWidget
      */
     public $formClips = array();
-    
     /**
      * @var QuestionaryController
      */
     public $defaultController = 'questionary';
-    
+    /**
+     * @var string
+     */
     public $_assetsUrl;
     
     /**
@@ -108,9 +101,6 @@ class QuestionaryModule extends CWebModule
     {
         // Set required classes for import.
         $this->setImport(array(
-            //'questionary.components.*',
-            //'questionary.components.behaviors.*',
-            //'questionary.components.dataproviders.*',
             'questionary.controllers.*',
             'questionary.models.*',
             'questionary.models.complexValues.*',
@@ -184,29 +174,18 @@ class QuestionaryModule extends CWebModule
      * @param $dic
      * @return string
      */
-    public static function t($str='', $params=array(), $dic='questionary') {
+    public static function t($str='', $params=array(), $dic='questionary')
+    {
         if (Yii::t("QuestionaryModule", $str)==$str)
         {
             return Yii::t("QuestionaryModule.".$dic, $str, $params);
         }else
         {
-           return Yii::t("QuestionaryModule", $str, $params);
+            return Yii::t("QuestionaryModule", $str, $params);
         }
     }
     
     /**
-     * Переопределяем viewPath чтобы можно было нормально просматривать и редактировать анкету
-     * (non-PHPdoc)
-     * @see CController::getViewPath()
-     * @todo удалить, не пригодилась
-     */
-    public function getViewPath()
-    {
-        return Yii::getPathOfAlias('application.modules.questionary.views.questionary');
-    }
-    
-    /**
-     * (non-PHPdoc)
      * @see CWebModule::beforeControllerAction()
      */
     public function beforeControllerAction($controller, $action)
