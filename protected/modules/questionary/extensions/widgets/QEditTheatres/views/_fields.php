@@ -74,8 +74,9 @@ echo $form->select2Row($model, 'name',  array(
         }",
     ),
 ));
-// это текущее место работы?
-echo $form->widgetRow('ext.ECMarkup.ECToggleInput.ECToggleInput', array(
+// @todo галочка "текущее место работы": удалось включить, но требуется еще время на настройку допиливание
+//       пока отложено
+/*echo $form->widgetRow('ext.ECMarkup.ECToggleInput.ECToggleInput', array(
     'model'     => $model,
     'attribute' => 'currently',
     'onLabel'   => 'Да',
@@ -86,7 +87,7 @@ echo $form->widgetRow('ext.ECMarkup.ECToggleInput.ECToggleInput', array(
     'afterOff'  => '$("#'.$this->id.'-stopyear-wrapper").show();',
     'onId'      => $this->id.'_currently_on_button',
     'offId'     => $this->id.'_currently_off_button',
-));
+));*/
 // год начала работы в театре
 echo $form->datepickerRow($model, 'startyear', array(
     'options' => $this->getYearPickerOptions(),
