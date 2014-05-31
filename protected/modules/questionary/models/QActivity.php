@@ -2,14 +2,18 @@
 
 /**
  * Модель для хранения одной характеристики участника
- * Таблица этой модели не содержит поля "дата изменения", потому принцип работы со всеми
- * значениями класса QActivity не предусматривает их изменения: при редактировании таких полей
- * весь старый набор значений удаляется и заменяется новым
  * 
+ * @todo подключить workflow
+ * @todo использовать статусы для хранения информации о проекте
  * @todo языковые строки
  */
 class QActivity extends CActiveRecord
 {
+    /**
+     * @var тип деятельности по умолчанию, свой для каждого класса значения, наследуемого от QActivity
+     */
+    protected $_defaultType;
+    
     /**
      * @see CActiveRecord::init()
      */
@@ -29,6 +33,28 @@ class QActivity extends CActiveRecord
 	{
 		return parent::model($className);
 	}
+	
+	/**
+	 * Cписок сложных полей анкеты в которых указывается только название умения/навыка
+	 * Ключ массива - это тип предлагаемых возможных значений (ActivityType)
+	 * Значение - класс модели, для которой предлагаются варианты
+	 * 
+	 * @return array
+	 */
+	public static function getAllSimpleClasses()
+	{
+	    return array(
+	        'voicetimbre'  => 'QVoiceTimbre',
+	        'addchar'      => 'QAddChar',
+	        'parodist'     => 'QParodist',
+	        'twin'         => 'QTwin',
+	        'vocaltype'    => 'QVocalType',
+	        'sporttype'    => 'QSportType',
+	        'extremaltype' => 'QExtremalType',
+	        'trick'        => 'QTrick',
+	        'skill'        => 'QSkill',
+	    );
+	}
     
 	/**
 	 * @see CActiveRecord::tableName()
@@ -46,12 +72,66 @@ class QActivity extends CActiveRecord
 		return array(
 			array('questionaryid, timestart, timeend, timecreated, timemodified', 'length', 'max' => 11),
 			array('type, value', 'length', 'max' => 32),
-			array('uservalue', 'length', 'max' => 128),
+			array('uservalue', 'length', 'max' => 500),
+			array('comment', 'length', 'max' => 4095),
 			array('level', 'length', 'max' => 20),
+		    array('comment, uservalue, type, value', 'filter', 'filter' => 'trim'),
+		    
+		    array('type', 'default', 'setOnEmpty' => false, 'value' => $this->_defaultType),
+		    
+		    array('name', 'length', 'max' => 500),
+            array('name', 'filter', 'filter' => 'trim'),
+		    array('name', 'required'),
 		    
 			array('id, questionaryid, type, value, uservalue, level, timestart, 
 			    timeend, timecreated, timemodified', 'safe', 'on' => 'search'),
 		);
+	}
+	
+	/**
+	 * Именованная группа условий поиска
+	 * Получает все записи для выбранной анкеты
+	 * 
+	 * @param int $id - id анкеты
+	 * @return QActivity
+	 */
+	public function forQuestionary($id)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('questionaryid', $id);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    return $this;
+	}
+	
+	/**
+	 * Именованная группа условий поиска
+	 * Получает все записи определенного типа
+	 * @param string $type - краткое название категории умения или навыка
+	 * @return QActivity
+	 */
+	public function withType($type)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('type', $type);
+	     
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    return $this;
+	}
+	
+	/**
+	 * Именованная группа условий поиска
+	 * Исключает из выборки выбранные значения
+	 * @param array $values
+	 * @return QActivityType
+	 */
+	public function except($values)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->addNotInCondition('value', $values);
+	     
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    return $this;
 	}
 
 	/**
@@ -72,7 +152,7 @@ class QActivity extends CActiveRecord
 		return array(
             // функции для работы со стандартными значениями, выбираемыми внутри сложных полей анкеты
             'QManageDefaultValuesBehavior' => array(
-              'class' => 'questionary.extensions.behaviors.QManageDefaultValuesBehavior',
+                'class' => 'questionary.extensions.behaviors.QManageDefaultValuesBehavior',
             ),
 		    // автоматическое заполнение дат создания и изменения
 		    'CTimestampBehavior' => array(
@@ -89,16 +169,14 @@ class QActivity extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'id' => Yii::t('app', 'ID'),
-			'questionaryid' => Yii::t('app', 'Questionaryid'),
-			'type' => Yii::t('app', 'Type'),
-			'value' => Yii::t('app', 'Value'),
-			'uservalue' => Yii::t('app', 'Uservalue'),
-			'level' => Yii::t('app', 'Level'),
-			'timestart' => Yii::t('app', 'Timestart'),
-			'timeend' => Yii::t('app', 'Timeend'),
-			'timecreated' => Yii::t('app', 'Timecreated'),
-			'timecreated' => Yii::t('app', 'Timemodified'),
+			'id' => 'ID',
+			'type'        => Yii::t('app', 'Type'),
+			'value'       => Yii::t('app', 'Value'),
+			'level'       => QuestionaryModule::t('level'),
+			'timecreated' => Yii::t('coreMessages', 'timecreated'),
+			'timecreated' => Yii::t('coreMessages', 'timemodified'),
+			'comment' => Yii::t('coreMessages', 'description'),
+			'name' => Yii::t('coreMessages', 'title'),
 		);
 	}
 
@@ -128,60 +206,60 @@ class QActivity extends CActiveRecord
 	}
 	
 	/**
-	 * Получить добавленное пользователем название умения или навыка
-	 * @return string
-	 */
-	public function getUservalue()
-	{
-	    return CHtml::encode($this->uservalue);
-	}
-	
-	/**
 	 * Получить название умения или навыка
 	 * @return string
 	 */
 	public function getName()
 	{
-	    if ( $this->value == 'custom' )
-	    {
-	        return $this->Uservalue;
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('name', $this->type);
+	    $criteria->compare('value', $this->value);
+	    
+	    if ( $this->uservalue OR ! $option = QActivityType::model()->find($criteria) )
+	    {// это не значение из списка, оно было добавлено пользователем
+	        return $this->uservalue;
 	    }
-	
-	    if ( $this->scenario == 'view' )
-	    {
-	        return $this->getDefaultValueForDisplay();
-	    }
-	
-	    return $this->value;
+	    // это стандартное значение
+	    return $option->translation;
 	}
 	
 	/**
-	 * Сохранить название умения/навыка: стандартное или введенное пользователем
-	 * @param string $name
-	 * @return null
+	 * Сохранить название умения или навыка
+	 * @param $string $name
+	 * @return void
 	 */
 	public function setName($name)
 	{
-	    if ( $this->value == 'custom' )
-	    {
-	        $this->uservalue = strip_tags($name);
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('name', $this->_defaultType);
+	    $criteria->addColumnCondition(array(
+	        'value'       => $name,
+	        'translation' => $name,
+	    ), 'OR');
+	    
+	    if ( $option = QActivityType::model()->find($criteria) )
+	    {// значение выбрано из стандартных
+	        $this->value = $option->value;
 	    }else
 	    {
-	        $this->value = strip_tags($name);
+	        $this->value     = 'custom';
+	        $this->uservalue = $name;
 	    }
 	}
+	
+	///////////////////////////////////////////
 	
 	/**
 	 * Определить, изменилось ли значение сложного поля
 	 * @param int $questionaryid
 	 * @param string $type - тип поля
 	 * @param array $newData - новые значения в сложном поле формы
+	 * 
+	 * @deprecated не использовать в новых функциях
 	 */
 	public function valueIsChanged($questionaryid, $type, $newData)
 	{
 	    // список сложных полей анкеты в которых указывается только название умения/навыка
-	    // (не храним о каждом экземпляре значения никакой доа. информации типа уровня вледения)
-	    // @todo этот список следует брать из модели анкеты
 	    $activities = array('voicetimbre', 'addchar', 'parodist', 'twin', 'vocaltype', 'sporttype', 
 	       'extremaltype', 'trick', 'skill');
 	    if ( ! in_array($type, $activities) )
@@ -200,8 +278,9 @@ class QActivity extends CActiveRecord
 	 * @param int $questionaryid - id анкеты
 	 * @param string $type - тип сложного значения
 	 * @param array $newData - новый список значений в поле формы
-	 * 
 	 * @return bool
+	 * 
+	 * @deprecated не использовать в новых функциях
 	 */
 	protected function simpleActivityIsChanged($questionaryid, $type, $newData)
 	{
@@ -246,7 +325,7 @@ class QActivity extends CActiveRecord
 	 * 
 	 * @return bool
 	 * 
-	 * @todo переименовать в activityExists
+	 * @deprecated удалить при рефакторинге
 	 */
 	public function valueIsExists($questionaryid, $type, $value, $standard=true)
 	{
@@ -277,6 +356,8 @@ class QActivity extends CActiveRecord
 	 *     standard - только стандартные
 	 *     user - только введенные пользователем
 	 * @return array
+	 * 
+	 * @deprecated не использовать в новых функциях
 	 */
 	public function getFieldValues($questionaryid, $type, $values='all')
 	{
@@ -293,6 +374,8 @@ class QActivity extends CActiveRecord
 	 *     standard - только стандартные
 	 *     user - только введенные пользователем
 	 * @return int
+	 * 
+	 * @deprecated не использовать в новых функциях
 	 */
 	public function countFieldValues($questionaryid, $type, $values='all')
 	{
@@ -310,6 +393,8 @@ class QActivity extends CActiveRecord
 	 *     standard - только стандартные
 	 *     user - только введенные пользователем
 	 * @return int
+	 * 
+	 * @deprecated не использовать в новых функциях
 	 */
 	public function deleteFieldValues($questionaryid, $type, $values='all')
 	{
@@ -326,6 +411,9 @@ class QActivity extends CActiveRecord
 	 *     standard - только стандартные
 	 *     user - только введенные пользователем
 	 * @return CDbCriteria
+	 * 
+	 * @deprecated не использовать в новых функциях
+	 * @todo написать именованную группу условий если понадобится
 	 */
 	protected function fieldValuesCriteria($questionaryid, $type, $values='all')
 	{
