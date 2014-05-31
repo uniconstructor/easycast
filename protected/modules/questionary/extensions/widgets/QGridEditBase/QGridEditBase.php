@@ -415,7 +415,7 @@ class QGridEditBase extends CWidget
             'placeholderOption'    => '',
             'multiple'             => false,
         );
-        $variants = ECPurifier::getSelect2Options($variants);
+        //$variants = ECPurifier::getSelect2Options($variants);
         
         if ( $allowCustom )
         {// разрешить ли вводить и сохранять свое значение в этом поле?
@@ -501,5 +501,35 @@ class QGridEditBase extends CWidget
         return array(
             'condition' => "`questionaryid` = '{$this->questionary->id}'",
         );
+    }
+    
+    /**
+     * Получить список вариантов выбора для выпадающего списка
+     * @param string $type
+     * @param bool $excludeSelected - оставить в списке только те значения, которые еще не 
+     *                                добавлены к анкете 
+     *                                (чтобы нельзя было 2 раза добавить один вид спорта или язык)
+     * @return string
+     */
+    protected function getActivityOptions($type, $excludeSelected=true)
+    {
+        $selected = array();
+        if ( $excludeSelected )
+        {
+            $criteria = new CDbCriteria();
+            $criteria->index = 'value';
+            
+            $values   = QActivity::model()->forQuestionary($this->questionary->id)->withType($type)->
+                except(array('custom'))->findAll($criteria);
+            if ( $values )
+            {
+                $selected = CHtml::listData($values, 'value', 'value');
+            }
+        }
+        
+        $options = QActivityType::model()->forActivity($type)->except($selected)->findAll();
+        $options = CHtml::listData($options, 'value', 'translation');
+        
+        return ECPurifier::getSelect2Options($options);
     }
 }
