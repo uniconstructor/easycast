@@ -1,16 +1,17 @@
 <?php
 
 /**
- * Работа со значениями по умолчанию
+ * Работа со значениями по умолчанию в анкете
+ * @todo возможно стал не нужен после переписывания анкеты
+ *       Удалить при рефакторинге если не пригодится
  */
 class QManageDefaultValuesBehavior extends CActiveRecordBehavior
 {
     /**
      * Получить стандартное значение для отображения пользовтелю
-     * @param unknown $type
-     * @param unknown $value
-     * @return unknown
-     * unknown
+     * @param string $type
+     * @param string $value
+     * @return string
      */
     public function getDefaultValueForDisplay($type=null, $value=null)
     {
@@ -23,8 +24,8 @@ class QManageDefaultValuesBehavior extends CActiveRecordBehavior
             $value = $this->owner->value;
         }
         
-        $condition = '`name`=:name AND `value`=:value AND `language`=:lang';
-        $params    = array(':name' => $type, ':value' => $value, ':lang' => Yii::app()->language);
+        $condition = '`name`=:name AND `value`=:value';
+        $params    = array(':name' => $type, ':value' => $value);
         
         if ( $default = QActivityType::model()->find($condition, $params) )
         {
@@ -46,16 +47,12 @@ class QManageDefaultValuesBehavior extends CActiveRecordBehavior
         
         $criteria  = new CDbCriteria();
         $criteria->compare('`name`', $field);
-        $criteria->compare('`language`', Yii::app()->language);
+        //$criteria->compare('`language`', Yii::app()->language);
         $criteria->order = '`translation` ASC';
-        
-        //$criteria->condition = "`name`=:name AND `language`=:lang";
-        //$criteria->params = array(':name' => $field, ':lang' => Yii::app()->language);
-        
         
         if ( $chooseElement )
         {
-            $defaults[Questionary::VALUE_NOT_SET] = Yii::t('coreMessages','choose');
+            $defaults[Questionary::VALUE_NOT_SET] = Yii::t('coreMessages', 'choose');
         }
         
         if ( $variants = QActivityType::model()->findAll($criteria) )
