@@ -5,6 +5,9 @@ Yii::import('questionary.extensions.widgets.QGridEditBase.QGridEditBase');
 
 /**
  * Виджет для редактирования опыта работы в театре
+ * 
+ * @todo включить обратно возможность указывать текущее место работы
+ *       задача отложена до окончания проекта "том-модель по-пусски"
  */
 class QEditTheatres extends QGridEditBase
 {
@@ -35,7 +38,7 @@ class QEditTheatres extends QGridEditBase
     /**
      * @var array - список редактируемых полей в том порядке, в котором они идут в таблице
      */
-    public $fields = array('name', 'startyear', 'stopyear', 'currently', 'director');
+    public $fields = array('name', 'startyear', 'stopyear', 'director'); // 'currently'
     /**
      * @var string - html-id формы для ввода новой записи
      */
@@ -51,14 +54,14 @@ class QEditTheatres extends QGridEditBase
     /**
      * @var string - заголовок всплывающего окна с формой добавления новой записи
      */
-    public $modalHeader = 'Добавить театр';
+    public $modalHeader = 'Добавить';
     /**
      * @var array - список текстов-заглушек, которые отображаются в случае, когда поле не заполнено
      */
     public $emptyTextVariants = array(
         'name'      => '[не указано]',
         'startyear' => '[не указан]',
-        'stopyear'  => '[...]',
+        'stopyear'  => '[не указан]',
         'director'  => '[не указан]',
     );
     /**
@@ -90,9 +93,9 @@ class QEditTheatres extends QGridEditBase
         $js .= "\$('#{$this->modelClass}_stopyear').val('');\n";
         $js .= "\$('#{$this->modelClass}_director').val('');\n";
         // сбрасываем кнопку "да/нет" в исходное состояние
-        $js .= "\$('#{$this->modelClass}_currently').val('');\n";
-        $js .= "\$('#{$this->id}_currently_on_button').removeClass('btn-primary');\n";
-        $js .= "\$('#{$this->id}_currently_off_button').removeClass('btn-primary');\n";
+        //$js .= "\$('#{$this->modelClass}_currently').val('');\n";
+        //$js .= "\$('#{$this->id}_currently_on_button').removeClass('btn-primary');\n";
+        //$js .= "\$('#{$this->id}_currently_off_button').removeClass('btn-primary');\n";
     
         return $js;
     }
@@ -114,8 +117,9 @@ class QEditTheatres extends QGridEditBase
             $this->getYearColumnOptions('startyear'),
             // год окончания
             $this->getYearColumnOptions('stopyear'),
-            // текущее место работы
-            $this->getToggleColumnOptions('currently', '//questionary/qTheatreInstance/toggle'),
+            //  текущее место работы
+            // @todo колонка отлично работает включить все обратно когда появится время на доработку
+            //$this->getToggleColumnOptions('currently', '//questionary/qTheatreInstance/toggle'),
             // режиссер
             $this->getTextColumnOptions('director'),
         );
