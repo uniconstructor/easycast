@@ -38,7 +38,7 @@ class QEditPhotoModelJobs extends QGridEditBase
     /**
      * @var array - список редактируемых полей в том порядке, в котором они идут в таблице
      */
-    public $fields = array('job', 'year');
+    public $fields = array('name', 'year');
     /**
      * @var string - html-id формы для ввода новой записи
      */
@@ -63,7 +63,7 @@ class QEditPhotoModelJobs extends QGridEditBase
      * @var array - список текстов-заглушек, которые отображаются в случае, когда поле не заполнено
      */
     public $emptyTextVariants = array(
-        'job'  => '[не указано]',
+        'name' => '[не указано]',
         'year' => '[не указан]',
     );
     
@@ -87,7 +87,7 @@ class QEditPhotoModelJobs extends QGridEditBase
     {
         return array(
             // название мероприятия
-            $this->getTextColumnOptions('job'),
+            $this->getTextColumnOptions('name'),
             // год
             $this->getYearColumnOptions('year'),
         );
