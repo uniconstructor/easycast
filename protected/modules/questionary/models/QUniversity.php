@@ -15,7 +15,7 @@ class QUniversity extends CActiveRecord
     /**
      * @var string - тип ВУЗа: музыкальный
      */
-    const TYPE_MUSIC = 'music';
+    const TYPE_MUSIC   = 'music';
     
     /**
      * 
@@ -84,7 +84,6 @@ class QUniversity extends CActiveRecord
 	    {// запрещаем удалять ВУз если он используется хотя бы в одной анкете
 	        return false;
 	    }
-	     
 	    return parent::beforeDelete();
 	}
 
@@ -110,18 +109,15 @@ class QUniversity extends CActiveRecord
 	 */
 	public function search()
 	{
-		$criteria=new CDbCriteria;
+		$criteria = new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
-
 		$criteria->compare('type',$this->type,true);
-
 		$criteria->compare('name',$this->name,true);
-
 		$criteria->compare('link',$this->link,true);
 
 		return new CActiveDataProvider(get_class($this), array(
-			'criteria'=>$criteria,
+			'criteria' => $criteria,
 		));
 	}
 

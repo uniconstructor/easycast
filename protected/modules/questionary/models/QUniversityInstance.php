@@ -74,8 +74,9 @@ class QUniversityInstance extends CActiveRecord
 	public function behaviors()
 	{
 		return array(
+		    // сохранение поля "год"
             'QSaveYearBehavior' => array(
-                  'class' => 'questionary.extensions.behaviors.QSaveYearBehavior',
+                'class' => 'questionary.extensions.behaviors.QSaveYearBehavior',
             ),
 		    // автоматическое заполнение дат создания и изменения
 		    'CTimestampBehavior' => array(
@@ -127,16 +128,6 @@ class QUniversityInstance extends CActiveRecord
      */
     protected function beforeSave()
     {
-        if ( $this->isNewRecord )
-        {
-            $this->timecreated = time();
-            $this->timestart    = null;
-        }
-        if ( ! isset($this->workshop) OR ! $this->workshop )
-        {
-            $this->workshop = null;
-        }
-
         return parent::beforeSave();
     }
 
@@ -224,48 +215,6 @@ class QUniversityInstance extends CActiveRecord
         {
             $result[$university->id] = $university->name;
         }
-        
         return $result;
-    }
-
-    /**
-     * Данные для создания формы одного ВУЗа при помощи расширения multiModelForm
-     * Подробнее см. http://www.yiiframework.com/doc/guide/1.1/en/form.table
-     * @return array
-     * @deprecated использовалось для multimodelform, удалить при рефакторинге
-     */
-    public function formConfig()
-    {
-        return array(
-            'elements'=>array(
-                // ВУЗ (выбор из списка + возможность вводить свой)
-                'universityid'=>array(
-                    'type'    => 'ext.combobox.EJuiComboBox',
-                    'data'    => $this->getUniversityList($this->defaultType),
-                    'textFieldName' => 'name',
-                    'textFieldAttribute' => 'name',
-                    'assoc'   => true,
-                    'visible' => true,
-                ),
-                // специальность
-                'specialty'=>array(
-                    'type'      => 'text',
-                    'maxlength' => 255,
-                    'visible'   => true,
-                ),
-                // год окончания
-                'year'=>array(
-                    'type'    =>'dropdownlist',
-                    'items'   => $this->yearList(1950, date('Y', time()) + 7),
-                    'visible' => true,
-                ),
-                // мастерская
-                'workshop'=>array(
-                    'type'      => 'text',
-                    'maxlength' => 255,
-                    'visible'   => true,
-                ),
-            )
-        );
     }
 }
