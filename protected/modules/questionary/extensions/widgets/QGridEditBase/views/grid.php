@@ -4,22 +4,27 @@
  */
 /* @var $this QGridEditBase */
 
-// виджет с таблицей
+// виджет с редактируемой и дополняемой таблицей
 $grid = $this->widget('bootstrap.widgets.TbExtendedGridView', array(
-        'type'         => 'striped bordered',
-        'dataProvider' => new CActiveDataProvider($this->modelClass, array(
-            'criteria' => $this->getGridCriteria(),
-            'pagination' => false,
-        )),
-        'template'    => "{items}",
-        'columns'     => $this->getTableColumns(),
-        // @todo в виджете TbExtendedGridView невозможно задать id
-        //       Изменить селектор после того как проблема будет решена
-        'htmlOptions' => array('class' => $this->rowIdPrefix.'table grid-view'),
-        'rowHtmlOptionsExpression' => 'array("id" => "'.$this->rowIdPrefix.'".$data->id);',
-        'id' => $this->rowIdPrefix.'table',
-    )
-);
+    // таблица должна подстраиваться поэ экран при просмотре с мобильного телефона
+    'responsiveTable' => true,
+    'type'            => 'striped bordered',
+    // получаем изначальное содержимое таблицы
+    // (список вузов, виды спорта и т. д. в зависимости от того что редактируем)
+    'dataProvider' => new CActiveDataProvider($this->modelClass, array(
+        'criteria'   => $this->getGridCriteria(),
+        'pagination' => false,
+    )),
+    'template' => "{items}",
+    // получаем настройки для всех колонок таблицы
+    'columns'  => $this->getTableColumns(),
+    // @todo в виджете TbExtendedGridView невозможно задать id
+    //       Изменить селектор после того как проблема будет решена
+    //       UPD: проблема вроде как была решена обновлением Yii (ошибка оригинального GridView) нужно проверить
+    'htmlOptions' => array('class' => $this->rowIdPrefix.'table grid-view'),
+    'rowHtmlOptionsExpression' => 'array("id" => "'.$this->rowIdPrefix.'".$data->id);',
+    'id'          => $this->rowIdPrefix.'table',
+));
 
 // кнопка добавления новой записи
 $this->widget('bootstrap.widgets.TbButton', array(
