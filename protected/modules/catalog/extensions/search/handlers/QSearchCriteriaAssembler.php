@@ -24,7 +24,7 @@
  * склеивает из всех полученных критериев один большой и сложный запрос (при помощи CDbCriteria->merge())
  * 
  * @todo переместить этот класс из папки handlers в extensions/search/components
- * @todo когда-нибудь сократить длину префикса с "QSearchHandler" до "QSHandler" (переименовать все классы и данные в БД)
+ * @todo когда-нибудь сократить длину префикса с "QSearchHandler" до "QSHandler" или QSH (переименовать все классы и данные в БД)
  * @todo избавиться от поля section, вместо него передавать изначальный критерий поиска + набор фильтров
  * @todo приравнять вариант поиска по большой форме поиска к поиску по фильтрам
  * @todo создать универсальный API для сохранения сериализованных данных формы поиска и критериев поиска в БД
@@ -34,47 +34,47 @@
  *       сделать возможным извлечение не ссылок yf abkmnhs (filterInstances), а самих фильтров через relations()
  *       После этого пометить $this->filterInstances как deprecated
  */
-class QSearchCriteriaAssembler extends CComponent
+class QSearchCriteriaAssembler extends CApplicationComponent
 {
     /**
      * Изначальное условие выборки анкет, к которому добавляются все условия из фильтров
      * @var CDbCriteria 
      */
     public $startCriteria;
-    
     /**
      * @var array - массив ссылок на используемые фильтры (CatalogFilterInstance)
+     * @deprecated не используется, оставлен для совместимости, удалить при рефакторинге
      */
     public $filterInstances = array();
-    
     /**
      * @var CActiveRecord|null - объект, к которому прикреплены критерии поиска
+     *                           (если мы составляем условия для роли или раздела каталога)
      */
     public $searchObject;
-    
     /**
      * @var CatalogSection|null - раздел каталога, внутри которого производится поиск
      *                        Не используется, если нужен поиск по всей форме 
      * @deprecated 
      */
     public $section;
-    
     /**
-     * @var array - данные из формы поиска
+     * @var array - данные из формы поиска: массив, 
+     *              ключами которого являются названия фильтров поиска 
+     *              (поле shortname в таблице search_filters + префикс из QSearchFilterBase::defaultPrefix())
+     *              а значениями - сами данные фильтра
+     *              (тоже массив структура которого задается виджетом поиска)
      */
     public $data = array();
     
     /**
-     * @var bool - сохранять ли данные из формы поиска (используется почти всегда,
-     *              в основном для сохранения данных о поиске в сессию)
+     * @var bool - сохранять ли данные из формы поиска?
+     *             (происходит почти всегда, в основном для сохранения данных о поиске в сессию)
      */
     public $saveData = true;
-    
     /**
      * @var string - куда сохранить данные поиска (session/db)
      */
     public $saveTo = 'session';
-    
     /**
      * @var array - Используемые фильтры поиска.
      *              Формат: массив объектов CatalogFilter или массив строк с короткими 
@@ -89,12 +89,10 @@ class QSearchCriteriaAssembler extends CComponent
      * @var CDbCriteria - переменная для хранения промежуточного результата конструирования запроса
      */
     protected $criteria;
-    
     /**
      * @var string - путь к папке где лежат все классы-обработчики поисковых запросов
      */
     protected $pathPrefix = 'application.modules.catalog.extensions.search.handlers.';
-    
     /**
      * @var bool - параметр, определяющий, что хотя бы один из переданных поисковых критериев был использоват
      */
@@ -103,7 +101,7 @@ class QSearchCriteriaAssembler extends CComponent
     /**
      * Подготавливает компонент для работы
      * 
-     * @return null
+     * @return void
      * 
      * @todo проверить наличие обязательных параметров
      */
@@ -170,7 +168,7 @@ class QSearchCriteriaAssembler extends CComponent
     protected function importDataClasses()
     {
         // Подключаем все необходимые для поиска классы
-        
+        Yii::app()->getModule('catalog');
         // базовый класс всех поисковых обработчиков
         Yii::import($this->pathPrefix.'QSearchHandlerBase');
         // Конструктор поисковых запросов
@@ -195,7 +193,6 @@ class QSearchCriteriaAssembler extends CComponent
      */
     public function getCriteria()
     {
-        $this->init();
         foreach ( $this->filters as $filter )
         {// перебираем все используемые фильтры, и получаем критерий выборки для каждого из них
             $filterCriteria = $this->addFilterCriteria($filter);
@@ -209,9 +206,9 @@ class QSearchCriteriaAssembler extends CComponent
     }
     
     /**
-     * Получить и слить с общим результатом критерий поиска одного фильтра
+     * Получить критерий поиска одного фильтра и совместить его с остальными 
      * 
-     * @param CatalogFilter $filter - фильтр поиска из которого получается критерий (объект CDbCriteria)
+     * @param CatalogFilter $filter - фильтр поиска из которого получается поисковый критерий
      * @return null
      */
     protected function addFilterCriteria($filter)
@@ -219,6 +216,7 @@ class QSearchCriteriaAssembler extends CComponent
         $config = array(
             'class'        => $this->pathPrefix.$filter->handlerclass,
             'filter'       => $filter,
+            // передаем в виджет все данные из формы поиска, он сам найдет нужные
             'data'         => $this->data,
             'saveData'     => $this->saveData,
             'saveTo'       => $this->saveTo,
@@ -231,10 +229,10 @@ class QSearchCriteriaAssembler extends CComponent
         /* @var $handler QSearchHandlerBase */
         $handler = Yii::createComponent($config);
         if ( ! $handler->enabled() )
-        {// пользователю не разрешен поиск по этому критерию - идем дальше, даже не начинаем собирать SQL-запрос
+        {// пользователю не разрешен поиск по этому критерию или он отключен по другим причинам 
+            // идем дальше, даже не начинаем собирать SQL-запрос
             return;
         }
-        
         if ( $criteria = $handler->getCriteria() )
         {// если фильтр используется - добавляем его к общему условию
             $this->criteria->mergeWith($criteria);
@@ -273,12 +271,5 @@ class QSearchCriteriaAssembler extends CComponent
             $this->criteria->compare('status', 'active');
             $this->startCriteria = $this->criteria;
         }
-        /*elseif ( is_object($this->section) )
-        {// происходит поиск по фильтрам
-            // @todo оставлено для совместимости - удалить эту логическую ветку при рефакторинге
-            // Получаем условие поиска по разделу (к нему будут добавляться все остальные фильтры)
-            $this->startCriteria = $this->section->scope->getCombinedCriteria();
-            $this->criteria = $this->startCriteria;
-        }*/
     }
 }
