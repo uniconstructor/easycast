@@ -12,7 +12,6 @@ class QSearchFilterSalary extends QSearchFilterBaseSlider
     
     /**
      * Разрешаем поиск по цене только для админов
-     * (non-PHPdoc)
      * @see QSearchFilterBase::enabled()
      */
     public function enabled()
@@ -35,7 +34,7 @@ class QSearchFilterSalary extends QSearchFilterBaseSlider
      */
     protected function getMaxValue()
     {
-        return 75000;
+        return 70000;
     }
     
     /**
@@ -44,7 +43,7 @@ class QSearchFilterSalary extends QSearchFilterBaseSlider
      */
     protected function getStepValue()
     {
-        return 500;
+        return 250;
     }
     
     /**
