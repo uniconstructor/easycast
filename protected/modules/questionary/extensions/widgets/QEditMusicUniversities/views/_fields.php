@@ -9,8 +9,6 @@
 
 // ошибки формы
 echo $form->errorSummary(array($model), null, null, array('id' => $this->formId.'_errors'));
-// id анкеты
-echo CHtml::hiddenField('qid', $this->questionary->id);
 // ВУЗ
 echo $form->select2Row($model, 'name',  array(
     'asDropDownList' => false,
@@ -26,7 +24,7 @@ echo $form->select2Row($model, 'name',  array(
         'placeholder'          => '(Не выбран)',
         // что отправляется если ничего не выбрано
         'placeholderOption'    => '',
-        // разделители ввода (не допускаем пробел, чтобы можно было ввести )
+        // разделители ввода (не допускаем пробел, чтобы можно было ввести свой вариант)
         'tokenSeparators'      => array(',', "\n"),
         // добавляем возможность вводить несколько вариантов (нужно для добавления своего врянта)
         'multiplie'            => true,
