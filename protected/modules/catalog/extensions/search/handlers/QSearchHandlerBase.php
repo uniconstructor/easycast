@@ -18,7 +18,7 @@ class QSearchHandlerBase extends CComponent
     public $searchObject;
     /**
      * @var CatalogSection|null - раздел каталога, внутри которого производится поиск
-     *                        Не используется, если нужен поиск по всей форме
+     *                            Не используется, если нужен поиск по всей форме
      * @deprecated использовать searchObject
      */
     public $section;
@@ -28,7 +28,7 @@ class QSearchHandlerBase extends CComponent
     public $data;
     /**
      * @var bool - сохранять ли данные из формы поиска (используется почти всегда,
-     *              в основном для сохранения данных о поиске в сессию)
+     *             в основном для сохранения данных о поиске в сессию)
      */
     public $saveData = true;
     /**
@@ -53,7 +53,8 @@ class QSearchHandlerBase extends CComponent
     /**
      * Получить объект CDbCriteria для поиска по фильтру
      * (интерфекс для обращения извне, код общий для всех плагинов)
-     * Этот метод также проверяет, нужно ли составлять условие по этому запросу или нет
+     * Этот метод также проверяет, нужно ли составлять условие по этому запросу или нет,
+     * а также сохраняет данные фильтра в сессию (если происходит поиск по фильтрам, и данные постоянно обновляются)
      * 
      * @return NULL|CDbCriteria
      */
@@ -122,7 +123,7 @@ class QSearchHandlerBase extends CComponent
      */
     protected function getFilterData()
     {
-        Yii::import('application.modules.catalog.extensions.search.filters.QSearchFilterBase.QSearchFilterBase');
+        Yii::import('catalog.extensions.search.filters.QSearchFilterBase.QSearchFilterBase');
         // Получаем имя элемента в массиве, в котором должны находится данные из фильтра поиска
         $name = QSearchFilterBase::defaultPrefix().$this->filter->shortname;
         
@@ -144,14 +145,14 @@ class QSearchHandlerBase extends CComponent
         {
             return;
         }
+        Yii::import('catalog.extensions.search.filters.QSearchFilterBase.QSearchFilterBase');
         
-        Yii::import('application.modules.catalog.extensions.search.filters.QSearchFilterBase.QSearchFilterBase');
         // Получаем имя элемента в массиве, в котором должны находится данные из фильтра поиска
         $name = QSearchFilterBase::defaultPrefix().$this->filter->shortname;
         $data = $this->getFilterData();
         
         if ( $this->saveTo == 'session' )
-        {
+        {// сохраняем результат поиска в сессию
             if ( is_object($this->searchObject) )
             {
                 CatalogModule::setFilterSearchData($name, $this->searchObject->id, $data);
