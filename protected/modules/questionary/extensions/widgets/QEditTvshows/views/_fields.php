@@ -3,14 +3,12 @@
  * Список полей формы во всплывающем modal-окне
  * Структура своя для каждого виджета
  */
-/* @var $form TbActiveForm */
-/* @var $this QEditTvshows */
+/* @var $form  TbActiveForm */
+/* @var $this  QEditTvshows */
 /* @var $model QTvshowInstance */
 
 // ошибки формы
 echo $form->errorSummary(array($model), null, null, array('id' => $this->formId.'_errors'));
-// id анкеты
-echo CHtml::hiddenField('qid', $this->questionary->id);
 // название телеканала
 echo $form->textFieldRow($model, 'channelname');
 // название телепроекта
