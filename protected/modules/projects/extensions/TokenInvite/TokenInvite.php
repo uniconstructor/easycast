@@ -120,7 +120,8 @@ class TokenInvite extends CWidget
             }
         }
         foreach ( $availableVacancies as $vacancy )
-        {// перебираем все доступные участнику вакансии и составляем массив для таблицы 
+        {// перебираем все доступные участнику вакансии и составляем массив для таблицы
+            /* @var $vacancy EventVacancy */ 
             $this->widget('projects.extensions.VacancyInfo.VacancyInfo', array(
                 'vacancy'             => $vacancy,
                 'questionary'         => $this->invite->questionary,
@@ -143,10 +144,10 @@ class TokenInvite extends CWidget
     protected function createActionButtons($vacancy)
     {
         return $this->widget('projects.extensions.VacancyActions.VacancyActions', array(
-                'vacancy' => $vacancy,
-                'mode'    => 'token',
-                'invite'  => $this->invite,
-                'key'     => $this->key,
+            'vacancy' => $vacancy,
+            'mode'    => 'token',
+            'invite'  => $this->invite,
+            'key'     => $this->key,
         ), true);
     }
     
