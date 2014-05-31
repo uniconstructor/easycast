@@ -38,7 +38,7 @@ class QEditEmceeEvents extends QGridEditBase
     /**
      * @var array - список редактируемых полей в том порядке, в котором они идут в таблице
      */
-    public $fields = array('event', 'year');
+    public $fields = array('name', 'year');
     /**
      * @var string - html-id формы для ввода новой записи
     */
@@ -63,8 +63,8 @@ class QEditEmceeEvents extends QGridEditBase
      * @var array - список текстов-заглушек, которые отображаются в случае, когда поле не заполнено
      */
     public $emptyTextVariants = array(
-        'event'    => '[не указано]',
-        'year'     => '[не указан]',
+        'name'    => '[не указано]',
+        'year'    => '[не указан]',
     );
     
     /**
@@ -87,7 +87,7 @@ class QEditEmceeEvents extends QGridEditBase
     {
         return array(
             // название мероприятия
-            $this->getTextColumnOptions('event'),
+            $this->getTextColumnOptions('name'),
             // год
             $this->getYearColumnOptions('year'),
         );
