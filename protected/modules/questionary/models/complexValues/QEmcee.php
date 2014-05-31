@@ -9,6 +9,11 @@ Yii::import('application.modules.questionary.extensions.behaviors.QSaveYearBehav
 class QEmcee extends QActivity
 {
     /**
+     * @var тип деятельности по умолчанию, свой для каждого класса значения, наследуемого от QActivity
+     */
+    protected $_defaultType = 'emcee';
+    
+    /**
      * @see CActiveRecord::defaultScope()
      */
     public function defaultScope()
@@ -21,104 +26,29 @@ class QEmcee extends QActivity
     }
     
     /**
-     * @todo добавить дополнительную проверку для поля "событие"
-     * @see parent::rules()
-     * @return array
-     */
-    public function rules()
-    {
-        $rules = parent::rules();
-        // создаем новые правила проверки для полей "год" и "событие"
-        $customRules = array(
-            array('year', 'numerical', 'integerOnly'=>true),
-            array('event', 'length', 'max' => 255 ),
-            array('event', 'required'),
-        );
-        return CMap::mergeArray($rules, $customRules);
-    }
-
-    /**
      * @return array customized attribute labels (name=>label)
      */
     public function attributeLabels()
     {
-        return array(
-            'event' => QuestionaryModule::t('emcee_event_label'),
+        $labels    = parent::attributeLabels();
+        $newLabels = array(
+            'name'      => QuestionaryModule::t('emcee_event_label'),
+            'event'     => QuestionaryModule::t('emcee_event_label'),
             'uservalue' => QuestionaryModule::t('emcee_event_label'),
-            'year' => QuestionaryModule::t('year_label'),
-            );
-
+            'year'      => QuestionaryModule::t('year_label'),
+        );
+        return CMap::mergeArray($labels, $newLabels);
     }
-
-    /**
-     * @see parenr::beforeSave()
-     * @return bool
-     */
-    protected function beforeSave()
-    {
-        if ( $this->isNewRecord )
-        {
-            $this->type        = 'emcee';
-            $this->value       = null;
-            $this->level       = null;
-            $this->timestart   = null;
-        }
-
-        return parent::beforeSave();
-    }
-
+    
     /**
      * @see QActivity::behaviors()
      */
     public function behaviors()
     {
-        return array('QSaveYearBehavior',
-                     array('class' => 'application.modules.questionary.extensions.behaviors.QSaveYearBehavior'),
-        );
-    }
-
-    /**
-     * Получить мероприятие ведущего
-     * @return mixed
-     */
-    public function getEvent()
-    {
-        return $this->uservalue;
-    }
-
-    /**
-     * Установить мероприятие ведущего
-     * @param $event
-     */
-    public function setEvent($event)
-    {
-        $this->uservalue = $event;
-    }
-    
-    /**
-     * Данные для создания формы одного экземпляра события при помощи расширения multiModelForm
-     * Подробнее см. http://www.yiiframework.com/doc/guide/1.1/en/form.table
-     * @return array
-     * 
-     * @deprecated
-     */
-    public function formConfig()
-    {
         return array(
-            'elements'=>array(
-
-                'event'=>array(
-                    'type'      => 'text',
-                    'maxlength' => 255,
-                    'visible'   => true,
-                ),
-
-                'year'=>array(
-                    'type'    =>'dropdownlist',
-                    //it is important to add an empty item because of new records
-                    'items'   => $this->yearList(),
-                    'visible' => true,
-                ),
-            ));
+            'QSaveYearBehavior' => array(
+                'class' => 'questionary.extensions.behaviors.QSaveYearBehavior',
+            ),
+        );
     }
 }

@@ -8,7 +8,11 @@ Yii::import('application.modules.questionary.models.QActivity');
 class QTwin extends QActivity
 {
     /**
-     * (non-PHPdoc)
+     * @var тип деятельности по умолчанию, свой для каждого класса значения, наследуемого от QActivity
+     */
+    protected $_defaultType = 'twin';
+    
+    /**
      * @see CActiveRecord::defaultScope()
      */
     public function defaultScope()
@@ -17,32 +21,5 @@ class QTwin extends QActivity
             'alias'     => "twinlist",
             'condition' => "`twinlist`.`type`='twin'",
         );
-    }
-    
-    /**
-     * @see parent::rules()
-     * @return array
-     */
-    public function rules()
-    {
-        $rules = parent::rules();
-
-        $customRules = array(
-                        array('name', 'length', 'max'=>255 ),
-        );
-        return CMap::mergeArray($rules, $customRules);
-    }
-
-    public function getName()
-    {
-        return $this->Uservalue;
-    }
-
-    public function setName($name)
-    {
-        if ( $this->value == 'custom' )
-        {
-            $this->uservalue = strip_tags($name);
-        }
     }
 }

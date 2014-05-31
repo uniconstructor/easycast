@@ -8,7 +8,11 @@ Yii::import('application.modules.questionary.models.QActivity');
 class QTrick extends QActivity
 {
     /**
-     * (non-PHPdoc)
+     * @var тип деятельности по умолчанию, свой для каждого класса значения, наследуемого от QActivity
+     */
+    protected $_defaultType = 'trick';
+    
+    /**
      * @see CActiveRecord::defaultScope()
      */
     public function defaultScope()
@@ -17,45 +21,5 @@ class QTrick extends QActivity
             'alias'     => "tricks",
             'condition' => "`tricks`.`type`='trick'",
         );
-    }
-    
-    /**
-     * @see parent::rules()
-     * @return array
-     */
-    public function rules()
-    {
-        $rules = parent::rules();
-
-        $customRules = array(
-                        array('name', 'length', 'max'=>255 ),
-        );
-        return CMap::mergeArray($rules, $customRules);
-    }
-
-    public function getName()
-    {
-        if ( $this->value == 'custom' )
-        {
-            return $this->Uservalue;
-        }
-        
-        if ( $this->scenario == 'view' )
-        {
-            return $this->getDefaultValueForDisplay();
-        }
-        
-        return $this->value;
-    }
-
-    public function setName($name)
-    {
-        if ( $this->value == 'custom' )
-        {
-            $this->uservalue = strip_tags($name);
-        }else
-       {
-           $this->value = strip_tags($name);
-        }
     }
 }

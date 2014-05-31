@@ -9,7 +9,11 @@ Yii::import('application.modules.questionary.extensions.behaviors.QSaveYearBehav
 class QModelJob extends QActivity
 {
     /**
-     * (non-PHPdoc)
+     * @var тип деятельности по умолчанию, свой для каждого класса значения, наследуемого от QActivity
+     */
+    protected $_defaultType = 'modeljob';
+    
+    /**
      * @see CActiveRecord::defaultScope()
      */
     public function defaultScope()
@@ -30,10 +34,8 @@ class QModelJob extends QActivity
         $rules = parent::rules();
         // создаем новые правила проверки для полей "год" и "событие"
         $customRules = array(
-            array('year', 'numerical', 'integerOnly'=>true),
-            
-            array('job', 'length', 'max'=>255 ),
-            array('job', 'filter', 'filter'=>'trim'),
+            array('job', 'length', 'max' => 255 ),
+            array('job', 'filter', 'filter' => 'trim'),
             array('job', 'required'),
         );
         return CMap::mergeArray($rules, $customRules);
@@ -44,35 +46,27 @@ class QModelJob extends QActivity
      */
     public function attributeLabels()
     {
-        return array(
-            'job'    => QuestionaryModule::t('model_job_label'),
-            'year'   => QuestionaryModule::t('year_label'),
+        $labels    = parent::attributeLabels();
+        $newLabels = array(
+            'job'  => QuestionaryModule::t('model_job_label'),
+            'name' => QuestionaryModule::t('model_job_label'),
+            'year' => QuestionaryModule::t('year_label'),
         );
-
+        return CMap::mergeArray($labels, $newLabels);
     }
 
     /**
-     * @see parenr::beforeSave()
-     * @return bool
+     * @see QActivity::behaviors()
      */
-    protected function beforeSave()
-    {
-        if ( $this->isNewRecord )
-        {
-            $this->type        = 'modeljob';
-            $this->value       = null;
-            $this->level       = null;
-            $this->timestart   = null;
-        }
-
-        return parent::beforeSave();
-    }
-
     public function behaviors()
     {
-        return array('QSaveYearBehavior',
-                     array('class' => 'application.modules.questionary.extensions.behaviors.QSaveYearBehavior'),
+        $parentBehaviors = parent::behaviors();
+        $newBehaviors    = array(
+            'QSaveYearBehavior' => array(
+                'class' => 'questionary.extensions.behaviors.QSaveYearBehavior'
+            ),
         );
+        return CMap::mergeArray($parentBehaviors, $newBehaviors);
     }
 
     /**
@@ -91,30 +85,5 @@ class QModelJob extends QActivity
     public function setjob($event)
     {
         $this->uservalue = $event;
-    }
-
-    /**
-     * Данные для создания формы одного экземпляра события при помощи расширения multiModelForm
-     * Подробнее см. http://www.yiiframework.com/doc/guide/1.1/en/form.table
-     * @return array
-     */
-    public function formConfig()
-    {
-        return array(
-            'elements'=>array(
-
-                'job'=>array(
-                    'type'      => 'text',
-                    'maxlength' => 255,
-                    'visible'   => true,
-                ),
-
-                'year'=>array(
-                    'type'    =>'dropdownlist',
-                    //it is important to add an empty item because of new records
-                    'items'   => $this->yearList(),
-                    'visible' => true,
-                ),
-            ));
     }
 }

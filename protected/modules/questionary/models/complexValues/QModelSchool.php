@@ -9,7 +9,11 @@ Yii::import('application.modules.questionary.extensions.behaviors.QSaveYearBehav
 class QModelSchool extends QActivity
 {
     /**
-     * (non-PHPdoc)
+     * @var тип деятельности по умолчанию, свой для каждого класса значения, наследуемого от QActivity
+     */
+    protected $_defaultType = 'modelschool';
+    
+    /**
      * @see CActiveRecord::defaultScope()
      */
     public function defaultScope()
@@ -44,40 +48,32 @@ class QModelSchool extends QActivity
      */
     public function attributeLabels()
     {
-        return array(
+        $labels    = parent::attributeLabels();
+        $newLabels = array(
             'school' => QuestionaryModule::t('model_school_label'),
+            'name'   => QuestionaryModule::t('model_school_label'),
             'year'   => QuestionaryModule::t('year_label'),
         );
-
+        return CMap::mergeArray($labels, $newLabels);
     }
-
+    
     /**
-     * @see parenr::beforeSave()
-     * @return bool
+     * @see QActivity::behaviors()
      */
-    protected function beforeSave()
-    {
-        if ( $this->isNewRecord )
-        {
-            $this->type        = 'modelschool';
-            $this->value       = null;
-            $this->level       = null;
-            $this->timestart   = null;
-        }
-
-        return parent::beforeSave();
-    }
-
     public function behaviors()
     {
-        return array('QSaveYearBehavior',
-                     array('class' => 'application.modules.questionary.extensions.behaviors.QSaveYearBehavior'),
+        $parentBehaviors = parent::behaviors();
+        $newBehaviors    = array(
+            'QSaveYearBehavior' => array(
+                'class' => 'questionary.extensions.behaviors.QSaveYearBehavior',
+            ),
         );
+        return CMap::mergeArray($parentBehaviors, $newBehaviors);
     }
 
     /**
-     * Получить мероприятие ведущего
      * @return mixed
+     * @deprecated
      */
     public function getschool()
     {
@@ -85,36 +81,11 @@ class QModelSchool extends QActivity
     }
 
     /**
-     * Установить мероприятие ведущего
-     * @param $event
+     * @param $school
+     * @deprecated
      */
-    public function setschool($event)
+    public function setschool($school)
     {
-        $this->uservalue = $event;
-    }
-
-    /**
-     * Данные для создания формы одного экземпляра события при помощи расширения multiModelForm
-     * Подробнее см. http://www.yiiframework.com/doc/guide/1.1/en/form.table
-     * @return array
-     */
-    public function formConfig()
-    {
-        return array(
-            'elements'=>array(
-
-                'school'=>array(
-                    'type'      => 'text',
-                    'maxlength' => 255,
-                    'visible'   => true,
-                ),
-
-                'year'=>array(
-                    'type'    =>'dropdownlist',
-                    //it is important to add an empty item because of new records
-                    'items'   => $this->yearList(),
-                    'visible' => true,
-                ),
-            ));
+        $this->uservalue = $school;
     }
 }
