@@ -2,23 +2,17 @@
 /**
  * Форма анкеты участника
  * 
- * @var QuestionaryController $this
- * @var Questionary $questionary
- * @var TbActiveForm $form
- * 
- * @todo не отображается список ошибок в конце формы
+ * @todo использовать на этой странице модель динамической формы анкеты, а не самой анкеты 
  */
 /* @var $form TbActiveForm  */
-// Подключаем расширения для полей формы
+/* @var $questionary Questionary */
+/* @var $this QuestionaryController */
 
-// Выбор даты по календарю
-// @todo этот виджет устарел - удалить все его упоминания при рефакторинге
-//       (табличку с его названием позорно разбить об угол, прах развеять по ветру и навсегда предать забвению)
-Yii::import('ext.ActiveDateSelect');
 // Выбор страны и города
 Yii::import('ext.CountryCitySelectorRu.*');
 
 // Загружаем дополнительные стили для формы:
+// @todo удалить файл эти стили после переработки верстки анкеты, так как они станут не нужны 
 $assetsUrl = CHtml::asset($this->module->basePath . DIRECTORY_SEPARATOR . 'assets');
 Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 
     'questionary-form.css');
@@ -31,7 +25,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
     // создаем объект виджета для выбора страны и города
     $countryConfig['country']['default'] = 'RU';
     $countryConfig['country']['topKeys'] = array('RU','UA','BY');
-    if ( $questionary->isFirstSave() AND Yii::app()->user->isSuperuser )
+    if ( $questionary->isFirstSave() AND Yii::app()->user->checkAccess('Admin') )
     {// устанавливаем Москву городом по умолчанию для админов
         $countryConfig['city']['default'] = '4400';
     }
@@ -53,7 +47,6 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
             'validateOnSubmit' => true,
             'validateOnChange' => true,
         ),
-        //'htmlOptions' => array('class' => 'well'),
     ));
 
     // Устанавливаем правила для отображения/скрытия разделов формы
@@ -124,14 +117,12 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
     // Все поля скрываются при помощи JS, чтобы форма работала и была видна полностью даже при отключенных скриптах
 
     // Элементы которые возможно надо скрыть
-    $hidedFormSubSections = array('newhaircolor', 'actoruniversities', 'films', 'films_part', 'emceelist', 'parodist',
-              'twin', 'modelschools', 'modeljobs', 'photomodeljobs', 'promomodeljobs',
-              'dancetypes', 'stripdata', 'vocaltypes', 'voicetimbres', 'singlevel', 'instruments',
-              'sporttypes', 'extremaltypes', 'skills', 'tricks', 'languages', 'inshurancecardnum',
-              'passportexpires', 'awards', 'musicuniversities', 'titsize', 'tvshows', 'amateuractor',
-              'actortheatres');
-    // Элементы которые возможно надо свернуть
-    //$collapsedFormSubSections = array('addchars');
+    $hidedFormSubSections = array('newhaircolor', 'actoruniversities', 'films', 'films_part', 
+        'emceelist', 'parodist', 'twin', 'modelschools', 'modeljobs', 'photomodeljobs', 'promomodeljobs',
+        'dancetypes', 'stripdata', 'vocaltypes', 'voicetimbres', 'singlevel', 'instruments',
+        'sporttypes', 'extremaltypes', 'skills', 'tricks', 'languages', 'inshurancecardnum',
+        'passportexpires', 'awards', 'musicuniversities', 'titsize', 'tvshows', 'amateuractor',
+        'actortheatres');
     
     foreach ( $hidedFormSubSections as $subSection )
     {// Скрываем все поля которые надо скрыть
@@ -166,21 +157,15 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
     );
     ?>
 	<p class="note">
-        <?php echo Yii::t('coreMessages', 'form_required_fields', array('{mark}' => '<span class="required">*</span>')); ?>
+        <?= Yii::t('coreMessages', 'form_required_fields', array('{mark}' => '<span class="required">*</span>')); ?>
     </p>
 	<?php 
 	
 	echo $form->errorSummary($questionary, null, null, array('id' => 'questionary-form-upper-es')); 
 	
-    // id анкеты
-    // @todo возможно не понадобится, удалить при рефакторинге
-    echo CHtml::hiddenField('qid', $questionary->id);
-    
-    // рейтинг анкеты (выставляется только администрацией)
-    if ( Yii::app()->user->isSuperuser )
-    {
+    if ( Yii::app()->user->checkAccess('Admin') )
+    {// рейтинг анкеты (выставляется только администраторами)
         echo $form->dropDownListRow($questionary,'rating', $questionary->getFieldVariants('rating'));
-        echo $form->error($questionary,'rating');
     }
     ?>
 
@@ -190,32 +175,30 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         <i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('base_information'); ?></a>
     </legend>
 
-        <?php echo $form->textFieldRow($questionary,'lastname',array('size' => 60,'maxlength' => 128)); ?>
-        <?php echo $form->textFieldRow($questionary,'firstname',array('size' => 60,'maxlength' => 128)); ?>
-        <?php echo $form->textFieldRow($questionary,'middlename',array('size' => 60,'maxlength' => 128)); ?>
+        <?= $form->textFieldRow($questionary, 'lastname', array('size' => 60,'maxlength' => 128)); ?>
+        <?= $form->textFieldRow($questionary, 'firstname', array('size' => 60,'maxlength' => 128)); ?>
+        <?= $form->textFieldRow($questionary, 'middlename', array('size' => 60,'maxlength' => 128)); ?>
     
         <?php 
         // дата рождения
-        echo $form->datepickerRow($questionary,
-            'formattedBirthDate', array(
+        echo $form->datepickerRow($questionary, 'formattedBirthDate', array(
                 'options' => array(
                     'language'  => 'ru',
                     'format'    => 'dd.mm.yyyy',
                     'startView' => 'decade',
                     'weekStart' => 1,
                     'startDate' => '-75y',
-                    'endDate'   => '-1y',
+                    'endDate'   => '-18y',
                     'autoclose' => true,
                 ),
             ),
             array(
-                'hint'    => 'Нажмите на название месяца или на год, чтобы изменить его',
                 'prepend' => '<i class="icon-calendar"></i>'
             )
         );
         ?>
         
-        <label><?php echo QuestionaryModule::t('playage_label'); ?></label>
+        <label><?= QuestionaryModule::t('playage_label'); ?></label>
         <div class="form-inline qform_subsection">
             <?php echo $form->textFieldRow($questionary,'playagemin', array('maxlength'=>3, 'style'=>'width:30px;')); ?>
             <?php echo $form->textFieldRow($questionary,'playagemax', array('maxlength'=>3, 'style'=>'width:30px;')); ?>
@@ -260,14 +243,16 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
 	        <i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('looks'); ?></a>
         </legend>
 
-        <?php echo $form->labelEx($questionary,'photos'); ?>
+        <?php echo $form->labelEx($questionary, 'photos'); ?>
         <?php
         // Рекомендации по добавлению фотографий
-        $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+        $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
                 array('field' => 'photos'));
         
         if ( $questionary->galleryBehavior->getGallery() === null )
-        {
+        {// @todo эта ветка никогда не выполнится потому что анкета уже давно не может быть создана сама по себе
+            // она создается автоматически и только вместе с пользователем
+            // Нужно убрать это условие и проверить что все в порядке
             echo '<div class="alert">Сохраните анкету перед загрузкой фотографий</div>';
         }else
         {
@@ -293,34 +278,23 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
             ?>
         </fieldset>
         
-		<?php // тип внешности
-		    echo $form->dropDownListRow($questionary,'looktype', $questionary->getFieldVariants('looktype'));
-		?>
-		
-		<?php // страна рождения
-		    echo $form->labelEx($questionary,'nativecountryid'); 
-		    echo $countrySelector->countryActiveField('nativecountryid', $questionary); 
-		    echo $form->error($questionary,'nativecountryid'); 
-		?>
-
-		<?php echo $form->dropDownListRow($questionary,'haircolor', $questionary->getFieldVariants('haircolor')); ?>
-		<?php echo $form->dropDownListRow($questionary,'hairlength', $questionary->getFieldVariants('hairlength')); ?>
-		<?php echo $form->dropDownListRow($questionary,'eyecolor', $questionary->getFieldVariants('eyecolor')); ?>
-		<?php echo $form->dropDownListRow($questionary,'physiquetype', $questionary->getFieldVariants('physiquetype')); ?>
+		<?php echo $form->dropDownListRow($questionary, 'looktype', $questionary->getFieldVariants('looktype')); ?>
+		<?php echo $form->dropDownListRow($questionary, 'haircolor', $questionary->getFieldVariants('haircolor')); ?>
+		<?php echo $form->dropDownListRow($questionary, 'hairlength', $questionary->getFieldVariants('hairlength')); ?>
+		<?php echo $form->dropDownListRow($questionary, 'eyecolor', $questionary->getFieldVariants('eyecolor')); ?>
+		<?php echo $form->dropDownListRow($questionary, 'physiquetype', $questionary->getFieldVariants('physiquetype')); ?>
 		
         <div>
         <fieldset id="addchars" class="qform_subsection">
             <legend id="addchars_label" class="qform_subsection_label">
-                <?php echo QuestionaryModule::t('addchar_label'); ?>
+                <?= QuestionaryModule::t('addchar_label'); ?>
             </legend>
-            <?php 
-                $this->widget('questionary.extensions.QEditAddChars.QEditAddChars',
-                     array(
-                        'data'           => $questionary->getFieldVariants('addchar', false),
-                        'SelectedValues' => $questionary->addchars,
-                     ));
+            <?php
+            // список особенностей внешности и доп. характеристик
+            $this->widget('questionary.extensions.widgets.QEditAddChars.QEditAddChars', array(
+                'questionary'   => $questionary,
+            ));
             ?>
-            <?php echo $form->error($questionary,'addchar'); ?>
         </fieldset>
         </div>
 
@@ -334,29 +308,16 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
     <div>
         <div id="titsize">
             <?php echo $form->dropDownListRow($questionary, 'titsize', $questionary->getFieldVariants('titsize')); ?>
-            <?php echo $form->error($questionary,'titsize'); ?>
         </div>
     </div>
 
-    <div class="control-group">
-        <?php 
-        // татуировки
-        echo $form->labelEx($questionary, 'hastatoo', array('class' => 'control-label'));
-        ?>
-        <div class="controls">
-        <?php
-        $form->widget('ext.ECMarkup.ECToggleInput.ECToggleInput', array(
-            'model'     => $questionary,
-            'attribute' => 'hastatoo',
-            'onLabel'   => 'Да',
-            'onValue'   => '1',
-            'offLabel'  => 'Нет',
-            'offValue'  => '0',
-        ));
-        echo $form->error($questionary, 'hastatoo');
-        ?>
-        </div>
-    </div>
+    <?php 
+    // есть ли у вас татуировки?
+    echo $form->widgetRow('ext.ECMarkup.ECToggleInput.ECToggleInput', array(
+        'model'     => $questionary,
+        'attribute' => 'hastatoo',
+    ));
+    ?>
     <hr>
 	</fieldset>
 
@@ -396,7 +357,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
             <legend class="qform_subsection_label"><?php echo QuestionaryModule::t('actor_universities_label'); ?></legend>
             <?php
             // пояснение для списка учебных заведений
-            $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+            $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
                 array('field' => 'actoruniversity')
             );
             // список театральных ВУЗов
@@ -490,7 +451,6 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         <fieldset id="actortheatres" class="qform_subsection">
             <legend class="qform_subsection_label"><?php echo QuestionaryModule::t('theatres'); ?></legend>
             <?php
-            //echo $form->errorSummary($validatedActorTheatres);
             // пояснение для списка театров
             $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
                 array('field' => 'actortheatres')
@@ -561,7 +521,8 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         ));
     
     $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-        array('field' => 'istvshowmen'));
+        array('field' => 'istvshowmen')
+    );
     ?>
 	
     <div>
@@ -594,14 +555,10 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
 	<fieldset id="parodist" class="qform_subsection">
     	<?php 
     	// список образов для пародиста
-    	$this->widget('questionary.extensions.QEditParodistList.QEditParodistList', array(
-        	    'SelectedValues' => $questionary->parodistlist,
-        	    'textFieldLabel' => QuestionaryModule::t('parodist_images'),
-        	    'hideSelect'     => 'asmSelect1',
-        	 )
-    	 );
-    	?>
-    	<?php echo $form->error($questionary,'parodist'); ?>
+    	$this->widget('questionary.extensions.widgets.QEditParodistList.QEditParodistList', array(
+    	    'questionary' => $questionary,
+    	));
+        ?>
 	</fieldset>
     </div>
 
@@ -611,25 +568,23 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         'model'     => $questionary,
         'attribute' => 'istwin',
         'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
-              'after_on'  => 'js:function () {$("#twin").fadeIn(200);}',
-              'after_off' => 'js:function () {$("#twin").fadeOut(200);}'))
+            'after_on'  => 'js:function () {$("#twin").fadeIn(200);}',
+            'after_off' => 'js:function () {$("#twin").fadeOut(200);}'))
         ));
         
     $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-        array('field' => 'istwin'));
+        array('field' => 'istwin')
+    );
     ?>
 	
     <div>
 	<fieldset id="twin" class="qform_subsection">
     	<?php 
     	// список образов двойника
-    	$this->widget('questionary.extensions.QEditTwinList.QEditTwinList', array(
-    	    'SelectedValues' => $questionary->twinlist,
-    	    'textFieldLabel' => QuestionaryModule::t('twin_images'),
-    	    'hideSelect'     => 'asmSelect2',
+    	$this->widget('questionary.extensions.widgets.QEditTwinList.QEditTwinList', array(
+    	    'questionary' => $questionary,
     	));
     	?>
-    	<?php echo $form->error($questionary, 'twin'); ?>
 	</fieldset>
     </div>
 
@@ -639,9 +594,9 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         'model'     => $questionary,
         'attribute' => 'ismodel',
         'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
-              'after_on'  => 'js:function () {$("#modelschools").fadeIn(200);$("#modeljobs").fadeIn(200);}',
-              'after_off' => 'js:function () {$("#modelschools").fadeOut(200);$("#modeljobs").fadeOut(200);}'))
-           ));
+            'after_on'  => 'js:function () {$("#modelschools").fadeIn(200);$("#modeljobs").fadeIn(200);}',
+            'after_off' => 'js:function () {$("#modelschools").fadeOut(200);$("#modeljobs").fadeOut(200);}'))
+        ));
     // пояснение для моделей
     $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
         array('field' => 'ismodel')
@@ -674,8 +629,8 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         'model'     => $questionary,
         'attribute' => 'isphotomodel',
         'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
-                'after_on'  => 'js:function () {$("#photomodeljobs").fadeIn(200);}',
-                'after_off' => 'js:function () {$("#photomodeljobs").fadeOut(200);}'))
+            'after_on'  => 'js:function () {$("#photomodeljobs").fadeIn(200);}',
+            'after_off' => 'js:function () {$("#photomodeljobs").fadeOut(200);}'))
         ));
     $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
         array('field' => 'isphotomodel')
@@ -697,9 +652,9 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         'model'     => $questionary,
         'attribute' => 'ispromomodel',
         'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
-              'after_on'  => 'js:function () {$("#promomodeljobs").fadeIn(200);}',
-              'after_off' => 'js:function () {$("#promomodeljobs").fadeOut(200);}'))
-           ));
+            'after_on'  => 'js:function () {$("#promomodeljobs").fadeIn(200);}',
+            'after_off' => 'js:function () {$("#promomodeljobs").fadeOut(200);}'))
+        ));
         $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
             array('field' => 'ispromomodel'));
     ?>
@@ -721,9 +676,9 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         'model'     => $questionary,
         'attribute' => 'isdancer',
         'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
-              'after_on'  => 'js:function () {$("#dancetypes").fadeIn(200);}',
-              'after_off' => 'js:function () {$("#dancetypes").fadeOut(200);}'))
-           ));
+            'after_on'  => 'js:function () {$("#dancetypes").fadeIn(200);}',
+            'after_off' => 'js:function () {$("#dancetypes").fadeOut(200);}'))
+        ));
         
         $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
                 array('field' => 'isdancer')
@@ -748,9 +703,9 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         'model'     => $questionary,
         'attribute' => 'isstripper',
         'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
-              'after_on'  => 'js:function () {$("#stripdata").fadeIn(200);}',
-              'after_off' => 'js:function () {$("#stripdata").fadeOut(200);}'))
-           ));
+            'after_on'  => 'js:function () {$("#stripdata").fadeIn(200);}',
+            'after_off' => 'js:function () {$("#stripdata").fadeOut(200);}'))
+        ));
     ?>
     
     <div>
@@ -797,33 +752,25 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
 	<fieldset id="vocaltypes" class="qform_subsection">
 	    <?php
 	    // тип вокала
-	    echo $form->labelEx($questionary,'type');
-    	$this->widget(
-    	'questionary.extensions.QEditVocalTypes.QEditVocalTypes',
-        	 array(
-        	    'data'           => $questionary->getFieldVariants('vocaltype', false),
-        	    'SelectedValues' => $questionary->vocaltypes,
-        	 ));
-    	echo $form->error($questionary,'vocaltype');
+	    // echo $form->labelEx($questionary, 'type');
+	    $this->widget('questionary.extensions.widgets.QEditVocalTypes.QEditVocalTypes', array(
+            'questionary' => $questionary,
+        ));
     	?>
 	</fieldset>
 
     <fieldset id="voicetimbres" class="qform_subsection">
 	    <?php
-	    // тембр голоса 
-	    echo $form->labelEx($questionary, 'voicetimbre');
-    	$this->widget('questionary.extensions.QEditVoiceTimbres.QEditVoiceTimbres',
-        	 array(
-        	    'data'           => $questionary->getFieldVariants('voicetimbre', false),
-        	    'SelectedValues' => $questionary->voicetimbres,
-        	 )
-        );
-    	echo $form->error($questionary,'voicetimbre'); ?>
+	    // тембр голоса
+	    // echo $form->labelEx($questionary, 'voicetimbre');
+	    $this->widget('questionary.extensions.widgets.QEditVoiceTimbres.QEditVoiceTimbres', array(
+            'questionary' => $questionary,
+        ));
+    	?>
 	</fieldset>
 
     <div id="singlevel" class="qform_subsection">
         <?php echo $form->dropDownListRow($questionary,'singlevel', $questionary->getFieldVariants('level')); ?>
-        <?php echo $form->error($questionary,'singlevel'); ?>
     </div>
     </div>
 
@@ -871,15 +818,14 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
             <?php echo QuestionaryModule::t('music_universities_label'); ?>
         </legend>
         <?php
-        $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-            array('field' => 'musicuniversity'));
-        
+        $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+            array('field' => 'musicuniversity')
+        );
         // список музыкальных ВУЗов
         // Отображается если указан пункт "вокал" или "музыкант"
         $this->widget('questionary.extensions.widgets.QEditMusicUniversities.QEditMusicUniversities', array(
-                'questionary' => $questionary,
-            )
-        );
+            'questionary' => $questionary,
+        ));
         ?>
     </fieldset>
     </div>
@@ -896,7 +842,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
             ),
         )
     );
-    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+    $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
         array('field' => 'issportsman')
     );
     ?>
@@ -905,14 +851,9 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
 	<fieldset id="sporttypes" class="qform_subsection">
     	<?php 
     	// виды спорта
-    	$this->widget(
-    	'application.modules.questionary.extensions.QEditSportTypes.QEditSportTypes', array(
-        	    'data'           => $questionary->getFieldVariants('sporttype', false),
-        	    'SelectedValues' => $questionary->sporttypes,
-        	    'textFieldLabel' => 'Другие виды спорта:',
-        	 )
-        );
-    	echo $form->error($questionary,'sporttype');
+    	$this->widget('questionary.extensions.widgets.QEditSportTypes.QEditSportTypes', array(
+	        'questionary' => $questionary,
+	    ));
     	?>
 	</fieldset>
     </div>
@@ -927,7 +868,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
               'after_off' => 'js:function () {$("#extremaltypes").fadeOut(200);}'))
         )
     );
-    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+    $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
         array('field' => 'isextremal')
     );
     ?>
@@ -936,14 +877,9 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
 	<fieldset id="extremaltypes" class="qform_subsection">
     	<?php 
     	// экстремальные виды спорта
-    	$this->widget(
-    	   'application.modules.questionary.extensions.QEditExtremalTypes.QEditExtremalTypes', array(
-        	    'data'           => $questionary->getFieldVariants('extremaltype', false),
-        	    'SelectedValues' => $questionary->extremaltypes,
-        	    'textFieldLabel' => 'Другие виды спорта:',
-        	 )
-        );
-    	echo $form->error($questionary, 'extremaltype');
+    	$this->widget('questionary.extensions.widgets.QEditExtremalTypes.QEditExtremalTypes', array(
+    	    'questionary' => $questionary,
+    	));
     	?>
 	</fieldset>
     </div>
@@ -956,7 +892,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
             'options'   => $toggleBoxJsOptions
         )
     );
-    $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+    $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
         array('field' => 'isathlete'));
     ?>
 
@@ -977,14 +913,9 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
 	<fieldset id="skills" class="qform_subsection">
     	<?php 
     	// умения и навыки
-    	$this->widget(
-    	   'application.modules.questionary.extensions.QEditSkills.QEditSkills', array(
-        	    'data'           => $questionary->getFieldVariants('skill', false),
-        	    'SelectedValues' => $questionary->skills,
-        	    'textFieldLabel' => 'Другие умения:',
-        	 )
-        );
-    	echo $form->error($questionary,'skill');
+    	$this->widget('questionary.extensions.widgets.QEditSkills.QEditSkills', array(
+    	    'questionary' => $questionary,
+    	));
     	?>
 	</fieldset>
     </div>
@@ -1007,16 +938,9 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
 	<fieldset id="tricks" class="qform_subsection">
     	<?php 
     	// список трюков для каскадера
-    	$this->widget(
-    	'application.modules.questionary.extensions.QEditTricks.QEditTricks',
-        	 array(
-        	    'data'           => $questionary->getFieldVariants('trick', false),
-        	    'SelectedValues' => $questionary->tricks,
-        	    'textFieldLabel' => 'Выполняемые трюки:',
-        	    'hideSelect'     => 'asmSelect8',
-        	 )
-        );
-    	echo $form->error($questionary, 'trick');
+    	$this->widget('questionary.extensions.widgets.QEditTricks.QEditTricks', array(
+    	    'questionary' => $questionary,
+    	));
     	?>
 	</fieldset>
     </div>
@@ -1072,84 +996,6 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
     <hr>
 	</fieldset>
 
-	<fieldset id="passportdata_part">
-	    <legend id="passportdata_part_label">
-	        <a class="btn btn-large btn-warning">
-	           <i class="icon-chevron-down"></i>&nbsp;<?= QuestionaryModule::t('passport_data'); ?>
-           </a>
-	    </legend>
-    	<?php
-	    $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription',
-	        array('field' => 'passportdata'));
-    	?>
-		<?php echo $form->textFieldRow($questionary,'passportserial',array('size'=>10,'maxlength'=>10)); ?>
-		<?php echo $form->textFieldRow($questionary,'passportnum',array('size'=>10,'maxlength'=>10)); ?>
-	
-		<?php 
-		// дата выдачи загранпаспорта
-		echo $form->labelEx($questionary,'passportdate');
-		$this->widget('ext.ActiveDateSelect',
-		array(
-		    'model'         => $questionary,
-		    'attribute'     => 'passportdate',
-		    'reverse_years' => false,
-		    'field_order'   => 'DMY',
-		    'start_year'    => date("Y", time() - 40 * 365 * 24 * 3600),
-		    'end_year'      => date("Y", time()),
-		));
-		echo $form->error($questionary,'passportdate');
-		
-		// кем выдан паспорт
-		echo $form->textFieldRow($questionary, 'passportorg', array('maxlength' => 255));
-        
-		// Имеется ли медицинская страховка
-        $this->widget('ext.EToggleBox.EToggleBox', array(
-            'model'     => $questionary,
-            'attribute' => 'hasinshurancecard',
-            'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
-                  'after_on'  => 'js:function () {$("#inshurancecardnum").fadeIn(200);}',
-                  'after_off' => 'js:function () {$("#inshurancecardnum").fadeOut(200);}'))
-             ));
-        // пояснение про медицинскую страховку
-        $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-            array('field' => 'hasinshurancecard'));
-        ?>
-
-        <div>
-            <div id="inshurancecardnum">
-                <?php
-                // номер медицинской страховки 
-                echo $form->textFieldRow($questionary, 'inshurancecardnum', array('size' => 60,'maxlength' => 128));
-                ?>
-            </div>
-        </div>
-        
-        <?php echo $form->textFieldRow($questionary, 'inn', array('size' => 32,'maxlength' => 32)); ?>
-	
-	<h4><?php echo QuestionaryModule::t('address'); ?></h4>
-        
-		<?php echo $form->textFieldRow($address, 'postalcode', array('size' => 10, 'maxlength' => 10)); ?>
-
-		<?php echo $form->labelEx($address,'countryid'); ?>
-		<?php echo $countrySelector->countryActiveField('countryid', $address); ?>
-		<?php echo $form->error($address,'countryid'); ?>
-
-		<?php echo $form->labelEx($address,'cityid'); ?>
-		<?php 
-    		$cityOptions = array(
-    		    'sourceUrl'=>Yii::app()->createUrl('questionary/questionary/ajax?type=city&parenttype=country&parentid=RU'),
-    		);
-    		$countrySelector->cityActiveField('cityid', $address, $cityOptions);
-		?>
-		<?php echo $form->error($address,'cityid'); ?>
-
-		<?php echo $form->textFieldRow($address,'streetname',array('size'=>60,'maxlength'=>255)); ?>
-		<?php echo $form->textFieldRow($address,'number',array('size'=>3,'maxlength'=>16)); ?>
-		<?php echo $form->textFieldRow($address,'housing',array('size'=>3,'maxlength'=>16)); ?>
-		<?php echo $form->textFieldRow($address,'apartment',array('size'=>3,'maxlength'=>16)); ?>
-		<hr>
-	</fieldset><!-- Конец полей паспортных данных -->
-
     <fieldset id="conditions_part">
         <legend id="conditions_part_label">
             <a class="btn btn-large btn-warning"><i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('recording_conditions_label'); ?></a>
@@ -1161,7 +1007,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
                 'attribute' => 'isnightrecording',
                 'options'   => $toggleBoxJsOptions));
             // Ночные съемки (пояснение)
-            $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+            $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
                 array('field' => 'isnightrecording'));
             ?>
         
@@ -1173,8 +1019,9 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
                 'attribute' => 'istoplessrecording',
                 'options'   => $toggleBoxJsOptions));
             // Съемка топлесс (пояснение)
-            $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                array('field' => 'istoplessrecording'));
+            $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+                array('field' => 'istoplessrecording')
+            );
             ?>
         
             <?php
@@ -1184,8 +1031,9 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
                 'attribute' => 'isfreerecording',
                 'options'   => $toggleBoxJsOptions));
             // Благотворительные акции (пояснение)
-            $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                array('field' => 'isfreerecording'));
+            $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+                array('field' => 'isfreerecording')
+            );
             ?>
         
             <?php
@@ -1210,7 +1058,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         <div>
             <div id="passportexpires">
                 <?php 
-                echo $form->labelEx($recordingConditions,'passportexpires');
+                echo $form->labelEx($recordingConditions, 'passportexpires');
                 // Срок истечения загранпаспорта
                 $this->widget('ext.ActiveDateSelect',
                     array(
@@ -1229,41 +1077,18 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         
         <?php 
         // размер оплаты для участия в съемках 
-        echo $form->textFieldRow($recordingConditions, 'salary', array('size'=>10,'maxlength'=>10));
+        echo $form->textFieldRow($recordingConditions, 'salary', array('size'=>10, 'maxlength'=>10));
         // размер оплаты (пояснение)
-        $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription',
+        $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription',
             array('field' => 'salary'));
         ?>
         
         <?php 
         // дополнительные условия для участия в съемках 
-        echo $form->textAreaRow($recordingConditions,'custom');
+        echo $form->textAreaRow($recordingConditions, 'custom');
         ?>
         <hr>
     </fieldset>
-    
-    <?php
-    // Согласие с политикой сайта
-    // @todo переписать проверку прав
-    // @todo вставить ссылку или текстовый блок с условиями соглашения
-    if ( ! $user->policyagreed AND ! Yii::app()->user->checkAccess('Admin') )
-    {// не показывается админам и тем, кто уже согласился с условиями
-        /*$this->widget('ext.EToggleBox.EToggleBox', array(
-            'model'     => $user,
-            'attribute' => 'policyagreed',
-            'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
-                'after_off'  => 'js:function () {
-                        $("#save_questionary").addClass("disabled");
-                        $("#save_questionary").attr("disabled", "disabled");
-                    }',
-                'after_on' => 'js:function () {
-                        $("#save_questionary").removeClass("disabled");
-                        $("#save_questionary").removeAttr("disabled");
-                    }'
-            ))
-        ));*/
-    }
-    ?>
     
     <?php 
     // Блок полей, доступных только администраторам
@@ -1278,14 +1103,14 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         }
         echo $form->dropDownListRow($questionary, 'status', $dropDownStatuses);
         // Статус анкеты (пояснение)
-        $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription',
+        $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription',
             array('field' => 'status'));
         
         // Комментарий модератора или администратора (только для админов)
         // Используется при отправке анкеты на доработку
         // Присылается пользователю в письме
         echo $form->textAreaRow($questionary, 'admincomment');
-        $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription',
+        $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription',
             array('field' => 'admincomment'));
         
         // Комментарий к анкете - дополнительная информация об участнике
@@ -1295,7 +1120,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         <div class="ec-round-the-corner" style="background-color:#aaa;padding:20px;">
         <br><br>
         <?php
-        echo $form->labelEx($questionary,'privatecomment');
+        echo $form->labelEx($questionary, 'privatecomment');
         // Поле длинное, так что мы можем позволить себе RichText редактор
         $this->widget('ext.imperavi-redactor-widget.ImperaviRedactorWidget', array(
             'model' => $questionary,
@@ -1306,14 +1131,14 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         ));
         echo $form->error($questionary, 'privatecomment');
         // Комментарий к анкете (пояснение)
-        $this->widget('application.modules.questionary.extensions.widgets.QFieldDescription.QFieldDescription',
+        $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription',
             array(
                 'field' => 'privatecomment',
                 'type'  => 'info'));
         ?>
         <br><br>
         </div>
-    <?php 
+    <?php
     }// конец блока полей, доступного только администроторам
     ?>
     <div class="form-actions">
