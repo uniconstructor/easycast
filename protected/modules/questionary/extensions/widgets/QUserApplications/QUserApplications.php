@@ -21,11 +21,12 @@ class QUserApplications extends CWidget
      *               draft - только поданые (ждут решения администратора или режиссера)
      *               pending - предварительно отобраны
      *               rejected - отклонены
+     *               active - одобренные (то есть предстоящие съемки)
      */
     public $mode = 'new';
     
     /**
-     * @var bool - 
+     * @var bool - отображать заголовок "мои заявки"?
      */
     public $displayHeader = true;
     
@@ -35,7 +36,6 @@ class QUserApplications extends CWidget
     protected $items;
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
      */
     public function init()
@@ -65,7 +65,6 @@ class QUserApplications extends CWidget
     }
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::run()
      */
     public function run()
@@ -76,7 +75,7 @@ class QUserApplications extends CWidget
         }
         
         if ( ! $this->items )
-        {// нет ни одной заявки - нечего отображать
+        {// нет ни одной заявки 
             $this->displayEmptyMessage();
             return;
         }
@@ -105,15 +104,15 @@ class QUserApplications extends CWidget
     protected function getItemDisplayOptions($item)
     {
         // получаем доступные кнопки для заявки
-        $actions = $this->widget('application.modules.projects.extensions.MemberActions.MemberActions',
+        $actions = $this->widget('projects.extensions.MemberActions.MemberActions',
             array('member' => $item), true);
+        // создаем ссылку на мероприятие
+        $eventUrl = Yii::app()->createUrl('/projects/projects/view', array('eventid' => $item->vacancy->event->id));
         
         $options = array();
         $options['item']        = $item;
         $options['vacancy']     = $item->vacancy;
-        // создаем ссылку на мероприятие
-        $options['eventUrl']    = Yii::app()->createUrl('/projects/projects/view',
-                                    array('eventid' => $item->vacancy->event->id));
+        $options['eventUrl']    = $eventUrl;
         // получаем лого проекта
         $options['projectLogo'] = $item->vacancy->event->project->getAvatarUrl('small');
         $options['actions']     = $actions;
