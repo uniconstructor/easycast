@@ -34,7 +34,7 @@ class QEditLanguages extends QGridEditBase
     /**
      * @var array - список редактируемых полей в том порядке, в котором они идут в таблице
      */
-    public $fields = array('language', 'level');
+    public $fields = array('name', 'level');
     /**
      * @var string - html-id формы для ввода новой записи
     */
@@ -96,9 +96,9 @@ class QEditLanguages extends QGridEditBase
     protected function getDataColumns()
     {
         return array(
-            // иностранный языкn (нельзя менять если уже создан)
+            // иностранный язык (нельзя менять если уже создан)
             array(
-                'name'  => 'language',
+                'name'  => 'name',
                 'value' => '$data->name;',
             ),
             // уровень владения
