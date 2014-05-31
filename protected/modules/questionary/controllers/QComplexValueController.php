@@ -22,10 +22,6 @@ class QComplexValueController extends Controller
         
         Yii::import('questionary.models.*');
         Yii::import('questionary.models.complexValues.*');
-        /*if ( ! $this->modelClass )
-        {
-            throw new CException('Не указан класс модели для контроллера сложных значений');
-        }*/
     }
     
     /**
@@ -76,7 +72,7 @@ class QComplexValueController extends Controller
         
         if ( $instanceData = Yii::app()->request->getPost($this->modelClass) )
         {
-            // проверяем права на добавление фильмографии к этой анкете
+            // проверяем права на добавление данных в эту анкету
             $this->checkAccess($instance, $qid);
             // привязываем значение к родительскому объекту (в этом случае - анкета)
             $instance->attributes    = $instanceData;
@@ -184,7 +180,7 @@ class QComplexValueController extends Controller
     }
     
     /**
-     * 
+     * Создает пустую модель нужного класса перед сохранением и привязкой к анкете
      * @return CActiveRecord
      */
     protected function initModel()

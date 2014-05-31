@@ -4,7 +4,7 @@
 Yii::import('questionary.controllers.QComplexValueController');
 
 /**
- * Контроллер для работы со списком дополнительных характеристик внешности
+ * Контроллер для работы со списком известных личностей для пародиста
  *
  * @package    easycast
  * @subpackage questionary

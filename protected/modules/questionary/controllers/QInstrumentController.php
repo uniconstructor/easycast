@@ -4,11 +4,11 @@
 Yii::import('questionary.controllers.QComplexValueController');
 
 /**
- * Контроллер для работы со списком танцев
+ * Контроллер для редактирования списка музыкальных инструментов
  *
  * @package    easycast
  * @subpackage questionary
-*/
+ */
 class QInstrumentController extends QComplexValueController
 {
     /**
