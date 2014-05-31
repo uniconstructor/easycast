@@ -31,9 +31,7 @@ if ( $step === 'finish' )
         'onlineCastingForm'     => $onlineCastingForm,
     ), true);
 }
-?>
 
-<?php 
 // wizard с формой создания кастинга и отбора людей
 $this->widget('bootstrap.widgets.TbWizard', array(
         'type'         => 'pills', // 'tabs' or 'pills'
@@ -43,13 +41,13 @@ $this->widget('bootstrap.widgets.TbWizard', array(
             'previousSelector' => '.button-previous',
             'firstSelector'    => '.button-first',
             'lastSelector'     => '.button-last',
+            'onTabClick'       => 'js:function(tab, navigation, index) {return false;}',
             'onTabShow'        => 'js:function(tab, navigation, index) {
                 var $total = navigation.find("li").length;
                 var $current = index+1;
                 var $percent = ($current/$total) * 100;
                 $("#wizard-bar > .bar").css({width:$percent+"%"});
             }',
-            'onTabClick' => 'js:function(tab, navigation, index) {return false;}',
         ),
         'htmlOptions' => array(
             'class' => 'row-fluid',
