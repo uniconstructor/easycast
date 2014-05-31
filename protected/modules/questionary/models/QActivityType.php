@@ -15,6 +15,16 @@
  *       и заменяется на введенное админом короткое обозначение.
  *       После этого по базе ищутся все использования этого значения и заменяются на стандартные
  * @todo прописать relations когда все введенные пользователем значения будут перенесены в эту таблицу
+ * @todo убрать поле "translation" и "language" - они были добавлены как временное решение.
+ *       Вместо них следует реализовать нормальную поддержку разных языков сайта, но поскольку
+ *       мы планируем оставить участникам возможность вводить свои значения в некоторые поля,
+ *       а их анкеты нужно будет отображать на разных языках - то нужно будет решить вопрос с переводом этих данных.
+ *       Отказаться от перевода или использовать google translate крайне нежелательно:
+ *       мы планируем работать с иностранными заказчиками, которые могут попросить, например,
+ *       моделей рассказать о себе, и нужно будет иметь возможность предоставить эту информацию на любом языке.
+ *       Возможные решения: использовать в модуле анкеты другой источник языковых строк для перевода 
+ *       (CDbMessageSource вместо CPhpMessageSource) и дать админам инструмент для дополнения строк перевода
+ * @todo добавить phpdoc-комментарии
  */
 class QActivityType extends CActiveRecord
 {
@@ -51,26 +61,57 @@ class QActivityType extends CActiveRecord
 	{
 		return array(
 		    array('timecreated, timemodified', 'length', 'max' => 11),
+		    
 			array('name', 'length', 'max' => 20),
+		    array('name', 'filter', 'filter' => 'trim'),
 			array('name', 'required'),
+		    
 			array('value', 'length', 'max' => 32),
+		    array('value', 'filter', 'filter' => 'trim'),
+		    array('value', 'filter', 'filter' => 'strtolower'),
 		    array('value', 'required'),
+		    
 			array('translation', 'length', 'max' => 255),
+		    array('translation', 'filter', 'filter' => 'trim'),
 		    array('translation', 'required'),
+		    
+		    array('language', 'default', 'value' => 'ru'),
+		    
 		    array('form, search', 'numerical', 'integerOnly' => true),
 			array('id, name, value, timecreated, timemodified', 'safe', 'on' => 'search'),
 		);
 	}
 
 	/**
-	 * @see CActiveRecord::relations()
+	 * Именованная группа условий поиска
+	 * Получает все записи определенного типа
+	 * @param string $type - краткое название категории умения или навыка
+	 * @return QActivityType
 	 */
-	public function relations()
+	public function forActivity($name)
 	{
-		return array(
-            
-		);
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('name', $name);
+	    $criteria->order = '`translation` ASC';
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    return $this;
 	}
+	
+	/**
+	 * Именованная группа условий поиска
+	 * Исключает из выборки выбранные значения
+	 * @param array $values
+	 * @return QActivityType
+	 */
+    public function except($values) 
+    {
+        $criteria = new CDbCriteria();
+        $criteria->addNotInCondition('value', $values);
+         
+        $this->getDbCriteria()->mergeWith($criteria);
+        return $this;
+    }
 
 	/**
 	 * @see CModel::behaviors()
@@ -103,18 +144,17 @@ class QActivityType extends CActiveRecord
 	}
 
 	/**
-	 * 
 	 * @return CActiveDataProvider
 	 */
 	public function search()
 	{
-		$criteria=new CDbCriteria;
+		$criteria = new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
-		$criteria->compare('name',$this->name,true);
-		$criteria->compare('value',$this->value,true);
-		$criteria->compare('timecreated',$this->timecreated,true);
-		$criteria->compare('timemodified',$this->timemodified,true);
+		$criteria->compare('name',$this->name, true);
+		$criteria->compare('value',$this->value, true);
+		$criteria->compare('timecreated',$this->timecreated, true);
+		$criteria->compare('timemodified',$this->timemodified, true);
 
 		return new CActiveDataProvider(get_class($this), array(
 			'criteria'=>$criteria,
@@ -204,7 +244,7 @@ class QActivityType extends CActiveRecord
 	 * Получить список стандартных вариантов для одного 
 	 * вида умения или навыка (для использования в select-элементах)
 	 * 
-	 * @param string $name - тип деятельности (вид спорта, вокал, и т. п.)
+	 * @param string $name - краткое название типа деятельности (вид спорта[sporttype], вокал[vocaltype], и т. п.)
 	 * @return array
 	 */
 	public function activityVariants($name)
@@ -220,7 +260,7 @@ class QActivityType extends CActiveRecord
 	    }
 	    foreach ( $variants as $variant )
 	    {
-	        $result[$variant->value] = CHtml::encode($variant->translation);
+	        $result[$variant->value] = $variant->translation;
 	    }
 	    
 	    return $result;
@@ -325,5 +365,15 @@ class QActivityType extends CActiveRecord
 	    }
 	    
 	    return ! (bool)QActivityType::model()->exists($condition, $params);
+	}
+	
+	/**
+	 * Получить список всех анкет, в которых используется этот вариант значения
+	 * @param string $id
+	 * @return Questionary[]|null - анкеты
+	 */
+	public function getRelatedQuestionaries($id=null)
+	{
+	    
 	}
 }
