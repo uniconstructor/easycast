@@ -22,10 +22,3 @@
     line-height: 20px;
     text-rendering: optimizelegibility;
 }
-/**
- * Исправление неровного расположения элемента asmselect
- */
-.qform_asmselect_fix
-{
-    
-}
