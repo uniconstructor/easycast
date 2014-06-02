@@ -34,13 +34,13 @@ class QSearchFilterBaseSelect2 extends QSearchFilterBase
      */
     protected function getContent()
     {
-        $content = '';
-    
+        $content   = '';
+        // короткое название критерия поиска
         $shortname = $this->getShortName();
         // получаем полное имя html-элемента
-        $name = $this->getFullInputName($shortname);
+        $name      = $this->getFullInputName($shortname);
         // получаем список значений для выпадающего меню и одновременно выставляем значения по умолчанию
-        $variants = $this->createSelectVariants();
+        $variants  = $this->createSelectVariants();
         
         // Создаем обычный выпадающий список, чтобы потом создать из него select2
         $content .= CHtml::dropDownList($name, null, $this->getMenuVariants(), array(
@@ -62,7 +62,6 @@ class QSearchFilterBaseSelect2 extends QSearchFilterBase
     }
     
     /**
-     * (non-PHPdoc)
      * @see QSearchFilterBase::createCollectFilterDataJs()
      * 
      * @todo добавить поддержку всего что ниже IE9
@@ -72,7 +71,7 @@ class QSearchFilterBaseSelect2 extends QSearchFilterBase
     {
         $shortname = $this->getShortName();
         return "function {$this->collectDataJsName}() {
-            var data = {};
+            var data  = {};
             var value = $('#{$this->s2Selector}').select2('val');
             if ( Object.keys(value).length > 0 )
             {
@@ -83,7 +82,6 @@ class QSearchFilterBaseSelect2 extends QSearchFilterBase
     }
     
     /**
-     * (non-PHPdoc)
      * @see QSearchFilterBase::createClearFormDataJs()
      */
     protected function createClearFormDataJs()
@@ -92,7 +90,6 @@ class QSearchFilterBaseSelect2 extends QSearchFilterBase
     }
     
     /**
-     * (non-PHPdoc)
      * @see QSearchFilterBase::createAttachInputToggleJs()
      */
     protected function createAttachInputToggleJs()
@@ -110,7 +107,7 @@ class QSearchFilterBaseSelect2 extends QSearchFilterBase
         return array(
             // текст-заглушка
             'placeholder'    => $this->getTitle(),
-            // @todo что это за параметр?
+            // разрешить удалять варианты из списка
             'allowClear'     => true,
             // select не закрывается, чтобы можно было быстро выбрать несколько вариантов
             'closeOnSelect'  => false,

@@ -11,7 +11,6 @@ class QSearchFilterDancer extends QSearchFilterBaseSelect2
     protected $elements = array('dancetype');
     
     /**
-     * (non-PHPdoc)
      * @see QSearchFilterBase::getTitle()
      */
     protected function getTitle()
