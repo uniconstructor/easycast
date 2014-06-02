@@ -1,5 +1,8 @@
 <?php
 
+// родительский класс 
+Yii::import('ext.EditableGrid.EditableGrid');
+
 /**
  * Базовый класс для всех виджетов редактирования сложных полей анкеты
  * Позволяет создать редактируемую дополняемую по AJAX таблицу с произвольным набором полей.
@@ -37,7 +40,7 @@
  * @todo при удалении последней записи (напримеру ВУЗа), проверять нужно ли теперь 
  *       сбросить обратно галочку (проф. актер), которая ставится только при наличии актерского образования 
  */
-class QGridEditBase extends CWidget
+class QGridEditBase extends EditableGrid
 {
     /**
      * @var Questionary
@@ -104,6 +107,10 @@ class QGridEditBase extends CWidget
      */
     public $emptyTextVariants = array();
     /**
+     * @var string - id модуля, который хранит клипы с modal-формами
+     */
+    public $clipModule = 'questionary';
+    /**
      * @var string - id клипа (фрагмента html-кода который генерируется в одном месте а выводится в другом)
      *               Здесь используется для modal-окон с формами (их нельзя размещать внутри других форм)
      *               Если этот параметр задан - то в модуль questionary будет записан id фрагмента кода с формой
@@ -124,26 +131,17 @@ class QGridEditBase extends CWidget
      */
     public function init()
     {
-        // вызов родительского init()
-        // @todo понадобится когда растянем цепочку наследования и сделаем этот виджет не только для анкеты
-        parent::init();
         // подключаем все модели, которые будем редактировать
         Yii::import('questionary.models.*');
         Yii::import('questionary.models.complexValues.*');
+        
+        // вызов родительского init()
+        parent::init();
         
         if ( ! ( $this->questionary instanceof Questionary ) )
         {// модель анкеты необходима для работы всех виджетов
             throw new CException('В виджет '.get_class($this).' не передана анкета');
         }
-        // создаем пустую модель для modal-формы добавления новой строки в таблицу
-        $this->initModel();
-        
-        if ( ! $this->rowEditPrefix )
-        { 
-            $this->rowEditPrefix = $this->modelClass;
-        }
-        // регистрируем клип с формой в модуле анкет для того чтобы позже вывести его в конце формы
-        $this->registerFormClip();
     }
     
     /**
@@ -161,16 +159,16 @@ class QGridEditBase extends CWidget
      * Зарегистрировать форму добавления сложного значения анкеты в модуле "анкеты" (QuestionaryModule)
      * @return void
      */
-    protected function registerFormClip()
+    /*protected function registerFormClip()
     {
         $this->clipId = $this->formId.'-clip';
         Yii::app()->getModule('questionary')->formClips[] = $this->clipId;
-    }
+    }*/
     
     /**
      * @see CWidget::run()
      */
-    public function run()
+    /*public function run()
     {
         // рисуем таблицу со списком добавленных элементов и кнопкой "добавить"
         $this->render($this->viewsPrefix.'grid');
@@ -180,7 +178,7 @@ class QGridEditBase extends CWidget
         $this->owner->beginClip($this->clipId);
         $this->render($this->viewsPrefix.'_form', array('model' => $this->model));
         $this->owner->endClip();
-    }
+    }*/
     
     /**
      * Отобразить поля формы создания новой записи
@@ -197,7 +195,7 @@ class QGridEditBase extends CWidget
      * Получить JS-код, выполняющийся после удаления строки
      * @return string
      */
-    protected function createAfterDeleteJs()
+    /*protected function createAfterDeleteJs()
     {
         return 'function(link, success, data)
         {
@@ -209,7 +207,7 @@ class QGridEditBase extends CWidget
             var rowSelector = "#'.$this->rowIdPrefix.'" + data;
             $(rowSelector).fadeOut(400);
         }';
-    }
+    }*/
     
     /**
      * Получить JS-код, выполняющийся после добавления новой записи
@@ -217,7 +215,7 @@ class QGridEditBase extends CWidget
      *
      * @todo создать нормальный ряд таблицы с возможностью редактирования и удаления
      */
-    protected function createAfterAddJs()
+    /*protected function createAfterAddJs()
     {
         $js = '';
         // js для добавления новой строки в таблицу
@@ -226,13 +224,13 @@ class QGridEditBase extends CWidget
         $js .= $this->createClearFormJs();
     
         return $js;
-    }
+    }*/
     
     /**
      * js для очистки полей формы после добавления новой записи
      * @return string
      */
-    protected function createClearFormJs()
+    /*protected function createClearFormJs()
     {
         $js = '';
         foreach ( $this->fields as $field )
@@ -240,29 +238,29 @@ class QGridEditBase extends CWidget
             $js .= "\$('#{$this->modelClass}_{$field}').val('');\n";
         }
         return $js;
-    }
+    }*/
     
     /**
      *
      * @return array - массив колонок таблицы TbExtendedGridView с настройками виджетов
      */
-    protected function getTableColumns()
+    /*protected function getTableColumns()
     {
         $dataColumns = $this->getDataColumns();
         // колонка с иконками действий
         $dataColumns[] = $this->getActionsColumn();
     
         return $dataColumns;
-    }
+    }*/
     
     /**
      * Получить настройки для создания редактируемых колонок таблицы
      * @return array
      */
-    protected function getDataColumns()
+    /*protected function getDataColumns()
     {
         throw new CException('Эта функция должна быть переопределена');
-    }
+    }*/
     
     /**
      * Получить колонку действий с записями
@@ -290,7 +288,7 @@ class QGridEditBase extends CWidget
      * Получить стандартные настройки для виджета выбора даты
      * @return array
      */
-    protected function getYearPickerOptions()
+    /*protected function getYearPickerOptions()
     {
         return array(
             'minViewMode' => 'years',
@@ -299,7 +297,7 @@ class QGridEditBase extends CWidget
             'autoclose'   => true,
             'forceParse'  => false,
         );
-    }
+    }*/
     
     /**
      * Получить параметры для создания editable-колонки в таблице (текстовое поле)
@@ -307,7 +305,7 @@ class QGridEditBase extends CWidget
      * @param string $field - поле модели для которого создается редактируемая колонка таблицы
      * @return array
      */
-    protected function getTextColumnOptions($field, $value=null)
+    /*protected function getTextColumnOptions($field, $value=null)
     {
         $options = array(
             'name'     => $field,
@@ -328,7 +326,7 @@ class QGridEditBase extends CWidget
         }
         
         return $options;
-    }
+    }*/
     
     /**
      * Получить параметры для создания editable-колонки в таблице (многосторочное текстовое поле)
@@ -336,7 +334,7 @@ class QGridEditBase extends CWidget
      * @param string $field - поле модели для которого создается редактируемая колонка таблицы
      * @return array
      */
-    protected function getTextAreaColumnOptions($field, $value=null)
+    /*protected function getTextAreaColumnOptions($field, $value=null)
     {
         $options = array(
             'name'     => $field,
@@ -357,7 +355,7 @@ class QGridEditBase extends CWidget
         }
         
         return $options;
-    }
+    }*/
     
     /**
      * Получить параметры для создания editable-колонки в таблице (select2 без подгрузки элементов по AJAX)
@@ -366,7 +364,7 @@ class QGridEditBase extends CWidget
      * @param array $variants - список вариантов для выбора
      * @return array
      */
-    protected function getStaticSelect2ColumnOptions($field, $variants, $valueField='level', $allowCustom=false)
+    /*protected function getStaticSelect2ColumnOptions($field, $variants, $valueField='level', $allowCustom=false)
     {
         $options = array(
             'name'     => $field,
@@ -377,16 +375,16 @@ class QGridEditBase extends CWidget
                 'title'     => $this->model->getAttributeLabel($field),
                 'url'       => $this->updateUrl,
                 'emptytext' => $this->getFieldEmptyText($field),
-                'params'    => array(
+                'select2'   => $this->getSelect2Options($variants, 'static', $allowCustom),
+                'source'    => $variants,
+                'params' => array(
                     Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
                 ),
-                'select2' => $this->getSelect2Options($variants, 'static', $allowCustom),
-                'source'  => $variants,
             ),
         );
         
         return $options;
-    }
+    }*/
     
     /**
      * Получить общие параметры для создания select2-виджета с выбором одного значения из списка стандартных.
@@ -432,7 +430,7 @@ class QGridEditBase extends CWidget
      * @param string $field - поле модели для которого создается редактируемая колонка таблицы
      * @return array
      */
-    protected function getYearColumnOptions($field)
+    /*protected function getYearColumnOptions($field)
     {
         return array(
             'name'  => $field,
@@ -452,7 +450,7 @@ class QGridEditBase extends CWidget
                 ),
             ),
         );
-    }
+    }*/
     
     /**
      * Получить параметры для создания editable-колонки "вкл/выкл" в таблице
@@ -460,7 +458,7 @@ class QGridEditBase extends CWidget
      * @param string $field - поле модели для которого создается редактируемая колонка таблицы
      * @return array
      */
-    protected function getToggleColumnOptions($field, $action)
+    /*protected function getToggleColumnOptions($field, $action)
     {
         return array(
             'toggleAction'  => $action,
@@ -476,21 +474,21 @@ class QGridEditBase extends CWidget
             'uncheckedButtonLabel' => Yii::t('coreMessages', 'no'),
             'emptyButtonLabel'     => Yii::t('coreMessages', 'not_set'),
         );
-    }
+    }*/
     
     /**
      * Получить текст, который отображается в случае когда поле таблицы не заполнено
      * @param string $field - поле модели для которого получается текс-заглушка
      * @return string
      */
-    protected function getFieldEmptyText($field)
+    /*protected function getFieldEmptyText($field)
     {
         if ( isset($this->emptyTextVariants[$field]) )
         {
             return $this->emptyTextVariants[$field];
         }
         return '[не заполнено]';
-    }
+    }*/
     
     /**
      * Получить критерий выборки записей для списка редактирования

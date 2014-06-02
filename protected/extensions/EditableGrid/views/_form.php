@@ -5,9 +5,9 @@
  * 
  * @todo языковые строки
  */
-/* @var $form TbActiveForm */
-/* @var $this QEditFilms */
-/* @var $model QFilmInstance */
+/* @var $form  TbActiveForm */
+/* @var $this  EditableGrid */
+/* @var $model CActiveRecord */
 
 // отображаем всплывающее окно
 $this->beginWidget('bootstrap.widgets.TbModal', array('id' => $this->modalId));
@@ -21,6 +21,7 @@ $form = $this->beginWidget('TbActiveForm', array(
         'validateOnSubmit' => true,
         'validateOnChange' => false,
     ),
+    'type'   => 'horizontal',
     'action' => $this->createUrl,
 ));
 ?>

@@ -233,7 +233,7 @@ class EditableGrid extends CWidget
     protected function getActionsColumn()
     {
         return array(
-            'header'      => 'Действия',
+            'header'      => '&nbsp;',
             'htmlOptions' => array('nowrap' => 'nowrap', 'style' => 'text-align:center;'),
             'class'       => 'bootstrap.widgets.TbButtonColumn',
             'template'    => '{delete}',
@@ -251,14 +251,11 @@ class EditableGrid extends CWidget
     /**
      * Получить стандартные настройки для виджета выбора даты
      * @return array
-     * 
-     * @todo для базового класса слишком специализированная функция: переделать в метод для выбора даты (не только год)
      */
     protected function getYearPickerOptions()
     {
         return array(
             'minViewMode' => 'years',
-            // @todo для русского языка виджет не работает - обновиться и исправить
             'language'    => 'en',
             'format'      => 'yyyy',
             'autoclose'   => true,
@@ -275,8 +272,8 @@ class EditableGrid extends CWidget
     protected function getTextColumnOptions($field, $value=null)
     {
         $options = array(
-            'name'  => $field,
-            'class' => 'bootstrap.widgets.TbEditableColumn',
+            'name'     => $field,
+            'class'    => 'bootstrap.widgets.TbEditableColumn',
             'editable' => array(
                 'type'      => 'text',
                 'title'     => $this->model->getAttributeLabel($field),
@@ -287,12 +284,40 @@ class EditableGrid extends CWidget
                 ),
             ),
         );
-        
         if ( $value )
-        {
+        {// подставляем значение по умолчанию (если есть)
             $options['value'] = $value;
         }
         
+        return $options;
+    }
+    
+    /**
+     * Получить параметры для создания editable-колонки в таблице (многосторочное текстовое поле)
+     *
+     * @param string $field - поле модели для которого создается редактируемая колонка таблицы
+     * @return array
+     */
+    protected function getTextAreaColumnOptions($field, $value=null)
+    {
+        $options = array(
+            'name'     => $field,
+            'class'    => 'bootstrap.widgets.TbEditableColumn',
+            'editable' => array(
+                'type'      => 'textarea',
+                'title'     => $this->model->getAttributeLabel($field),
+                'url'       => $this->updateUrl,
+                'emptytext' => $this->getFieldEmptyText($field),
+                'params' => array(
+                    Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
+                ),
+            ),
+        );
+        if ( $value )
+        {// подставляем значение по умолчанию (если есть)
+            $options['value'] = $value;
+        }
+    
         return $options;
     }
     
@@ -306,19 +331,19 @@ class EditableGrid extends CWidget
     protected function getStaticSelect2ColumnOptions($field, $variants, $valueField='level', $allowCustom=false)
     {
         $options = array(
-            'name'  => $field,
-            'class' => 'bootstrap.widgets.TbEditableColumn',
-            'value' => '$data->'.$valueField.';',
+            'name'     => $field,
+            'class'    => 'bootstrap.widgets.TbEditableColumn',
+            'value'    => '$data->'.$valueField.';',
             'editable' => array(
                 'type'      => 'select2',
                 'title'     => $this->model->getAttributeLabel($field),
                 'url'       => $this->updateUrl,
                 'emptytext' => $this->getFieldEmptyText($field),
+                'select2'   => $this->getSelect2Options($variants, 'static', $allowCustom),
+                'source'    => $variants,
                 'params' => array(
                     Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
                 ),
-                'select2' => $this->getSelect2Options($variants, 'static', $allowCustom),
-                'source'  => $variants,
             ),
         );
         
@@ -347,7 +372,6 @@ class EditableGrid extends CWidget
             $options['tags'] = $variants;
             $options['maximumSelectionSize'] = 1;
         }
-        
         return $options;
     }
     
@@ -382,8 +406,32 @@ class EditableGrid extends CWidget
     }
     
     /**
+     * Получить параметры для создания editable-колонки "вкл/выкл" в таблице
+     *
+     * @param string $field - поле модели для которого создается редактируемая колонка таблицы
+     * @return array
+     */
+    protected function getToggleColumnOptions($field, $action)
+    {
+        return array(
+            'toggleAction'  => $action,
+            'name'          => $field,
+            'value'         => '$data->'.$field.';',
+            'class'         => 'bootstrap.widgets.TbToggleColumn',
+            'checkedIcon'   => false,
+            'uncheckedIcon' => false,
+            'emptyIcon'     => false,
+            'displayText'   => true,
+            'sortable'      => false,
+            'checkedButtonLabel'   => Yii::t('coreMessages', 'yes'),
+            'uncheckedButtonLabel' => Yii::t('coreMessages', 'no'),
+            'emptyButtonLabel'     => Yii::t('coreMessages', 'not_set'),
+        );
+    }
+    
+    /**
      * Получить текст, который отображается в случае когда поле таблицы не заполнено
-     * @param string $field - поле модели для которого получается текс-заглушка
+     * @param string $field - поле модели для которого получается текст-заглушка
      * @return string
      */
     protected function getFieldEmptyText($field)
@@ -415,6 +463,6 @@ class EditableGrid extends CWidget
      */
     protected function getGridCriteria()
     {
-        return array();
+        throw new CException('Эта функция должна быть переопределена');
     }
 }
