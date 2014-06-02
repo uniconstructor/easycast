@@ -3,6 +3,7 @@
 /**
  * Фрагмент формы поиска - "Имя или фамилия"
  * @todo языковые строки
+ * @todo создать базовый класс для поиска по текстовым полям
  */
 class QSearchFilterName extends QSearchFilterBase
 {
