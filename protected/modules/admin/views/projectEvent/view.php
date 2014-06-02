@@ -1,9 +1,9 @@
 <?php
-
 /**
  * Страница отображения события в админке
- * @var ProjectEvent $model 
  */
+/* @var $this  ProjectEventController */
+/* @var $model ProjectEvent */
 
 $pageTitle    = $model->name;
 $addRoleLabel = 'Добавить роль';
@@ -21,10 +21,10 @@ if ( $model->type === 'group' )
     $showNewGroupEvent = ($model->status != ProjectEvent::STATUS_FINISHED);
 }
 
-
+// верхняя навигация
 $this->breadcrumbs = array(
-    'Администрирование' => array('/admin'),
-    'Проекты' => array('/admin/project'),
+    'Администрирование'   => array('/admin'),
+    'Проекты'             => array('/admin/project'),
     $model->project->name => array('/admin/project/view', 'id' => $model->project->id),
 );
 if ( $model->group )
@@ -33,27 +33,34 @@ if ( $model->group )
 }
 $this->breadcrumbs[] = $model->name;
 
+// меню справа
 $this->menu = array(
 	array(
-	    'label' => 'Новое событие в проекте',
-	    'url'   => array(
-	        '/admin/projectEvent/create',
-	        'projectid' => $model->project->id,
-	    ),
+	    'label'   => 'Новое событие в проекте',
 	    'visible' => ! $showNewGroupEvent,
+	    'url'     => array('/admin/projectEvent/create', 'projectid' => $model->project->id),
     ),
 	array(
-	    'label' => 'Новое событие в этой группе', 
-	    'url'   => array(
-	        '/admin/projectEvent/create',
-	        'projectid' => $model->project->id,
-	        'parentid'  => $groupId),
+	    'label'   => 'Новое событие в этой группе', 
 	    'visible' => $showNewGroupEvent,
+	    'url'     => array('/admin/projectEvent/create', 'projectid' => $model->project->id, 'parentid' => $groupId),
     ),
-	array('label' => 'Редактировать', 'url' => array('update','id' => $model->id)),
-    array('label' => $addRoleLabel, 'url' => array('/admin/eventVacancy/create', 'eventid' => $model->id)),
-    array('label' => 'Заявки', 'url' => array('/admin/projectMember/index', 'eventid' => $model->id, 'type' => 'applications')),
-    array('label' => 'Участники', 'url' => array('/admin/projectMember/index', 'eventid' => $model->id, 'type' => 'members')),
+	array(
+	    'label' => 'Редактировать',
+	    'url'   => array('update', 'id' => $model->id),
+    ),
+    array(
+        'label' => $addRoleLabel,
+        'url'   => array('/admin/eventVacancy/create', 'eventid' => $model->id),
+    ),
+    array(
+        'label' => 'Заявки', 
+        'url'   => array('/admin/projectMember/index', 'eventid' => $model->id, 'type' => 'applications'),
+    ),
+    array(
+        'label' => 'Участники',
+        'url'   => array('/admin/projectMember/index', 'eventid' => $model->id, 'type' => 'members'),
+    ),
 );
 
 if ( $model->status === ProjectEvent::STATUS_DRAFT )
@@ -73,15 +80,18 @@ if ( $model->status === ProjectEvent::STATUS_DRAFT )
 	    ),
     );
 }
-if ( $model->status == ProjectEvent::STATUS_ACTIVE )
+if ( $model->status === ProjectEvent::STATUS_ACTIVE )
 {// для опубликованных мероприятий покажем вызывной лист
-    $this->menu[] = array('label' => 'Вызывной лист',
-        'url'=>array('/admin/projectEvent/callList', 'eventId' => $model->id));
+    $this->menu[] = array(
+        'label' => 'Вызывной лист',
+        'url'   => array('/admin/projectEvent/callList', 'eventId' => $model->id)
+    );
 }
 if ( in_array('active', $model->getAllowedStatuses()) )
 {// ссылка на активацию мероприятия
-    $this->menu[] = array('label' => 'Активировать',
-        'url' => array('/admin/projectEvent/setStatus', 'id' => $model->id, 'status' => 'active'),
+    $this->menu[] = array(
+        'label' => 'Активировать',
+        'url'   => array('/admin/projectEvent/setStatus', 'id' => $model->id, 'status' => 'active'),
         'linkOptions' => array(
             'confirm' => 'Это действие оповестит всех подходящих участников о начале съемок. Все вакансии мероприятия и группы также будут активированы. ВНИМАНИЕ: после публикации мероприятия редактировать критерии отбора людей будет нельзя. На всякий случай проверьте все вакансии. Опубликовать мероприятие "'.$model->name.'"?',
         ),
@@ -89,8 +99,9 @@ if ( in_array('active', $model->getAllowedStatuses()) )
 }
 if ( in_array('finished', $model->getAllowedStatuses()) )
 {// ссылка на завершение мероприятия
-    $this->menu[] = array('label' => 'Завершить',
-        'url' => array('/admin/projectEvent/setStatus', 'id' => $model->id, 'status' => 'finished'),
+    $this->menu[] = array(
+        'label' => 'Завершить',
+        'url'   => array('/admin/projectEvent/setStatus', 'id' => $model->id, 'status' => 'finished'),
         'linkOptions' => array(
             'confirm' => 'Завершить мероприятие "'.$model->name.'"?',
         ),
@@ -104,14 +115,7 @@ if ( $model->status == ProjectEvent::STATUS_ACTIVE )
 }
 
 // сообщение о смене статуса
-$this->widget('bootstrap.widgets.TbAlert', array(
-    'block'     => true, // display a larger alert block?
-    'fade'      => true, // use transitions?
-    'closeText' => '&times;', // close link text - if set to false, no close link is displayed
-    'alerts' => array( // configurations per alert type
-        'success' => array('block' => true, 'fade' => true, 'closeText' => '&times;'), // success, info, warning, error or danger
-    ),
-));
+$this->widget('bootstrap.widgets.TbAlert');
 ?>
 
 <h1><?= $pageTitle; ?></h1>
@@ -121,7 +125,6 @@ $this->widget('bootstrap.widgets.TbAlert', array(
 $this->widget('bootstrap.widgets.TbDetailView',array(
 	'data'       => $model,
 	'attributes' => array(
-        //'addressid',
 	    'name',
 	    array(
 	        'label' => $model->getAttributeLabel('parentid'),
@@ -134,12 +137,12 @@ $this->widget('bootstrap.widgets.TbDetailView',array(
 	    ),
         array(
             'label'   => $model->getAttributeLabel('timestart'),
-            'value'   => Yii::app()->getDateFormatter()->format("d MMMM yyyy, HH:mm", $model->timestart),
+            'value'   => $model->timestart ? Yii::app()->getDateFormatter()->format("d MMMM yyyy, HH:mm", $model->timestart) : '[дата уточняется]',
             'visible' => $showDates,
         ),
         array(
             'label'   => $model->getAttributeLabel('timeend'),
-            'value'   => Yii::app()->getDateFormatter()->format("d MMMM yyyy, HH:mm", $model->timeend),
+            'value'   => $model->timestart ? Yii::app()->getDateFormatter()->format("d MMMM yyyy, HH:mm", $model->timeend): '[дата уточняется]',
             'visible' => $showDates,
         ),
 		'description:raw',
@@ -161,7 +164,6 @@ $this->widget('bootstrap.widgets.TbDetailView',array(
 if ( $model->type == 'group' )
 {
     echo '<h2>События в этой группе</h2>';
-
     $eventsList = new CActiveDataProvider('ProjectEvent', array(
         'data'       => $model->events,
         'pagination' => false,
@@ -210,17 +212,15 @@ if ( $model->type == 'group' )
 }
 ?>
 
-
 <h2><?= $vacanciesTitle; ?></h2>
 <h3><?= $vacanciesInfo; ?></h3>
 
-
 <?php 
-// Список всех вакансий
+// Список всех ролей мероприятия
 $vacanciesList = new CActiveDataProvider('EventVacancy', array(
-        'data'       => $model->vacancies,
-        'pagination' => false,
-    ));
+    'data'       => $model->vacancies,
+    'pagination' => false,
+));
 $this->widget('bootstrap.widgets.TbGridView', array(
     'type'         => 'striped bordered condensed',
     'dataProvider' => $vacanciesList,
@@ -254,7 +254,7 @@ if ( $model->group )
 {// роли из группы
     echo '<h3>Роли группы</h3>';
     $groupVacanciesList = new CActiveDataProvider('EventVacancy', array(
-        'data' => $model->group->vacancies,
+        'data'       => $model->group->vacancies,
         'pagination' => false,
     ));
     $this->widget('bootstrap.widgets.TbGridView', array(
