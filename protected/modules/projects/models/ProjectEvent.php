@@ -95,7 +95,7 @@ class ProjectEvent extends CActiveRecord
     const TYPE_SHOW       = 'show';
     
     // статусы мероприятия
-    // добавить статусы "внесена информация" и "открыта запись"
+    // @todo добавить статусы "внесена информация" и "открыта запись"
     /**
      * @var string - статус: черновик
      *               Мероприятие только что создано, в него пока еще вносится информация и добавляются роли
@@ -166,7 +166,6 @@ class ProjectEvent extends CActiveRecord
 	        $this->timestart = 0;
 	        $this->timeend   = 0;
 	    }
-	    
 	    // выполняем служебные действия ActiveRecord
 	    return parent::beforeSave();
 	}
@@ -209,18 +208,18 @@ class ProjectEvent extends CActiveRecord
 	    Yii::import('ext.galleryManager.models.*');
 	    // Настройки фотогалереи для мероприятия
 	    $photoGallerySettings = array(
-	        'class' => 'GalleryBehavior',
+	        'class'       => 'GalleryBehavior',
 	        'idAttribute' => 'photogalleryid',
-	        'limit' => self::MAX_GALLERY_PHOTOS,
+	        'limit'       => self::MAX_GALLERY_PHOTOS,
 	        // картинка проекта масштабируется в трех размерах
 	        'versions' => array(
-	            'small' => array(
+	            'small'  => array(
 	                'resize' => array(100, 100),
 	            ),
 	            'medium' => array(
 	                'resize' => array(530, 330),
 	            ),
-	            'full' => array(
+	            'full'   => array(
 	                'resize' => array(800, 1000),
 	            ),
 	        ),
@@ -266,6 +265,7 @@ class ProjectEvent extends CActiveRecord
 	 * 
 	 * @todo добавить openGroups - те группы, в которые может быть добавлено мероприятие
 	 * @todo придумать как в списки вакансий добавить вакансии группы
+	 * @todo переписать с использованием именованных групп условий
 	 */
 	public function relations()
 	{
@@ -274,24 +274,29 @@ class ProjectEvent extends CActiveRecord
 		    'project' => array(self::BELONGS_TO, 'Project', 'projectid'),
 		    // адрес, по которому проходит мероприятие
 		    'address' => array(self::HAS_ONE, 'Address', 'objectid',
-		        'condition' => "`address`.`objecttype`='event'"),
+		        'condition' => "`address`.`objecttype`='event'",
+		    ),
 		    // группа мероприятия (если это мероприятие входит в группу)
 		    'group' => array(self::BELONGS_TO, 'ProjectEvent', 'parentid'),
 		    // Вакансии (роли) мероприятия
 		    'vacancies' => array(self::HAS_MANY, 'EventVacancy', 'eventid',
-		        'order' => "`vacancies`.`name` ASC",),
+		        'order' => "`vacancies`.`name` ASC",
+		    ),
 		    // активные вакансии мероприятия
 		    'activevacancies' => array(self::HAS_MANY, 'EventVacancy', 'eventid',
 		        'condition' => "`activevacancies`.`status`='active'",
-		        'order'     => "`activevacancies`.`name` ASC"),
+		        'order'     => "`activevacancies`.`name` ASC",
+		    ),
 		    // Приглашения на мероприятие
 		    'invites' => array(self::HAS_MANY, 'EventInvite', 'eventid'),
 		    // Видео c мероприятия
 		    'videos' => array(self::HAS_MANY, 'Video', 'objectid',
-		        'condition' => "`videos`.`objecttype`='projectevent'"),
+		        'condition' => "`videos`.`objecttype`='projectevent'",
+		    ),
 		    // дочерние мероприятия группы (если это является группой)
 		    'events' => array(self::HAS_MANY, 'ProjectEvent', 'parentid',
-		        'order' => '`events`.`timestart` ASC'),
+		        'order' => '`events`.`timestart` ASC',
+		    ),
 		    // @todo подтвержденные участники мероприятия
 		    //'members' => array(self::HAS_MANY, 'ProjectMember', ......),
 		);
@@ -474,7 +479,6 @@ class ProjectEvent extends CActiveRecord
 	    {
 	        return false;
 	    }
-	    
 	    foreach ( $vacancies as $vacancy )
 	    {
 	        $vacancy->sendInvites();
