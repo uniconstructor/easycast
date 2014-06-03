@@ -54,7 +54,7 @@ class QTheatreInstanceController extends QComplexValueController
             'toggle' => array(
                 'class'     => 'bootstrap.actions.TbToggleAction',
                 'modelName' => $this->modelClass,
-            )
+            ),
         );
     }
     

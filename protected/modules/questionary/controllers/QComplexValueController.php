@@ -147,7 +147,7 @@ class QComplexValueController extends Controller
         }
         if ( $currentQuestionaryId != $itemQuestionaryId AND ! Yii::app()->user->checkAccess('Admin') )
         {// нет прав на удаление записи
-            throw new CHttpException(500, 'Ошибка при удалении записи: неверно указан id анкеты');
+            throw new CHttpException(400, 'Ошибка при удалении записи: неверно указан id анкеты');
             die;
         }
     }
