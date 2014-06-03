@@ -42,7 +42,8 @@ class QSearchFilterSystem extends QSearchFilterBaseSelect2
     protected function getContent()
     {
         $content  = '';
-        $selected = 'OR';
+        //$selected = 'OR';
+        $selected = '';
         
         // добавляем способ объединения условий 
         $name = $this->getFullInputName('operator');
@@ -100,9 +101,9 @@ class QSearchFilterSystem extends QSearchFilterBaseSelect2
     protected function createIsEmptyFilterJs()
     {
         return "function {$this->isEmptyJsName}() {
-            //var data  = {$this->collectDataJsName}();
-            var value = $('#{$this->s2Selector}').select2('val');
-            if ( Object.keys(value).length == 0 )
+            var data  = {$this->collectDataJsName}();
+            //var value = $('#{$this->s2Selector}').select2('val');
+            if ( Object.keys(data).length < 2 )
             {
                 return true;
             }
