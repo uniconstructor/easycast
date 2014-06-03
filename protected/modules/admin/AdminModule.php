@@ -12,9 +12,16 @@ class AdminModule extends CWebModule
      */
     public $controllerMap = array(
         'fastOrder' => array(
-            'class'=>'application.modules.admin.controllers.FastOrderController',
-            ),
-        );
+            'class' => 'application.modules.admin.controllers.FastOrderController',
+        ),
+    );
+    /**
+     * @var array - массив id фрагментов кода (клипов), для всплывающих форм сложных значений
+     *              В форме анкеты требуется вывести множество "дочерних форм", а вкладывать их
+     *              друг в друга нельзя поэтому выбрано такое решение
+     *              Подробнее см. документацию класса CClipWidget
+     */
+    public $formClips = array();
     
     /**
      * @see CModule::init()
@@ -85,8 +92,11 @@ class AdminModule extends CWebModule
 	 */
 	public function cron($tasks=null)
 	{
-	    $this->cronTaskSendMail();
-	    $this->cronTaskUploadImages();
+	    if ( Yii::app()->params['useCron'] )
+	    {
+	        $this->cronTaskSendMail();
+	        $this->cronTaskUploadImages();
+	    }
 	}
 	
 	/**
