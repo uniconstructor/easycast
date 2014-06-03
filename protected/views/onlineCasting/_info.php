@@ -22,7 +22,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 ));
 
 ?>
-<div id="wizard-bar" class="progress progress-striped">
+<div id="wizard-bar" class="progress progress-striped progress-info">
     <div class="bar"></div>
 </div>
 <div class="span8 offset2">

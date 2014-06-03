@@ -6,7 +6,7 @@
 /* @var $form TbActiveForm */
 ?>
 <div class="page-alternate">
-    <div id="wizard-bar" class="progress progress-striped">
+    <div id="wizard-bar" class="progress progress-striped progress-info">
         <div class="bar"></div>
     </div>
     <div class="title-page">
