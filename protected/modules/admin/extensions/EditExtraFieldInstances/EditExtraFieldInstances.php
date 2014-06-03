@@ -133,7 +133,11 @@ class EditExtraFieldInstances extends EditableGrid
                 'value' => '$data->name;',
             ),
             // обязательное поле (да/нет)
-            $this->getToggleColumnOptions('filling', '//questionary/qTheatreInstance/toggle'),
+            //$this->getToggleColumnOptions('filling', '//questionary/qTheatreInstance/toggle'),
+            array(
+                'name'  => 'filling',
+                'value' => '$data->getFillingMode();',
+            ),
         );
     }
     
