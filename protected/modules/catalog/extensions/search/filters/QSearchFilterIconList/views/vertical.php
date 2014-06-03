@@ -4,6 +4,7 @@
  */
 /* @var $this QSearchFilterIconList */
 /* @var $sections CatalogSection[] */
+
 foreach ( $sections as $section )
 {
     $activeButtonClass = 'btn-block';

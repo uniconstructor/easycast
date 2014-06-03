@@ -15,11 +15,11 @@ class QSearchFilterIconList extends QSearchFilterBase
      *               в этом виджете вручную устанавливается как 'sections' для того чтобы названия полей
      *               для обработчика QSearchHandlerSections совпадали
      */
-    public $namePrefix = 'sections';
+    public $namePrefix      = 'sections';
     /**
      * @var bool - очищать ли выбранные категории по событию очистки формы? 
      */
-    public $clearByEvent = false;
+    public $clearByEvent    = false;
     /**
      * @var string - как располагать кнопки с разделами?
      *               horizontal - горизонтально, по 6 элементов в строке
@@ -44,11 +44,11 @@ class QSearchFilterIconList extends QSearchFilterBase
     public function init()
     {
         parent::init();
+        $refreshJs = '';
         // Подключаем картинки, стили и скрипты для оформления
         $this->_iconsAssetUrl = Yii::app()->assetManager->publish(
             Yii::getPathOfAlias('catalog.extensions.search.filters.QSearchFilterIconList.assets').DIRECTORY_SEPARATOR);
-    
-        $refreshJs = '';
+        
         if ( $this->refreshDataOnChange )
         {// если нужно сразу же обновлять результаты поиска при изменении критериев поиска
             // то добавляем скрипт который создает jQuery-событие "критерии поиска изменены"
@@ -56,9 +56,9 @@ class QSearchFilterIconList extends QSearchFilterBase
             // содержимое через AJAX 
             $refreshJs = '$("body").trigger("'.$this->refreshDataEvent.'");';
         }
-        // устанавливаем скрипт активации кнопки для каждого раздела каталога
+        
         foreach ( $this->getCatalogSections() as $section )
-        {
+        {// устанавливаем скрипт активации кнопки для каждого раздела каталога
             $js = '$("#QSearchsections_button_'.$section->id.'").click(function(){
                 $(this).toggleClass("btn-primary");
                 if ( $(this).hasClass("btn-primary") )
@@ -137,7 +137,6 @@ class QSearchFilterIconList extends QSearchFilterBase
                 $.each(typeValue, function(index, element){
                     types[index] = element.value;
                 });
-                
                 data.sections = types;
             }
             return data;
