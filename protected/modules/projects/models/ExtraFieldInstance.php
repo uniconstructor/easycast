@@ -33,9 +33,9 @@ class ExtraFieldInstance extends CActiveRecord
 	{
 		return array(
 			array('objecttype', 'required'),
-			array('objecttype, filling, condition', 'length', 'max'=>50),
-			array('fieldid, objectid, timecreated, timemodified', 'length', 'max'=>11),
-			array('data', 'length', 'max'=>1023),
+			array('objecttype, filling, condition', 'length', 'max' => 50),
+			array('fieldid, objectid, timecreated, timemodified', 'length', 'max' => 11),
+			array('data', 'length', 'max' => 1023),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('id, fieldid, objecttype, objectid, filling, condition, data, timecreated, timemodified', 'safe', 'on'=>'search'),
@@ -63,7 +63,8 @@ class ExtraFieldInstance extends CActiveRecord
 	public function relations()
 	{
 		return array(
-		    'extrafield' => array(self::BELONGS_TO, 'ExtraField', 'fieldid'),
+		    'field'  => array(self::BELONGS_TO, 'ExtraField', 'fieldid'),
+		    'values' => array(self::HAS_MANY, 'ExtraFieldValue', 'instanceid'),
 		);
 	}
 	
@@ -100,8 +101,7 @@ class ExtraFieldInstance extends CActiveRecord
 	public function search()
 	{
 		// @todo Please modify the following code to remove attributes that should not be searched.
-
-		$criteria=new CDbCriteria;
+		$criteria = new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
 		$criteria->compare('fieldid',$this->fieldid,true);
@@ -114,7 +114,7 @@ class ExtraFieldInstance extends CActiveRecord
 		$criteria->compare('timemodified',$this->timemodified,true);
 
 		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
+			'criteria' => $criteria,
 		));
 	}
 

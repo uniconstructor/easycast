@@ -58,7 +58,7 @@ class ExtraFieldValue extends CActiveRecord
 	public function relations()
 	{
 		return array(
-		    
+		    'fieldInstance' => array(self::BELONGS_TO, 'ExtraFieldInstance', 'instanceid'),
 		);
 	}
 

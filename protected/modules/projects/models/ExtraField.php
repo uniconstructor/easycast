@@ -37,7 +37,7 @@ class ExtraField extends CActiveRecord
 			array('timecreated, timemodified', 'length', 'max' => 11),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, name, type, label, description, timecreated, timemodified', 'safe', 'on'=>'search'),
+			array('id, name, type, label, description, timecreated, timemodified', 'safe', 'on' => 'search'),
 		);
 	}
 	
@@ -62,7 +62,7 @@ class ExtraField extends CActiveRecord
 	public function relations()
 	{
 		return array(
-            'fieldinstances' => array(self::HAS_MANY, 'ExtraFieldInstance', 'fieldid'),
+            'fieldInstances' => array(self::HAS_MANY, 'ExtraFieldInstance', 'fieldid'),
 		);
 	}
 	
@@ -105,19 +105,18 @@ class ExtraField extends CActiveRecord
 	public function search()
 	{
 		// @todo Please modify the following code to remove attributes that should not be searched.
+		$criteria = new CDbCriteria;
 
-		$criteria=new CDbCriteria;
-
-		$criteria->compare('id',$this->id);
-		$criteria->compare('name',$this->name,true);
-		$criteria->compare('type',$this->type,true);
-		$criteria->compare('label',$this->label,true);
-		$criteria->compare('description',$this->description,true);
-		$criteria->compare('timecreated',$this->timecreated,true);
-		$criteria->compare('timemodified',$this->timemodified,true);
+		$criteria->compare('id', $this->id);
+		$criteria->compare('name', $this->name, true);
+		$criteria->compare('type', $this->type, true);
+		$criteria->compare('label', $this->label, true);
+		$criteria->compare('description', $this->description, true);
+		$criteria->compare('timecreated', $this->timecreated, true);
+		$criteria->compare('timemodified', $this->timemodified, true);
 
 		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
+			'criteria' => $criteria,
 		));
 	}
 
