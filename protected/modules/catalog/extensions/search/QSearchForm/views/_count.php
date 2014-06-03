@@ -4,6 +4,6 @@
  */
 /* @var $this QSearchForm */
 ?>
-<div id="<?= $this->countResultsId; ?>_container" class="well hide" style="text-align:center;">
+<?= CHtml::openTag('div', $this->countContainerHtmlOptions); ?>
     <span class="alert alert-success">Найдено: <b id="<?= $this->countResultsId; ?>"></b></span>
-</div>
+<?= CHtml::closeTag('div'); ?>

@@ -10,8 +10,6 @@ Yii::import('catalog.extensions.search.SearchFilters.SearchFilters');
  * 
  * Форма собирает себя по фрагметам, для каждого поля используя специальный виджет
  * Виджеты полей общие для фильтров и для формы поиска
- * 
- * @todo удалить старые css-стили и старые изображения из папки images
  */
 class QSearchForm extends SearchFilters
 {
@@ -19,13 +17,13 @@ class QSearchForm extends SearchFilters
      * @var string - url по которому происходит переход после поиска
      *               Если этот параметр не задан - то перенаправления не происходит
      */
-    public $redirectUrl = '';
+    public $redirectUrl    = '';
     /**
      * @var string - url по которому запрашивается количество найденных (подходящих) участников
      *               Если этот параметр не задан - то количество участников отображаться не будет
      *               Ответ пришедший из этого url должен возвращать единственное целое число
      */
-    public $countUrl = '';
+    public $countUrl       = '';
     /**
      * @var string - название jQuery события, посылаемого для подсчета обновления количества подходящих участников
      */
@@ -35,12 +33,44 @@ class QSearchForm extends SearchFilters
      */
     public $countResultsId = 'count_results';
     /**
+     * @var string - расположение блока со счетчиком
+     *               top    - над всеми полями формы
+     *               bottom - после полей формы, над кнопками
+     */
+    public $countResultPosition  = 'top';
+    /**
+     * @var bool - отображать ли количество подходящих участников
+     */
+    public $displayCount = true;
+    /**
+     * @var array
+     * @todo добавить возможность установки id через этот массив
+     * @todo ставить класс hide в зависимости от countDisplay
+     */
+    public $countContainerHtmlOptions = array(
+        'class' => 'well hide text-center',
+    );
+    /**
+     * @var array - массив настроек для каждого фильтра
+     */
+    public $filterOptions = array(
+        'iconlist' => array(
+            'buttonAlignment' => 'vertical',
+            'clearByEvent'    => true,
+        ),
+    );
+    /**
      * @var array - распределение фильтров по колонкам формы поиска
      */
     public $columnFilters = array(
-        'base'   => array('gender', 'age', 'playage', 'height', 'name'),
-        'looks'  => array('looktype', 'weight', 'haircolor', 'hairlength', 'eyecolor', 'body', 'shoessize', 'hastatoo'),
-        'skills' => array('dancer', 'voicetimbre', 'instrument', 'sporttype', 'extremaltype', 'language', 'driver'),
+        'sections' => array('iconlist'),
+        'base'     => array('gender', 'age', /*'email',*/ 'salary', 'height', 'weight', 'body', 'system', 'name'),
+        'looks'    => array('looktype', 'physiquetype', 'haircolor', 'hairlength', 
+            'eyecolor', 'shoessize', 'wearsize', 'titsize', 'hastatoo',
+        ),
+        'skills'   => array('dancer', 'voicetimbre', 'instrument', 'sporttype', 
+            'extremaltype', 'language', 'driver', 'striptease',
+        ),
     );
     /**
      * @var array - параметры отображения для кнопки "Найти"
@@ -68,12 +98,13 @@ class QSearchForm extends SearchFilters
     public function init()
     {
         parent::init();
+        // режим отображения: широкая форма поиска в 4 колонки
         $this->mode = 'form';
         
-        // подключаем стили формы поиска
-        /*$this->_assetUrl = Yii::app()->assetManager->publish(
-            Yii::getPathOfAlias('catalog.extensions.search.QSearchForm.assets') . DIRECTORY_SEPARATOR);
-        Yii::app()->clientScript->registerCssFile($this->_assetUrl.'/css/search.css');*/
+        if ( ! isset($this->countContainerHtmlOptions['id']) )
+        {
+            $this->countContainerHtmlOptions['id'] = $this->countResultsId.'_container';
+        }
         // регистрируем скрипт счетчика - он автоматически обновляет количество подходящих участников
         // при каждом изменении критериев поиска
         $this->createCountRefreshJs();
@@ -110,28 +141,10 @@ class QSearchForm extends SearchFilters
             $path = 'catalog.extensions.search.filters.'.$filter->widgetclass.'.'.$filter->widgetclass;
             // отображаем фильтр поиска
             echo '<li style="display:block;">';
-            //echo '<div  class="search_select">';
             $this->widget($path, $options);
-            //echo '</div>';
             echo '</li>';
         }
     }
-    
-    /**
-     * Получить параметры для отображения всех виджетов (фильтров) поиска
-     * @param CatalogFilter $filter - отображаемый фильтр поиска
-     * @return array
-     */
-    /*protected function getDisplayFilterOptions($filter)
-    {
-        return array(
-            'searchObject' => $this->searchObject,
-            'filter'       => $filter,
-            'display'      => 'form',
-            'dataSource'   => $this->dataSource,
-            'refreshDataOnChange' => $this->refreshDataOnChange,
-        );
-    }*/
     
     /**
      * Определить, включен ли фильтр в прикрепленном объекте поиска
@@ -176,6 +189,9 @@ class QSearchForm extends SearchFilters
     /**
      * Получить js-код, выполняющийся после успешного ajax-запроса из формы поиска
      * @return string
+     * 
+     * @todo сделать возможность настройки, что обновлять: результат счетчика, 
+     *       результат поиска или и то и другое
      */
     protected function createSuccessSearchJs()
     {
@@ -187,8 +203,10 @@ class QSearchForm extends SearchFilters
         }
         return "function(data, status){
             {$redirectScript}
-            $('#{$this->searchResultsId}').html(data);
-            $('#search_button').attr('class', 'btn btn-success');
+            //$('#{$this->searchResultsId}').html(data);
+            $('#{$this->countResultsId}').html(data);
+            
+            $('#search_button').attr('class', '{$this->searchButtonHtmlOptions['class']}');
             $('#search_button').val('{$this->searchButtonTitle}');
         }";
     }
@@ -203,7 +221,6 @@ class QSearchForm extends SearchFilters
         {
             return;
         }
-        $countUrl = Yii::app()->createUrl($this->countUrl);
         $beforeSendJs = "function(jqXHR, settings){
             $('#{$this->countResultsId}_container').removeClass('hide');
             var ecSearchData = {};
@@ -213,7 +230,7 @@ class QSearchForm extends SearchFilters
             settings.data = settings.data + '&data=' + encodedData;
         }";
         $ajaxOptions = array(
-            'url'        => $countUrl,
+            'url'        => Yii::app()->createUrl($this->countUrl),
             'cache'      => false,
             'type'       => 'post',
             'data'       => $this->getAjaxSearchParams(),
@@ -222,9 +239,7 @@ class QSearchForm extends SearchFilters
         );
         $countJs = CHtml::ajax($ajaxOptions);
         
-        $js = "$('body').on('{$this->countDataEvent}', function(event){
-            {$countJs}
-        });";
+        $js = "$('body').on('{$this->countDataEvent}', function(event){ {$countJs} });";
         Yii::app()->clientScript->registerScript('_ecSearchCounter#', $js, CClientScript::POS_END);
     }
 }

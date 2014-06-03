@@ -12,11 +12,10 @@
 <div class="row-fluid">
     <div class="row-fluid text-center">
         <?php 
-        // добавляем счетчик подходящих участников (если нужно)
-        if ( $this->countUrl or true)
-        {
+        if ( $this->displayCount AND $this->countResultPosition === 'top' )
+        {// добавляем счетчик подходящих участников 
             $this->render('_count');
-        } 
+        }
         ?>
     </div>
     <!-- 4 колонки с критериями поиска -->
@@ -25,14 +24,7 @@
             <h3 style="color:#497A89;font-size:20px;font-weight:normal;">Разделы каталога</h3>
             <?php
             // список разделов каталога, отображаемый вертикально
-            $filter = CatalogFilter::model()->find("`shortname` = 'iconlist'");
-            $this->widget('catalog.extensions.search.filters.'.$filter->widgetclass.'.'.$filter->widgetclass, array(
-                'display'             => 'form',
-                'filter'              => $filter,
-                'searchObject'        => $this->searchObject,
-                'refreshDataOnChange' => $this->refreshDataOnChange,
-                'buttonAlignment'     => 'vertical',
-            ));
+            $this->displayColumnFilters('sections');
             ?>
         </div>
         <div class="span3">
@@ -59,6 +51,10 @@
     </div>
     <div class="row-fluid text-center">
     <?php 
+    if ( $this->displayCount AND $this->countResultPosition === 'bottom' )
+    {// добавляем счетчик подходящих участников
+        $this->render('_count');
+    }
     // добавляем кнопки "очистить" и "найти"
     $this->displayButtons();
     ?>
