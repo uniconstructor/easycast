@@ -33,8 +33,6 @@ $form = $this->beginWidget('TbActiveForm', array(
 
 <div class="modal-body">
     <?php
-    // id анкеты
-    echo CHtml::hiddenField('qid', $this->questionary->id);
     // отображаем все поля формы добавления новой записи
     $this->renderFormFields($form);
     ?>
@@ -44,29 +42,29 @@ $form = $this->beginWidget('TbActiveForm', array(
     <?php 
     // кнопка добавления записи
     $this->widget('bootstrap.widgets.TbButton', array(
-          'buttonType'  => 'ajaxSubmit',
-          'type'        => 'success',
-          'label'       => $this->addButtonLabel,
-          'url'         => $this->createUrl,
-          'ajaxOptions' => array(
-              'success'  => "function (data, status) {
-                      \$('#{$this->modalId}').modal('hide');
-                      //data = \$.parseJSON(data);
-                      {$this->createAfterAddJs()}
-                  }",
-              'type'     => 'post',
-              'error'    => "function(data, status) {
-                  var message = '';
-                  console.log(data);
-                  if ( data.responseText )
-                  {
-                      message = ': ' + data.responseText;
-                  }
-                  alert('Ошибка при сохранении данных' + message);
-                  return false;
+        'buttonType'  => 'ajaxSubmit',
+        'type'        => 'success',
+        'label'       => $this->addButtonLabel,
+        'url'         => $this->createUrl,
+        'ajaxOptions' => array(
+            'success'  => "function (data, status) {
+                  \$('#{$this->modalId}').modal('hide');
+                  //data = \$.parseJSON(data);
+                  {$this->createAfterAddJs()}
               }",
-              'url' => $this->createUrl,
-          ),
+            'type'     => 'post',
+            'error'    => "function(data, status) {
+              var message = '';
+              console.log(data);
+              if ( data.responseText )
+              {
+                  message = ': ' + data.responseText;
+              }
+              alert('Ошибка при сохранении данных' + message);
+              return false;
+            }",
+            'url' => $this->createUrl,
+        ),
     ));
     // закрыть окно
     $form->widget('bootstrap.widgets.TbButton', array(
