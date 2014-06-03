@@ -130,7 +130,6 @@ class QSearchFilterBaseSlider extends QSearchFilterBase
             ),
         ), true);
     
-    
         return $content;
     }
     
