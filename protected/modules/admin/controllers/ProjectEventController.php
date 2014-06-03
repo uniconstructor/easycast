@@ -11,9 +11,12 @@ class ProjectEventController extends Controller
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
 	 */
 	public $layout='//layouts/column2';
+	/**
+	 * @var string
+	 */
+	public $defaultAction = 'create';
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CController::init()
 	 */
 	public function init()
@@ -82,7 +85,7 @@ class ProjectEventController extends Controller
 		    throw new CHttpException(404, 'Необходимо указать id проекта');
 		}
 		// Uncomment the following line if AJAX validation is needed
-		// $this->performAjaxValidation($model);
+		//$this->performAjaxValidation($model);
 
 		if ( isset($_POST['ProjectEvent']) )
 		{
@@ -113,14 +116,14 @@ class ProjectEventController extends Controller
 		$model = $this->loadModel($id);
 
 		// Uncomment the following line if AJAX validation is needed
-		// $this->performAjaxValidation($model);
+		//$this->performAjaxValidation($model);
 
 		if ( isset($_POST['ProjectEvent']) )
 		{
 			$model->attributes = $_POST['ProjectEvent'];
 			if ( $model->save() )
 			{
-			    $this->redirect(array('view','id'=>$model->id));
+			    $this->redirect(array('view','id' => $model->id));
 			}
 		}
 
