@@ -2,6 +2,8 @@
 /**
  * Вызывной лист
  */
+/* @var $this  ProjectEventController */
+/* @var $event ProjectEvent */
 
 // составляем верхнее меню навигации
 $breadcrumbs = array(
