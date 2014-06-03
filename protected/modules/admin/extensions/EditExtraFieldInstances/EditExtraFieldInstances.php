@@ -69,9 +69,13 @@ class EditExtraFieldInstances extends EditableGrid
      * @var array - список текстов-заглушек, которые отображаются в случае, когда поле не заполнено
      */
     public $emptyTextVariants = array(
-        'name'    => '[не указано]',
+        'fieldid' => '[не указано]',
         'filling' => '[не указано]',
     );
+    /**
+     * @var string - id модуля, который хранит клипы с modal-формами
+     */
+    public $clipModule = 'admin';
     
     /**
      * @var CActiveRecord - объект к которому привязываются дополнительные поля
@@ -125,7 +129,7 @@ class EditExtraFieldInstances extends EditableGrid
         return array(
             // название мероприятия
             array(
-                'name'  => 'name',
+                'name'  => 'fieldid',
                 'value' => '$data->name;',
             ),
             // обязательное поле (да/нет)
