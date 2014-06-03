@@ -126,16 +126,22 @@ class SearchFilters extends CWidget
     /**
      * @var array - параметры отображения для кнопки "Найти"
      */
-    public $searchButtonHtmlOptions = array(
+    public $searchButtonHtmlOptions  = array(
         'class' => 'btn btn-success',
         'id'    => 'search_button',
     );
     /**
      * @var array - параметры отображения для кнопки "Очистить"
      */
-    public $clearButtonHtmlOptions = array(
+    public $clearButtonHtmlOptions   = array(
         'class' => 'btn btn-primary',
         'id'    => 'clear_search',
+    );
+    /**
+     * @var array - параметры отображения для кнопки "Очистить"
+     */
+    public $disabledButtonHtmlOptions = array(
+        'class' => 'btn btn-disabled',
     );
     /**
      * @var array - параметры отображения для кнопки "Вернуться в расширенный поиск"
@@ -143,7 +149,6 @@ class SearchFilters extends CWidget
     public $backToFormButtonHtmlOptions = array(
         'class' => 'btn btn-warning',
     );
-    
     
     /**
      * @var array - допустимые режимы отображения виджета
@@ -243,7 +248,6 @@ class SearchFilters extends CWidget
         {
             throw new CException('Задан пустой массив фильтров поиска');
         }
-        
         $this->filters = $filters;
     }
 
@@ -253,7 +257,8 @@ class SearchFilters extends CWidget
      * @return array|null
      * 
      * @todo перенести загрузку значений из сессии и базы сюда же,
-     * убрать этот функционал из класса QSearchFilterBase
+     *       убрать этот функционал из класса QSearchFilterBase
+     * @deprecated
      */
     protected function loadFilterData($filter)
     {
@@ -287,7 +292,7 @@ class SearchFilters extends CWidget
         {// заголовок над всеми фильтрами вообще отображать не нужно
             return '';
         }
-        if ( $this->mode == 'form' OR ( isset($this->searchObject->id) AND $this->searchObject->id == 1 ) )
+        if ( $this->mode === 'form' OR ( isset($this->searchObject->id) AND $this->searchObject->id == 1 ) )
         {
             return "<h4>Условия</h4>";
         }else
@@ -305,7 +310,6 @@ class SearchFilters extends CWidget
     protected function displayFilter($filter)
     {
         $panel = array();
-        
         // Задаем путь к виджету фрагмента поиска и настройкам для него
         $path    = 'catalog.extensions.search.filters.'.$filter->widgetclass.'.'.$filter->widgetclass;
         $options = $this->getDisplayFilterOptions($filter);
@@ -321,18 +325,18 @@ class SearchFilters extends CWidget
     protected function getDisplayFilterOptions($filter)
     {
         $defaults = array(
-            'section'      => $this->section,
-            'searchObject' => $this->searchObject,
-            'filter'       => $filter,
-            'display'      => $this->mode,
-            'dataSource'   => $this->dataSource,
+            //'section'             => $this->section,
+            'searchObject'        => $this->searchObject,
+            'filter'              => $filter,
+            'display'             => $this->mode,
+            'dataSource'          => $this->dataSource,
             'refreshDataOnChange' => $this->refreshDataOnChange,
+            'clearUrl'            => $this->clearUrl,
         );
-        if ( $data = $this->loadFilterData($filter) )
+        /*if ( $data = $this->loadFilterData($filter) )
         {// для этого фильтра установлены значения по умолчанию
             $defaults['data'] = $data;
-        }
-        
+        }*/
         if ( isset($this->filterOptions[$filter->shortname]) AND is_array($this->filterOptions[$filter->shortname]) )
         {// для этого фильтра поиска заданы индивидуальные настройки
             return CMap::mergeArray($defaults, $this->filterOptions[$filter->shortname]);
@@ -354,7 +358,7 @@ class SearchFilters extends CWidget
         echo '&nbsp;&nbsp;&nbsp;&nbsp;';
         // Кнопка "Очистить"
         $this->displayClearButton();
-        // кнопка "вернуться в расширенный поиск" (если нужна)
+        // кнопка "Вернуться в расширенный поиск" (если нужна)
         $this->displayBackToFormButton();
     }
     
@@ -383,7 +387,8 @@ class SearchFilters extends CWidget
         return array(
             'searchObjectId' => $this->getSearchObjectId(),
             'mode'           => $this->mode,
-            Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken);
+            Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
+        );
     }
     
     /**
@@ -393,12 +398,11 @@ class SearchFilters extends CWidget
     protected function getAjaxSearchOptions()
     {
         $ajaxUrl = Yii::app()->createUrl($this->searchUrl);
-        
         // Перед отправкой поискового запроса пристыковываем к нему данные из поисковой формы в формате json
         // Плюс к этому, на время запоса выключаем кнопку поиска чтобы пользователь видел что процесс идет
         $beforeSendJs = $this->createBeforeSearchJs();
         // после ответа на запрос обновляем содержимое результатов поиска
-        $successJs = $this->createSuccessSearchJs();
+        $successJs    = $this->createSuccessSearchJs();
         
         // Задаем настройки для поискового AJAX-запроса
         $ajaxOptions = array(
@@ -409,7 +413,6 @@ class SearchFilters extends CWidget
             'beforeSend'  => $beforeSendJs,
             'success'     => $successJs,
         );
-        
         return $ajaxOptions;
     }
     
@@ -421,7 +424,7 @@ class SearchFilters extends CWidget
     {
         return "function(jqXHR, settings){
             $('#{$this->searchResultsId}').fadeTo(150, 0.5);
-            $('#search_button').attr('class', 'btn btn-disabled');
+            $('#search_button').attr('class', 'btn btn-disabled btn-large');
             $('#search_button').val('{$this->searchProgressTitle}');
             
             var ecSearchData = {};
@@ -444,7 +447,7 @@ class SearchFilters extends CWidget
         return "function(data, status){
             $('#{$this->searchResultsId}').html(data);
         
-            $('#search_button').attr('class', 'btn btn-success');
+            $('#search_button').attr('class', '{$this->disabledButtonHtmlOptions['class']}');
             $('#search_button').val('{$this->searchButtonTitle}');
             $('#{$this->searchResultsId}').fadeTo(150, 1);
         }";
@@ -452,12 +455,15 @@ class SearchFilters extends CWidget
     
     /**
      * Отобразить кнопку "очистить"
-     * 
      * @return null
      */
     protected function displayClearButton()
     {
-        $clearUrl = Yii::app()->createUrl($this->clearUrl);
+        if ( ! $this->clearUrl )
+        {
+            return;
+        }
+        $clearUrl  = Yii::app()->createUrl($this->clearUrl);
         $refreshJs = '';
         if ( $this->refreshDataOnChange )
         {
@@ -468,8 +474,11 @@ class SearchFilters extends CWidget
         }";
         
         $ajaxData = array(
-            'sectionId' => $this->getSectionId(),
-            Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken);
+            // @todo удалить sectionId
+            'sectionId'      => $this->getSectionId(),
+            'searchObjectId' => $this->getSearchObjectId(),
+            Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
+        );
         $ajaxOptions = array(
             'url'        => $clearUrl,
             'data'       => $ajaxData,
@@ -483,12 +492,12 @@ class SearchFilters extends CWidget
     
     /**
      * Отобразить кнопку "вернуться в расширенный поиск"
-     * @return void
+     * @return null
      */
     protected function displayBackToFormButton()
     {
         if ( ! $this->backToFormUrl )
-        {// а не нужно ее отображать :)
+        {// не нужно ее отображать
             return;
         }
         $backToFormUrl = Yii::app()->createUrl($this->backToFormUrl);
@@ -498,7 +507,6 @@ class SearchFilters extends CWidget
     
     /**
      * Получить скрипт, обновляющий результаты поиска в ответ на AJAX-запрос
-     * 
      * @return null
      * 
      * @todo дописать позже
@@ -508,18 +516,13 @@ class SearchFilters extends CWidget
         $ajaxOptions = $this->getAjaxSearchOptions();
         $searchJs    = CHtml::ajax($ajaxOptions);
         
-        $js = "$('body').on('{$this->refreshDataEvent}', function(event){
-            {$searchJs}
-        });";
+        $js = "$('body').on('{$this->refreshDataEvent}', function(event){ {$searchJs} });";
         Yii::app()->clientScript->registerScript('_ecRefreshSearchResultsJS#', $js, CClientScript::POS_END);
     }
     
     /**
      * Получить id текущего раздела каталога (если отображаются фильтры) или 0 (если отображается большая форма)
-     * @return number
-     * @return null
-     *
-     * @todo переименовать в getSearchObjectId
+     * @return int
      */
     protected function getSearchObjectId()
     {
@@ -527,24 +530,17 @@ class SearchFilters extends CWidget
         {
             return $this->searchObject->id;
         }
-    
         return 0;
     }
     
     /**
      * Получить id текущего раздела каталога (если отображаются фильтры) или 0 (если отображается большая форма)
      * @return number
-     * @return null
      * 
      * @deprecated не используется, удалить при рефакторинге
      */
     protected function getSectionId()
     {
-        if ( is_object($this->searchObject) )
-        {
-            return $this->searchObject->id;
-        }
-        
-        return 0;
+        return $this->getSearchObjectId();
     }
 }
