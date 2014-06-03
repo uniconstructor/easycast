@@ -32,6 +32,7 @@
  * @todo всегда автоматически добавлять фильтр по оплате, если в вакансии указана оплата.
  *       Не давать удалять этот фильтр, пока не будет удалена сумма оплаты
  * @todo запретить редактирование списка поисковых фильтров если вакансия - не черновик
+ * @todo миграция, заменяющая все старые критерии поиска: заменить sections на iconlist
  */
 class EventVacancy extends CActiveRecord
 {
@@ -125,9 +126,11 @@ class EventVacancy extends CActiveRecord
 	        'striptease',
 	        'driver',
 	        'name',
-	        'sections',
+	        'sections', // @todo удалить
 	        'salary',
 	        'system',
+	        'email',
+	        'iconlist',
 	    );
 	}
 	
@@ -242,7 +245,10 @@ class EventVacancy extends CActiveRecord
 		    'event' => array(self::BELONGS_TO, 'ProjectEvent', 'eventid'),
 		    // критерий поиска, по которому выбираются подходящие на вакансию участники 
 		    'scope' => array(self::BELONGS_TO, 'SearchScope', 'scopeid'),
-		    
+		    // дополнительные поля, необходимые для подачи заявки на эту роль
+		    'extraFields' => array(self::MANY_MANY, 'ExtraField',
+		        "{{extra_field_instances}}(objectid, fieldid)",
+		        'condition' => "`objecttype` = 'vacancy'"),
 		    // доступные фильтры поиска для этой вакансии
 		    'searchFilters' => array(self::MANY_MANY, 'CatalogFilter',
 		        "{{catalog_filter_instances}}(linkid, filterid)",
@@ -254,10 +260,12 @@ class EventVacancy extends CActiveRecord
 		    
 		    // Статистика
 		    // Количество поданых заявок
+		    // @todo переписать через именованные группы условий
 		    'requestsCount' => array(self::STAT, 'MemberRequest', 'vacancyid'),
 		    // Количество подтвержденных заявок
+		    // @todo переписать через именованные группы условий
 		    'membersCount' => array(self::STAT, 'ProjectMember', 'vacancyid', 
-		        'condition' => "status = 'active' OR status = 'finished'"),
+		        'condition' => "`status` = 'active' OR `status` = 'finished'"),
 		    
 		    // одобренные заявки на вакансию
 		    // @todo переписать через именованные группы условий
@@ -270,7 +278,7 @@ class EventVacancy extends CActiveRecord
 		    //               со старым кодом, удалить ее при рефакторинге
 		    // @todo переписать через именованные группы условий, удалить при рефакторинге
 		    'rejectedmembers' => array(self::HAS_MANY, 'ProjectMember', 'vacancyid',
-		        'condition' => "status='rejected'"),
+		        'condition' => "`status` = 'rejected'"),
 	        // ссылки на доступные фильтры поиска для этой вакансии
 		    // @deprecated - использовалось пока я не умел писать связи типа "мост"
 		    // @todo удалить при рефакторинге, вместо нее использовать связь searchFilters
@@ -623,8 +631,9 @@ class EventVacancy extends CActiveRecord
 	    $criteria = new CDbCriteria();
 	    
 	    // (по умолчанию - берем только анкеты в активном статусе)
-	    $criteria->compare('status', 'active');
-	    // $criteria->addCondition("`t`.`status` = 'active'");
+	    // $criteria->compare('status', 'active');
+	    // @todo в качестве alias таблицы проставить не "t" а alias в модели Questionary
+	    $criteria->addCondition("`t`.`status` = 'active'");
 	    // сортируем анкеты по рейтингу (сначала лучшие)
 	    $criteria->order = '`t`.`rating` DESC';
 	    
@@ -651,8 +660,8 @@ class EventVacancy extends CActiveRecord
 	    {// если в вакансии указана сумма оплаты - установим ее сразу же как поисковый критерий 
 	        // (таким образом сразу же отсекаем всех кто дороже)
 	        
-	        // округляем сумму оплаты до 500 в меньшую сторону
-	        $tail      = $this->salary % 500;
+	        // округляем сумму оплаты до 250 в меньшую сторону
+	        $tail      = $this->salary % 250;
 	        $maxSalary = $this->salary - $tail;
 	        $searchData[$prefix.'salary'] = array('maxsalary' => $maxSalary);
 	    }
@@ -716,7 +725,6 @@ class EventVacancy extends CActiveRecord
 	    {// условие еще не создано
 	        return false;
 	    }
-	    
 	    return $this->scope->getCombinedCriteria();
 	}
 	
@@ -726,7 +734,7 @@ class EventVacancy extends CActiveRecord
 	 * 
 	 * @return null
 	 * 
-	 * @todo позже наменить на интерфейс, позволяющий выбирать фильтры вручную при создании
+	 * @todo позже заменить на интерфейс, позволяющий выбирать фильтры вручную при создании
 	 */
 	protected function attachDefaultFilters()
 	{
@@ -817,21 +825,18 @@ class EventVacancy extends CActiveRecord
 	public function getFilterSearchData($namePrefix)
 	{
 	    $searchData = $this->getSearchData();
-	    
 	    if ( ! isset($searchData[$namePrefix]) )
 	    {
 	        return array();
 	    }
-	    
 	    return $searchData[$namePrefix];
 	}
 	
 	/**
 	 * Получить все сохраненные данные из формы поиска людей для вакансии
-	 * 
 	 * @return null
 	 */
-	protected function getSearchData()
+	public function getSearchData()
 	{
 	    return unserialize($this->searchdata);
 	}
