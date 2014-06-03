@@ -14,6 +14,10 @@
  * @property string $timecreated
  * @property string $timemodified
  * 
+ * Relations:
+ * @property ExtraField $fieldObject
+ * @property ExtraFieldValue[] $instanceValues - введенные значения пользователей
+ * 
  * @todo документировать код
  */
 class ExtraFieldInstance extends CActiveRecord
@@ -63,8 +67,8 @@ class ExtraFieldInstance extends CActiveRecord
 	public function relations()
 	{
 		return array(
-		    'field'  => array(self::BELONGS_TO, 'ExtraField', 'fieldid'),
-		    'values' => array(self::HAS_MANY, 'ExtraFieldValue', 'instanceid'),
+		    'fieldObject' => array(self::BELONGS_TO, 'ExtraField', 'fieldid'),
+		    'instanceValues' => array(self::HAS_MANY, 'ExtraFieldValue', 'instanceid'),
 		);
 	}
 	
@@ -127,5 +131,31 @@ class ExtraFieldInstance extends CActiveRecord
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
+	}
+	
+	/**
+	 * Получить название фильтра поиска
+	 * @return string
+	 */
+	public function getName()
+	{
+	    if ( $this->isNewRecord )
+	    {
+	        return;
+	    }
+	    return $this->fieldObject->name;
+	}
+	
+	/**
+	 * Получить описание фильтра поиска
+	 * @return string
+	 */
+	public function getDescription()
+	{
+	    if ( $this->isNewRecord )
+	    {
+	        return;
+	    }
+	    return $this->fieldObject->description;
 	}
 }
