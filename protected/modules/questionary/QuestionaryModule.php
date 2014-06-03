@@ -49,6 +49,7 @@ class QuestionaryModule extends CWebModule
     public $questionaryTable = '{{questionaries}}';
     /**
      * @property string
+     * @deprecated
      */
     public $questionaryValuesTable = '{{questionary_complex_values}}';
     /**
@@ -104,7 +105,7 @@ class QuestionaryModule extends CWebModule
             'questionary.controllers.*',
             'questionary.models.*',
             'questionary.models.complexValues.*',
-            'questionary.extensions.*',
+            //'questionary.extensions.*',
             // каталог (тесно связан с анкетой, поэтому импортируем и его)
             'application.modules.catalog.CatalogModule',
             // галерея изображений
