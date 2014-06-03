@@ -9,7 +9,7 @@ class EventVacancyController extends Controller
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
 	 */
-	public $layout='//layouts/column2';
+	public $layout = '//layouts/column2';
 
 	/**
 	 * @return array action filters
@@ -35,14 +35,15 @@ class EventVacancyController extends Controller
 		return array(
 		    // разрешаем выполнять любые действия только авторизованным пользователям
 		    // проверка на админа происходит в модуле admin
-			array('allow',
-				'actions' => array('index','view', 'create','update','admin','delete','setStatus',
-				    'setSearchData', 'ClearFilterSearchData'),
+			array('allow', 
+			    'actions' => array(
+                    'view', 'create', 'update', 'delete', 'setStatus', 'setSearchData', 'ClearFilterSearchData',
+			    ),
 				'users'   => array('@'),
 			),
 		    // запрещаем все остальное
-			array('deny',
-				'users' => array('*'),
+			array('deny', 
+			    'users'   => array('*'),
 			),
 		);
 	}
@@ -53,8 +54,8 @@ class EventVacancyController extends Controller
 	 */
 	public function actionView($id)
 	{
-		$this->render('view',array(
-			'model'=>$this->loadModel($id),
+		$this->render('view', array(
+			'model' => $this->loadModel($id),
 		));
 	}
 
@@ -64,28 +65,30 @@ class EventVacancyController extends Controller
 	 */
 	public function actionCreate()
 	{
-		$model=new EventVacancy;
+	    $this->layout = '//layouts/column1';
 		
 		if ( ! $eventid = Yii::app()->request->getParam('eventid') )
-		{
-		    throw new CHttpException(404,'Необходимо указать id события');
+		{// для какого события создается роль
+		    throw new CHttpException(404, 'Необходимо указать id события');
 		}
-		
+		$model = new EventVacancy;
 		$event = ProjectEvent::model()->findByPk($eventid);
+		
+		// AJAX-проверка введенных значений
+		$this->performAjaxValidation($model);
 
-		// Uncomment the following line if AJAX validation is needed
-		// $this->performAjaxValidation($model);
-
-		if(isset($_POST['EventVacancy']))
+		if ( isset($_POST['EventVacancy']) )
 		{
 		    $_POST['EventVacancy']['eventid'] = $eventid;
-			$model->attributes=$_POST['EventVacancy'];
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->id));
+			$model->attributes = $_POST['EventVacancy'];
+			if ( $model->save() )
+			{
+			    $this->redirect(array('view', 'id' => $model->id));
+			}
 		}
 
 		$this->render('create',array(
-			'model'=>$model,
+			'model' => $model,
 		    'event' => $event,
 		));
 	}
@@ -97,20 +100,26 @@ class EventVacancyController extends Controller
 	 */
 	public function actionUpdate($id)
 	{
-		$model=$this->loadModel($id);
+	    $this->layout = '//layouts/column1';
+	    
+		$model = $this->loadModel($id);
+		$step  = Yii::app()->request->getParam('step');
 
 		// Uncomment the following line if AJAX validation is needed
-		// $this->performAjaxValidation($model);
+		$this->performAjaxValidation($model);
 
-		if(isset($_POST['EventVacancy']))
+		if ( isset($_POST['EventVacancy']) )
 		{
-			$model->attributes=$_POST['EventVacancy'];
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->id));
+			$model->attributes = $_POST['EventVacancy'];
+			if ( $model->save() )
+			{
+			    $this->redirect(array('view', 'id' => $model->id));
+			}
 		}
 
-		$this->render('update',array(
-			'model'=>$model,
+		$this->render('update', array(
+			'model' => $model,
+		    'step'  => $step,
 		));
 	}
 
@@ -139,36 +148,6 @@ class EventVacancyController extends Controller
 		}
 	}
 
-	/**
-	 * Lists all models.
-	 * 
-	 * @todo не используется, удалить при рефакторинге
-	 */
-	public function actionIndex()
-	{
-		$dataProvider=new CActiveDataProvider('EventVacancy');
-		$this->render('index',array(
-			'dataProvider'=>$dataProvider,
-		));
-	}
-
-	/**
-	 * Manages all models.
-	 * 
-	 * @todo не используется, удалить при рефакторинге
-	 */
-	public function actionAdmin()
-	{
-		$model=new EventVacancy('search');
-		$model->unsetAttributes();  // clear any default values
-		if(isset($_GET['EventVacancy']))
-			$model->attributes=$_GET['EventVacancy'];
-
-		$this->render('admin',array(
-			'model'=>$model,
-		));
-	}
-	
 	/**
 	 * Изменить статус объекта
 	 * @param int $id
@@ -201,7 +180,8 @@ class EventVacancyController extends Controller
 	        Yii::app()->end();
 	    }
 	    // id вакансии (обязательно)
-	    $id = Yii::app()->request->getParam('id', 0);
+	    // $id = Yii::app()->request->getParam('id', 0);
+	    $id = Yii::app()->request->getParam('searchObjectId', 0);
 	    $vacancy = $this->loadModel($id);
 	    
 	    if ( $vacancy->status != EventVacancy::STATUS_DRAFT )
@@ -242,13 +222,14 @@ class EventVacancyController extends Controller
 	    {
 	        Yii::app()->end();
 	    }
-	    // если название фильтра не задано - мы можем очистить только
 	    if ( ! $namePrefix = Yii::app()->request->getPost('namePrefix', '') )
-	    {
-	        throw new CHttpException(500, 'namePrefix required');
+	    {// если название фильтра не задано - мы не можем его очистить
+	        echo 'namePrefix required';
+	        return;
 	    }
 	    
-	    $vacancyId = Yii::app()->request->getPost('id', 0);
+	    // $vacancyId = Yii::app()->request->getPost('id', 0);
+	    $vacancyId = Yii::app()->request->getPost('searchObjectId', 0);
 	    if ( $vacancy = EventVacancy::model()->findByPk($vacancyId) )
 	    {// очищаем данные внутри вакансии
 	        $vacancy->clearFilterSearchData($namePrefix);
@@ -270,7 +251,7 @@ class EventVacancyController extends Controller
 		$model = EventVacancy::model()->findByPk($id);
 		if ( $model === null )
 		{
-		    throw new CHttpException(404,'Vacancy not found (id='.$id.')');
+		    throw new CHttpException(404, 'Vacancy not found (id='.$id.')');
 		}
 		return $model;
 	}
@@ -281,7 +262,7 @@ class EventVacancyController extends Controller
 	 */
 	protected function performAjaxValidation($model)
 	{
-		if(isset($_POST['ajax']) && $_POST['ajax']==='event-vacancy-form')
+		if ( isset($_POST['ajax']) && $_POST['ajax'] === 'event-vacancy-form' )
 		{
 			echo CActiveForm::validate($model);
 			Yii::app()->end();
