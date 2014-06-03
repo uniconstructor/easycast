@@ -33,7 +33,7 @@ class QSearchFilterSystem extends QSearchFilterBaseSelect2
      */
     protected function getTitle()
     {
-        return "СЛУЖЕБНЫЕ ФИЛЬТРЫ";
+        return "Служебные фильтры";
     }
     
     /**
@@ -66,7 +66,6 @@ class QSearchFilterSystem extends QSearchFilterBaseSelect2
     }
     
     /**
-     * (non-PHPdoc)
      * @see QSearchFilterBase::createCollectFilterDataJs()
      *
      * @todo добавить поддержку всего что ниже IE9
@@ -78,7 +77,7 @@ class QSearchFilterSystem extends QSearchFilterBaseSelect2
         $opSelector = 'input[name="'.$this->getFullInputName('operator').'"]';
         
         $js = "function {$this->collectDataJsName}() {
-            var data = {};
+            var data  = {};
             var value = $('#{$this->s2Selector}').select2('val');
             if ( Object.keys(value).length > 0 )
             {
@@ -100,11 +99,13 @@ class QSearchFilterSystem extends QSearchFilterBaseSelect2
      */
     protected function createIsEmptyFilterJs()
     {
-        $collectDataJs = $this->createCollectFilterDataJs();
         return "function {$this->isEmptyJsName}() {
-            var data = {$this->collectDataJsName}();
-            delete data.operator;
-            if ( Object.keys(data).length == 0 ) return true;
+            //var data  = {$this->collectDataJsName}();
+            var value = $('#{$this->s2Selector}').select2('val');
+            if ( Object.keys(value).length == 0 )
+            {
+                return true;
+            }
             return false;
         };";
     }
