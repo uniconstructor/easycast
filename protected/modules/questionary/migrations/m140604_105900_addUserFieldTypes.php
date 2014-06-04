@@ -21,6 +21,15 @@ class m140604_105900_addUserFieldTypes extends CDbMigration
         }
         
         $this->delete($table, "`name` = 'status'");
+        
+        $this->insert($table, array(
+            'name'       => 'countryid',
+			'type'       => 'country',
+			'storage'    => 'questionary',
+			'fillpoints' => '0',
+			'external'   => '0',
+			'multiple'   => '0',
+        ));
     }
     
     /**
