@@ -1,12 +1,15 @@
 <?php
 
-class m141518_001800_fixTimestamps extends CDbMigration
+class m140518_001800_fixTimestamps extends CDbMigration
 {
     /**
      * @see CDbMigration::safeUp()
      */
     public function safeUp()
     {
+        // @todo из-за загрузки в базу неправильной версии пришлось отключить эту миграцию чтобы она не
+        // выполнилась 2 раза
+        return;
         $table = '{{q_activities}}';
         $this->addColumn($table, 'timemodified', 'int(11) UNSIGNED NOT NULL DEFAULT 0');
         $this->createIndex('idx_timemodified', $table, 'timemodified');
