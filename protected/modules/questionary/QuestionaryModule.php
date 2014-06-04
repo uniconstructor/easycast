@@ -177,7 +177,7 @@ class QuestionaryModule extends CWebModule
      */
     public static function t($str='', $params=array(), $dic='questionary')
     {
-        if (Yii::t("QuestionaryModule", $str)==$str)
+        if ( Yii::t("QuestionaryModule", $str) == $str )
         {
             return Yii::t("QuestionaryModule.".$dic, $str, $params);
         }else
@@ -249,5 +249,25 @@ class QuestionaryModule extends CWebModule
             ECDebug::handleError('Найден пользователь без анкеты');
         }
         return null;
+    }
+    
+    /**
+     * Дополнить историю создания анкет
+     * Эта функция является обработчиком события 'onNewDataFromAdmin'
+     *
+     * @param CModelEvent $event - отправленное событие
+     * @return bool
+     */
+    public function updateCreationHistory($event)
+    {
+        $questionary = $event->sender;
+        
+        $history = new QCreationHistory;
+        $history->questionaryid = $questionary->id;
+        $history->objecttype    = 'user';
+        $history->objectid      = Yii::app()->getModule('user')->user()->id;
+        $history->save();
+        
+        return true;
     }
 }
