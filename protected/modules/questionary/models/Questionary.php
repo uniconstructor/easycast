@@ -2,7 +2,20 @@
 
 /**
  * Модель анкеты участника
- * Таблица "{{questionaries}}".
+ * Таблица "{{questionaries}}"
+ * 
+ * Все данные об участнике хранятся здесь, или в связанных таблицах
+ * Модель User используется только для хранения служебных данных (логин, email и так далее)
+ * Если нужно добавить новое поле в анкету - то нужно сначала ответить на несколько вопросов:
+ * - действительно ли это поле должно быть привязано к пользователю? 
+ *   (например дополнительные поля, указываемые при подаче заявки должны быть привязаны к заявке)
+ * - нужно ли искать по этому полю? (если да - то лучше всего добавить его сюда)
+ * - знаете ли вы про максимальное ограничение MySQL в 64 индекса на таблицу?
+ *   (пока не была сформирована четкая политика того что требуется от актеров и какие значения чаще ищутся
+ *   мы добавили и убрали из анкеты много полей. Часть из них нужно будет вынести в отдельные связанные
+ *   таблицы, в первую очередь все данные для документов и все комментарии, кроме privatecomment
+ *   которое нужно для наших пометок, не видно пользователям и скорее всего мы захотим по нему искать)
+ * - 
  *
  * Поля:
  * @property integer $id
@@ -79,6 +92,12 @@
  * @property integer $ismassactor
  * @property integer $isamateuractor
  * @property integer $istheatreactor
+ * @property integer $istvshowmen - да, имя этого поля это орфографическая ошибка в имени переменной
+ *                                  (должно быть istvshowman или hastvshows)
+ *                                  К счастью это единственный такой случай во всем приложении
+ *                                  Переименовать поле в базе без наличия тестов я не рискую, 
+ *                                  поэтому пока что пишем так
+ * @property integer $currentcountryid
  * 
  * Relations:
  * @property User $user 
@@ -87,16 +106,25 @@
  * @property ProjectMember[] $pendingrequests
  * @property Video[] $video
  * 
- * Stats:
+ * Поля для подсчета статистики:
+ * @todo уже недостаточно гибкие для новой системы, нужно будет переписать их с применением именованных
+ *       групп условий с параметрами (проще говоря прописать и использовать scopes() в связанных моделях)
  * @property int invitesCount - количество непрочитанных приглашений
  * @property int requestsCount - количество
  * @property int pendingRequestsCount
  * @property int upcomingEventsCount
  * 
- * @todo вынести преобразование скалярных полей в отдельный behaviour
- * @todo сделать отдельный behaviour для проверок всех типов полей
- * @todo вынести сохранение простых типов деятельности в отдельный behaviour
- * @todo запретить редактировать анкету, если участник уже подал заявку
+ * @todo переписать функции проверки "подходит/не подходит на роль" вычислять его в момент отправки приглашений 
+ *       чтобы редактирование анкеты после подачи заявки не приводило к неожиданным эффектам, 
+ *       если после редактирования пользователь перестает подходить по критериям роли
+ * @todo серьезно подумать над тем, нужно ли писать is в начале большинства tinyint полей таблицы
+ *       has точно нужно а вот is скорее всего лишнее: судя по таблицам в иностранных модулях
+ *       все прогрессивное человечество так не делает, но переименовывать поля к которым обращается
+ *       почти вся система довольно накладно, поэтому пока что используем то что есть и если добавляем новые
+ *       то тоже с is или has (для единообразия, чтобы не путаться)
+ * @todo переименовать поле istvshowmen в istvshowman или hastvshows
+ * @todo добавить связь photos
+ * @todo для всех сложных значений добавить типизированные коллекции: http://yiiframework.ru/doc/cookbook/ru/model.dao
  */
 class Questionary extends CActiveRecord
 {
@@ -139,28 +167,35 @@ class Questionary extends CActiveRecord
     
     /**
      * @var string - размер одежды "меньше 36" (как он хранится в базе данных)
+     *               (нужен чтобы нормально работали SQL запросы на поиск "больше/меньше")
      */
     const WEARSIZE_MIN = 1;
     /**
      * @var string - размер одежды "больше 56" (как он хранится в базе данных)
+     *               (нужен чтобы нормально работали SQL запросы на поиск "больше/меньше")
      */
     const WEARSIZE_MAX = 99;
     
     /**
      * @var string - размер обуви "меньше 36" (как он хранится в базе данных)
+     *               (нужен чтобы нормально работали SQL запросы на поиск "больше/меньше")
      */
     const SHOESSIZE_MIN = 1;
     /**
      * @var string - размер обуви "больше 45" (как он хранится в базе данных)
+     *               (нужен чтобы нормально работали SQL запросы на поиск "больше/меньше")
      */
     const SHOESSIZE_MAX = 99;
     
     /**
-     * @var string - значение стоящее в select-списках на пункте "выбрать"
+     * @var string - значение стоящее в select-списках в параметре value в пункте "выбрать"
+     *               константа нужна на случай если мы захотим изменить "не выбранное значение"
+     *               во всех списках значений анкеты
      */
     const VALUE_NOT_SET = "";
     /**
-     * @var string - отображаемое количество последних приглашений
+     * @var string - максимальное количество последних приглашений, отображаемое пользователю
+     * @todo убрать константу и добавить настройку анкеты 
      */
     const LAST_INVITES_COUNT = 20;
     
@@ -169,10 +204,23 @@ class Questionary extends CActiveRecord
      */
     public function init()
     {
+        parent::init();
+        
         Yii::import('application.modules.questionary.extensions.behaviors.*');
+        // модели проектов требуются для функций подсчета статистики
+        // @todo и это хороший вопрос - нужны ли они здесь?
+        //       Нужно решить, следует обращаться 
+        //       за статистикой приглашений к самим приглашениям (в модуль Projects), передавая им id участника
+        //       а не к от модели участника требовать список или количество приглашений
+        //       + приглашения и заявки относятся к участнику и логично иметь в его модели функции запроса таких данных
+        //       + чтобы посмотреть приглашения не нужно знать о том где они лежат
+        //       - теущее решение требует подключения моделей из другого модуля, это плохо для изолированности
         Yii::import('application.modules.projects.models.*');
         
-        parent::init();
+        // обработчики событий
+        $module = Yii::app()->getModule('questionary');
+        // один из админов ввел новую анкету 
+        $this->attachEventHandler('onNewDataFromAdmin', array($module, 'updateCreationHistory'));
     }
     
     /**
@@ -188,6 +236,7 @@ class Questionary extends CActiveRecord
     /**
      * Получить полный список всех полей, которые могут присутствовать в форме анкеты
      * @return array
+     * @deprecated
      */
     public static function getAllFields()
     {
@@ -201,14 +250,15 @@ class Questionary extends CActiveRecord
             'striplevel', 'issinger', 'singlevel', 'ismusician', 'issportsman', 'isextremal', 
             'isathlete', 'hasskills', 'hastricks', 'haslanuages',
             'status', 'isphotomodel', 'ispromomodel', 'rating', 
-            'fbprofile', 'okprofile', 'hastatoo', 'isamateuractor', 'istvshowmen', 
-            'isstatist', 'ismassactor', 'nativecountryid', 'admincomment', 'playagemin', 
+            'fbprofile', 'okprofile', 'isamateuractor', 'istvshowmen', 
+            'isstatist', 'ismassactor', 'nativecountryid', 'playagemin', 
             'playagemax', 'hairlength', 'istheatreactor', 'ismediaactor', 
             'privatecomment', 'wearsize',
             // поля модели User
             'email', 'policyagreed',
             // условия съемки
-            //'',
+            'salary', 'wantsbusinesstrips', 'hasforeignpassport', 'isnightrecording', 'istoplessrecording', 
+            'isfreerecording', 'custom', 
             // сложные значения
             'addchars', 'actoruniversities', 'films', 'emceelist', 'parodistlist', 'twinlist', 'modelschools',
             'modeljobs', 'photomodeljobs', 'promomodeljobs', 'dancetypes', 'awards', 'vocaltypes',
@@ -258,7 +308,7 @@ class Questionary extends CActiveRecord
     }
 
     /**
-     * @return array relational rules.
+     * @see CActiveRecord::relations()
      */
     public function relations()
     {
@@ -273,15 +323,17 @@ class Questionary extends CActiveRecord
             'country' => array(self::BELONGS_TO, 'CSGeoCountry', 'countryid'),
             // страна рождения
             'nativecountry' => array(self::BELONGS_TO, 'CSGeoCountry', 'nativecountryid'),
+            // страна рождения
+            'currentcountry' => array(self::BELONGS_TO, 'CSGeoCountry', 'nativecountryid'),
             // домашний адрес (все адреса хранятся в отдельной таблице)
             'address' => array(self::HAS_ONE, 'Address', 'objectid',
-                    'condition' => "objecttype='questionary'"),
+                'condition' => "`address`.`objecttype` = 'questionary'",
+            ),
             // условия участия в съемках
             'recordingconditions' => array(self::HAS_ONE, 'QRecordingConditions', 'questionaryid'),
             
             
-            // Сложные значения анкеты, хранящиеся в других таблицах
-            
+            // Значения анкеты, хранящиеся в других таблицах
             // Дополнительные характеристики (близнецы, гетерохромия и т. п.)
             'addchars' => array(self::HAS_MANY, 'QAddChar', 'questionaryid'),
             // Законченные актерские ВУЗы
@@ -329,50 +381,70 @@ class Questionary extends CActiveRecord
             // работа в театре
             'theatres' => array(self::HAS_MANY, 'QTheatreInstance', 'questionaryid'),
             // видео
+            // @todo переписать с использованием именованых условий поиска
             'video' => array(self::HAS_MANY, 'Video', 'objectid',
-                    'condition' => "objecttype='questionary'"),
+                'condition' => "`video`.`objecttype` = 'questionary'",
+            ),
             
             // Связи с проектами и мероприятиями
             
             // Новые (еще не просмотренные) приглашения на мероприятия
+            // @todo переписать с использованием именованых условий поиска
             'invites' => array(self::HAS_MANY, 'EventInvite', 'questionaryid', 
                 'condition' => "`invites`.`status` = 'pending' AND `deleted` = 0",
-                'limit'     => self::LAST_INVITES_COUNT),
+                'limit'     => self::LAST_INVITES_COUNT,
+            ),
             // Старые (уже просмотренные) приглашения на мероприятия
             // (все что не в статусе черновик)
+            // @todo переписать с использованием именованых условий поиска
             'oldinvites' => array(self::HAS_MANY, 'EventInvite', 'questionaryid', 
                 'condition' => "`invites`.`status` != 'draft' `deleted` = 0",
-                'limit'     => self::LAST_INVITES_COUNT),
+                'limit'     => self::LAST_INVITES_COUNT,
+            ),
             // Все заявки на участие в мероприятиях (неподтвержденные + предварительно отобранные)
             'requests' => array(self::HAS_MANY, 'MemberRequest', 'memberid'),
-            // @todo Только неподтвержденные заявки на участие
             // Только предварительно подтвержденные заявки на участие
+            // @todo переписать с использованием именованых условий поиска
             'pendingrequests' => array(self::HAS_MANY, 'ProjectMember', 'memberid', 
-                'condition' => "`memberinstances`.`status`='pending'"),
+                'condition' => "`memberinstances`.`status`='pending'",
+            ),
             // Участие во всех мероприятиях (подтвержденные заявки)
+            // @todo переписать с использованием именованых условий поиска
             'memberinstances' => array(self::HAS_MANY, 'ProjectMember', 'memberid', 
-                'condition' => "`memberinstances`.`status` IN ('active', 'finished', 'succeed', 'failed')"),
+                'condition' => "`memberinstances`.`status` IN ('active', 'finished', 'succeed', 'failed')",
+            ),
             // Активность в текущих мероприятиях (предстоящие съемки)
+            // @todo переписать с использованием именованых условий поиска
             'activememberinstances' => array(self::HAS_MANY, 'ProjectMember', 'memberid', 
-                'condition' => "`activememberinstances`.`status`='active'"),
+                'condition' => "`activememberinstances`.`status`='active'",
+            ),
             // История участия во всех прошедших мероприятиях
+            // @todo переписать с использованием именованых условий поиска
             'finishedmemberinstances' => array(self::HAS_MANY, 'ProjectMember', 'memberid', 
-                'condition' => "`finishedmemberinstances`.`status` IN ('active', 'finished', 'succeed', 'failed')"),
+                'condition' => "`finishedmemberinstances`.`status` IN ('active', 'finished', 'succeed', 'failed')",
+            ),
             // @todo Проекты, (сделать связь типа "мост" + DISTINCT)
             
             
             // Статистика
             // Все заявки на участие в мероприятиях
+            // @todo переписать с использованием именованых условий поиска
             'requestsCount' => array(self::STAT, 'MemberRequest', 'memberid'),
             // Предварительно одобренные заявки на участие
+            // @todo переписать с использованием именованых условий поиска
             'pendingRequestsCount' => array(self::STAT, 'ProjectMember', 'memberid',
-                'condition' => "`status`='pending'"),
+                'condition' => "`status`='pending'",
+            ),
             // Новые (еще не просмотренные) приглашения на мероприятия
+            // @todo переписать с использованием именованых условий поиска
             'invitesCount' => array(self::STAT, 'EventInvite', 'questionaryid',
-                'condition' => "`status`='pending' AND `deleted`=0"),
-            // Предстоящие съемки (время при выборке не учитываем, они сами завершаться когда нужно)
+                'condition' => "`status`='pending' AND `deleted`=0",
+            ),
+            // Предстоящие съемки (время при выборке не учитываем, они сами завершатся когда нужно)
+            // @todo переписать с использованием именованых условий поиска
             'upcomingEventsCount' => array(self::STAT, 'ProjectMember', 'memberid',
-                'condition' => "`status`='active'"),
+                'condition' => "`status`='active'",
+            ),
         );
     }
 
@@ -470,17 +542,16 @@ class Questionary extends CActiveRecord
             $address->objectid = $this->id;
             $address->save();
         }
-        
         if ( ! $this->recordingconditions )
         {// и с условиями участия в съемках
             $recordingConditions = new QRecordingConditions();
             $recordingConditions->questionaryid = $this->id;
             $recordingConditions->save();
         }
-        
-        if ( Yii::app()->user->checkAccess('Admin') )
+        if ( $this->isFirstSave() AND Yii::app()->user->checkAccess('Admin') )
         {// если админ ввел анкету - увеличиваем его счетчик
-            $this->updateCreationHistory();
+            $event = new CModelEvent($this);
+            $this->onNewDataFromAdmin($event);
         }
         
         parent::afterSave();
@@ -488,7 +559,6 @@ class Questionary extends CActiveRecord
     
     /**
      * @todo при рефакторинге переписать удаление через события. Слушать дочерними объектами родительский
-     * (non-PHPdoc)
      * @see CActiveRecord::beforeDelete()
      */
     protected function beforeDelete()
@@ -507,10 +577,13 @@ class Questionary extends CActiveRecord
         Yii::import('application.modules.projects.models.*');
         
         // удаляем все связанные с анкетой данные в других таблицах
-        $relations = array('memberinstances', 'requests', 'invites', 'tvshows', 'languages', 'skills', 'tricks',
+        $relations = array(
+            'memberinstances', 'requests', 'invites', 'tvshows', 'languages', 'skills', 'tricks',
             'extremaltypes', 'sporttypes', 'musicuniversities', 'instruments', 'voicetimbres', 'vocaltypes', 
-            'awards', 'dancetypes', 'promomodeljobs', 'photomodeljobs', 'modeljobs', 'modeljobs', 'modelschools',
-            'twinlist', 'parodistlist', 'emceelist', 'films', 'actoruniversities', 'addchars');
+            'awards', 'dancetypes', 'promomodeljobs', 'photomodeljobs', 'modeljobs', 'modelschools',
+            'twinlist', 'parodistlist', 'emceelist', 'films', 'actoruniversities', 'addchars', 'theatres',
+            'video',
+        );
         
         foreach ( $relations as $data )
         {
@@ -542,6 +615,16 @@ class Questionary extends CActiveRecord
     }
     
     /**
+     * Событие "админом введена новая анкета"
+     * @param CModelEvent $event
+     * @return void
+     */
+    public function onNewDataFromAdmin($event)
+    {
+        $this->raiseEvent('onNewDataFromAdmin', $event);
+    }
+    
+    /**
      * Получить все поля для одного раздела при редактировании анкеты
      * @param string $section - название раздела анкеты
      * @return array - полный список полей которые относятся к переданому разделу
@@ -549,6 +632,7 @@ class Questionary extends CActiveRecord
      * @todo при отображении и редактировании разделы отличаются. Нужно учесть этот момент
      * @todo нужно сначала спросить, в каких съемках человек хотел бы участвовать, затем в каком качестве
      *       (актер, модель пародист и т. д.) и только потом всю необходимую для этого информацию
+     * @deprecated
      */
     public function getSectionFields($section, $type='edit')
     {
@@ -607,7 +691,7 @@ class Questionary extends CActiveRecord
      *      recommendedFor - массив полей, значение "да" для которых будет означать рекомендацию
      *                       к заполнению этого поля (например при выборе поля "модель" мы будем советовать
      *                       указать модельную школу или указать что модельной школы нет)
-     *      
+     * @deprecated
      */
     public function getFieldOptions($field)
     {
@@ -631,6 +715,7 @@ class Questionary extends CActiveRecord
      * @return string
      * 
      * @todo добавить определение раздела для отображения, решить могут ли быть разные типы отображения
+     * @deprecated
      */
     public function getFieldSection($field, $sectionType)
     {
@@ -642,10 +727,11 @@ class Questionary extends CActiveRecord
     
     /**
      * Определить, загружена ли хотя бы одна фотография
+     * 
      * @param int $galleryId
      * @return boolean
-     *
-     * @todo сделать более надежную проверку безопасности при загрузке картинок
+     * 
+     * @todo эта функция должна быть вынесена в Gallery либо в behavior 
      */
     protected function hasPhotos($galleryId)
     {
@@ -662,10 +748,11 @@ class Questionary extends CActiveRecord
 
     /**
      * @return array customized attribute labels (name=>label)
+     * @todo навести порядок в подписях
      */
     public function attributeLabels()
     {
-        return array(
+        $defaultLabels = array(
             'id' => 'ID',
             'userid' => QuestionaryModule::t('userid_label'),
             'firstname' => QuestionaryModule::t('firstname_label'),
@@ -763,7 +850,7 @@ class Questionary extends CActiveRecord
             'wearsize' => QuestionaryModule::t('wearsize_label'),
             'address' => QuestionaryModule::t('address'),
             
-            // сложные поля, хранящиеся в других таблицах
+            // поля, хранящиеся в других таблицах
             'addchar' => QuestionaryModule::t('addchar_label'),
             'university' => QuestionaryModule::t('universities_label'),
             'sporttype' => QuestionaryModule::t('sporttype_label'),
@@ -772,160 +859,194 @@ class Questionary extends CActiveRecord
             'vocaltype' => QuestionaryModule::t('vocaltype_label'),
             'photos' => QuestionaryModule::t('photos_label'),
         );
+        
+        return $defaultLabels;
+    }
+    
+    /**
+     * 
+     * @return void
+     */
+    public function dynamicAttributeLabels()
+    {
+        $labels = array();
+        $fields = QUserField::model()->findAll();
+        
+        foreach ( $fields as $field )
+        {
+            $labels[$field->name] = QuestionaryModule::t($field->name.'_label');
+        }
+        return $labels;
+    }
+    
+    /**
+     * 
+     * @param string $name
+     * @return string
+     */
+    public function getDynamicAttributeLabel($name)
+    {
+        $labels = $this->dynamicAttributeLabels();
+        if ( ! isset($labels[$name]) )
+        {
+            return '[['.$name.']]';
+        }
+        return $labels[$name];
     }
 
     /**
      * Получить список достижений и умений участника: спортсмен, актер, атлет, и т. д.
-     * @return array 
+     * @return array - список всех достижений участника, склоняемый в зависимости от пола
+     *                 формат: "поле_анкеты" => "отображаемое значение"
      */
     public function getBages()
     {
         $bages = array();
-        
         // актер (актриса)
         if ( $this->isactor )
         {
-            if ( ! $this->gender OR $this->gender == 'male' )
+            if ( ! $this->gender OR $this->gender === 'male' )
             {
-                $bages[] = QuestionaryModule::t('actor');
+                $bages['isactor'] = QuestionaryModule::t('actor');
             }else
             {
-                $bages[] = QuestionaryModule::t('actress');
+                $bages['isactor'] = QuestionaryModule::t('actress');
             }
         }
         // непрофессиональный актер
-        if ( $this->isamateuractor )
+        if ( $this->isamateuractor AND ! $this->isactor )
         {
-            if ( ! $this->gender OR $this->gender == 'male' )
+            if ( ! $this->gender OR $this->gender === 'male' )
             {
-                $bages[] = QuestionaryModule::t('amateuractor(male)');
+                $bages['isamateuractor'] = QuestionaryModule::t('amateuractor(male)');
             }else
             {
-                $bages[] = QuestionaryModule::t('amateuractor(female)');
+                $bages['isamateuractor'] = QuestionaryModule::t('amateuractor(female)');
             }
         }
         // ведущий (ведущая)
         if ( $this->isemcee )
         {
-            if ( ! $this->gender OR $this->gender == 'male' )
+            if ( ! $this->gender OR $this->gender === 'male' )
             {
-                $bages[] = QuestionaryModule::t('emcee(male)');
+                $bages['isemcee'] = QuestionaryModule::t('emcee(male)');
             }else
             {
-                $bages[] = QuestionaryModule::t('emcee(female)');
+                $bages['isemcee'] = QuestionaryModule::t('emcee(female)');
             }
         }
         // телеведущий
         if ( $this->istvshowmen )
         {
-            if ( ! $this->gender OR $this->gender == 'male' )
+            if ( ! $this->gender OR $this->gender === 'male' )
             {
-                $bages[] = QuestionaryModule::t('tvshowmen(male)');
+                $bages['istvshowmen'] = QuestionaryModule::t('tvshowmen(male)');
             }else
             {
-                $bages[] = QuestionaryModule::t('tvshowmen(female)');
+                $bages['istvshowmen'] = QuestionaryModule::t('tvshowmen(female)');
             }
         }
         // пародист
         if ( $this->isparodist )
         {
-            $bages[] = QuestionaryModule::t('parodist');
+            $bages['isparodist'] = QuestionaryModule::t('parodist');
         }
         // двойник
         if ( $this->istwin )
         {
-            $bages[] = QuestionaryModule::t('twin');
+            $bages['istwin'] = QuestionaryModule::t('twin');
         }
         // модель
         if ( $this->ismodel )
         {
-            $bages[] = QuestionaryModule::t('model');
+            $bages['ismodel'] = QuestionaryModule::t('model');
         }
         // фотомодель
         if ( $this->isphotomodel )
         {
-            $bages[] = QuestionaryModule::t('photomodel');
+            $bages['isphotomodel'] = QuestionaryModule::t('photomodel');
         }
         // промо-модель
         if ( $this->ispromomodel )
         {
-            $bages[] = QuestionaryModule::t('promomodel');
+            $bages['ispromomodel'] = QuestionaryModule::t('promomodel');
         }
         // танцор
         if ( $this->isdancer )
         {
-            $bages[] = QuestionaryModule::t('dancer');
+            $bages['isdancer'] = QuestionaryModule::t('dancer');
         }
         // стриптиз
         if ( $this->isstripper )
         {
-            $bages[] = QuestionaryModule::t('stripper');
+            $bages['isstripper'] = QuestionaryModule::t('stripper');
         }
         // вокал
         if ( $this->issinger )
         {
-            if ( ! $this->gender OR $this->gender == 'male' )
+            if ( ! $this->gender OR $this->gender === 'male' )
             {
-                $bages[] = QuestionaryModule::t('singer(male)');
+                $bages['issinger'] = QuestionaryModule::t('singer(male)');
             }else
             {
-                $bages[] = QuestionaryModule::t('singer(female)');
+                $bages['issinger'] = QuestionaryModule::t('singer(female)');
             }
         }
         // музыкант
         if ( $this->ismusician )
         {
-            $bages[] = QuestionaryModule::t('musician');
+            $bages['ismusician'] = QuestionaryModule::t('musician');
         }
         // каскадер
         if ( $this->hastricks )
         {
-            $bages[] = QuestionaryModule::t('hastricks');
+            $bages['hastricks'] = QuestionaryModule::t('hastricks');
         }
         // спортсмен(ка)
         if ( $this->issportsman )
         {
-            if ( ! $this->gender OR $this->gender == 'male' )
+            if ( ! $this->gender OR $this->gender === 'male' )
             {
-                $bages[] = QuestionaryModule::t('sportsman(male)');
+                $bages['issportsman'] = QuestionaryModule::t('sportsman(male)');
             }else
             {
-                $bages[] = QuestionaryModule::t('sportsman(female)');
+                $bages['issportsman'] = QuestionaryModule::t('sportsman(female)');
             }
         }
         // экстремал
         if ( $this->isextremal )
         {
-            $bages[] = QuestionaryModule::t('extremal');
+            $bages['isextremal'] = QuestionaryModule::t('extremal');
         }
         // атлет
         if ( $this->isathlete )
         {
-            $bages[] = QuestionaryModule::t('athlete');
+            $bages['isathlete'] = QuestionaryModule::t('athlete');
         }
         // актер театра
         if ( $this->istheatreactor )
         {
-            if ( ! $this->gender OR $this->gender == 'male' )
+            if ( ! $this->gender OR $this->gender === 'male' )
             {
-                $bages[] = QuestionaryModule::t('theatreactor(male)');
+                $bages['istheatreactor'] = QuestionaryModule::t('theatreactor(male)');
             }else
             {
-                $bages[] = QuestionaryModule::t('theatreactor(female)');
+                $bages['istheatreactor'] = QuestionaryModule::t('theatreactor(female)');
             }
         }
         // медийный актер
         if ( $this->ismediaactor )
         {
-            if ( ! $this->gender OR $this->gender == 'male' )
+            if ( ! $this->gender OR $this->gender === 'male' )
             {
-                $bages[] = QuestionaryModule::t('mediaactor(male)');
+                $bages['ismediaactor'] = QuestionaryModule::t('mediaactor(male)');
             }else
             {
-                $bages[] = QuestionaryModule::t('mediaactor(female)');
+                $bages['ismediaactor'] = QuestionaryModule::t('mediaactor(female)');
             }
         }
-        
+        // @todo сейчас мы список сортируем в алфавитном порядке, но возможно следует перечислять
+        //       в порядке важности? Если да - то важности для кого?
         asort($bages);
         return $bages;
     }
@@ -947,6 +1068,15 @@ class Questionary extends CActiveRecord
      * - Певец без музыкального ВУЗа всегда считается любителем
      * 
      * @return null
+     * 
+     * @deprecated не используется после полной переработки формы, удалить при рефакторинге
+     *             Использовалась в самом начале работы, когда еще не было возможности отслеживать
+     *             заполнение и изменение анкеты
+     *             Сейчас при редактировании анкеты все поля проверяются и сохраняются через AJAX
+     *             поэтому больше нет никакой необходимости прописывать сложные правила проверки для модели
+     *             или менять в ней что-то после сохранения
+     *             До этого мы убирали статус при отсутствии нужных данных, сейчас наоборот: 
+     *             добавляем нужный статус если введено хотя бы одно необходимое значение
      */
     protected function autoModeration()
     {
@@ -1139,27 +1269,6 @@ class Questionary extends CActiveRecord
     }
     
     /**
-     * Записать на счет оператора введенную анкету
-     * @return void
-     */
-    protected function updateCreationHistory()
-    {
-        $criteria = new CDbCriteria();
-        $criteria->compare('questionaryid', $this->id);
-        if ( QCreationHistory::model()->exists($criteria) )
-        {// запись об этой введенной анкете уже существует
-            return;
-        }
-        
-        // записи еще нет - увеличиваем счетчик введенных оператором анкет
-        $history = new QCreationHistory();
-        $history->userid        = Yii::app()->user->id;
-        $history->questionaryid = $this->id;
-        $history->timecreated   = time();
-        $history->save();
-    }
-    
-    /**
      * Определить, впервый ли раз сохраняется анкета
      * Анкета, которая выходит из статуса "отложена" тоже считается первый раз сохраненной
      * При вызове этой функции мы считаем, что данные еще не сохранены. Ее следует вызывать из beforeSave
@@ -1184,7 +1293,6 @@ class Questionary extends CActiveRecord
         {// анкета еще ни разу не сохранялась
             return true;
         }
-        
         return false;
     }
     
@@ -1220,7 +1328,12 @@ class Questionary extends CActiveRecord
      */
     public function getQuestionaryAuthor()
     {
-        if ( ! $creationRecord = QCreationHistory::model()->findByAttributes(array('questionaryid' => $this->id)) )
+        $criteria = new CDbCriteria();
+        $criteria->compare('questionaryid', $this->id);
+        $criteria->order = "id ASC";
+        $criteria->limit = 1;
+        
+        if ( ! $creationRecord = current(QCreationHistory::model()->findAll($criteria)) )
         {// отсутствует информация о том кто создал эту анкету
             return null;
         }
@@ -1242,6 +1355,9 @@ class Questionary extends CActiveRecord
      * 
      * @param string $type - тип деятельности в таблице activityTypes
      * @param array $options - значения, содержащиеся внутри поля
+     * 
+     * @deprecated после перехода на новые виджеты редактирования списков значений не используется
+     *             Удалить при рефакторинге
      */
     protected function saveSimpleActivity($type, $options)
     {
@@ -1303,12 +1419,14 @@ class Questionary extends CActiveRecord
     }
     
     // Функции сохранения простых видов деятельности
-    // (это значения, которые принадлежат анкете, но хранятся в таблице "q_activities")
-    // @todo вынести в отдельный behavior
+    // (значений, которые принадлежат анкете, но хранятся в таблице "q_activities")
     
     /**
      * Сохранить тембры голоса, которыми владеет пользователь
      * @param array $values
+     * @deprecated не используется (требовалось для старой формы анкеты), удалить при рефакторинге
+     *             Сейчас редактирование любых списков привязанных к анкете значений происходит
+     *             только виджетами, основанными на QGridEditBase
      */
     public function setvoicetimbre($values)
     {
@@ -1318,6 +1436,9 @@ class Questionary extends CActiveRecord
     /**
      * Дополнительные характеристики
      * @param array $values - данные из сложного поля формы
+     * @deprecated не используется (требовалось для старой формы анкеты), удалить при рефакторинге
+     *             Сейчас редактирование любых списков привязанных к анкете значений происходит
+     *             только виджетами, основанными на QGridEditBase
      */
     public function setaddchar($values)
     {
@@ -1327,6 +1448,9 @@ class Questionary extends CActiveRecord
     /**
      * Образы пародиста
      * @param array $values - данные из сложного поля формы
+     * @deprecated не используется (требовалось для старой формы анкеты), удалить при рефакторинге
+     *             Сейчас редактирование любых списков привязанных к анкете значений происходит
+     *             только виджетами, основанными на QGridEditBase
      */
     public function setparodist($values)
     {
@@ -1336,6 +1460,9 @@ class Questionary extends CActiveRecord
     /**
      * Образы двойника
      * @param array $values - данные из сложного поля формы
+     * @deprecated не используется (требовалось для старой формы анкеты), удалить при рефакторинге
+     *             Сейчас редактирование любых списков привязанных к анкете значений происходит
+     *             только виджетами, основанными на QGridEditBase
      */
     public function settwin($values)
     {
@@ -1345,6 +1472,9 @@ class Questionary extends CActiveRecord
     /**
      * Типы вокала
      * @param array $values - данные из сложного поля формы
+     * @deprecated не используется (требовалось для старой формы анкеты), удалить при рефакторинге
+     *             Сейчас редактирование любых списков привязанных к анкете значений происходит
+     *             только виджетами, основанными на QGridEditBase
      */
     public function setvocaltype($values)
     {
@@ -1354,6 +1484,9 @@ class Questionary extends CActiveRecord
     /**
      * Виды спорта
      * @param array $values - данные из сложного поля формы
+     * @deprecated не используется (требовалось для старой формы анкеты), удалить при рефакторинге
+     *             Сейчас редактирование любых списков привязанных к анкете значений происходит
+     *             только виджетами, основанными на QGridEditBase
      */
     public function setsporttype($values)
     {
@@ -1363,6 +1496,9 @@ class Questionary extends CActiveRecord
     /**
      * Экстремальные виды спорта
      * @param array $values - данные из сложного поля формы
+     * @deprecated не используется (требовалось для старой формы анкеты), удалить при рефакторинге
+     *             Сейчас редактирование любых списков привязанных к анкете значений происходит
+     *             только виджетами, основанными на QGridEditBase
      */
     public function setextremaltype($values)
     {
@@ -1372,6 +1508,9 @@ class Questionary extends CActiveRecord
     /**
      * Выполнение трюков
      * @param array $values - данные из сложного поля формы
+     * @deprecated не используется (требовалось для старой формы анкеты), удалить при рефакторинге
+     *             Сейчас редактирование любых списков привязанных к анкете значений происходит
+     *             только виджетами, основанными на QGridEditBase
      */
     public function settrick($values)
     {
@@ -1381,6 +1520,9 @@ class Questionary extends CActiveRecord
     /**
      * Умения и навыки
      * @param array $values - данные из сложного поля формы
+     * @deprecated не используется (требовалось для старой формы анкеты), удалить при рефакторинге
+     *             Сейчас редактирование любых списков привязанных к анкете значений происходит
+     *             только виджетами, основанными на QGridEditBase
      */
     public function setskill($values)
     {
@@ -1390,6 +1532,9 @@ class Questionary extends CActiveRecord
     /**
      * Иностранные языки
      * @param array $values - данные из сложного поля формы
+     * @deprecated не используется (требовалось для старой формы анкеты), удалить при рефакторинге
+     *             Сейчас редактирование любых списков привязанных к анкете значений происходит
+     *             только виджетами, основанными на QGridEditBase
      */
     public function setlanguage($values)
     {
@@ -1398,7 +1543,8 @@ class Questionary extends CActiveRecord
     
     // преобразования скалярных полей формы
     
-    /** Получить список полей, которые нуждаются в преобразовании после прихода из формы
+    /** 
+     * Получить список полей, которые нуждаются в преобразовании после прихода из формы
      * 
      * @return multitype:string
      * @deprecated
@@ -1409,7 +1555,8 @@ class Questionary extends CActiveRecord
         return array(/*'birthdate',*/ 'passportexpires', 'passportdate');
     }
     
-    /** Получить массив атрибутов модели, пригодных для записи в базу
+    /** 
+     * Получить массив атрибутов модели, пригодных для записи в базу
      * @todo посмотреть, можно ли сделдать это нормальным способом через фильтры
      * 
      * @param array $attributes - пришедшие из $_POST данные
@@ -1435,7 +1582,8 @@ class Questionary extends CActiveRecord
         return $result;
     }
     
-    /** Преобразовать значение из формы в значение хранимое в базе
+    /** 
+     * Преобразовать значение из формы в значение хранимое в базе
      * 
      * @param array $result - массив с итоговым результатом полей
      * @param string $field - поле формы из которого пришли данные
@@ -1458,7 +1606,8 @@ class Questionary extends CActiveRecord
         }
     }
     
-    /** Преобразовать значения полей даты из массива в unixtime
+    /** 
+     * Преобразовать значения полей даты из массива в unixtime
      * 
      * @param array $result
      * @param array $field
@@ -1478,6 +1627,9 @@ class Questionary extends CActiveRecord
      * Получить список значений по умолчанию для сложного поля
      * (эти поля хранятся во внешних таблицах) 
      * @param string $field
+     * @deprecated пока еще используется старым кодом, все новые функции должны использовать
+     *             QActivityType::model()->activityVariants($name); вместо этого метода
+     * @todo найти и заменить все вызовы этого метода на вызовы QActivityType
      */
     public function getComplexFieldVariants($field)
     {
@@ -1488,6 +1640,11 @@ class Questionary extends CActiveRecord
      * Получить значение одного стандартного варианта сложного поля
      * @param string $type
      * @param string $value
+     * 
+     * @deprecated пока еще используется старым кодом, оставлено для совместимости
+     *             новые функции должны использовать методы классов QActivityType и QActivity
+     *             для работы со списками таких значений
+     * @todo найти и заменить все вызовы этого метода на вызовы QActivityType
      */
     public function getStandardComplexValue($type, $value)
     {
@@ -1503,6 +1660,8 @@ class Questionary extends CActiveRecord
      * определить, является ли переданный экземпляр сложного значения стандартным
      * @param unknown_type $type
      * @param unknown_type $value
+     * 
+     * @deprecated пока еще используется старым кодом, оставлено для совместимости
      */
     public function isStandardComplexValue($type, $value)
     {
@@ -1517,6 +1676,8 @@ class Questionary extends CActiveRecord
     /**
      * Получить список вариантов для одного вида деятельности (для использования в select-элементах)
      * @param string $name - тип деятельности (вид спорта, вокал, и т. п.)
+     * 
+     * @deprecated пока еще используется старым кодом, оставлено для совместимости
      */
     protected function activityVariants($name)
     {
@@ -1524,69 +1685,76 @@ class Questionary extends CActiveRecord
     }
     
     /**
-     * Определить, отображать по умолчанию указанное поле формы (или фрагмент из нескольких полей)
+     * Определить, отображать по умолчанию указанное поле формы 
+     * (или часть формы в которой содержится нескольких полей)
      * 
      * @param string $section - поле формы или название набора полей
+     *                          
      * @return bool
      */
     public function isDisplayedSection($section)
     {
         $result = true;
         
-        // Большинство полей нужно свернуть или скрыть, если в соответствующем поле
-        // выбран пункт "нет", поэтому составим карту того, какие поля и разделы от каких галочек зависят
-        // Ключами массива являются поля или секции полей (которые нужно показать или скрыть)
+        // Большинство полей формы изначально скрыто чтобы не перегружать интерфейс
+        // Как правило видимость поля или виджета зависит от элементов в которых есть только 
+        // значения "да/нет" 
+        // Составим карту того, какие поля (или блоки полей) от каких галочек зависят
+        
+        // Ключами массива являются поля или секции полей, которые нужно показать или скрыть
+        // Они совпадают со списком связей (relations) в модели Questionary
+        // Значениями - поля модели questionary, которые содержат варианты "да" или "нет" 
         $dependences = array(
             // Театральные ВУЗы (скрыто, если не выбрано "профессиональный актер")
             'actoruniversities' => 'isactor',
             // Фильмография (скрыто, если не указано что пользователь снимался в фильмах)
-            'films' => 'hasfilms',
+            'films'             => 'hasfilms',
             // Ведущий (скрыто, если не выставлена галочка)
-            'emceelist' => 'isemcee',
+            'emceelist'         => 'isemcee',
             // Телеведущий (скрыто без галочки)
-            'tvshows' => 'istvshowmen',
+            'tvshows'           => 'istvshowmen',
             // Пародист (скрыто, если не выставлена галочка)
-            'parodist' => 'isparodist',
+            'parodist'          => 'isparodist',
             // Двойник (скрыто, если не выставлена галочка)
-            'twin' => 'istwin',
+            'twin'              => 'istwin',
             // Модельные школы (скрыто, если нет галочки "модель")
-            'modelschools' => 'ismodel',
+            'modelschools'      => 'ismodel',
             // Показы (скрыто, если нет галочки "модель")
-            'modeljobs' => 'ismodel',
+            'modeljobs'         => 'ismodel',
             // Работа фотомоделью (скрыто, если нет галочки)
-            'photomodeljobs' => 'isphotomodel',
+            'photomodeljobs'    => 'isphotomodel',
             // Работа промо-моделью (скрыто, если нет галочки)
-            'promomodeljobs' => 'ispromomodel',
+            'promomodeljobs'    => 'ispromomodel',
             // Стили танца (скрыто, если нет галочки "танцор")
-            'dancetypes' => 'isdancer',
+            'dancetypes'        => 'isdancer',
             // Тип и уровень стриптиза (Только если выбран "стриптиз")
-            'stripdata' => 'isstripper',
+            'stripdata'         => 'isstripper',
             // Типы вокала (скрыто, если не выбран "вокал")
-            'vocaltypes' => 'issinger',
+            'vocaltypes'        => 'issinger',
             // Тембр голоса (скрыто, если не выбран "вокал")
-            'voicetimbres' => 'issinger',
+            'voicetimbres'      => 'issinger',
             // Уровень вокала (скрыто, если не выбран "вокал")
-            'singlevel' => 'issinger',
+            'singlevel'         => 'issinger',
             // Музыкальные инструменты (Только если выбран "музыкант")
-            'instruments' => 'ismusician',
+            'instruments'       => 'ismusician',
             // Виды спорта (Скрыто, если не выбран "спортсмен")
-            'sporttypes' => 'issportsman',
+            'sporttypes'        => 'issportsman',
             // Экстремальные виды спорта (скрыто, если не выбрано "экстремал")
-            'extremaltypes' => 'isextremal',
+            'extremaltypes'     => 'isextremal',
             // Список дополнительных умений и навыков (скрыто, если нет галочки)
-            'skills' => 'hasskills',
+            'skills'            => 'hasskills',
             // Список трюков (скрыто, если нет галочки)
-            'tricks' => 'hastricks',
+            'tricks'            => 'hastricks',
             // Список иностранных языков (скрыто, если нет галочки)
-            'languages' => 'haslanuages',
+            'languages'         => 'haslanuages',
             // Номер страхового свидетельства (скрыто, если нет свидетельства)
             'inshurancecardnum' => 'hasinshurancecard',
             // Срок действия загранпаспорта (скрыто, если его нет)
-            'passportexpires' => 'hasforeignpassport',
+            'passportexpires'   => 'hasforeignpassport',
             // Список наград (скрыто, если нет галочки)
-            'awards' => 'hasawards',
+            'awards'            => 'hasawards',
             // Опыт работы в театре
-            'actortheatres' => 'istheatreactor',
+            'actortheatres'     => 'istheatreactor',
         );
         
         if ( isset($dependences[$section]) )
@@ -1642,7 +1810,12 @@ class Questionary extends CActiveRecord
     /**
      * Получить ссылку на картинку с аватаром пользователя
      * 
-     * @return string - url картинки или пустая строка, если у пользователя нет аватара
+     * @return string - url картинки или заглушку, если у пользователя пока нет ни одной фотографии
+     * @todo этот метод следует вынести из анкеты, но пока еще неизвестно куда
+     *       возможно в отдельный behavior, так как в процессе разработки
+     *       такой метод пришлось добавить во все модели, которые требуют небольшой preview-картинки
+     *       при отображении (например класс Project)
+     *       При переносе этого метода нужно заглянуть в модель Project и сделать там то же самое
      */
     public function getAvatarUrl($size='small')
     {
@@ -1651,7 +1824,6 @@ class Questionary extends CActiveRecord
         {// пользователь еще не загрузил аватар
             return $nophoto;
         }
-        
         // Изображение загружено - получаем самую маленькую версию
         if ( ! $avatar = $avatar->getUrl($size) )
         {
