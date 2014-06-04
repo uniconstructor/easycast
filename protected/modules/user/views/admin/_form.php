@@ -27,7 +27,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
             
             $moduleClass = get_class(Yii::app()->getModule('user'));
             $admins  = $moduleClass::getAdminList();
-            $sources = array('0' => 'easyCast (наша анкета)');
+            $sources = array('1' => 'easyCast (наша анкета)');
             if ( isset($admins[823]) )
             {// из источников данных оставляем только Светлану (hardcoded value, но что делать)
                 $sources[823] = $admins[823];

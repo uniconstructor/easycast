@@ -168,7 +168,6 @@ class User extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::beforeDelete()
 	 */
 	protected function beforeDelete()
@@ -206,7 +205,6 @@ class User extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::scopes()
 	 */
 	public function scopes()
@@ -231,7 +229,6 @@ class User extends CActiveRecord
     }
 	
     /**
-     * (non-PHPdoc)
      * @see CActiveRecord::defaultScope()
      */
 	public function defaultScope()
@@ -446,6 +443,6 @@ class User extends CActiveRecord
      */
     public static function getDefaultOwnerId()
     {
-        return 823;
+        return 1;
     }
 }
