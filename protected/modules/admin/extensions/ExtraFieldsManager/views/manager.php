@@ -17,7 +17,10 @@
                 Тут нужно указывать данные <b>которые могут понадобится для других ролей</b>.
             </h4>
             <?php 
-            
+            $this->widget('admin.extensions.EditRequiredFields.EditRequiredFields', array(
+                'objectType' => 'vacancy',
+                'objectId'   => $this->vacancy->id,
+            ));
             ?>
         </div>
     </div>
