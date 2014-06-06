@@ -224,40 +224,77 @@ class SiteController extends Controller
      */
     public function actionLoadSocial()
     {
-        $this->widget('application.extensions.ESocial.ESocial', 
-            array(
-                'renderAjaxData' => true,
-                'style' => 'horizontal',
-                'networks' => array(
-                    // g+
-                    'googleplusone' => array(
-                        "size" => "medium",
-                        "annotation" => "bubble"
-                    ),
-                    // В контакте
-                    'vkontakte' => array(
-                        'apiid' => Yii::app()->params['vkontakteApiId'],
-                        'containerid' => 'vk_like',
-                        'scriptid' => 'vkontakte-init-script',
-                        'type' => 'button'
-                    ),
-                    // mail.ru и одноклассники (добавляются одной кнопкой)
-                    'mailru' => array(
-                        'type' => 'combo'
-                    ),
-                    // Твиттер
-                    'twitter' => array(
-                        'data-via' => ''
-                    ),
-                    // Facebook
-                    'facebook' => array(
-                        'href' => 'http://easycast.ru/', // asociate your page http://www.facebook.com/page
-                        'action' => 'recommend', // recommend, like
-                        'colorscheme' => 'light',
-                        'width' => '140px'
-                    )
+        $this->widget('application.extensions.ESocial.ESocial', array(
+            'renderAjaxData' => true,
+            'style' => 'horizontal',
+            'networks' => array(
+                // g+
+                'googleplusone' => array(
+                    "size" => "medium",
+                    "annotation" => "bubble",
+                ),
+                // В контакте
+                'vkontakte' => array(
+                    'apiid' => Yii::app()->params['vkontakteApiId'],
+                    'containerid' => 'vk_like',
+                    'scriptid' => 'vkontakte-init-script',
+                    'type' => 'button',
+                ),
+                // mail.ru и одноклассники (добавляются одной кнопкой)
+                'mailru' => array(
+                    'type' => 'combo',
+                ),
+                // Твиттер
+                'twitter' => array(
+                    'data-via' => '',
+                ),
+                // Facebook
+                'facebook' => array(
+                    'href' => 'http://easycast.ru/', // asociate your page http://www.facebook.com/page
+                    'action' => 'recommend', // recommend, like
+                    'colorscheme' => 'light',
+                    'width' => '140px',
                 )
-            ));
+            )
+        ));
+    }
+    
+    /**
+     * Получить список городов для AJAX-подсказки в анкете.
+     */
+    public function actionGeoLookup()
+    {
+        if( ! Yii::app()->request->isAjaxRequest )
+        {
+            Yii::app()->end();
+        }
+        Yii::import('ext.CountryCitySelectorRu.*');
+        $selector = new CountryCitySelectorRu();
+        
+        // request type ('city' ot 'region')
+        $type       = Yii::app()->request->getParam('type');
+        // counry or region
+        $parentType = Yii::app()->request->getParam('parenttype');
+        // record id or country code
+        $parentId   = Yii::app()->request->getParam('parentid');
+        // first letters
+        $term       = Yii::app()->request->getParam('term');
+    
+        switch ($type)
+        {
+            case 'city':
+                $records = $selector->getCities($parentType, $parentId, $term);
+            break;
+            case 'region':
+                $records = $selector->getRegions($parentId);
+            break;
+            default: $records = array();
+        }
+    
+        $listData = CHtml::listData($records, 'id', 'name');
+        $options  = ECPurifier::getSelect2Options($listData);
+        
+        echo CJSON::encode($options);
     }
 
     /**
