@@ -105,7 +105,6 @@ class Video extends SWActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CModel::behaviors()
 	 */
 	public function behaviors()
