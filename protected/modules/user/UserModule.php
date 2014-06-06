@@ -458,9 +458,9 @@ class UserModule extends CWebModule
 	    }else
 	    {// Пользователь регистрируется сам - стандартное сообщение
 	        $theme = 'Вы стали участником проекта EasyCast';
-	        $message = UserModule::t("Please activate you account go to {activation_url}",
+	        /*$message = UserModule::t("Please activate you account go to {activation_url}",
 	            array('{activation_url}' => $activation_url)
-	        );
+	        );*/
 	    }
 	    $message .= "<br><br>";
 	    $message .= "Данные для доступа к сайту:<br>";
