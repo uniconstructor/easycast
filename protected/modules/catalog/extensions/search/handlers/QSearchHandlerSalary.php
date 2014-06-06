@@ -7,7 +7,6 @@ class QSearchHandlerSalary extends QSearchHandlerBase
 {
     /**
      * Разрешаем поиск по цене только для админов
-     * (non-PHPdoc)
      * @see QSearchFilterBase::enabled()
      */
     public function enabled()
@@ -31,7 +30,8 @@ class QSearchHandlerSalary extends QSearchHandlerBase
         
         if ( isset($data['minsalary']) )
         {
-            $criteria->addCondition('`recordingconditions`.`salary` >= :minsalary OR `recordingconditions`.`salary` = 0');
+            $criteria->addCondition('`recordingconditions`.`salary` >= :minsalary OR 
+                `recordingconditions`.`salary` = 0 OR `recordingconditions`.`salary` IS NULL');
             $criteria->params[':minsalary'] = $data['minsalary'];
         }
         if ( isset($data['maxsalary']) )
