@@ -33,13 +33,14 @@ class QEditHistory extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('field', 'required'),
-			array('questionaryid, timecreated, editorid', 'length', 'max'=>11),
-			array('field, editortype', 'length', 'max'=>20),
-			array('type', 'length', 'max'=>12),
+			array('questionaryid, timecreated, editorid', 'length', 'max' => 11),
+			array('field, editortype', 'length', 'max' => 20),
+			array('type', 'length', 'max' => 12),
 			array('oldvalue, newvalue', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, questionaryid, field, type, oldvalue, newvalue, timecreated, editortype, editorid', 'safe', 'on'=>'search'),
+			array('id, questionaryid, field, type, oldvalue, newvalue, timecreated, editortype, editorid', 
+			    'safe', 'on' => 'search'),
 		);
 	}
 
@@ -48,10 +49,23 @@ class QEditHistory extends CActiveRecord
 	 */
 	public function relations()
 	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
 		return array(
+		    
 		);
+	}
+	
+	/**
+	 * @see CModel::behaviors()
+	 */
+	public function behaviors()
+	{
+	    return array(
+	        // автоматическое заполнение дат создания и изменения
+	        'CTimestampBehavior' => array(
+	            'class'           => 'zii.behaviors.CTimestampBehavior',
+	            'createAttribute' => 'timecreated',
+	        ),
+	    );
 	}
 
 	/**
