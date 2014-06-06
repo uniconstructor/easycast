@@ -78,7 +78,7 @@ class MassActorsForm extends CFormModel
             array('policyagreed', 'compare', 
                 'allowEmpty'   => false,
                 'compareValue' => 1,
-                'message'      => 'Согласие с условиями использования сайта обязательно', 
+                'message'      => 'Для регистрации требуется ваше согласие', 
             ),
             
             // все поля формы обязательные
@@ -118,20 +118,6 @@ class MassActorsForm extends CFormModel
         }
         return parent::beforeValidate();
     }
-    
-    /**
-     * Эта функция проверяет обязательное наличие хотя бы одной загруженной фотографии
-     * @param int $galleryId
-     * @return int
-     */
-    /*public function checkPhotos()
-    {
-        if ( ! $this->hasPhotos($this->galleryid) )
-        {
-            $this->addError('galleryid', 'Нужно загрузить хотя бы одну фотографию');
-        }
-        return $galleryId;
-    }*/
     
     /**
      * Фильтр для даты рождения
@@ -191,11 +177,6 @@ class MassActorsForm extends CFormModel
         {
             throw new CException('Не удалось создать пользователя');
         }
-        
-        // впускаем участника на сайт
-        //$identity = new UserIdentity($user->username, $soucePassword);
-        //$identity->authenticate();
-        //Yii::app()->user->login($identity, 3600 * 24 * 30);
         
         if ( Yii::app()->getModule('user')->sendActivationMail )
         {// отправляем активационное письмо если нужно
