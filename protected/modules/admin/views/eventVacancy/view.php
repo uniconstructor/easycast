@@ -89,54 +89,79 @@ $this->widget('bootstrap.widgets.TbAlert');
 ?>
 
 <div class="row-fluid">
-    <h1>Роль "<?php echo $model->name; ?>"</h1>
-    <?php
-    // описание самой роли
-    $this->widget('bootstrap.widgets.TbDetailView', array(
-    	'data'       => $model,
-    	'attributes' => array(
-    		'name',
-    		'description:html',
-    		array(
-                'label' => 'Заполнение',
-                'value' => '('.$model->membersCount.' из '.$model->limit.') [Заявки: '.$model->requestsCount.']',
-            ),
-    		array(
-                'label' => ProjectsModule::t('status'),
-                'value' => $model->statustext,
-            ),
-            'salary',
-    	),
+    <div class="span9">
+        <h1 class="title">Роль "<?php echo $model->name; ?>"</h1>
+        <?php
+        // описание самой роли
+        $this->widget('bootstrap.widgets.TbDetailView', array(
+        	'data'       => $model,
+        	'attributes' => array(
+        		'name',
+        		'description:html',
+        		array(
+                    'label' => 'Заполнение',
+                    'value' => '('.$model->membersCount.' из '.$model->limit.') [Заявки: '.$model->requestsCount.']',
+                ),
+        		array(
+                    'label' => ProjectsModule::t('status'),
+                    'value' => $model->statustext,
+                ),
+                'salary',
+        	),
+        ));
+        ?>
+    </div>
+    <div class="span3">
+        <?php
+        // меню
+        $this->beginWidget('zii.widgets.CPortlet', array(
+            'title' => Yii::t('coreMessages', 'operations'),
+        ));
+        $this->widget('bootstrap.widgets.TbMenu', array(
+            'type'    => 'tabs', 
+            'items'   => $this->menu,
+        ));
+        $this->endWidget();
+        ?>
+    </div>
+</div>
+<hr>
+<div class="row-fluid">
+    <h2 class="title">Критерии поиска</h2>
+    <?php 
+    // виджет расширенной формы поиска (для указания критериев отбора на роль)
+    $this->widget('catalog.extensions.search.QSearchForm.QSearchForm', array(
+        'searchObject' => $model,
+        'mode'         => 'vacancy',
+        'dataSource'   => 'db',
+        'searchUrl'    => '/admin/eventVacancy/setSearchData',
+        'clearUrl'     => '/admin/eventVacancy/clearFilterSearchData',
+        'countUrl'     => '/admin/eventVacancy/setSearchData',
+        'countResultPosition' => 'bottom',
+        'refreshDataOnChange' => true,
+        //'refreshDataOnChange' => false,
+        'searchButtonTitle'      => 'Сохранить',
+        'clearButtonHtmlOptions' => array(
+            'class' => 'btn btn-danger btn-large',
+            'id'    => 'clear_search',
+        ),
+        'countContainerHtmlOptions' => array(
+            'class' => 'well text-center',
+        ),
     ));
     ?>
 </div>
-<?php 
-
-// виджет расширенной формы поиска (по всей базе)
-$this->widget('catalog.extensions.search.QSearchForm.QSearchForm', array(
-    'searchObject' => $model,
-    'mode'         => 'vacancy',
-    'dataSource'   => 'db',
-    'searchUrl'    => '/admin/eventVacancy/setSearchData',
-    'clearUrl'     => '/admin/eventVacancy/clearFilterSearchData',
-    'countUrl'     => '/admin/eventVacancy/setSearchData',
-    'countResultPosition' => 'bottom',
-    'refreshDataOnChange' => true,
-    //'refreshDataOnChange' => false,
-    'searchButtonTitle'      => 'Сохранить',
-    'clearButtonHtmlOptions' => array(
-        'class' => 'btn btn-danger btn-large',
-        'id'    => 'clear_search',
-    ),
-    'countContainerHtmlOptions' => array(
-        'class' => 'well text-center',
-    ),
-));
-
-$this->widget('admin.extensions.ExtraFieldsManager.ExtraFieldsManager', array(
-    'vacancy' => $model,
-));
-
+<hr>
+<div class="row-fluid">
+    <?php 
+    // обязательные и дополнительные поля для подачи заявки
+    $this->widget('admin.extensions.ExtraFieldsManager.ExtraFieldsManager', array(
+        'vacancy' => $model,
+    ));
+    ?>
+</div>
+<?php
+// modal-окна с формами для EditableGrid элементов
 $clips = Yii::app()->getModule('admin')->formClips;
 foreach ( $clips as $clip )
 {
