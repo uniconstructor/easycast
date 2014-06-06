@@ -6,7 +6,7 @@
  * 
  * @todo прописать проверки обязательных полей в init
  * @todo сделать настройку помещать/не помещать формы в клип
- * @todo наследовать от этого класса виджет QGridEditBase, убрать лишние методы после наследования
+ * @todo переписать дочерние классы: использовать controllerPath вместо отдельного указания трех URL
  */
 class EditableGrid extends CWidget
 {
@@ -18,6 +18,13 @@ class EditableGrid extends CWidget
      * @var string - всплывающая подсказка над иконкой удаления записи
      */
     public $deleteButtonLabel  = 'Удалить';
+    /**
+     * @var string - если для всех трех действий (create, update, delete) используется один контроллер
+     *               то здесь можно указать относительный путь к нему: в этом случае не нужно 
+     *               отдельно указывать url для каждого действия
+     *               Пример значения: '/questionary/qEmcee/'
+     */
+    public $gridControllerPath;
     /**
      * @var string - url по которому происходит удаление записей
      */
@@ -96,12 +103,25 @@ class EditableGrid extends CWidget
     public function init()
     {
         parent::init();
+        // вычисляем url для создания/редактирования/удаления записей если они не заданы
+        if ( ! $this->createUrl )
+        {
+            $this->createUrl = $this->gridControllerPath.'create';
+        }
+        if ( ! $this->updateUrl )
+        {
+            $this->updateUrl = $this->gridControllerPath.'update';
+        }
+        if ( ! $this->deleteUrl )
+        {
+            $this->deleteUrl = $this->gridControllerPath.'delete';
+        }
         
         // создаем пустую модель для формы
         $this->initModel();
         
         if ( ! $this->rowEditPrefix )
-        {
+        {// вычисляем префикс для id строки таблицы
             $this->rowEditPrefix = $this->modelClass;
         }
         // регистрируем клип с формой в модуле анкет для того чтобы позже вывести его в конце формы
@@ -114,8 +134,8 @@ class EditableGrid extends CWidget
      */
     protected function initModel()
     {
-        $className = $this->modelClass;
-        $this->model = new $className;
+        //$className = $this->modelClass;
+        $this->model = new $this->modelClass;
     }
     
     /**
