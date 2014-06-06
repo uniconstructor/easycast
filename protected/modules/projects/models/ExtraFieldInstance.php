@@ -19,6 +19,7 @@
  * @property ExtraFieldValue[] $instanceValues - введенные значения пользователей
  * 
  * @todo документировать код
+ * @todo прописать unique-правило в rules
  */
 class ExtraFieldInstance extends CActiveRecord
 {
@@ -36,13 +37,17 @@ class ExtraFieldInstance extends CActiveRecord
 	public function rules()
 	{
 		return array(
-			array('objecttype', 'required'),
+			array('objecttype, filling', 'required'),
 			array('objecttype, filling, condition', 'length', 'max' => 50),
+			array('objecttype, filling, condition', 'filter', 'filter' => 'trim'),
+		    
 			array('fieldid, objectid, timecreated, timemodified', 'length', 'max' => 11),
+		    
 			array('data', 'length', 'max' => 1023),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, fieldid, objecttype, objectid, filling, condition, data, timecreated, timemodified', 'safe', 'on'=>'search'),
+			array('id, fieldid, objecttype, objectid, filling, condition, data, timecreated, timemodified', 
+			    'safe', 'on' => 'search'),
 		);
 	}
 	
@@ -67,9 +72,82 @@ class ExtraFieldInstance extends CActiveRecord
 	public function relations()
 	{
 		return array(
+		    // поле, которое прикреплено к объекту
 		    'fieldObject' => array(self::BELONGS_TO, 'ExtraField', 'fieldid'),
+		    // роль, к которой привязаны поля
+		    'vacancy' => array(self::BELONGS_TO, 'EventVacancy', 'objectid'),
+		    // все значения, добавленные пользователями для этого поля
 		    'instanceValues' => array(self::HAS_MANY, 'ExtraFieldValue', 'instanceid'),
 		);
+	}
+	
+	/**
+	 * @see CActiveRecord::beforeSave()
+	 */
+	public function beforeSave()
+	{
+	    if ( $this->isNewRecord )
+	    {
+	        $criteria = new CDbCriteria();
+	        $criteria->compare('objecttype', $this->objecttype);
+	        $criteria->compare('objectid', $this->objectid);
+	        $criteria->compare('fieldid', $this->fieldid);
+	        if ( $this->exists($criteria) )
+	        {// запрещаем прикреплять одно и то же поле к одному объекту более одного раза
+	            return false;
+	        }
+	    }
+	    return parent::beforeSave();
+	}
+	
+	/**
+	 * Именованая группа условий: получить все записи о доп. полях, привязанных к определенному объекту
+	 * (например к роли)
+	 * @param string $objectType - тип объекта к которому привязано поле
+	 * @param int $objectId - id объекта к которому привязано поле
+	 * @return ExtraFieldInstance
+	 */
+	public function attachedTo($objectType, $objectId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('objecttype', $objectType);
+	    $criteria->compare('objectid', $objectId);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
+	}
+	
+	/**
+	 * Именованная группа условий поиска - получить записи принадлежащие определенной роли
+	 * @param int $vacancyId - id роли, на которую подана заявка
+	 * @return ExtraFieldInstance
+	 */
+	public function forVacancy($vacancyId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('objecttype', 'vacancy');
+	    $criteria->compare('objectid', $vacancyId);
+	     
+	    $this->getDbCriteria()->mergeWith($criteria);
+	     
+	    return $this;
+	}
+	
+	/**
+	 * Именованная группа условий поиска - получить записи (ссылки) на доп. поле,
+	 * или другими словами - посмотреть к каким объектам оно когда-либо прикреплялось
+	 * @param int $fieldId - id дополнительного поля
+	 * @return ExtraFieldInstance
+	 */
+	public function forField($fieldId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('fieldid', $fieldId);
+	     
+	    $this->getDbCriteria()->mergeWith($criteria);
+	     
+	    return $this;
 	}
 	
 	/**
@@ -79,10 +157,10 @@ class ExtraFieldInstance extends CActiveRecord
 	{
 		return array(
 			'id' => 'ID',
-			'fieldid' => 'Fieldid',
+			'fieldid' => 'Дополнительное поле',
 			'objecttype' => 'Objecttype',
 			'objectid' => 'Objectid',
-			'filling' => 'Filling',
+			'filling' => 'Обязательно к заполнению?',
 			'condition' => 'Condition',
 			'data' => 'Data',
 			'timecreated' => 'Timecreated',
@@ -107,15 +185,15 @@ class ExtraFieldInstance extends CActiveRecord
 		// @todo Please modify the following code to remove attributes that should not be searched.
 		$criteria = new CDbCriteria;
 
-		$criteria->compare('id',$this->id);
-		$criteria->compare('fieldid',$this->fieldid,true);
-		$criteria->compare('objecttype',$this->objecttype,true);
-		$criteria->compare('objectid',$this->objectid,true);
-		$criteria->compare('filling',$this->filling,true);
-		$criteria->compare('condition',$this->condition,true);
-		$criteria->compare('data',$this->data,true);
-		$criteria->compare('timecreated',$this->timecreated,true);
-		$criteria->compare('timemodified',$this->timemodified,true);
+		$criteria->compare('id', $this->id);
+		$criteria->compare('fieldid', $this->fieldid, true);
+		$criteria->compare('objecttype', $this->objecttype, true);
+		$criteria->compare('objectid', $this->objectid, true);
+		$criteria->compare('filling', $this->filling, true);
+		$criteria->compare('condition', $this->condition, true);
+		$criteria->compare('data', $this->data, true);
+		$criteria->compare('timecreated', $this->timecreated, true);
+		$criteria->compare('timemodified', $this->timemodified, true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria' => $criteria,
@@ -143,7 +221,7 @@ class ExtraFieldInstance extends CActiveRecord
 	    {
 	        return;
 	    }
-	    return $this->fieldObject->name;
+	    return $this->fieldObject->label;
 	}
 	
 	/**
@@ -157,5 +235,24 @@ class ExtraFieldInstance extends CActiveRecord
 	        return;
 	    }
 	    return $this->fieldObject->description;
+	}
+	
+	/**
+	 * 
+	 * @return string
+	 */
+	public function getFillingMode()
+	{
+	    if ( $this->isNewRecord )
+	    {
+	        return;
+	    }
+	    if ( $this->filling === 'required' )
+	    {
+	        return 'Да';
+	    }elseif ( $this->filling === 'recommended' )
+	    {
+	        return 'Нет';
+	    }
 	}
 }

@@ -13,6 +13,7 @@
  * @property string $timemodified
  * 
  * @todo документировать код
+ * @todo прописать MANY_MANY relation с ролями 
  */
 class ExtraField extends CActiveRecord
 {
@@ -62,9 +63,25 @@ class ExtraField extends CActiveRecord
 	public function relations()
 	{
 		return array(
+		    // все ссылки на это поле
             'fieldInstances' => array(self::HAS_MANY, 'ExtraFieldInstance', 'fieldid'),
+		    // все роли, к которым прикреплено это поле
+		    // @todo проверить правильно ли указан порядок полей в составном ключе
+		    /*'vacancies' => array(self::MANY_MANY, 'EventVacancy', "{{extra_field_instances}}(fieldid, objectid)",
+		        'condition' => "`objecttype` = 'vacancy'",
+		    ),*/
 		);
 	}
+	
+	/**
+	 * @see CActiveRecord::defaultScope()
+	 */
+	/*public function defaultScope()
+	{
+	    return array(
+	        'order' => "`label`",
+	    );
+	}*/
 	
 	/**
 	 * @see CActiveRecord::beforeSave()
@@ -129,5 +146,117 @@ class ExtraField extends CActiveRecord
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
+	}
+	
+	/**
+	 * Определить, пусто ли требующее заполнения дополнительное поле
+	 * 
+	 * @param string $objectType - 
+	 * @param int    $objectId - 
+	 * @param int    $questionaryId - id анкеты, для которой проверяется заполненность
+	 * @return bool
+	 */
+	public function isEmptyFor($objectType, $objectId, $questionaryId)
+	{
+	    if ( ! $instance = $this->isAttachedTo($objectType, $vacancy->id) )
+	    {// поле вообще не прикреплено - в этом случае считаем что пользователь нам ничего не должен 
+	        return false;
+	    }
+	    // получаем объект 
+	    $value = ExtraFieldValue::model()->forField($this->id)->forObject($objectType, $objectId)->
+	       forQuestionary($questionaryId)->find();
+	    if ( ! $value )
+	    {// запись со значением еще не создана
+	        return true;
+	    }
+	    if ( ! $value->value )
+	    {// запись создана, но значение не заполнено
+	        return true;
+	    }
+	    return false;
+	}
+	
+	/**
+	 * Определить, пусто ли требующее заполнения дополнительное поле
+	 *
+	 * @param string $objectType -
+	 * @param int    $objectId -
+	 * @return bool
+	 *
+	 * @todo
+	 */
+	public function isRequiredFor($objectType, $objectId)
+	{
+        if ( ! $instance = ExtraFieldInstance::model()->forField($this->id)->attachedTo($objectType, $objectId)->find() )
+        {// дополнительное поле вообще не прикреплено к этому объекту - значит оно не может быть обязательным
+            return false;
+        }
+        if ( $instance->filling === 'required' )
+        {
+            return true;
+        }
+        return false;
+	}
+	
+	/**
+	 * Определить, пусто ли требующее заполнения дополнительное поле (для подачи заявки)
+	 * @param EventVacancy $vacancy - роль, на которую подается заявка
+	 * @param Questionary $questionary - анкета, от имени которой подается заявка
+	 * @return bool
+	 */
+	public function isEmptyForVacancy($vacancy, $questionary)
+	{
+	    if ( ! $instance = $this->isAttachedTo('vacancy', $vacancy->id) )
+	    {// поле вообще не прикреплено - в этом случае считаем что пользователь нам ничего не должен 
+	        return false;
+	    }
+	    if ( $questionary->isNewRecord )
+	    {// анкета еще не сохранена
+	        return true;
+	    }
+	    // получаем объект содержащий значение поля
+	    if ( ! $value = $this->getValueFor('vacancy', $vacancy->id, $questionary->id) )
+	    {// запись со значением еще не создана - поле не заполнено
+	        return true;
+	    }
+	    if ( ! $value->value )
+	    {// запись создана, но значение не заполнено
+	        return true;
+	    }
+	    return false;
+	}
+	
+	/**
+	 * Получить значение дополнительного поля привязанное к анкете + объекту
+	 * @param string $objectType
+	 * @param int $objectId
+	 * @param int $questionaryId
+	 * @return null|string
+	 */
+	public function getValueFor($objectType, $objectId, $questionaryId)
+	{
+	    if ( ! $this->isAttachedTo($objectType, $objectId) )
+	    {
+	        return null;
+	    }
+	    $value = ExtraFieldValue::model()->forField($this->id)->forObject($objectType, $objectId)->
+	       forQuestionary($questionaryId)->find();
+	    if ( ! $value )
+	    {
+	        return null;
+	    }
+	    return $value->value;
+	}
+	
+	
+	/**
+	 * Определить, прикреплено ли дополнительное поле к объекту
+	 * @param string $objectType
+	 * @param int $objectId
+	 * @return bool
+	 */
+	public function isAttachedTo($objectType, $objectId)
+	{
+	    return ExtraFieldInstance::model()->forField($this->id)->attachedTo($objectType, $objectId)->exists();
 	}
 }
