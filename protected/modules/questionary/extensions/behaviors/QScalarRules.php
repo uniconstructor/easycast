@@ -22,7 +22,7 @@ class QScalarRules extends CActiveRecordBehavior
                         ismusician, issportsman, isextremal, isathlete, hasskills, hastricks,
                         haslanuages, hasinshurancecard, countryid, nativecountryid,
                         shoessize, rating, hastatoo, playagemin, playagemax, 
-                        istheatreactor, ismediaactor, ownerid',
+                        istheatreactor, ismediaactor, ownerid, currentcountryid',
                 'numerical', 'integerOnly' => true),
             
             array('firstname, lastname, middlename, city, inshurancecardnum', 'length', 'max' => 128),
