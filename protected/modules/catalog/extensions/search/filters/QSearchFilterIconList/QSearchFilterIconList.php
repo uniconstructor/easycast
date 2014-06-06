@@ -46,9 +46,9 @@ class QSearchFilterIconList extends QSearchFilterBase
         parent::init();
         $refreshJs = '';
         // Подключаем картинки, стили и скрипты для оформления
-        $this->_iconsAssetUrl = Yii::app()->assetManager->publish(
+        /*$this->_iconsAssetUrl = Yii::app()->assetManager->publish(
             Yii::getPathOfAlias('catalog.extensions.search.filters.QSearchFilterIconList.assets').DIRECTORY_SEPARATOR);
-        
+        */
         if ( $this->refreshDataOnChange )
         {// если нужно сразу же обновлять результаты поиска при изменении критериев поиска
             // то добавляем скрипт который создает jQuery-событие "критерии поиска изменены"
@@ -164,9 +164,12 @@ class QSearchFilterIconList extends QSearchFilterBase
     {
         $criteria = new CDbCriteria();
         $criteria->compare('parentid', 1);
-        $criteria->compare('visible', 1);
         $criteria->compare('content', 'users');
-        $criteria->order  = '`name` ASC';
+        if ( ! Yii::app()->user->checkAccess('Admin') )
+        {
+            $criteria->compare('visible', 1);
+        }
+        $criteria->order = '`name` ASC';
     
         return CatalogSection::model()->findAll($criteria);
     }
