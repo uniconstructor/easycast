@@ -5,12 +5,16 @@
  */
 class QCreated extends CWidget
 {
+    /**
+     * @var int
+     */
     public $startDate;
-    
+    /**
+     * @var int
+     */
     public $userId;
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
      */
     public function init()
@@ -25,21 +29,22 @@ class QCreated extends CWidget
     }
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::run()
      */
     public function run()
     {
         $criteria = new CDbCriteria;
-        $criteria->compare('userid', $this->userId);
+        $criteria->compare('objecttype', 'user');
+        $criteria->compare('objectid', $this->userId);
         $criteria->compare('timecreated', '>'.$this->startDate);
         $criteria->order = 'timecreated DESC';
+        // @todo дубли из таблицы q_creation_history убраны, необходимости в distinct больше нет
+        //       Удалить при рефакторинге
         $criteria->distinct = true;
         $criteria->select = array('questionaryid');
         
         
-        $dataProvider = new CActiveDataProvider('QCreationHistory',
-            array(
+        $dataProvider = new CActiveDataProvider('QCreationHistory', array(
                 'criteria'   => $criteria,
                 'pagination' => false,
             )
@@ -54,7 +59,7 @@ class QCreated extends CWidget
                     'header' => '<b>ФИО</b>',
                     'type'   => 'raw',
                 ),
-                array( // display a column with "view", "update" and "delete" buttons
+                array(
                     'class'           => 'bootstrap.widgets.TbButtonColumn',
                     'template'        => '{view} {update}',
                     'viewButtonUrl'   => 'Yii::app()->controller->createUrl("/questionary/questionary/view", array("id" => $data->questionaryid))',
