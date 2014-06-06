@@ -61,7 +61,7 @@ class QFieldInstance extends CActiveRecord
 		    //'vacancy' => array(self::BELONGS_TO, 'EventVacancy', 'objectid'),
 		);
 	}
-
+	
 	/**
 	 * @return array customized attribute labels (name=>label)
 	 */
