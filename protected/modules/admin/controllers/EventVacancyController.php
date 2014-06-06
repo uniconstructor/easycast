@@ -54,6 +54,8 @@ class EventVacancyController extends Controller
 	 */
 	public function actionView($id)
 	{
+	    $this->layout = '//layouts/column1';
+	    
 		$this->render('view', array(
 			'model' => $this->loadModel($id),
 		));
