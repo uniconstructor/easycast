@@ -33,15 +33,15 @@ class ECEditVideo extends QGridEditBase
     /**
      * @var string - пустой класс модели (для создания формы добавления объекта)
      */
-    public $modelClass = 'Video';
+    public $modelClass  = 'Video';
     /**
      * @var array - список редактируемых полей в том порядке, в котором они идут в таблице
      */
-    public $fields = array('name', 'link');
+    public $fields  = array('name', 'link');
     /**
      * @var string - html-id формы для ввода новой записи
     */
-    public $formId = 'video-instance-form';
+    public $formId  = 'video-instance-form';
     /**
      * @var string - html-id modal-окна для ввода новой записи
      */
@@ -57,7 +57,7 @@ class ECEditVideo extends QGridEditBase
     /**
      * @var string - заголовок всплывающего окна с формой добавления новой записи
      */
-    public $modalHeader = 'Добавить видео';
+    public $modalHeader    = 'Добавить видео';
     /**
      * @var array - список текстов-заглушек, которые отображаются в случае, когда поле не заполнено
      */
@@ -71,11 +71,11 @@ class ECEditVideo extends QGridEditBase
      */
     public function initModel()
     {
-        $className = $this->modelClass;
-        //$this->model = new $className;
+        //$className = $this->modelClass;
         $this->model = new $this->modelClass;
         $this->model->objecttype = 'questionary';
         $this->model->objectid   = $this->questionary->id;
+        
         return $this->model;
     }
     
