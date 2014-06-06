@@ -7,27 +7,27 @@
 // head-раздел и мета-теги
 $this->beginContent('//layouts/main');
 ?>
-<div class="row-fluid">
-    <div class="span9">
-        <div id="content">
-            <?php echo $content; ?>
-        </div><!-- content -->
-    </div>
-    <div class="span3">
-        <div id="sidebar">
-        <?php
+<div class="page-alternate">
+    <div class="row-fluid">
+        <div class="span9">
+            <div id="content">
+                <?php echo $content; ?>
+            </div><!-- content -->
+        </div>
+        <div class="span3">
+            <div id="sidebar">
+            <?php
             $this->beginWidget('zii.widgets.CPortlet', array(
                 'title' => Yii::t('coreMessages', 'operations'),
             ));
             $this->widget('bootstrap.widgets.TbMenu', array(
                 'type'    => 'tabs', 
-                'stacked' => true,
                 'items'   => $this->menu,
-                //'htmlOptions' => array('class' => 'operations'),
             ));
             $this->endWidget();
-        ?>
-        </div><!-- sidebar -->
+            ?>
+            </div><!-- sidebar -->
+        </div>
     </div>
 </div>
 <?php
