@@ -25,6 +25,8 @@ echo $form->widgetRow('ext.ECMarkup.ECToggleInput.ECToggleInput',
         'onValue'   => 'required',
         'offLabel'  => 'Нет',
         'offValue'  => 'recommended',
+        'onId'      => $this->id.'_filling_on_button',
+        'offId'     => $this->id.'_filling_off_button',
     ),
     array(
         'hint' => 'При выборе "да" нельзя будет подать заявку без заполнения этого поля',
