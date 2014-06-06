@@ -132,7 +132,7 @@ class QEditAwards extends QGridEditBase
     
     /**
      * Получить список стран для поля "страна"
-     * @return void
+     * @return array
      */
     protected function createCountryList()
     {
