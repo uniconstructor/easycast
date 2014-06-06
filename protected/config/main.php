@@ -122,6 +122,7 @@ return array(
         ),
 	    
         // Форум
+        // @todo отключить, мы не смогли его адекватно использовать
         'forum' => array(
             'class' => 'application.modules.yii-forum.YiiForumModule',
             'forumTableClass'    => 'table',
@@ -266,7 +267,7 @@ return array(
 		'log' => array(
 			'class'  => 'CLogRouter',
 			'routes' => array(
-			    // хранилище логов в базе
+			    // настройки хранения логов в базе
 				array(
 					'class'              => 'CDbLogRoute',
 					'connectionID'       => 'db',
@@ -289,6 +290,8 @@ return array(
 	    ),
 	    
 	    // Подключаем модуль i18n чтобы можно было переводить приложение на разные языки
+	    // @todo подключить CDbMessageSource для того чтобы в модуле Questionary
+	    //       можно было руками добавлять перевод для стандартных значений или править пояснения к анкетам
 	    'messages' => array(
 	        // все языковые строки берутся из php-файлов
 	        'class' => 'CPhpMessageSource',
