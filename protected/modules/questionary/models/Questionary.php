@@ -215,7 +215,7 @@ class Questionary extends CActiveRecord
         //       + приглашения и заявки относятся к участнику и логично иметь в его модели функции запроса таких данных
         //       + чтобы посмотреть приглашения не нужно знать о том где они лежат
         //       - теущее решение требует подключения моделей из другого модуля, это плохо для изолированности
-        Yii::import('application.modules.projects.models.*');
+        //Yii::import('application.modules.projects.models.*');
         
         // обработчики событий
         $module = Yii::app()->getModule('questionary');
@@ -253,12 +253,12 @@ class Questionary extends CActiveRecord
             'fbprofile', 'okprofile', 'isamateuractor', 'istvshowmen', 
             'isstatist', 'ismassactor', 'nativecountryid', 'playagemin', 
             'playagemax', 'hairlength', 'istheatreactor', 'ismediaactor', 
-            'privatecomment', 'wearsize',
+            'privatecomment', 'wearsize', 'currentcountryid',
             // поля модели User
             'email', 'policyagreed',
             // условия съемки
-            'salary', 'wantsbusinesstrips', 'hasforeignpassport', 'isnightrecording', 'istoplessrecording', 
-            'isfreerecording', 'custom', 
+            'salary', 'wantsbusinesstrips', 'hasforeignpassport', 'passportexpires', 'isnightrecording', 
+            'istoplessrecording', 'isfreerecording', 'custom', 
             // сложные значения
             'addchars', 'actoruniversities', 'films', 'emceelist', 'parodistlist', 'twinlist', 'modelschools',
             'modeljobs', 'photomodeljobs', 'promomodeljobs', 'dancetypes', 'awards', 'vocaltypes',
@@ -323,7 +323,7 @@ class Questionary extends CActiveRecord
             'country' => array(self::BELONGS_TO, 'CSGeoCountry', 'countryid'),
             // страна рождения
             'nativecountry' => array(self::BELONGS_TO, 'CSGeoCountry', 'nativecountryid'),
-            // страна рождения
+            // страна проживания
             'currentcountry' => array(self::BELONGS_TO, 'CSGeoCountry', 'nativecountryid'),
             // домашний адрес (все адреса хранятся в отдельной таблице)
             'address' => array(self::HAS_ONE, 'Address', 'objectid',
@@ -453,23 +453,23 @@ class Questionary extends CActiveRecord
      */
     public function behaviors()
     {
-        Yii::import('ext.galleryManager.*');
-        Yii::import('ext.galleryManager.models.*');
-        Yii::import('application.modules.questionary.extensions.behaviors.QManageDefaultValuesBehavior');
-        Yii::import('application.modules.questionary.extensions.behaviors.QManageScalarValueBehavior');
-        Yii::import('application.modules.questionary.extensions.behaviors.QScalarRules');
-        
         // получаем настройки галереи изображений из модуля
         $gallerySettings = Yii::app()->getModule('questionary')->gallerySettings;
+        
+        Yii::import('ext.galleryManager.*');
+        Yii::import('ext.galleryManager.models.*');
+        Yii::import('questionary.extensions.behaviors.QManageDefaultValuesBehavior');
+        Yii::import('questionary.extensions.behaviors.QManageScalarValueBehavior');
+        Yii::import('questionary.extensions.behaviors.QScalarRules');
         
         return array(
             // сохранение и получение скалярных полей анкеты
             'QManageScalarValueBehavior' => array(
-                'class' => 'application.modules.questionary.extensions.behaviors.QManageScalarValueBehavior',
+                'class' => 'questionary.extensions.behaviors.QManageScalarValueBehavior',
             ),
             // работа со значениями по умолчанию
             'QManageDefaultValuesBehavior' => array(
-                'class' => 'application.modules.questionary.extensions.behaviors.QManageDefaultValuesBehavior',
+                'class' => 'questionary.extensions.behaviors.QManageDefaultValuesBehavior',
             ),
             // подключаем behavior для загрузки изображений в анкету актера
             'galleryBehavior' => $gallerySettings,
