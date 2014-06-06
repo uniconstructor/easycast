@@ -142,6 +142,22 @@ class EditExtraFieldInstances extends EditableGrid
     }
     
     /**
+     * js для очистки полей формы после добавления новой записи
+     * @return string
+     */
+    protected function createClearFormJs()
+    {
+        $js  = '';
+        $js .= "\$('#{$this->modelClass}_name').val('');\n";
+        // сбрасываем кнопку "да/нет" в исходное состояние
+        $js .= "\$('#{$this->modelClass}_filling').val('required');\n";
+        $js .= "\$('#{$this->id}_filling_on_button').addClass('btn-primary');\n";
+        $js .= "\$('#{$this->id}_filling_off_button').removeClass('btn-primary');\n";
+    
+        return $js;
+    }
+    
+    /**
      * @see EditableGrid::getGridCriteria()
      * @todo использовать именованые группы условий
      */
