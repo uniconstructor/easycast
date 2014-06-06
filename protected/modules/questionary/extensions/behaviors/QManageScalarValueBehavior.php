@@ -13,6 +13,30 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
     protected $_formattedBirthDate;
     
     /**
+     * @return string
+     */
+    public function getEmail()
+    {
+        if ( $this->owner->user )
+        {
+            return $this->owner->user->email;
+        }
+        return null;
+    }
+    
+    /**
+     * @return string
+     */
+    public function getPolicyagreed()
+    {
+        if ( $this->owner->user )
+        {
+            return $this->owner->user->policyagreed;
+        }
+        return null;
+    }
+    
+    /**
      * Получить название города проживания
      */
     public function getCity()
@@ -100,7 +124,7 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
     /**
      * Получить срок истечения загранпаспорта
      */
-    public function getPassportexpires($value)
+    public function getPassportexpires()
     {
         if ( $this->owner->scenario == 'view' )
         {
