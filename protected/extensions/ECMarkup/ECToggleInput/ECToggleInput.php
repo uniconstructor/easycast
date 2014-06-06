@@ -3,8 +3,14 @@
 /**
  * Виджет для выбора из трех состояний "да", "нет" и "не указано"
  * 
- * @todo документировать все методы и поля класса
- * @todo расширить функционал и позволить выбирать более чем из 2 вариантов
+ * @todo расширить функционал и позволить выбирать более чем из 2 вариантов, а также checkbox-кнопки
+ *       в дополнении к radio
+ * @todo определять изменилось ли значение при клике. Различать случаи:
+ *       - заполнение поля в первый раз (прошлое значение "пусто")
+ *       - кнопка нажата, но значение не изменилось
+ *       - кнопка нажата и значение изменилось
+ * @todo вынести верстку во views
+ * @todo выключать button-кнопки если сброшено значение в hidden-поле
  */
 class ECToggleInput extends CInputWidget
 {
@@ -17,44 +23,49 @@ class ECToggleInput extends CInputWidget
      */
     public $offLabel;
     /**
-     * @var string - тип не нажатой кнопки (допустимы варианты кнопое из twitter bootstrap)
+     * @var string - тип не нажатой кнопки (допустимы варианты кнопок из twitter bootstrap)
      * @see TbButton::type
      */
     public $defaultType = 'default';
     /**
      * @var string - тип кнопки "да"
      */
-    public $onType = 'primary';
+    public $onType   = 'primary';
     /**
      * @var string - тип кнопки "нет"
      */
-    public $offType = 'primary';
+    public $offType  = 'primary';
     /**
-     * @var string
+     * @var string - значение, для состояния "не заполнено"
+     * @todo пока не используется
      */
-    public $defaultValue = '';
+    public $emptyValue;
     /**
-     * @var string
+     * @var string - значение отправляемое при выборе "да"
      */
-    public $onValue = '1';
+    public $onValue  = '1';
     /**
-     * @var string
+     * @var string - значение отправляемое при выборе "нет"
      */
     public $offValue = '0';
     /**
-     * @var string
+     * @var string - id кнопки "да"
+     *               Будет создано автоматически если не указано
      */
     public $onId;
     /**
-     * @var string
+     * @var string - id кнопки "нет"
+     *               Будет создано автоматически если не указано
      */
     public $offId;
     /**
-     * @var string
+     * @var string - дополнительный js-код, выполняемый после нажатия на кнопку "да"
+     *               рекомендуется использовать события jQuery
      */
     public $afterOn;
     /**
-     * @var string
+     * @var string - дополнительный js-код, выполняемый после нажатия на кнопку "нет"
+     *               рекомендуется использовать события jQuery
      */
     public $afterOff;
     /**
@@ -62,29 +73,24 @@ class ECToggleInput extends CInputWidget
      */
     public $model;
     /**
-     * @var string
+     * @var string - поле
      */
     public $attribute;
     /**
-     * @var string
+     * @var string - поле name для input-поля (используется если не указаны model и attribute)
      */
     public $name;
     /**
-     * @var string
+     * @var string - изначальное значение поля (используется если не указаны model и attribute)
      */
     public $value;
     /**
      * @var array - параметры html для скрытого input-тега
      */
     public $hiddenHtmlOptions = array();
-    /**
-     * @var string - тип отображения виджета
-     *               default: просто bootstrap-кнопка, никакого форматирования выравнивания и подписей
-     */
-    public $displayMode = 'default';
     
     /**
-     * @var string - id скрытого тега
+     * @var string - id скрытого input-тега
      */
     protected $hiddenId;
     
@@ -93,8 +99,8 @@ class ECToggleInput extends CInputWidget
      */
     public function init()
     {
+        // определяем имя для input-поля и id виджета
         $this->resolveNameID();
-        
         if ( ! $this->onLabel )
         {
             $this->onLabel = Yii::t('coreMessages', 'yes');
@@ -105,10 +111,10 @@ class ECToggleInput extends CInputWidget
         }
         
         if ( $this->hasModel() )
-        {
+        {// получаем сохраненное значение из модели (или определяем что поле пока не заполнено)
             $this->value = CHtml::value($this->model, $this->attribute);
         }
-        
+        // определяем id для главных элементов виджета
         if ( ! $this->onId )
         {
             $this->onId = $this->id.'_on';
@@ -117,7 +123,7 @@ class ECToggleInput extends CInputWidget
         {
             $this->offId = $this->id.'_off';
         }
-        
+        // определяем id для скрытого элемента, в котором хранится значение
         if ( isset($this->hiddenHtmlOptions['id']) )
         {
             $this->hiddenId = $this->hiddenHtmlOptions['id'];
@@ -130,6 +136,7 @@ class ECToggleInput extends CInputWidget
             {
                 $this->hiddenId = CHtml::getIdByName($this->name);
             }
+            $this->hiddenHtmlOptions['id'] = $this->hiddenId;
         }
     }
     
@@ -138,6 +145,7 @@ class ECToggleInput extends CInputWidget
      */
     public function run()
     {
+        // скрытое поле с выбранным значением
         if ( $this->hasModel() )
         {
             echo CHtml::activeHiddenField($this->model, $this->attribute, $this->hiddenHtmlOptions);
@@ -145,11 +153,10 @@ class ECToggleInput extends CInputWidget
         {
             echo CHtml::hiddenField($this->name, $this->value, $this->hiddenHtmlOptions);
         }
-        
-        $this->widget('bootstrap.widgets.TbButtonGroup',
-            array(
-                'type'   => $this->defaultType,
-                'toggle' => 'radio',
+        // основная часть виджета: все кнопки одной группой
+        $this->widget('bootstrap.widgets.TbButtonGroup', array(
+                'type'    => $this->defaultType,
+                'toggle'  => 'radio',
                 'buttons' => array(
                     // кнопка включения
                     $this->getOnButtonOptions(),
@@ -161,14 +168,14 @@ class ECToggleInput extends CInputWidget
     }
     
     /**
-     * 
-     * @param string $type
-     * @return void
+     * Создать JS-код, выполняемый при нажатии на кнопку
+     * @param string $type - тип кнопки для которой создается скрипт
+     * @return string
      */
     protected function createToggleJs($type)
     {
         $js = '';
-        if ( $type == 'on' )
+        if ( $type === 'on' )
         {
             $enableId    = $this->onId;
             $enableType  = $this->onType;
@@ -186,16 +193,19 @@ class ECToggleInput extends CInputWidget
             $finalJs     = $this->afterOff;
         }
         
-        $js .= "$('#{$disableId}').removeClass('btn-{$disableType}');";
-        $js .= "$('#{$enableId}').addClass('btn-{$enableType}');";
+        // меняем css кнопок в зависимости от того что было нажато
+        $js .= "$('#{$disableId}').removeClass('btn-{$disableType} active');";
+        $js .= "$('#{$enableId}').addClass('btn-{$enableType} active');";
+        // меняем значение в скрытом поле
         $js .= "$('#{$this->hiddenId}').val('{$newValue}');";
+        // дополнительный js, выполняемый после нажатия на кнопку
         $js .= $finalJs;
         
         return $js;
     }
     
     /**
-     * 
+     * Получить параметры для кнопки "да"
      * @return array
      */
     protected function getOnButtonOptions()
@@ -209,14 +219,14 @@ class ECToggleInput extends CInputWidget
             ),
         );
         if ( $this->value == $this->onValue )
-        {
+        {// выделяем кнопку, если она нажата
             $options['type'] = $this->onType;
         }
         return $options;
     }
     
     /**
-     * 
+     * Получить параметры для кнопки "нет"
      * @return array
      */
     protected function getOffButtonOptions()
@@ -230,7 +240,7 @@ class ECToggleInput extends CInputWidget
             ),
         );
         if ( $this->value == $this->offValue )
-        {
+        {// выделяем кнопку, если она нажата
             $options['type'] = $this->offType;
         }
         return $options;
