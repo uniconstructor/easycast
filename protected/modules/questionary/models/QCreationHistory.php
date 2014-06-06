@@ -6,7 +6,8 @@
  *
  * The followings are the available columns in table '{{q_creation_history}}':
  * @property integer $id
- * @property string $userid
+ * @property string $objecttype
+ * @property string $objectid
  * @property string $questionaryid
  * @property string $timecreated
  */
@@ -36,10 +37,13 @@ class QCreationHistory extends CActiveRecord
 	public function rules()
 	{
 		return array(
-			array('userid, questionaryid, timecreated', 'length', 'max'=>11),
+			array('objectid, questionaryid, timecreated', 'length', 'max' => 11),
+			array('objecttype', 'length', 'max' => 50),
+			array('objecttype', 'filter', 'filter' => 'trim'),
+		    
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, userid, questionaryid, timecreated', 'safe', 'on'=>'search'),
+			array('id, objectid, questionaryid, timecreated', 'safe', 'on' => 'search'),
 		);
 	}
 
@@ -50,8 +54,42 @@ class QCreationHistory extends CActiveRecord
 	{
 		return array(
 		    'questionary' => array(self::BELONGS_TO, 'Questionary', 'questionaryid'),
-		    'user'        => array(self::BELONGS_TO, 'User', 'userid'),
+		    'user'        => array(self::BELONGS_TO, 'User', 'objectid'),
 		);
+	}
+	
+	/**
+	 * @see CModel::behaviors()
+	 */
+	public function behaviors()
+	{
+	    return array(
+	        // автоматическое заполнение дат создания и изменения
+	        'CTimestampBehavior' => array(
+	            'class'           => 'zii.behaviors.CTimestampBehavior',
+	            'createAttribute' => 'timecreated',
+	        ),
+	    );
+	}
+	
+	/**
+	 * @see CActiveRecord::beforeSave()
+	 */
+	public function beforeSave()
+	{
+	    if ( $this->isNewRecord )
+	    {// перед добавлением новой записи проверим что такого значения еще нет
+	        $criteria = new CDbCriteria();
+	        $criteria->compare('objecttype', $this->objecttype);
+	        $criteria->compare('objectid', $this->objectid);
+	        $criteria->compare('questionaryid', $this->questionaryid);
+	        
+	        if ( $this->exists($criteria) )
+	        {// одна анкета может быть введена админом не более одного раза
+	            return false;
+	        }
+	    }
+	    return parent::beforeSave();
 	}
 
 	/**
@@ -61,7 +99,7 @@ class QCreationHistory extends CActiveRecord
 	{
 		return array(
 			'id'            => 'ID',
-			'userid'        => 'Userid',
+			'objectid'      => 'Objectid',
 			'questionaryid' => 'Questionaryid',
 			'timecreated'   => 'Timecreated',
 		);
@@ -73,15 +111,15 @@ class QCreationHistory extends CActiveRecord
 	 */
 	public function search()
 	{
-		$criteria=new CDbCriteria;
+		$criteria = new CDbCriteria;
 
-		$criteria->compare('id',$this->id);
-		$criteria->compare('userid',$this->userid,true);
-		$criteria->compare('questionaryid',$this->questionaryid,true);
-		$criteria->compare('timecreated',$this->timecreated,true);
+		$criteria->compare('id', $this->id);
+		$criteria->compare('objectid', $this->objectid, true);
+		$criteria->compare('questionaryid', $this->questionaryid, true);
+		$criteria->compare('timecreated', $this->timecreated, true);
 
 		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
+			'criteria' => $criteria,
 		));
 	}
 }
