@@ -2,6 +2,8 @@
 /**
  * Форма создания вакансии (роли)
  */
+/* @var $this  EventVacancyController */
+/* @var $model EventVacancy */
 
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm',array(
     'id' => 'event-vacancy-form',
