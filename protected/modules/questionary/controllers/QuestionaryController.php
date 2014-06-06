@@ -2,16 +2,14 @@
 
 /**
  * Контроллер анкеты пользователя
- * Создает и конфигурирует самую сложную форму во всем приложении
+ * Работает с формой анкеты пользователя
  *
  * Форма анкеты состоит из множества полей.
  * Простые поля хранятся в таблице questionary
  *
- * Сложные поля хранятся в отдельных таблицах и привязаны к анкете. Редактирование
- * каждого сложного поля требует индивидуального подхода, поэтому для каждого сложного
- * значения создана собственная модель
- *
- * Контроллер собирает все это вместе
+ * Сложные поля хранятся в отдельных таблицах и привязаны к анкете. 
+ * За редактирование, добавление и удаление каждого сложного отвечает отдельная модель и отдельный контроллер
+ * Контроллер анкеты отвечает, в основном, только за поля модели Questionary
  */
 class QuestionaryController extends Controller
 {
@@ -19,34 +17,11 @@ class QuestionaryController extends Controller
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
 	 */
-	public $layout='//layouts/column1';
-	
-	/** Initilazes the controller
-	 * (non-PHPdoc)
-	 * @see CController::init()
-	 */
-	public function init()
-	{
-	    // подключаем модуль "выбор даты по календарю" (для преобразования пришедших из формы значений)
-	    Yii::import('ext.ActiveDateSelect');
-	    
-	    //$this->setViewPath('application.modules.questionary.views.questionary');
-	}
+	public $layout = '//layouts/column1';
 	
 	/**
-	 * Переопределяем viewPath чтобы можно было нормально просматривать и редактировать анкету
-	 * (non-PHPdoc)
-	 * @see CController::getViewPath()
+	 * @return array
 	 * 
-	 * @todo (создано для сокращения пути в адресной строке) удалить если не понадобится
-	 */
-	public function getViewPath()
-	{
-	    return Yii::getPathOfAlias('application.modules.questionary.views.questionary');
-	}
-
-	/**
-	 * @return array action filters
 	 * @todo настроить проверку прав на основе RBAC
 	 */
 	public function filters()
@@ -93,11 +68,9 @@ class QuestionaryController extends Controller
 	 */
 	public function actionView($id = null)
 	{
-	    // Выводим анкету одной колонкой - там много информации и нам нужно много места
-	    $this->layout = '//layouts/column1';
 	    if ( ! $id )
 	    {// id анкеты не передано - считаем, что пользователь
-	        // хочет просмотреть свою страницу и попробуем определить ее самостоятельно
+	        // хочет просмотреть свою страницу и пробуем определить id самостоятельно
 	        if ( Yii::app()->user->isGuest )
 	        {// У гостя не может быть своей страницы
 	            // @todo сделать redirect на вход/регистрацию здесь
@@ -198,77 +171,15 @@ class QuestionaryController extends Controller
             $recordingConditions->save();
         }
         
-        // подключаем библиотеку для работы со сложными значениями формы
-        Yii::import('ext.multimodelform.MultiModelForm');
-
-        // для всех сложных значений устанавливаем привязку к анкете
-        $masterValues = array('questionaryid' => $questionary->id);
-        $videoMasterValues = array('objectid' => $questionary->id, 'objecttype' => 'questionary');
-
-        // Загружаем модели сложных значений формы
-        // @todo полностью избавится от использования multimodelform
-        // Телеведущий
-        $tvShow = new QTvshowInstance();
-        $validatedTvShows = array();
-        // Работа фотомоделью
-        $photoModelJob = new QPhotoModelJob;
-        $validatedPhotoModelJobs = array();
-        // Работа промо-моделью
-        $promoModelJob = new QPromoModelJob;
-        $validatedPromoModelJobs = array();
-        // Стили танца
-        $danceType = new QDanceType;
-        $validatedDanceTypes = array();
-        // Музыкальные инструменты
-        $instrument = new QInstrument;
-        $validatedInstruments = array();
-        // Звания, призы и награды
-        $award = new QAward;
-        $validatedAwards = array();
-        // Работа в театре
-        $actorTheatre = new QTheatreInstance;
-        $validatedActorTheatres = array();
-
-        
         if( Yii::app()->request->getPost('Questionary') )
         {
-            $user->attributes = Yii::app()->request->getPost('User');
+            $user->attributes        = Yii::app()->request->getPost('User');
             // получаем данные анкеты
-            $questionary->attributes = $questionary->getConvertedAttributes(Yii::app()->request->getPost('Questionary'));
+            $questionary->attributes = Yii::app()->request->getPost('Questionary');
             // получаем данные адреса
             $address->attributes     = Yii::app()->request->getPost('Address');
             // Получаем условия участия в съемках
-            $recordingConditions->attributes = $questionary->getConvertedAttributes(Yii::app()->request->getPost('QRecordingConditions'));
-            
-            // @todo ДЛЯ ТЕСТА (проверка отправленных значений)
-            //CVarDumper::dump($_POST, 10, true);
-            //CVarDumper::dump($questionary, 10, true);
-            //die;
-            
-            // сохранение всех сложных значений
-            // Телеведущий
-            if ( MultiModelForm::validate($tvShow, $validatedTvShows, $deleteTvShows, $masterValues) )
-            {
-                MultiModelForm::save($tvShow, $validatedTvShows, $deleteTvShows, $masterValues);
-            }
-            // Работа фотомоделью
-            MultiModelForm::save($photoModelJob, $validatedPhotoModelJobs, $deletePhotoModelJobs, $masterValues);
-            // Работа промо-моделью
-            MultiModelForm::save($promoModelJob, $validatedPromoModelJobs, $deletePromoModelJobs, $masterValues);
-            // Стили танца
-            if ( MultiModelForm::validate($danceType, $validatedDanceTypes, $deleteDanceTypes, $masterValues) )
-            {
-                MultiModelForm::save($danceType, $validatedDanceTypes, $deleteDanceTypes, $masterValues);
-            }
-            // Музыкальные инструменты
-            MultiModelForm::save($instrument, $validatedInstruments, $deleteInstruments, $masterValues);
-            // Звания, призы и награды
-            MultiModelForm::save($award, $validatedAwards, $deleteAwards, $masterValues);
-            // Работа в театре
-            if ( MultiModelForm::validate($actorTheatre, $validatedActorTheatres, $deleteActorTheatres, $masterValues) )
-            {
-                MultiModelForm::save($actorTheatre, $validatedActorTheatres, $deleteActorTheatres, $masterValues);
-            }
+            $recordingConditions->attributes = Yii::app()->request->getPost('QRecordingConditions');
             
             // @todo ДЛЯ ТЕСТА (проверка отправленных значений)
             //CVarDumper::dump($_POST, 10, true);
@@ -290,32 +201,10 @@ class QuestionaryController extends Controller
         // отображение формы редактирования
         $this->render('update', array(
             // передаем основные данные
-            'questionary' => $questionary,
-	        'address'     => $address,
-            'user'        => $user,
+            'questionary'         => $questionary,
+	        'address'             => $address,
+            'user'                => $user,
             'recordingConditions' => $recordingConditions,
-            // передаем объекты для отображения сложных значений
-            // Телеведущий
-            'tvShow'           => $tvShow,
-            'validatedTvShows' => $validatedTvShows,
-            // Работа фотомоделью
-            'photoModelJob'           => $photoModelJob,
-            'validatedPhotoModelJobs' => $validatedPhotoModelJobs,
-            // Работа промо-моделью
-            'promoModelJob'           => $promoModelJob,
-            'validatedPromoModelJobs' => $validatedPromoModelJobs,
-            // Стили танца
-            'danceType'           => $danceType,
-            'validatedDanceTypes' => $validatedDanceTypes,
-            // Музыкальные инструменты
-            'instrument'           => $instrument,
-            'validatedInstruments' => $validatedInstruments,
-            // Звания, призы и награды
-            'award'           => $award,
-            'validatedAwards' => $validatedAwards,
-            // Работа в театре
-            'actorTheatre'           => $actorTheatre,
-            'validatedActorTheatres' => $validatedActorTheatres,
         ));
 	}
 
@@ -325,6 +214,7 @@ class QuestionaryController extends Controller
 	 * @param integer $id the ID of the model to be deleted
 	 * 
 	 * @todo заменить реальное удаление на смену статуса в "удален"
+	 * @todo сделать отдельную страницу удаления анкеты с вводом пароля
 	 */
 	public function actionDelete($id)
 	{
@@ -350,8 +240,9 @@ class QuestionaryController extends Controller
 	}
 	
 	/**
-	 * Получить список городов по AJAX
+	 * Получить список городов для AJAX-подсказки в анкете. 
 	 * 
+	 * @deprecated
 	 * @todo Переименовать функцию так, чтобы было понятно что она занимается только городами
 	 */
     public function actionAjax()
