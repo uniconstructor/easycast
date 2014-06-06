@@ -12,7 +12,7 @@
  *                             Вакансия всегда содержит только один ScopeCondition внутри SearchScope
  *                             и его тип всегда 'serialized'.
  *                             Это сделано для того чтобы было легче обновлять условия поиска людей на вакансию
- * @property string $limit - количество человек в вакансии
+ * @property string $limit - требуемое количество человек, утвержденных на эту роль
  * @property string $timecreated
  * @property string $timemodified
  * @property string $status
@@ -24,8 +24,10 @@
  * 
  * Relations:
  * @property SearchScope $scope
- * @property array $filterinstances
+ * @property CatalogFilterInstance[] $filterinstances
  * @property ProjectEvent $event
+ * @property ExtraField[] $extraFields
+ * @property QUserField[] $userFields
  * 
  * @todo все прямые обращения к статусам заменить на константы
  * @todo запретить редактирование поисковых условий если вакансия - не черновик
@@ -33,6 +35,7 @@
  *       Не давать удалять этот фильтр, пока не будет удалена сумма оплаты
  * @todo запретить редактирование списка поисковых фильтров если вакансия - не черновик
  * @todo миграция, заменяющая все старые критерии поиска: заменить sections на iconlist
+ * @todo сделать количество человек необязательным полем для кастингов
  */
 class EventVacancy extends CActiveRecord
 {
@@ -66,6 +69,8 @@ class EventVacancy extends CActiveRecord
         Yii::import('ext.ESearchScopes.models.*');
         Yii::import('application.modules.catalog.models.*');
         Yii::import('application.modules.catalog.CatalogModule');
+        Yii::import('application.modules.questionary.models.QFieldInstance');
+        Yii::import('application.modules.questionary.models.QUserField');
         
         parent::init();
     }
@@ -132,6 +137,32 @@ class EventVacancy extends CActiveRecord
 	        'email',
 	        'iconlist',
 	    );
+	}
+	
+	/**
+	 * Получить список полей, без которыз нельзя подать ни одну заявку при регистрации
+	 *
+	 * @return QUserField[]
+	 *
+	 * @todo вынести в настройку
+	 */
+	protected function getDefaultRegistrationFields()
+	{
+	    $names = array(
+	        'email',
+	        'firstname',
+	        'lastname',
+	        'mobilephone',
+	        'gender',
+	        'birthdate',
+	        'photo',
+	        'policyagreed',
+	    );
+	    $criteria = new CDbCriteria();
+	    $criteria->addInCondition('name', $names);
+	    $criteria->index = 'name';
+	    
+	    return QUserField::model()->findAll($criteria);
 	}
 	
 	/**
@@ -246,13 +277,20 @@ class EventVacancy extends CActiveRecord
 		    // критерий поиска, по которому выбираются подходящие на вакансию участники 
 		    'scope' => array(self::BELONGS_TO, 'SearchScope', 'scopeid'),
 		    // дополнительные поля, необходимые для подачи заявки на эту роль
-		    'extraFields' => array(self::MANY_MANY, 'ExtraField',
-		        "{{extra_field_instances}}(objectid, fieldid)",
-		        'condition' => "`objecttype` = 'vacancy'"),
+		    'extraFields' => array(self::MANY_MANY, 'ExtraField', "{{extra_field_instances}}(objectid, fieldid)",
+		        'condition' => "`objecttype` = 'vacancy'",
+		    ),
+		    // обязательные поля анкеты, необходимые для подачи заявки на эту роль
+		    'userFields' => array(self::MANY_MANY, 'QUserField', "{{q_field_instances}}(objectid, fieldid)",
+		        'condition' => "`objecttype` = 'vacancy'",
+		    ),
+		    //'extraFieldInstances' => array(self::HAS_MANY, 'ExtraFieldInstance', 'objectid',
+		    //    'condition' => "`objecttype` = 'vacancy'",
+		    //),
 		    // доступные фильтры поиска для этой вакансии
-		    'searchFilters' => array(self::MANY_MANY, 'CatalogFilter',
-		        "{{catalog_filter_instances}}(linkid, filterid)",
-		        'condition' => "`linktype` = 'vacancy'"),
+		    'searchFilters' => array(self::MANY_MANY, 'CatalogFilter', "{{catalog_filter_instances}}(linkid, filterid)",
+		        'condition' => "`linktype` = 'vacancy'",
+		    ),
 		    
 		    // Заявки на участие
 		    // @todo переписать через именованные группы условий
@@ -265,25 +303,29 @@ class EventVacancy extends CActiveRecord
 		    // Количество подтвержденных заявок
 		    // @todo переписать через именованные группы условий
 		    'membersCount' => array(self::STAT, 'ProjectMember', 'vacancyid', 
-		        'condition' => "`status` = 'active' OR `status` = 'finished'"),
+		        'condition' => "`status` = 'active' OR `status` = 'finished'",
+		    ),
 		    
 		    // одобренные заявки на вакансию
 		    // @todo переписать через именованные группы условий
 		    // @deprecated - переписано: используется функция members(), связь оставлена для совместимости
 		    //               со старым кодом, удалить ее при рефакторинге
 		    'members' => array(self::HAS_MANY, 'ProjectMember', 'vacancyid',
-		        'condition' => "`members`.`status` = 'active' OR `members`.`status` = 'finished'"),
+		        'condition' => "`members`.`status` = 'active' OR `members`.`status` = 'finished'",
+		    ),
 		    // отклоненные заявки на вакансию
 		    // @deprecated - переписано: используется функция members(), связь оставлена для совместимости
 		    //               со старым кодом, удалить ее при рефакторинге
 		    // @todo переписать через именованные группы условий, удалить при рефакторинге
 		    'rejectedmembers' => array(self::HAS_MANY, 'ProjectMember', 'vacancyid',
-		        'condition' => "`status` = 'rejected'"),
+		        'condition' => "`status` = 'rejected'",
+		    ),
 	        // ссылки на доступные фильтры поиска для этой вакансии
 		    // @deprecated - использовалось пока я не умел писать связи типа "мост"
 		    // @todo удалить при рефакторинге, вместо нее использовать связь searchFilters
 		    'filterinstances' => array(self::HAS_MANY, 'CatalogFilterInstance', 'linkid',
-		        'condition' => "`linktype` = 'vacancy'"),
+		        'condition' => "`linktype` = 'vacancy'",
+		    ),
 		);
 	}
 
@@ -469,7 +511,7 @@ class EventVacancy extends CActiveRecord
 	        // @todo записать ошибку в лог
 	        return false;
 	    }
-	    if ( $questionary->status != 'active' )
+	    if ( ! $questionary->isAdmitted() )
 	    {// быстро отсекаем тех, у кого не подтверждена анкета
 	        return false;
 	    }
@@ -749,13 +791,27 @@ class EventVacancy extends CActiveRecord
 	}
 	
 	/**
+	 * Добавить обязательные поля для подачи заявки сразу же после создания роли
+	 * @return void
+	 */
+	protected function attachRequiredFields()
+	{
+	    $fields = $this->getDefaultRegistrationFields();
+	    foreach ( $fields as $field )
+	    {
+	        $field->bindWith('vacancy', $this->id);
+	    }
+	}
+	
+	/**
 	 * Добавить фильтр к форме отбора людей в вакансии
 	 * 
 	 * @param string $shortName - короткое название фильтра
 	 * @param int $num - порядковый номер фильтра в форме
 	 * 
 	 * @throws CDbException
-	 * @return null
+	 * 
+	 * @todo перенести в класс CatalogFilter
 	 */
 	protected function bindFilter($shortName, $num)
 	{
