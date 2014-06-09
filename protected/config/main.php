@@ -264,18 +264,7 @@ return array(
         //       http://www.yiiframework.com/extension/yii-debug-toolbar
         // @todo для всех сборок добавить плагин для просмотра логов
         //       http://www.yiiframework.com/extension/yii-audit-module/
-		'log' => array(
-			'class'  => 'CLogRouter',
-			'routes' => array(
-			    // настройки хранения логов в базе
-				array(
-					'class'              => 'CDbLogRoute',
-					'connectionID'       => 'db',
-					// отключаем проверку и автоматическое создание таблицы логов (ускоряет работу сайта)
-				    'autoCreateLogTable' => false,
-				),
-			),
-		),
+		
 	    
 	    // Подключаем библиотеку, позволяющую разграничение доступа на основе ролей (RBAC)
 	    // Класс RDbAuthManager предоставлен модулем rights и находится в /modules/rights/components
