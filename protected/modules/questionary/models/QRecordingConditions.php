@@ -14,8 +14,6 @@
  * @property integer $istoplessrecording
  * @property integer $isfreerecording
  * @property string $custom
- * @property integer $timecreated
- * @property integer $timemodified
  */
 class QRecordingConditions extends CActiveRecord
 {
@@ -45,7 +43,7 @@ class QRecordingConditions extends CActiveRecord
 		return array(
 			array('wantsbusinesstrips, hasforeignpassport, isnightrecording, istoplessrecording, isfreerecording', 
 			    'numerical', 'integerOnly' => true),
-			array('questionaryid, salary, timecreated, timemodified', 'length', 'max' => 11),
+			array('questionaryid, salary', 'length', 'max' => 11),
 			array('custom', 'length', 'max' => 255),
 		    array('passportexpires', 'safe'),
 			// The following rule is used by search().
@@ -68,7 +66,7 @@ class QRecordingConditions extends CActiveRecord
 	/**
 	 * @see parent::behaviors()
 	 */
-	public function behaviors()
+	/*public function behaviors()
 	{
 	    return array(
 	        // автоматическое заполнение дат создания и изменения
@@ -78,7 +76,7 @@ class QRecordingConditions extends CActiveRecord
 	            'updateAttribute' => 'timemodified',
 	        ),
 	    );
-	}
+	}*/
 
 	/**
 	 * @return array customized attribute labels (name=>label)
