@@ -58,6 +58,63 @@ class QCreationHistory extends CActiveRecord
 		);
 	}
 	
+    /**
+	 * Получить все использованные для создания анкеты источники данных (роль, пользователь)
+	 * (именованая группа условий)
+	 * 
+	 * @param int $id
+	 * @return QCreationHistory
+	 */
+	public function forQuestionary($id)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('questionaryid', $id);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    return $this;
+	}
+	
+	/**
+	 * Именованая группа условий: получить все анкеты, которые были созданы через форму регистрации на роль
+	 * @param int $vacancyId
+	 * @return QCreationHistory
+	 */
+	public function forVacancy($vacancyId)
+	{
+	    return $this->forObject('vacancy', $vacancyId);
+	}
+	
+	/**
+	 * Именованая группа условий: получить все записи о созданных анкетах, привязанных к определенному объекту
+	 * (например к роли)
+	 * @param string $objectType - тип объекта (vacancy, user, ...)
+	 * @param int $objectId - id объекта
+	 * @return QCreationHistory
+	 */
+	public function forObject($objectType, $objectId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('objecttype', $objectType);
+	    $criteria->compare('objectid', $objectId);
+	     
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    return $this;
+	}
+	
+	/**
+	 * Именованая группа условий
+	 * @param string $objectType - тип объекта (vacancy, user, ...)
+	 * @return QCreationHistory
+	 */
+	public function forType($objectType)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('objecttype', $objectType);
+	     
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    return $this;
+	}
+	
 	/**
 	 * @see CModel::behaviors()
 	 */
