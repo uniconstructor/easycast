@@ -310,6 +310,18 @@ class ProjectMailsBehavior extends CBehavior
     }
     
     /**
+     * Подтверждение регистрации через подачу заявки на проект "топ-модель по-русски"
+     * @param Questionary $questionary
+     * @return string
+     */
+    public function createTMRegistrationMailText($questionary)
+    {
+        return $this->owner->widget('application.modules.mailComposer.extensions.mails.EMailTMRegistration.EMailTMRegistration',
+            array('questionary' => $questionary),
+            true);
+    }
+    
+    /**
      * Создать письмо с фотовызывным
      * @param RCallList $callList
      * @param bool $addContacts
