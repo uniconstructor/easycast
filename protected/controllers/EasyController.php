@@ -50,7 +50,7 @@ class EasyController extends Controller
             $gallery = new Gallery();
             // Определяем в каких размерах созлдавать миниатюры изображений в галерее
             $gallery->versions    = Yii::app()->getModule('questionary')->gallerySettings['versions'];
-            $gallery->limit       = 30;
+            $gallery->limit       = 40;
             $gallery->name        = 1;
             $gallery->description = 1;
             $gallery->save();
@@ -59,7 +59,7 @@ class EasyController extends Controller
                 // поэтому загрузка изображений происходила в неправильные директории
                 // этот код можно будет убрать после того как будет переписан класс gallery
                 $gallery->subfolder = $gallery->id;
-                $gallery->save();
+                //$gallery->save();
             }
             $massActorForm->galleryid = $gallery->id;
         }
