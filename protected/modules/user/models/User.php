@@ -101,6 +101,10 @@ class User extends CActiveRecord
 	    {// автоматически создаем ключ для отписки от рассылок если он еще не создан
 	        $this->unsubscribekey = UserModule::encrypting(microtime().$this->password);
 	    }
+	    if ( ! $this->activkey )
+	    {// автоматически создаем ключ активации
+	        $this->activkey = UserModule::encrypting(microtime().$this->password);
+	    }
 	    return parent::beforeSave();
 	}
 	
