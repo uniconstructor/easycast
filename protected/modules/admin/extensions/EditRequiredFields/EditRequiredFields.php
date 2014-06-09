@@ -148,12 +148,10 @@ class EditRequiredFields extends EditableGrid
                 'name'  => 'fieldid',
                 'value' => '$data->name;',
             ),
-            // обязательное поле (да/нет)
-            //$this->getToggleColumnOptions('filling', '//questionary/qTheatreInstance/toggle'),
-            array(
-                'name'  => 'filling',
-                'value' => '$data->getFillingMode();',
-            ),
+            // обязательное поле (да/нет/задано автоматически)
+            $this->getStaticSelect2ColumnOptions('filling', QFieldInstance::model()->getFillingModes(), 'fillingMode'),
+            // автоматическое значение (если есть)
+            $this->getTextColumnOptions('data'),
         );
     }
     
