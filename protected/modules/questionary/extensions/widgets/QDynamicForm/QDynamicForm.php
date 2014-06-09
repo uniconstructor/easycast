@@ -55,6 +55,7 @@ class QDynamicForm extends CWidget
         'email',
         'firstname',
         'lastname',
+        'middlename',
         'gender',
         'birthdate',
         'mobilephone',
