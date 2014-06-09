@@ -66,7 +66,8 @@ class TopModelController extends Controller
                     // добавляем flash-сообщение об успешной регистрации
                     //Yii::app()->user->setFlash('success', 'Регистрация завершена');
                     // и перенаправляем его на страницу завершения
-                    $this->redirect('//topmodel/finish');
+                    $finishUrl = Yii::app()->createUrl('//topmodel/finish');
+                    $this->redirect($finishUrl);
                 }
             }
         }elseif ( $questionary->isNewRecord or $model->scenario === 'registration' )
