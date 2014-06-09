@@ -509,8 +509,8 @@ class QDynamicFormModel extends CFormModel
         }
         if ( ! $this->displayFilled )
         {
-            $this->userFields = array_intersect_key($this->userFields, $this->emptyUserFields);
-            $this->userFields = array_intersect_key($this->extraFields, $this->emptyExtraFields);
+            $this->userFields  = array_intersect_key($this->userFields, $this->emptyUserFields);
+            $this->extraFields = array_intersect_key($this->extraFields, $this->emptyExtraFields);
         }
     }
     
@@ -703,7 +703,7 @@ class QDynamicFormModel extends CFormModel
             $fieldName = $this->extraFieldPrefix.$extraField->name;
             if ( ! $this->questionary->id )
             {
-                $this->_attributes[$fieldName] = '-';
+                $this->_attributes[$fieldName] = '';
             }else
             {
                 $this->_attributes[$fieldName] = (string)$extraField->getValueFor('vacancy', $this->vacancy->id, $this->questionary->id);
