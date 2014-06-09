@@ -74,7 +74,7 @@ class QFieldInstance extends CActiveRecord
 			'objectid' => 'Objectid',
 			'filling' => 'Обязательно к заполнению?',
 			'condition' => 'Condition',
-			'data' => 'Data',
+			'data' => 'Изначальное значение',
 			'timecreated' => 'Timecreated',
 			'timemodified' => 'Timemodified',
 		);
@@ -159,12 +159,20 @@ class QFieldInstance extends CActiveRecord
 	    {
 	        return;
 	    }
-	    if ( $this->filling === 'required' )
-	    {
-	        return 'Да';
-	    }elseif ( $this->filling === 'recommended' )
-	    {
-	        return 'Нет';
-	    }
+	    $modes = $this->getFillingModes();
+	    return $modes[$this->filling];
+	}
+	
+	/**
+	 * Получить список возможных вариантов заполнения поля
+	 * @return array
+	 */
+	public function getFillingModes()
+	{
+	    return array(
+	        'required'    => Yii::t('coreMessages', 'yes'),
+	        'recommended' => Yii::t('coreMessages', 'no'),
+	        'forced'      => 'Автоматически задано',
+	    );
 	}
 }
