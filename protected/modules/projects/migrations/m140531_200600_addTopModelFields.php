@@ -18,7 +18,7 @@ class m140531_200600_addTopModelFields extends CDbMigration
                 'description' => '',
             ),
             array(
-                'name'        => 'tb_about',
+                'name'        => 'tm_about',
                 'type'        => 'textarea',
                 'label'       => 'Расскажите несколько слов о себе',
                 'description' => '',
@@ -185,6 +185,18 @@ class m140531_200600_addTopModelFields extends CDbMigration
                 'label'       => 'Как ваши родители/друзья отреагировали на то, что вы решили принять участие в проекте «Топ-модель по-русски»?',
                 'description' => '',
             ),
+            array(
+                'name'        => 'tm_education',
+                'type'        => 'textarea',
+                'label'       => 'Образование',
+                'description' => '',
+            ),
+            array(
+                'name'        => 'tm_speciality',
+                'type'        => 'textarea',
+                'label'       => 'Профессия',
+                'description' => '',
+            ),
         );
         foreach ( $fields as $field )
         {
@@ -193,11 +205,3 @@ class m140531_200600_addTopModelFields extends CDbMigration
         unset($fields);
     }
 }
-/**
-// Домашний телефон
-// Электронная почта
-// Гражданство
-// Есть ли у тебя паспорт для выезда за рубеж? Укажи сроки действия.
-// Укажи свои модельные параметры: рост (см), вес (кг), объем бедер (см), объем талии (см), объем груди (см), размер ноги.*
-// Укажи ссылку на все свои страницы в соц.сетях.
- */
