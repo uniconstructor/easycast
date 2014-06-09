@@ -41,6 +41,10 @@ class MailComposerModule extends CWebModule
                 $customerInvite = $params['customerInvite'];
                 return $mailComposer->createCustomerInviteMailSubject($customerInvite);
             break;
+            // Регистрация через форму подачи заявки для топ-моделей
+            case 'TMRegistration': 
+                return 'Ваша заявка на участие в проекте "Топ-модель по-русски" направлена на рассмотрение';
+            break;
         }
     }
     
@@ -191,6 +195,14 @@ class MailComposerModule extends CWebModule
                     throw new CException('Не указано для кого составлять письмо (заказчик или команда)');
                 } 
                 return $mailComposer->createOrderMailText($params['order'], $params['target']);
+            break;
+            // подтверждение регистрации через подачу заявки на проект "топ-модель по-русски"
+            case 'TMRegistration':
+                if ( ! isset($params['questionary']) )
+                {
+                    throw new CException('questionary for mail is not set');
+                }
+                return $mailComposer->createTMRegistrationMailText($params['questionary']);
             break;
         }
     }
