@@ -7,7 +7,6 @@
 <div class="page-alternate">
     <div class="container">
         <div class="row">
-            
             <div class="span12">
                 <div class="title-page">
                     <h4 class="intro-description">
