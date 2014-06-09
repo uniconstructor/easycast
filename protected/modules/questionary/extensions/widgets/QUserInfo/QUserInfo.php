@@ -162,7 +162,7 @@ class QUserInfo extends CWidget
             // "Мои съемки" - показываются только если есть, только на своей странице
             case 'events':     $content = $this->getEventsTabContent(); break;
             
-            default: $content = $this->getMainTabContent();//throw new CException('Неизвестный тип вкладки: '.$name);
+            default: $content = ''; //$this->getMainTabContent();//throw new CException('Неизвестный тип вкладки: '.$name);
         }
         
         if ( ! $content )
@@ -533,7 +533,7 @@ class QUserInfo extends CWidget
                         'emcee', $questionary->emceelist,
                         'isemcee_label',
                         'events',
-                        'event',
+                        'name',
                         'year');
             $attributes[] = $attribute;
             $data['emcee'] = $value;
@@ -620,7 +620,7 @@ class QUserInfo extends CWidget
                         'model', $questionary->modeljobs,
                         'ismodel_label',
                         'model_jobs_label',
-                        'job',
+                        'name',
                         'year');
             $attributes[] = $attribute;
             $data['model'] = $value;
@@ -633,7 +633,7 @@ class QUserInfo extends CWidget
             'photomodel', $questionary->photomodeljobs,
             'isphotomodel_label',
             'photomodel_jobs_label',
-            'job',
+            'name',
             'year');
             $attributes[] = $attribute;
             $data['photomodel'] = $value;
@@ -646,7 +646,7 @@ class QUserInfo extends CWidget
             'promomodel', $questionary->promomodeljobs,
             'ispromomodel_label',
             'promomodel_jobs_label',
-            'job',
+            'name',
             'year');
             $attributes[] = $attribute;
             $data['promomodel'] = $value;
@@ -962,7 +962,7 @@ class QUserInfo extends CWidget
         {
             $element = array();
             $element['id']   = $job->id;
-            $element['name'] = $job->job;
+            $element['name'] = $job->name;
             $element['year'] = $job->year;
             $elements[] = $element;
         }
@@ -987,11 +987,8 @@ class QUserInfo extends CWidget
     protected function getProjectsTabContent()
     {
         $content = '';
-        $questionary = $this->questionary;
-        
+        //$questionary = $this->questionary;
         //$content .= '<h3>'.QuestionaryModule::t('userinfo_section_projects').'</h3>';
-        
-        
         return $content;
     }
     
