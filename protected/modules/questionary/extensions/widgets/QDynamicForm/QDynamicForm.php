@@ -16,6 +16,7 @@
  * @todo добавить возможность создавать форму одновременно для нескольких ролей 
  * @todo предусмотреть 2 варианта отображения для списков: регистрация и обычный пользователь
  *       при регистрации добавляется максимум 1 значение или указывается только 1 поле из возможных
+ * @todo не отображается ошибка, если не загружено ни одной фотографии
  */
 class QDynamicForm extends CWidget
 {
@@ -46,7 +47,7 @@ class QDynamicForm extends CWidget
      * @var array - список дополнительных полей роли, которые нужно указать перед подачей заявки
      *              (это список всех обязательных полей роли минус уже заполненные поля анкеты)
      */
-    //protected $emptyExtraFields = array();
+    protected $emptyExtraFields = array();
     /**
      * @var array - список полей формы для которых есть заранее определенная разметка
      */
@@ -96,9 +97,6 @@ class QDynamicForm extends CWidget
         {
             throw new CException('Не передан обязательный параметр');
         }
-        
-        //Yii::import('ext.CountryCitySelectorRu.models.*');
-        
         $this->questionary = $this->model->questionary;
         $this->vacancy     = $this->model->vacancy;
     }
@@ -164,16 +162,16 @@ class QDynamicForm extends CWidget
         {
             case 'text':     return $form->textFieldRow($form, $field->name, $htmlOptions, $rowOptions);
             case 'textarea': return $form->textAreaRow($form, $field->name, $htmlOptions, $rowOptions);
-            //case 'select':   return array('null', 'emptystring');
-            //case 'slider':   return array('null', 'zero', 'emptystring');
-            //case 'phone':    return array('null', 'zero', 'emptystring');
-            //case 'url':      return array('null', 'zero', 'emptystring');
-            //case 'badge':    return array('null');
-            //case 'city':     return array('zero');
-            //case 'checkbox': return array('null');
-            //case 'toggle':   return array('null');
-            //case 'date':     return array('null', 'zero', 'emptystring');
-            //case 'country':  return array('null', 'zero');
+            //case 'select':   
+            //case 'slider':   
+            //case 'phone':    
+            //case 'url':      
+            //case 'badge':    
+            //case 'city':     
+            //case 'checkbox': 
+            //case 'toggle':   
+            //case 'date':     
+            //case 'country':  
             default: throw new CException('Неизвестный поля анкеты');
         }
     }*/
@@ -266,17 +264,15 @@ class QDynamicForm extends CWidget
     protected function getUserFieldRowOptions($field)
     {
         $options = array();
-        
         switch ( $field->type )
         {
             case 'phone':
-                $options['hint'] = '<i class="icon-eye-slash" data-toggle="tooltip" data-title="Эта информация не будет опубликована"></i>';
+                $options['hint'] = '';
             break;
             case 'date':
                 $options['prepend'] = '<i class="icon-calendar"></i>';
             break;
         }
-        
         return $options;
     }
     
@@ -288,7 +284,6 @@ class QDynamicForm extends CWidget
     protected function getExtraFieldHtmlOptions($field)
     {
         $options = array();
-        
         switch ( $field->type )
         {
             case 'text':
@@ -298,7 +293,6 @@ class QDynamicForm extends CWidget
                 $options['style'] = 'width:100%;';
             break;
         }
-        
         return $options;
     }
     
@@ -310,13 +304,10 @@ class QDynamicForm extends CWidget
     protected function getExtraFieldRowOptions($field)
     {
         $options = array();
-        
-        $options['hint'] = '';
         if ( $field->description )
         {
-            $options['hint'] = $field->description.$options['hint'];
-        } 
-        
+            $options['hint'] = $field->description;
+        }
         return $options;
     }
     
@@ -338,18 +329,5 @@ class QDynamicForm extends CWidget
         array_unshift($models, $russia);
         // создаем массив для выпадающего списка
         return CHtml::listData($models, 'id', 'name');
-    }
-    
-    /**
-     * 
-     * @return void
-     */
-    public function getCity()
-    {
-        if ( $this->questionary->cityobj )
-        {
-            return $this->questionary->cityobj->name;
-        }
-        return '';
     }
 }
