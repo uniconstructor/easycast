@@ -105,6 +105,7 @@
  * @property QRecordingConditions $recordingconditions
  * @property ProjectMember[] $pendingrequests
  * @property Video[] $video
+ * @property QCreationHistory[] $creationHistory
  * 
  * Поля для подсчета статистики:
  * @todo уже недостаточно гибкие для новой системы, нужно будет переписать их с применением именованных
@@ -215,12 +216,12 @@ class Questionary extends CActiveRecord
         //       + приглашения и заявки относятся к участнику и логично иметь в его модели функции запроса таких данных
         //       + чтобы посмотреть приглашения не нужно знать о том где они лежат
         //       - теущее решение требует подключения моделей из другого модуля, это плохо для изолированности
-        //Yii::import('application.modules.projects.models.*');
+        Yii::import('application.modules.projects.models.*');
         
         // обработчики событий
         $module = Yii::app()->getModule('questionary');
         // один из админов ввел новую анкету 
-        $this->attachEventHandler('onNewDataFromAdmin', array($module, 'updateCreationHistory'));
+        $this->attachEventHandler('onNewUserCreatedByAdmin', array($module, 'updateCreationHistory'));
     }
     
     /**
@@ -314,7 +315,6 @@ class Questionary extends CActiveRecord
     {
         return array(
             // Связи обычных значений с другими таблицами
-            
             // ссылка на пользователя системы
             'user'    => array(self::BELONGS_TO, Yii::app()->getModule('questionary')->userClass, 'userid'),
             // город проживания
@@ -324,7 +324,7 @@ class Questionary extends CActiveRecord
             // страна рождения
             'nativecountry' => array(self::BELONGS_TO, 'CSGeoCountry', 'nativecountryid'),
             // страна проживания
-            'currentcountry' => array(self::BELONGS_TO, 'CSGeoCountry', 'nativecountryid'),
+            'currentcountry' => array(self::BELONGS_TO, 'CSGeoCountry', 'currentcountryid'),
             // домашний адрес (все адреса хранятся в отдельной таблице)
             'address' => array(self::HAS_ONE, 'Address', 'objectid',
                 'condition' => "`address`.`objecttype` = 'questionary'",
@@ -386,8 +386,13 @@ class Questionary extends CActiveRecord
                 'condition' => "`video`.`objecttype` = 'questionary'",
             ),
             
-            // Связи с проектами и мероприятиями
+            // Метаданные: (история создания, изменения, данные о доп. полях и т. д.)
+            // история создания: может хранить одновременно несколько записей, то есть изначально происхождение
+            // данных анкеты может иметь несколько источников: например анкета создана админом (первый источник)
+            // для конкретной роли (второй источник)
+            'creationHistory' => array(self::HAS_MANY, 'QCreationHistory', 'questionaryid'),
             
+            // Связи с проектами и мероприятиями
             // Новые (еще не просмотренные) приглашения на мероприятия
             // @todo переписать с использованием именованых условий поиска
             'invites' => array(self::HAS_MANY, 'EventInvite', 'questionaryid', 
@@ -549,9 +554,14 @@ class Questionary extends CActiveRecord
             $recordingConditions->save();
         }
         if ( $this->isFirstSave() AND Yii::app()->user->checkAccess('Admin') )
-        {// если админ ввел анкету - увеличиваем его счетчик
-            $event = new CModelEvent($this);
-            $this->onNewDataFromAdmin($event);
+        {// если админ ввел анкету - запоминаем это
+            $params = array(
+                'questionaryId' => $this->id,
+                'objectType'    => 'user',
+                'objectId'      => Yii::app()->getModule('user')->user()->id,
+            );
+            $event = new CModelEvent($this, $params);
+            $this->onNewUserCreatedByAdmin($event);
         }
         
         parent::afterSave();
@@ -619,9 +629,9 @@ class Questionary extends CActiveRecord
      * @param CModelEvent $event
      * @return void
      */
-    public function onNewDataFromAdmin($event)
+    public function onNewUserCreatedByAdmin($event)
     {
-        $this->raiseEvent('onNewDataFromAdmin', $event);
+        $this->raiseEvent('onNewUserCreatedByAdmin', $event);
     }
     
     /**
@@ -671,58 +681,6 @@ class Questionary extends CActiveRecord
         }
         
         return $fields[$section];
-    }
-    
-    /**
-     * Получить дополнительную информацию об одном поле анкеты
-     * @param string $field
-     * @return array массив с дополнительной информацией о поле анкеты
-     * Формат массива:
-     *      displaySection - раздел анкеты при отображении
-     *      editSection    - раздел анкеты при редактировании
-     *      scalar - простое поле или сложное (массив значений: например фильмография или список языков)
-     *      type - тип значения (для сложных значений - навык, фильм или ВУЗ, для простых: характеристика или просто поле)
-     *      subType - подтип значения (только для сложных значений)
-     *      external - находится в этой таблице или в другой
-     *      displayFor - массив с названиями полей, которые разрешают отображение этого поля
-     *                   Считается, что поле нужно отображать, если выбрано "да" хотя бы в одном поле 
-     *                   и скрыть только тогда когда выбрано "нет" в обоих (либо оба поля не заполнены)
-     *      requiredFor - массив полей, значение "да" в которых не будет засчитано без данных этого
-     *      recommendedFor - массив полей, значение "да" для которых будет означать рекомендацию
-     *                       к заполнению этого поля (например при выборе поля "модель" мы будем советовать
-     *                       указать модельную школу или указать что модельной школы нет)
-     * @deprecated
-     */
-    public function getFieldOptions($field)
-    {
-        return array(
-            //'displaySection' => $this->getFieldSection($field, 'display'),
-            'editSection'    => $this->getFieldSection($field, 'edit'),
-            'scalar'         => true,
-            'external'       => false,
-            'type'           => '',
-            'subType'        => '',
-            'displayFor'     => array(),
-            'requiredFor'    => array(),
-            'recommendedFor' => array(),
-        );
-    }
-    
-    /**
-     * Определить раздел анкеты, в котором должно находится поле
-     * @param string $field - название поля
-     * @param string $sectionType - тип раздела: отображение или редактирование
-     * @return string
-     * 
-     * @todo добавить определение раздела для отображения, решить могут ли быть разные типы отображения
-     * @deprecated
-     */
-    public function getFieldSection($field, $sectionType)
-    {
-        if ( $sectionType === 'edit' )
-        {
-            
-        }
     }
     
     /**
@@ -842,6 +800,7 @@ class Questionary extends CActiveRecord
             'istheatreactor' => QuestionaryModule::t('istheatreactor_label'),
             'ismediaactor' => QuestionaryModule::t('ismediaactor_label'),
             'privatecomment' => QuestionaryModule::t('privatecomment_label'),
+            'galleryid' => QuestionaryModule::t('photos_label'),
 
             // пояснения, не являющиеся полями
             'level' => QuestionaryModule::t('level'),
@@ -858,6 +817,7 @@ class Questionary extends CActiveRecord
             'skill' => QuestionaryModule::t('skill_label'),
             'vocaltype' => QuestionaryModule::t('vocaltype_label'),
             'photos' => QuestionaryModule::t('photos_label'),
+            
         );
         
         return $defaultLabels;
@@ -1126,6 +1086,7 @@ class Questionary extends CActiveRecord
      * (например спортсмен, музыкант, вокал, и т. п.)
      * Исключение - актер массовых сцен и статист - эти поля могут быть указаны кем угодно и не требуют проверки
      * модератором
+     * @deprecated не используется после полной переработки формы, удалить при рефакторинге
      * 
      * @return bool
      */
@@ -1166,7 +1127,8 @@ class Questionary extends CActiveRecord
     /**
      * Удалить комментарий администрации (если анкета одобрена, переведена в статус ожидания проверки 
      * или перешла из состояния "отложена")
-     * @todo перенести эту логику в функцию setStatus при рефакторинге
+     * @deprecated не будет использоваться после ввода новой системы оповещений, поле admincomment
+     *             должно быт убрано из этой модели
      * 
      * @return null
      */
@@ -1199,8 +1161,9 @@ class Questionary extends CActiveRecord
      * (если анкета заводилась нами вручную)
      * Эта функция должна вызываться перед сохранением данных анкеты
      * 
-     * @todo языковые строки
      * @todo присылать разные сообщения для участника, заказчика и члена команды
+     * @deprecated не используется после перехода на систему оповещений по событиям, 
+     *             удалить после введения в эту модель SimpleWorkflow
      * 
      * @return null
      */
@@ -1232,7 +1195,11 @@ class Questionary extends CActiveRecord
             {// Эта функция используется только если анкету заполняет админ и только при первом сохранении анкеты
                 return;
             }
-            $this->sendDefaultFillingMail($user);
+            if ( ! QCreationHistory::model()->forQuestionary($this->id)->forType('vacancy') )
+            {// @todo если анкета была создана админом для специальной роли
+                // то отсылать письмо специально для этой роли (текст должен лежать внутри роли)
+                $this->sendDefaultFillingMail($user);
+            }
         }
     }
     
