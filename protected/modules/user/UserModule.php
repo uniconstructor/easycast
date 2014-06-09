@@ -134,7 +134,6 @@ class UserModule extends CWebModule
 	public $componentBehaviors=array();
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CModule::init()
 	 */
 	public function init()
@@ -162,7 +161,6 @@ class UserModule extends CWebModule
 	}
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CWebModule::beforeControllerAction()
 	 */
 	public function beforeControllerAction($controller, $action)
@@ -179,7 +177,7 @@ class UserModule extends CWebModule
 	}
 	
 	/**
-	 * Залогинить пользователя (например по одноразовому ключу)
+	 * Залогинить пользователя без ввода логина и пароля (например по одноразовому ключу)
 	 * @param User $user
 	 * @return bool
 	 */
@@ -292,7 +290,17 @@ class UserModule extends CWebModule
 	}
 	
 	/**
-	 * Send mail method
+	 * Отправить письмо пользователю
+	 * 
+	 * @param string $email - получатель
+	 * @param string $subject - тема письма
+	 * @param string $message - тест письма (html)
+	 * @param bool $sendNow - отправить письмо сейчас или поставить в очередь?
+	 * @param string $from - с какого адреса отправлять письма?
+	 * @return void
+	 * 
+	 * @deprecated почта теперь отправляется только по событиям: переписать все обращения 
+	 *             к этой функции через notify, после чего удалить
 	 */
 	public static function sendMail($email, $subject, $message, $sendNow=false, $from=null)
 	{
@@ -303,6 +311,57 @@ class UserModule extends CWebModule
 	    {// отправить письмо в очередь (через некоторой время)
 	        Yii::app()->getComponent('ecawsapi')->pushMail($email, $subject, $message, $from);
 	    }
+	}
+	
+	/**
+	 * Оповестить одного или нескольких участников по выбранным каналам
+	 * @param CModelEvent $event - событие с данными оповещения
+	 * @return bool
+	 * 
+	 * @todo добавить поддержку SMS
+	 * @todo вынести в отдельный модуль notifications
+	 * @todo прописать try-catch, обработать ошибки
+	 */
+	public function notify($event)
+	{
+	    /* @var $mailModule MailComposerModule  */
+	    $mailModule = Yii::app()->getModule('mailComposer');
+	    // @todo пока что единственный канал отправки - почта
+	    $defaults = array(
+	        'channel' => 'email',
+	        'action'  => '',
+	        'params'  => array(),
+	        'email'   => '',
+	        'subject' => '',
+	        'message' => '',
+	        'sendNow' => false,
+	        'from'    => '',
+	    );
+	    // получаем настройки для составления и отправки письма
+	    $options = CMap::mergeArray($defaults, $event->params);
+	    if ( $options['action'] )
+	    {
+	        if ( ! $options['subject'] )
+	        {
+	            $options['subject'] = $mailModule::getSubject($options['action'], $options['params']);
+	        }
+	        if ( ! $options['message'] )
+	        {
+	            $options['message'] = $mailModule::getMessage($options['action'], $options['params']);
+	        }
+	    }
+	    if ( $options['sendNow'] )
+	    {// нужно отправить письмо прямо сейчас
+            Yii::app()->getComponent('ecawsapi')->
+                sendMail($options['email'], $options['subject'], $options['message'], $options['from']);
+	    }else
+	    {// отправить письмо в очередь (через некоторой время)
+            Yii::app()->getComponent('ecawsapi')->
+                pushMail($options['email'], $options['subject'], $options['message'], $options['from']);
+	    }
+        
+	    // @todo return $event->isValid;
+	    return true;
 	}
 	
 	/**
@@ -347,6 +406,34 @@ class UserModule extends CWebModule
 			$_userByName[$username] = User::model()->findByAttributes(array('username'=>$username));
 		}
 		return $_userByName[$username];
+	}
+	
+	/**
+	 * Получить список админов для выпадающего меню
+	 * @param bool|array $emptyOption - отображать ли пустое значение?
+	 *                                  Если передан массив - он подставится вместо первого элемента
+	 * @return array
+	 */
+	public static function getAdminList($emptyOption=false)
+	{
+	    $result = array();
+	    if ( $emptyOption === true )
+	    {
+	        $result = array(0 => 'Нет');
+	    }elseif ( is_array($emptyOption) )
+	    {
+	        $result = $emptyOption;
+	    }
+	     
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('superuser', '1');
+	     
+	    $users = User::model()->findAll($criteria);
+	    foreach ( $users as $user )
+	    {
+	        $result[$user->id] = $user->fullname.' ['.$user->username.']';
+	    }
+	    return $result;
 	}
 	
 	/**
@@ -400,77 +487,53 @@ class UserModule extends CWebModule
 	}
 	
 	/**
-	 * Получить список админов для выпадающего меню
-	 * @param bool|array $emptyOption - отображать ли пустое значение?
-	 *                                  Если передан массив - он подставится вместо первого элемента
-	 * @return array
-	 */
-	public static function getAdminList($emptyOption=false)
-	{
-	    $result = array();
-	    if ( $emptyOption === true )
-	    {
-	        $result = array(0 => 'Нет');
-	    }elseif ( is_array($emptyOption) )
-	    {
-	        $result = $emptyOption;
-	    }
-	    
-	    $criteria = new CDbCriteria();
-	    $criteria->compare('superuser', '1');
-	    
-	    $users = User::model()->findAll($criteria);
-	    foreach ( $users as $user )
-	    {
-	        $result[$user->id] = $user->fullname.' ['.$user->username.']';
-	    }
-	    return $result;
-	}
-	
-	/**
 	 * Отправить письмо с уведомлением о регистрации
 	 * @param User $model
 	 * @param string $password
-	 * @param int $ownerId - id пользователя (админа, партнера, или заказчика) который предоставил данные этой анкеты
+	 * @param int $ownerId - id пользователя (админа, партнера, или заказчика)
+	 *                       который предоставил данные этой анкеты
+	 * @param string $type - тип текста в письме с активацией 
 	 * @return null
 	 * 
 	 * @todo запихнуть текст и верстку письма в модуль писем
 	 */
-	public function sendActivationEmail($model, $password=null, $ownerId=1)
+	public function sendActivationEmail($model, $password=null, $ownerId=1, $type='default')
 	{
 	    if ( $ownerId == 823 )
 	    {// анкета из партнерской базы - не высылаем активационное письмо сразу
 	        return;
 	    }
-	    $activation_url = Yii::app()->createAbsoluteUrl('/user/activation/activation',
-	        array("activkey" => $model->activkey, "email" => $model->email)
-	    );
-	
+	    $theme   = 'Вы стали участником проекта EasyCast';
+	    $message = '';
+	    
 	    if ( Yii::app()->user->checkAccess('Admin') )
 	    {// анкету заводит админ - сообщаем пользователю чтобы он подождал
-	        $theme = 'Вы стали участником проекта EasyCast';
 	        // @todo языковые строки
-	        $message = 'Добрый день.<br>
+	        $message .= 'Добрый день.<br>
                 Если вы получили это сообщение, значит наш менеджер зарегистрировал вас в базе актеров на сайте EasyCast.ru, где вы сможете получать приглашения и подавать заявки на участие в съемках.<br>
                 Сейчас мы заполняем вашу анкету, используя ту информацию которую вы согласились нам предоставить.<br>
         	    Примерно через 20 минут мы закончим ввод данных и сообщим вам об этом.<br>
         	    После этого вы получите доступ к нашему сервису а также сможете уточнить информацию о себе.<br>';
 	    }else
 	    {// Пользователь регистрируется сам - стандартное сообщение
-	        $theme = 'Вы стали участником проекта EasyCast';
-	        /*$message = UserModule::t("Please activate you account go to {activation_url}",
-	            array('{activation_url}' => $activation_url)
-	        );*/
+	        $message .= "Регистрация завершена.";
+	        //$activation_url = Yii::app()->createAbsoluteUrl('/user/activation/activation',
+	        //    array("activkey" => $model->activkey, "email" => $model->email)
+	        //);
+	        //$message = UserModule::t("Please activate you account go to {activation_url}",
+	        //    array('{activation_url}' => $activation_url)
+	        //);
 	    }
+	    
 	    $message .= "<br><br>";
 	    $message .= "Данные для доступа к сайту:<br>";
-	    $message .= "\n Логин: ".$model->email."<br>";
+	    $message .= "\n email: ".$model->email."<br>";
 	    $message .= "\n Пароль: ".$password."<br>";
 	    $message .= "<br><br>";
 	    $message .= 'Если вы считаете что получили это письмо по ошибке или у вас возникли вопросы,
 	        то вы можете задать их нам, просто ответив на это письмо или позвонив по телефону '.Yii::app()->params['userPhone'].'.';
 	    $message .= "<br><br>";
-	    $message .= "С уважением, команда проекта EasyCast";
+	    $message .= "С уважением, команда проекта EasyCast.";
 	
 	    UserModule::sendMail($model->email, $theme, $message, true);
 	}
