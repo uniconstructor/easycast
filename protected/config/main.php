@@ -399,11 +399,11 @@ return array(
                 ),
                 
                 // Выбор даты из календаря (jQuery)
+                // @todo этот элемент везде должен быть заменен более новым TbDatePicker 
                 'CJuiDatePicker' => array(
                     'language' => 'ru',
                     'options'  => array(
                         'showAnim'   => 'fold',
-                        // @todo привести к стандартному формату
                         'dateFormat' => 'dd/mm/yy',
                     ),
                 ),
@@ -488,7 +488,7 @@ return array(
 	    //     M  - обозначает месяц (3 буквы, язык текущей локали)
 	    //     MM - обозначает месяц (полное название, язык текущей локали)
 	    //     mm - обозначает минуты (2 цифры, ведущие нули)
-	    'inputDateFormat'     => 'dd.M.yyyy',
+	    'inputDateFormat'     => 'dd.MM.yyyy',
 	    'inputTimeFormat'     => 'HH:mm',
 	    'inputDateTimeFormat' => 'dd.MM.yyyy HH:mm',
 	    // форматы вывода даты и времени: используются в коде формы для преобразования 
