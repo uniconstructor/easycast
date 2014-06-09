@@ -5,6 +5,7 @@
  * Определяет нужные проверки (rules) в зависимости от того какие поля нужно вывести
  * 
  * @todo определить сценарии формы
+ * @todo заменить все проверки $questionary->isNewRecord на $this->scenario
  */
 class QDynamicFormModel extends CFormModel
 {
@@ -142,11 +143,6 @@ class QDynamicFormModel extends CFormModel
     public $titsize;
     /**
      * @var string
-     * @todo
-     */
-    //public $hastatoo;
-    /**
-     * @var string
      */
     public $isactor;
     /**
@@ -246,10 +242,6 @@ class QDynamicFormModel extends CFormModel
      */
     public $galleryid;
     /**
-     * @var Gallery
-     */
-    public $gallery;
-    /**
      * @var string
      * @deprecated
      */
@@ -293,10 +285,16 @@ class QDynamicFormModel extends CFormModel
      * @var string
      */
     public $salary;
+    
+    // собственные поля модели
     /**
      * @var string префикс для имен всех дополнительных полей формы
      */
     public $extraFieldPrefix = 'ext_';
+    /**
+     * @var bool - выводить ли фрагменты формы для тех полей анкеты, которые уже заполнены
+     */
+    public $displayFilled = true;
     
     /**
      * @var Questionary - редактируемая или создаваемая (при регистрации) анкета
@@ -337,63 +335,31 @@ class QDynamicFormModel extends CFormModel
     protected $_attributes = array();
     
     /**
-     * PHP getter magic method.
-     * This method is overridden so that AR attributes can be accessed like properties.
-     * @param string $name property name
-     * @return mixed property value
-     * @see getAttribute
+     * @see CComponent::__get()
      */
     public function __get($name)
     {
-        try {
-            return parent::__get($name);
-        } catch ( Exception $e )
+        if ( array_key_exists($name, $this->_attributes) )
         {
-            if ( isset($this->_attributes[$name]) )
-            {
-                return $this->_attributes[$name];
-            }elseif ( property_exists($this, $name) )
-            {
-                return $this->$name;
-            }
-        }
-    }
-    
-    /**
-     * PHP setter magic method.
-     * This method is overridden so that AR attributes can be accessed like properties.
-     * @param string $name property name
-     * @param mixed $value property value
-     */
-    public function __set($name,$value)
-    {
-        try {
-            parent::__set($name,$value);
-        }catch ( Exception $e )
-        {
-            $this->setAttribute($name, $value);
-        }
-    }
-    
-    /**
-     * Checks if a property value is null.
-     * This method overrides the parent implementation by checking
-     * if the named attribute is null or not.
-     * @param string $name the property name or the event name
-     * @return boolean whether the property value is null
-     */
-    public function __isset($name)
-    {
-        if ( parent::__isset($name) )
-        {
-            return true;
-        }elseif ( isset($this->_attributes[$name]) )
-        {
-            return true;
+            return $this->_attributes[$name];
         }else
         {
-            return false;
-        }   
+            return parent::__get($name);
+        }
+    }
+    
+    /**
+     * @see CComponent::__set()
+     */
+    public function __set($name, $value)
+    {
+        if ( array_key_exists($name, $this->_attributes) )
+        {
+            $this->_attributes[$name] = $value;
+        }else
+        {
+            parent::__set($name, $value);
+        }
     }
     
     /**
@@ -404,6 +370,13 @@ class QDynamicFormModel extends CFormModel
         parent::init();
         
         Yii::import('ext.LPNValidator.LPNValidator');
+        // обработчики событий
+        $qModule    = Yii::app()->getModule('questionary');
+        $userModule = Yii::app()->getModule('user');
+        // запомним благодаря какой роли произошла регистрация
+        $this->attachEventHandler('onNewUserCreatedByVacancy', array($qModule, 'updateCreationHistory'));
+        // отправим письмо с паролем если нужно
+        $this->attachEventHandler('onNewRegistration', array($userModule, 'notify'));
     }
     
     /**
@@ -434,15 +407,6 @@ class QDynamicFormModel extends CFormModel
         $this->setUpFieldList();
         $this->setUpRules();
         $this->setUpData();
-    }
-    
-    /**
-     * @param Questionary $questionary
-     * @return void
-     */
-    public function setGallery(Gallery $gallery)
-    {
-        $this->questionary->gallery = $gallery->id;
     }
     
     /**
@@ -534,8 +498,7 @@ class QDynamicFormModel extends CFormModel
         {/* @var $extraField ExtraField */
             if ( ! $this->questionary->id OR $extraField->isEmptyForVacancy($this->vacancy, $this->questionary) )
             {// определяем каких полей для этой роли не хватает в заявке и храним их отдельно
-                // это нужно для того чтобы была возможность отобразить форму только с необходимым
-                // минимумом полей 
+                // это нужно для того чтобы была возможность отобразить форму только с необходимым минимумом полей 
                 // (для для тех кто уже подал заявку, но получил сообщение о необходимости дополнить информацию)
                 $this->emptyExtraFields[$extraField->name] = $extraField;
             }
@@ -543,6 +506,11 @@ class QDynamicFormModel extends CFormModel
             $this->extraFields[$extraField->name] = $extraField;
             // и также записываем эти же поля в модель формы, чтобы форма думала что это ее родные поля
             $this->_attributes[$this->extraFieldPrefix.$extraField->name] = null;
+        }
+        if ( ! $this->displayFilled )
+        {
+            $this->userFields = array_intersect_key($this->userFields, $this->emptyUserFields);
+            $this->userFields = array_intersect_key($this->extraFields, $this->emptyExtraFields);
         }
     }
     
@@ -589,7 +557,6 @@ class QDynamicFormModel extends CFormModel
                     'defaultCountry' => 'RU',
                     'message'        => 'Неправильно указан номер телефона',
                     'emptyMessage'   => 'Не указан номер телефона',
-                    //'allowEmpty'     => false,
                 ),
             ),
             'homephone' => array(
@@ -598,7 +565,6 @@ class QDynamicFormModel extends CFormModel
                     'defaultCountry' => 'RU',
                     'message'        => 'Неправильно указан номер телефона',
                     'emptyMessage'   => 'Не указан номер телефона',
-                    //'allowEmpty'     => false,
                 ),
                 
             ),
@@ -608,7 +574,6 @@ class QDynamicFormModel extends CFormModel
                     'defaultCountry' => 'RU',
                     'message'        => 'Неправильно указан номер телефона',
                     'emptyMessage'   => 'Не указан номер телефона',
-                    //'allowEmpty'     => false,
                 ),
             ),
             'email' => array(
@@ -618,7 +583,6 @@ class QDynamicFormModel extends CFormModel
                 array('policyagreed', 'compare',
                     'compareValue' => 1,
                     'message'      => 'Для регистрации требуется ваше согласие',
-                    //'allowEmpty'   => false,
                 ),
             ),
             'birthdate' => array(
@@ -636,17 +600,17 @@ class QDynamicFormModel extends CFormModel
             'photo' => array(array('photo', 'safe')),
             'chestsize' => array(
                 array('chestsize', 'compare', 'compareValue' => 1, 'operator' => '>', 
-                    'message' => 'Не указаны параметры тела (объем груди)',
+                    'message' => 'Не указаны тела (объем груди)',
                 ),
             ),
             'waistsize' => array(
                 array('waistsize', 'compare', 'compareValue' => 1, 'operator' => '>',
-                    'message' => 'Не указаны модельные параметры тела (объем талии)',
+                    'message' => 'Не указаны параметры тела (объем талии)',
                 ),
             ),
             'hipsize' => array(
                 array('hipsize', 'compare', 'compareValue' => 1, 'operator' => '>',
-                    'message' => 'Не указаны модельные параметры тела (объем бедер)',
+                    'message' => 'Не указаны параметры тела (объем бедер)',
                 ),
             ),
             'height' => array(
@@ -667,6 +631,7 @@ class QDynamicFormModel extends CFormModel
             'isathlete', 'hasskills', 'hastricks','haslanuages', 'hasinshurancecard', 'countryid', 
             'nativecountryid', 'shoessize', 'rating', 'playagemin', 'playagemax', 'istheatreactor', 
             'ismediaactor', 'currentcountryid', 'chestsize', 'waistsize', 'hipsize', 'height', 'weight', 
+            'galleryid',
         );
         foreach ( $integerOnly as $fieldName )
         {
@@ -683,15 +648,17 @@ class QDynamicFormModel extends CFormModel
             $rules[$fieldName][] = array($fieldName, 'filter', 'filter' => 'trim');
         }
         
-        if ( $field->isRequiredFor('vacancy', $this->vacancy->id) /*AND ! Yii::app()->user->checkAccess('Admin')*/ )
+        if ( $field->isRequiredFor('vacancy', $this->vacancy->id) AND 
+             ! Yii::app()->user->checkAccess('Admin') AND ! $field->multiple )
         {// некоторые поля анкеты могут быть обязательными при подаче заявки, но админов
             // которые регистрируют заявки вручную это не касается
+            // списки полей также не могут быть обязательными: они сохраняются отдельно от формы
             $rules[$field->name][] = array($field->name, 'required');
         }
         
         if ( $this->questionary->id )
         {
-            // @todo
+            // @todo проверить уникальность email в случае редактирования анкеты
         }else
         {
             $rules['email'][] = array('email', 'unique', 'className' => 'User');
@@ -713,7 +680,7 @@ class QDynamicFormModel extends CFormModel
             array($fieldName, 'length', 'max' => 4000),
         );
         
-        if ( $field->isRequiredFor('vacancy', $this->vacancy->id) )
+        if ( $field->isRequiredFor('vacancy', $this->vacancy->id) AND ! Yii::app()->user->checkAccess('Admin') )
         {
             $rules[] = array($fieldName, 'required');
         }
@@ -734,7 +701,13 @@ class QDynamicFormModel extends CFormModel
         foreach ( $this->extraFields as $name => $extraField )
         {// загружаем в форму все значения доп. полей
             $fieldName = $this->extraFieldPrefix.$extraField->name;
-            $this->_attributes[$fieldName] = $extraField->getValueFor('vacancy', $this->vacancy->id, $this->questionary->id);
+            if ( ! $this->questionary->id )
+            {
+                $this->_attributes[$fieldName] = '-';
+            }else
+            {
+                $this->_attributes[$fieldName] = (string)$extraField->getValueFor('vacancy', $this->vacancy->id, $this->questionary->id);
+            }
         }
         foreach ( $this->userFields as $name => $userField )
         {// загружаем в форму все значения из анкеты
@@ -744,12 +717,11 @@ class QDynamicFormModel extends CFormModel
             }
         }
         
-        if ( $this->gallery = $this->questionary->getGallery() )
+        if ( ! $this->scenario != 'registration' AND $gallery = $this->questionary->getGallery() )
         {// галерея с изображениями устанавливается отдельно
-            $this->galleryid = $this->gallery->id;
+            //$this->gallery   = $gallery;
+            $this->galleryid = $gallery->id;
         }
-        //CVarDumper::dump($this->rules(), 10, true);die;
-        //CVarDumper::dump($this->_attributes, 10, true);die;
     }
     
     /**
@@ -771,6 +743,7 @@ class QDynamicFormModel extends CFormModel
         if ( ! $this->hasPhotos($this->galleryid) )
         {
             $this->addError('galleryid', 'Нужно загрузить хотя бы одну фотографию');
+            return false;
         }
         return parent::beforeValidate();
     }
@@ -788,6 +761,7 @@ class QDynamicFormModel extends CFormModel
         {
             throw new CException('Ошибка при сохранении фотографий: невозможно найти галерею изображений');
         }
+        
         $criteria = new CDbCriteria();
         $criteria->compare('galleryid', $gallery->id);
         if ( $this->questionary->id )
@@ -814,49 +788,207 @@ class QDynamicFormModel extends CFormModel
     public function save()
     {
         /* @var $questionary Questionary */
-        CVarDumper::dump($this, 10, true);die;
+        /* @var $user User */
         
-        // создаем пользователя
-        $user = new User();
-        $soucePassword  = $user->generatePassword();
-    
-        $user->email     = $this->email;
-        $user->username  = $user->getLoginByEmail($user->email);
-        $user->password  = UserModule::encrypting($soucePassword);
-        $user->activkey  = UserModule::encrypting(microtime().$user->password);
-        $user->superuser = 0;
-        $user->status    = User::STATUS_ACTIVE;
-    
-        if ( ! $user->save() )
-        {
-            throw new CException('Не удалось создать пользователя');
+        if ( $this->scenario === 'registration' OR $this->questionary->isNewRecord )
+        {// создаем пользователя, если это регистрация
+            $user           = new User();
+            $sourcePassword = $user->generatePassword();
+            // заполняем недостающие поля
+            $user->email        = $this->email;
+            $user->username     = $user->getLoginByEmail($user->email);
+            $user->password     = UserModule::encrypting($sourcePassword);
+            $user->activkey     = UserModule::encrypting(microtime().$user->password);
+            $user->superuser    = 0;
+            $user->status       = User::STATUS_ACTIVE;
+            $user->policyagreed = 1;
+            // сохраняем пользователя, вместе с ним автоматически создается анкета 
+            // и все связанные с анкетой записи
+            if ( ! $user->save() )
+            {
+                throw new CException('Не удалось создать пользователя');
+            }
+            // @todo дописать сеттеры
+            unset($this->userFields['email']);
+            unset($this->userFields['policyagreed']);
+            // @todo переименовать в galleryid
+            unset($this->userFields['photo']);
+        }else
+        {// берем пользователя из анкеты, если запись на роль производится администратором
+            // или заявку подает уже зарегистрированый участник
+            $user = $this->questionary->user;
         }
-    
-        if ( Yii::app()->getModule('user')->sendActivationMail )
-        {// отправляем активационное письмо если нужно
-            Yii::app()->getModule('user')->sendActivationEmail($user, $soucePassword);
-        }
-         
-        // заполняем анкету
-        $questionary = $user->questionary;
-        $questionary->firstname   = $this->firstname;
-        $questionary->lastname    = $this->lastname;
-        $questionary->birthdate   = $this->birthdate;
-        $questionary->mobilephone = $this->phone;
-        $questionary->gender      = $this->gender;
-        $questionary->status      = Questionary::STATUS_PENDING;
-        // Устанавливаем и сохраняем условия съемок
-        $questionary->recordingconditions->save();
-    
-        // заменяем галерею
-        $oldGallery = $questionary->getGallery();
-        $questionary->galleryid = $this->galleryid;
-        $oldGallery->delete();
-        // сохраняем анкету
-        $questionary->save(false);
-    
+        
+        // заполняем и сохраняем анкету
+        $this->saveQuestionary($user->questionary);
+        // сохраняем доп. поля для этой роли
+        $this->saveExtraFields($user->questionary);
+        // создаем заявку на роль
+        $this->saveMemberRequest($user->questionary);
+        // обновляем историю создания анкет
+        $this->updateCreationHistory($user->questionary);
+        // если это регистрация - отправляем пользователю письмо с приглашением и паролем
+        $this->sendUserNotification($user->questionary, $sourcePassword);
+        
         return $user;
     }
+    
+    /**
+     * Сохранить данные анкеты при регистрации или подаче заявки на роль
+     * @param Questionary $questionary
+     * @return void
+     */
+    protected function saveQuestionary($questionary)
+    {
+        $oldGallery = $this->questionary->getGallery();
+        
+        foreach ( $this->userFields as $name => $field )
+        {// сохраняем все поля анкеты
+            $questionary->$name = $this->$name;
+        }
+        if ( ! Yii::app()->user->checkAccess('Admin') OR $questionary->status != Questionary::STATUS_ACTIVE )
+        {// новым созданным анкетам проставляется статус "требует проверки"
+            $questionary->status = Questionary::STATUS_PENDING;
+        }
+        // Устанавливаем и сохраняем условия съемок
+        $questionary->recordingconditions->save();
+        
+        if ( $this->scenario === 'registration' AND $oldGallery AND $oldGallery->id != $this->galleryid )
+        {// заменяем по умолчанию созданную галерею на новую (только при регистрации)
+            $questionary->galleryid = $this->galleryid;
+            $oldGallery->delete();
+        }
+        // сохраняем анкету (без проверки полей, она уже произведена здесь)
+        if ( ! $questionary->save(false) )
+        {
+            throw new CException('Не удалось создать анкету');
+        }
+        // сохраняем галерею еще раз чтобы автоматически проставилась главная фотка
+        $questionary->getGallery()->save();
+    }
+    
+    /**
+     * Сохранить дополнительные поля анкеты
+     * @param Questionary $questionary
+     * @return void
+     */
+    protected function saveExtraFields($questionary)
+    {
+        foreach ( $this->extraFields as $extraField )
+        {
+            $name      = $this->extraFieldPrefix.$extraField->name;
+            $newValue  = $this->$name;
+            if ( $value = $extraField->getValueFor('vacancy', $this->vacancy->id, $this->questionary->id, true) )
+            {
+                $value->value = $newValue;
+                $value->save();
+            }else
+            {// объект значения еще не создан в базе для этой анкеты
+                if ( ! $instance = ExtraFieldInstance::model()->forField($extraField->id)->
+                        attachedTo('vacancy', $this->vacancy->id)->find() )
+                {// @todo записать в лог
+                    return false;
+                }
+                
+                $value = new ExtraFieldValue;
+                $value->instanceid    = $instance->id;
+                $value->questionaryid = $questionary->id;
+                $value->value         = $newValue;
+                $value->save();
+            }
+        }
+    }
+    
+    /**
+     * Подать заявку на роль (вне зависимости от условий поиска если это регистрация)
+     * @param Questionary $questionary
+     * @return void
+     */
+    protected function saveMemberRequest($questionary)
+    {
+        $request = new MemberRequest();
+        $request->vacancyid = $this->vacancy->id;
+        $request->memberid  = $questionary->id;
+        if ( ! $request->save() )
+        {
+            throw new CException('Не удалось подать заявку на роль');
+        }
+    }
+    
+    /**
+     * Обновить историю создания анкет, если заявка на роль была подана через регистрацию 
+     * @param Questionary $questionary
+     * @return void
+     */
+    protected function updateCreationHistory($questionary)
+    {
+        if ( $this->scenario === 'registration' OR $this->questionary->isNewRecord )
+        {// если пользователь зарегистрировался через подачу заявки на эту роль - запомним это
+            // отправив событие, дополняющее историю создания анкет (QCreationHistory)
+            $params = array(
+                'questionaryId' => $questionary->id,
+                'objectType'    => 'vacancy',
+                'objectId'      => $this->vacancy->id,
+            );
+            $event = new CModelEvent($this, $params);
+            $this->onNewUserCreatedByVacancy($event);
+        }
+    }
+    
+    /**
+     * Отправить пользователю письмо с приглашением и паролем
+     * 
+     * @param unknown $questionary
+     * @param unknown $sourcePassword
+     * @return void
+     * 
+     * @todo брать текст письма в зависимости от роли
+     */
+    protected function sendUserNotification($questionary, $sourcePassword)
+    {
+        if ( ! $this->scenario === 'registration' OR $this->questionary->isNewRecord )
+        {// высылаем пользователю подтверждение регистрации с логином  и паролем
+            $params = array(
+                'channel' => 'email',
+                //'action'  => 'VacancyRegistration',
+                'action'  => 'TMRegistration',
+                'params'  => array(
+                    'questionary' => $questionary,
+                    'vacancy'     => $this->vacancy,
+                    'password'    => $sourcePassword,
+                ),
+                'sendNow' => true,
+                'email'   => $questionary->user->email,
+                'from'    => 'admin@easycast.ru',
+            );
+            $event = new CModelEvent($this, $params);
+            $this->onNewRegistration($event);
+        }
+    }
+    
+    /**
+     * 
+     * @param unknown $event
+     * @return void
+     */
+    public function onNewUserCreatedByVacancy($event)
+    {
+        $this->raiseEvent('onNewUserCreatedByVacancy', $event);
+    }
+    
+    /**
+     * 
+     * @param unknown $event
+     * @return void
+     */
+    public function onNewRegistration($event)
+    {
+        $this->raiseEvent('onNewRegistration', $event);
+    }
+    
+    // служебные функции для работы с атрибутами модели: их нужно было переписать, 
+    // для того чтобы эта модель могла обращаться с произвольным количеством 
+    // дополнительных полей так как будто они были заранее объявлеными свойствами
     
     /**
      * @see CModel::attributeLabels()
@@ -871,7 +1003,6 @@ class QDynamicFormModel extends CFormModel
             $extraFieldName = $this->extraFieldPrefix.$name;
             $extraLabels[$extraFieldName] = $extraField->label;
         }
-        
         return CMap::mergeArray($labels, $extraLabels);
     }
     
@@ -914,7 +1045,6 @@ class QDynamicFormModel extends CFormModel
      */
     public function getAttribute($name)
     {
-        //$extraFieldName = $this->extraFieldPrefix.$name;
         if ( isset($this->_attributes[$name]) )
         {
             return $this->_attributes[$name];
@@ -934,22 +1064,50 @@ class QDynamicFormModel extends CFormModel
      */
     public function setAttribute($name, $value)
     {
-        //$extraFieldName = $this->extraFieldPrefix.$name;
-        if ( property_exists($this, $name) )
-        {
-            $this->$name = $value;
-            return true;
-        }elseif ( isset($this->_attributes[$name]) )
+        if ( isset($this->_attributes[$name]) )
         {
             $this->_attributes[$name] = $value;
+            return true;
+        }elseif ( property_exists($this, $name) )
+        {
+            $this->$name = $value;
             return true;
         }else
         {
             return false;
         }
-        return true;
     }
     
+    /**
+	 * Sets the attribute values in a massive way.
+	 * @param array $values attribute values (name=>value) to be set.
+	 * @param boolean $safeOnly whether the assignments should only be done to the safe attributes.
+	 * A safe attribute is one that is associated with a validation rule in the current {@link scenario}.
+	 * @see getSafeAttributeNames
+	 * @see attributeNames
+	 */
+	public function setAttributes($values,$safeOnly=true)
+	{
+		if( ! is_array($values) )
+		{
+		    return;
+		}
+		
+		$attributes = array_flip($safeOnly ? $this->getSafeAttributeNames() : $this->attributeNames());
+		foreach($values as $name=>$value)
+		{
+			if( isset($attributes[$name]) )
+			{
+			    if ( ! $this->setAttribute($name, $value) )
+			    {
+			        $this->$name = $value;
+			    }
+			}elseif ( $safeOnly )
+			{
+			    $this->onUnsafeAttribute($name,$value);
+			}
+		}
+	}
     
     /**
 	 * Returns all column attribute values.
@@ -994,19 +1152,4 @@ class QDynamicFormModel extends CFormModel
 		    return $attributes;
 		}
 	}
-		
-    
-    /**
-     * Checks whether this AR has the named attribute
-     * @param string $name attribute name
-     * @return boolean whether this AR has the named attribute (table column).
-     */
-    public function hasAttribute($name)
-    {
-        if ( ! isset($this->_attributes[$name]) )
-        {
-            return property_exists($this, $name);
-        }
-        return false;
-    }
 }
