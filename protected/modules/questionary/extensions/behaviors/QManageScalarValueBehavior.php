@@ -37,60 +37,63 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
     }
     
     /**
+     * 
+     * @param string $city
+     * @return void
+     */
+    public function setCity($city)
+    {
+        if ( is_numeric($city) )
+        {
+            $this->owner->cityid = $city;
+            return;
+        }
+        $criteria = new CDbCriteria();
+        $criteria->compare('name', $city);
+        $criteria->compare('countryid', 3159);
+        if ( $record = CSGeoCity::model()->find($criteria) )
+        {
+            $this->owner->cityid = $record->id;
+        }else
+        {
+            $this->owner->city = $city;
+        }
+    }
+    
+    /**
+     * 
+     * @param string|int $city
+     * @return void
+     */
+    public function setCityId($city)
+    {
+        $this->setCity($city);
+    }
+    
+    /**
      * Получить название города проживания
      */
     public function getCity()
     {
-        if ( $this->owner->cityid )
+        if ( $this->owner->cityid AND $city = CSGeoCity::model()->findByPk($this->owner->cityid) )
         {
-            $CountryCitySelector = new CountryCitySelectorRu();
-            return $CountryCitySelector->getCity($this->owner->cityid)->name;
+            return $city->name;
         }
-    
-        return CHtml::encode($this->owner->city);
+        return $this->owner->city;
     }
     
     /**
      * Получить id города
      * @return int
      */
-    public function getCityid()
+    public function getCityId()
     {
-        if ( ! $this->owner->cityid AND Yii::app()->user->isSuperuser AND ! $this->owner->timemodified )
+        if ( ! $this->owner->cityid AND Yii::app()->user->checkAccess('Admin') AND ! $this->owner->timemodified )
         {// если анкета только создана и заполняется администратором - 
             // то устанавливаем Москву в качестве города по умолчанию 
             return $this->getDefaultCityId();
         }
-        $this->owner->cityid;
-    }
-    
-    /**
-     * Получить размер одежды
-     * @return string
-     * 
-     * @deprecated оставлено для совместимости
-     * @todo удалить при рефакторинге
-     */
-    public function getWearsize()
-    {
-        if ( $this->owner->scenario == 'view' )
-        {
-            return $this->getScalarFieldDisplayValue('wearsize', $this->owner->wearsize);
-        }
-    
-        return $this->owner->wearsize;
-    }
-    
-    /**
-     * Установить размер одежды
-     * @param string $value
-     * 
-     * @deprecated оставлено для совместимости
-     * @todo удалить при рефакторинге
-     */
-    public function setWearsize($value)
-    {
-        $this->owner->wearsize = $value;
+        return $this->owner->cityid;
     }
     
     /**
@@ -124,32 +127,27 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
     /**
      * Получить срок истечения загранпаспорта
      */
-    public function getPassportexpires()
+    public function getPassportExpires()
     {
-        if ( $this->owner->scenario == 'view' )
+        if ( ! $this->owner->recordingconditions )
         {
-            return date('d.m.Y', $this->owner->recordingconditions->passportexpires);
+            return;
         }
-        
         return $this->owner->recordingconditions->passportexpires;
     }
     
     /**
-     * Установить срок истечения загранпаспорта
-     * @deprecated после переноса этих данных в раздел "условия участия в съемках" не используется
-     *               удалить этот метод при рефакторинге
+     * 
+     * @param int $date
+     * @return void
      */
-    public function setPassportexpires($value)
+    public function setPassportExpires($date)
     {
-        $this->owner->passportexpires = ActiveDateSelect::make_unixtime($value);
-    }
-    
-    /**
-     * Установить дату выдачи обычного паспорта
-     */
-    public function setPassportdate($value)
-    {
-        $this->owner->passportdate = ActiveDateSelect::make_unixtime($value);
+        if ( ! $this->owner->recordingconditions )
+        {
+            return;
+        }
+        $this->owner->recordingconditions->passportexpires = $date;
     }
     
     /**
@@ -171,6 +169,10 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
                 case '3': 
                 case '4': $langString = 'года'; break;
                 default : $langString = 'лет'; break;
+            }
+            if ( $age > 10 AND $age < 15 )
+            {// этот непредсказуемый русский язык :) "11 лет" и "21 год"
+                $langString = 'лет';
             }
             if ( Yii::app()->language == 'ru' )
             {// в русском языке принято писать "возраст: 23 года", а в английском просто "age: 23"
@@ -351,16 +353,6 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
         return $this->owner->singlevel;
     }
     
-    /*public function getCountryid()
-    {
-        
-    }
-    
-    public function getNativecountryid()
-    {
-    
-    }*/
-    
     public function getWantsbusinesstrips()
     {
         if ( $this->owner->recordingconditions )
@@ -428,7 +420,7 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
      */
     public function setAdmincomment($comment)
     {
-        $this->owner->admincomment = CHtml::encode($comment);
+        $this->owner->admincomment = CHtmlPurifier::purify($comment);
         return $this->owner->save();
     }
     

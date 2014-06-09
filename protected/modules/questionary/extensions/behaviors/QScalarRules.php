@@ -15,7 +15,7 @@ class QScalarRules extends CActiveRecordBehavior
     protected function getDefaultScalarRules()
     {
         return array(
-            array('userid, cityid, isactor, isamateuractor, hasfilms, isemcee, istvshowmen,
+            array('userid, isactor, isamateuractor, hasfilms, isemcee, istvshowmen,
                         isstatist, ismassactor
                         isparodist, istwin, ismodel, isphotomodel, ispromomodel, isdancer,
                         hasawards, isstripper, issinger,
@@ -54,7 +54,7 @@ class QScalarRules extends CActiveRecordBehavior
     {
         return array(
             // список обязательных полей анкеты участника
-            array('firstname, lastname, gender, formattedBirthDate', 'required', 'on' => 'update'),
+            //array('firstname, lastname, gender, formattedBirthDate', 'required', 'on' => 'update'),
             // проверка даты рождения
             //array('formattedBirthDate', 'filter', 'filter' => array($this, 'checkBirthDate')),
             //array('birthdate', 'numerical', 'integerOnly' => true),
