@@ -95,12 +95,8 @@ class ExtraFieldValue extends CActiveRecord
 	 */
 	public function forQuestionary($id)
 	{
-	    if ( ! $id )
-	    {
-	        throw new CException('Не передан обязательный параметр для условия поиска');
-	    }
 	    $criteria = new CDbCriteria();
-	    $criteria->compare('questionaryid', $id);
+	    $criteria->compare('questionaryid', (int)$id);
 	    
 	    $this->getDbCriteria()->mergeWith($criteria);
 	    

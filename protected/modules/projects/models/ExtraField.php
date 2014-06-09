@@ -215,7 +215,7 @@ class ExtraField extends CActiveRecord
 	        return true;
 	    }
 	    // получаем объект содержащий значение поля
-	    if ( ! $value = $this->getValueFor('vacancy', $vacancy->id, $questionary->id) )
+	    if ( ! $value = $this->getValueFor('vacancy', $vacancy->id, $questionary->id, true) )
 	    {// запись со значением еще не создана - поле не заполнено
 	        return true;
 	    }
@@ -231,9 +231,10 @@ class ExtraField extends CActiveRecord
 	 * @param string $objectType
 	 * @param int $objectId
 	 * @param int $questionaryId
-	 * @return null|string
+	 * @param bool $asObject
+	 * @return null|string|ExtraFieldValue
 	 */
-	public function getValueFor($objectType, $objectId, $questionaryId)
+	public function getValueFor($objectType, $objectId, $questionaryId, $asObject=false)
 	{
 	    if ( ! $this->isAttachedTo($objectType, $objectId) )
 	    {
@@ -244,6 +245,10 @@ class ExtraField extends CActiveRecord
 	    if ( ! $value )
 	    {
 	        return null;
+	    }
+	    if ( $asObject )
+	    {
+	        return $value;
 	    }
 	    return $value->value;
 	}
