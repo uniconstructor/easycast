@@ -125,6 +125,24 @@ class ProjectMember extends CActiveRecord
 	}
 	
 	/**
+	 * @see CActiveRecord::beforeSave()
+	 */
+	public function beforeSave()
+	{
+	    if ( $this->isNewRecord )
+	    {
+	        $criteria = new CDbCriteria();
+	        $criteria->compare('memberid', $this->memberid);
+	        $criteria->compare('vacancyid', $this->vacancyid);
+	        if ( $this->exists($criteria) )
+	        {// на одну и ту же роль нельзя подавать заявку 2 раза
+	            return false;
+	        }
+	    }
+	    return parent::beforeSave();
+	}
+	
+	/**
 	 * @see CActiveRecord::afterSave()
 	 */
 	protected function afterSave()
@@ -473,11 +491,11 @@ class ProjectMember extends CActiveRecord
 	    $criteria->compare('questionaryid', $this->memberid);
 	    
 	    if ( ! $invite = EventInvite::model()->find($criteria) )
-	    {// @todo записать в лог ошибку
-	        return;
+	    {// когда рассылались приглашения пользователя еще не было в базе - это нормально
+	        return true;
 	    }
 	    $invite->setStatus(EventInvite::STATUS_ACCEPTED);
 	    $invite->deleted = 1;
-	    $invite->save();
+	    return $invite->save();
 	}
 }
