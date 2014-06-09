@@ -260,12 +260,10 @@ class QuestionaryModule extends CWebModule
      */
     public function updateCreationHistory($event)
     {
-        $questionary = $event->sender;
-        
         $history = new QCreationHistory;
-        $history->questionaryid = $questionary->id;
-        $history->objecttype    = 'user';
-        $history->objectid      = Yii::app()->getModule('user')->user()->id;
+        $history->questionaryid = $event->params['questionaryId'];
+        $history->objecttype    = $event->params['objectType'];
+        $history->objectid      = $event->params['objectId'];
         $history->save();
         
         return true;
