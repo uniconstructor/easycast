@@ -248,7 +248,7 @@ class ECUserInformer extends CdCustomDropDown
     protected function getGuestItems()
     {
         $loginUrl        = Yii::app()->createUrl(current(Yii::app()->getModule('user')->loginUrl));
-        $registrationUrl = Yii::app()->createUrl(current(Yii::app()->getModule('user')->registrationUrl));
+        $registrationUrl = Yii::app()->createUrl('//easy');
         $selectStateUrl  = Yii::app()->createUrl('//site/index', array('selectState' => 1));
         
         if ( Yii::app()->getModule('user')->viewMode === 'user' )
