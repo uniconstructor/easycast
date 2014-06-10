@@ -20,7 +20,7 @@ $customerLinkOptions = array(
 );
 $customerLink = CHtml::link('Заказчикам', $customerUrl, $customerLinkOptions);
 
-$userUrl      = Yii::app()->createUrl('//site/index', array('newState' => 'user'));
+$userUrl      = Yii::app()->createUrl('//easy/index', array('newState' => 'user'));
 $customerLinkOptions = array(
     //'data-toggle' => 'tooltip',
     //'data-title'  => 'Войти как участник',
@@ -104,7 +104,7 @@ $userLink     = CHtml::link('Участникам', $userUrl);
                                 <i class="icon-list-ol"></i>
                             </div>
                             <h4>Множество предложений</h4>
-                            <p>За год мы утверждаем около 15.000 артистов на различные 
+                            <p>За год мы утверждаем около <b>15.000</b> артистов на различные 
                             роли: от эпизодических до главных.</p>
                         </a>
                     </div>
@@ -125,7 +125,7 @@ $userLink     = CHtml::link('Участникам', $userUrl);
                                 <i class="icon-smile"></i>
                             </div>
                             <h4>Бесплатно</h4>
-                            <p>Все наши услуги для вас абсолютно бесплатно, сейчас и в дальнейшем.</p>
+                            <p>Никакой платы за регистрацию или пользование.</p>
                         </a>
                     </div>
                 </div>
@@ -137,7 +137,7 @@ $userLink     = CHtml::link('Участникам', $userUrl);
             <a href="<?= $customerUrl; ?>" class="btn btn-large btn-primary">Войти как заказчик</a>
         </div>
         <div class="span6">
-            <a href="<?= $userUrl; ?>" class="btn btn-large btn-info">Войти как участник</a>
+            <a href="<?= $userUrl; ?>" class="btn btn-large btn-success">Регистрация участника</a>
         </div>
     </div>
 </div>
