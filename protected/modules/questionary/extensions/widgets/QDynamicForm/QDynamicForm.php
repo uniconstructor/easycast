@@ -85,6 +85,8 @@ class QDynamicForm extends CWidget
         'text',
         'textarea',
         'url',
+        'select',
+        'hidden',
     );
     
     /**

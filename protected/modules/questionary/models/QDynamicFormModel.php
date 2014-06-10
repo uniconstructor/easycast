@@ -60,6 +60,10 @@ class QDynamicFormModel extends CFormModel
     /**
      * @var string
      */
+    public $looktype;
+    /**
+     * @var string
+     */
     public $wearsize;
     /**
      * @var string
