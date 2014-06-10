@@ -92,6 +92,7 @@ class VacancyController extends Controller
      * одновременно регистрирует пользователя в системе и подает от его имени заявку на интересующую роль
      * 
      * @return void
+     * @todo вынести в отдельный action-класс
      */
     public function actionRegistration()
     {
@@ -99,10 +100,19 @@ class VacancyController extends Controller
         // @todo добавить проверку статуса роли
         $vid     = Yii::app()->request->getParam('vid', 0);
         $vacancy = $this->loadModel($vid);
+        // id анкеты: разрешаем только регистрацию новых пользователей или подачу заявки от своего имени
+        // подача заявки от имени другого участника доступна только в админке
+        if ( Yii::app()->user->checkAccess('Admin') )
+        {
+            $qid = 0;
+        }else
+        {
+            $qid = Yii::app()->getModule('questionary')->getCurrentQuestionaryId();
+        }
         
         // id анкеты: разрешаем только регистрацию новых пользователей или подачу заявки от своего имени
         // подача заявки от имени другого участника доступна только в админке
-        if ( $qid = Yii::app()->getModule('questionary')->getCurrentQuestionaryId() )
+        if ( $qid )
         {// заявку подает существующий участник 
             $questionary = Questionary::model()->findByPk($qid);
             $model = new QDynamicFormModel('application');
@@ -112,7 +122,6 @@ class VacancyController extends Controller
             $questionary = new Questionary;
             $model = new QDynamicFormModel('registration');
         }
-        
         // запоминаем роль и анкету, от имени которой будет подаваться заявка
         $model->vacancy     = $vacancy;
         $model->questionary = $questionary;
@@ -128,16 +137,18 @@ class VacancyController extends Controller
             {// все данные формы верны
                 if ( $user = $model->save() )
                 {/* @var $user User */
-                    // Вместе с сохранением данных участника
-                    // сразу же происходит его авторизация на сайте
-                    Yii::app()->getModule('user')->forceLogin($user);
-                    // добавляем flash-сообщение об успешной регистрации
-                    Yii::app()->user->setFlash('success', 'Регистрация завершена');
-                    // и перенаправляем его на страницу 
-                    $this->redirect('finish');
+                    if ( $model->scenario === 'registration' AND ! Yii::app()->user->checkAccess('Admin') )
+                    {// Вместе с сохранением данных участника сразу же происходит его авторизация на сайте
+                        Yii::app()->getModule('user')->forceLogin($user);
+                        // добавляем flash-сообщение об успешной регистрации
+                        Yii::app()->user->setFlash('success', 'Регистрация завершена');
+                    }
+                    // и перенаправляем его на страницу
+                    $url = Yii::app()->createUrl('//questionary/questionary/view'); 
+                    $this->redirect($url);
                 }
             }
-        }elseif ( $questionary->isNewRecord OR $model->scenario === 'registration' )
+        }elseif ( $model->scenario === 'registration' )
         {// это регистрация и у пользователя нет аккаунта:
             // cоздаем пустую галерею чтобы было куда загружать изображения
             $gallery = new Gallery();
