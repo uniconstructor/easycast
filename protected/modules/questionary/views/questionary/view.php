@@ -119,9 +119,11 @@ if ( Yii::app()->user->checkAccess('Admin') )
 ?>
 <div class="container">
     <?php
-    // список приглашений участника
-    $this->widget('questionary.extensions.widgets.QUserInvites.QUserInvites', array(
-        'questionary' => $questionary,
-    ));
+    if ( Yii::app()->user->checkAccess('User') OR Yii::app()->user->checkAccess('Admin') )
+    {// список приглашений участника
+        $this->widget('questionary.extensions.widgets.QUserInvites.QUserInvites', array(
+            'questionary' => $questionary,
+        ));
+    }
     ?>
 </div>
