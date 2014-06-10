@@ -14,12 +14,6 @@ $this->breadcrumbs = array(
     'Регистрация',
 );
 
-// @deprecated удалить при рефакторинге
-/*$this->ecHeaderOptions = array(
-    'displayloginTool' => false,
-    'displayInformer'  => false,
-    'displaySwitch'    => false,
-);*/
 ?>
 
 <div class="row-fluid">
