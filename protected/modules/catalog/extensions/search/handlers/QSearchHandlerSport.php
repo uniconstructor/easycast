@@ -10,8 +10,7 @@
 class QSearchHandlerSport extends QSearchHandlerBase
 {
     /**
-     * Получить массив параметров для подстановки в CDbCriteria при поиске
-     *
+     * Получить условия для CDbCriteria при поиске
      * @return CDbCriteria|null - условие поиска по фильтру или null если фильтр не используется
      */
     protected function createCriteria()
