@@ -836,9 +836,10 @@ class QDynamicFormModel extends CFormModel
         $this->saveMemberRequest($user->questionary);
         // обновляем историю создания анкет
         $this->updateCreationHistory($user->questionary);
-        // если это регистрация - отправляем пользователю письмо с приглашением и паролем
-        $this->sendUserNotification($user->questionary, $sourcePassword);
-        
+        if ( $this->scenario === 'registration' )
+        {// если это регистрация - отправляем пользователю письмо с приглашением и паролем
+            $this->sendUserNotification($user->questionary, $sourcePassword);
+        }
         return $user;
     }
     
