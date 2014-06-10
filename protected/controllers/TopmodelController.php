@@ -13,12 +13,8 @@ class TopModelController extends Controller
      */
     public function init()
     {
-        Yii::app()->getModule('projects');
-        $userModule = Yii::app()->getModule('user');
-        
-        /*$this->attachEventHandler('onNewTopModel', array(
-            $userModule, 
-            'notify'));*/
+        $projectsModule = Yii::app()->getModule('projects');
+        $userModule     = Yii::app()->getModule('user');
     }
 
     /**
@@ -31,46 +27,49 @@ class TopModelController extends Controller
         // @todo добавить проверку статуса роли
         $vid = Yii::app()->request->getParam('vid', 600);
         $vacancy = $this->loadModel($vid);
-        
         // id анкеты: разрешаем только регистрацию новых пользователей или подачу заявки от своего имени
         // подача заявки от имени другого участника доступна только в админке
-        if ( $qid = Yii::app()->getModule('questionary')->getCurrentQuestionaryId() )
-        { // заявку подает существующий участник
+        $qid = Yii::app()->getModule('questionary')->getCurrentQuestionaryId();
+        if ( Yii::app()->user->checkAccess('Admin') )
+        {
+            $qid = 0;
+        }
+        
+        if ( $qid )
+        {// заявку подает существующий участник
             $questionary = Questionary::model()->findByPk($qid);
             $model = new QDynamicFormModel('application');
             $model->displayFilled = false;
         }else
-        { // участник регистрируется через подачу заявки
+        {// участник регистрируется через подачу заявки (либо админ создает нового участника через эту форму)
             $questionary = new Questionary();
             $model = new QDynamicFormModel('registration');
         }
-        
         // запоминаем роль и анкету, от имени которой будет подаваться заявка
         $model->vacancy     = $vacancy;
         $model->questionary = $questionary;
         
         if ( $formData = Yii::app()->request->getParam('QDynamicFormModel') )
-        { // форма заполнена: пришли данные из формы регистрации пользователя
+        {// форма заполнена: пришли данные из формы регистрации пользователя
             $model->attributes = $formData;
-            $model->galleryid = $formData['galleryid'];
+            $model->galleryid  = $formData['galleryid'];
             // Проверка данных формы по AJAX
             $this->performAjaxValidation($model);
             
             if ( $model->validate() )
-            { // все данные формы верны
+            {// все данные формы верны
                 if ( $user = $model->save() )
-                { /* @var $user User */
-                    // Вместе с сохранением данных участника
-                    // сразу же происходит его авторизация на сайте
-                    Yii::app()->getModule('user')->forceLogin($user);
-                    // добавляем flash-сообщение об успешной регистрации
-                    //Yii::app()->user->setFlash('success', 'Регистрация завершена');
+                {/* @var $user User */
+                    if ( ! Yii::app()->user->checkAccess('Admin') )
+                    {// Вместе с сохранением данных участника сразу же происходит его авторизация на сайте
+                        Yii::app()->getModule('user')->forceLogin($user);
+                    }
                     // и перенаправляем его на страницу завершения
                     $finishUrl = Yii::app()->createUrl('//topmodel/finish');
                     $this->redirect($finishUrl);
                 }
             }
-        }elseif ( $questionary->isNewRecord or $model->scenario === 'registration' )
+        }elseif ( $questionary->isNewRecord OR $model->scenario === 'registration' )
         {// это регистрация и у пользователя нет аккаунта:
             // cоздаем пустую галерею чтобы было куда загружать изображения
             $gallery = new Gallery();
@@ -89,13 +88,11 @@ class TopModelController extends Controller
             }
             $model->galleryid = $gallery->id;
         }
-        
         // Отображаем страницу формы с регистрацией на роль
         $this->render('index', array('model' => $model));
     }
 
     /**
-     *
      * @return void
      */
     public function actionFinish()
@@ -132,15 +129,4 @@ class TopModelController extends Controller
             Yii::app()->end();
         }
     }
-
-    /**
-     * Отправить событие о регистрации новой топ-модели
-     * 
-     * @param CModelEvent $event
-     * @return void
-     */
-    /*public function onNewTopModel($event)
-    {
-        $this->raiseEvent('onNewTopModel', $event);
-    }*/
 }
