@@ -39,18 +39,19 @@
     {// все поля формы (оставлены только нужные)
         echo $this->getExtraFieldLayout($form, $model, $extraField);
     }
-    
     ?>
     <div class="form-actions">
         <?php 
         // ошибки формы
         echo $form->errorSummary($model);
+        // @todo не выводится ошибка через beforeValidate
+        echo $form->error($model, 'galleryid').'<br>';
         // кнопка регистрации
         $form->widget('bootstrap.widgets.TbButton', array(
             'buttonType' => 'submit',
             'type'       => 'success',
             'size'       => 'large',
-            'label'      => 'Продолжить'
+            'label'      => 'Продолжить',
         )); 
         ?>
     </div>

@@ -125,7 +125,14 @@ class QDynamicForm extends CWidget
         $htmlOptions = $this->getUserFieldHtmlOptions($field);
         $rowOptions  = $this->getUserFieldRowOptions($field);
         
-        if ( in_array($field->name, $this->defaultLayouts ) )
+        if ( $field->isForcedFor('vacancy', $this->vacancy->id) )
+        {// используем hidden-поле для принудительно устанавливаемых значений
+            return $this->render('templates/hidden', array(
+                'form'        => $form,
+                'model'       => $model,
+                'attribute'   => $field->name,
+            ), true);
+        }elseif ( in_array($field->name, $this->defaultLayouts ) )
         {// сначала смотрим есть ли унас разметка под конкретное поле со всеми его особенностями
             return $this->render('fields/'.$field->name, array(
                 'form'  => $form,

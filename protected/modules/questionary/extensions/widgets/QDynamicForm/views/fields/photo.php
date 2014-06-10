@@ -10,8 +10,9 @@
 // фотографии
 echo $form->labelEx($model, 'galleryid');
 echo $form->hiddenField($model, 'galleryid');
-$this->widget('GalleryManager', array(
+$form->widget('GalleryManager', array(
     'gallery'         => Gallery::model()->findByPk($model->galleryid),
-    'controllerRoute' => '/questionary/gallery',
+    'controllerRoute' => '//questionary/gallery',
 ));
-echo $form->error($model, 'galleryid');
+//echo $form->error($model, 'galleryid');
+echo $form->error($model, 'photo');
