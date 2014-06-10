@@ -29,12 +29,13 @@ class TopModelController extends Controller
         $vacancy = $this->loadModel($vid);
         // id анкеты: разрешаем только регистрацию новых пользователей или подачу заявки от своего имени
         // подача заявки от имени другого участника доступна только в админке
-        $qid = Yii::app()->getModule('questionary')->getCurrentQuestionaryId();
         if ( Yii::app()->user->checkAccess('Admin') )
         {
             $qid = 0;
+        }else
+        {
+            $qid = Yii::app()->getModule('questionary')->getCurrentQuestionaryId();
         }
-        
         if ( $qid )
         {// заявку подает существующий участник
             $questionary = Questionary::model()->findByPk($qid);
@@ -69,12 +70,12 @@ class TopModelController extends Controller
                     $this->redirect($finishUrl);
                 }
             }
-        }elseif ( $questionary->isNewRecord OR $model->scenario === 'registration' )
+        }elseif ( $model->scenario === 'registration' OR $questionary->isNewRecord )
         {// это регистрация и у пользователя нет аккаунта:
             // cоздаем пустую галерею чтобы было куда загружать изображения
             $gallery = new Gallery();
             // Определяем в каких размерах создавать миниатюры изображений в галерее
-            $gallery->versions = Yii::app()->getModule('questionary')->gallerySettings['versions'];
+            $gallery->versions    = Yii::app()->getModule('questionary')->gallerySettings['versions'];
             $gallery->limit       = 40;
             $gallery->name        = 1;
             $gallery->description = 1;
@@ -85,6 +86,7 @@ class TopModelController extends Controller
                 // поэтому загрузка изображений происходила в неправильные директории
                 // этот код можно будет убрать после того как будет переписан класс gallery
                 $gallery->subfolder = $gallery->id;
+                $gallery->save();
             }
             $model->galleryid = $gallery->id;
         }
