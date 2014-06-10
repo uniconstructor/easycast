@@ -655,6 +655,15 @@ class QDynamicFormModel extends CFormModel
             // списки полей также не могут быть обязательными: они сохраняются отдельно от формы
             $rules[$field->name][] = array($field->name, 'required');
         }
+        if ( $field->isForcedFor('vacancy', $this->vacancy->id) AND $field->isEmptyIn($this->questionary) )
+        {// некоторые поля анкеты могут быть установлены автоматически, если не заполнены
+            $default = QFieldInstance::model()->attachedTo('vacancy', $this->vacancy->id)->
+                forField($field->id)->find();
+            $rules[$field->name][] = array($field->name, 'default', 
+                'setOnEmpty' => false, 
+                'value'      => $default->data,
+            );
+        }
         
         if ( $this->questionary->id )
         {
@@ -663,7 +672,6 @@ class QDynamicFormModel extends CFormModel
         {
             $rules['email'][] = array('email', 'unique', 'className' => 'User');
         }
-        
         return $rules[$field->name];
     }
     
@@ -719,7 +727,6 @@ class QDynamicFormModel extends CFormModel
         
         if ( ! $this->scenario != 'registration' AND $gallery = $this->questionary->getGallery() )
         {// галерея с изображениями устанавливается отдельно
-            //$this->gallery   = $gallery;
             $this->galleryid = $gallery->id;
         }
     }
@@ -742,8 +749,7 @@ class QDynamicFormModel extends CFormModel
     {
         if ( ! $this->hasPhotos($this->galleryid) )
         {
-            $this->addError('galleryid', 'Нужно загрузить хотя бы одну фотографию');
-            return false;
+            $this->addError('galleryid', '<div class="alert alert-block alert-error">Нужно загрузить хотя бы одну фотографию</div>');
         }
         return parent::beforeValidate();
     }

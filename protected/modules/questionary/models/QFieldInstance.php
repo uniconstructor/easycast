@@ -14,6 +14,9 @@
  * @property string $timecreated
  * @property string $timemodified
  * 
+ * Relations:
+ * @property QUserField $fieldObject
+ * 
  * @todo перенести эту модель в корень проекта, так как она связана с несколькими модулями
  */
 class QFieldInstance extends CActiveRecord
@@ -174,5 +177,36 @@ class QFieldInstance extends CActiveRecord
 	        'recommended' => Yii::t('coreMessages', 'no'),
 	        'forced'      => 'Автоматически задано',
 	    );
+	}
+	
+	/**
+	 * Получить экземпляр записи привязаный к определенному полю 
+	 * 
+	 * @param int $fieldId
+	 * @return QFieldInstance
+	 */
+	public function forField($fieldId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('fieldid', $fieldId);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    return $this;
+	}
+	
+	/**
+	 * Именованая группа условий: получить все записи, привязанные к определенному объекту (например к роли)
+	 * @param string $objectType - тип объекта к которому привязано поле
+	 * @param int $objectId - id объекта к которому привязано поле
+	 * @return ExtraFieldInstance
+	 */
+	public function attachedTo($objectType, $objectId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('objecttype', $objectType);
+	    $criteria->compare('objectid', $objectId);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    return $this;
 	}
 }

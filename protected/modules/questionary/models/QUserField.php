@@ -170,15 +170,32 @@ class QUserField extends CActiveRecord
 	 */
 	public function isRequiredFor($objectType, $objectId)
 	{
-	    $criteria = new CDbCriteria();
-	    $criteria->compare('objecttype', $objectType);
-	    $criteria->compare('objectid', $objectId);
-	    $criteria->compare('fieldid', $this->id);
-	    if ( ! $instance = QFieldInstance::model()->find($criteria) )
+	    $instance = QFieldInstance::model()->attachedTo($objectType, $objectId)->forField($this->id)->find();
+	    if ( ! $instance )
 	    {
 	        return false;
 	    }
 	    if ( $instance->filling === 'required' )
+	    {
+	        return true;
+	    }
+	    return false;
+	}
+	
+	/**
+	 * 
+	 * @param unknown $objectType
+	 * @param unknown $objectId
+	 * @return bool
+	 */
+	public function isForcedFor($objectType, $objectId)
+	{
+	    $instance = QFieldInstance::model()->attachedTo($objectType, $objectId)->forField($this->id)->find();
+	    if ( ! $instance )
+	    {
+	        return false;
+	    }
+	    if ( $instance->filling === 'forced' )
 	    {
 	        return true;
 	    }
