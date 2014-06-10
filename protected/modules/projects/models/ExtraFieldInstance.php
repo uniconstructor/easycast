@@ -162,7 +162,7 @@ class ExtraFieldInstance extends CActiveRecord
 			'objectid' => 'Objectid',
 			'filling' => 'Обязательно к заполнению?',
 			'condition' => 'Condition',
-			'data' => 'Data',
+			'data' => 'Изначальное значение',
 			'timecreated' => 'Timecreated',
 			'timemodified' => 'Timemodified',
 		);
