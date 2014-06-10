@@ -80,6 +80,10 @@ class VacancyActions extends CWidget
      *              'addApplication', 'removeApplication', //'close', 'publish', 'changePrice'
      */
     protected $buttons = array('addApplication'); // 'removeApplication'
+    /**
+     * @var Questionary
+     */
+    protected $questionary;
     
     /**
      * @see CWidget::init()
@@ -99,7 +103,7 @@ class VacancyActions extends CWidget
             break;
             default: throw new CException(500, 'Display mode for VacancyActions not set');
         }
-        
+        $this->questionary = Questionary::model()->findByPk($this->questionaryId);
         $this->messageId   = 'vacancy_actions_message_'.$this->vacancy->id;
         $this->containerId = 'vacancy_actions_container_'.$this->vacancy->id;
         
@@ -116,10 +120,6 @@ class VacancyActions extends CWidget
             $this->messageStyle = 'display:block;';
         }
         $this->render('actions');
-        
-        //CVarDumper::dump($this->questionaryId, 10, true);
-        //CVarDumper::dump($this->vacancy->isAvailableForUser($this->questionaryId), 10, true);
-        //CVarDumper::dump($this->isAllowed('addApplication'), 10, true);die;
     }
     
     /**
@@ -133,10 +133,14 @@ class VacancyActions extends CWidget
         // @todo получаем все доступные для вакансии действия
         //$this->buttons = $this->member->getAllowedStatuses();
         foreach ( $this->buttons as $id => $buttonType )
-        {// оставляем только те кнопки, на которые есть права
+        {// оставляем только те кнопки, на которые есть права, и для которых не нужно указывать доп. данные
             if ( ! $this->isAllowed($buttonType) )
             {
                 unset($this->buttons[$id]);
+            }
+            if ( $this->vacancy->needMoreDataFromUser($this->questionary) AND $buttonType === 'addApplication' )
+            {
+                $this->buttons[$id] = 'addApplicationData';
             }
         }
     }
@@ -155,8 +159,8 @@ class VacancyActions extends CWidget
         {
             if ( Yii::app()->user->checkAccess('Admin') )
             {// не показываем админам кнопки подачи заявок,
-                if ( $this->questionaryId != Yii::app()->getModule('user')->user()->questionary->id 
-                     AND $this->vacancy->isAvailableForUser($this->questionaryId) )
+                if ( $this->questionaryId != Yii::app()->getModule('user')->user()->questionary->id AND
+                     $this->vacancy->isAvailableForUser($this->questionaryId) )
                 {// если только это не кнопка подачи заявки от имени другого участника
                     // и этому участнику эта роль доступна
                     return true;
@@ -167,21 +171,20 @@ class VacancyActions extends CWidget
                 }
             }
         }
-        
         // дальше идет только проверка действий "для участника" (подать/отозвать заявку)
         if ( Yii::app()->user->checkAccess('User') OR $this->mode == 'token' )
         {// участник вошел на сайт или происходит подача заявки по токену 
-            if ( $this->vacancy->isAvailableForUser($this->questionaryId) )
-            {// участник еще не подал заявку и проходит по критериям вакансии - покажем кнопку
-                return true;
-            }
             if ( $this->vacancy->hasApplication($this->questionaryId) )
             {// участник уже подал заявку - сообщим ему об этом
                 $this->message .= 'Вы уже подали заявку на эту роль';
                 $this->messageClass = 'alert alert-block';
             }
+            if ( $this->vacancy->isAvailableForUser($this->questionaryId) )
+            {// участник еще не подал заявку и проходит по критериям вакансии - покажем кнопку
+                return true;
+            }
         }
-    
+        
         return false;
     }
     
@@ -192,7 +195,7 @@ class VacancyActions extends CWidget
      */
     protected function isUserAction($type)
     {
-        return in_array($type, array('addApplication', 'removeApplication'));
+        return in_array($type, array('addApplication', 'addApplicationData', 'removeApplication'));
     }
     
     /**
@@ -207,6 +210,10 @@ class VacancyActions extends CWidget
         $ajaxOptions = $this->getButtonAjaxOptions($type);
         $htmlOptions = $this->getButtonHtmlOptions($type);
         
+        if ( $type === 'addApplicationData' )
+        {// @todo разделить все кнопки на AJAX и не AJAX
+            return CHtml::link($title, $url, $htmlOptions);
+        }
         if ( $this->isAjaxRequest )
         {// виджет передается через AJAX: подключить скрипты заранее нет возможности: выводим их за кнопкой
             $buttonLink   = Sweeml::raiseEventUrl('vacancy_action_'.$type.'_'.$this->vacancy->id);
@@ -237,6 +244,12 @@ class VacancyActions extends CWidget
      */
     protected function getButtonUrl($type)
     {
+        if ( $type === 'addApplicationData' )
+        {
+            return Yii::app()->createUrl('/projects/vacancy/registration',
+                array('vid' => $this->vacancy->id)
+            );
+        }
         if ( $this->mode === 'normal' )
         {// подача заявки от авторизованного участника
             switch ( $type )
@@ -284,8 +297,9 @@ class VacancyActions extends CWidget
         }
         switch ( $type )
         {
-            case 'addApplication':    $class .= ' btn-success';
-            case 'removeApplication': $class .= ' btn-primary';
+            case 'addApplication':     $class .= ' btn-success';
+            case 'addApplicationData': $class .= ' btn-warning';
+            case 'removeApplication':  $class .= ' btn-primary';
         }
         return $class;
     }
@@ -302,8 +316,9 @@ class VacancyActions extends CWidget
     {
         switch ( $type )
         {
-            case 'addApplication':    return 'Подать заявку';
-            case 'removeApplication': return 'Отозвать заявку';
+            case 'addApplication':     return 'Подать заявку';
+            case 'addApplicationData': return 'Подать заявку';
+            case 'removeApplication':  return 'Отозвать заявку';
         }
     }
     
@@ -323,7 +338,6 @@ class VacancyActions extends CWidget
             case 'addApplication':    return false;
             case 'removeApplication': return 'Отозвать заявку?';
         }
-    
         return false;
     }
     
