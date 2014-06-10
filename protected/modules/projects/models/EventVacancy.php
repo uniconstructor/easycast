@@ -497,6 +497,35 @@ class EventVacancy extends CActiveRecord
 	}
 	
 	/**
+	 * Определить, нужно ли пользователю указать доп. данные прежде чем подать заявку на эту роль
+	 * @param Questionary $questionary
+	 * @return void
+	 */
+	public function needMoreDataFromUser(Questionary $questionary)
+	{
+	    if ( ! $questionary->id )
+	    {
+	        return true;
+	    }
+	    foreach ( $this->userFields as $userField )
+	    {/* @var $userField QUserField */
+    	    if ( $userField->isRequiredFor('vacancy', $this->id) AND $userField->isEmptyIn($questionary) )
+    	    {// как минимум одно поле анкеты требует заполнения
+    	        return true;
+    	    }
+	    }
+	    foreach ( $this->extraFields as $extraField )
+	    {/* @var $extraField ExtraField */
+    	    if ( $extraField->isRequiredFor('vacancy', $this->id) AND 
+                 $extraField->isEmptyForVacancy($this->vacancy, $this->questionary) )
+    	    {// как минимум одно дополнительное поле требует заполнения
+    	       return true;
+    	    }
+	    }
+	    return false;
+	}
+	
+	/**
 	 * Определить, подходит ли участник по условиям, указанным в вакансии
 	 * 
 	 * @param int $questionaryId - id анкеты пользователя 
