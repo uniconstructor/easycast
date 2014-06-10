@@ -1058,7 +1058,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         <div>
             <div id="passportexpires">
                 <?php 
-                echo $form->labelEx($recordingConditions, 'passportexpires');
+                /*echo $form->labelEx($recordingConditions, 'passportexpires');
                 // Срок истечения загранпаспорта
                 $this->widget('ext.ActiveDateSelect',
                     array(
@@ -1070,7 +1070,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
                          'end_year'   => date("Y", time()+20*365*24*3600),
                     )
                 );
-                echo $form->error($recordingConditions,'passportexpires');
+                echo $form->error($recordingConditions,'passportexpires');*/
                 ?>
             </div>
         </div>
