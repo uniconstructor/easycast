@@ -128,10 +128,8 @@ class EditRequiredFields extends EditableGrid
     {
         $js  = '';
         $js .= "\$('#{$this->modelClass}_name').val('');\n";
-        // сбрасываем кнопку "да/нет" в исходное состояние
         $js .= "\$('#{$this->modelClass}_filling').val('required');\n";
-        $js .= "\$('#{$this->id}_filling_on_button').addClass('btn-primary active');\n";
-        $js .= "\$('#{$this->id}_filling_off_button').removeClass('btn-primary active');\n";
+        $js .= "\$('#{$this->modelClass}_data').val('');\n";
         
         return $js;
     }
