@@ -323,6 +323,16 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
         return $this->owner->weight;
     }
     
+    /**
+     * Заглушка для нормального сохранения галереи ихображений при регистрации
+     * @param unknown $photo
+     * @return void
+     */
+    public function setPhoto($photo)
+    {
+        return;
+    }
+    
     public function getStriptype()
     {
         if ( $this->owner->scenario == 'view' AND $this->owner->striptype )
