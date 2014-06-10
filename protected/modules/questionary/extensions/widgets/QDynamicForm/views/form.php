@@ -31,7 +31,7 @@
                 $('#dynamic-registration-submit_{$this->vacancy->id}').removeClass('btn-disabled');
                 $('#dynamic-registration-submit_{$this->vacancy->id}').text('Отправить');
                 
-                return hasError;
+                return ! hasError;
             }",
         ),
         
