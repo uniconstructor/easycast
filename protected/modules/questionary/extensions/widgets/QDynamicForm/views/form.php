@@ -17,7 +17,24 @@
         'clientOptions' => array(
             'validateOnSubmit' => true,
             'validateOnChange' => false,
+            'beforeValidate'   => "js:function(form){
+                $('#dynamic-registration-submit_{$this->vacancy->id}').prop('disabled', 'disabled');
+                $('#dynamic-registration-submit_{$this->vacancy->id}').removeClass('btn-success');
+                $('#dynamic-registration-submit_{$this->vacancy->id}').addClass('btn-disabled');
+                $('#dynamic-registration-submit_{$this->vacancy->id}').text('Проверка...');
+                
+                return true;
+            }",
+            'afterValidate'    => "js:function(form, data, hasError){
+                $('#dynamic-registration-submit_{$this->vacancy->id}').removeProp('disabled');
+                $('#dynamic-registration-submit_{$this->vacancy->id}').addClass('btn-success');
+                $('#dynamic-registration-submit_{$this->vacancy->id}').removeClass('btn-disabled');
+                $('#dynamic-registration-submit_{$this->vacancy->id}').text('Отправить');
+                
+                return hasError;
+            }",
         ),
+        
     ));
     ?>
     <p class="note muted" style="text-align:center;">
@@ -48,10 +65,11 @@
         echo $form->error($model, 'galleryid').'<br>';
         // кнопка регистрации
         $form->widget('bootstrap.widgets.TbButton', array(
+            'id'         => 'dynamic-registration-submit_'.$this->vacancy->id,
             'buttonType' => 'submit',
             'type'       => 'success',
             'size'       => 'large',
-            'label'      => 'Продолжить',
+            'label'      => 'Отправить',
         )); 
         ?>
     </div>

@@ -109,9 +109,15 @@ class QDynamicForm extends CWidget
      */
     public function run()
     {
-        $this->render('form', array(
-            'model' => $this->model,
-        ));
+        if ( $this->questionary->id AND $this->vacancy->hasApplication($this->questionary->id) )
+        {// пользователь уже подал заявку - не отображаем форму второй раз
+            echo CHtml::tag('div', array('class' => 'alert alert-info text-center'), 'Вы уже подали заявку на эту роль');
+        }else
+        {// заявка еще не подана
+            $this->render('form', array(
+                'model' => $this->model,
+            ));
+        }
     }
     
     /**
