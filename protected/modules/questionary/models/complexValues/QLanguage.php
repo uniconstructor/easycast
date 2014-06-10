@@ -17,10 +17,12 @@ class QLanguage extends QActivity
      */
     public function defaultScope()
     {
-        return array(
+        $parentScope  = parent::defaultScope();
+        $currentScope = array(
             'alias'     => "languages",
             'condition' => "`languages`.`type`='language'",
         );
+        return CMap::mergeArray($parentScope, $currentScope);
     }
     
     /**

@@ -17,9 +17,11 @@ class QVocalType extends QActivity
      */
     public function defaultScope()
     {
-        return array(
+        $parentScope  = parent::defaultScope();
+        $currentScope = array(
             'alias'     => "vocaltypes",
             'condition' => "`vocaltypes`.`type`='vocaltype'",
         );
+        return CMap::mergeArray($parentScope, $currentScope);
     }
 }

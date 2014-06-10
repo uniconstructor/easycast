@@ -19,10 +19,12 @@ class QDanceType extends QActivity
      */
     public function defaultScope()
     {
-        return array(
+        $parentScope  = parent::defaultScope();
+        $currentScope = array(
             'alias'     => "dancetypes",
             'condition' => "`dancetypes`.`type` = 'dancetype'",
         );
+        return CMap::mergeArray($parentScope, $currentScope);
     }
     
     /**

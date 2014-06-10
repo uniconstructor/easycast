@@ -17,9 +17,11 @@ class QVoiceTimbre extends QActivity
      */
     public function defaultScope()
     {
-        return array(
+        $parentScope  = parent::defaultScope();
+        $currentScope = array(
             'alias'     => "voicetimbres",
             'condition' => "`voicetimbres`.`type`='voicetimbre'",
         );
+        return CMap::mergeArray($parentScope, $currentScope);
     }
 }

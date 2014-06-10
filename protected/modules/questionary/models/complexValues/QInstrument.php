@@ -15,10 +15,12 @@ class QInstrument extends QActivity
      */
     public function defaultScope()
     {
-        return array(
+        $parentScope  = parent::defaultScope();
+        $currentScope = array(
             'alias'     => "instruments",
             'condition' => "`instruments`.`type`='instrument'",
         );
+        return CMap::mergeArray($parentScope, $currentScope);
     }
     
     /**

@@ -18,11 +18,13 @@ class QModelJob extends QActivity
      */
     public function defaultScope()
     {
-        return array(
+        $parentScope  = parent::defaultScope();
+        $currentScope = array(
             'alias'     => "modeljobs",
             'condition' => "`modeljobs`.`type`='modeljob'",
             'order'     => "`modeljobs`.`timeend` DESC",
         );
+        return CMap::mergeArray($parentScope, $currentScope);
     }
     
     /**

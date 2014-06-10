@@ -17,9 +17,11 @@ class QParodist extends QActivity
      */
     public function defaultScope()
     {
-        return array(
+        $parentScope  = parent::defaultScope();
+        $currentScope = array(
             'alias'     => "parodistlist",
             'condition' => "`parodistlist`.`type`='parodist'",
         );
+        return CMap::mergeArray($parentScope, $currentScope);
     }
 }

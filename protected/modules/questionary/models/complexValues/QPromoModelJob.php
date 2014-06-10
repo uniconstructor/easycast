@@ -18,11 +18,13 @@ class QPromoModelJob extends QActivity
      */
     public function defaultScope()
     {
-        return array(
+        $parentScope  = parent::defaultScope();
+        $currentScope = array(
             'alias'     => "promomodeljobs",
             'condition' => "`promomodeljobs`.`type`='promomodeljob'",
             'order'     => "`promomodeljobs`.`timeend` DESC",
         );
+        return CMap::mergeArray($parentScope, $currentScope);
     }
     
     /**

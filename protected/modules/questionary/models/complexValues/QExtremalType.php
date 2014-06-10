@@ -17,9 +17,11 @@ class QExtremalType extends QActivity
      */
     public function defaultScope()
     {
-        return array(
+        $parentScope  = parent::defaultScope();
+        $currentScope = array(
             'alias'     => "extremaltypes",
             'condition' => "`extremaltypes`.`type`='extremaltype'",
         );
+        return CMap::mergeArray($parentScope, $currentScope);
     }
 }

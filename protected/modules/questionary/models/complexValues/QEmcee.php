@@ -18,11 +18,13 @@ class QEmcee extends QActivity
      */
     public function defaultScope()
     {
-        return array(
+        $parentScope  = parent::defaultScope();
+        $currentScope = array(
             'alias'     => "emceelist",
             'condition' => "`emceelist`.`type`='emcee'",
             'order'     => "`emceelist`.`timeend` DESC",
         );
+        return CMap::mergeArray($parentScope, $currentScope);
     }
     
     /**

@@ -17,9 +17,11 @@ class QTrick extends QActivity
      */
     public function defaultScope()
     {
-        return array(
+        $parentScope  = parent::defaultScope();
+        $currentScope = array(
             'alias'     => "tricks",
             'condition' => "`tricks`.`type`='trick'",
         );
+        return CMap::mergeArray($parentScope, $currentScope);
     }
 }

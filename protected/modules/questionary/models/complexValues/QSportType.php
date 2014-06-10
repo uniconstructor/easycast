@@ -17,9 +17,11 @@ class QSportType extends QActivity
      */
     public function defaultScope()
     {
-        return array(
+        $parentScope  = parent::defaultScope();
+        $currentScope = array(
             'alias'     => "sporttypes",
             'condition' => "`sporttypes`.`type`='sporttype'",
         );
+        return CMap::mergeArray($parentScope, $currentScope);
     }
 }

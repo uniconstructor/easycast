@@ -18,11 +18,13 @@ class QModelSchool extends QActivity
      */
     public function defaultScope()
     {
-        return array(
+        $parentScope  = parent::defaultScope();
+        $currentScope = array(
             'alias'     => "modelschools",
             'condition' => "`modelschools`.`type`='modelschool'",
             'order'     => "`modelschools`.`timeend` DESC",
         );
+        return CMap::mergeArray($parentScope, $currentScope);
     }
     
     /**

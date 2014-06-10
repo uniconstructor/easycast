@@ -17,9 +17,11 @@ class QTwin extends QActivity
      */
     public function defaultScope()
     {
-        return array(
+        $parentScope  = parent::defaultScope();
+        $currentScope = array(
             'alias'     => "twinlist",
             'condition' => "`twinlist`.`type`='twin'",
         );
+        return CMap::mergeArray($parentScope, $currentScope);
     }
 }

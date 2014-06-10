@@ -89,6 +89,17 @@ class QActivity extends CActiveRecord
 	}
 	
 	/**
+	 * @see CActiveRecord::defaultScope()
+	 */
+	public function defaultScope()
+	{
+	    return array(
+	        // @todo убрать когда будет нормально встроен поиск по статусу
+	        'select' => 'id, questionaryid, timestart, timeend, comment, uservalue, type, value, level',
+	    );
+	}
+	
+	/**
 	 * Именованная группа условий поиска
 	 * Получает все записи для выбранной анкеты
 	 * 

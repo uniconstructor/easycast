@@ -17,9 +17,11 @@ class QSkill extends QActivity
      */
     public function defaultScope()
     {
-        return array(
+        $parentScope  = parent::defaultScope();
+        $currentScope = array(
             'alias'     => "skills",
             'condition' => "`skills`.`type`='skill'",
         );
+        return CMap::mergeArray($parentScope, $currentScope);
     }
 }

@@ -17,9 +17,11 @@ class QAddChar extends QActivity
      */
     public function defaultScope()
     {
-        return array(
+        $parentScope  = parent::defaultScope();
+        $currentScope = array(
             'alias'     => "addchars",
             'condition' => "`addchars`.`type`='addchar'",
         );
+        return CMap::mergeArray($parentScope, $currentScope);
     }
 }
