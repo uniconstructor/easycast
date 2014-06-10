@@ -146,8 +146,9 @@ class QUserInvites extends CWidget
         return array(
             'url'  => $url,
             'data' => array(
-                'id' => $invite->id,
-                Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken),
+                //'id' => $invite->id,
+                Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
+            ),
             'dataType' => 'json',
             'type'     => 'post',
             'success'  => "js:function() {ec_quinvites_success('{$action}', {$invite->id}, '{$message}');}",

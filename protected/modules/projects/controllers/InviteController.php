@@ -64,9 +64,11 @@ class InviteController extends Controller
      */
     public function actionAccept()
     {
-        $id = Yii::app()->request->getParam('id', 0);
-        $invite = $this->loadModel($id);
-        $invite->setStatus(EventInvite::STATUS_ACCEPTED);
+        if ( $id = Yii::app()->request->getParam('id', 0) )
+        {
+            $invite = $this->loadModel($id);
+            $invite->setStatus(EventInvite::STATUS_ACCEPTED);
+        }
     }
     
     /**
