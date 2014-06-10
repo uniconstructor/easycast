@@ -795,7 +795,6 @@ class QDynamicFormModel extends CFormModel
     {
         /* @var $questionary Questionary */
         /* @var $user User */
-        
         if ( $this->scenario === 'registration' OR $this->questionary->isNewRecord )
         {// создаем пользователя, если это регистрация
             $user           = new User();
@@ -846,8 +845,7 @@ class QDynamicFormModel extends CFormModel
      */
     protected function saveQuestionary($questionary)
     {
-        $oldGallery = $this->questionary->getGallery();
-        
+        $oldGallery = $questionary->getGallery();
         foreach ( $this->userFields as $name => $field )
         {// сохраняем все поля анкеты
             $questionary->$name = $this->$name;
