@@ -53,7 +53,13 @@ class TopModelController extends Controller
         if ( $formData = Yii::app()->request->getParam('QDynamicFormModel') )
         {// форма заполнена: пришли данные из формы регистрации пользователя
             $model->attributes = $formData;
-            $model->galleryid  = $formData['galleryid'];
+            if ( isset($formData['galleryid']) AND $formData['galleryid'] )
+            {
+                $model->galleryid = $formData['galleryid'];
+            }elseif ( $gallery = $questionary->getGallery() )
+            {
+                $model->galleryid = $gallery->id;
+            }
             // Проверка данных формы по AJAX
             $this->performAjaxValidation($model);
             
