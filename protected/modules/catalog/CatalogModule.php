@@ -287,20 +287,20 @@ class CatalogModule extends CWebModule
 	    if ( ! Yii::app()->session->contains('searchData') )
 	    {
 	        Yii::app()->session->add('searchData', array(
-	        'form'   => array(),
-	        'filter' => array(),
+    	        'form'   => array(),
+    	        'filter' => array(),
 	        ));
 	    }
-	
-	    // помним поиск как минимум 2 дня
-	    Yii::app()->session->setTimeout(3600 * 24 * 2 );
+	    // помним поиск как минимум несколько дней
+	    // @todo сделать настройкой
+	    Yii::app()->session->setTimeout(3600 * 24 * 7);
 	}
 	
 	/**
 	 * Получить из сессии все данные о поиске
 	 * @return array
 	 */
-	public static function getSessionSearchData($type='', $id=0)
+	public static function getSessionSearchData($type='', $id=1)
 	{
 	    self::initSessionSearchData();
 	    $data = Yii::app()->session->itemAt('searchData');
@@ -308,8 +308,17 @@ class CatalogModule extends CWebModule
 	    if ( ! $type )
 	    {
 	        return $data;
-	    }elseif( $type == 'form' )
+	    }
+	    if ( ! $id )
 	    {
+	        $id = 1;
+	    }
+	    if( $type == 'form' )
+	    {
+	        if ( isset($data['filter'][1]) )
+	        {
+	            return $data['filter'][1];
+	        }
 	        return $data['form'];
 	    }
 	    if ( $type AND $id )
@@ -336,13 +345,18 @@ class CatalogModule extends CWebModule
 	 *
 	 * @param string $namePrefix - название переменной в которой хранятся все значения текущего фрагмента формы
 	 * @return null
+	 * 
+	 * @deprecated больше нет разделения на поиск по форме и по фильтрам: большая форма поиска - это теперь тоже
+	 *             поиск по фильтрам, только id фильтра равен 1 (вся база)
+	 *             Оставлено для совместимости, вычистить все использования и удалить при рефакторинге
 	 */
 	protected static function initFormSearchData($namePrefix)
 	{
-	    $searchData = self::getSessionSearchData();
-	    $searchData['form'][$namePrefix] = array();
-	     
-	    self::setSessionSearchData($searchData);
+	    //$searchData = self::getSessionSearchData();
+	    //$searchData['form'][$namePrefix] = array();
+	    //self::setSessionSearchData($searchData);
+	    
+	    self::initFilterSearchData($namePrefix, 1);
 	}
 	
 	/**
@@ -358,7 +372,6 @@ class CatalogModule extends CWebModule
 	    {
 	        $searchData['filter'][$sectionId][$namePrefix] = array();
 	    }
-	     
 	    self::setSessionSearchData($searchData);
 	}
 	
@@ -367,20 +380,24 @@ class CatalogModule extends CWebModule
 	 * @param string $namePrefix - название переменной в которой хранятся все значения текущего фрагмента
 	 * @return array
 	 * 
-	 * @todo не разделять поиск по разделам и большой форме. Оставить для совместимости.
+	 * @deprecated больше нет разделения на поиск по форме и по фильтрам: большая форма поиска - это теперь тоже
+	 *             поиск по фильтрам, только id фильтра равен 1 (вся база)
+	 *             Оставлено для совместимости, вычистить все использования и удалить при рефакторинге
 	 */
 	public static function getFormSearchData($namePrefix)
 	{
-	    if ( ! $searchData = self::getSessionSearchData() )
-	    {// данные изначально не установлены
-	        self::initFormSearchData($namePrefix);
-	        $searchData = self::getSessionSearchData();
-	    }
-	    if ( ! isset($searchData['form'][$namePrefix]) )
-	    {
-	        return array();
-	    }
-	    return $searchData['form'][$namePrefix];
+	    //if ( ! $searchData = self::getSessionSearchData() )
+	    //{// данные изначально не установлены
+	    //    self::initFormSearchData($namePrefix);
+	    //    $searchData = self::getSessionSearchData();
+	    //}
+	    //if ( ! isset($searchData['form'][$namePrefix]) )
+	    //{
+	    //    return array();
+	    //}
+	    //return $searchData['form'][$namePrefix];
+	    
+	    return self::getFilterSearchData($namePrefix, 1);
 	}
 	
 	/**
@@ -388,28 +405,38 @@ class CatalogModule extends CWebModule
 	 * @param string $namePrefix - название переменной в которой хранятся все значения текущего фрагмента
 	 * @param array $data - данные из фрагмента
 	 * @return null
+	 * 
+	 * @deprecated больше нет разделения на поиск по форме и по фильтрам: большая форма поиска - это теперь тоже
+	 *             поиск по фильтрам, только id фильтра равен 1 (вся база)
+	 *             Оставлено для совместимости, вычистить все использования и удалить при рефакторинге
 	 */
 	public static function setFormSearchData($namePrefix, $data)
 	{
-	    self::initFormSearchData($namePrefix);
-	    $searchData = self::getSessionSearchData();
-	    $searchData['form'][$namePrefix] = $data;
-	     
-	    self::setSessionSearchData($searchData);
+	    //self::initFormSearchData($namePrefix);
+	    //$searchData = self::getSessionSearchData();
+	    //$searchData['form'][$namePrefix] = $data;
+	    //self::setSessionSearchData($searchData);
+	    
+	    self::setFilterSearchData($namePrefix, 1, $data);
 	}
 	
 	/**
 	 * Очистить данные для фрагмента формы поиска
 	 * @param string $namePrefix - название переменной в которой хранятся все значения текущего фрагмента
 	 * @return null
+	 * 
+	 * @deprecated больше нет разделения на поиск по форме и по фильтрам: большая форма поиска - это теперь тоже
+	 *             поиск по фильтрам, только id фильтра равен 1 (вся база)
+	 *             Оставлено для совместимости, вычистить все использования и удалить при рефакторинге
 	 */
 	public static function clearFormSearchData($namePrefix)
 	{
-	    self::initFormSearchData($namePrefix);
-	    $searchData = self::getSessionSearchData();
-	    $searchData['form'][$namePrefix] = array();
-	     
-	    self::setSessionSearchData($searchData);
+	    //self::initFormSearchData($namePrefix);
+	    //$searchData = self::getSessionSearchData();
+	    //$searchData['form'][$namePrefix] = array();
+	    //self::setSessionSearchData($searchData);
+	    
+	    self::clearFilterSearchData($namePrefix, 1);
 	}
 	
 	/**
@@ -436,8 +463,7 @@ class CatalogModule extends CWebModule
 	    self::initFilterSearchData($namePrefix, $sectionId);
 	    $searchData = self::getSessionSearchData();
 	    $searchData['filter'][$sectionId][$namePrefix] = $data;
-	
-
+        
 	    self::setSessionSearchData($searchData);
 	}
 	
