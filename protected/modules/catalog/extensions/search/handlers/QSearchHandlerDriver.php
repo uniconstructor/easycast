@@ -12,7 +12,7 @@ class QSearchHandlerDriver extends QSearchHandlerBase
      */
     protected function createCriteria()
     {
-        $data = $this->getFilterData();
+        $data   = $this->getFilterData();
         $values = $data['driver'];
     
         $criteria = new CDbCriteria();

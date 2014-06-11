@@ -12,7 +12,7 @@ class QSearchHandlerCountry extends QSearchHandlerBase
      */
     protected function createCriteria()
     {
-        $data = $this->getFilterData();
+        $data   = $this->getFilterData();
         $values = $data['nativecountryid'];
     
         $criteria = new CDbCriteria();
