@@ -9,7 +9,7 @@
 class QSearchHandlerBase extends CComponent
 {
     /**
-     * @var CatalogFilter
+     * @var CatalogFilter - фильтр поиска по которому составляется запрос
      */
     public $filter;
     /**
@@ -23,16 +23,20 @@ class QSearchHandlerBase extends CComponent
      */
     public $section;
     /**
-     * @var array - данные, пришедшие из формы поиска
+     * @var array - данные, пришедшие из формы поиска: содержит в себе данные всех полей формы поиска
+     *              (это нужно на случай если обработчику поискового критерия потребуются данные
+     *              других фильтров для того чтобы изменить или упростить собственный запрос)
      */
     public $data;
     /**
      * @var bool - сохранять ли данные из формы поиска (используется почти всегда,
      *             в основном для сохранения данных о поиске в сессию)
+     * @deprecated сохранением теперь занимаются или QSearchCriteriaAssembler или классы соответствующих моделей
      */
-    public $saveData = true;
+    public $saveData = false;
     /**
      * @var string - куда сохранить данные поиска (session/db)
+     * @deprecated сохранением теперь занимаются или QSearchCriteriaAssembler или классы соответствующих моделей
      */
     public $saveTo = 'session';
     
@@ -73,6 +77,7 @@ class QSearchHandlerBase extends CComponent
      * (индивидуальный код для каждого плагина)
      *
      * @return SearchScope
+     * @deprecated отказываемся от плагина searchScopes и переходим на сериализованные критерии поиска
      */
     protected function createScope()
     {
@@ -84,6 +89,7 @@ class QSearchHandlerBase extends CComponent
      * (индивидуальный код для каждого плагина)
      *
      * @return array
+     * @deprecated отказываемся от плагина searchScopes и переходим на сериализованные критерии поиска
      */
     protected function createConditions()
     {
@@ -117,16 +123,16 @@ class QSearchHandlerBase extends CComponent
     }
     
     /**
-     * Найти данные фильтра в общем массиве данных из формы поиска 
-     * 
+     * Найти данные одного фильтра поиска в общем массиве данных из всей формы поиска 
+     * Обычно эта функция просто получает данные из одного фрагмента формы, но ее можно переопределить
+     * и получить данные из другого фильтра, если два критерия поиска взаимосвязаны
      * @return array|null
      */
     protected function getFilterData()
     {
-        Yii::import('catalog.extensions.search.filters.QSearchFilterBase.QSearchFilterBase');
+        //Yii::import('catalog.extensions.search.filters.QSearchFilterBase.QSearchFilterBase');
         // Получаем имя элемента в массиве, в котором должны находится данные из фильтра поиска
         $name = QSearchFilterBase::defaultPrefix().$this->filter->shortname;
-        
         if ( isset($this->data[$name]) AND ! empty($this->data[$name]) )
         {// Данные фильтра есть в массиве - значит он используется
             return $this->data[$name];
@@ -138,6 +144,7 @@ class QSearchHandlerBase extends CComponent
      * Сохранить данные фильтра
      * 
      * @return null
+     * @deprecated сохранением теперь занимаются или QSearchCriteriaAssembler или классы соответствующих моделей
      */
     protected function saveFilterData()
     {
@@ -145,8 +152,6 @@ class QSearchHandlerBase extends CComponent
         {
             return;
         }
-        Yii::import('catalog.extensions.search.filters.QSearchFilterBase.QSearchFilterBase');
-        
         // Получаем имя элемента в массиве, в котором должны находится данные из фильтра поиска
         $name = QSearchFilterBase::defaultPrefix().$this->filter->shortname;
         $data = $this->getFilterData();
