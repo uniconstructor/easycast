@@ -17,17 +17,19 @@ class QSearchResults extends CWidget
      * @var (filter/search) - тип запроса (фильтр каталога или большая форма поиска)
      * 
      * @todo убрать разделение на поиск по разделам и поиск по большой форме
+     * @deprecated не использовать в новых функциях
      */
-    public $mode;
+    public $mode = 'filter';
     /**
      * @var CatalogSection - раздел каталога внутри которого производится поиск
      *                       (если поиск производится внутри раздела)
+     * @deprecated теперь вместо этого поля используется $this->searchObject
      */
     public $section = null;
     /**
      * @var array - данные, пришедшие из формы поиска
      */
-    public $data;
+    public $data = array();
     /**
      * @var string - url, по которому должно поисходить обновление данных
      */
@@ -46,7 +48,7 @@ class QSearchResults extends CWidget
      * @var int - id объекта, к которому привязаны критерии поиска
      * @todo заготовка для будущего рефакторинга
      */
-    public $objectId;
+    public $objectId = 1;
     /**
      * @var CActiveRecord - модель к которой привязаны критерии и результаты поиска
      *                      Может быть вичислена на основе objectType и objectId или задана вручную
@@ -60,34 +62,27 @@ class QSearchResults extends CWidget
     protected $assembler;
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
      */
     public function init()
     {
         // подключаем библиотеку sweekit, чтобы отображадось видео в загружаемых по AJAX анкетах
         Yii::app()->getClientScript()->registerSweelixScript('shadowbox');
-        // эти классы нужны для отображения результатов поиска, потому что критерии поиска могут быть привязаны к ним
-        Yii::import('application.modules.catalog.models.CatalogSection');
-        Yii::import('application.modules.projects.models.EventVacancy');
-        
-        // указываем путь к классу, который занимается сборкой поискового запроса из отдельных частей
-        // @todo сделать полем класса
-        $pathToAssembler = 'catalog.extensions.search.handlers.QSearchCriteriaAssembler';
-        if ( $this->mode == 'filter' AND ! is_object($this->searchObject) )
-        {
-            throw new CException('Section not found');
-        }
+        // эти классы нужны для отображения результатов поиска, 
+        // потому что критерии поиска могут быть привязаны к ним
+        Yii::import('catalog.models.CatalogSection');
+        Yii::import('projects.models.EventVacancy');
         
         // загружаем условия поиска, если они не переданы из формы
         $this->setDefaultSearchObject();
+        $this->setDefaultSearchData();
         
         // Указываем параметры для сборки запроса
         $config = array(
-            'class'        => $pathToAssembler,
+            // класс, который занимается сборкой поискового запроса из отдельных частей
+            'class'        => 'catalog.extensions.search.handlers.QSearchCriteriaAssembler',
             'data'         => $this->data,
-            // @todo оставлено для совместимости, удалить при рефакторинге
-            //'section'      => $this->section,
+            'saveData'     => false,
             'searchObject' => $this->searchObject,
         );
         $this->assembler = Yii::createComponent($config);
@@ -114,15 +109,15 @@ class QSearchResults extends CWidget
         switch ( $this->objectType )
         {// получаем объект, к которому привязаны результаты поиска
             case 'section':
-                $this->searchObject = CatalogSection::model()->findAllByPk($this->objectId);
+                $this->searchObject = CatalogSection::model()->findByPk($this->objectId);
             break;
             case 'vacancy':
-                $this->searchObject = EventVacancy::model()->findAllByPk($this->objectId);
+                $this->searchObject = EventVacancy::model()->findByPk($this->objectId);
             break;
             // по умолчанию считаем объект разделом каталога
             default: 
-                $this->searchObject = CatalogSection::model()->findAllByPk($this->objectId);
-            return; 
+                $this->searchObject = CatalogSection::model()->findByPk($this->objectId);
+            break; 
         }
         if ( ! is_object($this->searchObject) )
         {// не удалось найти связанный объект
@@ -145,7 +140,6 @@ class QSearchResults extends CWidget
         {// условия поиска переданы из формы - ничего делать не нужно
             return;
         }
-        
         // @todo пока что ищем данные только в сессии и только для разделов каталога.
         //       Позже в этом месте мы должны просто обращаться к API объекта, чтобы получить из него нужные данные
         $this->loadSearchData();
@@ -158,8 +152,6 @@ class QSearchResults extends CWidget
      */
     protected function loadSearchData()
     {
-        $data = array();
-        
         if ( ! $this->data )
         {
             $this->data = CatalogModule::getFilterSearchData(CatalogModule::SEARCH_FIELDS_PREFIX, $this->objectId);
@@ -173,19 +165,19 @@ class QSearchResults extends CWidget
     {
         if ( ! $this->data or empty($this->data) )
         {// не указаны критерии поиска
-            $emptyText = $this->getAjaxMessage('noData');
+            $emptyText    = $this->getAjaxMessage('noData');
             $dataProvider = new CArrayDataProvider(array());
         }elseif ( ! $criteria = $this->assembler->getCriteria() )
         {// не указаны критерии поиска
-            $emptyText = $this->getAjaxMessage('noData');
+            $emptyText    = $this->getAjaxMessage('noData');
             $dataProvider = new CArrayDataProvider(array());
         }else
         {// все данные есть, получаем результаты поиска
-            // @todo переместить статус и сортировку в критерий раздела
+            // @todo переместить статус и сортировку в фильтры поиска
             $criteria->compare('status', 'active');
             $criteria->order = '`rating` DESC';
             
-            $emptyText = $this->getAjaxMessage('noData');
+            $emptyText = $this->getAjaxMessage('noRecords');
             $dataProvider = new CActiveDataProvider('Questionary', array(
                 'criteria'   => $criteria,
                 'pagination' => array(
@@ -196,18 +188,15 @@ class QSearchResults extends CWidget
             ));
         }
         
-        if ( Yii::app()->params['useCSS3'] )
-        {
-            $this->printCss3Grid($dataProvider, $emptyText);
-        }else
-        {
-            $this->printSafeGrid($dataProvider, $emptyText);
-        }
+        $this->printCss3Grid($dataProvider, $emptyText);
     }
     
     /**
      * Отобразить результаты поиска (для старых браузеров)
      * @return void
+     * 
+     * @deprecated пока оставлено для совместимости, но новая верстка работает нормально
+     *             так что в будущем можно будет удалить
      */
     protected function printSafeGrid($dataProvider, $emptyText)
     {
@@ -215,7 +204,7 @@ class QSearchResults extends CWidget
             'dataProvider' => $dataProvider,
             'ajaxUpdate'   => 'search_results_data',
             'id'           => 'search_results_data',
-            //'ajaxType'     => 'POST',
+            //'ajaxType'     => 'post',
             'ajaxUrl'      => Yii::app()->createUrl($this->route, $this->routeParams),
             'template'     => "{summary}{items}{pager}",
             'itemView'     => '_user',
@@ -246,8 +235,6 @@ class QSearchResults extends CWidget
             ),
         ));
     }
-    
-    
     
     /**
      * 
@@ -280,13 +267,13 @@ class QSearchResults extends CWidget
     protected function getAjaxMessage($type)
     {
         $message = '';
-        if ( $type == 'noData' )
+        if ( $type === 'noData' )
         {
             $message = '<h4 class="alert-heading">Поиск</h4>';
             $message .= '<p>Пожалуйста выберите критерии поиска и нажмите кнопку &quot;Найти&quot;</p>';
             $message = '<div class="alert alert-block">'.$message.'</div>';
         }
-        if ( $type == 'noRecords' )
+        if ( $type === 'noRecords' )
         {
             $message = '<h4 class="alert-heading">По вашему запросу ничего не найдено</h4>';
             $message .= '<p>Попробуйте выбрать другие критерии поиска</p>';
