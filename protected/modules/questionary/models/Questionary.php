@@ -916,18 +916,18 @@ class Questionary extends CActiveRecord
         {
             $bages['istwin'] = QuestionaryModule::t('twin');
         }
-        // модель
-        if ( $this->ismodel )
+        // модель (скрываем чтобы мужики не стеснялись)
+        if ( $this->ismodel AND $this->gender === 'female' )
         {
             $bages['ismodel'] = QuestionaryModule::t('model');
         }
-        // фотомодель
-        if ( $this->isphotomodel )
+        // фотомодель (скрываем чтобы мужики не стеснялись)
+        if ( $this->isphotomodel AND $this->gender === 'female' )
         {
             $bages['isphotomodel'] = QuestionaryModule::t('photomodel');
         }
-        // промо-модель
-        if ( $this->ispromomodel )
+        // промо-модель (скрываем чтобы мужики не стеснялись)
+        if ( $this->ispromomodel AND $this->gender === 'female' )
         {
             $bages['ispromomodel'] = QuestionaryModule::t('promomodel');
         }
