@@ -24,7 +24,9 @@
  * склеивает из всех полученных критериев один большой и сложный запрос (при помощи CDbCriteria->merge())
  * 
  * @todo переместить этот класс из папки handlers в extensions/search/components
- * @todo когда-нибудь сократить длину префикса с "QSearchHandler" до "QSHandler" или QSH (переименовать все классы и данные в БД)
+ * @todo перенести status=active в специальный фильтр (в том числе раздела "вся база")
+ * @todo когда-нибудь сократить длину префикса с "QSearchHandler" до "QSHandler" или QSH
+ *       (переименовать все классы и данные в БД)
  * @todo избавиться от поля section, вместо него передавать изначальный критерий поиска + набор фильтров
  * @todo приравнять вариант поиска по большой форме поиска к поиску по фильтрам
  * @todo создать универсальный API для сохранения сериализованных данных формы поиска и критериев поиска в БД
@@ -64,8 +66,7 @@ class QSearchCriteriaAssembler extends CApplicationComponent
      *              а значениями - сами данные фильтра
      *              (тоже массив структура которого задается виджетом поиска)
      */
-    public $data = array();
-    
+    public $data     = array();
     /**
      * @var bool - сохранять ли данные из формы поиска?
      *             (происходит почти всегда, в основном для сохранения данных о поиске в сессию)
@@ -74,7 +75,7 @@ class QSearchCriteriaAssembler extends CApplicationComponent
     /**
      * @var string - куда сохранить данные поиска (session/db)
      */
-    public $saveTo = 'session';
+    public $saveTo   = 'session';
     /**
      * @var array - Используемые фильтры поиска.
      *              Формат: массив объектов CatalogFilter или массив строк с короткими 
@@ -83,7 +84,7 @@ class QSearchCriteriaAssembler extends CApplicationComponent
      *              для которого собирается запрос (например раздел каталога, вакансия, и т. п.)
      *              Фильтры могут быть получены из объекта, которому принадлежит запрос или заданы вручную.
      */
-    public $filters = array();
+    public $filters  = array();
     
     /**
      * @var CDbCriteria - переменная для хранения промежуточного результата конструирования запроса
@@ -99,8 +100,16 @@ class QSearchCriteriaAssembler extends CApplicationComponent
     protected $_hasFilters = false;
     
     /**
+     * Послольку CApplicationComponent не вызывает init() автоматически - сделаем это за него
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->init();
+    }
+    
+    /**
      * Подготавливает компонент для работы
-     * 
      * @return void
      * 
      * @todo проверить наличие обязательных параметров
@@ -126,7 +135,6 @@ class QSearchCriteriaAssembler extends CApplicationComponent
                     {
                         throw new CException("Фильтр с именем '{$filterElement}' не найден");
                     }
-                    
                     // заменяем строку с названием фильтра на объект
                     unset($this->filters[$key]);
                     $this->filters[] = $filter;
@@ -156,6 +164,7 @@ class QSearchCriteriaAssembler extends CApplicationComponent
             {// перебираем все фильтры большой формы поиска и для каждого добавляем условие
                 $this->filters[] = $instance->filter;
             }
+            $this->searchObject = CatalogSection::model()->findByPk(1);
         }
     }
     
@@ -167,8 +176,6 @@ class QSearchCriteriaAssembler extends CApplicationComponent
      */
     protected function importDataClasses()
     {
-        // Подключаем все необходимые для поиска классы
-        Yii::app()->getModule('catalog');
         // базовый класс всех поисковых обработчиков
         Yii::import($this->pathPrefix.'QSearchHandlerBase');
         // Конструктор поисковых запросов
@@ -179,6 +186,8 @@ class QSearchCriteriaAssembler extends CApplicationComponent
         Yii::import('questionary.extensions.behaviors.*');
         // модуль каталога (нужен для работы с функциями сессии)
         Yii::import('application.modules.catalog.CatalogModule');
+        // базовый класс всех поисковых фильтров
+        Yii::import('catalog.extensions.search.filters.QSearchFilterBase.QSearchFilterBase');
     }
     
     /**
@@ -201,7 +210,6 @@ class QSearchCriteriaAssembler extends CApplicationComponent
         {// не использован ни один фильтр поиска
             return false;
         }
-        
         return $this->criteria;
     }
     
@@ -218,10 +226,8 @@ class QSearchCriteriaAssembler extends CApplicationComponent
             'filter'       => $filter,
             // передаем в виджет все данные из формы поиска, он сам найдет нужные
             'data'         => $this->data,
-            'saveData'     => $this->saveData,
-            'saveTo'       => $this->saveTo,
             // @todo оставлено для совместимости, удалить при рефакторинге
-            'section'      => $this->section,
+            //'section'      => $this->section,
             'searchObject' => $this->searchObject,
         );
         
@@ -257,7 +263,7 @@ class QSearchCriteriaAssembler extends CApplicationComponent
             if ( ! $this->searchObject->scope )
             {// на тот редкий случай когда критериев поиска в прикрепленном объекте вообще нет
                 $this->startCriteria = new CDbCriteria();
-                $this->startCriteria->compare('status', 'active');
+                $this->startCriteria->addCondition("`t`.`status` = 'active'");
             }else
             {
                 $this->startCriteria = $this->searchObject->scope->getCombinedCriteria();
@@ -266,9 +272,7 @@ class QSearchCriteriaAssembler extends CApplicationComponent
         }else
         {// изначальное условие выборки не задано - создаем его самостоятельно
             $this->criteria = new CDbCriteria();
-            // @todo перенести status=active в условия выборки раздела (в том числе раздела "вся база")
-            // возможно следует добавить специальный фильтр поиска "статус анкеты", видимый только администраторам)
-            $this->criteria->compare('status', 'active');
+            $this->criteria->addCondition("`t`.`status` = 'active'");
             $this->startCriteria = $this->criteria;
         }
     }
