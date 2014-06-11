@@ -131,11 +131,6 @@ class SiteController extends Controller
      */
     public function actionPlaceFastOrder()
     {
-        if ( ! YII_DEBUG && ! Yii::app()->request->isAjaxRequest )
-        {
-            throw new CHttpException('403', 'Forbidden access.');
-        }
-        
         $model = new FastOrder();
         
         if ( $post = Yii::app()->request->getParam('FastOrder') )
