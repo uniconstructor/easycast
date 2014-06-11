@@ -9,6 +9,7 @@
  * 
  * @todo перенести весь JS во внешние файлы
  * @todo убрать поле section, заменить его более общим объектом searchObject (объект, обладающий фильтрами)
+ * @todo прописать использование countData
  */
 class SearchFilters extends CWidget
 {
@@ -22,28 +23,23 @@ class SearchFilters extends CWidget
     /**
      * @var string - режим отображения фильтров:
      *               filter - фильтр в разделе каталога (набор фильтров берется из раздела каталога)
-     *               search - большая форма поиска (@todo больше не используется, оставлено для совместимости: используйте значение 'form')
+     *               search[не используется] - большая форма поиска (@todo больше не используется, оставлено для совместимости: используйте значение 'form')
      *               form - большая форма поиска (набор фильтров берется из первого (корневого) раздела каталога "все")
-     *               vacancy - критерии подбора участников для вакансии
-     *               custom - просто отобразить набор фильтров/форму поиска, без привязки к объекту в базе
-     *                        В этом случае набор фильтров задается вручную, при помощи свойства filters
+     *               vacancy[не используется] - критерии подбора участников для вакансии
      */
     public $mode       = 'filter';
     /**
      * @var string - источник данных для формы (откуда будут взяты значения по умолчанию)
      *               Возможные значения:
-     *               'session' - данные берутся из сессии (используется во всех формах поиска)
-     *               'db' - данные берутся из базы (используется при сохранении критериев вакансии и т. п.)
+     *               'session'  - данные берутся из сессии (используется во всех формах поиска)
+     *               'db'       - данные берутся из базы (используется при сохранении критериев вакансии и т. п.)
+     *               'external' - данные установлены принудительно извне
      */
     public $dataSource = 'session';
     /**
      * @var array - массив со значениями по умолчанию для формы
      *              (только если $this->dataSource = 'external')
-     *              Ключи массива - это префиксы имен фильтров, они составляются по правилу 
-     *              Пример массива для поля age:
-     *              ...
-     *              QSe
-     *              
+     *              Ключи массива - это префиксы имен фильтров 
      */
     public $data       = array();
     /**
@@ -109,20 +105,27 @@ class SearchFilters extends CWidget
     /**
      * @var string - название jQuery события, посылаемого при очистке всей формы
      */
-    public $clearSearchEvent = 'clearSearch';
+    public $clearSearchEvent  = 'clearSearch';
     /**
      * @var string - название jQuery события, посылаемого при сборе данных со всей формы
      */
-    public $collectDataEvent = 'collectData';
+    public $collectDataEvent  = 'collectData';
     /**
      * @var string - название jQuery события, посылаемого для обновления результатов поиска
      */
-    public $refreshDataEvent = 'refreshData';
+    public $refreshDataEvent  = 'refreshData';
     /**
-     * @var bool - экспериментальная функция: обновлять результаты поиска по мере выбора критериев
-     * @todo отключить, если сервер не будет справляться
+     * @var string - название jQuery события, посылаемого для подсчета обновления количества подходящих участников
      */
-    public $refreshDataOnChange = true;
+    public $countDataEvent    = 'countData';
+    /**
+     * @var bool - обновлять результаты поиска при каждом изменении критериев поиска
+     */
+    public $refreshDataOnChange  = true;
+    /**
+     * @var bool - обновлять количество найденых участников при каждом изменении критериев поиска
+     */
+    public $countDataOnChange    = true;
     /**
      * @var array - параметры отображения для кнопки "Найти"
      */
@@ -209,7 +212,6 @@ class SearchFilters extends CWidget
         {// список фильтров не задан извне, и не содержится в объекте
             throw new CException('Не указан раздел для фильтров');
         }
-        
         // регистрируем скрипт обновляющий результаты поиска при изменении данных в форме
         $this->registerSearchResultsRefreshScript();
         
@@ -225,7 +227,6 @@ class SearchFilters extends CWidget
         {// Определяем, нужно ли показывать заголовок над всеми фильтрами
             echo $this->getFilterTitle();
         }
-        
         foreach ( $this->filters as $filter )
         {// Перебираем все фильтры раздела и для каждого создаем виджет
             $this->displayFilter($filter);
@@ -280,7 +281,6 @@ class SearchFilters extends CWidget
     
     /**
      * Получить заголовок для формы фильтров поиска
-     *
      * @return string
      * 
      * @todo языковые строки
@@ -288,16 +288,19 @@ class SearchFilters extends CWidget
      */
     protected function getFilterTitle()
     {
-        if ( ! $this->displayTitle )
+        if ( ! $this->displayTitle OR ! isset($this->searchObject) )
         {// заголовок над всеми фильтрами вообще отображать не нужно
             return '';
         }
         if ( $this->mode === 'form' OR ( isset($this->searchObject->id) AND $this->searchObject->id == 1 ) )
         {
             return "<h4>Условия</h4>";
-        }else
+        }elseif ( isset($this->searchObject->id) )
         {
             return "<h4>Поиск в разделе &quot;{$this->searchObject->name}&quot;</h4>";
+        }else
+        {
+            return '';
         }
     }
     
@@ -325,23 +328,21 @@ class SearchFilters extends CWidget
     protected function getDisplayFilterOptions($filter)
     {
         $defaults = array(
-            //'section'             => $this->section,
             'searchObject'        => $this->searchObject,
             'filter'              => $filter,
             'display'             => $this->mode,
             'dataSource'          => $this->dataSource,
             'refreshDataOnChange' => $this->refreshDataOnChange,
+            'refreshDataEvent'    => $this->refreshDataEvent,
+            'countDataOnChange'   => $this->countDataOnChange,
+            'countDataEvent'      => $this->countDataEvent,
+            'collectDataEvent'    => $this->collectDataEvent,
             'clearUrl'            => $this->clearUrl,
         );
-        /*if ( $data = $this->loadFilterData($filter) )
-        {// для этого фильтра установлены значения по умолчанию
-            $defaults['data'] = $data;
-        }*/
         if ( isset($this->filterOptions[$filter->shortname]) AND is_array($this->filterOptions[$filter->shortname]) )
         {// для этого фильтра поиска заданы индивидуальные настройки
             return CMap::mergeArray($defaults, $this->filterOptions[$filter->shortname]);
         }
-        
         return $defaults;
     }
     
@@ -422,10 +423,13 @@ class SearchFilters extends CWidget
      */
     protected function createBeforeSearchJs()
     {
+        $searchButtonId = $this->searchButtonHtmlOptions['id'];
+        $disabledClass  = $this->disabledButtonHtmlOptions['class'];
         return "function(jqXHR, settings){
             $('#{$this->searchResultsId}').fadeTo(150, 0.5);
-            $('#search_button').attr('class', 'btn btn-disabled btn-large');
-            $('#search_button').val('{$this->searchProgressTitle}');
+            $('#{$searchButtonId}').attr('class', '{$disabledClass}');
+            $('#{$searchButtonId}').prop('disabled', 'true');
+            $('#{$searchButtonId}').val('{$this->searchProgressTitle}');
             
             var ecSearchData = {};
             $('body').trigger('{$this->collectDataEvent}', [ecSearchData]);
@@ -444,11 +448,14 @@ class SearchFilters extends CWidget
      */
     protected function createSuccessSearchJs()
     {
+        $searchButtonId    = $this->searchButtonHtmlOptions['id'];
+        $searchButtonClass = $this->searchButtonHtmlOptions['class'];
         return "function(data, status){
             $('#{$this->searchResultsId}').html(data);
         
-            $('#search_button').attr('class', '{$this->disabledButtonHtmlOptions['class']}');
-            $('#search_button').val('{$this->searchButtonTitle}');
+            $('#{$searchButtonId}').attr('class', '{$searchButtonClass}');
+            $('#{$searchButtonId}').removeProp('disabled');
+            $('#{$searchButtonId}').val('{$this->searchButtonTitle}');
             $('#{$this->searchResultsId}').fadeTo(150, 1);
         }";
     }
