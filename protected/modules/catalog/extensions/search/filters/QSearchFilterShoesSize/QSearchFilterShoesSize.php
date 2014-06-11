@@ -11,7 +11,6 @@ class QSearchFilterShoesSize extends QSearchFilterBaseSelect2
     protected $elements = array('shoessize');
     
     /**
-     * (non-PHPdoc)
      * @see QSearchFilterBase::getTitle()
      */
     protected function getTitle()

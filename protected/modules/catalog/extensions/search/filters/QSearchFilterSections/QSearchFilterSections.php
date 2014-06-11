@@ -46,13 +46,12 @@ class QSearchFilterSections extends QSearchFilterBaseSelect2
     protected function getMenuVariants()
     {
         $variants = array();
-        
         $sections = $this->getCatalogSections();
+        
         foreach ( $sections as $section )
         {
             $variants[$section->id] = $section->name;
         }
-        
         return $variants;
     }
     

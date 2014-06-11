@@ -11,7 +11,6 @@ class QSearchFilterSport extends QSearchFilterBaseSelect2
     protected $elements = array('sporttype');
     
     /**
-     * (non-PHPdoc)
      * @see QSearchFilterBase::getTitle()
      */
     protected function getTitle()
