@@ -134,44 +134,39 @@ class CatalogController extends Controller
 	 */
 	public function actionAjaxSearch()
 	{
-	    /*if ( ! Yii::app()->request->isAjaxRequest )
-	    {
-	        throw new CHttpException(500, 'This is AJAX action');
-	        Yii::app()->end();
-	    }*/
 	    // Проверяем наличие всех обязательных параметров
 	    // режим поиска (по фильтрам в разделе или по всей базе)
-	    $mode     = Yii::app()->request->getParam('mode', 'form');
+	    $mode     = Yii::app()->request->getParam('mode', 'filter');
 	    $objectId = Yii::app()->request->getParam('searchObjectId', 1);
 	    
 	    $section = CatalogSection::model()->findByPk($objectId);
-	    if ( ! $section )
+	    if ( ! $section AND $objectId > 0 )
 	    {// попытка поискать в несуществующем разделе
 	        throw new CException('Section not found');
+	    }else
+	    {// просто передан 0 вместо id раздела: getParam не ловит такие вещи. так что установим
+	        // поиск по всей базе принудительно
+	        $section = CatalogSection::model()->findByPk(1);
 	    }
 	    
-	    /*if ( $objectId > 1 )
-	    {
-	        $data = CatalogModule::getSessionSearchData('filter', $objectId);
-	    }else
-	    {
-	        $data = CatalogModule::getSessionSearchData('form');
-	    }*/
 	    if ( $formData = Yii::app()->request->getPost('data') )
 	    {// переданы данные для поиска - делаем из них нормальный массив
 	        $data = CJSON::decode($formData);
+	        foreach ( $data as $namePrefix => $filterOptions )
+	        {// и обновляем данные в сессии
+	            CatalogModule::setFilterSearchData($namePrefix, $section->id, $filterOptions);
+	        }
 	    }else
 	    {// при первой загрузке страницы попробуем получить данные поиска из сессии
 	        $data = CatalogModule::getSessionSearchData('filter', $objectId);
 	    }
 	    
-	    $options = array(
+	    // в ответ на AJAX=запрос выводим виджет с результатами поиска
+	    $this->widget('catalog.extensions.search.QSearchResults.QSearchResults', array(
 	        'mode'         => $mode,
 	        'data'         => $data,
 	        'searchObject' => $section,
-	    );
-	    
-	    $this->widget('catalog.extensions.search.QSearchResults.QSearchResults', $options);
+	    ));
 	}
 	
 	/**
