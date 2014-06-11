@@ -14,6 +14,21 @@ Yii::import('catalog.extensions.search.SearchFilters.SearchFilters');
 class QSearchForm extends SearchFilters
 {
     /**
+     * @var string - режим отображения фильтров:
+     *               filter - фильтр в разделе каталога 
+     *                        (набор фильтров берется из раздела каталога)
+     *               form   - большая форма поиска 
+     *                        (набор фильтров берется из первого (корневого) раздела каталога "все")
+     */
+    public $mode       = 'form';
+    /**
+     * @var string - источник данных для формы (откуда будут взяты значения по умолчанию)
+     *               Возможные значения:
+     *               'session' - данные берутся из сессии (используется во всех формах поиска)
+     *               'db' - данные берутся из базы (используется при сохранении критериев вакансии и т. п.)
+     */
+    public $dataSource = 'session';
+    /**
      * @var string - url по которому происходит переход после поиска
      *               Если этот параметр не задан - то перенаправления не происходит
      */
@@ -27,7 +42,15 @@ class QSearchForm extends SearchFilters
     /**
      * @var string - название jQuery события, посылаемого для подсчета обновления количества подходящих участников
      */
-    public $countDataEvent = 'refreshData';
+    public $countDataEvent = 'countData';
+    /**
+     * @var bool - обновлять результаты поиска при каждом изменении критериев поиска
+     */
+    public $refreshDataOnChange = false;
+    /**
+     * @var bool - обновлять количество найденых участников при каждом изменении критериев поиска
+     */
+    public $countDataOnChange   = true;
     /**
      * @var string - id тега внутри которого содержится число подходящих участников
      */
@@ -85,6 +108,12 @@ class QSearchForm extends SearchFilters
     public $clearButtonHtmlOptions = array(
         'class' => 'btn btn-primary btn-large',
         'id'    => 'clear_search',
+    );
+    /**
+     * @var array - параметры отображения для кнопки "Очистить"
+     */
+    public $disabledButtonHtmlOptions = array(
+        'class' => 'btn btn-disabled btn-large',
     );
     
     /**
@@ -150,10 +179,17 @@ class QSearchForm extends SearchFilters
      * Определить, включен ли фильтр в прикрепленном объекте поиска
      * @param string $name - короткое название фильтра поиска
      * @return boolean
+     * 
+     * @todo дописать проверку "включен ли фильтр" - пока здесь только заглушка
      */
     protected function filterEnabled($name)
     {
+        if ( Yii::app()->user->checkAccess('Admin') )
+        {
+            return true;
+        }
         return true;
+        //if ( $filter = $this->getFilterByShortName($name) )
     }
     
     /**
@@ -214,6 +250,8 @@ class QSearchForm extends SearchFilters
     /**
      * Получить js-код для обновления счетчика найденных участников
      * @return void
+     * 
+     * @todo перенести в SearchFilters с названием createCountDataJs
      */
     protected function createCountRefreshJs()
     {
