@@ -33,7 +33,6 @@
  *       поиска к любым объектам, а не только к вакансиям или разделам
  * @todo убрать использование collectDataVar
  * @todo убрать использование $this->scope (оно нигде не используется, решено хранить критерии как json в базе)
- * @todo не разделять случаи поиска по всей базе и разделам. Поиск по всей базе это просто поиск по разделу с id=1
  * @todo добавить настройку "посылать js-событие при изменении значения фильтра" (по умолчанию false).
  * @todo добавить функцию "получить код отключения". По умолчанию false (никогда не отключаем виджет). Возвращает
  *       js-код, который очищает и скрывает фильтр в зависимости от js-событий или значений других фильтров.
@@ -50,14 +49,11 @@
  * @todo добавить новый режим отображения: "helper"
  *       Используется при поиске в разделе каталога или в отдельной вкладке раздела
  *       Фильтр отображается наверху в разделе каталога, рядом с названием раздела
- * @todo уменьшить количество режимов отображения: изменить назначение поля display: оно должно
- *       отвечать только за внешний вид фильтра, тип объекта к которому прикреплен фильтр
- *       должен определяться полем searchObject в виджете searchFilters
  */
 class QSearchFilterBase extends CWidget
 {
     /**
-     * @var string - как отображать фрагмент формы(form/filter/vacancy): для большой формы или для списка фильтров
+     * @var string - как отображать фрагмент формы (form/filter): для большой формы или для списка фильтров
      */
     public $display;
     /**
@@ -104,6 +100,10 @@ class QSearchFilterBase extends CWidget
      * @var string - название jQuery события, посылаемого для обновления результатов поиска
      */
     public $refreshDataEvent = 'refreshData';
+    /**
+     * @var string - название jQuery события, посылаемого для подсчета обновления количества подходящих участников
+     */
+    public $countDataEvent   = 'countData';
     /**
      * @var string - название шлобальной переменной JavaScript, в которую собираются данные со всех фильтров
      */
@@ -179,8 +179,13 @@ class QSearchFilterBase extends CWidget
      * @var bool - отсылать событие при каждом изменении значения виджета
      *             Используйте только для тех критериев поиска, изменения которых ДЕЙСТВИТЕЛЬНО нужно
      *             отслеживать в реальном времени
+     * @todo переименовать в raise
      */
-    public $raizeEventOnChange  = false;
+    public $raizeEventOnChange = false;
+    /**
+     * @var bool - обновлять количество найденых участников при каждом изменении фильтра
+     */
+    public $countDataOnChange = true;
     
     /**
      * @var string - название функции, которая проверяет, используется ли фильтр поиска
@@ -261,7 +266,6 @@ class QSearchFilterBase extends CWidget
             // в классе QSearchCriteriaAssembler
             return;
         }
-        
         // Подключаем все необходимые для поиска классы
         // Конструктор поисковых запросов
         // @todo возможно не используется здесь, в связи со всеми последними изменениями. Удалить при рефакторинге
@@ -284,7 +288,7 @@ class QSearchFilterBase extends CWidget
         {
             throw new CException('Не задана связь виджета с фильтром в базе. $this->filter должен быть задан');
         }
-        if ( $this->display == 'filter' AND ! is_object($this->searchObject)  )
+        if ( $this->dataSource === 'db' AND ! is_object($this->searchObject) )
         {
             throw new CException('Не указан раздел для фильтра');
         }
@@ -337,8 +341,7 @@ class QSearchFilterBase extends CWidget
         
         // Подключаем стили
         $this->_assetUrl = Yii::app()->assetManager->publish(
-            Yii::getPathOfAlias('catalog.extensions.search.filters.QSearchFilterBase.assets') .
-            DIRECTORY_SEPARATOR);
+            Yii::getPathOfAlias('catalog.extensions.search.filters.QSearchFilterBase.assets').DIRECTORY_SEPARATOR);
         Yii::app()->clientScript->registerCssFile($this->_assetUrl.'/searchFilter.css');
         
         parent::init();
@@ -420,7 +423,7 @@ class QSearchFilterBase extends CWidget
             'duration'      => 200,
         );
         
-        if ( $this->display == 'filter' )
+        if ( $this->display === 'filter' )
         {// создаем сам виджет (сворачивающийся блок с фильтром)
             // (для режима отображения "фильтр")
             $this->widget('ext.slidetoggle.ESlidetoggle', $options);
@@ -483,15 +486,16 @@ class QSearchFilterBase extends CWidget
         $data = array();
         if ( $this->dataSource === 'session' )
         {// нужно загрузить данные из сессии
-            switch ( $this->display )
-            {// @todo для сессии не различать случаи поиска по форме поиска и по фильтрам
-                case 'filter': $data = CatalogModule::getFilterSearchData($this->namePrefix, $this->searchObject->id); break;
-                case 'form':   $data = CatalogModule::getFilterSearchData($this->namePrefix, 1); break;
-                //case 'form':   $data = CatalogModule::getFormSearchData($this->namePrefix); break;
+            if ( isset($this->searchObject->id) AND $this->searchObject->id )
+            {
+                return CatalogModule::getFilterSearchData($this->namePrefix, $this->searchObject->id);
+            }else
+            {
+                return CatalogModule::getFilterSearchData($this->namePrefix, 1);
             }
         }elseif ( $this->dataSource === 'db' )
         {// нужно загрузить данные фильтра из базы
-            $data = $this->searchObject->getFilterSearchData($this->namePrefix);
+            return $this->searchObject->getFilterSearchData($this->namePrefix);
         }elseif ( $this->dataSource === 'external' )
         {// данные фильтра переданы при создании объекта
             return $this->data;
@@ -546,7 +550,7 @@ class QSearchFilterBase extends CWidget
             'id'          => $this->clearDataPrefix,
             'data-title'  => 'Очистить',
             'data-toggle' => 'tooltip',
-            'class'       => 'pull-right icon icon-close',
+            'class'       => 'pull-right icon icon-times-circle',
             'style'       => "display:{$iconDisplay};margin:3px;cursor:pointer;transition: color 0.1s linear 0s;",
         ), '&times');
         
@@ -616,18 +620,7 @@ class QSearchFilterBase extends CWidget
      */
     protected function createClearFilterFormJs($eventName)
     {
-        $clearFormJs    = $this->createClearFormDataJs();
-        /*if ( $this->dataSource == 'session' )
-        {// нужно очистить данные в сессии
-            $clearDataJs = $this->createClearSessionDataJs();
-        }else
-        {// нужно очистить данные в БД
-            switch ( $this->display )
-            {
-                case 'vacancy': $clearDataJs = $this->createClearVacancyDataJs(); break;
-                default: $clearDataJs = $this->createClearSessionDataJs(); break;
-            }
-        }*/
+        $clearFormJs = $this->createClearFormDataJs();
         $clearDataJs = $this->createClearSessionDataJs();
         $fadeOutJs   = $this->createFadeOutJs();
         
@@ -638,6 +631,7 @@ class QSearchFilterBase extends CWidget
         
         if ( $this->refreshDataOnChange )
         {// не очищает те фильтры, которые и так пусты, если используется обновление результатов а процессе поиска
+            // (возвращает true, не давая вызвать дальнейшие обработчики)
             $checkEmptyJs = "if ( {$this->isEmptyJsName}() ){return true;}";
         }
         return "$('body').on('{$eventName}', function(event) {
@@ -663,34 +657,6 @@ class QSearchFilterBase extends CWidget
     }
     
     /**
-     * Получить JS-код для очистки данных формы поиска для вакансии
-     * 
-     * @return string
-     * 
-     * @deprecated не используется, оставлено для совместимости, удалить при рефакторинге
-     */
-    protected function createClearVacancyDataJs()
-    {
-        // создаем URL для AJAX-запроса
-        $url = Yii::app()->createUrl($this->clearUrl, array(
-            'namePrefix' => $this->namePrefix,
-            'id'         => $this->vacancy->id,
-        ));
-        // Устанавливаем данные для запроса и выполняем его
-        return "var ajaxData = {
-                namePrefix : '{$this->namePrefix}',
-                id  : '{$this->vacancy->id}',
-                ".Yii::app()->request->csrfTokenName." : '".Yii::app()->request->csrfToken."'
-            };
-            var ajaxOptions = {
-                url  : '{$url}',
-                data : ajaxData,
-                type : 'post'
-            };
-        jQuery.ajax(ajaxOptions);";
-    }
-    
-    /**
      * Js-код для "подсветки" блока (фильтра) в котором что-то выбрано
      * Используется, когда условие поиска активируется.
      * Изменяет цвет заголовка фильтра и добавляет в заголовок кнопку "очистить" (если этот фильтр разрешено очищать)
@@ -710,7 +676,6 @@ class QSearchFilterBase extends CWidget
     
     /**
      * JS-код, который убирает подсветку, когда фильтр поиска деактивируется
-     * 
      * @return string
      */
     protected function createFadeOutJs()
@@ -718,7 +683,7 @@ class QSearchFilterBase extends CWidget
         $js  = "jQuery('#{$this->titleId}').removeClass('btn-primary');";
         $js .= "jQuery('#{$this->contentId}').removeClass('ec-search-filter-content-active');";
         if ( $this->allowClear )
-        {
+        {// скрываем иконку "очистить"
             $js .= "jQuery('#{$this->clearDataPrefix}').hide();";
         }
         return $js;
@@ -732,16 +697,21 @@ class QSearchFilterBase extends CWidget
      * @return string
      * 
      * @todo добавить сюда функции $clearSessionJs когда будет закончена функция createRefreshSessionDataOnChangeJs()
+     * @todo переименовать в changeFilterJS - так как эта функция запускается при каждом изменении фильтра
      */
     protected function createToggleHighlightJs()
     {
         $highlightJs = $this->createHighlightJs();
         $fadeOutJs   = $this->createFadeOutJs();
+        $refreshJs   = '';
         
-        $refreshJs = '';
         if ( $this->refreshDataOnChange )
-        {
-            $refreshJs = '$("body").trigger("'.$this->refreshDataEvent.'");';
+        {// нужно обновить результаты поиска при изменении фильтра
+            $refreshJs .= '$("body").trigger("'.$this->refreshDataEvent.'");';
+        }
+        if ( $this->countDataOnChange )
+        {// обновить количество подходящих участников при изменении значения
+            $refreshJs .= '$("body").trigger("'.$this->countDataEvent.'");';
         }
         return "function {$this->toggleHighlightJsName}() {
             if ( {$this->isEmptyJsName}() )
@@ -767,8 +737,10 @@ class QSearchFilterBase extends CWidget
         $collectDataJs = $this->createCollectFilterDataJs();
         return "function {$this->isEmptyJsName}() {
             var data = {$this->collectDataJsName}();
-            //console.log(Object.keys(data).length == 0);
-            if ( Object.keys(data).length == 0 ) return true;
+            if ( Object.keys(data).length == 0 )
+            {
+                return true;
+            }
             return false;
         };";
     }

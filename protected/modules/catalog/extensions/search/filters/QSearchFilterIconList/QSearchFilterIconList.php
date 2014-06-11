@@ -45,10 +45,6 @@ class QSearchFilterIconList extends QSearchFilterBase
     {
         parent::init();
         $refreshJs = '';
-        // Подключаем картинки, стили и скрипты для оформления
-        /*$this->_iconsAssetUrl = Yii::app()->assetManager->publish(
-            Yii::getPathOfAlias('catalog.extensions.search.filters.QSearchFilterIconList.assets').DIRECTORY_SEPARATOR);
-        */
         if ( $this->refreshDataOnChange )
         {// если нужно сразу же обновлять результаты поиска при изменении критериев поиска
             // то добавляем скрипт который создает jQuery-событие "критерии поиска изменены"

@@ -94,7 +94,6 @@ class QSearchFilterBaseUni extends QSearchFilterBaseSelect2
     }
     
     /**
-     * (non-PHPdoc)
      * @see QSearchFilterBaseSelect2::getContent()
      */
     protected function getContent()
