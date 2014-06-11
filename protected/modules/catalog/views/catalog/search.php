@@ -11,11 +11,6 @@ $this->breadcrumbs = array(
 <div class="page-alternate">
     <div class="row-fluid">
         <div class="container">
-                <!--div class="row-fluid">
-                    <div class="title-page">
-                        <h4 class="title">Поиск</h4>
-                    </div>
-                </div-->
                 <?php
                 // верхняя полоска со списком разделов каталога
                 // получаем корневой раздел каталога ("вся база") для того чтобы искать по всем доступным анкетам
@@ -35,8 +30,6 @@ $this->breadcrumbs = array(
                 $rootSection = CatalogSection::model()->findByPk(1);
                 $options = array(
                     'mode'         => 'filter',
-                    // @todo выяснить, можно ли удалить этот параметры
-                    //'objectId'     => 1,
                     'data'         => $data,
                     'searchObject' => $rootSection,
                 );
@@ -50,6 +43,7 @@ $this->breadcrumbs = array(
                     'mode'          => 'filter',
                     'backToFormUrl' => '/search',
                     'searchObject'  => $rootSection,
+                    'dataSource'    => 'session',
                 ));
                 ?>
             </div>
