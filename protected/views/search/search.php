@@ -24,13 +24,11 @@ $this->breadcrumbs = array(
         $rootSection = CatalogSection::model()->findByPk(1);
         // виджет расширенной формы поиска (по всей базе)
         $this->widget('catalog.extensions.search.QSearchForm.QSearchForm', array(
-            'searchObject' => $rootSection,
-            'mode'         => 'filter',
+            'searchObject'        => $rootSection,
             // после отправки ajax-запроса поиска перенаправляет пользователя на страницу с фильтрами
-            'redirectUrl'  => '/catalog/catalog/search',
+            'redirectUrl'         => '/catalog/catalog/search',
             'refreshDataOnChange' => false,
         ));
-        //CVarDumper::dump( CatalogModule::getFilterSearchData($namePrefix, $sectionId) );
         ?>
     </div>
 </div>
