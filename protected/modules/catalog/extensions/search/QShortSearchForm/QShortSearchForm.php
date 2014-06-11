@@ -5,6 +5,7 @@ Yii::import('catalog.extensions.search.QSearchForm.QSearchForm');
 
 /**
  * Сокращенная форма поиска на главной странице
+ * @deprecated больше не используется, удалить при рефакторинге
  */
 class QShortSearchForm extends QSearchForm
 {
