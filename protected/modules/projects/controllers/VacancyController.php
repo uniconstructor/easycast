@@ -148,9 +148,16 @@ class VacancyController extends Controller
                         Yii::app()->getModule('user')->forceLogin($user);
                         // добавляем flash-сообщение об успешной регистрации
                         Yii::app()->user->setFlash('success', 'Регистрация завершена');
+                    }else
+                    {// сообщаем что заявка подана
+                        Yii::app()->user->setFlash('success', 'Ваша заявка зарегистрирована<br>
+                            Об изменении ее статуса мы сообщим вам по почте');
                     }
-                    // и перенаправляем его на страницу
-                    $url = Yii::app()->createUrl('//questionary/questionary/view'); 
+                    // и перенаправляем его на страницу анкеты с открытой вкладкой заявок
+                    $url = Yii::app()->createUrl('//questionary/questionary/view', array(
+                        'id' => $user->questionary->id,
+                        'activeTab' => 'requests',
+                    )); 
                     $this->redirect($url);
                 }
             }

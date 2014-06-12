@@ -26,9 +26,10 @@
         </div>
         <div class="row">
             <?php
-            $this->widget('questionary.extensions.widgets.QUserInvites.QUserInvites', array(
+            // @todo включить после запуска топ-модели
+            /*$this->widget('questionary.extensions.widgets.QUserInvites.QUserInvites', array(
                 'questionary' => $model->questionary,
-            ));
+            ));*/
             ?>
         </div>
     </div>
