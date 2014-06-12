@@ -87,7 +87,7 @@ class QSearchForm extends SearchFilters
      */
     public $columnFilters = array(
         'sections' => array('iconlist'),
-        'base'     => array('gender', 'age', /*'email',*/ 'salary', 'height', 'weight', 'body', 'system', 'name'),
+        'base'     => array('status', 'gender', 'age', /*'email',*/ 'salary', 'height', 'weight', 'body', 'system', 'name'),
         'looks'    => array('looktype', 'physiquetype', 'haircolor', 'hairlength', 
             'eyecolor', 'shoessize', 'wearsize', 'titsize', 'hastatoo',
         ),
@@ -242,8 +242,9 @@ class QSearchForm extends SearchFilters
             //$('#{$this->searchResultsId}').html(data);
             $('#{$this->countResultsId}').html(data);
             
-            $('#search_button').attr('class', '{$this->searchButtonHtmlOptions['class']}');
-            $('#search_button').val('{$this->searchButtonTitle}');
+            $('#{$this->searchButtonHtmlOptions['id']}').removeProp('disabled');
+            $('#{$this->searchButtonHtmlOptions['id']}').attr('class', '{$this->searchButtonHtmlOptions['class']}');
+            $('#{$this->searchButtonHtmlOptions['id']}').val('{$this->searchButtonTitle}');
         }";
     }
     
