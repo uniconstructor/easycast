@@ -102,11 +102,15 @@ class ExtraFieldInstance extends CActiveRecord
 	    return parent::beforeSave();
 	}
 	
+	/**
+	 * @see CActiveRecord::afterSave()
+	 */
 	public function afterSave()
 	{
 	    if ( $this->isNewRecord )
 	    {
-	        if ( $this->objecttype === 'vacancy' AND
+	        if ( $this->objecttype === 'vacancy' AND 
+	             ! ( $this->default === '' OR $this->default === null ) AND
 	             $members = ProjectMember::model()->forVacancy($this->objectid)->findAll() )
 	        {// если новое поле прикрепляется к роли - установим всем ранее подавшим заявку
 	            // участникам значения по умолчанию
