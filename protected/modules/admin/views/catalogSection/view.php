@@ -35,11 +35,8 @@ $this->menu = array(
 );
 ?>
 
-<div class="span12">
-    <div class="row" style="text-align: center;">
-        <h1>Раздел "<?php echo $model->name; ?>"</h1>
-    </div>
-    <div class="span5">
+<div class="row-fluid">
+    <h1>Раздел "<?php echo $model->name; ?>"</h1>
         <?php 
         // данные самого раздела
         $this->widget('bootstrap.widgets.TbDetailView', array(
@@ -58,9 +55,8 @@ $this->menu = array(
         <?php
         // для создания раздела каталога используем все доступные фильтры 
         $filters = CatalogFilter::model()->findAll("`id` > '1'");
-        
         // критерии поиска для раздела
-        $this->widget('catalog.extensions.search.SearchFilters.SearchFilters', array(
+        $this->widget('catalog.extensions.search.QSearchForm.QSearchForm', array(
             'searchObject' => $model,
             'mode'         => 'section',
             'filters'      => $filters,
@@ -70,7 +66,6 @@ $this->menu = array(
             'clearUrl'     => '/admin/catalogSection/clearSearchData',
         ));
         ?>
-    </div>
         <?php 
         //CVarDumper::dump($model->searchFilters);
          
@@ -79,11 +74,6 @@ $this->menu = array(
             'searchObject' => $model,
         ));
         ?>
-    <div class="row">
-        <div class="span6 offset6">
-        
-        </div>
-    </div>
 </div>
 <?php 
 
