@@ -13,11 +13,13 @@ class QSearchHandlerLookType extends QSearchHandlerBase
     protected function createCriteria()
     {
         $data = $this->getFilterData();
-        $values = $data['looktype'];
-    
-        $criteria = new CDbCriteria();
-        $criteria->addInCondition('looktype', $values);
-    
+        if ( $values = $data['looktype'] )
+        {
+            $criteria = new CDbCriteria();
+            $criteria->addInCondition('looktype', $values);
+            // включаем в выборку тех у кого поле не заполнено
+            $criteria->addInCondition('looktype', array(0 => null), 'OR');
+        }
         return $criteria;
     }
 }
