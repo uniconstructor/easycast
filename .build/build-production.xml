@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="Сборка EasyCast для production-сервера" default="finish" basedir="../">
     <tstamp>
-        <format property="current.time" pattern="dd.MM.yyyy_hhmm" />
+        <format property="current.time" pattern="dd.MM.yyyy_HHmm" />
     </tstamp>
-    <!-- Указываем путь к Yii -->           
+    <!-- Указываем путь к Yii -->     
     <property name="yii.dir" value="../yiisoft/yii/"/>
-    <!-- Указываем путь к ядру EasyCast -->    
+    <!-- Указываем путь к ядру EasyCast -->   
     <property name="core.dir" value="/home/frost/git/easycast(core)/"/>
     <!-- Указываем путь к проекту с плагинами -->
     <property name="plugins.dir" value="/home/frost/git/easycast(plugins)/"/>
