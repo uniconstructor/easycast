@@ -564,7 +564,9 @@ class EventVacancy extends CActiveRecord
 	    }
 	    
 	    // Получаем полные условия соответствия вакансии
-	    $criteria = $this->scope->getCombinedCriteria();
+	    //$criteria = $this->scope->getCombinedCriteria();
+	    
+	    $criteria = $this->getSearchCriteria();
 	    // сужаем их до единственного человека
 	    $criteria->addCondition('`t`.`id` = '.$questionary->id);
 	    // и в итоге просто проверяем существование такой записи
@@ -722,7 +724,7 @@ class EventVacancy extends CActiveRecord
 	    // (по умолчанию - берем только анкеты в активном статусе)
 	    // $criteria->compare('status', 'active');
 	    // @todo в качестве alias таблицы проставить не "t" а alias в модели Questionary
-	    $criteria->addCondition("`t`.`status` = 'active'");
+	    $criteria->addCondition("`t`.`status` NOT IN ('delayed', 'draft', 'unconfirmed')");
 	    // сортируем анкеты по рейтингу (сначала лучшие)
 	    $criteria->order = '`t`.`rating` DESC';
 	    
@@ -905,6 +907,10 @@ class EventVacancy extends CActiveRecord
 	    $this->searchdata = $newDataSerialized;
 	    $this->save();
 	    
+	    if ( ! $this->scope )
+	    {
+	        return true;
+	    }
 	    // обновим составленный критерий поиска (ScopeCondition)
 	    // (для вакансии он всегда только один в наборе (SearchScope) и всегда является сериализованным массивом)
 	    $conditions = $this->scope->scopeConditions;
