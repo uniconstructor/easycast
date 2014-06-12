@@ -99,7 +99,7 @@
  *                                  поэтому пока что пишем так
  * @property integer $currentcountryid
  * 
- * Relations:
+ * Relations: @see http://www.yiiframework.com/wiki/280/1-n-relations-sometimes-require-cdbcriteria-together/
  * @property User $user 
  * @property Address $address
  * @property QRecordingConditions $recordingconditions
@@ -125,7 +125,8 @@
  *       то тоже с is или has (для единообразия, чтобы не путаться)
  * @todo переименовать поле istvshowmen в istvshowman или hastvshows
  * @todo добавить связь photos
- * @todo для всех сложных значений добавить типизированные коллекции: http://yiiframework.ru/doc/cookbook/ru/model.dao
+ * @todo для всех сложных значений добавить типизированные коллекции: 
+ *       @see http://yiiframework.ru/doc/cookbook/ru/model.dao
  */
 class Questionary extends CActiveRecord
 {
@@ -1311,6 +1312,30 @@ class Questionary extends CActiveRecord
         }
         return $user;
     }
+    
+    /////////////////////////////////////////
+    // Именованные группы условий (scopes) //
+    /////////////////////////////////////////
+    
+    /**
+     * Получить все анкеты, созданные пользователем или объектом системы (именованная группа условий)
+     * @param string $objectType - тип объекта в таблице q_creation_history (user/vacancy/...)
+     * @param int $objectId
+     * @return Questionary
+     */
+    public function createdBy($objectType, $objectId)
+    {
+        $criteria = new CDbCriteria();
+        $criteria->with = 'creationHistory';
+        // together Необходимо для корректного выполнения реляционного запроса
+        $criteria->together = true;
+        $criteria->compare('`creationHistory`.`objecttype`', $objectType);
+        $criteria->compare('`creationHistory`.`objectid`', $objectId);
+         
+        $this->getDbCriteria()->mergeWith($criteria);
+        return $this;
+    }
+    
     
     /////////////////////////////////////////////////
     // Сохранение и получение сложных полей анкеты //

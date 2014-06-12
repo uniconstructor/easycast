@@ -16,13 +16,13 @@ class QScalarRules extends CActiveRecordBehavior
     {
         return array(
             array('userid, isactor, isamateuractor, hasfilms, isemcee, istvshowmen,
-                        isstatist, ismassactor
+                        isstatist, ismassactor,
                         isparodist, istwin, ismodel, isphotomodel, ispromomodel, isdancer,
                         hasawards, isstripper, issinger,
                         ismusician, issportsman, isextremal, isathlete, hasskills, hastricks,
                         haslanuages, hasinshurancecard, countryid, nativecountryid,
                         shoessize, rating, hastatoo, playagemin, playagemax, 
-                        istheatreactor, ismediaactor, ownerid, currentcountryid',
+                        istheatreactor, ismediaactor, ownerid, currentcountryid, visible',
                 'numerical', 'integerOnly' => true),
             
             array('firstname, lastname, middlename, city, inshurancecardnum', 'length', 'max' => 128),

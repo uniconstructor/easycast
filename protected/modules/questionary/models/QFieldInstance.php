@@ -46,6 +46,8 @@ class QFieldInstance extends CActiveRecord
 			array('objecttype', 'required'),
 			array('fieldid, objectid, timecreated, timemodified', 'length', 'max' => 11),
 			array('objecttype, filling, condition', 'length', 'max' => 50),
+			array('newlabel', 'length', 'max' => 255),
+			array('newdescription', 'length', 'max' => 2047),
 			array('data', 'length', 'max' => 1023),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.

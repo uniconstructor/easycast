@@ -253,7 +253,6 @@ class ExtraField extends CActiveRecord
 	    return $value->value;
 	}
 	
-	
 	/**
 	 * Определить, прикреплено ли дополнительное поле к объекту
 	 * @param string $objectType

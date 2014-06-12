@@ -43,6 +43,7 @@ class ExtraFieldInstance extends CActiveRecord
 		    
 			array('fieldid, objectid, timecreated, timemodified', 'length', 'max' => 11),
 		    
+			array('default', 'length', 'max' => 255),
 			array('data', 'length', 'max' => 1023),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
