@@ -310,13 +310,17 @@ class CatalogSection extends CActiveRecord
 	
 	    if ( ! $this->scope )
 	    {// условие для этой вакансии еще не создано - исправим это
-	        $this->initObjectScope();
+	        $this->initObjectScope($newData);
 	    }
 	
 	    // сохраняем новые данные из формы поиска в вакансию
 	    $this->searchdata = $newDataSerialized;
 	    $this->save();
 	     
+	    if ( ! $this->scope )
+	    {
+	        return;
+	    }
 	    // обновим составленный критерий поиска (ScopeCondition)
 	    // (для вакансии он всегда только один в наборе (SearchScope) и всегда является сериализованным массивом)
 	    $conditions = $this->scope->scopeConditions;
@@ -344,7 +348,7 @@ class CatalogSection extends CActiveRecord
 	 * @todo предусмотреть возможность отключать изначальное содержание CDbCriteria
 	 * @todo если понадобится - сделать настройку "добавлять/не добавлять префикс 't' к полю status"
 	 */
-	protected function initObjectScope($saveData=false)
+	protected function initObjectScope($newData, $saveData=false)
 	{
 	    // получаем все возможные фильтры поиска
 	    $filters = CatalogModule::getFullFilterKit();
@@ -368,7 +372,7 @@ class CatalogSection extends CActiveRecord
 	     
 	    // сохраняем ссылку на поисковый критерий и данные формы поиска
 	    $this->scopeid    = $scope->id;
-	    $this->searchdata = serialize($searchData);
+	    $this->searchdata = serialize($newData);
 	     
 	    if ( $saveData )
 	    {// нужно сохранить модель после инициализации поисковых критериев
@@ -377,5 +381,77 @@ class CatalogSection extends CActiveRecord
 	    {// модель сохранять не нужно - это произойдет само автоматически
 	        return true;
 	    }
+	}
+	
+	/**
+	 * Создать условие поиска (CDbCriteria) по данным из фильтров, прикрепленных к вакансии (роли)
+	 * По этому условию определяется, подходит участник на вакансию или нет
+	 * Условие никогда не создается полностью пустым - изначально в него всегда добавляется правило
+	 * "искать только анкеты в активном статусе" и другие критерии, в зависимости от данных создаваемой роли
+	 *
+	 * @param array $data - данные из поисковых фильтров (формы поиска)
+	 * @return CDbCriteria
+	 *
+	 * @todo предусмотреть возможность отключать изначальное содержание CDbCriteria
+	 * @todo если понадобится - сделать настройку "добавлять/не добавлять префикс 't' к полю status"
+	 */
+	protected function createSearchCriteria($data)
+	{
+	    // указываем путь к классу, который занимается сборкой поискового запроса из отдельных частей
+	    $pathToAssembler = 'catalog.extensions.search.handlers.QSearchCriteriaAssembler';
+	    // создаем основу для критерия выборки
+	    //$startCriteria = $this->createStartCriteria();
+	    $startCriteria = new CDbCriteria();
+	     
+	    // Указываем параметры для сборки поискового запроса по анкетам
+	    $config = array(
+	        'class'           => $pathToAssembler,
+	        'data'            => $data,
+	        //'startCriteria'   => $startCriteria,
+	    );
+	    if ( $this->isNewRecord )
+	    {// вакансия создается, она пока еще не сохранена в БД, поэтому
+	        // фильтры к ней еще не добавлены, и сохранять критерий тоже некуда - зададим все руками
+	        $config['filters']  = $this->getDefaultFilters();
+	        $config['saveData'] = false;
+	    }else
+	    {// вакансия редактируется - обновляем критерий выборки
+	        //$config['filters'] = $this->searchFilters;
+	        $config['filters'] = $this->getDefaultFilters();
+	        $config['saveTo']  = 'db';
+	    }
+	     
+	    // создаем компонет-сборщик запроса. Он соберет CDbCriteria из отдельных данных формы поиска
+	    /* @var $assembler QSearchCriteriaAssembler */
+	    $assembler = Yii::createComponent($config);
+	    $assembler->init();
+	    if ( ! $finalCriteria = $assembler->getCriteria() )
+	    {// ни один фильтр поиска не был использован - возвращаем исходные условия
+	        return $startCriteria;
+	    }
+	    return $finalCriteria;
+	}
+	
+	/**
+	 * Получить условия выборки подходящих анкет для этой вакансии
+	 * @return CDbCriteria
+	 */
+	public function getSearchCriteria()
+	{
+	    if ( $this->isNewRecord )
+	    {// условие еще не создано
+	        return false;
+	    }
+	    return $this->createSearchCriteria($this->getSearchData());
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @return void
+	 */
+	protected function getDefaultFilters()
+	{
+	    return CatalogModule::getFullFilterKit();
 	}
 }
