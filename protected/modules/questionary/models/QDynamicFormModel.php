@@ -557,27 +557,27 @@ class QDynamicFormModel extends CFormModel
             'city'        => array(array('city', 'length', 'max' => 128)),
             'mobilephone' => array(
                 array('mobilephone', 'length', 'max' => 32),
-                array('mobilephone', 'LPNValidator',
+                /*array('mobilephone', 'LPNValidator',
                     'defaultCountry' => 'RU',
                     'message'        => 'Неправильно указан номер телефона',
                     'emptyMessage'   => 'Не указан номер телефона',
-                ),
+                ),*/
             ),
             'homephone' => array(
                 array('homephone', 'length', 'max' => 32),
-                array('homephone', 'LPNValidator',
+                /*array('homephone', 'LPNValidator',
                     'defaultCountry' => 'RU',
                     'message'        => 'Неправильно указан номер телефона',
                     'emptyMessage'   => 'Не указан номер телефона',
-                ),
+                ),*/
             ),
             'addphone' => array(
                 array('addphone', 'length', 'max' => 32),
-                array('addphone', 'LPNValidator',
+                /*array('addphone', 'LPNValidator',
                     'defaultCountry' => 'RU',
                     'message'        => 'Неправильно указан номер телефона',
                     'emptyMessage'   => 'Не указан номер телефона',
-                ),
+                ),*/
             ),
             'email' => array(
                 array('email', 'email'),

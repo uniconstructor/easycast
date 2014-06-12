@@ -17,7 +17,7 @@
         'clientOptions' => array(
             'validateOnSubmit' => true,
             'validateOnChange' => false,
-            'beforeValidate'   => "js:function(form){
+            /*'beforeValidate'   => "js:function(form){
                 $('#dynamic-registration-submit_{$this->vacancy->id}').prop('disabled', 'disabled');
                 $('#dynamic-registration-submit_{$this->vacancy->id}').removeClass('btn-success');
                 $('#dynamic-registration-submit_{$this->vacancy->id}').addClass('btn-disabled');
@@ -32,7 +32,7 @@
                 $('#dynamic-registration-submit_{$this->vacancy->id}').text('Отправить');
                 
                 return ! hasError;
-            }",
+            }",*/
         ),
     ));
     // выводим специальный скрытый элемент, который каждую минуту посылает запрос на сайт, чтобы при длительном
