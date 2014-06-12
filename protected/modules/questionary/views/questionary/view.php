@@ -50,7 +50,8 @@ if ( $canEdit )
         Yii::app()->createUrl('//questionary/questionary/update', array('id' => $questionary->id)),
         array('class' => 'btn btn-warning btn-large'));
 }
-
+// выводим оповещения
+$this->widget('bootstrap.widgets.TbAlert');
 ?>
 <div class="row-fluid">
     <div id="order_message" 
