@@ -68,7 +68,8 @@ class QSearchHandlerBase extends CComponent
         {
             return null;
         }
-        $this->saveFilterData();
+        // @todo удалить при рефакторинге
+        //$this->saveFilterData();
         return $this->createCriteria();
     }
     
