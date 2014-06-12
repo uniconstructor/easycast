@@ -186,7 +186,7 @@ class ExtraFieldInstance extends CActiveRecord
 			'filling' => 'Обязательно к заполнению?',
 			'condition' => 'Condition',
 			'data' => 'Изначальное значение',
-			'default' => 'Чем по умолчанию заполнить ранее поданые заявки?',
+			'default' => 'Чем заполнить ранее поданые заявки?',
 			'timecreated' => 'Timecreated',
 			'timemodified' => 'Timemodified',
 		);
