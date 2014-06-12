@@ -28,4 +28,23 @@ class QSearchHandlerSections extends QSearchHandlerBase
     
         return $criteria;
     }
+    
+    /**
+     * @see QSearchHandlerBase::getFilterData()
+     */
+    protected function getFilterData()
+    {
+        // Получаем имя элемента в массиве, в котором должны находится данные из фильтра поиска
+        $name = QSearchFilterBase::defaultPrefix().'sections';
+        if ( isset($this->data[$name]) AND ! empty($this->data[$name]) )
+        {// Данные фильтра есть в массиве - значит он используется
+            return $this->data[$name];
+        }
+        $name = QSearchFilterBase::defaultPrefix().'iconlist';
+        if ( isset($this->data[$name]) AND ! empty($this->data[$name]) )
+        {// Данные фильтра есть в массиве - значит он используется
+            return $this->data[$name];
+        }
+        return null;
+    }
 }
