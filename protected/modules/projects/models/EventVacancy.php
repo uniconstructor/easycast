@@ -136,6 +136,7 @@ class EventVacancy extends CActiveRecord
 	        'system',
 	        'email',
 	        'iconlist',
+	        'status',
 	    );
 	}
 	
@@ -152,9 +153,9 @@ class EventVacancy extends CActiveRecord
 	        'email',
 	        'firstname',
 	        'lastname',
-	        'mobilephone',
 	        'gender',
 	        'birthdate',
+	        'mobilephone',
 	        'photo',
 	        'policyagreed',
 	    );
@@ -186,6 +187,11 @@ class EventVacancy extends CActiveRecord
 	    {
 	        $this->scope->delete();
 	    }
+	    // @todo удаляем все связи обязательных и дополнительных полей с этой ролью (но не значения доп. полей)
+        /*foreach ( $this->userFields as $field )
+        {
+            QFieldInstance::model()->forField($field->id)->attachedTo('vacancy', $this->id)->deleteAll();
+        }*/
 	    
 	    return parent::beforeDelete();
 	}
@@ -218,11 +224,6 @@ class EventVacancy extends CActiveRecord
 	 */
 	protected function beforeSave()
 	{
-	    if ( $this->isNewRecord OR ! $this->scopeid )
-	    {// условия для выборки анкет для вакансии еще не созданы - создадим условия по умолчанию
-	        $this->initVacancyScope();
-	    }
-	    
 	    return parent::beforeSave();
 	}
 	
@@ -231,11 +232,19 @@ class EventVacancy extends CActiveRecord
 	 */
 	protected function afterSave()
 	{
+	    if ( $this->isNewRecord )
+	    {// для каждой роли при создании задается обязательный минимум заполняемых при регистрации полей
+	        // который потом можно изменить
+	        $this->attachRequiredFields();
+	    }
 	    if ( ! $this->filterinstances )
 	    {// к вакансии не прикреплен ни один фильтр - прикрепляем все которые по умолчанию
 	        $this->attachDefaultFilters();
 	    }
-	    
+	    if ( ! $this->isNewRecord AND ! $this->scopeid )
+	    {// условия для выборки анкет для вакансии еще не созданы - создадим условия по умолчанию
+	        $this->initVacancyScope();
+	    }
 	    parent::afterSave();
 	}
 	
@@ -772,17 +781,18 @@ class EventVacancy extends CActiveRecord
 	        $config['saveData'] = false;
 	    }else
 	    {// вакансия редактируется - обновляем критерий выборки
-	        $config['filterInstances'] = $this->filterinstances;
-	        $config['saveTo']          = 'db';
+	        $config['filters'] = $this->searchFilters;
+	        $config['saveTo']  = 'db';
 	    }
 	    
 	    // создаем компонет-сборщик запроса. Он соберет CDbCriteria из отдельных данных формы поиска 
+	    /* @var $assembler QSearchCriteriaAssembler */
 	    $assembler = Yii::createComponent($config);
+	    $assembler->init();
 	    if ( ! $finalCriteria = $assembler->getCriteria() )
 	    {// ни один фильтр поиска не был использован - возвращаем исходные условия
 	        return $startCriteria;
 	    }
-	    
 	    return $finalCriteria;
 	}
 	
@@ -792,11 +802,11 @@ class EventVacancy extends CActiveRecord
 	 */
 	public function getSearchCriteria()
 	{
-	    if ( $this->isNewRecord OR ! $this->scope )
+	    if ( $this->isNewRecord )
 	    {// условие еще не создано
 	        return false;
 	    }
-	    return $this->scope->getCombinedCriteria();
+	    return $this->createSearchCriteria($this->getSearchData());
 	}
 	
 	/**
