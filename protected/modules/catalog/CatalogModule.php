@@ -135,7 +135,6 @@ class CatalogModule extends CWebModule
 	    {// ни один фильтр поиска не был использован - возвращаем исходные условия
 	        return $startCriteria;
 	    }
-	     
 	    return $finalCriteria;
 	}
 	
