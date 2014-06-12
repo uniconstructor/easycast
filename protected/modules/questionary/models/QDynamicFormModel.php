@@ -918,10 +918,7 @@ class QDynamicFormModel extends CFormModel
         $request = new MemberRequest();
         $request->vacancyid = $this->vacancy->id;
         $request->memberid  = $questionary->id;
-        if ( ! $request->save() )
-        {
-            throw new CException('Не удалось подать заявку на роль');
-        }
+        $request->save();
     }
     
     /**
