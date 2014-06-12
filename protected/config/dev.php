@@ -15,14 +15,23 @@ return CMap::mergeArray(
                     'ext.simpleWorkflow.command.gii',
                 ),
             ),
-            /*'log' => array(
+            'log' => array(
                 'routes' => array(
                     array(
                         'class'     => 'ext.yii-debug-toolbar.YiiDebugToolbarRoute',
                         'ipFilters' => array('127.0.0.1'),
                     ),
+                    array(
+                        'class'              => 'CDbLogRoute',
+                        // @todo хранить логи отдельно ото всех остальных данных для лучшей безопасности
+                        'connectionID'       => 'db',
+                        'levels'             => 'error, warning',
+                        // не храним логи о 404 страницах - и логи simpleWorkflow
+                        'except'             => 'CHttpException.404, simpleWorkflow',
+                        'autoCreateLogTable' => false,
+                    ),
                 ),
-            ),*/
+            ),
             // бонус: мой маленький робот для торговли на бирже :)
             // Он вообще к сайту никак не относится, просто воткнуть его сюда было быстрее чем
             // создавать новый проект :)
@@ -95,7 +104,7 @@ return CMap::mergeArray(
             'AWSEmailQueueName' => 'test_easycast_mail',
             
             // Для отладки: отсылать ли вообще хоть какие-нибудь сообщения, даже на тестовые адреса?
-            'AWSSendMessages' => false,
+            'AWSSendMessages' => true,
             
             // использовать ли прокси сервера google для отображения картинок в письмах
             // (должно быть включено на production и выключено на машине разработчика)
