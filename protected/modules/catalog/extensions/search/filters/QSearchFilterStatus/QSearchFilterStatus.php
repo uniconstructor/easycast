@@ -57,10 +57,10 @@ class QSearchFilterStatus extends QSearchFilterBaseSelect2
     protected function getMenuVariants()
     {
         return array(
-            Questionary::STATUS_DRAFT => QuestionaryModule::t('status_'.Questionary::STATUS_DRAFT),
+            //Questionary::STATUS_DRAFT => QuestionaryModule::t('status_'.Questionary::STATUS_DRAFT),
             Questionary::STATUS_ACTIVE => QuestionaryModule::t('status_'.Questionary::STATUS_ACTIVE),
             Questionary::STATUS_PENDING => QuestionaryModule::t('status_'.Questionary::STATUS_PENDING),
-            Questionary::STATUS_DELAYED => QuestionaryModule::t('status_'.Questionary::STATUS_DELAYED),
+            //Questionary::STATUS_DELAYED => QuestionaryModule::t('status_'.Questionary::STATUS_DELAYED),
             Questionary::STATUS_REJECTED => QuestionaryModule::t('status_'.Questionary::STATUS_REJECTED),
         );
     }
