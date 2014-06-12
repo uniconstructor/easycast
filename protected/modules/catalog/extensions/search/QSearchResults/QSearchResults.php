@@ -174,7 +174,8 @@ class QSearchResults extends CWidget
         }else
         {// все данные есть, получаем результаты поиска
             // @todo переместить статус и сортировку в фильтры поиска
-            $criteria->compare('status', 'active');
+            //$criteria->compare('status', 'active');
+            $criteria->addCondition("`t`.`status` NOT IN ('delayed', 'draft', 'unconfirmed')");
             $criteria->order = '`rating` DESC';
             
             $emptyText = $this->getAjaxMessage('noRecords');
