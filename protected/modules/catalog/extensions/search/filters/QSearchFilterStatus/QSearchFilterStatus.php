@@ -7,6 +7,14 @@
 class QSearchFilterStatus extends QSearchFilterBaseSelect2
 {
     /**
+     * @var неудаляемые опции списка (чтобы список статусов никогда не был пустым)
+     */
+    //public $lockedOptions = array(Questionary::STATUS_ACTIVE);
+    /**
+     * @var unknown
+     */
+    //public $allowClear = false;
+    /**
      * @var array - список имен input-полей, которые содержатся в фрагменте формы
      */
     protected $elements = array('status');
@@ -14,7 +22,15 @@ class QSearchFilterStatus extends QSearchFilterBaseSelect2
     /**
      * @see QSearchFilterBase::enabled()
      */
-    public function enabled()
+    /*public function enabled()
+    {
+        return true;
+    }*/
+    
+    /**
+     * @see QSearchFilterBase::visible()
+     */
+    public function visible()
     {
         return Yii::app()->user->checkAccess('Admin');
     }
@@ -24,8 +40,16 @@ class QSearchFilterStatus extends QSearchFilterBaseSelect2
     */
     protected function getTitle()
     {
-        return "Статус";
+        return "Статусы анкет";
     }
+    
+    /**
+     * @see QSearchFilterBase::getFullTitle()
+     */
+    /*protected function getFullTitle()
+    {
+        return '<h5 id="'.$this->titleId.'" class="'.$this->getTitleClass().'">'.$this->getTitle().'</h5>';
+    }*/
     
     /**
      * @see QSearchFilterBaseSelect2::getMenuVariants()
@@ -44,7 +68,7 @@ class QSearchFilterStatus extends QSearchFilterBaseSelect2
     /**
      * @see QSearchFilterBaseSelect2::createSelectVariants()
      */
-    protected function createSelectVariants()
+    /*protected function createSelectVariants()
     {
         $options  = array();
         $selected = array();
@@ -58,20 +82,27 @@ class QSearchFilterStatus extends QSearchFilterBaseSelect2
         }else
         {// по статусу не может не быть фильтра - поэтому если значение не установлено - запишем хоть
             // какие-то значения
-            $selected = array(Questionary::STATUS_ACTIVE, Questionary::STATUS_PENDING, Questionary::STATUS_REJECTED);
+            $selected = array(Questionary::STATUS_ACTIVE);
+            //, Questionary::STATUS_PENDING, Questionary::STATUS_REJECTED);
         }
     
         // создаем массив пунктов для выпадающего меню, и устанавливаем значения по умолчанию
-        foreach ( $variants as $value=>$label )
+        foreach ( $variants as $value => $label )
         {
             $option = array();
+            //$option['id']    = $value;
             $option['label'] = $label;
+            //$option['text']  = $label;
             if ( in_array($value, $selected) )
             {
                 $option['selected'] = 'selected';
             }
+            if ( in_array($value, $this->lockedOptions) )
+            {
+                $option['locked'] = true;
+            }
             $options[$value] = $option;
         }
         return $options;
-    }
+    }*/
 }

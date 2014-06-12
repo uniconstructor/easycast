@@ -71,6 +71,14 @@ class QSearchFilterIconList extends QSearchFilterBase
     }
     
     /**
+     * @see QSearchFilterBase::enabled()
+     */
+    public function enabled()
+    {
+        return ($this->display === 'form');
+    }
+    
+    /**
      * @see QSearchFilterBase::getTitle()
     */
     protected function getTitle()

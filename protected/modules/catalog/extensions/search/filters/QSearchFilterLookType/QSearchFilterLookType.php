@@ -11,7 +11,6 @@ class QSearchFilterLookType extends QSearchFilterBaseSelect2
     protected $elements = array('looktype');
     
     /**
-     * (non-PHPdoc)
      * @see QSearchFilterBase::getTitle()
      */
     protected function getTitle()

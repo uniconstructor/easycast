@@ -137,7 +137,7 @@ class QSearchFilterBaseSelect2 extends QSearchFilterBase
         }
     
         // создаем массив пунктов для выпадающего меню, и устанавливаем значения по умолчанию
-        foreach ( $variants as $value=>$label )
+        foreach ( $variants as $value => $label )
         {
             $option = array();
             $option['label'] = $label;
