@@ -13,6 +13,7 @@
  * @property string $data
  * @property string $timecreated
  * @property string $timemodified
+ * @property string $default
  * 
  * Relations:
  * @property ExtraField $fieldObject
@@ -101,6 +102,27 @@ class ExtraFieldInstance extends CActiveRecord
 	    return parent::beforeSave();
 	}
 	
+	public function afterSave()
+	{
+	    if ( $this->isNewRecord )
+	    {
+	        if ( $this->objecttype === 'vacancy' AND
+	             $members = ProjectMember::model()->forVacancy($this->objectid)->findAll() )
+	        {// если новое поле прикрепляется к роли - установим всем ранее подавшим заявку
+	            // участникам значения по умолчанию
+	            foreach ( $members as $member )
+	            {
+	                $value = new ExtraFieldValue();
+	                $value->instanceid    = $this->id;
+	                $value->questionaryid = $member->questionary->id;
+	                $value->value         = $this->default;
+	                $value->save();
+	            }
+	        }
+	    }
+	    parent::afterSave();
+	}
+	
 	/**
 	 * Именованая группа условий: получить все записи о доп. полях, привязанных к определенному объекту
 	 * (например к роли)
@@ -164,6 +186,7 @@ class ExtraFieldInstance extends CActiveRecord
 			'filling' => 'Обязательно к заполнению?',
 			'condition' => 'Condition',
 			'data' => 'Изначальное значение',
+			'default' => 'Чем по умолчанию заполнить ранее поданые заявки?',
 			'timecreated' => 'Timecreated',
 			'timemodified' => 'Timemodified',
 		);
@@ -255,5 +278,17 @@ class ExtraFieldInstance extends CActiveRecord
 	    {
 	        return 'Нет';
 	    }
+	}
+	
+	/**
+	 * 
+	 * @return string
+	 */
+	public function getFillingModes()
+	{
+	    return array(
+	        'required'    => 'Да',
+	        'recommended' => 'Нет',
+	    );
 	}
 }

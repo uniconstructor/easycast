@@ -9,6 +9,7 @@ Yii::import('ext.EditableGrid.EditableGrid');
  * 
  * @todo добавить возможность менять выбранное поле по AJAX
  * @todo добавить разбивку по категориям в select-списке полей
+ * @todo добавить возможность переопределять название и описание поля
  */
 class EditRequiredFields extends EditableGrid
 {

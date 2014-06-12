@@ -71,6 +71,7 @@ class EditExtraFieldInstances extends EditableGrid
     public $emptyTextVariants = array(
         'fieldid' => '[не указано]',
         'filling' => '[не указано]',
+        //'default' => '[не указано]',
     );
     /**
      * @var string - id модуля, который хранит клипы с modal-формами
@@ -133,11 +134,7 @@ class EditExtraFieldInstances extends EditableGrid
                 'value' => '$data->name;',
             ),
             // обязательное поле (да/нет)
-            //$this->getToggleColumnOptions('filling', '//questionary/qTheatreInstance/toggle'),
-            array(
-                'name'  => 'filling',
-                'value' => '$data->getFillingMode();',
-            ),
+            $this->getStaticSelect2ColumnOptions('filling', ExtraFieldInstance::model()->getFillingModes(), 'fillingMode'),
         );
     }
     

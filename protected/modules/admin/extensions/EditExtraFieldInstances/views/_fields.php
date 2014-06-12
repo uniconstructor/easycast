@@ -32,3 +32,8 @@ echo $form->widgetRow('ext.ECMarkup.ECToggleInput.ECToggleInput',
         'hint' => 'При выборе "да" нельзя будет подать заявку без заполнения этого поля',
     )
 );
+// значение по умолчанию
+echo $form->textFieldRow($model, 'default', array(), array(
+    'hint' => 'Это значение установится всем ранее подавшим заявку участникам если они
+        подали заявку до того как поле было добавлено',
+));
