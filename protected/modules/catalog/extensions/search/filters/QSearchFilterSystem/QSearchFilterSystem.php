@@ -102,8 +102,8 @@ class QSearchFilterSystem extends QSearchFilterBaseSelect2
     {
         return "function {$this->isEmptyJsName}() {
             var data  = {$this->collectDataJsName}();
-            //var value = $('#{$this->s2Selector}').select2('val');
-            if ( Object.keys(data).length < 2 )
+            var value = $('#{$this->s2Selector}').select2('val');
+            if ( ! value )
             {
                 return true;
             }
@@ -145,5 +145,22 @@ class QSearchFilterSystem extends QSearchFilterBaseSelect2
             'istheatreactor' => 'Актер театра',
             'ismediaactor' => 'Медийный актер',
         );
+    }
+    
+    /**
+     * Сворачивать ли фрагмент условия при загрузке формы?
+     * (Не сворачиваются только те фрагменты, в которых пользователь ранее указал данные,
+     * которые запомнились в сессию)
+     *
+     * @return null
+     */
+    protected function collapsedAtStart()
+    {
+        $data = $this->loadLastSearchParams();
+        if ( ! isset($data['system']) OR empty($data['system']) )
+        {// значений по умолчанию нет - сворачиваем фрпагмент формы
+            return true;
+        }
+        return false;
     }
 }
