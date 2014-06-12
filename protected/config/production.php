@@ -54,11 +54,12 @@ return CMap::mergeArray(
                 'class'  => 'CLogRouter',
                 'routes' => array(
                     array(
-                        'class' => 'CDbLogRoute',
+                        'class'              => 'CDbLogRoute',
                         // @todo хранить логи отдельно ото всех остальных данных для лучшей безопасности
                         'connectionID'       => 'db',
+                        'levels'             => 'error, warning',
                         // не храним логи о 404 страницах - и логи simpleWorkflow
-                        'except'             => array('CHttpException.404', 'simpleWorkflow'),
+                        'except'             => 'exception.CHttpException.404, simpleWorkflow',
                         'autoCreateLogTable' => false,
                     ),
                 ),
@@ -94,6 +95,9 @@ return CMap::mergeArray(
             // использовать ли прокси сервера google для отображения картинок в письмах
             // (должно быть включено на production и выключено на машине разработчика)
             'useGoogleImageProxy' => true,
+            
+            // cron: на production-системе обязательно включен
+            'useCron' => true,
         ),
     )
 );
