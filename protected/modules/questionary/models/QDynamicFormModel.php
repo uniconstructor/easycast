@@ -570,7 +570,6 @@ class QDynamicFormModel extends CFormModel
                     'message'        => 'Неправильно указан номер телефона',
                     'emptyMessage'   => 'Не указан номер телефона',
                 ),
-                
             ),
             'addphone' => array(
                 array('addphone', 'length', 'max' => 32),
@@ -817,16 +816,16 @@ class QDynamicFormModel extends CFormModel
             {
                 throw new CException('Не удалось создать пользователя');
             }
-            // @todo дописать сеттеры
-            unset($this->userFields['email']);
-            unset($this->userFields['policyagreed']);
-            // @todo переименовать в galleryid
-            unset($this->userFields['photo']);
         }else
         {// берем пользователя из анкеты, если запись на роль производится администратором
             // или заявку подает уже зарегистрированый участник
             $user = $this->questionary->user;
         }
+        // @todo дописать сеттеры
+        unset($this->userFields['email']);
+        unset($this->userFields['policyagreed']);
+        // @todo переименовать в galleryid
+        unset($this->userFields['photo']);
         
         // заполняем и сохраняем анкету
         $this->saveQuestionary($user->questionary);
