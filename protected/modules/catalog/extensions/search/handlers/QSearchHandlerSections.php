@@ -23,7 +23,14 @@ class QSearchHandlerSections extends QSearchHandlerBase
             {// @todo записать ошибку в лог
                 continue;
             }
-            $criteria = $section->scope->getCombinedCriteria($criteria, 'OR');
+            if ( $section->searchdata )
+            {// берем условия поиска из данных формы
+                $criteria->mergeWith($section->getSearchCriteria(), 'OR');
+            }else
+            {// @todo плагин SearchScopes больше не используем - оставлено для совместимости
+                // @deprecated удалить при рефакторинге
+                $criteria = $section->scope->getCombinedCriteria($criteria, 'OR');
+            }
         }
     
         return $criteria;
