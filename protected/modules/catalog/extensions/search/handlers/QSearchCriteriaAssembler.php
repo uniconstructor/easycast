@@ -262,7 +262,7 @@ class QSearchCriteriaAssembler extends CApplicationComponent
             if ( ! $this->searchObject->scope )
             {// на тот редкий случай когда критериев поиска в прикрепленном объекте вообще нет
                 $this->startCriteria = new CDbCriteria();
-                $this->startCriteria->addCondition("`t`.`status` NOT IN ('delayed', 'draft', 'unconfirmed')");;
+                $this->startCriteria->addCondition("`t`.`status` NOT IN ('delayed', 'draft', 'unconfirmed')");
             }else
             {
                 $this->startCriteria = $this->searchObject->scope->getCombinedCriteria();
