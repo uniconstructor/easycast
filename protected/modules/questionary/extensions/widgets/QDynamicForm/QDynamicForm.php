@@ -79,6 +79,7 @@ class QDynamicForm extends CWidget
      * @var array - список типов полей формы для которых есть заранее определенная разметка
      */
     protected $defaultTemplates = array(
+        'checkbox',
         'country',
         'date',
         'phone',
@@ -223,6 +224,7 @@ class QDynamicForm extends CWidget
         {
             case 'text':     return $form->textFieldRow($model, $fieldName, $htmlOptions, $rowOptions);
             case 'textarea': return $form->textAreaRow($model, $fieldName, $htmlOptions, $rowOptions);
+            case 'checkbox': return $form->checkBoxRow($model, $fieldName, $htmlOptions, $rowOptions);
             default: throw new CException('Неизвестный тип дополнительного поля');
         }
     }
