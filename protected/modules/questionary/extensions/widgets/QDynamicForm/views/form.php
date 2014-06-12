@@ -34,7 +34,12 @@
                 return ! hasError;
             }",
         ),
-        
+    ));
+    // выводим специальный скрытый элемент, который каждую минуту посылает запрос на сайт, чтобы при длительном
+    // заполнении анкеты не произошла потеря сессии и все данные не пропали
+    $this->widget('ext.EHiddenKeepAlive.EHiddenKeepAlive', array(
+        'url'    => Yii::app()->createAbsoluteUrl('//site/keepAlive'),
+        'period' => 45,
     ));
     ?>
     <p class="note muted" style="text-align:center;">
