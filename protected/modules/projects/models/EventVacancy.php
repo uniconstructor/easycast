@@ -414,9 +414,18 @@ class EventVacancy extends CActiveRecord
 	 */
 	protected function isInvited($questionaryId, $eventId)
 	{
-	    $condition = '`eventid` = :eventid AND `questionaryid` = :userid';
-	    $params = array(':eventid' => $eventId, ':userid' => $questionaryId);
-	    return EventInvite::model()->exists($condition, $params);
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('eventid', $eventId);
+	    $criteria->compare('questionaryid', $questionaryId);
+	    if ( EventInvite::model()->exists($criteria) )
+	    {// приглашение на это мкроприятие уже отправлено
+	        return true;
+	    }
+	    if ( $this->hasApplication($questionaryId) )
+	    {// записан на роль админом когда она была еще черновиком
+	        return true;
+	    }
+	    return false;
 	}
 	
 	/**
