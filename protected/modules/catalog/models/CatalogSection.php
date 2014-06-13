@@ -316,7 +316,7 @@ class CatalogSection extends CActiveRecord
 	    // сохраняем новые данные из формы поиска в вакансию
 	    $this->searchdata = $newDataSerialized;
 	    $this->save();
-	     
+	    
 	    if ( ! $this->scope )
 	    {
 	        return;
@@ -399,15 +399,12 @@ class CatalogSection extends CActiveRecord
 	{
 	    // указываем путь к классу, который занимается сборкой поискового запроса из отдельных частей
 	    $pathToAssembler = 'catalog.extensions.search.handlers.QSearchCriteriaAssembler';
-	    // создаем основу для критерия выборки
-	    //$startCriteria = $this->createStartCriteria();
 	    $startCriteria = new CDbCriteria();
 	     
 	    // Указываем параметры для сборки поискового запроса по анкетам
 	    $config = array(
 	        'class'           => $pathToAssembler,
 	        'data'            => $data,
-	        //'startCriteria'   => $startCriteria,
 	    );
 	    if ( $this->isNewRecord )
 	    {// вакансия создается, она пока еще не сохранена в БД, поэтому
@@ -425,11 +422,12 @@ class CatalogSection extends CActiveRecord
 	    /* @var $assembler QSearchCriteriaAssembler */
 	    $assembler = Yii::createComponent($config);
 	    $assembler->init();
-	    if ( ! $finalCriteria = $assembler->getCriteria() )
+	    
+	    if ( $finalCriteria = $assembler->getCriteria() )
 	    {// ни один фильтр поиска не был использован - возвращаем исходные условия
-	        return $startCriteria;
+	        return $finalCriteria;
 	    }
-	    return $finalCriteria;
+	    return $startCriteria;
 	}
 	
 	/**
@@ -446,10 +444,9 @@ class CatalogSection extends CActiveRecord
 	}
 	
 	/**
-	 * 
-	 * 
-	 * @return void
-	 */
+     * Получить список фильтров, которые привязываются к записи сразу же после создания
+     * @return CatalogFilter[]
+     */
 	protected function getDefaultFilters()
 	{
 	    return CatalogModule::getFullFilterKit();
