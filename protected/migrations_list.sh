@@ -1,8 +1,6 @@
 #!/bin/bash
 # Список всех миграций EasyCast
 
-# Главное меню
-php $EASYCAST_PROTECTED/yiic migrate --migrationPath=application.extensions.ECMarkup.ECMainMenu.migrations
 # Условия поиска
 php $EASYCAST_PROTECTED/yiic migrate --migrationPath=application.extensions.ESearchScopes.migrations
 # Галерея
