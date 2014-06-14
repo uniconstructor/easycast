@@ -9,11 +9,9 @@
  * @property string $scopeid
  * @property string $name
  * @property string $shortname
- * @property string $lang
  * @property string $galleryid
  * @property string $content
  * @property string $order
- * @property string $count
  * @property integer $visible
  * 
  * Relations:
@@ -22,8 +20,6 @@
  * @property CatalogTab[] $tabs - прикрепленные вкладки
  * @property CatalogFilter[] $searchFilters
  * @property CatalogTabInstance[] $tabInstances
- * 
- * @todo написать миграцию, удаляющую старые фрагменты критериев поиска (для условий типа field, sort и т. д.)
  */
 class CatalogSection extends CActiveRecord
 {
@@ -59,11 +55,7 @@ class CatalogSection extends CActiveRecord
 	 */
 	public function beforeSave()
 	{
-	    if ( ! $this->content )
-	    {
-	        $this->content = 'users';
-	    }
-	    return true;
+	    return parent::beforeSave();
 	}
 	
 	/**
@@ -103,16 +95,16 @@ class CatalogSection extends CActiveRecord
 	public function rules()
 	{
 		return array(
-			array('name, shortname', 'required'),
-			array('visible', 'numerical', 'integerOnly'=>true),
-			array('parentid, scopeid, galleryid, count', 'length', 'max'=>11),
-			array('name, shortname', 'length', 'max'=>255),
-			array('searchdata', 'length', 'max'=>4095),
-			array('lang', 'length', 'max'=>5),
-			array('content', 'length', 'max'=>8),
-			array('order', 'length', 'max'=>6),
+			array('name', 'required'),
+			array('visible', 'numerical', 'integerOnly' => true),
+			array('parentid, scopeid, galleryid, categoryid', 'length', 'max' => 11),
+			array('name, shortname', 'length', 'max' => 255),
+			array('searchdata', 'length', 'max' => 4095),
+			array('content', 'length', 'max' => 50),
+			array('order', 'length', 'max' => 6),
+		    
 			// The following rule is used by search().
-			array('id, parentid, scopeid, name, shortname, lang, galleryid, content, order, count, visible', 'safe', 'on'=>'search'),
+			array('id, parentid, scopeid, name, shortname, galleryid, content, order, visible', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -125,6 +117,7 @@ class CatalogSection extends CActiveRecord
 	{
 		return array(
 		    // Условия выборки анкет в раздел
+		    // @deprecated не используется, оставлено для совместимости
 		    'scope'     => array(self::BELONGS_TO, 'SearchScope', 'scopeid'),
 		    // Родительский раздел
 		    'parent'    => array(self::BELONGS_TO, 'CatalogSection', 'parentid'),
@@ -139,8 +132,7 @@ class CatalogSection extends CActiveRecord
 		    
 		    // ссылки на вкладки в разделе
 		    // эта связь используется при обновлении набора вкладок в разделе
-		    // @todo удалить  instances при рефакторинге, оставить только  tabInstances
-		    // @todo заменить все старые обращения к этой связи обращением к связи tabs
+		    // @deprecated не используется, оставлено для совместимости
 		    'instances' => array(self::HAS_MANY, 'CatalogTabInstance', 'sectionid'),
 		    'tabInstances' => array(self::HAS_MANY, 'CatalogTabInstance', 'sectionid'),
 		    
@@ -162,16 +154,15 @@ class CatalogSection extends CActiveRecord
 	{
 		return array(
 			'id' => 'ID',
-			'parentid' => 'Родительская категория',
+			'parentid' => 'Содержится в разделе',
+			'categoryid' => 'Категория',
 			'scopeid' => 'Условие выборки',
 			'name' => 'Название',
 			'shortname' => 'Короткое название (для ссылок)',
-			'lang' => 'Язык',
 			'galleryid' => 'Изображение',
-			'content' => 'Содержимое (анкеты или другие категории)',
-			'order' => 'Вес (чем больше, тем ниже отображается категория)',
-			'count' => 'Количество анкет',
-			'visible' => 'Видимая категория',
+			'content' => 'Содержимое',
+			'order' => 'Порядок при сортировке',
+			'visible' => 'Отображать на сайте?',
 		);
 	}
 
@@ -187,13 +178,12 @@ class CatalogSection extends CActiveRecord
 
 		$criteria->compare('id',$this->id);
 		$criteria->compare('parentid',$this->parentid,true);
+		$criteria->compare('categoryid',$this->parentid,true);
 		$criteria->compare('scopeid',$this->scopeid,true);
 		$criteria->compare('name',$this->name,true);
 		$criteria->compare('shortname',$this->shortname,true);
-		$criteria->compare('lang',$this->lang,true);
 		$criteria->compare('content',$this->content,true);
 		$criteria->compare('order',$this->order,true);
-		$criteria->compare('count',$this->count,true);
 		$criteria->compare('visible',$this->visible);
 
 		return new CActiveDataProvider($this, array(
@@ -207,7 +197,7 @@ class CatalogSection extends CActiveRecord
 	 * @param CatalogTab[] $tabs
 	 * @return void
 	 * 
-	 * @todo добавить обработку ошибок
+	 * @deprecated вместо вкладок сейчас используются другие разделы
 	 */
 	public function bindTabs($tabs)
 	{
@@ -225,7 +215,7 @@ class CatalogSection extends CActiveRecord
 	 * Очистить старый набор вкладок перед добавлением нового
 	 * @return void
 	 * 
-	 * @todo добавить обработку ошибок
+	 * @deprecated вместо вкладок сейчас используются другие разделы
 	 */
 	protected function clearTabInstances()
 	{
@@ -251,26 +241,27 @@ class CatalogSection extends CActiveRecord
 	    {// Картинка раздела еще не загружена
 	        return $nophoto;
 	    }
-	
 	    // Изображение загружено - получаем самую маленькую версию
 	    if ( ! $avatar = $avatar->getUrl($size) )
 	    {
 	        return $nophoto;
 	    }
-	
 	    return $avatar;
 	}
 	
 	// эти функции должны быть перенесены в расширение searchScopes как и хранение данных формы поиска
 	
 	/**
-	 * Получить все сохраненные данные из формы поиска людей для вакансии
-	 *
-	 * @return null
+	 * Получить условия выборки подходящих анкет для этой вакансии
+	 * @return CDbCriteria
 	 */
-	protected function getSearchData()
+	public function getSearchCriteria()
 	{
-	    return unserialize($this->searchdata);
+	    if ( $this->isNewRecord )
+	    {// условие еще не создано
+	        return false;
+	    }
+	    return $this->createSearchCriteria($this->getSearchData());
 	}
 	
 	/**
@@ -335,6 +326,16 @@ class CatalogSection extends CActiveRecord
 	}
 	
 	/**
+	 * Получить все сохраненные данные из формы поиска людей для вакансии
+	 *
+	 * @return null
+	 */
+	protected function getSearchData()
+	{
+	    return unserialize($this->searchdata);
+	}
+	
+	/**
 	 * Создать стандартную заготовку условия выбора участников.
 	 * Используется для новых, только что созданных объектов.
 	 * Условие создается не полностью пустым - изначально в него добавляется правило
@@ -346,7 +347,7 @@ class CatalogSection extends CActiveRecord
 	 * @return int - id группы условий (SearchScope) которая содержит один пустой критерий выборки анкет
 	 *
 	 * @todo предусмотреть возможность отключать изначальное содержание CDbCriteria
-	 * @todo если понадобится - сделать настройку "добавлять/не добавлять префикс 't' к полю status"
+	 * @deprecated
 	 */
 	protected function initObjectScope($newData, $saveData=false)
 	{
@@ -354,9 +355,9 @@ class CatalogSection extends CActiveRecord
 	    $filters = CatalogModule::getFullFilterKit();
 	    // создаем группу для условий поиска
 	    $scope = new SearchScope;
-	    $scope->name      = $this->name;
-	    $scope->modelid   = SearchScope::QMODEL_ID;
-	    $scope->type      = 'section';
+	    $scope->name    = $this->name;
+	    $scope->modelid = SearchScope::QMODEL_ID;
+	    $scope->type    = 'section';
 	    $scope->save();
 	     
 	    // Создаем изначально пустое условие поиска
@@ -403,8 +404,8 @@ class CatalogSection extends CActiveRecord
 	     
 	    // Указываем параметры для сборки поискового запроса по анкетам
 	    $config = array(
-	        'class'           => $pathToAssembler,
-	        'data'            => $data,
+	        'class' => $pathToAssembler,
+	        'data'  => $data,
 	    );
 	    if ( $this->isNewRecord )
 	    {// вакансия создается, она пока еще не сохранена в БД, поэтому
@@ -428,19 +429,6 @@ class CatalogSection extends CActiveRecord
 	        return $finalCriteria;
 	    }
 	    return $startCriteria;
-	}
-	
-	/**
-	 * Получить условия выборки подходящих анкет для этой вакансии
-	 * @return CDbCriteria
-	 */
-	public function getSearchCriteria()
-	{
-	    if ( $this->isNewRecord )
-	    {// условие еще не создано
-	        return false;
-	    }
-	    return $this->createSearchCriteria($this->getSearchData());
 	}
 	
 	/**
