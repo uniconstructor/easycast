@@ -18,7 +18,6 @@ class MyChoice extends CWidget
     public $questionaries;
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
      */
     public function init()
@@ -34,7 +33,6 @@ class MyChoice extends CWidget
     }
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::run()
      */
     public function run()
