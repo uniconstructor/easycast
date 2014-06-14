@@ -63,8 +63,11 @@ class QSearchFilterSections extends QSearchFilterBaseSelect2
     {
         $criteria = new CDbCriteria();
         $criteria->compare('parentid', 1);
-        //$criteria->compare('visible', 1);
         $criteria->compare('content', 'users');
+        if ( ! Yii::app()->user->checkAccess('Admin') )
+        {
+            $criteria->compare('visible', 1);
+        }
         $criteria->select = '`id`, `name`';
         $criteria->order = '`name` ASC';
         
