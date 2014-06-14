@@ -21,6 +21,7 @@
  *                         swVideo/pending - видео загружено участником и ждет проверки
  *                         swVideo/approved - видео проверено администратором и одобрено (или загружено администратором)
  *                         swVideo/rejected - видео отклонено администратором (нельзя такое публиковать)
+ * @property int $visible
  * 
  * @todo прописать константы для всех типов
  */
@@ -85,12 +86,13 @@ class Video extends SWActiveRecord
 		    
 			array('objecttype, type', 'length', 'max' => 20),
 			array('status', 'length', 'max' => 50),
-			array('timemodified, objectid, timecreated, uploaderid, size', 'length', 'max' => 11),
+			array('timemodified, objectid, timecreated, uploaderid, size, visible', 'length', 'max' => 11),
 			array('name, description, link, externalid', 'length', 'max' => 255),
 			array('md5', 'length', 'max' => 128),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, objecttype, objectid, name, type, description, link, timecreated, uploaderid, md5, size, status', 'safe', 'on'=>'search'),
+			array('id, objecttype, objectid, name, type, description, link, timecreated, 
+			    uploaderid, md5, size, status, visible', 'safe', 'on'=>'search'),
 		);
 	}
 	
@@ -142,6 +144,7 @@ class Video extends SWActiveRecord
 			'size' => Yii::t('coreMessages', 'db_video_size'),
 			'status' => Yii::t('coreMessages', 'db_video_status'),
 		    'timemodified' => Yii::t('coreMessages', 'timemodified'), 
+		    'visible' => 'Отображение', 
 		);
 	}
 
@@ -151,7 +154,7 @@ class Video extends SWActiveRecord
 	 */
 	public function search()
 	{
-		$criteria=new CDbCriteria;
+		$criteria = new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
 		$criteria->compare('objecttype',$this->objecttype,true);
@@ -204,6 +207,10 @@ class Video extends SWActiveRecord
 	 */
 	public function defineVideoType($link)
 	{
+	    if ( ! $link )
+	    {
+	        return 'file';
+	    }
 	    if ( mb_ereg('youtube.com', $link) )
 	    {
 	        return 'youtube';
@@ -291,5 +298,27 @@ class Video extends SWActiveRecord
             break;
 	        default: return $this->link;
 	    }
+	}
+	
+	/**
+	 * 
+	 * @return array
+	 */
+	public function getVisibleOptions()
+	{
+	    return array(
+	        '1' => Yii::t('coreMessages', 'yes'),
+	        '0' => Yii::t('coreMessages', 'no'),
+	    );
+	}
+	
+	/**
+	 * 
+	 * @return array
+	 */
+	public function getVisibleOptions($value)
+	{
+	    $options = $this->getVisibleOptions();
+	    return $options[$value]; 
 	}
 }
