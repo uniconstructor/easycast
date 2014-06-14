@@ -92,7 +92,7 @@ class CatalogData extends CWidget
         
         // ищем все вкладки, прикрепленные к разделу
         // @todo вынести в init
-        $instances = CatalogTabInstance::model()->findAll(
+        /*$instances = CatalogTabInstance::model()->findAll(
             'sectionid = :sectionid AND visible = 1', 
             array(':sectionid' => $this->sectionid)
         );
@@ -100,7 +100,7 @@ class CatalogData extends CWidget
         foreach ( $instances as $instance )
         {
             $tabs[] = $this->getTab($instance->tab);
-        }
+        }*/
         
         // @todo последняя вкладка - всегда поиск по фильтрам
         if ( $this->section->id != 1 )
@@ -162,6 +162,7 @@ class CatalogData extends CWidget
      * Получить содержимое вкладки (список разделов или список анкет)
      * Возвращает html-код виджета TbThumbinails
      * 
+     * @deprecated
      * @param CatalogTab $tab - вкладка внутри раздела или null если отображаются все анкеты раздела
      * @return array массив (вкладка для виджета 'bootstrap.widgets.TbTabs' - название + описание)
      */
@@ -179,7 +180,7 @@ class CatalogData extends CWidget
         $sectionCriteria = $this->section->scope->getCombinedCriteria();
         // получаем критерий выборки по вкладке
         $criteria = $tab->scope->getCombinedCriteria($sectionCriteria);
-        $criteria->addCondition("`status` = 'active'");
+        $criteria->addCondition("`t`.`status` = 'active'");
         
         $dataProvider = new CActiveDataProvider('Questionary', array(
                 'criteria'   => $criteria,
@@ -197,8 +198,6 @@ class CatalogData extends CWidget
      * Получить содержимое раздела с учетом условий поиска
      * 
      * @return array массив (вкладка для виджета 'bootstrap.widgets.TbTabs' - название + описание)
-     * 
-     * @todo сделать возврат к странице каталога при использовании поиска
      */
     protected function getSearchTab()
     {
@@ -212,7 +211,7 @@ class CatalogData extends CWidget
             $tab['content'] = $this->render('_search', array(), true);
             // добавляем скрипт, который запоминает выбранную в каталоге вкладку в сессию
             // и перезагружает содержимое вкладки "поиск" каждый раз когда на нее переключается пользователь
-            $this->_tabScripts .= $this->getTabNavigationUpdate('search_tab');
+            //$this->_tabScripts .= $this->getTabNavigationUpdate('search_tab');
             // $this->getSearchFormLoadScript();
         }
         
@@ -233,7 +232,7 @@ class CatalogData extends CWidget
         {
             $label = $tab->name;
         }else
-       {
+        {
            $urlparams['tab'] = $tab->shortname;
         }
         
@@ -346,8 +345,7 @@ class CatalogData extends CWidget
      * 
      * @return string
      * 
-     * @todo разобраться с сессией
-     * @todo получить код формы через ajax корректным образом, заставив работать все скрипты
+     * @deprecated
      */
     protected function getSearchFormLoadScript()
     {
