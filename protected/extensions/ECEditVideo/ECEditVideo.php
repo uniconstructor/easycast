@@ -11,6 +11,10 @@ Yii::import('questionary.extensions.widgets.QGridEditBase.QGridEditBase');
 class ECEditVideo extends QGridEditBase
 {
     /**
+     * @var string
+     */
+    public $objectType = 'questionary';
+    /**
      * @var string - сообщение перед удалением записи
      */
     public $deleteConfirmation = 'Удалить это видео?';
@@ -37,7 +41,7 @@ class ECEditVideo extends QGridEditBase
     /**
      * @var array - список редактируемых полей в том порядке, в котором они идут в таблице
      */
-    public $fields  = array('name', 'link');
+    public $fields  = array('name', 'link', 'visible');
     /**
      * @var string - html-id формы для ввода новой записи
     */
@@ -71,7 +75,6 @@ class ECEditVideo extends QGridEditBase
      */
     public function initModel()
     {
-        //$className = $this->modelClass;
         $this->model = new $this->modelClass;
         $this->model->objecttype = 'questionary';
         $this->model->objectid   = $this->questionary->id;
@@ -85,7 +88,7 @@ class ECEditVideo extends QGridEditBase
     protected function getGridCriteria()
     {
         return array(
-            'condition' => "`objecttype` = 'questionary' AND `objectid` = '{$this->questionary->id}'",
+            'condition' => "`objecttype` = '{$this->objectType}' AND `objectid` = '{$this->questionary->id}'",
         );
     }
 
@@ -112,6 +115,8 @@ class ECEditVideo extends QGridEditBase
             $this->getTextColumnOptions('name'),
             // ссылка на видео
             $this->getTextColumnOptions('link'),
+            // отображение
+            $this->getStaticSelect2ColumnOptions('visible', $this->model->visibleOptions, 'visibleOption'),
         );
     }
 }
