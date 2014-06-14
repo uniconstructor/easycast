@@ -346,7 +346,8 @@ class EditableGrid extends CWidget
      *
      * @param string $field - поле модели для которого создается редактируемая колонка таблицы
      * @param array $variants - список вариантов для выбора
-     * @return void
+     * @param string $valueField - поле из которого берется отображаемое значание
+     * @return array
      */
     protected function getStaticSelect2ColumnOptions($field, $variants, $valueField='level', $allowCustom=false)
     {
