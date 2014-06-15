@@ -16,13 +16,15 @@ $this->widget('bootstrap.widgets.TbAlert');
 
 <?php 
 $this->menu = array(
-    array('label' => 'Проекты', 'url' => array('/admin/project/admin')),
-    array('label' => 'Заказы', 'url' => array('/admin/fastOrder')),
+    array('label' => 'Все проекты', 'url' => array('/admin/project/admin')),
     array('label' => 'Пользователи', 'url' => array('/user/admin')),
-    array('label' => 'Каталог и анкеты', 'url' => array('/admin/questionary')),
-    array('label' => 'Галерея','url' => array('/admin/photoGallery/admin')),
-    array('label' => 'Отправка коммерческих приглашений', 'url' => array('/admin/customerOffer/create')),
-    array('label' => 'Выполнить действия по расписанию (cron)', 'url' => array('/admin/admin/cron')),
+    array('label' => 'Анкеты', 'url' => array('/admin/questionary')),
+    array('label' => 'Разделы каталога и поиск','url' => array('/admin/catalogSection/admin')),
+    array('label' => 'Категории и группы','url' => array('/admin/category/index')),
+    //array('label' => 'Галерея','url' => array('/admin/photoGallery/admin')),
+    array('label' => 'Отправить коммерческое предложение', 'url' => array('/admin/customerOffer/create')),
+    array('label' => 'Запустить рассылку (cron)', 'url' => array('/admin/admin/cron')),
+    array('label' => 'Заказы', 'url' => array('/admin/fastOrder')),
     //array('label' => 'Новости','url' => array('/admin/news/admin')),
     //array('label' => '', 'url' => array('')),
 );
