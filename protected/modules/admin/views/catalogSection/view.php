@@ -46,7 +46,7 @@ $this->menu = array(
         		'shortname',
         		//'count',
         		array(
-                    'label' => 'Отобразить категорию?',
+                    'label' => 'Отобразить пользователям?',
                     'value' => Yii::t('coreMessages', $model->visible),
                 ),
         	),

@@ -14,7 +14,7 @@ $this->breadcrumbs = array(
 
 $this->menu = array(
 	//array('label'=>'List CatalogSection','url'=>array('index')),
-	array('label' => 'Создать раздел каталога', 'url' => array('/admin/catalogSection/create')),
+	array('label' => 'Создать раздел', 'url' => array('/admin/catalogSection/create')),
 );
 
 Yii::app()->clientScript->registerScript('search', "
@@ -31,7 +31,7 @@ $('.search-form form').submit(function(){
 ");
 ?>
 
-<h1>Управление разделами каталога</h1>
+<h1>Разделы каталога</h1>
 
 <?php // echo CHtml::link('Расширенный поиск','#',array('class'=>'search-button btn')); ?>
 <div class="search-form" style="display:none">
