@@ -5,7 +5,6 @@ Yii::import('ext.EditableGrid.EditableGrid');
 
 /**
  * Виджет для редактирования списка категорий
- * @todo удалить поле type
  */
 class EditCategories extends EditableGrid
 {
@@ -102,11 +101,8 @@ class EditCategories extends EditableGrid
     protected function getDataColumns()
     {
         return array(
-            // родительская категория
-            /*array(
-                'name'  => 'parentid',
-                'value' => '$data->parent->name;',
-            ),*/
+            // тип
+            $this->getStaticSelect2ColumnOptions('type', $this->model->getTypeOptions, 'typeOption'),
             // название
             $this->getTextColumnOptions('name'),
             // описание

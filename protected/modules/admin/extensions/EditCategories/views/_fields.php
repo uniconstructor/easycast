@@ -5,12 +5,14 @@
  */
 /* @var $form  TbActiveForm */
 /* @var $this  EditCategories */
-/* @var $model Categories */
+/* @var $model Category */
 
 // ошибки формы
 echo $form->errorSummary(array($model), null, null, array('id' => $this->formId.'_errors'));
 // родительская категория
 echo CHtml::hiddenField('parentid', $this->parentId);
+// тип
+echo $form->dropDownListRow($model, $type, $model->getTypeOptions());
 // название
 echo $form->textFieldRow($model, 'name');
 // описание
