@@ -316,9 +316,9 @@ class Video extends SWActiveRecord
 	 * 
 	 * @return array
 	 */
-	public function getVisibleOptions($value)
+	public function getVisibleOption()
 	{
 	    $options = $this->getVisibleOptions();
-	    return $options[$value]; 
+	    return $options[$this->visible]; 
 	}
 }
