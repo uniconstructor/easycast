@@ -10,55 +10,55 @@ class m140614_104500_addBaseCategoties extends CDbMigration
         
         $this->insert($table, array(
             'parentid'    => '0',
-            'type'        => 'root',
+            'type'        => 'categories',
             'name'        => 'Корневой раздел',
             'description' => 'Служебный, неудаляемый раздел.',
         ));
         $this->insert($table, array(
             'parentid'    => '1',
-            'type'        => 'system',
+            'type'        => 'sections',
             'name'        => 'Разделы и вкладки каталога',
             'description' => 'Разделы каталога при просмотре анкет на сайте. Должны содержать возраст и статус в критериях.',
         ));
         $this->insert($table, array(
             'parentid'    => '1',
-            'type'        => 'system',
+            'type'        => 'sections',
             'name'        => 'Условия и разделы для поиска',
             'description' => 'Разделы для поисковых фильтров: они выводятся в выпадающем списке в форме поиска. Могут не содержать статус и возраст в критериях.',
         ));
         $this->insert($table, array(
             'parentid'    => '1',
-            'type'        => 'system',
+            'type'        => 'categories',
             'name'        => 'Группы заявок',
             'description' => 'Нужны для группировки заявок поданных на роль.',
         ));
         $this->insert($table, array(
             'parentid'    => '1',
-            'type'        => 'system',
+            'type'        => 'categories',
             'name'        => 'Наборы дополнительных вопросов для заявки',
             'description' => 'Позволяют группировать дополнительные поля, указываемые участником при подаче заявки.',
         ));
         $this->insert($table, array(
             'parentid'    => '1',
-            'type'        => 'system',
+            'type'        => 'categories',
             'name'        => 'Шаблоны создания анкет',
             'description' => 'Позволяют группировать поля анкеты, обязательные для подачи заявки или при регистрации на роль.',
         ));
         $this->insert($table, array(
             'parentid'    => '1',
-            'type'        => 'system',
+            'type'        => 'categories',
             'name'        => 'Шаблоны отображения анкет',
             'description' => 'Содержит набор вкладок с информацией анкеты. Позволяют настраивать внешний вид анкеты в заявке в зависимости от роли.',
         ));
         $this->insert($table, array(
             'parentid'    => '1',
-            'type'        => 'system',
+            'type'        => 'categories',
             'name'        => 'Вкладки анкеты',
             'description' => 'Каждая вкладка содержит в себе набор отображаемых полей в нужном порядке.',
         ));
         $this->insert($table, array(
             'parentid'    => '1',
-            'type'        => 'system',
+            'type'        => 'categories',
             'name'        => 'Категории тегов',
             'description' => 'Тегами можно (будет) помечать практически любые в системе, таким образом группируя их по любому признаку.',
         ));
@@ -83,13 +83,13 @@ class m140614_104500_addBaseCategoties extends CDbMigration
         ));
         $this->insert($table, array(
             'parentid'    => '7',
-            'type'        => 'usertabs',
+            'type'        => 'categories',
             'name'        => 'По умолчанию (вся информация)',
-            'description' => 'Вся информация по анкете из нашей анкеты, разбитая по вкладкам',
+            'description' => 'Вся информация по анкете, разбитая по вкладкам',
         ));
         $this->insert($table, array(
             'parentid'    => '7',
-            'type'        => 'usertabs',
+            'type'        => 'categories',
             'name'        => 'Заявка топ-модели',
             'description' => 'Внешний вид анкеты заявки топ-модели',
         ));
