@@ -8,12 +8,11 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 	'enableAjaxValidation' => false,
 ));
 ?>
-
 	<?php echo $form->errorSummary($model); ?>
-	<?php echo $form->textFieldRow($model,'name', array('class' => 'span5','maxlength' => 128)); ?>
-	<?php echo $form->textFieldRow($model,'shortname', array('class' => 'span5', 'maxlength' => 128)); ?>
+	<?php echo $form->textFieldRow($model,'name'); ?>
+	<?php echo $form->textFieldRow($model,'shortname'); ?>
 	<?php
-	if ( $model->galleryBehavior->getGallery() === null )
+	/*if ( $model->galleryBehavior->getGallery() === null )
 	{
 	    echo '<p>Нужно сохранить категорию перед загрузкой логотипа</p>';
 	}else
@@ -22,11 +21,11 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 	        'gallery' => $model->galleryBehavior->getGallery(),
 	        'controllerRoute' => '/admin/gallery'
 	    ));
-	}
+	}*/
 	?>
 
-	<?php echo $form->textFieldRow($model, 'order', array('class' => 'span5', 'maxlength' => 6)); ?>
-	<?php echo $form->checkBoxRow($model, 'visible', array('class' => 'span5')); ?>
+	<?php echo $form->textFieldRow($model, 'order'); ?>
+	<?php echo $form->checkBoxRow($model, 'visible'); ?>
 
 	<div class="form-actions">
 		<?php $form->widget('bootstrap.widgets.TbButton', array(
