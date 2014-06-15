@@ -54,7 +54,7 @@ class Category extends CActiveRecord
 		return array(
 			'id' => 'ID',
 			'parentid' => 'Верхний раздел',
-			'type' => 'Type',
+			'type' => 'Что содержит?',
 			'name' => 'Название',
 			'description' => 'Описание',
 		);
@@ -74,8 +74,6 @@ class Category extends CActiveRecord
 	 */
 	public function search()
 	{
-		// @todo Please modify the following code to remove attributes that should not be searched.
-
 		$criteria = new CDbCriteria;
 
 		$criteria->compare('id', $this->id);
@@ -112,5 +110,30 @@ class Category extends CActiveRecord
 	     
 	    $this->getDbCriteria()->mergeWith($criteria);
 	    return $this;
+	}
+	
+	/**
+	 * Получить список возможных вариантов содержимого для категории
+	 * @return array
+	 */
+	public function getTypeOptions()
+	{
+	    return array(
+	        'categories' => 'Другие категории',
+	        'sections' => 'Разделы для анкет (или условия поиска)',
+	        'userfields' => 'Поля анкеты',
+	        'extrafields' => 'Поля заявки',
+	        'tags' => 'Теги',
+	    );
+	}
+	
+	/**
+	 * 
+	 * @return string
+	 */
+	public function getTypeOption()
+	{
+	    $types = $this->getTypeOptions();
+	    return $types[$this->type];
 	}
 }
