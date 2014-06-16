@@ -98,6 +98,7 @@
  *                                  Переименовать поле в базе без наличия тестов я не рискую, 
  *                                  поэтому пока что пишем так
  * @property integer $currentcountryid
+ * @property integer $visible
  * 
  * Relations: @see http://www.yiiframework.com/wiki/280/1-n-relations-sometimes-require-cdbcriteria-together/
  * @property User $user 
@@ -111,7 +112,7 @@
  * @todo уже недостаточно гибкие для новой системы, нужно будет переписать их с применением именованных
  *       групп условий с параметрами (проще говоря прописать и использовать scopes() в связанных моделях)
  * @property int invitesCount - количество непрочитанных приглашений
- * @property int requestsCount - количество
+ * @property int requestsCount - количество поданых заявок
  * @property int pendingRequestsCount
  * @property int upcomingEventsCount
  * 
@@ -125,6 +126,8 @@
  *       то тоже с is или has (для единообразия, чтобы не путаться)
  * @todo переименовать поле istvshowmen в istvshowman или hastvshows
  * @todo добавить связь photos
+ * @todo удалить все модели и таблицы "instances" для сложных значений: вместо них сделать одну таблицу
+ *       q_instances в которой хранятся все связи по qid + objecttype + objectid
  * @todo для всех сложных значений добавить типизированные коллекции: 
  *       @see http://yiiframework.ru/doc/cookbook/ru/model.dao
  */
