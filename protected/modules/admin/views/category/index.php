@@ -18,7 +18,7 @@ $this->breadcrumbs = array(
 );
 $this->menu = array();
 
-$systemCategories = Category::model()->childrenFor($parentId)->findAll();
+$categories = Category::model()->childrenFor($parentId)->findAll();
 if ( $currentCategory->parentid )
 {
     $this->menu[] = array(
@@ -26,23 +26,58 @@ if ( $currentCategory->parentid )
         'url'   => array('/admin/category/index', 'parentId' => $currentCategory->parentid),
     );
 }
-foreach ( $systemCategories as $category )
+foreach ( $categories as $category )
 {
     $this->menu[] = array(
         'label' => $category->name, 
         'url'   => array('/admin/category/index', 'parentId' => $category->id),
     ); 
 }
-
 ?>
 
-<h1><?= $title; ?></h1>
-
-<div class="row-fluid">
+<div class="container">
+    <div class="row-fluid">
+        <h1><?= $title; ?></h1>
+        
+        <?php
+        switch ( $currentCategory->type )
+        {
+            case 'categories':
+                // редактор для списка категорий
+                $this->widget('admin.extensions.EditCategories.EditCategories', array(
+                    'parentId' => $parentId,
+                ));
+            break;
+            case 'sections':
+                $this->widget('admin.extensions.EditCatalogSections.EditCatalogSections', array(
+                    'categoryId' => $currentCategory->id,
+                ));
+            break;
+            case 'userfields':
+                $this->widget('admin.extensions.EditRequiredFields.EditRequiredFields', array(
+                    'objectId'   => $currentCategory->id,
+                    'objecttype' => 'category',
+                ));
+            break;
+            case 'extrafields':
+                $this->widget('admin.extensions.EditExtraFieldInstances.EditExtraFieldInstances', array(
+                    'objectId'   => $currentCategory->id,
+                    'objecttype' => 'category',
+                ));
+            break;
+            case 'tags':
+                
+            break;
+        } 
+        
+        ?>
+    </div>
     <?php 
-    // редактор для списка категорий
-    $this->widget('admin.extensions.EditCategories.EditCategories', array(
-        'parentId' => $parentId,
-    ));
+    // modal-окна с формами для EditableGrid элементов
+    $clips = Yii::app()->getModule('admin')->formClips;
+    foreach ( $clips as $clip )
+    {
+        echo $this->clips[$clip];
+    }
     ?>
 </div>
