@@ -21,6 +21,9 @@
  * 
  * @todo документировать код
  * @todo прописать unique-правило в rules
+ * @todo объединить таблицы extra_field_instances и q_field_instances
+ *       Создать из них одну таблицу field_instances: fieldtype, fieldid, objecttype, objectid
+ *       После этого пересоздать все связи и удалить старые таблицы
  */
 class ExtraFieldInstance extends CActiveRecord
 {
