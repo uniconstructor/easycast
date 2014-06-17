@@ -230,7 +230,7 @@ class EditableGrid extends CWidget
      */
     protected function getTableColumns()
     {
-        $dataColumns = $this->getDataColumns();
+        $dataColumns   = $this->getDataColumns();
         // колонка с иконками действий
         $dataColumns[] = $this->getActionsColumn();
     
@@ -253,7 +253,7 @@ class EditableGrid extends CWidget
     protected function getActionsColumn()
     {
         return array(
-            'header'      => '&nbsp;',
+            'header'      => '<i class="icon icon-list"></i>&nbsp;',
             'htmlOptions' => array('nowrap' => 'nowrap', 'style' => 'text-align:center;'),
             'class'       => 'bootstrap.widgets.TbButtonColumn',
             'template'    => '{delete}',
