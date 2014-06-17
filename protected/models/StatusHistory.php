@@ -10,7 +10,8 @@
  * @property string $oldstatus
  * @property string $newstatus
  * @property string $timecreated
- * @property string $userid
+ * @property string $sourceid
+ * @property string $sourcetype
  */
 class StatusHistory extends CActiveRecord
 {
@@ -27,15 +28,13 @@ class StatusHistory extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
 			array('objecttype, oldstatus, newstatus', 'required'),
-			array('objecttype, oldstatus, newstatus', 'length', 'max'=>50),
-			array('objectid, timecreated, userid', 'length', 'max'=>11),
+			array('sourcetype, objecttype, oldstatus, newstatus', 'length', 'max'=>50),
+			array('objectid, timecreated, sourceid', 'length', 'max'=>11),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, objecttype, objectid, oldstatus, newstatus, timecreated, userid', 'safe', 'on'=>'search'),
+			array('id, objecttype, objectid, oldstatus, newstatus, timecreated, sourceid', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -44,8 +43,6 @@ class StatusHistory extends CActiveRecord
 	 */
 	public function relations()
 	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
 		return array(
 		);
 	}
@@ -62,7 +59,6 @@ class StatusHistory extends CActiveRecord
 			'oldstatus' => 'Oldstatus',
 			'newstatus' => 'Newstatus',
 			'timecreated' => 'Timecreated',
-			'userid' => 'Userid',
 		);
 	}
 
@@ -80,20 +76,19 @@ class StatusHistory extends CActiveRecord
 	 */
 	public function search()
 	{
-		// @todo Please modify the following code to remove attributes that should not be searched.
+		$criteria = new CDbCriteria;
 
-		$criteria=new CDbCriteria;
-
-		$criteria->compare('id',$this->id);
-		$criteria->compare('objecttype',$this->objecttype,true);
-		$criteria->compare('objectid',$this->objectid,true);
-		$criteria->compare('oldstatus',$this->oldstatus,true);
-		$criteria->compare('newstatus',$this->newstatus,true);
-		$criteria->compare('timecreated',$this->timecreated,true);
-		$criteria->compare('userid',$this->userid,true);
+		$criteria->compare('id', $this->id);
+		$criteria->compare('objecttype', $this->objecttype, true);
+		$criteria->compare('objectid', $this->objectid, true);
+		$criteria->compare('oldstatus', $this->oldstatus, true);
+		$criteria->compare('newstatus', $this->newstatus, true);
+		$criteria->compare('timecreated', $this->timecreated, true);
+		$criteria->compare('sourceid', $this->sourceid, true);
+		$criteria->compare('sourcetype', $this->sourcetype, true);
 
 		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
+			'criteria' => $criteria,
 		));
 	}
 
@@ -106,5 +101,18 @@ class StatusHistory extends CActiveRecord
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
+	}
+	
+	/**
+	 * @see CModel::behaviors()
+	 */
+	public function behaviors()
+	{
+	    return array(
+	        'CTimestampBehavior' => array(
+    	        'class'            => 'zii.behaviors.CTimestampBehavior',
+        	     'createAttribute' => 'timecreated',
+	        ),
+	    );
 	}
 }
