@@ -15,34 +15,33 @@ class ECAlert extends CWidget
     /**
      * @var string - заголовок сообщения (необязательно)
      */
-    public $header = '';
+    public $header      = '';
     /**
      * @var string - само сообщение. Разрешен HTML.
      */
-    public $message = '';
+    public $message     = '';
     /**
      * @var string - текст (или значок) при нажатии на который происходит закрытие сообщения
      */
-    public $closeText = '&times;';
+    public $closeText   = '&times;';
     /**
      * @var string - тип сообщения
      */
-    public $type = '';
+    public $type        = '';
     /**
      * @var bool - разрешить ли закрывать (убирать) сообщение?
      */
-    public $allowClose = true;
+    public $allowClose  = true;
     /**
      * @var bool - выводить широкий блок с сообщением
      */
-    public $block = true;
+    public $block       = true;
     /**
      * @var array - параметры главного div-тега с сообщением
      */
     public $htmlOptions = array();
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
      */
     public function init()
@@ -67,7 +66,6 @@ class ECAlert extends CWidget
     }
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::run()
      */
     public function run()
