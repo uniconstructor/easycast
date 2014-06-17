@@ -9,7 +9,6 @@ Yii::import('application.modules.questionary.extensions.widgets.QUserApplication
 class QUserEvents extends QUserApplications
 {
     /**
-     * (non-PHPdoc)
      * @see QUserApplications::getHeader()
      */
     protected function getHeader()
@@ -18,7 +17,6 @@ class QUserEvents extends QUserApplications
     }
     
     /**
-     * (non-PHPdoc)
      * @see QUserApplications::initItems()
      */
     protected function initItems()
