@@ -19,7 +19,6 @@ $this->menu = array(
     array('label' => 'Все проекты', 'url' => array('/admin/project/admin')),
     array('label' => 'Пользователи', 'url' => array('/user/admin')),
     array('label' => 'Анкеты', 'url' => array('/admin/questionary')),
-    array('label' => 'Разделы каталога и поиск','url' => array('/admin/catalogSection/admin')),
     array('label' => 'Категории и группы','url' => array('/admin/category/index')),
     //array('label' => 'Галерея','url' => array('/admin/photoGallery/admin')),
     array('label' => 'Отправить коммерческое предложение', 'url' => array('/admin/customerOffer/create')),
