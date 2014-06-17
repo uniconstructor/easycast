@@ -15,7 +15,11 @@ class EditCategoryInstances extends EditableGrid
     /**
      * @var string
      */
-    public $objecttype;
+    public $objectType;
+    /**
+     * @var int - родительская категория для составления выпадающего списка
+     */
+    public $parentId = 0;
     /**
      * @var string - сообщение перед удалением записи
      */
@@ -120,6 +124,7 @@ class EditCategoryInstances extends EditableGrid
     {
         $js  = '';
         $js .= "\$('#{$this->modelClass}_categoryid').val('');\n";
+        
         return $js;
     }
     
@@ -129,14 +134,13 @@ class EditCategoryInstances extends EditableGrid
      */
     protected function getCategoryOptions()
     {
-        $models = Category::model()->findAll('`parentid` <> 0');
+        $models = Category::model()->findAll("`parentid` = {$this->parentid}");
         return CHtml::listData($models, 'id', 'name');
     }
     
     /**
-    * @see EditableGrid::getGridCriteria()
-    * @todo использовать именованые группы условий
-    */
+     * @see EditableGrid::getGridCriteria()
+     */
     protected function getGridCriteria()
     {
         return array(
