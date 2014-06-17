@@ -10,7 +10,7 @@
 // ошибки формы
 echo $form->errorSummary(array($model), null, null, array('id' => $this->formId.'_errors'));
 // родительская категория
-echo CHtml::hiddenField('parentid', $this->parentId);
+echo $form->hiddenField($model, 'parentid');
 // тип
 echo $form->dropDownListRow($model, 'type', $model->getTypeOptions());
 // название
