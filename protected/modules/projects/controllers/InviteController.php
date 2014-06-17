@@ -11,7 +11,6 @@
 class InviteController extends Controller
 {
     /**
-     * (non-PHPdoc)
      * @see CController::init()
      */
     public function init()

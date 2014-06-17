@@ -36,6 +36,7 @@ class MemberController extends Controller
         $key  = Yii::app()->request->getPost('k1', '');
         $key2 = Yii::app()->request->getPost('k2', '');
         $refresh = Yii::app()->request->getPost('refresh', 0);
+        $oldStatus = $member->status;
         
         if ( ! $newStatus = Yii::app()->request->getPost('status') )
         {
@@ -65,6 +66,16 @@ class MemberController extends Controller
         {// изменяем статус, если пройдены все проверки
             echo 'ERROR';
             Yii::app()->end();
+        }elseif ( $customerInvite )
+        {// запоминаем кто сменил статус
+            $history = new StatusHistory();
+            $history->objecttype = 'project_member';
+            $history->objectid   = $member->id;
+            $history->oldstatus  = $oldStatus;
+            $history->newstatus  = $newStatus;
+            $history->sourceid   = $customerInvite->id;
+            $history->sourcetype = 'customer_invite';
+            $history->save();
         }
         if ( ! $refresh )
         {// обновлять содержимое кнопок не нужно
@@ -74,8 +85,8 @@ class MemberController extends Controller
         
         // отправляем html-код кнопок (для обновления)
         $widgetOptions = array(
-            'member'         => $member,
-            'refreshButtons' => true,
+            'member'             => $member,
+            'refreshButtons'     => true,
             'forceDisplayStatus' => true,
         );
         if ( $customerInvite )
