@@ -13,19 +13,19 @@ class QActorUniversity extends QUniversityInstance
     protected $defaultType = 'theatre';
     
     /**
-     * (non-PHPdoc)
      * @see CActiveRecord::defaultScope()
      */
     public function defaultScope()
     {
         return array(
             'alias' => "actoruniversities",
-            'with' => array(
+            'with'  => array(
                 'university' => array(
                     'joinType'  => 'INNER JOIN',
                     'condition' => "`university`.`type`='{$this->defaultType}'",
                 ),
             ),
-            'order' => '`actoruniversities`.`timeend` DESC');
+            'order' => '`actoruniversities`.`timeend` DESC',
+        );
     }
 }
