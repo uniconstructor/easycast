@@ -55,7 +55,7 @@ class ECAlert extends CWidget
         {
             throw new CException('Invalid alert type');
         }
-        $classes = $this->getAlertClasses($type);
+        $classes = $this->getAlertClasses($this->type);
         if ( isset($this->htmlOptions['class']) )
         {
             $this->htmlOptions['class'] = $classes.$this->htmlOptions['class'];
@@ -98,12 +98,16 @@ class ECAlert extends CWidget
      * @param string $type
      * @return string
      */
-    protected function getAlertClasses($type)
+    protected function getAlertClasses($type=null)
     {
         $styles = 'alert ';
         if ( $this->block )
         {
             $styles .= 'alert-block ';
+        }
+        if ( ! $type )
+        {
+            $type = $this->type;
         }
         switch ( $type )
         {// вообще Стив Макконелл не рекомендует использовать switch-конструкции без break
