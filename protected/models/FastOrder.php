@@ -44,7 +44,6 @@ class FastOrder extends CActiveRecord
     const TYPE_CALCULATION = 'calculation';
     
     /**
-     * (non-PHPdoc)
      * @see CActiveRecord::init()
      */
     public function init()
@@ -72,7 +71,6 @@ class FastOrder extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::beforeSave()
 	 */
 	protected function beforeSave()
@@ -158,7 +156,6 @@ class FastOrder extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CModel::behaviors()
 	 */
 	public function behaviors()
@@ -169,7 +166,7 @@ class FastOrder extends CActiveRecord
 	        'class' => 'zii.behaviors.CTimestampBehavior',
     	        'createAttribute' => 'timecreated',
     	        'updateAttribute' => 'timemodified',
-	        )
+	        ),
 	    );
 	}
 
