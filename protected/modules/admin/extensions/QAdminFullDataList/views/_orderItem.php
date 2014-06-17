@@ -6,7 +6,7 @@
 /* @var $this QAdminFullDataList */
 
 ?>
-
+<noindex>
 <div class="well well-small row-fluid" style="border-radius:10px;" id="<?= $data['baseContainerId']; ?>">
     <div class="row-fluid">
         <div class="span2" style="vertical-align:middle;"><?= $data["avatar"]; ?></div>
@@ -26,4 +26,8 @@
         <input type="hidden" id="<?= $data['fullInfoLoadedId']; ?>" 
             name="<?= $data['fullInfoLoadedId']; ?>_flag" value="0">
     </div>
+    <div class="row-fluid">
+       <?php $this->widget('admin.extensions.ExtraFieldsList.ExtraFieldsList', array('member' => $data['member'])); ?>
+    </div>
 </div>
+</noindex>

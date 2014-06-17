@@ -46,14 +46,15 @@ class QAdminFullDataList extends CWidget
         // Создаем источник данных для вывода краткой информации
         $dataProvider = new CArrayDataProvider($elements, 
             array(
-                'pagination' => false,
+                'pagination' => array('pageSize' => 25),
             )
         );
         
         // отображаем всех добавленных в заказ пользователей
         $this->widget('bootstrap.widgets.TbListView', array(
             'dataProvider' => $dataProvider,
-            'itemView' => 'application.modules.admin.extensions.QAdminFullDataList.views._orderItem',
+            'template'     => '{summary}{items}{pager}',
+            'itemView'     => 'application.modules.admin.extensions.QAdminFullDataList.views._orderItem',
         ));
     }
     
@@ -69,6 +70,7 @@ class QAdminFullDataList extends CWidget
         $questionary = $member->questionary;
         // Служебные данные (для работы скриптов и т. п.)
         $info = array('id' => $questionary->id);
+        $info['member'] = $member;
         // id тега в котором содержится вся информация об участнике (и краткая и полная)
         $info['baseContainerId']      = $this->getContainerId($questionary->id, 'base');
         // id тега с полной информацией
@@ -78,7 +80,7 @@ class QAdminFullDataList extends CWidget
         // id тега с сообщением
         $info['messageContainerId']   = $this->getContainerId($questionary->id, 'message');
         // id hidden-элемента, в котором хранится состояние данных анкеты актера (подгружены/не подгружены)    
-        $info['fullInfoLoadedId'] = 'full_info_loaded_'.$questionary->id; 
+        $info['fullInfoLoadedId']     = 'full_info_loaded_'.$questionary->id; 
     
         // Имя
         $qUrl = Yii::app()->createAbsoluteUrl('/questionary/questionary/view', array('id' => $questionary->id));
