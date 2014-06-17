@@ -1,4 +1,7 @@
 <?php
+/**
+ * Страница просмотра одной анкеты
+ */
 /* @var $this QuestionaryController */
 /* @var $questionary Questionary */
 
@@ -120,8 +123,9 @@ if ( Yii::app()->user->checkAccess('Admin') )
 ?>
 <div class="container">
     <?php
-    if ( Yii::app()->user->checkAccess('User') OR Yii::app()->user->checkAccess('Admin') )
-    {// список приглашений участника
+    // список приглашений участника
+    if ( $canEdit OR Yii::app()->user->checkAccess('Admin') )
+    {// отображается или самому участнику или админу
         $this->widget('questionary.extensions.widgets.QUserInvites.QUserInvites', array(
             'questionary' => $questionary,
         ));
