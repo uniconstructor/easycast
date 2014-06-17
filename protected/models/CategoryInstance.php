@@ -8,6 +8,9 @@
  * @property string $categoryid
  * @property string $objecttype
  * @property string $objectid
+ * 
+ * Relations:
+ * @property Category $category
  */
 class CategoryInstance extends CActiveRecord
 {
@@ -24,15 +27,13 @@ class CategoryInstance extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
 			array('objecttype', 'required'),
-			array('categoryid, objectid', 'length', 'max'=>11),
-			array('objecttype', 'length', 'max'=>50),
+			array('categoryid, objectid', 'length', 'max' => 11),
+			array('objecttype', 'length', 'max' => 50),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, categoryid, objecttype, objectid', 'safe', 'on'=>'search'),
+			array('id, categoryid, objecttype, objectid', 'safe', 'on' => 'search'),
 		);
 	}
 
@@ -73,17 +74,15 @@ class CategoryInstance extends CActiveRecord
 	 */
 	public function search()
 	{
-		// @todo Please modify the following code to remove attributes that should not be searched.
+		$criteria = new CDbCriteria;
 
-		$criteria=new CDbCriteria;
-
-		$criteria->compare('id',$this->id);
-		$criteria->compare('categoryid',$this->categoryid,true);
-		$criteria->compare('objecttype',$this->objecttype,true);
-		$criteria->compare('objectid',$this->objectid,true);
+		$criteria->compare('id', $this->id);
+		$criteria->compare('categoryid', $this->categoryid, true);
+		$criteria->compare('objecttype', $this->objecttype, true);
+		$criteria->compare('objectid', $this->objectid, true);
 
 		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
+			'criteria' => $criteria,
 		));
 	}
 
@@ -96,5 +95,26 @@ class CategoryInstance extends CActiveRecord
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
+	}
+	
+	/**
+	 * Именованое условие поиска: все  ссылки на категории с определенным типом
+	 * @param string $type
+	 * @return CategoryInstance
+	 */
+	public function withType($type)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->with = array(
+            'category' => array(
+                'select'    => 'id, type',
+                'joinType'  => 'INNER JOIN',
+                'condition' => "`category`.`type`='{$type}'",
+            ),
+	    );
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
 	}
 }

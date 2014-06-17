@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This is the model class for table "{{categories}}".
+ * Модель для работы с разделами и категориями объектов
  *
  * The followings are the available columns in table '{{categories}}':
  * @property integer $id
@@ -9,6 +9,10 @@
  * @property string $type
  * @property string $name
  * @property string $description
+ * 
+ * Relations:
+ * @property Category $parent
+ * @property CategoryInstance[] $instances
  */
 class Category extends CActiveRecord
 {
@@ -42,7 +46,10 @@ class Category extends CActiveRecord
 	public function relations()
 	{
 		return array(
+		    // родительская категория
 		    'parent' => array(self::BELONGS_TO, 'Category', 'parentid'),
+		    // все ссылки на эту категорию
+		    'instances' => array(self::HAS_MANY, 'CategoryInstance', 'categoryid'),
 		);
 	}
 
