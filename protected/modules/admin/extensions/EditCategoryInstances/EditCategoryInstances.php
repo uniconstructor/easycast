@@ -21,6 +21,10 @@ class EditCategoryInstances extends EditableGrid
      */
     public $parentId = 0;
     /**
+     * @var string
+     */
+    public $categoryType = 'sections';
+    /**
      * @var string - сообщение перед удалением записи
      */
     public $deleteConfirmation = 'Удалить запись?';
@@ -42,7 +46,7 @@ class EditCategoryInstances extends EditableGrid
     /**
      * @var array - список редактируемых полей в том порядке, в котором они идут в таблице
      */
-    public $fields = array('categoryid');
+    public $fields = array('objecttype', 'objectid', 'categoryid');
     /**
      * @var string - html-id формы для ввода новой записи
     */
@@ -97,8 +101,8 @@ class EditCategoryInstances extends EditableGrid
     protected function initModel()
     {
         $this->model = new $this->modelClass;
+        $this->model->objecttype = $this->objectType;
         $this->model->objectid   = $this->objectId;
-        $this->model->objecttype = $this->objecttype;
     }
     
     /**
@@ -134,7 +138,7 @@ class EditCategoryInstances extends EditableGrid
      */
     protected function getCategoryOptions()
     {
-        $models = Category::model()->findAll("`parentid` = {$this->parentid}");
+        $models = Category::model()->findAll("`parentid` = {$this->parentId}");
         return CHtml::listData($models, 'id', 'name');
     }
     
@@ -145,6 +149,7 @@ class EditCategoryInstances extends EditableGrid
     {
         return array(
             'condition' => "`objectid` = '{$this->objectId}' AND `objecttype` = '{$this->objectType}'",
+            //'scopes' => array('withType' => array(''),
         );
     }
 }

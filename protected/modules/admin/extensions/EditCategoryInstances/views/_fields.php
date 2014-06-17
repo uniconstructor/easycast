@@ -4,13 +4,13 @@
  * Структура своя для каждого виджета
  */
 /* @var $form  TbActiveForm */
-/* @var $this  EditCategories */
-/* @var $model Categories */
+/* @var $this  EditCategoryInstances */
+/* @var $model CategoryInstance */
 
 // ошибки формы
 echo $form->errorSummary(array($model), null, null, array('id' => $this->formId.'_errors'));
-
-$form->hiddenField($model, 'objecttype');
-$form->hiddenField($model, 'objectid');
+// скрытые поля для модели
+echo $form->hiddenField($model, 'objecttype');
+echo $form->hiddenField($model, 'objectid');
 // название
 echo $form->dropDownList($model, 'categoryid', $this->getCategoryOptions());
