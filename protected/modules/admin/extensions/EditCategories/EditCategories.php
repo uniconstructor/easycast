@@ -101,10 +101,10 @@ class EditCategories extends EditableGrid
     protected function getDataColumns()
     {
         return array(
-            // тип
-            $this->getStaticSelect2ColumnOptions('type', $this->model->getTypeOptions, 'typeOption'),
             // название
             $this->getTextColumnOptions('name'),
+            // тип
+            $this->getStaticSelect2ColumnOptions('type', $this->model->getTypeOptions(), 'typeOption'),
             // описание
             $this->getTextAreaColumnOptions('description'),
         );

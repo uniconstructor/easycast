@@ -12,7 +12,7 @@ echo $form->errorSummary(array($model), null, null, array('id' => $this->formId.
 // родительская категория
 echo CHtml::hiddenField('parentid', $this->parentId);
 // тип
-echo $form->dropDownListRow($model, $type, $model->getTypeOptions());
+echo $form->dropDownListRow($model, 'type', $model->getTypeOptions());
 // название
 echo $form->textFieldRow($model, 'name');
 // описание
