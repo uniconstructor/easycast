@@ -56,13 +56,13 @@ foreach ( $categories as $category )
             case 'userfields':
                 $this->widget('admin.extensions.EditRequiredFields.EditRequiredFields', array(
                     'objectId'   => $currentCategory->id,
-                    'objecttype' => 'category',
+                    'objectType' => 'category',
                 ));
             break;
             case 'extrafields':
                 $this->widget('admin.extensions.EditExtraFieldInstances.EditExtraFieldInstances', array(
                     'objectId'   => $currentCategory->id,
-                    'objecttype' => 'category',
+                    'objectType' => 'category',
                 ));
             break;
             case 'tags':
