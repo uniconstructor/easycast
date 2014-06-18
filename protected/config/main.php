@@ -306,15 +306,14 @@ return array(
         
         // Настройки сессии
         // @todo хранить сессию в БД, используя расширение http://www.yiiframework.com/extension/session
-        // @todo после переноса сессии в БД создать миграцией индексы для этой таблицы, и отключить ее автосоздание
+        // @todo вынести время хранения сессии в настройку
         'session' => array(
-            'class'     => 'CHttpSession',
-            'autoStart' => true,
+            'class'                  => 'CDbHttpSession',
+            'autoStart'              => true,
             // стандартное время хранения сессии: 2 месяца
-            // @todo вынести время хранения сессии в настройку
-            'timeout'   => 3600 * 24 * 60,
-            //'connectionID'           => 'db',
-            //'autoCreateSessionTable' => true,
+            'timeout'                => 3600 * 24 * 60,
+            'connectionID'           => 'db',
+            'autoCreateSessionTable' => true,
         ),
         
         // Настройки js-библиотек и скриптов
