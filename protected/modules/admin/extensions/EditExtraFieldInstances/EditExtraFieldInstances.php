@@ -23,6 +23,10 @@ class EditExtraFieldInstances extends EditableGrid
      */
     public $objectId;
     /**
+     * @var Category[] - список категорий из которых можно брать дополнительные поля
+     */
+    public $categories = array();
+    /**
      * @var string - сообщение перед удалением записи
      */
     public $deleteConfirmation = 'Удалить дополнительное поле?';
@@ -172,7 +176,18 @@ class EditExtraFieldInstances extends EditableGrid
      */
     protected function getFieldIdOptions()
     {
-        $fields  = ExtraField::model()->findAll();
+        if ( empty($this->categories) )
+        {
+            $fields = ExtraField::model()->findAll();
+        }else
+        {
+            $categoryIds = array();
+            foreach ( $this->categories as $category )
+            {
+                $categoryIds[] = $category->id;
+            }
+            $fields = ExtraField::model()->forCategories($categoryIds)->findAll();
+        }
         $options = array('' => Yii::t('coreMessages', 'not_set'));
         $options = CMap::mergeArray($options, CHtml::listData($fields, 'id', 'label'));
         
@@ -191,7 +206,8 @@ class EditExtraFieldInstances extends EditableGrid
     {
         switch ( $this->objectType )
         {
-            case 'vacancy': $this->targetObject = EventVacancy::model()->findByPk($this->objectId); break;
+            case 'vacancy':  $this->targetObject = EventVacancy::model()->findByPk($this->objectId); break;
+            case 'category': $this->targetObject = Category::model()->findByPk($this->objectId); break;
         }
     }
 }
