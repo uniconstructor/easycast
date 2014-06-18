@@ -3,7 +3,7 @@
  * Форма редактирования проекта
  */
 /* @var $model Project */
-/* @var $form TbActiveForm */
+/* @var $form  TbActiveForm */
 
 
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
@@ -15,7 +15,7 @@ $formData = Yii::app()->request->getParam('Project');
 // рейтинг проекта (задается только здесь, в админке. Нужен только для сортировки проектов 
 // при отображении для для заказчика и в коммерческом предложении)
 $ratings = array('0' => 'Нет');
-for ( $i=0; $i<=1000; $i++ )
+for ( $i = 0; $i <= 1000; $i++ )
 {
     $ratings["$i"] = (string)$i;
 }
