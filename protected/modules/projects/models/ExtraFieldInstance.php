@@ -133,11 +133,24 @@ class ExtraFieldInstance extends CActiveRecord
 	/**
 	 * Именованая группа условий: получить все записи о доп. полях, привязанных к определенному объекту
 	 * (например к роли)
+	 * alias для метода forObject()
 	 * @param string $objectType - тип объекта к которому привязано поле
 	 * @param int $objectId - id объекта к которому привязано поле
 	 * @return ExtraFieldInstance
 	 */
 	public function attachedTo($objectType, $objectId)
+	{
+	    return $this->forObject($objectType, $objectId);
+	}
+	
+	/**
+	 * Именованая группа условий: получить все записи о доп. полях, привязанных к определенному объекту
+	 * (например к роли)
+	 * @param string $objectType - тип объекта к которому привязано поле
+	 * @param int $objectId - id объекта к которому привязано поле
+	 * @return ExtraFieldInstance
+	 */
+	public function forObject($objectType, $objectId)
 	{
 	    $criteria = new CDbCriteria();
 	    $criteria->compare('objecttype', $objectType);
@@ -155,13 +168,7 @@ class ExtraFieldInstance extends CActiveRecord
 	 */
 	public function forVacancy($vacancyId)
 	{
-	    $criteria = new CDbCriteria();
-	    $criteria->compare('objecttype', 'vacancy');
-	    $criteria->compare('objectid', $vacancyId);
-	     
-	    $this->getDbCriteria()->mergeWith($criteria);
-	     
-	    return $this;
+	    return $this->forObject('vacancy', $vacancyId);
 	}
 	
 	/**
@@ -177,6 +184,36 @@ class ExtraFieldInstance extends CActiveRecord
 	     
 	    $this->getDbCriteria()->mergeWith($criteria);
 	     
+	    return $this;
+	}
+	
+	/**
+	 * Именованная группа условий поиска 
+	 * @param int $objectType - id дополнительного поля
+	 * @return ExtraFieldInstance
+	 */
+	public function forType($objectType)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('objecttype', $objectType);
+	     
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
+	}
+	
+	/**
+	 * Именованная группа условий поиска 
+	 * @param array $ids 
+	 * @return ExtraFieldInstance
+	 */
+	public function forObjects($ids)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->addInCondition('objectid', $ids);
+	     
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
 	    return $this;
 	}
 	
