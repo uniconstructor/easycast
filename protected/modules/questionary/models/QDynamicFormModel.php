@@ -289,6 +289,10 @@ class QDynamicFormModel extends CFormModel
      * @var string
      */
     public $salary;
+    /**
+     * @var int
+     */
+    public $visible;
     
     // собственные поля модели
     /**
@@ -644,7 +648,7 @@ class QDynamicFormModel extends CFormModel
             'isathlete', 'hasskills', 'hastricks','haslanuages', 'hasinshurancecard', 'countryid', 
             'nativecountryid', 'shoessize', 'rating', 'playagemin', 'playagemax', 'istheatreactor', 
             'ismediaactor', 'currentcountryid', 'chestsize', 'waistsize', 'hipsize', 'height', 'weight', 
-            'galleryid',
+            'galleryid', 'visible',
         );
         foreach ( $integerOnly as $fieldName )
         {
