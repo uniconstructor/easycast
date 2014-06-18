@@ -4,17 +4,15 @@ Yii::import('ext.EditableGrid.EditableGrid');
 
 /**
  * Виджет для редактирования разделов каталога, групп заявок или разделов поиска
+ * 
+ * @todo добавить ссылку на редактирование раздела, чтобы можно было установить критерии поиска
  */
 class EditCatalogSections extends EditableGrid
 {
     /**
-     * @var int
+     * @var int - id категории в которую добавляется раздел
      */
     public $categoryId;
-    /**
-     * @var string - сообщение перед удалением записи
-     */
-    public $deleteConfirmation = 'Удалить запись?';
     /**
      * @var string - если для всех трех действий (create, update, delete) используется один контроллер
      *               то здесь можно указать относительный путь к нему: в этом случае не нужно
@@ -35,18 +33,6 @@ class EditCatalogSections extends EditableGrid
      */
     public $fields = array(/*'parentid',*/ 'name', /*'visible'*/);
     /**
-     * @var string - html-id формы для ввода новой записи
-    */
-    public $formId = 'catalog-section-form';
-    /**
-     * @var string - html-id modal-окна для ввода новой записи
-     */
-    public $modalId = 'catalog-section-modal';
-    /**
-     * @var string - html-id кнопки для ввода новой записи
-     */
-    public $addButtonId = 'add-catalog-section-button';
-    /**
      * @var string - заголовок всплывающего окна с формой добавления новой записи
      */
     public $modalHeader = 'Добавить раздел';
@@ -62,7 +48,7 @@ class EditCatalogSections extends EditableGrid
     );
     /**
      * @var string - id модуля, который хранит клипы с modal-формами
-    */
+     */
     public $clipModule = 'admin';
     
     /**
