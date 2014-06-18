@@ -82,22 +82,18 @@ class ProjectMembers extends CWidget
         {
             throw new UnexpectedValueException('Проект не найден');
         }
-
         if ( $this->displayHeader )
         {// отображаем заголовок проекта только тогда когда нужно
             $result .= $this->getProjectHeader($project);
         }
-        
         foreach ( $project->groups as $event )
         {// показываем сначала группы проекта
             $result .= $this->getEventMembers($event);
         }
-        
         foreach ( $project->events as $event )
         {// затем отдельные события
             $result .= $this->getEventMembers($event);
         }
-
         return $result;
     }
 
