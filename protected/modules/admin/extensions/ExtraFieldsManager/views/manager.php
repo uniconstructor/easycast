@@ -44,7 +44,7 @@ $newSectionsUrl = Yii::app()->createUrl('/admin/category/index/', array('parentI
         </div>
         <?php
             // Список разделов анкет, которые используются в этом проекте
-            if ( $this->vacancy->extraFieldCategories )
+            if ( $this->vacancy->sectionCategories )
             {// становится доступным только после выбора хотя бы одной категории
                 $this->widget('admin.extensions.EditSectionInstances.EditSectionInstances', array(
                     'objectType' => 'vacancy',
