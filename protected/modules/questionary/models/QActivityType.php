@@ -69,6 +69,7 @@ class QActivityType extends CActiveRecord
 			array('value', 'length', 'max' => 32),
 		    array('value', 'filter', 'filter' => 'trim'),
 		    array('value', 'filter', 'filter' => 'strtolower'),
+		    array('value', 'match', 'pattern' => '/^([a-z0-9_])+$/'),
 		    array('value', 'required'),
 		    
 			array('translation', 'length', 'max' => 255),
