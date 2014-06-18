@@ -23,6 +23,7 @@ class CatalogModule extends CWebModule
     /**
      * @var string - Тип вкладок каталога. Используется в объекте DefaultScope,
      *               при сохранении критериев выборки анкет в раздел.
+     * @deprecated вкладки больше не используются: теперь используем только иерархические разделы
      */
     const BASE_TAB_TYPE = 'catalog|tab';
     
@@ -194,7 +195,7 @@ class CatalogModule extends CWebModule
 	 *
 	 * @return null
 	 *
-	 * @todo вынести время хранения переменной в сессии в настройки
+	 * @deprecated оставлено для совместимости: навигация по анкетам через сессию больше не используется
 	 */
 	protected static function initCatalogNavigation()
 	{
@@ -215,6 +216,8 @@ class CatalogModule extends CWebModule
 	 * Получить информацию о навигации в каталоге
 	 * 
 	 * @return array|bool
+	 * 
+	 * @deprecated оставлено для совместимости: навигация по анкетам через сессию больше не используется
 	 */
 	public static function getCatalogNavigation()
 	{
@@ -227,6 +230,8 @@ class CatalogModule extends CWebModule
 	
 	/**
 	 * Удалить данные навигации из сессии
+	 * 
+	 * @deprecated оставлено для совместимости: навигация по анкетам через сессию больше не используется
 	 */
 	public static function clearNavigationData()
 	{
@@ -244,6 +249,8 @@ class CatalogModule extends CWebModule
 	 *                     page - номер страницы (если каталог разбит на страницы)
 	 *                     
 	 * @return int|string
+	 * 
+	 * @deprecated оставлено для совместимости: навигация по анкетам через сессию больше не используется
 	 */
 	public static function getNavigationParam($name)
 	{
@@ -261,8 +268,9 @@ class CatalogModule extends CWebModule
 	 *                     tab - короткое название вкладки каталога внутри раздела
 	 *                     page - номер страницы (если каталог разбит на страницы)
 	 * @param string|int $value - значение переменной навигации
-	 *
 	 * @return null
+	 * 
+	 * @deprecated оставлено для совместимости: навигация по анкетам через сессию больше не используется
 	 */
 	public static function setNavigationParam($name, $value)
 	{
