@@ -32,7 +32,21 @@ class ExtraField extends CActiveRecord
 	{
 		return array(
 			array('name', 'required'),
-			array('name', 'filter', 'filter' => 'trim'),
+		    // в названии поля могут быть только латинские буквы, цифры и подчеркивание
+		    array('name', 'match', 'pattern' => '/^([a-z0-9_])+$/'),
+		    // название поля должно быть уникальным во всем списке доп. полей
+		    array('name', 'unique', 
+                'attributeName' => 'name',
+		        'className'     => 'ExtraField',
+		        'on'            => 'insert',
+            ),
+		    array('name', 'unique', 
+                'attributeName' => 'name',
+		        'className'     => 'ExtraField',
+		        'criteria'      => array('condition' => "`id` <> '$this->id'"),
+		        'on'            => 'update',
+            ),
+			array('name, type, label, description', 'filter', 'filter' => 'trim'),
 			array('name, type, label', 'length', 'max' => 255),
 			array('description', 'length', 'max' => 4095),
 			array('timecreated, timemodified', 'length', 'max' => 11),
@@ -64,7 +78,7 @@ class ExtraField extends CActiveRecord
 	{
 		return array(
 		    // все ссылки на это поле
-            'fieldInstances' => array(self::HAS_MANY, 'ExtraFieldInstance', 'fieldid'),
+            'instances' => array(self::HAS_MANY, 'ExtraFieldInstance', 'fieldid'),
 		    // все роли, к которым прикреплено это поле
 		    // @todo проверить правильно ли указан порядок полей в составном ключе
 		    /*'vacancies' => array(self::MANY_MANY, 'EventVacancy', "{{extra_field_instances}}(fieldid, objectid)",
@@ -72,16 +86,6 @@ class ExtraField extends CActiveRecord
 		    ),*/
 		);
 	}
-	
-	/**
-	 * @see CActiveRecord::defaultScope()
-	 */
-	/*public function defaultScope()
-	{
-	    return array(
-	        'order' => "`label`",
-	    );
-	}*/
 	
 	/**
 	 * @see CActiveRecord::beforeSave()
@@ -98,10 +102,10 @@ class ExtraField extends CActiveRecord
 	{
 		return array(
 			'id' => 'ID',
-			'name' => 'Name',
-			'type' => 'Type',
-			'label' => 'Label',
-			'description' => 'Description',
+			'name' => 'Служебное название',
+			'type' => 'Тип поля',
+			'label' => 'Название (как этот текст)',
+			'description' => 'Дополнительное пояснение',
 			'timecreated' => 'Timecreated',
 			'timemodified' => 'Timemodified',
 		);
@@ -149,6 +153,64 @@ class ExtraField extends CActiveRecord
 	}
 	
 	/**
+	 * @see CActiveRecord::defaultScope()
+	 */
+	public function defaultScope()
+    {
+    	return array(
+    	    'order' => "`label` ASC",
+    	);
+	}
+	
+	/**
+	 * Именованая группа условий: получить все поля, привязаные к определенному объекту
+	 * @param string $objectType
+	 * @param int $objectId
+	 * @return ExtraField
+	 */
+	public function forObject($objectType, $objectId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->with = array(
+	        'instances' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes'   => array(
+                    'forObject' => array($objectType, $objectId),
+                ),
+            ),
+	    );
+	    $criteria->together = true;
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    return $this;
+	}
+	
+	/**
+	 * Именованая группа условий: получить все поля, привязаные к указанным категориям
+	 * @param array $objectId
+	 * @return ExtraField
+	 */
+	public function forCategories($categoryIds)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->with = array(
+	        'instances' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes'   => array(
+                    'forType'    => array('category'),
+	                'forObjects' => array($categoryIds),
+                ),
+            ),
+	    );
+	    $criteria->together = true;
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    return $this;
+	}
+	
+	/**
 	 * Определить, пусто ли требующее заполнения дополнительное поле
 	 * 
 	 * @param string $objectType - 
@@ -179,11 +241,11 @@ class ExtraField extends CActiveRecord
 	/**
 	 * Определить, пусто ли требующее заполнения дополнительное поле
 	 *
-	 * @param string $objectType -
-	 * @param int    $objectId -
+	 * @param  string $objectType -
+	 * @param  int    $objectId -
 	 * @return bool
 	 *
-	 * @todo
+	 * @todo документировать
 	 */
 	public function isRequiredFor($objectType, $objectId)
 	{
@@ -262,5 +324,43 @@ class ExtraField extends CActiveRecord
 	public function isAttachedTo($objectType, $objectId)
 	{
 	    return ExtraFieldInstance::model()->forField($this->id)->attachedTo($objectType, $objectId)->exists();
+	}
+	
+	/**
+	 * Определить, является ли поле "потерянным" - то есть не принадлежащим ни одной категории
+	 * @return bool
+	 *         true - да, поле беспризорное :)
+	 *         false - поле находится хотя бы в одной категории
+	 */
+	public function isOrphaned()
+	{
+	    return ! ExtraFieldInstance::model()->forField($this->id)->forType('category')->exists();
+	}
+	
+	/**
+	 * Получить список возможных вариантов содержимого для категории
+	 * @return array
+	 *
+	 * @todo перенести в список стандартных значений
+	 */
+	public function getTypeOptions()
+	{
+	    return array(
+	        'textarea' => 'Текстовое поле [textarea]',
+	        'text'     => 'Текстовая строка [text]',
+	        'checkbox' => 'Галочка [checkbox]',
+	    );
+	}
+	
+	/**
+	 * Получить текущее значение для пользователя
+	 * @return string
+	 * 
+	 * @todo перенести в список стандартных значений
+	 */
+	public function getTypeOption()
+	{
+	    $types = $this->getTypeOptions();
+	    return $types[$this->type];
 	}
 }
