@@ -240,13 +240,13 @@ class QSearchForm extends SearchFilters
             $redirectScript = "document.location = '{$url}';return true;";
         }
         return "function(data, status){
-            {$redirectScript}
             //$('#{$this->searchResultsId}').html(data);
             $('#{$this->countResultsId}').html(data);
             
             $('#{$this->searchButtonHtmlOptions['id']}').removeProp('disabled');
             $('#{$this->searchButtonHtmlOptions['id']}').attr('class', '{$this->searchButtonHtmlOptions['class']}');
             $('#{$this->searchButtonHtmlOptions['id']}').val('{$this->searchButtonTitle}');
+            {$redirectScript}
         }";
     }
     
