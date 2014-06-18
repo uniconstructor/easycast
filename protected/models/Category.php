@@ -52,6 +52,10 @@ class Category extends CActiveRecord
 		    'parent' => array(self::BELONGS_TO, 'Category', 'parentid'),
 		    // все ссылки на эту категорию
 		    'instances' => array(self::HAS_MANY, 'CategoryInstance', 'categoryid'),
+		    // дополнительные поля, которые находятся в этой категории
+		    'extraFields' => array(self::MANY_MANY, 'ExtraField', "{{extra_field_instances}}(objectid, fieldid)",
+		        'condition' => "`objecttype` = 'category'",
+		    ),
 		);
 	}
 
@@ -134,28 +138,21 @@ class Category extends CActiveRecord
 	}
 	
 	/**
-	 * Именованная группа условий: получить все дочерние категории от указанной
-	 * (не рекурсивно, глубина - 1 уровень)
+	 * Именованная группа условий: получить все категории с содержимым определенного типа
 	 * 
-	 * @param int|array - $parentIds один или несколько id родительских категорий
+	 * @param array|string $types
 	 * @return Category
 	 */
-	public function forParent($parentIds)
+	public function withType($types)
 	{
 	    $criteria = new CDbCriteria();
-	    if ( ! is_array($parentIds) AND is_numeric($parentIds) )
+	    if ( ! is_array($types) )
 	    {
-	        $parentId = intval($parentIds);
-	        $criteria->compare('parentid', $parentId);
-	    }elseif ( is_array($parentIds) )
-	    {
-	        $criteria->addInCondition('parentid', $parentIds);
-	    }else
-	    {
-	        throw new CException('Неправильный формат параметра для условия forParent()');
+	        $types = array($types);
 	    }
-	    $this->getDbCriteria()->mergeWith($criteria);
+	    $criteria->addInCondition('type', $types);
 	    
+	    $this->getDbCriteria()->mergeWith($criteria);
 	    return $this;
 	}
 	
