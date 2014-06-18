@@ -13,6 +13,8 @@
  * Relations:
  * @property Category $parent
  * @property CategoryInstance[] $instances
+ * 
+ * @todo добавить maxinstances/mininstances
  */
 class Category extends CActiveRecord
 {
@@ -106,22 +108,62 @@ class Category extends CActiveRecord
 	}
 	
 	/**
-	 * Именованная группа условий: получить все дочерние категории (глубина - 1 уровень) 
-	 * @param int $parentId
+	 * Именованная группа условий: получить все дочерние категории от указанной
+	 * (не рекурсивно, глубина - 1 уровень)
+	 * 
+	 * @param int|array - $parentIds один или несколько id родительских категорий
 	 * @return Category
 	 */
-	public function childrenFor($parentId)
+	public function forParent($parentIds)
 	{
 	    $criteria = new CDbCriteria();
-	    $criteria->compare('parentid', $parentId);
-	     
+	    if ( ! is_array($parentIds) AND is_numeric($parentIds) )
+	    {
+	        $parentId = intval($parentIds);
+	        $criteria->compare('parentid', $parentId);
+	    }elseif ( is_array($parentIds) )
+	    {
+	        $criteria->addInCondition('parentid', $parentIds);
+	    }else
+	    {
+	        throw new CException('Неправильный формат параметра для условия forParent()');
+	    }
 	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
+	}
+	
+	/**
+	 * Именованная группа условий: получить все дочерние категории от указанной
+	 * (не рекурсивно, глубина - 1 уровень)
+	 * 
+	 * @param int|array - $parentIds один или несколько id родительских категорий
+	 * @return Category
+	 */
+	public function forParent($parentIds)
+	{
+	    $criteria = new CDbCriteria();
+	    if ( ! is_array($parentIds) AND is_numeric($parentIds) )
+	    {
+	        $parentId = intval($parentIds);
+	        $criteria->compare('parentid', $parentId);
+	    }elseif ( is_array($parentIds) )
+	    {
+	        $criteria->addInCondition('parentid', $parentIds);
+	    }else
+	    {
+	        throw new CException('Неправильный формат параметра для условия forParent()');
+	    }
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
 	    return $this;
 	}
 	
 	/**
 	 * Получить список возможных вариантов содержимого для категории
 	 * @return array
+	 * 
+	 * @todo перенести в список стандартных значений
 	 */
 	public function getTypeOptions()
 	{
@@ -137,6 +179,8 @@ class Category extends CActiveRecord
 	/**
 	 * 
 	 * @return string
+	 * 
+	 * @todo перенести в список стандартных значений
 	 */
 	public function getTypeOption()
 	{
