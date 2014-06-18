@@ -119,7 +119,8 @@ class EditCategoryInstances extends EditableGrid
      */
     protected function getCategoryOptions()
     {
-        $models = Category::model()->findAll("`parentid` = {$this->parentId}");
+        $models = Category::model()->forParent($this->parentId)->findAll();
+        //$models = Category::model()->findAll("`parentid` = {$this->parentId}");
         return CHtml::listData($models, 'id', 'name');
     }
     
