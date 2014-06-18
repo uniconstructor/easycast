@@ -14,6 +14,8 @@
  * @property SearchScope $scope
  * @property CatalogFilter[] $searchFilters
  * @property CatalogSection[] $sections
+ * 
+ * @deprecated CatalogTab и CatalogTabInstance больше не используется, удалить эти таблицы и модели при рефакторинге
  */
 class CatalogTab extends CActiveRecord
 {

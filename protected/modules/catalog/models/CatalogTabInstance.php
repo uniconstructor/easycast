@@ -18,8 +18,7 @@
  * @property CatalogTabInstance $parentLink
  * @property CatalogSection $section
  * 
- * @todo убрать поле lang - оно здесь не нужно
- * @todo добавить поле order - чтобы вкладки можно было выводить в указанном порядке
+ * @deprecated CatalogTab и CatalogTabInstance больше не используется, удалить эти таблицы и модели при рефакторинге
  */
 class CatalogTabInstance extends CActiveRecord
 {
