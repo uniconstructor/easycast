@@ -24,10 +24,12 @@
  * 
  * Relations:
  * @property SearchScope $scope
- * @property CatalogFilterInstance[] $filterinstances
+ * @property CatalogFilter[] $searchFilters - список используемых фильтров поиска
  * @property ProjectEvent $event
- * @property ExtraField[] $extraFields
- * @property QUserField[] $userFields
+ * @property ExtraField[] $extraFields - список дополнительных полей при подаче заявки
+ * @property QUserField[] $userFields - список обязательных полей анкеты при подаче заявки
+ * @property Category[] $extraFieldCategories - используемые категории доп. полей
+ * @property Category[] $sectionCategories - используемые категории разделов отбора заявок
  * 
  * @todo все прямые обращения к статусам заменить на константы
  * @todo запретить редактирование поисковых условий если вакансия - не черновик
@@ -285,6 +287,8 @@ class EventVacancy extends CActiveRecord
 		    'event' => array(self::BELONGS_TO, 'ProjectEvent', 'eventid'),
 		    // критерий поиска, по которому выбираются подходящие на вакансию участники 
 		    'scope' => array(self::BELONGS_TO, 'SearchScope', 'scopeid'),
+		    
+		    
 		    // дополнительные поля, необходимые для подачи заявки на эту роль
 		    'extraFields' => array(self::MANY_MANY, 'ExtraField', "{{extra_field_instances}}(objectid, fieldid)",
 		        'condition' => "`objecttype` = 'vacancy'",
@@ -293,28 +297,33 @@ class EventVacancy extends CActiveRecord
 		    'userFields' => array(self::MANY_MANY, 'QUserField', "{{q_field_instances}}(objectid, fieldid)",
 		        'condition' => "`objecttype` = 'vacancy'",
 		    ),
-		    //'extraFieldInstances' => array(self::HAS_MANY, 'ExtraFieldInstance', 'objectid',
-		    //    'condition' => "`objecttype` = 'vacancy'",
-		    //),
 		    // доступные фильтры поиска для этой вакансии
 		    'searchFilters' => array(self::MANY_MANY, 'CatalogFilter', "{{catalog_filter_instances}}(linkid, filterid)",
 		        'condition' => "`linktype` = 'vacancy'",
 		    ),
+		    // Группы дополнительных полей, используемых в этой роли
+		    // @todo искоренить антипаттерн "magic numbers": убрать из условий конкретный parentid
+		    //       есть два возможных решения:
+		    //       - включить условие по scopes и убрать parentid
+		    //       - вынести parentid, содержащие списки разделов и наборы полей в настройку
+		    'extraFieldCategories' => array(self::MANY_MANY, 'Category', "{{category_instances}}(objectid, categoryid)", 
+                'condition' => "`objecttype` = 'vacancy' AND `parentid` = 5",
+		    //    'scopes'    => array('withType' => array('extrafields')),
+		    ),
+		    // Разделы вкладок для заявок участников, используемых в этой роли
+		    // @todo искоренить антипаттерн "magic numbers": убрать из условий конкретный parentid
+		    //       есть два возможных решения:
+		    //       - включить условие по scopes и убрать parentid
+		    //       - вынести parentid, содержащие списки разделов и наборы полей в настройку
+		    'sectionCategories' => array(self::MANY_MANY, 'Category', "{{category_instances}}(objectid, categoryid)",
+                'condition' => "`objecttype` = 'vacancy'  AND `parentid` = 4",
+            //    'scopes'    => array('withType' => array('sections')),
+		    ),
+		    
 		    
 		    // Заявки на участие
 		    // @todo переписать через именованные группы условий
 		    'requests' => array(self::HAS_MANY, 'MemberRequest', 'vacancyid'),
-		    
-		    // Статистика
-		    // Количество поданых заявок
-		    // @todo переписать через именованные группы условий
-		    'requestsCount' => array(self::STAT, 'MemberRequest', 'vacancyid'),
-		    // Количество подтвержденных заявок
-		    // @todo переписать через именованные группы условий
-		    'membersCount' => array(self::STAT, 'ProjectMember', 'vacancyid', 
-		        'condition' => "`status` = 'active' OR `status` = 'finished'",
-		    ),
-		    
 		    // одобренные заявки на вакансию
 		    // @todo переписать через именованные группы условий
 		    // @deprecated - переписано: используется функция members(), связь оставлена для совместимости
@@ -334,6 +343,17 @@ class EventVacancy extends CActiveRecord
 		    // @todo удалить при рефакторинге, вместо нее использовать связь searchFilters
 		    'filterinstances' => array(self::HAS_MANY, 'CatalogFilterInstance', 'linkid',
 		        'condition' => "`linktype` = 'vacancy'",
+		    ),
+		    
+		    
+		    // Статистика
+		    // Количество поданых заявок
+		    // @todo переписать через именованные группы условий
+		    'requestsCount' => array(self::STAT, 'MemberRequest', 'vacancyid'),
+		    // Количество подтвержденных заявок
+		    // @todo переписать через именованные группы условий
+		    'membersCount' => array(self::STAT, 'ProjectMember', 'vacancyid',
+		        'condition' => "`status` = 'active' OR `status` = 'finished'",
 		    ),
 		);
 	}
