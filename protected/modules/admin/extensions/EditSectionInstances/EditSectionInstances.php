@@ -17,13 +17,9 @@ class EditSectionInstances extends EditableGrid
      */
     public $objectType;
     /**
-     * @var Category - список категорий из которых можно брать разделы
+     * @var Category[] - список категорий из которых можно брать разделы
      */
     public $categories = array();
-    /**
-     * @var CActiveRecord - объект к которому привязываются дополнительные поля
-     */
-    //public $targetObject;
     /**
      * @var string - сообщение перед удалением записи
      */
@@ -36,29 +32,13 @@ class EditSectionInstances extends EditableGrid
      */
     public $gridControllerPath = '/admin/sectionInstanceGrid/';
     /**
-     * @var string - префикс html-id для каждой строки таблицы (чтобы можно было удалять строки)
-     */
-    public $rowIdPrefix = 'section_instance_row_';
-    /**
      * @var string - пустой класс модели (для создания формы добавления объекта)
      */
     public $modelClass  = 'CatalogSectionInstance';
     /**
      * @var array - список редактируемых полей в том порядке, в котором они идут в таблице
      */
-    public $fields = array('objecttype', 'objectid', 'sectionid');
-    /**
-     * @var string - html-id формы для ввода новой записи
-    */
-    public $formId = 'section-instance-form';
-    /**
-     * @var string - html-id modal-окна для ввода новой записи
-     */
-    public $modalId = 'section-instance-modal';
-    /**
-     * @var string - html-id кнопки для ввода новой записи
-     */
-    public $addButtonId = 'add-section-instance-button';
+    public $fields  = array('objecttype', 'objectid', 'sectionid');
     /**
      * @var string - заголовок всплывающего окна с формой добавления новой записи
      */
