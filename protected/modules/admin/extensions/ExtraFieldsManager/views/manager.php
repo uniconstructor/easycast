@@ -127,6 +127,7 @@ $newSectionsUrl = Yii::app()->createUrl('/admin/category/index/', array('parentI
                 $this->widget('admin.extensions.EditExtraFieldInstances.EditExtraFieldInstances', array(
                     'objectType' => 'vacancy',
                     'objectId'   => $this->vacancy->id,
+                    'categories' => $this->vacancy->extraFieldCategories,
                 ));
             }else
             {// пока не выбрано ни одной категории полей - выводим сообщение
