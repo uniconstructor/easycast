@@ -299,6 +299,10 @@ class QDynamicFormModel extends CFormModel
      * @var bool - выводить ли фрагменты формы для тех полей анкеты, которые уже заполнены
      */
     public $displayFilled = true;
+    /**
+     * @var string - статус в котором анкеты начинают свою жизнь после регистрации
+     */
+    public $initialStatus = Questionary::STATUS_UNCONFIRMED;
     
     /**
      * @var Questionary - редактируемая или создаваемая (при регистрации) анкета
@@ -311,17 +315,17 @@ class QDynamicFormModel extends CFormModel
     /**
      * @var QUserField[] - список не заполненных полей анкеты, которые нужно указать прежде чем подать заявку на роль
      */
-    protected $emptyUserFields = array();
-    /**
-     * @var QUserField[] - список всех полей анкеты, которые нужно указать прежде чем подать заявку на роль
-     */
-    protected $userFields = array();
+    protected $emptyUserFields  = array();
     /**
      * @var ExtraField[] - список не заполненных дополнительных полей, 
      *                     которые нужно указать прежде чем подать заявку на роль
      *                     (не хранятся в анкете, потому что как правило требуются один раз для одной роли)
      */
     protected $emptyExtraFields = array();
+    /**
+     * @var QUserField[] - список всех полей анкеты, которые нужно указать прежде чем подать заявку на роль
+     */
+    protected $userFields  = array();
     /**
      * @var ExtraField[] - список всех дополнительных полей анкеты, 
      *                     которые нужно указать прежде чем подать заявку на роль
@@ -332,13 +336,16 @@ class QDynamicFormModel extends CFormModel
      * @var array - список правил формы для метода rules()
      *              (составляется в зависимости от требований роли) 
      */
-    protected $_rules = array();
+    protected $_rules      = array();
     /**
      * @var array - массив с доп. полями анкеты. Нужен чтобы форма воспринимала из как свои родные поля
      */
     protected $_attributes = array();
     
     /**
+     * Геттер и сеттер переопределены для того чтобы модель формы считала все 
+     * дополнительные поля заявки "своими" и применяла для них стандартную валидацию 
+     * 
      * @see CComponent::__get()
      */
     public function __get($name)
@@ -353,6 +360,9 @@ class QDynamicFormModel extends CFormModel
     }
     
     /**
+     * Геттер и сеттер переопределены для того чтобы модель формы считала все 
+     * дополнительные поля заявки "своими" и применяла для них стандартную валидацию
+     * 
      * @see CComponent::__set()
      */
     public function __set($name, $value)
@@ -690,7 +700,6 @@ class QDynamicFormModel extends CFormModel
             array($fieldName, 'filter', 'filter' => 'trim'),
             array($fieldName, 'length', 'max' => 4000),
         );
-        
         if ( $field->isRequiredFor('vacancy', $this->vacancy->id) AND ! Yii::app()->user->checkAccess('Admin') )
         {
             $rules[] = array($fieldName, 'required');
@@ -708,7 +717,6 @@ class QDynamicFormModel extends CFormModel
         {// можем начинать только если есть все необходимые параметры
             return;
         }
-        
         foreach ( $this->extraFields as $name => $extraField )
         {// загружаем в форму все значения доп. полей
             $fieldName = $this->extraFieldPrefix.$extraField->name;
@@ -727,7 +735,6 @@ class QDynamicFormModel extends CFormModel
                 $this->$name = $this->questionary->$name;
             }
         }
-        
         if ( ! $this->scenario != 'registration' AND $gallery = $this->questionary->getGallery() )
         {// галерея с изображениями устанавливается отдельно
             $this->galleryid = $gallery->id;
@@ -767,17 +774,19 @@ class QDynamicFormModel extends CFormModel
     protected function hasPhotos($galleryId)
     {
         if ( ! $gallery = Gallery::model()->findByPk($galleryId) )
-        {
-            throw new CException('Ошибка при сохранении фотографий: невозможно найти галерею изображений');
+        {// галерея не найдена - значит нет и фотографий
+            return false;
         }
-        
+        // создаем условие для проверки того существует ли уже анкета с такой галереей
         $criteria = new CDbCriteria();
         $criteria->compare('galleryid', $gallery->id);
-        if ( $this->questionary->id )
-        {
-            $criteria->addNotInCondition('id', array($this->questionary->id));
+        
+        if ( isset($this->questionary->id) AND $this->questionary->id )
+        {// если заявка подается от существующего участника
+            //$criteria->addNotInCondition('id', array($this->questionary->id));
+            $criteria->compare('id', '<>'.$this->questionary->id);
         }
-        if ( Questionary::model()->exists($criteria) )
+        if ( $this->scenario === 'registration' AND Questionary::model()->exists($criteria) )
         {// проверяем, что никто не подставил чужую галерею при сохранении
             throw new CException('Ошибка при сохранении фотографий: невозможно найти галерею изображений');
         }
@@ -854,9 +863,9 @@ class QDynamicFormModel extends CFormModel
         {// сохраняем все поля анкеты
             $questionary->$name = $this->$name;
         }
-        if ( ! Yii::app()->user->checkAccess('Admin') OR $questionary->status != Questionary::STATUS_ACTIVE )
+        if ( $this->scenario === 'registration' )
         {// новым созданным анкетам проставляется статус "требует проверки"
-            $questionary->status = Questionary::STATUS_PENDING;
+            $questionary->status = $this->initialStatus;
         }
         // Устанавливаем и сохраняем условия съемок
         $questionary->recordingconditions->save();
@@ -973,7 +982,7 @@ class QDynamicFormModel extends CFormModel
     
     /**
      * 
-     * @param unknown $event
+     * @param CModelEvent $event
      * @return void
      */
     public function onNewUserCreatedByVacancy($event)
@@ -983,7 +992,7 @@ class QDynamicFormModel extends CFormModel
     
     /**
      * 
-     * @param unknown $event
+     * @param CModelEvent $event
      * @return void
      */
     public function onNewRegistration($event)
