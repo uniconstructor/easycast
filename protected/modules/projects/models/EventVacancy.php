@@ -555,7 +555,7 @@ class EventVacancy extends CActiveRecord
 	    foreach ( $this->extraFields as $extraField )
 	    {/* @var $extraField ExtraField */
     	    if ( $extraField->isRequiredFor('vacancy', $this->id) AND 
-                 $extraField->isEmptyForVacancy($this->vacancy, $this->questionary) )
+                 $extraField->isEmptyForVacancy($this, $this->questionary) )
     	    {// как минимум одно дополнительное поле требует заполнения
     	       return true;
     	    }
