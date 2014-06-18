@@ -49,7 +49,7 @@ foreach ( $categories as $category )
                 ));
                 if ( $parentId == 5 )
                 {// в разделе доп. полей заявки можно увидеть отредактировать весь список полей
-                    echo '<br><h3>Создать новое поле</h3><br>';
+                    echo '<br><h2>Все дополнительные поля:</h2><br>';
                     $this->widget('admin.extensions.EditExtraFields.EditExtraFields', array(
                         'categoryId' => $currentCategory->id,
                     ));
