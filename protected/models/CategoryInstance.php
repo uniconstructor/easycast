@@ -11,6 +11,8 @@
  * 
  * Relations:
  * @property Category $category
+ * 
+ * @todo добавить timecreated/timemodified
  */
 class CategoryInstance extends CActiveRecord
 {
@@ -112,6 +114,23 @@ class CategoryInstance extends CActiveRecord
                 'condition' => "`category`.`type`='{$type}'",
             ),
 	    );
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
+	}
+	
+    /**
+	 * Именованая группа условий: получить все ссылки на категории, связанные с определенным объектом
+	 * 
+	 * @param string $objectType
+	 * @param string $objectId
+	 * @return CategoryInstance
+	 */
+	public function forObject($objectType, $objectId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('objecttype', $objectType);
+	    $criteria->compare('objectid', $objectId);
 	    
 	    $this->getDbCriteria()->mergeWith($criteria);
 	    
