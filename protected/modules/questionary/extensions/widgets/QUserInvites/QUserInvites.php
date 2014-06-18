@@ -59,6 +59,10 @@ class QUserInvites extends CWidget
      */
     public function run()
     {
+        if ( ! $this->questionary )
+        {
+            return;
+        }
         if ( $this->mode == 'new' )
         {
             if ( ! $invites = $this->questionary->invites )
