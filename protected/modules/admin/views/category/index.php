@@ -47,19 +47,30 @@ foreach ( $categories as $category )
                 $this->widget('admin.extensions.EditCategories.EditCategories', array(
                     'parentId' => $parentId,
                 ));
+                if ( $parentId == 5 )
+                {// в разделе доп. полей заявки можно увидеть отредактировать весь список полей
+                    echo '<br><h3>Создать новое поле</h3><br>';
+                    $this->widget('admin.extensions.EditExtraFields.EditExtraFields', array(
+                        'categoryId' => $currentCategory->id,
+                    ));
+                }
             break;
             case 'sections':
+                // редактор разделов анкеты
                 $this->widget('admin.extensions.EditCatalogSections.EditCatalogSections', array(
                     'categoryId' => $currentCategory->id,
                 ));
             break;
             case 'userfields':
+                // редактор групп обязательных полей анкеты (шаблоны создания анкеты)
                 $this->widget('admin.extensions.EditRequiredFields.EditRequiredFields', array(
                     'objectId'   => $currentCategory->id,
                     'objectType' => 'category',
                 ));
             break;
             case 'extrafields':
+                // редактор групп дополнительных ролей заявки
+                echo '<br><h4>Добавить существующее поле</h4><br>';
                 $this->widget('admin.extensions.EditExtraFieldInstances.EditExtraFieldInstances', array(
                     'objectId'   => $currentCategory->id,
                     'objectType' => 'category',
