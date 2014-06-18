@@ -10,8 +10,8 @@
 // ошибки формы
 echo $form->errorSummary(array($model), null, null, array('id' => $this->formId.'_errors'));
 // тип и id для привязки нового поля 
-echo CHtml::hiddenField('objectType', $this->objectType);
-echo CHtml::hiddenField('objectId', $this->objectId);
+echo $form->hiddenField($model, 'objecttype');
+echo $form->hiddenField($model, 'objectid');
 
 // прикрепляемое поле
 $options = $this->getFieldIdOptions();

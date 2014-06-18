@@ -75,14 +75,8 @@ class ExtraFieldInstanceController extends Controller
      */
     public function actionCreate()
     {
-        // id объекта к которому прикрепляется поле
-        $objectId   = Yii::app()->request->getParam('objectId', 0);
-        // тип объекта к которому прикрепляется поле
-        $objectType = Yii::app()->request->getParam('objectType');
         // создаем модель для добавления
         $instance = $this->initModel();
-        $instance->objecttype = $objectType;
-        $instance->objectid   = $objectId;
         
         // ajax-проверка введенных данных
         $this->performAjaxValidation($instance);
@@ -177,7 +171,6 @@ class ExtraFieldInstanceController extends Controller
      */
     protected function initModel()
     {
-        //$modelClass = $this->modelClass;
         return new $this->modelClass;
     }
 
