@@ -313,7 +313,7 @@ return array(
             // стандартное время хранения сессии: 2 месяца
             'timeout'                => 3600 * 24 * 60,
             'connectionID'           => 'db',
-            'autoCreateSessionTable' => true,
+            'autoCreateSessionTable' => false,
         ),
         
         // Настройки js-библиотек и скриптов
