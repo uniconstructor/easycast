@@ -7,6 +7,7 @@
  * @todo прописать проверки обязательных полей в init
  * @todo сделать настройку помещать/не помещать формы в клип
  * @todo переписать дочерние классы: использовать controllerPath вместо отдельного указания трех URL
+ * @todo переписать дочерние классы: убрать генерацию ненужных id
  */
 class EditableGrid extends CWidget
 {
@@ -38,13 +39,28 @@ class EditableGrid extends CWidget
      */
     public $updateUrl;
     /**
+     * @var string - главный префикс для всех id использующихся в виджете
+     *               Обеспечивает уникальность id всех элементов виджета
+     *               Если не задан - то используется название модели
+     */
+    public $mainIdPrefix;
+    /**
      * @var string - префикс html-id для каждой строки таблицы (чтобы можно было удалять строки)
      */
     public $rowIdPrefix;
     /**
      * @var string - префикс для свойства name у editable полей
+     * @deprecated похоже что этот параметр не используется: убедиться в этом и удалить при рефакторинге
      */
     public $rowEditPrefix;
+    /**
+     * @var string - html-id modal-окна для ввода новой записи
+     */
+    public $modalId;
+    /**
+     * @var string - html-id кнопки для ввода новой записи
+     */
+    public $addButtonId;
     /**
      * @var string - пустой класс модели (для создания формы добавления объекта)
      */
@@ -58,13 +74,9 @@ class EditableGrid extends CWidget
     */
     public $formId;
     /**
-     * @var string - html-id modal-окна для ввода новой записи
+     * @var array - массив настроек виджета TbButton для кнопки "добавить"
      */
-    public $modalId;
-    /**
-     * @var string - html-id кнопки для ввода новой записи
-     */
-    public $addButtonId;
+    public $addButtonOptions = array();
     /**
      * @var string - надпись на кнопке добавления новой записи
      */
@@ -116,14 +128,36 @@ class EditableGrid extends CWidget
         {
             $this->deleteUrl = $this->gridControllerPath.'delete';
         }
-        
+        // вычисляем все id для html-элементов если они не заданы
+        if ( ! $this->mainIdPrefix )
+        {
+            $this->mainIdPrefix = $this->getId().'_'.$this->modelClass;
+        }
+        if ( ! $this->rowEditPrefix )
+        {
+            $this->rowEditPrefix = 'e_'.$this->mainIdPrefix.'_row_';
+        }
+        if ( ! $this->rowIdPrefix )
+        {
+            $this->rowIdPrefix = $this->mainIdPrefix.'_row_';
+        }
+        if ( ! $this->addButtonId )
+        {
+            $this->addButtonId = 'add-'.$this->mainIdPrefix.'-button';
+        }
+        if ( ! $this->formId )
+        {
+            $this->formId  = $this->mainIdPrefix.'-grid-edit-form';
+        }
+        if ( ! $this->modalId )
+        {
+            $this->modalId = 'add-'.$this->mainIdPrefix.'-modal';
+        }
         // создаем пустую модель для формы
         $this->initModel();
+        // настраиваем кнопку добавления новой записи
+        $this->initAddButtonOptions();
         
-        if ( ! $this->rowEditPrefix )
-        {// вычисляем префикс для id строки таблицы
-            $this->rowEditPrefix = $this->modelClass;
-        }
         // регистрируем клип с формой в модуле анкет для того чтобы позже вывести его в конце формы
         $this->registerFormClip();
     }
@@ -134,7 +168,6 @@ class EditableGrid extends CWidget
      */
     protected function initModel()
     {
-        //$className = $this->modelClass;
         $this->model = new $this->modelClass;
     }
     
@@ -162,6 +195,29 @@ class EditableGrid extends CWidget
         $this->owner->beginClip($this->clipId);
         $this->render($this->viewsPrefix.'_form', array('model' => $this->model));
         $this->owner->endClip();
+    }
+    
+    /**
+     * Установить параметры для кнопки "добавить" (в конце таблицы)
+     * @return array
+     */
+    protected function initAddButtonOptions()
+    {
+        $defaults = array(
+            'buttonType'  => 'link',
+            'type'        => 'success',
+            'size'        => 'large',
+            'label'       => $this->addButtonLabel,
+            'icon'        => 'plus white',
+            'url'         => '#',
+            'htmlOptions' => array(
+                'id'          => $this->addButtonId,
+                'class'       => 'pull-right',
+                'data-toggle' => 'modal',
+                'data-target' => '#'.$this->modalId,
+            )
+        );
+        $this->addButtonOptions = CMap::mergeArray($defaults, $this->addButtonOptions);
     }
     
     /**

@@ -1,6 +1,8 @@
 <?php
 /**
  * Отображение таблицы со списком записей и всплывающего modal-окна с формой добавления новой записи
+ * 
+ * @todo сделать все параметры TbExtendedGridView настраеваемыми (как TbButtonOptions)
  */
 /* @var $this EditableGrid */
 
@@ -24,18 +26,4 @@ $grid = $this->widget('bootstrap.widgets.TbExtendedGridView', array(
 ));
 
 // кнопка добавления новой записи
-$this->widget('bootstrap.widgets.TbButton', array(
-        'buttonType'  => 'link',
-        'type'        => 'success',
-        'size'        => 'large',
-        'label'       => $this->addButtonLabel,
-        'icon'        => 'plus white',
-        'url'         => '#',
-        'htmlOptions' => array(
-            'id'          => $this->addButtonId,
-            'class'       => 'pull-right',
-            'data-toggle' => 'modal',
-            'data-target' => '#'.$this->modalId,
-        )
-    )
-);
+$this->widget('bootstrap.widgets.TbButton', $this->addButtonOptions);
