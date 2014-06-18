@@ -2,7 +2,6 @@
 
 /**
  * Виджет для отображения списка анкет в категории и списка категорий каталога
- * 
  * @todo добавить локализацию
  */
 class CatalogData extends CWidget
@@ -90,24 +89,11 @@ class CatalogData extends CWidget
         // первая вкладка - всегда название раздела
         $tabs[] = $this->getMainTab();
         
-        // ищем все вкладки, прикрепленные к разделу
-        // @todo вынести в init
-        /*$instances = CatalogTabInstance::model()->findAll(
-            'sectionid = :sectionid AND visible = 1', 
-            array(':sectionid' => $this->sectionid)
-        );
-        
-        foreach ( $instances as $instance )
-        {
-            $tabs[] = $this->getTab($instance->tab);
-        }*/
-        
         // @todo последняя вкладка - всегда поиск по фильтрам
         if ( $this->section->id != 1 )
         {
             $tabs[] = $this->getSearchTab();
         }
-        
         return $tabs;
     }
     
@@ -142,16 +128,12 @@ class CatalogData extends CWidget
         }else
         {// раздел содержит анкеты
             $criteria = $this->section->scope->getCombinedCriteria();
-            
-            // @todo прописать активный статус в условиях самих разделов
-            $criteria->compare('status', 'active');
             $dataProvider = new CActiveDataProvider('Questionary', array(
                     'criteria'   => $criteria,
                     'pagination' => array('pageSize' => self::MAX_SECTION_ITEMS),
                 )
             );
         }
-        
         // получаем содержимое раздела в виде плитки с картинками
         $tab['content'] = $this->getPageContent($dataProvider, $this->section->content);
         
@@ -226,7 +208,7 @@ class CatalogData extends CWidget
      */
     protected function getTabLabel($tab=null)
     {
-        $label = $this->section->name;
+        $label     = $this->section->name;
         $urlparams = array('sectionid' => $this->sectionid);
         if ( ! $tab )
         {
@@ -235,9 +217,7 @@ class CatalogData extends CWidget
         {
            $urlparams['tab'] = $tab->shortname;
         }
-        
         $url = Yii::app()->createUrl('/catalog', $urlparams);
-        
         $link = CHtml::link($label, $url);
         
         return $link;
