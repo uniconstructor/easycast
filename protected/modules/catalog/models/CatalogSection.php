@@ -20,6 +20,8 @@
  * @property CatalogTab[] $tabs - прикрепленные вкладки
  * @property CatalogFilter[] $searchFilters
  * @property CatalogTabInstance[] $tabInstances
+ * 
+ * @todo добавить timecreated/timemodified
  */
 class CatalogSection extends CActiveRecord
 {
@@ -128,11 +130,12 @@ class CatalogSection extends CActiveRecord
 		    // Прикрепленные к разделу фильтры поиска (связь типа "мост")
 		    'searchFilters' => array(self::MANY_MANY, 'CatalogFilter', 
 		        "{{catalog_filter_instances}}(linkid, filterid)", 
-		        'condition' => "`linktype` = 'section'"),
+		        'condition' => "`linktype` = 'section'",
+		    ),
 		    
 		    // ссылки на вкладки в разделе
 		    // эта связь используется при обновлении набора вкладок в разделе
-		    // @deprecated не используется, оставлено для совместимости
+		    // @deprecated CatalogTab и CatalogTabInstance больше не используется, оставлено для совместимости
 		    'instances' => array(self::HAS_MANY, 'CatalogTabInstance', 'sectionid'),
 		    'tabInstances' => array(self::HAS_MANY, 'CatalogTabInstance', 'sectionid'),
 		    
@@ -176,20 +179,46 @@ class CatalogSection extends CActiveRecord
 	{
 		$criteria = new CDbCriteria;
 
-		$criteria->compare('id',$this->id);
-		$criteria->compare('parentid',$this->parentid,true);
-		$criteria->compare('categoryid',$this->parentid,true);
-		$criteria->compare('scopeid',$this->scopeid,true);
-		$criteria->compare('name',$this->name,true);
-		$criteria->compare('shortname',$this->shortname,true);
-		$criteria->compare('content',$this->content,true);
-		$criteria->compare('order',$this->order,true);
-		$criteria->compare('visible',$this->visible);
+		$criteria->compare('id', $this->id);
+		$criteria->compare('parentid', $this->parentid, true);
+		$criteria->compare('categoryid', $this->categoryid, true);
+		$criteria->compare('scopeid', $this->scopeid, true);
+		$criteria->compare('name', $this->name, true);
+		$criteria->compare('shortname', $this->shortname, true);
+		$criteria->compare('content', $this->content, true);
+		$criteria->compare('order', $this->order, true);
+		$criteria->compare('visible', $this->visible);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'   => $criteria,
 		    'pagination' => false,
 		));
+	}
+	
+	/**
+	 * Именованная группа условий: получить все разделы анкет, принадлежащие определенным категориям
+	 * (не рекурсивно, глубина - 1 уровень)
+	 *
+	 * @param int|array - $categoryIds один или несколько id категорий
+	 * @return CatalogSection
+	 */
+	public function inCategory($categoryIds)
+	{
+	    $criteria = new CDbCriteria();
+	    if ( ! is_array($categoryIds) AND is_numeric($categoryIds) )
+	    {
+	        $categoryId = intval($categoryIds);
+	        $criteria->compare('categoryid', $categoryId);
+	    }elseif ( is_array($categoryIds) )
+	    {
+	        $criteria->addInCondition('categoryid', $categoryIds);
+	    }else
+	    {
+	        throw new CException('Неправильный формат параметра для условия inCategory()');
+	    }
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
 	}
 	
 	/**
@@ -241,9 +270,8 @@ class CatalogSection extends CActiveRecord
 	    {// Картинка раздела еще не загружена
 	        return $nophoto;
 	    }
-	    // Изображение загружено - получаем самую маленькую версию
 	    if ( ! $avatar = $avatar->getUrl($size) )
-	    {
+	    {// Изображение загружено - получаем самую маленькую версию
 	        return $nophoto;
 	    }
 	    return $avatar;
