@@ -10,7 +10,6 @@
 class CatalogController extends Controller
 {
     /**
-     * (non-PHPdoc)
      * @see CController::init()
      */
     public function init()
