@@ -17,7 +17,7 @@ class m140619_020600_addCurrentlyEditing extends CDbMigration
             'lockerid' => "int(11) UNSIGNED NOT NULL DEFAULT 0",
             'timecreated' => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
             'timemodified' => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
-            'expire' => 'int(11) UNSIGNED NOT NULL DEFAULT 1',
+            'expire' => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
         );
         $this->createTable($table, $columns, $tableOptions);
         $this->_createIndexes($table, $columns);
