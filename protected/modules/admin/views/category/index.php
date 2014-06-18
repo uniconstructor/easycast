@@ -18,7 +18,7 @@ $this->breadcrumbs = array(
 );
 $this->menu = array();
 
-$categories = Category::model()->childrenFor($parentId)->findAll();
+$categories = Category::model()->forParent($parentId)->findAll();
 if ( $currentCategory->parentid )
 {
     $this->menu[] = array(
