@@ -805,6 +805,7 @@ class Questionary extends CActiveRecord
             'ismediaactor' => QuestionaryModule::t('ismediaactor_label'),
             'privatecomment' => QuestionaryModule::t('privatecomment_label'),
             'galleryid' => QuestionaryModule::t('photos_label'),
+            'visible' => QuestionaryModule::t('visible_label'),
 
             // пояснения, не являющиеся полями
             'level' => QuestionaryModule::t('level'),
