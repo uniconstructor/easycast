@@ -15,12 +15,12 @@ class CatalogSectionController extends Controller
 	public $layout = '//layouts/column2';
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CController::init()
 	 */
 	public function init()
 	{
 	    Yii::import('application.modules.catalog.models.*');
+	    parent::init();
 	}
 
 	/**
@@ -78,21 +78,21 @@ class CatalogSectionController extends Controller
 	 */
 	public function actionCreate()
 	{
-		$model=new CatalogSection;
+		$model = new CatalogSection;
 
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
 		if( isset($_POST['CatalogSection']) )
 		{
-			$model->attributes=$_POST['CatalogSection'];
+			$model->attributes = $_POST['CatalogSection'];
 			if ( $model->save() )
 			{
-			    $this->redirect(array('view','id'=>$model->id));
+			    $this->redirect(array('view', 'id' => $model->id));
 			}
 		}
 
-		$this->render('create',array(
+		$this->render('create', array(
 			'model' => $model,
 		));
 	}
@@ -114,7 +114,7 @@ class CatalogSectionController extends Controller
 			$model->attributes = $_POST['CatalogSection'];
 			if ( $model->save() )
 			{
-			    $this->redirect(array('view', 'id'=>$model->id));
+			    $this->redirect(array('view', 'id' => $model->id));
 			}
 		}
 

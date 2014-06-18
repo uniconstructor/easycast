@@ -1,10 +1,9 @@
 <?php
 
 Yii::import('ext.EditableGrid.EditableGridController');
-Yii::import('catalog.models.*');
 
 /**
- * 
+ * Контроллер для добавления списка разделов анкеты
  */
 class CatalogSectionGridController extends EditableGridController
 {
@@ -12,11 +11,20 @@ class CatalogSectionGridController extends EditableGridController
      * @var string - класс модели сложного значения
      */
     protected $modelClass = 'CatalogSection';
+    
+    /**
+     * @see CController::init()
+     */
+    public function init()
+    {
+        Yii::import('catalog.models.*');
+        parent::init();
+    }
 
     /**
      * Проверить, есть ли у пользователя доступ к добавлению, редактированию или удалению объекта
      * @param CActiveRecord $item
-     * @return void
+     * @return bool
      */
     protected function checkAccess($item)
     {
