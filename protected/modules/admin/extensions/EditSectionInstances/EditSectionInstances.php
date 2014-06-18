@@ -42,7 +42,7 @@ class EditSectionInstances extends EditableGrid
     /**
      * @var string - заголовок всплывающего окна с формой добавления новой записи
      */
-    public $modalHeader = 'Добавить';
+    public $modalHeader    = 'Добавить';
     /**
      * @var string - надпись на кнопке добавления новой записи
      */
@@ -133,7 +133,7 @@ class EditSectionInstances extends EditableGrid
             $categoryIds[] = $category->id;
         }
         if ( ! $models = CatalogSection::model()->inCategory($categoryIds)->findAll() )
-        {
+        {// выбираем все разделы, лежащие в указанных категориях
             return array('0' => 'Нет');
         }
         return CHtml::listData($models, 'id', 'name');
