@@ -25,20 +25,12 @@ class EditCategoryInstances extends EditableGrid
      */
     public $categoryType = 'sections';
     /**
-     * @var string - сообщение перед удалением записи
-     */
-    public $deleteConfirmation = 'Удалить запись?';
-    /**
      * @var string - если для всех трех действий (create, update, delete) используется один контроллер
      *               то здесь можно указать относительный путь к нему: в этом случае не нужно
      *               отдельно указывать url для каждого действия
      *               Пример значения: '/questionary/qEmcee/'
      */
     public $gridControllerPath = '/admin/categoryInstanceGrid/';
-    /**
-     * @var string - префикс html-id для каждой строки таблицы (чтобы можно было удалять строки)
-     */
-    public $rowIdPrefix = 'category_instance_row_';
     /**
      * @var string - пустой класс модели (для создания формы добавления объекта)
      */
@@ -48,25 +40,19 @@ class EditCategoryInstances extends EditableGrid
      */
     public $fields = array('objecttype', 'objectid', 'categoryid');
     /**
-     * @var string - html-id формы для ввода новой записи
-    */
-    public $formId = 'category-instance-form';
-    /**
-     * @var string - html-id modal-окна для ввода новой записи
-     */
-    public $modalId = 'category-instance-modal';
-    /**
-     * @var string - html-id кнопки для ввода новой записи
-     */
-    public $addButtonId = 'add-category-instance-button';
-    /**
      * @var string - заголовок всплывающего окна с формой добавления новой записи
      */
-    public $modalHeader = 'Добавить';
+    public $modalHeader = 'Задать категории';
     /**
      * @var string - надпись на кнопке добавления новой записи
      */
-    public $addButtonLabel = 'Добавить';
+    public $addButtonLabel = 'Задать';
+    /**
+     * @var array - массив настроек виджета TbButton для кнопки "добавить"
+     */
+    public $addButtonOptions = array(
+        'type' => 'primary',
+    );
     /**
      * @var array - список текстов-заглушек, которые отображаются в случае, когда поле не заполнено
      */
@@ -75,13 +61,8 @@ class EditCategoryInstances extends EditableGrid
     );
     /**
      * @var string - id модуля, который хранит клипы с modal-формами
-    */
-    public $clipModule = 'admin';
-    
-    /**
-     * @var CActiveRecord - объект к которому привязываются дополнительные поля
      */
-    protected $targetObject;
+    public $clipModule = 'admin';
     
     /**
      * Отобразить поля формы создания новой записи
@@ -148,8 +129,11 @@ class EditCategoryInstances extends EditableGrid
     protected function getGridCriteria()
     {
         return array(
-            'condition' => "`objectid` = '{$this->objectId}' AND `objecttype` = '{$this->objectType}'",
-            //'scopes' => array('withType' => array(''),
+            'condition' => "`objectid` = '{$this->objectId}' AND 
+                `objecttype` = '{$this->objectType}' AND 
+                category.parentid = '{$this->parentId}'",
+            'with'      => array('category'),
+            'together'  => true,
         );
     }
 }
