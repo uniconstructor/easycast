@@ -11,6 +11,7 @@ class QUserMedia extends CWidget
     public $questionary;
     /**
      * @var bool - выводить ли скрипты рядом с кодом? (необходимо для загрузки по ajax)
+     * @deprecated
      */
     public $echoScripts = false;
     
@@ -19,37 +20,6 @@ class QUserMedia extends CWidget
      */
     public function run()
     {
-        $tabs = array();
-        if ( $this->questionary->getGalleryPhotos() )
-        {// есть хотя бы одна фотография - отображаем ее
-            $tabs[] = array(
-                'label'   => 'Фото',
-                'content' => $this->getPhotoTab(),
-                'active'  => true,
-            );
-        }
-        /*if ( $this->questionary->video )
-        {// есть хотя бы одно видео - отобразим его
-            $tabs[] = array(
-                'label'   => 'Видео',
-                'content' => $this->getVideoTab(),
-                // делаем изначально активной вкладку видео только когда нет фото
-                'active'  => empty($tabs),
-            );
-        }*/
-        $this->widget('bootstrap.widgets.TbTabs', array(
-                'type' => 'pills',
-                'tabs' => $tabs,
-            )
-        );
-    }
-    
-    /**
-     * 
-     * @return string
-     */
-    protected function getPhotoTab()
-    {
         $result = '';
         $items = array();
         
@@ -57,6 +27,7 @@ class QUserMedia extends CWidget
         $videoCriteria->compare('objecttype', 'questionary');
         $videoCriteria->compare('objectid', $this->questionary->id);
         $videoCriteria->addInCondition('type', array('youtube', 'vimeo'));
+        
         if ( $records = Video::model()->findAll($videoCriteria) )
         {
             foreach ( $records  as $record )
@@ -83,11 +54,12 @@ class QUserMedia extends CWidget
         }
         $result .= $this->widget('Galleria', array(
             'options' => array(
-                'transition' => 'fade',
-                'responsive' => true,
-                'lightbox'   => true,
-                'dataSource' => $items,
-                'keepSource' => true,
+                'transition'     => 'fade',
+                'responsive'     => true,
+                'lightbox'       => true,
+                'dataSource'     => $items,
+                'keepSource'     => true,
+                'trueFullscreen' => true,
             ),
         ), true);
         
@@ -98,16 +70,7 @@ class QUserMedia extends CWidget
                 'controllerRoute' => '/questionary/gallery'
             ), true);
         }
-        return $result;
-    }
-    
-    /**
-     * 
-     * @return string
-     */
-    protected function getVideoTab()
-    {
-        return '';
+        echo $result;
     }
     
     /**
