@@ -302,8 +302,8 @@ class ExtraField extends CActiveRecord
 	    {
 	        return null;
 	    }
-	    $value = ExtraFieldValue::model()->forField($this->id)->forObject($objectType, $objectId)->
-	       forQuestionary($questionaryId)->find();
+	    $value = ExtraFieldValue::model()->forField($this->id)->
+	       forObject($objectType, $objectId)->forQuestionary($questionaryId)->find();
 	    if ( ! $value )
 	    {
 	        return null;
