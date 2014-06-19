@@ -114,7 +114,7 @@ class ECAlert extends CWidget
             // но здесь это действительно удобно, зацените:
             case self::TYPE_SUCCESS:
             case self::TYPE_INFO:
-            case self::TYPE_WARNING: $styles .= "alert-{$type} ";
+            case self::TYPE_WARNING: $styles .= "alert-{$type} "; break;
             case self::TYPE_ERROR:
             case self::TYPE_DANGER:  $styles .= "alert-danger ";
         }
