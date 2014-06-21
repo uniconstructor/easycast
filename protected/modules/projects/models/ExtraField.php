@@ -153,13 +153,15 @@ class ExtraField extends CActiveRecord
 	}
 	
 	/**
-	 * @see CActiveRecord::defaultScope()
+	 * @see CActiveRecord::scopes()
 	 */
-	public function defaultScope()
-    {
-    	return array(
-    	    'order' => "`label` ASC",
-    	);
+	public function scopes()
+	{
+	    return array(
+	        'orderByLabel' => array(
+	            'order' => "`label` ASC",
+	       ),
+	    );
 	}
 	
 	/**

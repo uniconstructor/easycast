@@ -186,7 +186,7 @@ class EditExtraFieldInstances extends EditableGrid
             {
                 $categoryIds[] = $category->id;
             }
-            $fields = ExtraField::model()->forCategories($categoryIds)->findAll();
+            $fields = ExtraField::model()->forCategories($categoryIds)->orderByLabel()->findAll();
         }
         $options = array('' => Yii::t('coreMessages', 'not_set'));
         $options = CMap::mergeArray($options, CHtml::listData($fields, 'id', 'label'));
