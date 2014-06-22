@@ -60,6 +60,10 @@ $this->breadcrumbs=$breadcrumbs;
         $this->widget('admin.extensions.wizards.processor.MemberProcessor.MemberProcessor', array(
             'vacancy'           => $vacancy,
             'widgetRoute'       => '/admin/projectMember/index',
+            'sectionGridOptions' => array(
+                'gridControllerPath' => '/admin/memberInstanceGrid/',
+                'updateUrl'          => '/admin/memberInstanceGrid/update',
+            ),
             'sectionInstanceId' => Yii::app()->request->getParam('siid', 0),
             'currentMemberId'   => Yii::app()->request->getParam('cmid', 0),
             'lastMemberId'      => Yii::app()->request->getParam('lmid', 0),
