@@ -94,9 +94,13 @@ class AdminModule extends CWebModule
 	{
 	    if ( Yii::app()->params['useCron'] )
 	    {
+	        // отправка писем стоящих в очереди
 	        $this->cronTaskSendMail();
+	        // загрузка на S3 изображений, которые не получилось выгрузить с первого раза
 	        $this->cronTaskUploadImages();
 	    }
+	    // очистка устаревших блокировок
+	    ObjectLock::model()->clearLocks();
 	}
 	
 	/**
