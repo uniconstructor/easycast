@@ -19,6 +19,7 @@
  * 
  * Relations:
  * @property Questionary  $member
+ * @property Questionary  $questionary
  * @property User         $manager
  * @property EventVacancy $vacancy
  * @property ProjectEvent $event
@@ -83,12 +84,13 @@ class ProjectMember extends CActiveRecord
     public function init()
     {
         Yii::import('application.modules.projects.ProjectsModule');
-        
         // регистрируем обработчики событий
         // создание нового приглашения (участнику отправляется письмо)
         $this->attachEventHandler('onApprove', array('ProjectsModule', 'sendApproveMemberNotification'));
         $this->attachEventHandler('onReject', array('ProjectsModule', 'sendRejectMemberNotification'));
         $this->attachEventHandler('onPending', array('ProjectsModule', 'sendPendingMemberNotification'));
+        
+        parent::init();
     }
     
 	/**
@@ -152,18 +154,20 @@ class ProjectMember extends CActiveRecord
 	        // автоматически переводим приглашение в статус "принято": 
 	        // если участник подал заявку на это мероприятие, значит он соглаен участвовать
 	        $this->autoConfirmInvite();
+	        // привязываем заявку ко всем разделам роли чтобы потом было проще менять уже существующие записи
+	        $this->createMemberInstances();
 	    }
 	}
 	
 	/**
 	 * @see CActiveRecord::defaultScope()
 	 */
-    public function defaultScope()
+    /*public function defaultScope()
 	{
 	    return array(
 	        'order' => '`timecreated` DESC',
 	    );
-	}
+	}*/
 
 	/**
 	 * @return array validation rules for model attributes.
@@ -221,8 +225,12 @@ class ProjectMember extends CActiveRecord
 	     {// нужен только один статус, и он передан строкой - сделаем из нее массив
 	         $statuses = array($statuses);
 	     }
+	     if ( empty($statuses) )
+	     {
+	         return $this;
+	     }
 	     $criteria = new CDbCriteria();
-	     $criteria->addInCondition('status', $statuses);
+	     $criteria->addInCondition($this->getTableAlias().'.`status`', $statuses);
 	     
 	     $this->getDbCriteria()->mergeWith($criteria);
 	     
@@ -230,7 +238,7 @@ class ProjectMember extends CActiveRecord
 	}
 	
 	/**
-	 * Именованная группа условий поиска - получить заявки принадлежащие определенному мероприятию
+	 * Именованная группа условий поиска - получить заявки принадлежащие определенной роли
 	 * @param int $vacancyId - id роли, на которую подана заявка
 	 * @return ProjectMember
 	 */
@@ -243,7 +251,209 @@ class ProjectMember extends CActiveRecord
 	    
 	    return $this;
 	}
-
+	
+    /**
+     * Именованная группа условий поиска - 
+     * @param array $instanceIds
+     * @param array $linkTypes
+     * @return ProjectMember
+     * 
+     * @todo заменить на INNER JOIN с таблицей member_instances как в условии forObject
+     */
+	public function forSectionInstances($instanceIds)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->together = true;
+	    $criteria->with = array(
+	        'instances' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes'   => array(
+	                'forSectionInstances' => array($instanceIds),
+	            ),
+	        ),
+	    );
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
+	}
+	
+    /**
+     * Именованная группа условий поиска - 
+     * @param array $instanceIds
+     * @param array $linkTypes
+     * @return ProjectMember
+     */
+	public function forSectionInstance($instanceId, $linkTypes=array())
+	{
+	    if ( ! $linkTypes )
+	    {
+	        $linkTypes = array('nograde', 'good', 'normal', 'bad');
+	    }
+	    $criteria = new CDbCriteria();
+	    $criteria->together = true;
+	    $criteria->with = array(
+	        'instances' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes'   => array(
+	                'forObject'     => array('section_instance', $instanceId),
+	                'withLinkTypes' => array($linkTypes),
+	            ),
+	        ),
+	    );
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
+	}
+	
+	/**
+	 * Именованая группа условий: получить все заявки, привязаные к определенному объекту
+	 * @param string $objectType
+	 * @param int $objectId
+	 * @return ProjectMember
+	 */
+	public function forObject($objectType, $objectId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->together = true;
+	    $criteria->with = array(
+	        'instances' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes'   => array(
+	                'forObject' => array($objectType, $objectId),
+	            ),
+	        ),
+	    );
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
+	}
+	
+	/**
+	 * Именованая группа условий: получить все заявки, привязаные к нескольким объектам одного типа
+	 * (например если нужно получить все заявки, которые находятся в нескольких вкладках роли)
+	 * Примечание: здесь можно было бы применить несколько вызовов forObject и слить критерии через OR
+	 *             но IN по id будет работать быстрее, потому что не нужно будет каждый раз проверять
+	 *             objecttype для каждой связи
+	 * @param string $objectType - тип объектов к которым привязаны заявки
+	 * @param array  $objectIds  - массив id объектов к которым привязяны заявки
+	 * @return ProjectMember
+	 */
+	public function forObjects($objectType, $objectIds)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->together = true;
+	    $criteria->with = array(
+	        'instances' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes'   => array(
+	                'forObjects' => array($objectType, $objectIds),
+	            ),
+	        ),
+	    );
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
+	}
+	
+	/**
+	 * Именованная группа условий поиска
+	 * 
+	 * @param EventVacancy $vacancy
+	 * @return ProjectMember
+	 * 
+	 * @todo 
+	 */
+	public function needsAllocation($vacancy)
+	{
+	    die ('UNFINISHED');
+	    // сужаем выбоорку до заявок одной роли
+	    $this->forVacancy($vacancy->id);
+	    
+	    if ( $vacancy->catalogSectionInstances )
+	    {// получаем все разделы заявок из роли и смотрим чтобы участник не присутствовал ни в одной из них
+	        $csids = array();
+	        foreach ( $vacancy->catalogSectionInstances as $instance )
+	        {
+	            $csids[] = $instance->id;
+	        }
+	        // Окей, а что значит "заявка не присутствовует ни в одной из вкладок"?
+	        // В нашем случае, выражаясь терминами базы данных
+	        // это значит что эта заявка (ProjectMember) не имеет ссылок (MemberInstance)
+	        // на перечисленные вкладки роли (CatalogSectionInstance)
+	        // либо все эти ссылки означают отсутсвие заявки в разделе (тип связи 'nolink' в MemberInstance)
+	        $criteria = new CDbCriteria();
+	        $criteria->together = true;
+	        $criteria->with = array(
+    	        'instances' => array(
+    	            'select'   => 'id',
+    	            'joinType' => 'INNER JOIN',
+    	            'scopes'   => array(
+    	                //'havingCount'   => 0,
+    	                'forObjects'    => array('section_instance', $csids),
+    	                'withLinkTypes' => array(array('nolink')),
+    	            ),
+    	        ),
+    	    );
+	        $this->getDbCriteria()->mergeWith($criteria);
+	    }
+	    
+	    return $this;
+	}
+	
+	/**
+	 * Получить все доступные заявки, которые можно поместить хотя бы в одну группу 
+	 * 
+	 * @param EventVacancy $vacancy
+	 * @return array
+	 */
+	public function withAvailableSections($vacancy, $minCount=0)
+	{
+	    if ( $vacancy->catalogSectionInstances )
+	    {// получаем все разделы заявок из роли и смотрим чтобы участник не присутствовал ни в одной из них
+    	    $instanceIds = array();
+    	    foreach ( $vacancy->catalogSectionInstances as $sectionInstance )
+    	    {
+    	        $instanceIds[] = $sectionInstance->id;
+    	    }
+    	    $criteria = new CDbCriteria();
+    	    $criteria->together = true;
+    	    $criteria->with = array(
+    	        'instances' => array(
+    	            'select'   => false,
+    	            'joinType' => 'INNER JOIN',
+    	            'scopes'   => array(
+    	                'forObjects'    => array('section_instance', $instanceIds),
+    	                'withLinkTypes' => array(array('nolink')),
+    	            ),
+    	        ),
+    	    );
+    	    $this->getDbCriteria()->mergeWith($criteria);
+	    }
+	    return $this;
+	}
+	
+	/**
+	 * Получить незаблокированные записи
+	 * @return ProjectMember
+	 */
+	public function notLocked()
+	{
+	    // получаем все заблокированные объекты
+	    if ( ! $locks = LockedObject::model()->forObjectType('member')->getIds() )
+	    {
+	        return $this;
+	    }
+	    $criteria = new CDbCriteria();
+	    $criteria->addNotInCondition($this->getTableAlias().'.`id`', $locks);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    return $this;
+	}
+	
 	/**
 	 * @return array relational rules.
 	 */
@@ -252,9 +462,9 @@ class ProjectMember extends CActiveRecord
 		return array(
 		    // участник проекта
 		    // @todo неудачное название для связи: оставить только для совместимости, а затем удалить
+		    // @todo заменить все использования связи member на questionary
 		    'member'  => array(self::BELONGS_TO, 'Questionary', 'memberid'),
 		    // участник проекта
-		    // @todo заменить все использования связи member на questionary
 		    'questionary' => array(self::BELONGS_TO, 'Questionary', 'memberid'),
 		    // Сотрудник, одобривший или отклонивший заявку
 		    'manager' => array(self::BELONGS_TO, 'User', 'managerid'),
@@ -262,6 +472,14 @@ class ProjectMember extends CActiveRecord
 		    'vacancy' => array(self::BELONGS_TO, 'EventVacancy', 'vacancyid'),
 		    // мероприятие, на которое подана заявка
 		    'event' => array(self::HAS_ONE, 'ProjectEvent', 'eventid', 'through' => 'vacancy'),
+		    
+		    // все ссылки на эту заявку
+		    'instances' => array(self::HAS_MANY, 'MemberInstance', 'memberid'),
+		    // все разделы для заявок внутри роли (SectionInstances) в которых находится эта заявка
+		    'sectionInstances' => array(self::MANY_MANY, 'CatalogSectionInstance',
+		        "{{member_instances}}(memberid, objectid)",
+		        'condition' => "`objecttype` = 'section_instance' AND `linktype` <> 'nolink'",
+		    ),
 		);
 	}
 
@@ -271,17 +489,17 @@ class ProjectMember extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'id' => 'ID',
-			'memberid' => ProjectsModule::t('member_memberid'),
-			'vacancyid' => ProjectsModule::t('vacancy'),
-			'timecreated' => ProjectsModule::t('member_timecreated'),
+			'id'           => 'ID',
+			'memberid'     => ProjectsModule::t('member_memberid'),
+			'vacancyid'    => ProjectsModule::t('vacancy'),
+			'timecreated'  => ProjectsModule::t('member_timecreated'),
 			'timemodified' => ProjectsModule::t('timemodified'),
-			'managerid' => ProjectsModule::t('member_managerid'),
-			'request' => ProjectsModule::t('member_request'),
-			'responce' => ProjectsModule::t('member_responce'),
-			'timestart' => ProjectsModule::t('timestart'),
-			'timeend' => ProjectsModule::t('timeend'),
-			'status' => ProjectsModule::t('status'),
+			'managerid'    => ProjectsModule::t('member_managerid'),
+			'request'      => ProjectsModule::t('member_request'),
+			'responce'     => ProjectsModule::t('member_responce'),
+			'timestart'    => ProjectsModule::t('timestart'),
+			'timeend'      => ProjectsModule::t('timeend'),
+			'status'       => ProjectsModule::t('status'),
 		);
 	}
 
@@ -496,6 +714,31 @@ class ProjectMember extends CActiveRecord
 	    }
 	    $invite->setStatus(EventInvite::STATUS_ACCEPTED);
 	    $invite->deleted = 1;
-	    return $invite->save();
+	    
+	    return $invite->save(false);
+	}
+	
+	/**
+	 * Автоматически создать связи со существующими разделами заявок в роли после подачи заявки
+	 * @return void
+	 */
+	protected function createMemberInstances()
+	{
+	    if ( ! $this->vacancy->catalogSectionInstances )
+	    {// в роли нет разделов для отбора заявок - действия не требуются
+	        return;
+	    }
+	    foreach ( $this->vacancy->catalogSectionInstances as $sectionInstance )
+	    {// получаем все разделы заявок из роли и привязываем заявку к каждому из них как черновик
+	        $memberInstance = new MemberInstance();
+	        $memberInstance->objecttype = 'section_instance';
+	        $memberInstance->objectid   = $sectionInstance->id;
+	        $memberInstance->memberid   = $this->id;
+	        $memberInstance->sourcetype = 'system';
+	        $memberInstance->sourceid   = 0;
+	        $memberInstance->status     = 'active';
+	        $memberInstance->linktype   = 'nolink';
+	        $memberInstance->save();
+	    }
 	}
 }
