@@ -30,6 +30,8 @@
  * @property QUserField[] $userFields - список обязательных полей анкеты при подаче заявки
  * @property Category[] $extraFieldCategories - используемые категории доп. полей
  * @property Category[] $sectionCategories - используемые категории разделов отбора заявок
+ * @property catalogSectionInstance[] $catalogSectionInstances - 
+ * @property catalogSection[] $catalogSections - 
  * 
  * @todo все прямые обращения к статусам заменить на константы
  * @todo запретить редактирование поисковых условий если вакансия - не черновик
@@ -301,6 +303,17 @@ class EventVacancy extends CActiveRecord
 		    'searchFilters' => array(self::MANY_MANY, 'CatalogFilter', "{{catalog_filter_instances}}(linkid, filterid)",
 		        'condition' => "`linktype` = 'vacancy'",
 		    ),
+		    // разделы для отбора заявок
+		    'catalogSections' => array(self::MANY_MANY, 'CatalogSection', "{{catalog_section_instances}}(objectid, sectionid)",
+		        'condition' => "`objecttype` = 'vacancy'",
+		    ),
+		    // разделы для отбора заявок
+		    'catalogSectionInstances' => array(self::HAS_MANY, 'CatalogSectionInstance', "objectid",
+		        'index'     => 'id',
+		        'condition' => "`objecttype` = 'vacancy'",
+		    ),
+		    
+		    
 		    // Группы дополнительных полей, используемых в этой роли
 		    // @todo искоренить антипаттерн "magic numbers": убрать из условий конкретный parentid
 		    //       есть два возможных решения:
@@ -532,6 +545,91 @@ class EventVacancy extends CActiveRecord
             );
 	    }
 	    return $this->hasApplication($questionaryId, $statuses);
+	}
+	
+	/**
+	 * Получить пользователя, который подал заявку, но пока еще не был распределен 
+	 * ни в одну из категорий внутри роли, 
+	 * @todo и которого в данный момент не редактируют другие пользователи
+	 * 
+	 * @param array $statuses
+	 * @return ProjectMember|null
+	 */
+	public function getUnallocatedMember($statuses=array())
+	{
+	    if ( $this->status != self::STATUS_ACTIVE )
+	    {// на роль или еще не начат или уже закончен отбор
+	        return null;
+	    }
+	    if ( empty($statuses) )
+	    {// если статус заявок не указан - возьмем все кроме отклоненных
+	        $statuses = array(
+	            ProjectMember::STATUS_DRAFT,
+	            ProjectMember::STATUS_PENDING,
+	            ProjectMember::STATUS_ACTIVE,
+	        );
+	    }
+	    
+	    // получаем всех участников роли
+	    $members = ProjectMember::model()->forVacancy($this->id)->withStatus($statuses)->notLocked()->
+	       findAll(array('order' => "`t`.`timecreated` DESC"));
+	    // получаем все разделы заявок
+	    $csids = array_keys($this->catalogSectionInstances);
+	    foreach ( $members as $member )
+	    {/* @var $member ProjectMember */
+	        if ( $member->forSectionInstances($csids)->findByPk($member->id) )
+	        {// заявка есть хотя бы в одном разделе - она уже обработана
+                continue;
+	        }else
+	        {// заявка не записана ни в один раздел
+	            return $member;
+	        }
+	    }
+	    return null;
+	}
+	
+	/**
+	 * 
+	 * @param unknown $statuses
+	 * @return void
+	 * 
+	 * @todo переписать, убрать дублирование кода
+	 */
+	public function countUnallocatedMembers($statuses=array())
+	{
+	    if ( $this->status != self::STATUS_ACTIVE )
+	    {// на роль или еще не начат или уже закончен отбор
+	       return null;
+	    }
+	    if ( empty($statuses) )
+	    {// если статус заявок не указан - возьмем все кроме отклоненных
+    	    $statuses = array(
+    	        ProjectMember::STATUS_DRAFT,
+    	        ProjectMember::STATUS_PENDING,
+    	        ProjectMember::STATUS_ACTIVE,
+    	    );
+	    }
+	    $count = 0;
+
+	    
+	    // получаем всех участников роли
+	    $members = ProjectMember::model()->forVacancy($this->id)->withStatus($statuses)->notLocked()->
+	       findAll(array('select' => "`t`.`id`"));
+	    // получаем все разделы заявок
+	    $csids = array_keys($this->catalogSectionInstances);
+	    
+	    foreach ( $members as $member )
+	    {/* @var $member ProjectMember */
+    	    if ( $member->forSectionInstances($csids)->findByPk($member->id) )
+    	    {// заявка есть хотя бы в одном разделе - она уже обработана
+    	       continue;
+    	    }else
+    	    {// заявка не записана ни в один раздел
+    	       $count++;
+    	    }
+	    }
+	    
+	    return $count;
 	}
 	
 	/**
