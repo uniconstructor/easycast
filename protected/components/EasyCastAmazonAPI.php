@@ -61,6 +61,10 @@ class EasyCastAmazonAPI extends CApplicationComponent
      */
     protected $sqs;
     /**
+     * @var A2S3 - объект для работы с сервисом Amazon S3 (хранилище данных)
+     */
+    protected $s3;
+    /**
      * @var string - url очереди, из которой достаются email-сообщения, ожидающие отправки
      */
     protected $queueUrl;
@@ -73,6 +77,9 @@ class EasyCastAmazonAPI extends CApplicationComponent
     {
         $this->initSQS();
         $this->initSES();
+        $this->initS3();
+        
+        parent::init();
     }
     
     /**
@@ -95,9 +102,25 @@ class EasyCastAmazonAPI extends CApplicationComponent
      */
     protected function initSQS()
     {
-        if ( null === $this->sqs )
+        if ( null === $this->s3 )
         {
             $this->sqs = new A2Sqs('easycast.sqs');
+        }
+    }
+    
+    /**
+     * Создать и настроить объект для работы с сервисом Amazon S3 (хранилище данных)
+     *
+     * @return null
+     */
+    protected function initS3()
+    {
+        if ( null === $this->s3 )
+        {
+            $this->s3 = new A2S3('easycast.s3');
+            // регистрируем обертку протоеола s3:// для того чтобы использовать стандартные 
+            // функции работы с файлами из PHP в Amazon
+            //$this->s3->registerStreamWrapper(array());
         }
     }
     
