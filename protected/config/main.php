@@ -67,6 +67,7 @@ return array(
 	    'ext.sweekit.Sweeml',
 	    // @todo (запланировано) компонент для работы с Google Maps 
 	    //'ext.sweekit.map.*',
+        'application.extensions.galleria.*',
 	),
 
 	'modules' => array(
