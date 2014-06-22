@@ -61,16 +61,6 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
     }
     
     /**
-     * 
-     * @param string|int $city
-     * @return void
-     */
-    public function setCityId($city)
-    {
-        $this->setCity($city);
-    }
-    
-    /**
      * Получить название города проживания
      */
     public function getCity()
@@ -80,6 +70,16 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
             return $city->name;
         }
         return $this->owner->city;
+    }
+    
+    /**
+     *
+     * @param string|int $city
+     * @return void
+     */
+    public function setCityId($city)
+    {
+        $this->setCity($city);
     }
     
     /**
@@ -94,6 +94,19 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
             return $this->getDefaultCityId();
         }
         return $this->owner->cityid;
+    }
+    
+    /**
+     * Получить название страны (гражданство)
+     * @return string
+     */
+    public function getCountryName()
+    {
+        if ( $this->owner->country )
+        {
+            return $this->owner->country->name;
+        }
+        return '';
     }
     
     /**
