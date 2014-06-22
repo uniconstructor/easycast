@@ -27,13 +27,14 @@ $this->menu = array(
 	    'url'   => array('/admin/eventVacancy/update', 'id' => $model->id),
     ),
     array(
-        'label' => 'Заявки',
-        'url'   => array('/admin/projectMember/index', 'vacancyid' => $model->id, 'type' => 'applications'),
+        'label' => 'Все заявки',
+        'url'   => array('/admin/projectMember/index', 'vid' => $model->id),
     ),
-    array(
+    /* @todo удалить при рефакторинге
+     array(
         'label' => 'Подтвержденные участники',
         'url'   => array('/admin/projectMember/index', 'vacancyid' => $model->id, 'type' => 'members'),
-    ),
+    ),*/
 );
 
 if ( $model->status === EventVacancy::STATUS_DRAFT )
