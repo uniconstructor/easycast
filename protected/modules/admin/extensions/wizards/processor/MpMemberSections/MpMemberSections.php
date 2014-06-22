@@ -21,17 +21,6 @@ class MpMemberSections extends EditableGrid
      */
     public $customerInvite;
     /**
-     * @var string - если для всех трех действий (create, update, delete) используется один контроллер
-     *               то здесь можно указать относительный путь к нему: в этом случае не нужно
-     *               отдельно указывать url для каждого действия
-     *               Пример значения: '/questionary/qEmcee/'
-     */
-    //public $gridControllerPath = '/projects/MemberInstanceGrid/';
-    /**
-     * @var string - url по которому происходит обновление записей
-     */
-    //public $updateUrl = '/projects/invite/editMemberInstance';
-    /**
      * @var string - пустой класс модели (для создания формы добавления объекта)
      */
     public $modelClass  = 'MemberInstance';
@@ -114,6 +103,28 @@ class MpMemberSections extends EditableGrid
      */
     protected function getDataColumns()
     {
+        // настройки для типа связи
+        $oldTypeOptions = $this->getSelectColumnOptions('linktype',  $this->model->getLinkTypeOptions());
+        $newTypeOptions = array(
+            'value'    => '$data->linkTypeOption;',
+            'editable' => array(
+                'mode' => 'inline',
+            ),
+        );
+        $typeOptions = CMap::mergeArray($oldTypeOptions, $newTypeOptions);
+        
+        // настраиваем поле комментария
+        $oldCommentOptions = $this->getTextAreaColumnOptions('comment');
+        $newCommentOptions = array(
+            'editable' => array(
+                'placement' => 'left',
+                'options' => array(
+                    'showbuttons' => 'bottom',
+                ),
+            ),
+        );
+        $commentOptions = CMap::mergeArray($oldCommentOptions, $newCommentOptions);
+        
         return array(
             // раздел для заявки
             array(
@@ -121,9 +132,9 @@ class MpMemberSections extends EditableGrid
                 'value' => '$data->sectionInstance->section->name;',
             ),
             // тип
-            $this->getStaticSelect2ColumnOptions('linktype', $this->model->getLinkTypeOptions(), 'linkTypeOption'),
+            $typeOptions,
             // описание
-            $this->getTextAreaColumnOptions('comment'),
+            $commentOptions,
         );
     }
     
