@@ -14,6 +14,7 @@
  * @property string $timecreated
  * @property string $timemodified
  * @property string $status
+ * @property string $linktype
  */
 class MemberInstance extends CActiveRecord
 {
@@ -30,16 +31,15 @@ class MemberInstance extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
 			array('objecttype', 'required'),
-			array('objecttype, sourcetype, status', 'length', 'max'=>50),
-			array('objectid, memberid, sourceid, timecreated, timemodified', 'length', 'max'=>11),
-			array('comment', 'length', 'max'=>255),
+			array('objecttype, sourcetype, status, linktype', 'length', 'max' => 50),
+			array('objectid, memberid, sourceid, timecreated, timemodified', 'length', 'max' => 11),
+			array('comment', 'length', 'max' => 255),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, objecttype, objectid, memberid, comment, sourcetype, sourceid, timecreated, timemodified, status', 'safe', 'on'=>'search'),
+			array('id, objecttype, objectid, memberid, comment, sourcetype, sourceid, timecreated, 
+			    timemodified, status', 'safe', 'on' => 'search'),
 		);
 	}
 
@@ -48,9 +48,11 @@ class MemberInstance extends CActiveRecord
 	 */
 	public function relations()
 	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
 		return array(
+		    // заявка участника на роль
+		    'member' => array(self::BELONGS_TO, 'ProjectMember', 'memberid'),
+		    // раздел заявки к которому прикреплена заявка 
+		    'sectionInstance' =>  array(self::BELONGS_TO, 'CatalogSectionInstance', 'objectid'),
 		);
 	}
 
@@ -62,14 +64,15 @@ class MemberInstance extends CActiveRecord
 		return array(
 			'id' => 'ID',
 			'objecttype' => 'Objecttype',
-			'objectid' => 'Objectid',
+			'objectid' => 'Раздел',
 			'memberid' => 'Memberid',
-			'comment' => 'Comment',
+			'comment' => 'Комментарий',
 			'sourcetype' => 'Sourcetype',
 			'sourceid' => 'Sourceid',
 			'timecreated' => 'Timecreated',
 			'timemodified' => 'Timemodified',
 			'status' => 'Status',
+			'linktype' => 'Добавить в раздел?',
 		);
 	}
 
@@ -89,7 +92,7 @@ class MemberInstance extends CActiveRecord
 	{
 		// @todo Please modify the following code to remove attributes that should not be searched.
 
-		$criteria=new CDbCriteria;
+		$criteria = new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
 		$criteria->compare('objecttype',$this->objecttype,true);
@@ -116,5 +119,194 @@ class MemberInstance extends CActiveRecord
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
+	}
+	
+	/**
+	 * @see CActiveRecord::beforeSave()
+	 */
+	public function beforeSave()
+	{
+	    if ( $this->isNewRecord )
+	    {
+	        $criteria =  new CDbCriteria();
+	        $criteria->compare('objecttype', $this->objecttype);
+	        $criteria->compare('objectid', $this->objectid);
+	        $criteria->compare('memberid', $this->memberid);
+	        if ( $this->exists($criteria) )
+	        {// одну заявку нельзя 2 раза поместьть в одну и ту же категорию
+	            return false;
+	        }
+	    }
+	    return parent::beforeSave();
+	}
+	
+	/**
+	 * Именованая группа условий: получить все ссылки на заявку для определенного объекта
+	 * (например все заявки внутри вкладки роли)
+	 * @param string $objectType
+	 * @param int    $objectId
+	 * @return StatusHistory
+	 */
+	public function forObject($objectType, $objectId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('objecttype', $objectType);
+	    $criteria->compare('objectid', $objectId);
+	
+	    $this->getDbCriteria()->mergeWith($criteria);
+	
+	    return $this;
+	}
+	
+	/**
+	 * Именованая группа условий: получить все ссылки на заявку для нескольких объектов одного типа
+	 * (например если нужно получить все заявки, которые находятся в нескольких вкладках роли)
+	 * Примечание: здесь можно было бы применить несколько вызовов forObject и слить критерии через OR
+	 *             но IN по id будет работать быстрее, потому что не нужно будет каждый раз проверять
+	 *             objecttype для каждой связи
+	 * @param string $objectType
+	 * @param array  $objectIds - массив id объектов
+	 * @return StatusHistory
+	 */
+	public function forObjects($objectType, $objectIds)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('objecttype', $objectType);
+	    $criteria->addInCondition('objectid', $objectIds);
+	
+	    $this->getDbCriteria()->mergeWith($criteria);
+	
+	    return $this;
+	}
+	
+	/**
+	 * Именованная группа условий поиска - найти все записи принадлежащие разделу заявок
+	 * @param int $instanceId  - id раздела заявок внутри роли (CatalogSectionInstance)
+	 * @param string $linkType - 
+	 * @return MemberInstance
+	 */
+	public function forSectionInstance($instanceId, $linkType='<>nolink')
+	{
+	    $criteria = new CDbCriteria();
+	    if ( $linkType )
+	    {
+	        $criteria->compare('linktype', $linkType);
+	    }
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this->forObject('section_instance', $instanceId);
+	}
+	
+	/**
+	 * Именованная группа условий поиска - найти все записи принадлежащие нескольким разделам заявок
+	 * @param array $instanceIds - массив id разделов заявок внутри роли (CatalogSectionInstance)
+	 * @return MemberInstance
+	 */
+	public function forSectionInstances($instanceIds, $linkType='<>nolink')
+	{
+	    $criteria = new CDbCriteria();
+	    if ( $linkType )
+	    {
+	        $criteria->compare('linktype', $linkType);
+	    }
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this->forObjects('section_instance', $instanceIds);
+	}
+	
+	/**
+	 * 
+	 * @param unknown $count
+	 * @return MemberInstance
+	 */
+	/*public function havingCount($count)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->having = "COUNT(*) < {$count}`";
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
+	}*/
+	
+	/**
+	 * Именованная группа условий поиска - найти все записи не принадлежащие указанным разделам
+	 * @param array $instanceIds - массив id разделов заявок внутри роли (CatalogSectionInstance)
+	 * @return MemberInstance
+	 * 
+	 * @todo не дописано
+	 */
+	/*public function notInSectionInstances($instanceIds)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->addCondition("NOT (`objecttype` = 'section_instance' 
+	        AND `objectid` IN (".implode(',', $instanceIds).") AND `linktype` = 'nolink' )");
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
+	}*/
+	
+	/**
+	 * Именованная группа условий поиска - найти все записи с определенным типом связи с объектом
+	 * @param array $linkTypes
+	 * @return MemberInstance
+	 * 
+	 * @todo переписать с использованием тегов (TagInstance): сделать тип связи не отдельным полем
+	 *       а id тега, чтобы можно было задать любой набор маркеров для заявок 
+	 *       (сейчас только "лучшие/средние/худшие")
+	 */
+	public function withLinkTypes($linkTypes)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->addInCondition('linktype', $linkTypes);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	     
+	    return $this;
+	}
+	
+	/**
+	 * Именованная группа условий поиска - исключить из выборки все записи с определенным типом связи
+	 * @param array $linkTypes
+	 * @return MemberInstance
+	 * 
+	 * @todo переписать с использованием тегов (TagInstance): сделать тип связи не отдельным полем
+	 *       а id тега, чтобы можно было задать любой набор маркеров для заявок 
+	 *       (сейчас только "лучшие/средние/худшие")
+	 */
+	public function withoutLinkTypes($linkTypes)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->addNotInCondition('linktype', $linkTypes);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	     
+	    return $this;
+	}
+	
+	/**
+	 * 
+	 * @return array
+	 */
+	public function getLinkTypeOptions()
+	{
+	    return array(
+            'nolink'  => 'Не добавлять в раздел',
+            'nograde' => 'Добавить без пометки',
+            'good'    => 'Добавить с пометкой "лучшее"',
+            'normal'  => 'Добавить с пометкой "среднее"',
+            'sad'     => 'Добавить с пометкой "хушее"',
+	    );
+	}
+	
+	/**
+	 * 
+	 * @return array
+	 */
+	public function getLinkTypeOption()
+	{
+	    $options = $this->getLinkTypeOptions();
+	    return $options[$this->linktype];
 	}
 }
