@@ -54,6 +54,9 @@ class CatalogData extends CWidget
         if ( $section = CatalogSection::model()->findByPk($this->sectionid) )
         {
             $this->section = $section;
+        }else
+        {
+            $this->section = CatalogSection::model()->findByPk(1);
         }
         if ( $activeTab = CatalogModule::getNavigationParam('tab') )
         {
@@ -71,9 +74,9 @@ class CatalogData extends CWidget
             'type'        => 'tabs',
             'encodeLabel' => false,
             'tabs'        => $this->getTabs(),
-            'events'      => array(
+            /*'events'      => array(
                 'click' => $this->getTabScripts(),
-            )
+            )*/
         ));
     }
     
