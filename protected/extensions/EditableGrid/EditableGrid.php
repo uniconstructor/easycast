@@ -399,12 +399,47 @@ class EditableGrid extends CWidget
     }
     
     /**
+     * Получить параметры для создания editable-колонки в таблице (обычный select без подгрузки элементов по AJAX)
+     *
+     * @param string $field - поле модели для которого создается редактируемая колонка таблицы
+     * @param array $variants - список вариантов для выбора
+     * @param string $valueField - поле из которого берется отображаемое значание
+     * @return array
+     */
+    protected function getSelectColumnOptions($field, $variants, $valueField='')
+    {
+        if ( ! $valueField )
+        {
+            $valueField = $field;
+        }
+        $options = array(
+            'name'     => $field,
+            'class'    => 'bootstrap.widgets.TbEditableColumn',
+            'value'    => '$data->'.$valueField.';',
+            'editable' => array(
+                'type'      => 'select',
+                'title'     => $this->model->getAttributeLabel($field),
+                'url'       => $this->updateUrl,
+                'emptytext' => $this->getFieldEmptyText($field),
+                'source'    => $variants,
+                'params' => array(
+                    Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
+                ),
+            ),
+        );
+    
+        return $options;
+    }
+    
+    /**
      * Получить параметры для создания editable-колонки в таблице (select2 без подгрузки элементов по AJAX)
      *
      * @param string $field - поле модели для которого создается редактируемая колонка таблицы
      * @param array $variants - список вариантов для выбора
      * @param string $valueField - поле из которого берется отображаемое значание
      * @return array
+     * 
+     * @deprecated используем обычный select в этом случае
      */
     protected function getStaticSelect2ColumnOptions($field, $variants, $valueField='level', $allowCustom=false)
     {
