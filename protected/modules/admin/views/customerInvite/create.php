@@ -38,7 +38,7 @@ $this->breadcrumbs[] = 'Предоставить доступ';
 $this->widget('bootstrap.widgets.TbAlert');
 ?>
 
-<div class="page">
+<div class="page page-alternate">
     <div class="container">
         <h2 class="page-title"><?= $title; ?></h2>
         <?php 
