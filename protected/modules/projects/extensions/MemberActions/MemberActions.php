@@ -24,11 +24,11 @@ class MemberActions extends CWidget
     /**
      * @var bool - выдавать ли подтверждение перед изменением статуса?
      */
-    public $confirmActions = true;
+    public $confirmActions     = true;
     /**
      * @var bool - показывать ли доступные кнопки действий заново после изменения статуса заявки
      */
-    public $refreshButtons = false;
+    public $refreshButtons     = false;
     /**
      * @var bool - всегда ли отображать текущий статус заявки над действиями?
      */
@@ -47,6 +47,11 @@ class MemberActions extends CWidget
      */
     public $messageClass = 'alert alert-info';
     /**
+     * @var string
+     */
+    public $displayMode = 'column';
+    
+    /**
      * @var string - id тега, содержащего текст сообщения
      */
     protected $messageId;
@@ -54,7 +59,6 @@ class MemberActions extends CWidget
      * @var string 
      */
     protected $messageStyle = 'display:none;';
-    
     /**
      * @var array - список кнопок, которые нужно отобразить.
      *              (названия кнопок совпадают с названиями статусов, в которые переходит заявка, так удобнее)
@@ -86,13 +90,10 @@ class MemberActions extends CWidget
     {
         if ( Yii::app()->user->isGuest AND ! ( $this->customerInvite instanceof CustomerInvite ) )
         {// виджет никогда не виден гостю, только если он не зашел по одноразовой ссылке
-            return '<!-- MemberActions is empty for guest -->';
+            // return '<!-- MemberActions is empty for guest -->';
+            return '';
         }
-        if ( $this->message )
-        {
-            $this->messageStyle = 'display:block;';
-        }
-        $this->render('actions');
+        $this->render($this->displayMode);
     }
     
     /**
@@ -135,6 +136,15 @@ class MemberActions extends CWidget
             case ProjectMember::STATUS_PENDING:  $this->message = 'Заявка предварительно одобрена'; break;
             case ProjectMember::STATUS_ACTIVE:   $this->message = 'Заявка одобрена'; break;
             case ProjectMember::STATUS_REJECTED: $this->message = 'Заявка отклонена'; break;
+        }
+        $item = StatusHistory::model()->forObject('project_member', $this->member->id)->getLastItem();
+        if ( ($this->customerInvite OR Yii::app()->user->checkAccess('Admin')) AND $item AND $item->getSourceName() )
+        {// если есть информация о смене статуса - то отображаем кто ее изменил
+            $this->message .= '['.$item->getSourceName().']';
+        }
+        if ( $this->message )
+        {
+            $this->messageStyle = 'display:block;';
         }
     }
     
@@ -250,16 +260,22 @@ class MemberActions extends CWidget
      */
     protected function getButtonClass($type)
     {
-        switch ($type)
+        $class = 'btn ';
+        if ( $this->displayMode == 'column' )
         {
-            case 'canceled': return 'btn btn-primary';
-            case 'draft':    return 'btn btn-success';
-            case 'pending':  return 'btn btn-block btn-warning';
-            case 'active':   return 'btn btn-block btn-success';
-            case 'rejected': return 'btn btn-block btn-danger';
-            case 'succeed':  return 'btn btn-success';
-            case 'failed':   return 'btn btn-danger';
+            $class .= 'btn-block ';
         }
+        switch ( $type )
+        {
+            case 'canceled': $class .= ' btn-primary'; break;
+            case 'draft':    $class .= ' btn-success'; break;
+            case 'pending':  $class .= ' btn-warning'; break;
+            case 'active':   $class .= ' btn-success'; break;
+            case 'rejected': $class .= ' btn-danger'; break;
+            case 'succeed':  $class .= ' btn-success'; break;
+            case 'failed':   $class .= ' btn-danger'; break;
+        }
+        return $class;
     }
     
     /**
