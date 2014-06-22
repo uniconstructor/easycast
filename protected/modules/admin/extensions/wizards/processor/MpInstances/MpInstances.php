@@ -1,10 +1,6 @@
 <?php
 /**
- * Список заявок внутри раздела
- */
-
-/**
- * Список заявок в отдельной вкладке
+ * Список заявок внутри раздела в отдельной вкладке
  */
 class MpInstances extends CWidget
 {
@@ -29,30 +25,43 @@ class MpInstances extends CWidget
      * @var array
      */
     public $sectionGridOptions = array();
+    /**
+     * @var int
+     */
+    public $pageSize = 15;
     
     /**
      * @see CWidget::run()
      */
     public function run()
     {
-        $members = ProjectMember::model()->forSectionInstance($this->sectionInstanceId, $this->markers)->
-            withStatus($this->statuses)->findAll();
-        if ( $members )
-        {
-            foreach ( $members as $member )
-            {
-                $this->widget('admin.extensions.wizards.processor.MpMemberData.MpMemberData', array(
-                    'member'             => $member,
-                    'customerInvite'     => $this->customerInvite,
-                    'sectionGridOptions' => $this->sectionGridOptions,
-                ));
-            }
-        }else
-        {
-            $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
+        $criteria = ProjectMember::model()->forSectionInstance($this->sectionInstanceId, $this->markers)->
+            withStatus($this->statuses)->getDbCriteria();
+        $dataProvider = new CActiveDataProvider('ProjectMember', array(
+            'criteria' => $criteria,
+            'pagination' => array(
+                'pageSize' => $this->pageSize,
+            ),
+        ));
+        
+        $this->widget('bootstrap.widgets.TbListView', array(
+            'dataProvider' => $dataProvider,
+            'ajaxUpdate'   => false,
+            'itemView'     => '_member',
+            'template'     => $this->render('_template', null, true),
+            'viewData'     => array(
+                'customerInvite'     => $this->customerInvite,
+                'sectionGridOptions' => $this->sectionGridOptions,
+                'owner'              => $this,
+            ),
+            'pager' => array(
+                'class'          => 'bootstrap.widgets.TbPager',
+                'maxButtonCount' => 30,
+            ),
+            'emptyText' => $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
                 'message' => 'В этом разделе нет заявок',
                 'type'    => 'info',
-            ));
-        }
+            ), true),
+        ));
     }
 }
