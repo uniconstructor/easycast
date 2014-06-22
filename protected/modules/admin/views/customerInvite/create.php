@@ -1,15 +1,14 @@
 <?php
 /**
  * Создание нового приглашения на отбор актеров
- * @var CustomerInvite $model
  */
+/* @var $model CustomerInvite */
 
 // заголовок страницы
 $title = 'Предоставить доступ ';
 
 $this->breadcrumbs = array(
     'Администрирование' => array('/admin'),
-	//'Приглашения для заказчиков' => array('/admin/customerInvite/admin'),
 );
 
 switch ( $model->objecttype )
@@ -35,8 +34,69 @@ switch ( $model->objecttype )
     default: throw new CHttpException(400, 'Неизвестный тип приглашения ('.$model->objecttype.')');
 }
 $this->breadcrumbs[] = 'Предоставить доступ';
+
+$this->widget('bootstrap.widgets.TbAlert');
 ?>
 
-<h2><?= $title; ?></h2>
-
-<?php echo $this->renderPartial('_form', array('model' => $model)); ?>
+<div class="page">
+    <div class="container">
+        <h2 class="page-title"><?= $title; ?></h2>
+        <?php 
+        // форма создания приглашения
+        echo $this->renderPartial('_form', array('model' => $model)); 
+        
+        $searchFilter = new CustomerInvite('search');
+        $searchFilter->unsetAttributes();
+        $searchFilter->objecttype = $model->objecttype;
+        $searchFilter->objectid   = $model->objectid;
+        
+        $this->widget('bootstrap.widgets.TbGridView',array(
+            'id'           => 'customer-invite-grid',
+            'dataProvider' => $searchFilter->search(),
+            'filter'       => $searchFilter,
+            'columns' => array(
+                'id',
+                'email',
+                'name',
+                // Цель приглашения
+                /*array(
+                    'name'   => 'objectid',
+                    'value'  => '$data->'.$model->objecttype.'->name." [Отбор участников]"',
+                    'header' => '<b>Цель приглашения</b>',
+                    'type'   => 'html',
+                ),*/
+                // кто отправил ссылку
+                array(
+                    'name'   => 'managerid',
+                    'value'  => '$data->manager->fullname',
+                    'header' => '<b>Кто пригласил</b>',
+                    'type'   => 'html',
+                ),
+                // время создания
+                array(
+                    'name'    => 'timecreated',
+                    'value'   => '($data->timecreated ? date("Y-m-d H:i", $data->timecreated): "Не отправлена")',
+                    'header'  => '<b>Время создания</b>',
+                    'type'    => 'html',
+                ),
+                // время использования
+                array(
+                    'name'    => 'timeused',
+                    'value'   => '($data->timeused ? date("Y-m-d H:i", $data->timeused): "Не использована")',
+                    'header'  => '<b>Время использования</b>',
+                    'type'    => 'html',
+                ),
+                //'comment',
+                //'userid',
+                /*array(
+                 'class' => 'bootstrap.widgets.TbButtonColumn',
+                    'template' => '{view} {update}',
+                    'viewButtonUrl' => 'Yii::app()->controller->createUrl("/questionary/questionary/view", array("id" => $data->questionaryid))',
+                    'updateButtonUrl' => 'Yii::app()->controller->createUrl("/questionary/questionary/update", array("id" => $data->questionaryid))',
+                ),*/
+            ),
+        ));
+        ?>
+        
+    </div>
+</div>

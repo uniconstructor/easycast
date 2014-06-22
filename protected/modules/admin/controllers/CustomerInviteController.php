@@ -115,10 +115,15 @@ class CustomerInviteController extends Controller
 			        throw new CHttpException(400, 'Нужно выбрать хотя бы одну галочку в списке статусов');
 			    }
 			    // сохраняем статусы, которые нужно отобразить заказчику
+			    // @todo в связи с новым виджетом отбора людей возможно больше не актуально
 			    $model->saveData(array('statuses' => $statuses));
-			    // после создания приглашения перенаправляем пользователя на страницу просмотра 
-			    // (охуенная идея, да? что там смотреть?)
-			    $this->redirect(array('view', 'id' => $model->id));
+			    Yii::app()->user->setFlash('success', 'Приглашение отправлено');
+			    
+			    // после создания приглашения перенаправляем пользователя на страницу создания 
+			    $this->redirect(array('create', 
+			        'objectType' => $objectType,
+			        'objectId'   => $objectId,
+			    ));
 			}
 		}
 
@@ -166,6 +171,12 @@ class CustomerInviteController extends Controller
 	 */
 	public function actionAdmin()
 	{
+	    // Определяем куда создается приглашение
+	    if ( ! $objectType = Yii::app()->request->getParam('objectType') )
+	    {
+	        throw new CHttpException(400, 'Не передан объект для которого ');
+	    }
+	    $objectId = Yii::app()->request->getParam('objectId', 0);
 		$model = new CustomerInvite('search');
 		$model->unsetAttributes();  // clear any default values
 		

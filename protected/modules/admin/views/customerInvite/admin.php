@@ -49,12 +49,12 @@ $this->renderPartial('_search', array(
 		'email',
         'name',
 		// Цель приглашения
-        array(
+        /*array(
             'name'   => 'objectid',
             'value'  => '$data->'.$model->objecttype.'->name." [Отбор участников]"',
             'header' => '<b>Цель приглашения</b>',
             'type'   => 'html',
-        ),
+        ),*/
         // кто отправил ссылку
         array(
             'name'   => 'managerid',
@@ -70,7 +70,6 @@ $this->renderPartial('_search', array(
             'type'    => 'html',
         ),
         // время использования
-		'timeused',
         array(
             'name'    => 'timeused',
             'value'   => '($data->timeused ? date("Y-m-d H:i", $data->timeused): "Не использована")',
