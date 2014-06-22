@@ -55,8 +55,8 @@ $this->breadcrumbs=$breadcrumbs;
 
 <div class="page">
 <?php
-    if ( $vacancy )
-    {
+    if ( $vacancyid )
+    {// список заявок на роль
         $this->widget('admin.extensions.wizards.processor.MemberProcessor.MemberProcessor', array(
             'vacancy'           => $vacancy,
             'widgetRoute'       => '/admin/projectMember/index',
@@ -77,8 +77,7 @@ $this->breadcrumbs=$breadcrumbs;
             'sad'               => Yii::app()->request->getParam('sad', 0),
         ));
     }else
-    {
-        // отображаем список участников события
+    {// отображаем список участников события или проекта
         $this->widget('admin.extensions.ProjectMembers.ProjectMembers',array(
             'objectType'      => $viewMode,
             'objectId'        => $objectid,
