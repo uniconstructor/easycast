@@ -554,8 +554,10 @@ class EventVacancy extends CActiveRecord
 	 * 
 	 * @param array $statuses
 	 * @return ProjectMember|null
+	 * 
+	 * @todo убрать параметры $lockerType и $lockerId и перенести весть код в ProjectMembers
 	 */
-	public function getUnallocatedMember($statuses=array())
+	public function getUnallocatedMember($statuses=array(), $lockerType, $lockerId)
 	{
 	    if ( $this->status != self::STATUS_ACTIVE )
 	    {// на роль или еще не начат или уже закончен отбор
@@ -569,12 +571,13 @@ class EventVacancy extends CActiveRecord
 	            ProjectMember::STATUS_ACTIVE,
 	        );
 	    }
-	    
-	    // получаем всех участников роли
-	    $members = ProjectMember::model()->forVacancy($this->id)->withStatus($statuses)->notLocked()->
-	       findAll(array('order' => "`t`.`timecreated` DESC"));
 	    // получаем все разделы заявок
 	    $csids = array_keys($this->catalogSectionInstances);
+	    
+	    // получаем всех участников роли
+	    $members = ProjectMember::model()->forVacancy($this->id)->withStatus($statuses)->
+	       unlockedFor($lockerType, $lockerId)->findAll(array('order' => "`t`.`timecreated` DESC"));
+	    
 	    foreach ( $members as $member )
 	    {/* @var $member ProjectMember */
 	        if ( $member->forSectionInstances($csids)->findByPk($member->id) )
@@ -609,27 +612,18 @@ class EventVacancy extends CActiveRecord
     	        ProjectMember::STATUS_ACTIVE,
     	    );
 	    }
-	    $count = 0;
-
-	    
-	    // получаем всех участников роли
-	    $members = ProjectMember::model()->forVacancy($this->id)->withStatus($statuses)->notLocked()->
-	       findAll(array('select' => "`t`.`id`"));
 	    // получаем все разделы заявок
 	    $csids = array_keys($this->catalogSectionInstances);
 	    
-	    foreach ( $members as $member )
-	    {/* @var $member ProjectMember */
-    	    if ( $member->forSectionInstances($csids)->findByPk($member->id) )
-    	    {// заявка есть хотя бы в одном разделе - она уже обработана
-    	       continue;
-    	    }else
-    	    {// заявка не записана ни в один раздел
-    	       $count++;
-    	    }
-	    }
+	    // получаем всех участников роли
+	    $membersCount   = ProjectMember::model()->forVacancy($this->id)->
+	       withStatus($statuses)->unlocked()->count();
+	    // получаем всех участников, чьи заявки находятся хотя бы в одной категории
+	    $allocatedCount = ProjectMember::model()->forSectionInstances($csids)->
+	       withStatus($statuses)->unlocked()->count();
 	    
-	    return $count;
+	    // разница между двумя этими числами и есть количество нераспределенных заявок
+	    return $membersCount - $allocatedCount;
 	}
 	
 	/**
