@@ -130,16 +130,19 @@ class ProjectMemberController extends Controller
 	public function actionIndex()
 	{
 	    $this->layout='//layouts/column1';
+	    $type      = Yii::app()->request->getParam('type');
+	    
 	    $projectid = Yii::app()->request->getParam('projectid');
 	    $eventid   = Yii::app()->request->getParam('eventid');
 	    $vacancyid = Yii::app()->request->getParam('vacancyid');
-	    $type      = Yii::app()->request->getParam('type');
+	    $vacancyid = Yii::app()->request->getParam('vid', $vacancyid);
+	    
 	    
 		$this->render('index',array(
-			'projectid'=>$projectid,
-			'eventid'=>$eventid,
-			'vacancyid'=>$vacancyid,
-			'type'=>$type,
+			'projectid' => $projectid,
+			'eventid'   => $eventid,
+			'vacancyid' => $vacancyid,
+			'type'      => $type,
 		));
 	}
 

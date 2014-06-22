@@ -53,13 +53,34 @@ $this->breadcrumbs=$breadcrumbs;
 
 ?>
 
-<h1><?= $titleString ?></h1>
-
+<div class="page">
 <?php
-// отображаем список участников события
-$this->widget('admin.extensions.ProjectMembers.ProjectMembers',array(
-	'objectType'      => $viewMode,
-	'objectId'        => $objectid,
-    'displayType'     => $type,
-    'displayFullInfo' => true,
-)); 
+    if ( $vacancy )
+    {
+        $this->widget('admin.extensions.wizards.processor.MemberProcessor.MemberProcessor', array(
+            'vacancy'           => $vacancy,
+            'widgetRoute'       => '/admin/projectMember/index',
+            'sectionInstanceId' => Yii::app()->request->getParam('siid', 0),
+            'currentMemberId'   => Yii::app()->request->getParam('cmid', 0),
+            'lastMemberId'      => Yii::app()->request->getParam('lmid', 0),
+            'draft'             => Yii::app()->request->getParam('draft', 0),
+            'pending'           => Yii::app()->request->getParam('pending', 0),
+            'active'            => Yii::app()->request->getParam('active', 0),
+            'rejected'          => Yii::app()->request->getParam('rejected', 0),
+            'nograde'           => Yii::app()->request->getParam('nograde', 0),
+            'good'              => Yii::app()->request->getParam('good', 0),
+            'normal'            => Yii::app()->request->getParam('normal', 0),
+            'sad'               => Yii::app()->request->getParam('sad', 0),
+        ));
+    }else
+    {
+        // отображаем список участников события
+        $this->widget('admin.extensions.ProjectMembers.ProjectMembers',array(
+            'objectType'      => $viewMode,
+            'objectId'        => $objectid,
+            'displayType'     => $type,
+            'displayFullInfo' => true,
+        ));
+    }
+    ?>
+</div>
