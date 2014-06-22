@@ -52,8 +52,42 @@ class CatalogSectionInstance extends CActiveRecord
 	public function relations()
 	{
 		return array(
+		    // раздел для заявок или условие поиска
 		    'section' => array(self::BELONGS_TO, 'CatalogSection', 'sectionid'),
+		    // ссылки на заявки 
+		    'memberInstances' => array(self::HAS_MANY, 'MemberInstance', 'objectid', 
+                'condition' => "`objecttype` = 'section_instance'",
+		    ),
+		    // сами заявки
+		    'members' => array(self::MANY_MANY, 'ProjectMember', "{{member_instances}}(objectid, memberid)",
+		        'condition' => "`objecttype` = 'section_instance'",
+	        ),
 		);
+	}
+	
+	/**
+	 * @see CActiveRecord::afterSave()
+	 */
+	public function afterSave()
+	{
+	    if ( $this->isNewRecord AND $this->objecttype == 'vacancy' )
+	    {
+	        $members = ProjectMember::model()->forVacancy($this->objectid)->findAll();;
+	        foreach ( $members as $member )
+	        {
+	            $memberInstance = new MemberInstance();
+	            $memberInstance->objecttype = 'section_instance';
+	            $memberInstance->objectid   = $this->id;
+	            $memberInstance->memberid   = $member->id;
+	            $memberInstance->sourcetype = 'system';
+	            $memberInstance->sourceid   = 0;
+	            $memberInstance->status     = 'active';
+	            $memberInstance->linktype   = 'nolink';
+	            $memberInstance->save();
+	        }
+	    }
+	    
+	    parent::afterSave();
 	}
 
 	/**
