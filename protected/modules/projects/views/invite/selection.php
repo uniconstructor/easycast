@@ -35,6 +35,11 @@ $this->widget('bootstrap.widgets.TbAlert');
     {// отбор заявок на одну роль - используем новый виджет
         $this->widget('application.modules.admin.extensions.wizards.processor.MemberProcessor.MemberProcessor', array(
             'customerInvite'    => $customerInvite,
+            'sectionGridOptions' => array(
+                // @todo этот контроллер еще не написан
+                'gridControllerPath' => '/projects/memberInstanceGrid/',
+                'updateUrl'          => '/projects/invite/editMemberInstance',
+            ),
             'sectionInstanceId' => Yii::app()->request->getParam('siid', 0),
             'currentMemberId'   => Yii::app()->request->getParam('cmid', 0),
             'lastMemberId'      => Yii::app()->request->getParam('lmid', 0),
