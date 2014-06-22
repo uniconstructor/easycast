@@ -17,6 +17,7 @@ class InviteController extends Controller
     {
         Yii::import('projects.models.*');
         Yii::import('questionary.models.Questionary');
+        parent::init();
     }
     
     /**
@@ -42,7 +43,7 @@ class InviteController extends Controller
     {
         return array(
             array('allow',  // по одноразовой ссылке подписаться или отбирать актеров можно без авторизации
-                'actions' => array('subscribe', 'selection', 'finishSelection'),
+                'actions' => array('subscribe', 'selection', 'finishSelection', 'editMemberInstance'),
                 'users'   => array('*'),
             ),
             array('allow',  // принять или отклонить приглашение на съемки могут только участники
@@ -132,10 +133,10 @@ class InviteController extends Controller
         $key  = Yii::app()->request->getParam('k1', '');
         $key2 = Yii::app()->request->getParam('k2', '');
         
+        
         // проверяем, что приглашение существует и ключи доступа правильные
         $customerInvite = $this->loadCustomerInviteModel($id);
         $this->checkCustomerInviteKeys($customerInvite, $key, $key2);
-        
         // запоминаем, что приглашением воспользовались
         $customerInvite->markUsed();
                 
@@ -181,6 +182,39 @@ class InviteController extends Controller
         $customerInvite->setStatus(CustomerInvite::STATUS_FINISHED);
         
         $this->render('finishSelection');
+    }
+    
+    /**
+     * 
+     * @return void
+     */
+    public function actionEditMemberInstance()
+    {
+        // id приглашения заказчика
+        /*$id   = Yii::app()->request->getParam('inviteId', 0);
+        // одноразовые ключи безопасности
+        $key  = Yii::app()->request->getParam('k1', '');
+        $key2 = Yii::app()->request->getParam('k2', '');
+        
+        // проверяем, что приглашение существует и ключи доступа правильные
+        $customerInvite = $this->loadCustomerInviteModel($id);
+        $this->checkCustomerInviteKeys($customerInvite, $key, $key2);*/
+        
+        
+        //$memberId = Yii::app()->request->getParam('id', 0);
+        
+        $id    = Yii::app()->request->getParam('pk');
+        $field = Yii::app()->request->getParam('name');
+        $value = Yii::app()->request->getParam('value');
+        
+        $item  = MemberInstance::model()->findByPk($id);
+        //$this->checkAccess($item);
+        $item->$field = $value;
+        
+        if ( ! $item->save() )
+        {// не удалось обновить запись в поле
+            throw new CHttpException(500, $item->getError($field));
+        }
     }
 
     /**
