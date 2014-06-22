@@ -773,6 +773,7 @@ class Questionary extends CActiveRecord
             'haslanuages' => QuestionaryModule::t('haslanuages_label'),
             'wantsbusinesstrips' => QuestionaryModule::t('wantsbusinesstrips_label'),
             'country' => QuestionaryModule::t('country_label'),
+            'countryName' => QuestionaryModule::t('country_label'),
             'countryid' => QuestionaryModule::t('country_label'),
             'hasinshurancecard' => QuestionaryModule::t('hasinshurancecard_label'),
             'inshurancecardnum' => QuestionaryModule::t('inshurancecardnum_label'),
