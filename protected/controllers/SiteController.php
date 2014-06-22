@@ -131,6 +131,10 @@ class SiteController extends Controller
      */
     public function actionPlaceFastOrder()
     {
+        if ( ! YII_DEBUG AND ! Yii::app()->request->isAjaxRequest )
+        {
+            Yii::app()->end();
+        }
         $model = new FastOrder();
         
         if ( $post = Yii::app()->request->getParam('FastOrder') )
@@ -138,9 +142,9 @@ class SiteController extends Controller
             $model->attributes = $post;
             $valid = $model->validate();
             if ( $valid )
-            { // Заказ успешно зарегистрирован
+            {// Заказ успешно зарегистрирован
                 $model->status = 'active';
-                $model->type = 'fast';
+                $model->type   = 'fast';
                 $model->save();
                 
                 echo CJSON::encode(array(
@@ -148,7 +152,7 @@ class SiteController extends Controller
                 ));
                 Yii::app()->end();
             }else
-            { // ошибка при регистрации заказа
+            {// ошибка при регистрации заказа
                 $error = CActiveForm::validate($model);
                 if ( $error != '[]' )
                 {
