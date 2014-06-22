@@ -91,16 +91,16 @@ class CustomerInvite extends CActiveRecord
     public function rules()
     {
         return array(
-            array('objecttype, objectid, managerid, timecreated, timeused, timefinished, userid', 'length', 'max'=>11),
-            array('key, key2', 'length', 'max'=>40),
-            array('status', 'length', 'max'=>50),
-            array('email, name', 'length', 'max'=>255),
+            array('objectid, managerid, timecreated, timeused, timefinished, userid', 'length', 'max' => 11),
+            array('key, key2', 'length', 'max' => 40),
+            array('objecttype, status', 'length', 'max' => 50),
+            array('email, name', 'length', 'max' => 255),
             array('email', 'required'),
             array('email', 'email'),
-            array('comment, feedback', 'length', 'max'=>4095),
+            array('comment, feedback', 'length', 'max' => 4095),
             
             array('id, objecttype, objectid, key, key2, email, name, managerid, timecreated, timeused,
-                 userid, timefinished, feedback, status', 'safe', 'on'=>'search'),
+                 userid, timefinished, feedback, status', 'safe', 'on' => 'search'),
         );
     }
 
