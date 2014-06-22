@@ -13,14 +13,15 @@
  * @property string $timemodified
  * @property string $expire
  * 
- * @todo переименовать в object Locks
+ * @todo переименовать таблицу в object_locks
  */
-class LockedObject extends CActiveRecord
+class ObjectLock extends CActiveRecord
 {
     /**
      * @var int - количество секунд на которое блокируется объект если время блокировки не задано
      */
-    const DEFAULT_LOCK_TIME = 15;
+    const DEFAULT_LOCK_TIME = 300;
+    
 	/**
 	 * @return string the associated database table name
 	 */
@@ -124,7 +125,7 @@ class LockedObject extends CActiveRecord
 	 * Returns the static model of the specified AR class.
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!
 	 * @param string $className active record class name.
-	 * @return LockedObject the static model class
+	 * @return ObjectLock the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
@@ -134,7 +135,7 @@ class LockedObject extends CActiveRecord
 	/**
 	 * Именованая группа условий
 	 * @param string $objectType
-	 * @return LockedObject
+	 * @return ObjectLock
 	 */
 	public function forObjectType($objectType)
 	{
@@ -150,7 +151,7 @@ class LockedObject extends CActiveRecord
 	 * Именованая группа условий
 	 * @param string $objectType
 	 * @param int    $objectId
-	 * @return LockedObject
+	 * @return ObjectLock
 	 */
 	public function forObject($objectType, $objectId)
 	{
@@ -164,18 +165,57 @@ class LockedObject extends CActiveRecord
 	}
 	
 	/**
+	 * Найти все блокировки установленные определенным объектом (например пользователем)
+	 * @param string $objectType
+	 * @param int    $objectId
+	 * @return ObjectLock
+	 */
+	public function lockedBy($lockerType, $lockerId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('lockertype', $objectType);
+	    $criteria->compare('lockerid', $objectId);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
+	}
+	
+	/**
+	 * Игнорировать все блокировки установленные определенным объектом 
+	 * (нужно чтобы не натыкаться на собственные блокировки)
+	 * @param string $objectType
+	 * @param int    $objectId
+	 * @return ObjectLock
+	 */
+	public function skipLockedBy($lockerType, $lockerId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('lockertype', $lockerType);
+	    $criteria->compare('lockerid', '<>'.$lockerId);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
+	}
+	
+	/**
 	 * Заблокировать объект
 	 * 
 	 * @param string $objectType
 	 * @param int    $objectId
 	 * @param int    $period
-	 * @param string $lockerType
-	 * @param int    $lockerId
+	 * @param string $lockerType - тип объекта создавшего блокировку (например user)
+	 * @param int    $lockerId - id объекта создавшего блокировку
 	 * @return bool
 	 */
-	public function lockObject($objectType, $objectId, $period, $lockerType, $lockerId)
+	public function lock($objectType, $objectId, $period, $lockerType='system', $lockerId=0)
 	{
-	    $lock = new LockedObject();
+	    if ( $this->forObject($objectType, $objectId)->exists() )
+	    {// нельзя блокировать два раза один и тот же объект
+	        return false;
+	    }
+	    $lock = new ObjectLock();
 	    $lock->objecttype = $objectType;
 	    $lock->objectid   = $objectId;
 	    $lock->lockertype = $lockerType;
@@ -183,6 +223,27 @@ class LockedObject extends CActiveRecord
 	    $lock->expire     = time() + $period;
 	    
 	    return $lock->save();
+	}
+	
+	/**
+	 * Снять блокировку
+	 * 
+	 * @param string $objectType
+	 * @param int    $objectId
+	 * @param string $lockerType - тип объекта снявшего блокировку (например user)
+	 * @param int    $lockerId - id объекта снявшего блокировку 
+	 *                           (информация о том кто снял блокировку нужна в основном 
+	 *                           для логов и статистики, поэтому пока не используется)
+	 * @return bool
+	 */
+	public function unlock($objectType, $objectId, $unlockerType='system', $unlockerId=0)
+	{
+	    if ( ! $this->forObject($objectType, $objectId)->exists() )
+	    {// блокировка уже снята - действия не требуются
+	        return true;
+	    }
+	    // снимаем блокировку с объекта
+	    return $this->forObject($objectType, $objectId)->deleteAll();
 	}
 	
 	/**
@@ -206,7 +267,6 @@ class LockedObject extends CActiveRecord
 	
 	/**
 	 * Очистить устаревшие блокировки
-	 * 
 	 * @return void
 	 */
 	public function clearLocks()
@@ -218,7 +278,7 @@ class LockedObject extends CActiveRecord
 	}
 	
 	/**
-	 * 
+	 * Получить список id заблокированных объектов
 	 * @param CDbCriteria $criteria
 	 * @return array
 	 */
@@ -237,7 +297,6 @@ class LockedObject extends CActiveRecord
 	    {
 	        $result[$lock->id] = $lock->id;
 	    }
-	    
 	    return $result;
 	}
 }
