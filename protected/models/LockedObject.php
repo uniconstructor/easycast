@@ -12,6 +12,8 @@
  * @property string $timecreated
  * @property string $timemodified
  * @property string $expire
+ * 
+ * @todo переименовать в object Locks
  */
 class LockedObject extends CActiveRecord
 {
@@ -213,5 +215,29 @@ class LockedObject extends CActiveRecord
 	    $criteria->compare('expire', '<'.time());
 	    
 	    $this->deleteAll($criteria);
+	}
+	
+	/**
+	 * 
+	 * @param CDbCriteria $criteria
+	 * @return array
+	 */
+	public function getIds($criteria=null)
+	{
+	    $result = array();
+	    if ( $criteria )
+	    {
+	        $this->getDbCriteria()->mergeWith($criteria);
+	    }
+	    if ( ! $locks = $this->findAll() )
+	    {
+	        return array();
+	    }
+	    foreach ( $locks as $lock )
+	    {
+	        $result[$lock->id] = $lock->id;
+	    }
+	    
+	    return $result;
 	}
 }
