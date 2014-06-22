@@ -285,14 +285,40 @@ class MemberProcessor extends CWidget
      * 
      * @return ProjectMember|null
      * 
-     * @todo выставлять блокировку перед началом редактирования и снимать ее после
+     * @todo выставлять блокировку и снимать ее только в контроллере при помощи специального action а не здась
      */
     protected function getCurrentMember()
     {
-        if ( ! $member = ProjectMember::model()->findByPk($this->currentMemberId) )
-        {// если текущая заявка не задана - берем любую не занятую
-            $member = $this->vacancy->getUnallocatedMember($this->currentStatuses);
+        // определяем вакие разделы заявок проверять на предмет заполненности
+        $csids = array_keys($this->vacancy->catalogSectionInstances);
+        
+        if ( $this->customerInvite instanceof CustomerInvite )
+        {// блокировка заказчиком
+            $lockerType = 'customer_invite';
+            $lockerId   = $this->customerInvite->id;
+        }else
+        {// блокировка администратором
+            $lockerType = 'user';
+            $lockerId   = Yii::app()->user->id;
         }
+        // получаем для просмотра текущую заявку
+        $member = ProjectMember::model()->unlockedFor($lockerType, $lockerId)->findByPk($this->currentMemberId);
+        
+        if ( ! $member OR $member->forSectionInstances($csids)->exists() )
+        {// если текущая заявка не задана или уже распределена - берем любую не занятую
+            $member = $this->vacancy->getUnallocatedMember($this->currentStatuses, $lockerType, $lockerId);
+        }
+        if ( $this->lastMemberId )
+        {// снимаем блокировку с пользователя после редактирования
+            ObjectLock::model()->unlock('project_member', $this->lastMemberId);
+        }
+        if ( $member )
+        {// ставим блокировку чтобы избежать одновременного редактирования
+            ObjectLock::model()->lock('project_member', $member->id, 300, $lockerType, $lockerId);
+        }
+        // очищаем устаревшие блокировки
+        ObjectLock::model()->clearLocks();
+        
         return $member;
     }
     
