@@ -243,8 +243,9 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
 	        <i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('looks'); ?></a>
         </legend>
 
-        <?php echo $form->labelEx($questionary, 'photos'); ?>
-        <?php
+        <?php 
+        // Фотографии
+        echo $form->labelEx($questionary, 'photos');
         // Рекомендации по добавлению фотографий
         $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
                 array('field' => 'photos'));
@@ -275,6 +276,34 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
             $this->widget('ext.ECEditVideo.ECEditVideo', array(
                 'questionary' => $questionary,
             ));
+            
+            if ( Yii::app()->user->checkAccess('Admin') )
+            {// @todo загрузка файлов видео пока что только для админов
+                /*$this->widget('ext.EFineUploader.EFineUploader', array(
+                    'id'     => 'FineUploader',
+                    'config' => array(
+                        'autoUpload' => true,
+                        'request' => array(
+                            'endpoint' => $this->createUrl('/questionary/questionary/videoUpload'),// OR $this->createUrl('controller/upload'),
+                            'params'   => array('YII_CSRF_TOKEN' => Yii::app()->request->csrfToken),
+                        ),
+                        'retry' => array(
+                            'enableAuto' => true,
+                            'preventRetryResponseProperty' => true,
+                        ),
+                        'chunking'  => array('enable' => true, 'partSize' => 1000000),//bytes
+                        'callbacks' => array(
+                            'onComplete' => "js:function(id, name, response){ $('li.qq-upload-success').remove(); }",
+                            //'onError'=>"js:function(id, name, errorReason){ }",
+                            'onValidateBatch' => "js:function(fileOrBlobData) {}",
+                        ),
+                        'validation' => array(
+                            'allowedExtensions' => array('avi', 'mpg', 'mpeg', 'flv', 'wmv', 'mov'),
+                            'sizeLimit' => 500 * 1024 * 1024,//maximum file size in bytes
+                        ),
+                    )
+                ));*/
+            }
             ?>
         </fieldset>
         
@@ -292,7 +321,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
             <?php
             // список особенностей внешности и доп. характеристик
             $this->widget('questionary.extensions.widgets.QEditAddChars.QEditAddChars', array(
-                'questionary'   => $questionary,
+                'questionary' => $questionary,
             ));
             ?>
         </fieldset>
