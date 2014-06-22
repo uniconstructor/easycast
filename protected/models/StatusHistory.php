@@ -115,4 +115,55 @@ class StatusHistory extends CActiveRecord
 	        ),
 	    );
 	}
+	
+	/**
+	 * Именованая группа условий: получить всю историю изменения статусов по одному объекту
+	 * @param string $objectType
+	 * @param int    $objectId
+	 * @return StatusHistory
+	 */
+	public function forObject($objectType, $objectId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('objecttype', $objectType);
+	    $criteria->compare('objectid', $objectId);
+	     
+	    $this->getDbCriteria()->mergeWith($criteria);
+	     
+	    return $this;
+	}
+	
+	/**
+	 * Именованая группа условий: получить последнюю запись об изменении объекта если она есть
+	 * @return StatusHistory|null
+	 */
+	public function getLastItem()
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->order = $this->getTableAlias().".`timecreated` DESC";
+	    $criteria->limit = 1;
+	    if ( ! $result = $this->findAll($criteria) )
+	    {
+	        return;
+	    }
+	    return current($result);
+	}
+	
+	/**
+	 * 
+	 * @return string
+	 */
+	public function getSourceName()
+	{
+	    switch ( $this->sourcetype )
+	    {
+	        case 'customer_invite':
+	            if ( $source = CustomerInvite::model()->findByPk($this->sourceid) )
+	            {
+	                return $source->name;
+	            }
+	        break;
+	    }
+	    return '';
+	}
 }
