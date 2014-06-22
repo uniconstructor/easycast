@@ -33,6 +33,7 @@
  *       Продумать этот пункт - возможно стоит сделать тут третью нормальную форму, и разрешить
  *       в одном приглашении давать доступ сразу к нескольким действиям, но пока не известно
  *       есть ли в этом необходимость
+ * @todo добавить поле duration - период времени на который выдается приглашение
  */
 class CustomerInvite extends CActiveRecord
 {
@@ -238,6 +239,24 @@ class CustomerInvite extends CActiveRecord
     public function generateKey()
     {
         return sha1(time().microtime().Yii::app()->params['hashSalt'].rand(1, 9001));
+    }
+    
+    /**
+     * Проверить ключи доступа из приглашения заказчика
+     * 
+     * @param CustomerInvite $invite - приглашение заказчика
+     * @param string $key  - первый ключ безопасности (приходит из GET)
+     * @param string $key2 - второй ключ безопасности (приходит из GET)
+     * @return bool
+     */
+    public function checkKeys($id, $key, $key2)
+    {
+        $criteria = new CDbCriteria();
+        $criteria->compare('id', $id);
+        $criteria->compare('key', $key);
+        $criteria->compare('key2', $key2);
+        
+        return $this->exists($criteria);
     }
     
     /**
