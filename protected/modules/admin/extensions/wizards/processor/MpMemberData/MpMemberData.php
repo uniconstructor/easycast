@@ -6,7 +6,8 @@
 class MpMemberData extends CWidget
 {
     /**
-     * @var string
+     * @var string режим отображения
+     * @todo
      */
     public $mode;
     /**
@@ -34,6 +35,14 @@ class MpMemberData extends CWidget
      * @var array - настройки виджета MpMemberSections
      */
     public $sectionGridOptions = array();
+    /**
+     * @var bool - свернуть ли изначально блок дополнительных полей?
+     */
+    public $collapseExtra    = true;
+    /**
+     * @var bool - свернуть ли изначально блок c разделами заявки?
+     */
+    public $collapseSections = true;
     
     /**
      * @var Questionary

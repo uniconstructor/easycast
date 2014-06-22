@@ -36,6 +36,8 @@
                             'member'             => $member,
                             'customerInvite'     => $this->customerInvite,
                             'sectionGridOptions' => $this->sectionGridOptions,
+                            'collapseExtra'      => false,
+                            'collapseSections'   => false,
                         ));
                         // кнопки вперед/назад
                         $this->render('_buttons', array('member' => $member));

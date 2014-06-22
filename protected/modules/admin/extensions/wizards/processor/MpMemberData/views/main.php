@@ -3,6 +3,16 @@
  * Полная разметка одной заявки
  */
 /* @var $this MpMemberData */
+$collapseExtraStyle    = '';
+$collapseSectionsStyle = '';
+if ( ! $this->collapseExtra )
+{
+    $collapseExtraStyle = ' in';
+}
+if ( ! $this->collapseSections )
+{
+    $collapseSectionsStyle = ' in';
+}
 ?>
 <div id="<?= $this->wrapperId; ?>">
     <div class="row-fluid">
@@ -18,7 +28,7 @@
                 <b>Анкета участника</b>
             </a>
         </div>
-        <div id="collapse_extra_<?= $this->id; ?>" class="accordion-body collapse">
+        <div id="collapse_extra_<?= $this->id; ?>" class="accordion-body collapse <?= $collapseExtraStyle; ?>">
             <div class="accordion-inner">
             <?php
             // дополнительные поля заявки
@@ -33,7 +43,7 @@
                 <b>В каких разделах эта заявка?</b>
             </a>
         </div>
-        <div id="collapse_sections_<?= $this->id; ?>" class="accordion-body collapse">
+        <div id="collapse_sections_<?= $this->id; ?>" class="accordion-body collapse <?= $collapseExtraStyle; ?>">
             <div class="accordion-inner">
             <?php
             // блок со списком категорий и маркерами
