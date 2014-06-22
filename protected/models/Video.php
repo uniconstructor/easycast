@@ -27,6 +27,11 @@
  */
 class Video extends SWActiveRecord
 {
+    /**
+     * @var resource
+     */
+    //public $videofile;
+    
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
@@ -82,7 +87,8 @@ class Video extends SWActiveRecord
 	{
 		return array(
 		    array('link, name', 'filter', 'filter' => 'trim'),
-		    array('link, name', 'required'),
+		    //array('name', 'required'),
+		    //array('videofile', 'file', 'types' => 'avi, mov, flv, mpg, mpeg, mkv, wmv'),
 		    
 			array('objecttype, type', 'length', 'max' => 20),
 			array('status', 'length', 'max' => 50),
@@ -90,9 +96,8 @@ class Video extends SWActiveRecord
 			array('name, description, link, externalid', 'length', 'max' => 255),
 			array('md5', 'length', 'max' => 128),
 			// The following rule is used by search().
-			// Please remove those attributes that should not be searched.
 			array('id, objecttype, objectid, name, type, description, link, timecreated, 
-			    uploaderid, md5, size, status, visible', 'safe', 'on'=>'search'),
+			    uploaderid, md5, size, status, visible', 'safe', 'on' => 'search'),
 		);
 	}
 	
