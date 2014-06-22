@@ -437,19 +437,40 @@ class ProjectMember extends CActiveRecord
 	}
 	
 	/**
-	 * Получить незаблокированные записи
+	 * Получить все незаблокированные записи
 	 * @return ProjectMember
 	 */
-	public function notLocked()
+	public function unlocked()
 	{
 	    // получаем все заблокированные объекты
-	    if ( ! $locks = LockedObject::model()->forObjectType('member')->getIds() )
+	    if ( ! $locks = ObjectLock::model()->forObjectType('project_member')->getIds() )
 	    {
 	        return $this;
 	    }
 	    $criteria = new CDbCriteria();
 	    $criteria->addNotInCondition($this->getTableAlias().'.`id`', $locks);
 	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    return $this;
+	}
+	
+	/**
+	 * Получить все незаблокированые записи, + записи которые блокированы определенным пользователем
+	 * (чтобы не спотыкаться об свою собственную блокировку)
+	 * @param string $lockerType
+	 * @param int $lockerId
+	 * @return ProjectMember
+	 */
+	public function unlockedFor($lockerType, $lockerId)
+	{
+	    $locks = ObjectLock::model()->forObjectType('project_member')->skipLockedBy($lockerType, $lockerId)->getIds();
+	    if ( ! $locks )
+	    {
+	        return $this;
+	    }
+	    $criteria = new CDbCriteria();
+	    $criteria->addNotInCondition($this->getTableAlias().'.`id`', $locks);
+	     
 	    $this->getDbCriteria()->mergeWith($criteria);
 	    return $this;
 	}
