@@ -185,36 +185,50 @@ class InviteController extends Controller
     }
     
     /**
-     * 
+     * Редактировать список разделов по одноразовой ссылке
      * @return void
+     * 
+     * @todo проверять что редактируемая заявка принадлежит роли в приглашении
      */
     public function actionEditMemberInstance()
     {
         // id приглашения заказчика
-        /*$id   = Yii::app()->request->getParam('inviteId', 0);
+        $id   = Yii::app()->request->getParam('ciid', 0);
         // одноразовые ключи безопасности
         $key  = Yii::app()->request->getParam('k1', '');
         $key2 = Yii::app()->request->getParam('k2', '');
         
         // проверяем, что приглашение существует и ключи доступа правильные
         $customerInvite = $this->loadCustomerInviteModel($id);
-        $this->checkCustomerInviteKeys($customerInvite, $key, $key2);*/
+        $this->checkCustomerInviteKeys($customerInvite, $key, $key2);
         
-        
-        //$memberId = Yii::app()->request->getParam('id', 0);
-        
+        // получаем все параметры для редактирования одной записи
         $id    = Yii::app()->request->getParam('pk');
         $field = Yii::app()->request->getParam('name');
         $value = Yii::app()->request->getParam('value');
-        
-        $item  = MemberInstance::model()->findByPk($id);
-        //$this->checkAccess($item);
+        // перед сохранением запоминаем старый статус
+        $item         = MemberInstance::model()->findByPk($id);
+        $oldStatus    = $item->status;
         $item->$field = $value;
         
         if ( ! $item->save() )
         {// не удалось обновить запись в поле
             throw new CHttpException(500, $item->getError($field));
+        }else
+        {// запоминаем кто последний редактировал запись
+            $newStatus = $item->status;
+            // @todo переписать с использованием событий
+            $history = new StatusHistory();
+            $history->sourcetype = 'customer_invite';
+            $history->sourceid   = $customerInvite->id;
+            $history->objecttype = 'member_instance';
+            $history->objectid   = $id;
+            $history->oldstatus  = $oldStatus;
+            $history->newstatus  = $newStatus;
+            $history->save();
+            echo 'OK';
         }
+        Yii::app()->end();
     }
 
     /**
