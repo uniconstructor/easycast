@@ -77,9 +77,10 @@ return CMap::mergeArray(
             
             // S3
             // Использовать хостинг amazon s3 для хранения картинок
-            'useAmazonS3'   => true,
-            'AWSBucket'     => 'img.easycast.ru',
-            'AWSBucketPath' => 'http://img.easycast.ru.s3.amazonaws.com',
+            'useAmazonS3'    => true,
+            'AWSBucket'      => 'img.easycast.ru',
+            'AWSBucketPath'  => 'http://img.easycast.ru.s3.amazonaws.com',
+            'AWSVideoBucket' => 'video.easycast.ru',
             // SES
             // использовать сервисы amazon SES для отправки почты
             'useAmazonSES'  => true,
