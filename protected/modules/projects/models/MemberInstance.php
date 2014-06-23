@@ -55,6 +55,21 @@ class MemberInstance extends CActiveRecord
 		    'sectionInstance' =>  array(self::BELONGS_TO, 'CatalogSectionInstance', 'objectid'),
 		);
 	}
+	
+	/**
+	 * @see parent::behaviors
+	 */
+	public function behaviors()
+	{
+	    return array(
+	        // автоматическое заполнение дат создания и изменения
+	        'CTimestampBehavior' => array(
+	            'class' => 'zii.behaviors.CTimestampBehavior',
+	            'createAttribute' => 'timecreated',
+	            'updateAttribute' => 'timemodified',
+	        )
+	    );
+	}
 
 	/**
 	 * @return array customized attribute labels (name=>label)
@@ -133,11 +148,30 @@ class MemberInstance extends CActiveRecord
 	        $criteria->compare('objectid', $this->objectid);
 	        $criteria->compare('memberid', $this->memberid);
 	        if ( $this->exists($criteria) )
-	        {// одну заявку нельзя 2 раза поместьть в одну и ту же категорию
+	        {// одну заявку нельзя 2 раза поместить в одну и ту же категорию
 	            return false;
 	        }
 	    }
 	    return parent::beforeSave();
+	}
+	
+	/**
+	 * @see CActiveRecord::scopes()
+	 */
+	public function scopes()
+	{
+	    return array(
+	        // последние созданные записи
+	        'lastCreated' => array(
+    	        'order' => $this->getTableAlias(true).'.`timecreated` DESC, '.
+	               $this->getTableAlias(true).'.`id` DESC',
+    	    ),
+	        // последние измененные записи
+	        'lastModified' => array(
+    	        'order' => $this->getTableAlias(true).'.`timemodified` DESC, '.
+	               $this->getTableAlias(true).'.`id` ASC',
+    	    ),
+	    );
 	}
 	
 	/**
@@ -150,8 +184,8 @@ class MemberInstance extends CActiveRecord
 	public function forObject($objectType, $objectId)
 	{
 	    $criteria = new CDbCriteria();
-	    $criteria->compare('objecttype', $objectType);
-	    $criteria->compare('objectid', $objectId);
+	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
+	    $criteria->compare($this->getTableAlias(true).'.`objectid`', $objectId);
 	
 	    $this->getDbCriteria()->mergeWith($criteria);
 	
@@ -171,8 +205,8 @@ class MemberInstance extends CActiveRecord
 	public function forObjects($objectType, $objectIds)
 	{
 	    $criteria = new CDbCriteria();
-	    $criteria->compare('objecttype', $objectType);
-	    $criteria->addInCondition('objectid', $objectIds);
+	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
+	    $criteria->addInCondition($this->getTableAlias(true).'.`objectid`', $objectIds);
 	
 	    $this->getDbCriteria()->mergeWith($criteria);
 	
@@ -215,39 +249,6 @@ class MemberInstance extends CActiveRecord
 	}
 	
 	/**
-	 * 
-	 * @param unknown $count
-	 * @return MemberInstance
-	 */
-	/*public function havingCount($count)
-	{
-	    $criteria = new CDbCriteria();
-	    $criteria->having = "COUNT(*) < {$count}`";
-	    
-	    $this->getDbCriteria()->mergeWith($criteria);
-	    
-	    return $this;
-	}*/
-	
-	/**
-	 * Именованная группа условий поиска - найти все записи не принадлежащие указанным разделам
-	 * @param array $instanceIds - массив id разделов заявок внутри роли (CatalogSectionInstance)
-	 * @return MemberInstance
-	 * 
-	 * @todo не дописано
-	 */
-	/*public function notInSectionInstances($instanceIds)
-	{
-	    $criteria = new CDbCriteria();
-	    $criteria->addCondition("NOT (`objecttype` = 'section_instance' 
-	        AND `objectid` IN (".implode(',', $instanceIds).") AND `linktype` = 'nolink' )");
-	    
-	    $this->getDbCriteria()->mergeWith($criteria);
-	    
-	    return $this;
-	}*/
-	
-	/**
 	 * Именованная группа условий поиска - найти все записи с определенным типом связи с объектом
 	 * @param array $linkTypes
 	 * @return MemberInstance
@@ -258,6 +259,10 @@ class MemberInstance extends CActiveRecord
 	 */
 	public function withLinkTypes($linkTypes)
 	{
+	    if ( ! $linkTypes )
+	    {
+	        return $this;
+	    }
 	    $criteria = new CDbCriteria();
 	    $criteria->addInCondition('linktype', $linkTypes);
 	    
@@ -277,11 +282,37 @@ class MemberInstance extends CActiveRecord
 	 */
 	public function withoutLinkTypes($linkTypes)
 	{
+	    if ( ! $linkTypes )
+	    {
+	        return $this;
+	    }
 	    $criteria = new CDbCriteria();
 	    $criteria->addNotInCondition('linktype', $linkTypes);
 	    
 	    $this->getDbCriteria()->mergeWith($criteria);
 	     
+	    return $this;
+	}
+	
+	/**
+	 * Именованная группа условий: найти ссылки на заявки с определенным статусом заявки
+	 * @param array $statuses
+	 * @return MemberInstance
+	 */
+	public function withMemberStatus($statuses)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->with = array(
+	        'member' => array(
+    	        'scopes' => array(
+    	            'withStatus' => array($statuses),
+    	        ),
+    	    ),
+	    );
+	    $criteria->together = true;
+	     
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
 	    return $this;
 	}
 	
