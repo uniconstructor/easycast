@@ -576,7 +576,7 @@ class EventVacancy extends CActiveRecord
 	    
 	    // получаем всех участников роли
 	    $members = ProjectMember::model()->forVacancy($this->id)->withStatus($statuses)->
-	       unlockedFor($lockerType, $lockerId)->findAll(array('order' => "`t`.`timecreated` DESC"));
+	       unlocked()->findAll(array('order' => "`t`.`timecreated` DESC"));
 	    
 	    foreach ( $members as $member )
 	    {/* @var $member ProjectMember */
