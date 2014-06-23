@@ -295,7 +295,7 @@ class ObjectLock extends CActiveRecord
 	    }
 	    foreach ( $locks as $lock )
 	    {
-	        $result[$lock->id] = $lock->id;
+	        $result[$lock->objectid] = $lock->objectid;
 	    }
 	    return $result;
 	}
