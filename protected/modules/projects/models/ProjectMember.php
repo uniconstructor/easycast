@@ -221,20 +221,21 @@ class ProjectMember extends CActiveRecord
 	 */
 	public function withStatus($statuses=array(self::STATUS_ACTIVE, self::STATUS_FINISHED))
 	{
-	     if ( ! is_array($statuses) )
-	     {// нужен только один статус, и он передан строкой - сделаем из нее массив
-	         $statuses = array($statuses);
-	     }
-	     if ( empty($statuses) )
-	     {
-	         return $this;
-	     }
-	     $criteria = new CDbCriteria();
-	     $criteria->addInCondition($this->getTableAlias().'.`status`', $statuses);
-	     
-	     $this->getDbCriteria()->mergeWith($criteria);
-	     
-	     return $this;
+	    $criteria = new CDbCriteria();
+        if ( ! is_array($statuses) )
+        {// нужен только один статус, и он передан строкой - сделаем из нее массив
+            $statuses = array($statuses);
+        }
+        if ( empty($statuses) )
+        {// Если статус не указан - берем все кроме отклоненных
+            $criteria->compare($this->getTableAlias().'.`status`', '<>'.self::STATUS_REJECTED);
+        }else
+        {
+            $criteria->addInCondition($this->getTableAlias().'.`status`', $statuses);
+        }
+        $this->getDbCriteria()->mergeWith($criteria);
+        
+        return $this;
 	}
 	
 	/**
