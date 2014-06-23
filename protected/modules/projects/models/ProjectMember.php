@@ -191,22 +191,27 @@ class ProjectMember extends CActiveRecord
 	{
 	    return array(
     	    // только поданные заявки
+    	    // @todo после введения условия withStatus больше не используется, удалить при рефакторинге
     	    'draft' => array(
     	        'condition' => "`status` = '".self::STATUS_DRAFT."'"
     	    ),
     	    // только подтвержденные заявки
+	        // @todo после введения условия withStatus больше не используется, удалить при рефакторинге
     	    'active' => array(
     	        'condition' => "`status` = '".self::STATUS_ACTIVE."'"
     	    ),
     	    // только предварительно одобренные заявки
+	        // @todo после введения условия withStatus больше не используется, удалить при рефакторинге
     	    'pending' => array(
     	        'condition' => "`status` = '".self::STATUS_PENDING."'"
     	    ),
     	    // только предварительно одобренные заявки
+	        // @todo после введения условия withStatus больше не используется, удалить при рефакторинге
     	    'rejected' => array(
     	        'condition' => "`status` = '".self::STATUS_REJECTED."'"
     	    ),
     	    // только ждущие заявки (поданные или предварительно одобренные)
+	        // @todo после введения условия withStatus больше не используется, удалить при рефакторинге
     	    'waiting' => array(
     	        'condition' => "`status` IN ('".self::STATUS_DRAFT."', '".self::STATUS_PENDING."')"
     	    ),
