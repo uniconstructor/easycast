@@ -54,15 +54,16 @@ class MpMemberData extends CWidget
      */
     public function init()
     {
-        $this->questionary = $this->member->questionary;
+        if ( ( $this->member instanceof ProjectMember ) AND isset($this->member->questionary) )
+        {
+            $this->questionary = $this->member->questionary;
+            $this->sectionGridOptions['member'] = $this->member;
+        }
+        $this->sectionGridOptions['customerInvite'] = $this->customerInvite;
         if ( ! $this->wrapperId )
         {
             $this->wrapperId = 'wrapper_'.$this->id;
         }
-        
-        $this->sectionGridOptions['member']         = $this->member;
-        $this->sectionGridOptions['customerInvite'] = $this->customerInvite;
-        
         parent::init();
     }
     
@@ -71,6 +72,17 @@ class MpMemberData extends CWidget
      */
     public function run()
     {
+        if ( ! $this->questionary )
+        {
+            $memberId = 0;
+            if ( isset($this->member->id) )
+            {
+                $memberId = $this->member->id;
+            }
+            Yii::log('Не удалось отобразать заявку, memberid:'.$memberId.
+                ' ciid: '.$this->customerInvite->id, CLogger::LEVEL_ERROR);
+            return;
+        }
         $this->render('main');
     }
     
