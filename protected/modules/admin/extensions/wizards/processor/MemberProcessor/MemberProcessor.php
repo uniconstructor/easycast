@@ -248,8 +248,8 @@ class MemberProcessor extends CWidget
     }
     
     /**
-     * 
-     * @return void
+     * Получить все используемые для фильтрации статусы
+     * @return array
      */
     protected function getCurrentStatuses()
     {
@@ -265,8 +265,8 @@ class MemberProcessor extends CWidget
     }
     
     /**
-     * 
-     * @return void
+     * Получить все используемые для фильтрации маркеты
+     * @return array
      */
     protected function getCurrentMarkers()
     {
@@ -315,7 +315,8 @@ class MemberProcessor extends CWidget
         }
         if ( $member )
         {// ставим блокировку чтобы избежать одновременного редактирования
-            ObjectLock::model()->lock('project_member', $member->id, 300, $lockerType, $lockerId);
+            // @todo вынести время блокировки в настройку
+            ObjectLock::model()->lock('project_member', $member->id, 1800, $lockerType, $lockerId);
         }
         // очищаем устаревшие блокировки
         ObjectLock::model()->clearLocks();
