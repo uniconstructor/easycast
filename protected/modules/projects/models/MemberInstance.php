@@ -164,7 +164,7 @@ class MemberInstance extends CActiveRecord
 	        // последние созданные записи
 	        'lastCreated' => array(
     	        'order' => $this->getTableAlias(true).'.`timecreated` DESC, '.
-	               $this->getTableAlias(true).'.`id` DESC',
+	               $this->getTableAlias(true).'.`id` ASC',
     	    ),
 	        // последние измененные записи
 	        'lastModified' => array(
