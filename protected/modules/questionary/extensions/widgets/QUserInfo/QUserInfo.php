@@ -271,11 +271,23 @@ class QUserInfo extends CWidget
                 }
             break;
             case 'titsize':
-                if ( $questionary->gender == 'female' AND $questionary->Titsize )
+                if ( $questionary->gender === 'female' AND $questionary->Titsize )
                 {// не выводим поле с дополнительными хакактеристиками если оно не заполнено
                     $value = $questionary->getScalarFieldDisplayValue($field, $questionary->$field);
                 }
             break;
+            case 'cityid':
+                if ( $questionary->cityid )
+                {
+                    $value = $questionary->cityobj->name;
+                }elseif ( $questionary->city )
+                {
+                    $value = $questionary->city;
+                }else
+                {
+                    return;
+                }
+                break;
             default: $value = $questionary->getScalarFieldDisplayValue($field, $questionary->$field); break;
         }
         if ( ! $value )
@@ -373,7 +385,7 @@ class QUserInfo extends CWidget
         // собираем в массив все поля содержащие основную информацию
         $fields['main'] = array(
             // внешность и основная информация
-            'age', 'playage', 'physiquetype','looktype', 'hairlength', 'haircolor', 'eyecolor', 'addchar',
+            'age', 'playage', 'physiquetype','looktype', 'hairlength', 'haircolor', 'eyecolor', 'cityid', 'addchar',
             // остальные параметры
             'height', 'weight', 'chestsize', 'waistsize', 'hipsize', 'wearsize', 'shoessize', 'titsize',
         );
