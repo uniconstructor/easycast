@@ -203,13 +203,14 @@ class InviteController extends Controller
         $this->checkCustomerInviteKeys($customerInvite, $key, $key2);
         
         // получаем все параметры для редактирования одной записи
-        $id    = Yii::app()->request->getParam('pk');
-        $field = Yii::app()->request->getParam('name');
-        $value = Yii::app()->request->getParam('value');
-        // перед сохранением запоминаем старый статус
-        $item         = MemberInstance::model()->findByPk($id);
-        $oldStatus    = $item->status;
+        $memberId = Yii::app()->request->getParam('pk');
+        $field    = Yii::app()->request->getParam('name');
+        $value    = Yii::app()->request->getParam('value');
+        
+        $item         = MemberInstance::model()->findByPk($memberId);
         $item->$field = $value;
+        // перед сохранением запоминаем старый статус
+        $oldStatus    = $item->status;
         
         if ( ! $item->save() )
         {// не удалось обновить запись в поле
@@ -222,7 +223,7 @@ class InviteController extends Controller
             $history->sourcetype = 'customer_invite';
             $history->sourceid   = $customerInvite->id;
             $history->objecttype = 'member_instance';
-            $history->objectid   = $id;
+            $history->objectid   = $memberId;
             $history->oldstatus  = $oldStatus;
             $history->newstatus  = $newStatus;
             $history->save();
