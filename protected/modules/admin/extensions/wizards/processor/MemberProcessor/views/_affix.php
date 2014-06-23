@@ -23,6 +23,6 @@
     $url = Yii::app()->createUrl($this->widgetRoute, $this->getLinkOptions(array('siid' => 0)));
     echo '<li><a href="'.$url.'" style="text-transform:capitalize;font-weight:normal;padding:10px;">
             <i class="icon-chevron-right"></i> Без категории&nbsp;<span class="badge badge-info pull-right">'.
-            $this->getMemberCount($this->sectionInstanceId).'</span></a></li>';
+            $this->getMemberCount(0).'</span></a></li>';
     ?>
 </ul>
