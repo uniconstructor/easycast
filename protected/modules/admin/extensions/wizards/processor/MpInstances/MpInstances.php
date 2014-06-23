@@ -35,10 +35,20 @@ class MpInstances extends CWidget
      */
     public function run()
     {
-        $criteria = ProjectMember::model()->forSectionInstance($this->sectionInstanceId, $this->markers)->
-            withStatus($this->statuses)->getDbCriteria();
+        $criteria = new CDbCriteria();
+        $criteria->scopes = array(
+            'forSectionInstance' => array($this->sectionInstanceId, $this->markers),
+            'withStatus'         => array($this->statuses),
+        );
+        // @todo выбирать MemberInstances а не Members
+        //$criteria->order = 'MAX(`instances`.`timemodified`) DESC';
+        //$criteria->offset = Yii::app()->request->getParam('ProjectMember_page', 0) * $this->pageSize;
+        /*$memberCriteria = ProjectMember::model()->forSectionInstance($this->sectionInstanceId, $this->markers)->
+            withStatus($this->statuses)->getDbCriteria();*/
+        $criteria->mergeWith($criteria);
+        
         $dataProvider = new CActiveDataProvider('ProjectMember', array(
-            'criteria' => $criteria,
+            'criteria'   => $criteria,
             'pagination' => array(
                 'pageSize' => $this->pageSize,
             ),
@@ -56,7 +66,11 @@ class MpInstances extends CWidget
             ),
             'pager' => array(
                 'class'          => 'bootstrap.widgets.TbPager',
+                /*'pageSize'       => $this->pageSize,
                 'maxButtonCount' => 30,
+                'pages' => array(
+                    'pageVar' => 'page',
+                )*/
             ),
             'emptyText' => $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
                 'message' => 'В этом разделе нет заявок',
