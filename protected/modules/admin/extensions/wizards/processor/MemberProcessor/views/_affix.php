@@ -15,7 +15,9 @@
             $active = 'active';
         }
         $url = Yii::app()->createUrl($this->widgetRoute, $this->getLinkOptions(array('siid' => $instance->id)));
-        echo '<li class="'.$active.'"><a href="'.$url.'" style="text-transform:capitalize;font-weight:normal;padding:10px;"><i class="icon-chevron-right"></i>'.$instance->section->name.'</a></li>';
+        echo '<li class="'.$active.'"><a href="'.$url.'" style="text-transform:capitalize;font-weight:normal;padding:10px;">
+            <i class="icon-chevron-right"></i>'.$instance->section->name.'&nbsp;
+            <span class="badge badge-info pull-right">'.$this->getMemberCount($instance->id).'</span></a></li>';
     }
     // внизу всегда добавляем вкладку с нераробранными
     $url = Yii::app()->createUrl($this->widgetRoute, $this->getLinkOptions(array('siid' => 0)));

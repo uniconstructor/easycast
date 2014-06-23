@@ -123,7 +123,8 @@ class MemberProcessor extends CWidget
         $this->memberCount['0'] = $this->vacancy->countUnallocatedMembers($this->currentStatuses);
         foreach ( $this->vacancy->catalogSectionInstances as $instance )
         {
-            $this->memberCount[$instance->id] = '';
+            $this->memberCount[$instance->id] = ProjectMember::model()->forSectionInstance($instance->id)->
+                withStatus()->count();
         }
         parent::init();
     }
@@ -302,7 +303,7 @@ class MemberProcessor extends CWidget
             $lockerId   = Yii::app()->user->id;
         }
         // получаем для просмотра текущую заявку
-        $member = ProjectMember::model()->unlockedFor($lockerType, $lockerId)->findByPk($this->currentMemberId);
+        $member = ProjectMember::model()->unlocked()->findByPk($this->currentMemberId);
         
         if ( ! $member OR $member->forSectionInstances($csids)->exists() )
         {// если текущая заявка не задана или уже распределена - берем любую не занятую
