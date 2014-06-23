@@ -117,6 +117,7 @@ class MpMemberSections extends EditableGrid
         $oldCommentOptions = $this->getTextAreaColumnOptions('comment');
         $newCommentOptions = array(
             'editable' => array(
+                'mode'      => 'inline',
                 'placement' => 'left',
                 'options' => array(
                     'showbuttons' => 'bottom',
