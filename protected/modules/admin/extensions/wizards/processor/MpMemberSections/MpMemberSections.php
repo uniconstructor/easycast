@@ -109,7 +109,10 @@ class MpMemberSections extends EditableGrid
         $newTypeOptions = array(
             'value'    => '$data->linkTypeOption;',
             'editable' => array(
-                'mode' => 'inline',
+                'mode'    => 'inline',
+                'options' => array(
+                    'onblur' => 'submit',
+                ),
             ),
         );
         $typeOptions = CMap::mergeArray($oldTypeOptions, $newTypeOptions);
