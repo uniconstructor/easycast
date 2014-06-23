@@ -206,9 +206,11 @@ class InviteController extends Controller
         $memberId = Yii::app()->request->getParam('pk');
         $field    = Yii::app()->request->getParam('name');
         $value    = Yii::app()->request->getParam('value');
-        
+        // а также саму запись
         $item         = MemberInstance::model()->findByPk($memberId);
         $item->$field = $value;
+        $item->sourcetype = 'customer_invite';
+        $item->sourceid   = $customerInvite->id;
         // перед сохранением запоминаем старый статус
         $oldStatus    = $item->status;
         
