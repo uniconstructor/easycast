@@ -11,7 +11,6 @@ class QSearchFilterExtreme extends QSearchFilterBaseSelect2
     protected $elements = array('extremaltype');
     
     /**
-     * (non-PHPdoc)
      * @see QSearchFilterBase::getTitle()
      */
     protected function getTitle()

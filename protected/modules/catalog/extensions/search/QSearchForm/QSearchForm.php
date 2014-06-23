@@ -87,7 +87,7 @@ class QSearchForm extends SearchFilters
      */
     public $columnFilters = array(
         'sections' => array('iconlist'),
-        'base'     => array('status', 'gender', 'age', /*'email',*/ 'salary', 'height', 
+        'base'     => array('status', 'city', 'gender', 'age', /*'email',*/ 'salary', 'height', 
             'weight', 'body', 'system', 'name',
         ),
         'looks'    => array('looktype', 'physiquetype', 'haircolor', 'hairlength', 
