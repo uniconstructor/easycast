@@ -123,8 +123,8 @@ class MemberProcessor extends CWidget
         $this->memberCount['0'] = $this->vacancy->countUnallocatedMembers($this->currentStatuses);
         foreach ( $this->vacancy->catalogSectionInstances as $instance )
         {
-            $this->memberCount[$instance->id] = ProjectMember::model()->forSectionInstance($instance->id)->
-                withStatus()->count();
+            $this->memberCount[$instance->id] = ProjectMember::model()->
+                forSectionInstance($instance->id)->count();
         }
         parent::init();
     }
