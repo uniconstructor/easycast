@@ -563,14 +563,6 @@ class EventVacancy extends CActiveRecord
 	    {// на роль или еще не начат или уже закончен отбор
 	        return null;
 	    }
-	    if ( empty($statuses) )
-	    {// если статус заявок не указан - возьмем все кроме отклоненных
-	        $statuses = array(
-	            ProjectMember::STATUS_DRAFT,
-	            ProjectMember::STATUS_PENDING,
-	            ProjectMember::STATUS_ACTIVE,
-	        );
-	    }
 	    // получаем все разделы заявок
 	    $csids = array_keys($this->catalogSectionInstances);
 	    
