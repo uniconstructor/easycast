@@ -86,7 +86,8 @@ class MpMemberSections extends EditableGrid
      */
     protected function renderFormFields($form)
     {
-        //$this->render('_fields', array('model' => $this->model, 'form' => $form));
+        // в таблице категорий нельзя добавлять новые строки
+        return;
     }
     
     /**
