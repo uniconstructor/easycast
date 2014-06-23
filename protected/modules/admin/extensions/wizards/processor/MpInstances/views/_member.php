@@ -2,11 +2,11 @@
 /**
  * Отображение одной заявки
  */
-/* @var $data ProjectMember */
+/* @var $data MemberInstance */
 /* @var $customerInvite CustomerInvite */
 
 $owner->widget('admin.extensions.wizards.processor.MpMemberData.MpMemberData', array(
-    'member'             => $data,
+    'member'             => $data->member,
     'customerInvite'     => $customerInvite,
     'sectionGridOptions' => $sectionGridOptions,
 ));

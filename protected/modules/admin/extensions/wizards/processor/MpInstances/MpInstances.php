@@ -37,17 +37,13 @@ class MpInstances extends CWidget
     {
         $criteria = new CDbCriteria();
         $criteria->scopes = array(
-            'forSectionInstance' => array($this->sectionInstanceId, $this->markers),
-            'withStatus'         => array($this->statuses),
+            'forSectionInstance' => array($this->sectionInstanceId),
+            'withLinkTypes'      => array($this->markers),
+            'withMemberStatus'   => array($this->statuses),
+            'lastModified',
         );
-        // @todo выбирать MemberInstances а не Members
-        //$criteria->order = 'MAX(`instances`.`timemodified`) DESC';
-        //$criteria->offset = Yii::app()->request->getParam('ProjectMember_page', 0) * $this->pageSize;
-        /*$memberCriteria = ProjectMember::model()->forSectionInstance($this->sectionInstanceId, $this->markers)->
-            withStatus($this->statuses)->getDbCriteria();*/
-        $criteria->mergeWith($criteria);
         
-        $dataProvider = new CActiveDataProvider('ProjectMember', array(
+        $dataProvider = new CActiveDataProvider('MemberInstance', array(
             'criteria'   => $criteria,
             'pagination' => array(
                 'pageSize' => $this->pageSize,
@@ -66,8 +62,8 @@ class MpInstances extends CWidget
             ),
             'pager' => array(
                 'class'          => 'bootstrap.widgets.TbPager',
-                /*'pageSize'       => $this->pageSize,
                 'maxButtonCount' => 30,
+                /*'pageSize'       => $this->pageSize,
                 'pages' => array(
                     'pageVar' => 'page',
                 )*/
