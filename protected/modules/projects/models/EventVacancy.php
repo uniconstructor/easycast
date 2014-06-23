@@ -141,6 +141,7 @@ class EventVacancy extends CActiveRecord
 	        'email',
 	        'iconlist',
 	        'status',
+	        'city',
 	    );
 	}
 	
