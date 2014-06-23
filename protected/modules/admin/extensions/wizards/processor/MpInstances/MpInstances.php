@@ -28,7 +28,7 @@ class MpInstances extends CWidget
     /**
      * @var int
      */
-    public $pageSize = 15;
+    public $pageSize = 10;
     
     /**
      * @see CWidget::run()
