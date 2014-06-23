@@ -410,6 +410,9 @@ class Questionary extends CActiveRecord
                 'condition' => "`invites`.`status` != 'draft' `deleted` = 0",
                 'limit'     => self::LAST_INVITES_COUNT,
             ),
+            
+            // все записи обо всех когда-либо поданых заявках
+            'applications' => array(self::HAS_MANY, 'ProjectMember', 'memberid'),
             // Все заявки на участие в мероприятиях (неподтвержденные + предварительно отобранные)
             'requests' => array(self::HAS_MANY, 'MemberRequest', 'memberid'),
             // Только предварительно подтвержденные заявки на участие
@@ -581,18 +584,16 @@ class Questionary extends CActiveRecord
         {// удаляем адрес
             $this->address->delete();
         }
-        
         if ( $this->recordingconditions )
         {// удаляем условия съемки
             $this->recordingconditions->delete();
         }
-        
         // подключаем модели из других модулей, чтобы все корректно удалилось
         Yii::import('application.modules.projects.models.*');
         
         // удаляем все связанные с анкетой данные в других таблицах
         $relations = array(
-            'memberinstances', 'requests', 'invites', 'tvshows', 'languages', 'skills', 'tricks',
+            'applications', 'requests', 'invites', 'tvshows', 'languages', 'skills', 'tricks',
             'extremaltypes', 'sporttypes', 'musicuniversities', 'instruments', 'voicetimbres', 'vocaltypes', 
             'awards', 'dancetypes', 'promomodeljobs', 'photomodeljobs', 'modeljobs', 'modelschools',
             'twinlist', 'parodistlist', 'emceelist', 'films', 'actoruniversities', 'addchars', 'theatres',
