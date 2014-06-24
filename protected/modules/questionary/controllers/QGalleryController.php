@@ -91,7 +91,7 @@ class QGalleryController extends GalleryController
     {
         $criteria = new CDbCriteria();
         $criteria->compare('galleryid', $gallery->id);
-        if ( $questionary = Questionary::model()->find($criteria) )
+        if ( ! $questionary = Questionary::model()->find($criteria) )
         {
             return 0;
         }
