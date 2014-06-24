@@ -35,9 +35,8 @@ class MemberInstance extends CActiveRecord
 			array('objecttype', 'required'),
 			array('objecttype, sourcetype, status, linktype', 'length', 'max' => 50),
 			array('objectid, memberid, sourceid, timecreated, timemodified', 'length', 'max' => 11),
-			array('comment', 'length', 'max' => 255),
+			array('comment', 'length', 'max' => 4095),
 			// The following rule is used by search().
-			// @todo Please remove those attributes that should not be searched.
 			array('id, objecttype, objectid, memberid, comment, sourcetype, sourceid, timecreated, 
 			    timemodified, status', 'safe', 'on' => 'search'),
 		);
