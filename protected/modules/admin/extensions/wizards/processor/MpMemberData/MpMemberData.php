@@ -79,8 +79,7 @@ class MpMemberData extends CWidget
             {
                 $memberId = $this->member->id;
             }
-            Yii::log('Не удалось отобразать заявку, memberid:'.$memberId.
-                ' ciid: '.$this->customerInvite->id, CLogger::LEVEL_ERROR);
+            Yii::log('Не удалось отобразать заявку, memberid:'.$memberId, CLogger::LEVEL_ERROR);
             return;
         }
         $this->render('main');
