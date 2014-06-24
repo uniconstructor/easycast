@@ -30,7 +30,9 @@ return array(
     // Название проекта 
     'name'    => 'easyCast',
     // Короткие имена для вызова популярных библиотек
-    //'aliases' => array(),
+    'aliases' => array(
+        'xupload' => 'ext.xupload'
+    ),
     // Используем собственную тему оформления для сайта
     'theme' => 'maximal',
     

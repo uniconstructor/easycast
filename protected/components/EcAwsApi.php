@@ -7,6 +7,7 @@ use Aws\Common\Aws;
 use Aws\Ses\SesClient;
 use Aws\Sqs\SqsClient;
 use Aws\S3\S3Client;
+use Aws\S3\Exception\S3Exception;
 
 /**
  * API сайта easycast.ru для взаимодействия с сервисами Amazon
