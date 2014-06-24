@@ -41,5 +41,3 @@ class CImageComponent extends CApplicationComponent
         return new Image($image, $config);
     }
 }
-
-?>

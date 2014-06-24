@@ -389,6 +389,21 @@ class Image
 
         return $status;
     }
+    
+    /**
+     * 
+     * @param unknown $dir
+     * @param unknown $file
+     * @return boolean
+     */
+    public function process($dir, $file)
+    {
+        // Separate the directory and filename
+        $dir = pathinfo($new_image, PATHINFO_DIRNAME);
+        $file = pathinfo($new_image, PATHINFO_BASENAME);
+        
+        return $this->driver->process($this->image, $this->actions, $dir, $file);
+    }
 
     /**
      * Output the image to the browser.
