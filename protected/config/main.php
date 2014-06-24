@@ -110,9 +110,9 @@ return array(
             'controllerMap' => array(
                 // задаем путь к контроллеру загрузки изображений (для анкеты)
                 'gallery'   => array(
-                    'class'           => 'ext.galleryManager.GalleryController',
-                    // используем класс-обработчик загруженных изоюражений, работающий с Amazon
-                    'handlerClass'    => 'GmS3Photo',
+                    'class'        => 'application.modules.questionary.controllers.QGalleryController',
+                    // используем класс-обработчик загруженных изображений, работающий с Amazon
+                    'handlerClass'  => 'GmS3Photo',
                     'customBehaviors' => array(
                         'S3GalleryControllerBehavior' => array(
 	                        'class' => 'application.extensions.galleryManager.behaviors.S3GalleryControllerBehavior',
@@ -144,6 +144,11 @@ return array(
                 'gallery' => array(
                     'class'        => 'ext.galleryManager.GalleryController',
                     'handlerClass' => 'GmS3Photo',
+                    'customBehaviors' => array(
+                        'S3GalleryControllerBehavior' => array(
+                            'class' => 'application.extensions.galleryManager.behaviors.S3GalleryControllerBehavior',
+                        ),
+                    ),
                 ),
             ),
         ),
@@ -175,9 +180,9 @@ return array(
         
         // Оповещения
         // @todo не используется: удалить при рефакторинге если так и не понадобится
-        'notifyii' => array(
+        /*'notifyii' => array(
             'class' => 'application.modules.notifyii.NotifyiiModule',
-        ),
+        ),*/
         
         // Письма (этот модуль отвечает за правильную верстку писем)
         'mailComposer' => array(
@@ -319,11 +324,6 @@ return array(
         
         // Настройки js-библиотек и скриптов
         'clientScript' => array(
-            // @todo не работает настройка темы jQuery
-            /*'scriptMap' => array(
-                'jquery-ui.css'     => '/css/jqueryui/flick/jquery-ui.css',
-                'jquery-ui.min.css' => '/css/jqueryui/flick/jquery-ui.min.css',
-            ),*/
             // подключаем скрипты для работы js-библиотеки sweekit 
             'behaviors' => array(
                 'sweelixClientScript' => array(
@@ -334,7 +334,7 @@ return array(
         
         // Наша обертка вокруг Amazon Web Services API: облегчает обращение к часто используемым методам
         'ecawsapi' => array(
-            'class' => 'EasyCastAmazonAPI',
+            'class' => 'EcAwsApi',
         ),
         
         // отсылка SMS (через smspilot.ru)
@@ -356,12 +356,11 @@ return array(
         
         // API для работы с Мегапланом (@see http://megaplan.ru) 
         // (тут только общие настройки, ключи доступа указаны в конфигах в production и dev-ветках)
-        // @todo перенести ключи доступа к Мегаплану в настройки AMAZON (как пароль к БД)
-        'megaplan' => array(
+        /*'megaplan' => array(
             'class' => 'EasyCastMegaplanAPI',
             // адрес по которому производятся все API-запросы
             'host'  => 'easycast.megaplan.ru',
-        ),
+        ),*/
         
         // Настройки по умолчанию для всех виджетов Yii
         'widgetFactory' => array(
@@ -491,7 +490,7 @@ return array(
 	    'outputDateTimeFormat' => "d.m.Y H:i",
 	    
 	    // Настройки хостинга Amazon
-	    'AmazonS3Config' => 'easycast.s3',
+	    'AWSRegion' =>'us-east-1',
 	    
 	    // Использовать ли прокси сервера google для кэширования картинок в отправляемых сервером письмах?
 	    // Включение этой опции позволяет всегда отображать картинки из наших писем в большинстве
