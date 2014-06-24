@@ -25,7 +25,7 @@ return CMap::mergeArray(
                         'class'              => 'CDbLogRoute',
                         // @todo хранить логи отдельно ото всех остальных данных для лучшей безопасности
                         'connectionID'       => 'db',
-                        'levels'             => 'error, warning',
+                        //'levels'             => 'error, warning, info, trace',
                         // не храним логи о 404 страницах - и логи simpleWorkflow
                         'except'             => 'CHttpException.404, simpleWorkflow',
                         'autoCreateLogTable' => false,
@@ -37,16 +37,6 @@ return CMap::mergeArray(
             // создавать новый проект :)
             'trader' => array(
                 'class' => 'application.modules.trader.TraderModule',
-            ),
-            
-            'questionary' => array(
-                'controllerMap' => array(
-                    // задаем путь к контроллеру загрузки изображений (для анкеты)
-                    'gallery' => array(
-                        'handlerClass'    => 'GmUploadedPhoto',
-                        'customBehaviors' => array(),
-                    ),
-                ),
             ),
         ),
 
@@ -85,10 +75,11 @@ return CMap::mergeArray(
             
             // S3
             // Использовать хостинг amazon s3 для хранения картинок
-            'useAmazonS3'   => false,
-            'AWSBucket'     => 'test.easycast.ru',
+            'useAmazonS3'    => true,
+            'AWSBucket'      => 'test.easycast.ru',
             //'AWSBucketPath' => 'http://bglance',
-            'AWSBucketPath' => 'http://test.easycast.ru.s3.amazonaws.com',
+            'AWSBucketPath'  => 'http://test.easycast.ru.s3.amazonaws.com',
+            'AWSVideoBucket' => 'video.easycast.ru',
             
             // SES
             // использовать сервис Amazon SES для отправки почты на реальные адреса
