@@ -160,6 +160,18 @@ class ProjectMember extends CActiveRecord
 	}
 	
 	/**
+	 * @see CActiveRecord::beforeDelete()
+	 */
+	public function beforeDelete()
+	{
+	    foreach ( $this->instances as $instance )
+	    {// удаляем все ссылки на заявку при удалении заявки
+	        $instance->delete();
+	    }
+	    return parent::beforeDelete();
+	}
+	
+	/**
 	 * @see CActiveRecord::defaultScope()
 	 */
     /*public function defaultScope()
@@ -182,6 +194,55 @@ class ProjectMember extends CActiveRecord
 			// The following rule is used by search().
 			//array('id, memberid, vacancyid, timecreated, timemodified, managerid, request, responce, timestart, timeend, status', 'safe', 'on'=>'search'),
 		);
+	}
+	
+	/**
+	 * @return array relational rules.
+	 */
+	public function relations()
+	{
+	    return array(
+	        // участник проекта
+	        // @todo неудачное название для связи: оставить только для совместимости, а затем удалить
+	        // @todo заменить все использования связи member на questionary
+	        'member'  => array(self::BELONGS_TO, 'Questionary', 'memberid'),
+	        // участник проекта
+	        'questionary' => array(self::BELONGS_TO, 'Questionary', 'memberid'),
+	        // Сотрудник, одобривший или отклонивший заявку
+	        'manager' => array(self::BELONGS_TO, 'User', 'managerid'),
+	        // вакансия, на которую была подана заявка
+	        'vacancy' => array(self::BELONGS_TO, 'EventVacancy', 'vacancyid'),
+	        // мероприятие, на которое подана заявка
+	        'event' => array(self::HAS_ONE, 'ProjectEvent', 'eventid', 'through' => 'vacancy'),
+	
+	        // все ссылки на эту заявку
+	        'instances' => array(self::HAS_MANY, 'MemberInstance', 'memberid'),
+	        // все разделы для заявок внутри роли (SectionInstances) в которых находится эта заявка
+	        'sectionInstances' => array(self::MANY_MANY, 'CatalogSectionInstance',
+	            "{{member_instances}}(memberid, objectid)",
+	            'condition' => "`objecttype` = 'section_instance' AND `linktype` <> 'nolink'",
+	        ),
+	    );
+	}
+	
+	/**
+	 * @return array customized attribute labels (name=>label)
+	 */
+	public function attributeLabels()
+	{
+	    return array(
+	        'id'           => 'ID',
+	        'memberid'     => ProjectsModule::t('member_memberid'),
+	        'vacancyid'    => ProjectsModule::t('vacancy'),
+	        'timecreated'  => ProjectsModule::t('member_timecreated'),
+	        'timemodified' => ProjectsModule::t('timemodified'),
+	        'managerid'    => ProjectsModule::t('member_managerid'),
+	        'request'      => ProjectsModule::t('member_request'),
+	        'responce'     => ProjectsModule::t('member_responce'),
+	        'timestart'    => ProjectsModule::t('timestart'),
+	        'timeend'      => ProjectsModule::t('timeend'),
+	        'status'       => ProjectsModule::t('status'),
+	    );
 	}
 	
 	/**
@@ -480,81 +541,6 @@ class ProjectMember extends CActiveRecord
 	    $this->getDbCriteria()->mergeWith($criteria);
 	    return $this;
 	}
-	
-	/**
-	 * @return array relational rules.
-	 */
-	public function relations()
-	{
-		return array(
-		    // участник проекта
-		    // @todo неудачное название для связи: оставить только для совместимости, а затем удалить
-		    // @todo заменить все использования связи member на questionary
-		    'member'  => array(self::BELONGS_TO, 'Questionary', 'memberid'),
-		    // участник проекта
-		    'questionary' => array(self::BELONGS_TO, 'Questionary', 'memberid'),
-		    // Сотрудник, одобривший или отклонивший заявку
-		    'manager' => array(self::BELONGS_TO, 'User', 'managerid'),
-		    // вакансия, на которую была подана заявка
-		    'vacancy' => array(self::BELONGS_TO, 'EventVacancy', 'vacancyid'),
-		    // мероприятие, на которое подана заявка
-		    'event' => array(self::HAS_ONE, 'ProjectEvent', 'eventid', 'through' => 'vacancy'),
-		    
-		    // все ссылки на эту заявку
-		    'instances' => array(self::HAS_MANY, 'MemberInstance', 'memberid'),
-		    // все разделы для заявок внутри роли (SectionInstances) в которых находится эта заявка
-		    'sectionInstances' => array(self::MANY_MANY, 'CatalogSectionInstance',
-		        "{{member_instances}}(memberid, objectid)",
-		        'condition' => "`objecttype` = 'section_instance' AND `linktype` <> 'nolink'",
-		    ),
-		);
-	}
-
-	/**
-	 * @return array customized attribute labels (name=>label)
-	 */
-	public function attributeLabels()
-	{
-		return array(
-			'id'           => 'ID',
-			'memberid'     => ProjectsModule::t('member_memberid'),
-			'vacancyid'    => ProjectsModule::t('vacancy'),
-			'timecreated'  => ProjectsModule::t('member_timecreated'),
-			'timemodified' => ProjectsModule::t('timemodified'),
-			'managerid'    => ProjectsModule::t('member_managerid'),
-			'request'      => ProjectsModule::t('member_request'),
-			'responce'     => ProjectsModule::t('member_responce'),
-			'timestart'    => ProjectsModule::t('timestart'),
-			'timeend'      => ProjectsModule::t('timeend'),
-			'status'       => ProjectsModule::t('status'),
-		);
-	}
-
-	/**
-	 * Retrieves a list of models based on the current search/filter conditions.
-	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
-	 */
-	/*public function search()
-	{
-		$criteria=new CDbCriteria;
-
-		$criteria->compare('id',$this->id);
-		$criteria->compare('memberid',$this->memberid,true);
-		$criteria->compare('vacancyid',$this->vacancyid,true);
-		$criteria->compare('timecreated',$this->timecreated,true);
-		$criteria->compare('timemodified',$this->timemodified,true);
-		$criteria->compare('managerid',$this->managerid,true);
-		$criteria->compare('request',$this->request,true);
-		$criteria->compare('responce',$this->responce,true);
-		$criteria->compare('timestart',$this->timestart,true);
-		$criteria->compare('timeend',$this->timeend,true);
-		$criteria->compare('status',$this->status,true);
-
-		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
-		));
-	}*/
-	
 	/**
 	 * Событие "заявка предварительно отобрана"
 	 * @param CModelEvent $event
