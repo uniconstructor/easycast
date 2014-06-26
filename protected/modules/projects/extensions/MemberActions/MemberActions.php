@@ -45,7 +45,7 @@ class MemberActions extends CWidget
     /**
      * @var string - css-класс сообщения
      */
-    public $messageClass = 'alert alert-info';
+    public $messageClass = 'alert ';
     /**
      * @var string
      */
@@ -132,10 +132,22 @@ class MemberActions extends CWidget
         }
         switch ( $this->member->status )
         {// отображаем текущий статус заявки
-            case ProjectMember::STATUS_DRAFT:    $this->message = 'Заявка ожидает рассмотрения'; break;
-            case ProjectMember::STATUS_PENDING:  $this->message = 'Заявка предварительно одобрена'; break;
-            case ProjectMember::STATUS_ACTIVE:   $this->message = 'Заявка одобрена'; break;
-            case ProjectMember::STATUS_REJECTED: $this->message = 'Заявка отклонена'; break;
+            case ProjectMember::STATUS_DRAFT:    
+                $this->message       = 'Заявка ожидает рассмотрения';
+                $this->messageClass .= 'alert-info';
+            break;
+            case ProjectMember::STATUS_PENDING:  
+                $this->message       = 'Заявка предварительно одобрена';
+                $this->messageClass .= 'alert-warning';
+            break;
+            case ProjectMember::STATUS_ACTIVE:   
+                $this->message       = 'Заявка одобрена';
+                $this->messageClass .= 'alert-success';
+            break;
+            case ProjectMember::STATUS_REJECTED: 
+                $this->message       = 'Заявка отклонена';
+                $this->messageClass .= 'alert-danger';
+            break;
         }
         $item = StatusHistory::model()->forObject('project_member', $this->member->id)->getLastItem();
         if ( ($this->customerInvite OR Yii::app()->user->checkAccess('Admin')) AND $item AND $item->getSourceName() )
