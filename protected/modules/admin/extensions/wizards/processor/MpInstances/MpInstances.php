@@ -14,6 +14,10 @@ class MpInstances extends CWidget
      */
     public $customerInvite;
     /**
+     * @var Vacancy
+     */
+    public $vacancy;
+    /**
      * @var array
      */
     public $statuses = array();
@@ -49,7 +53,7 @@ class MpInstances extends CWidget
         }else
         {// если id раздела не указан - выводим заявки всех разделов
             $criteria->scopes = array(
-                //'withLinkTypes' => array($this->markers),
+                'forVacancy'    => array($this->vacancy->id),
                 'withStatus'    => array($this->statuses),
                 'lastCreated',
             );

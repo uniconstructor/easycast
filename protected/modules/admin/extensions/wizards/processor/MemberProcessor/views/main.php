@@ -25,6 +25,7 @@
                         'sectionGridOptions' => $this->sectionGridOptions,
                         'customerInvite'     => $this->customerInvite,
                         'statuses'           => $this->currentStatuses,
+                        'vacancy'            => $this->vacancy,
                         'pageSize'           => 25,
                     ));
                 }elseif ( $this->section )
