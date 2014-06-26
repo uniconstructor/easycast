@@ -12,13 +12,13 @@
 $this->widget('bootstrap.widgets.TbAlert');
 ?>
 <div class="container">
-    <div class="row">
+    <!--div class="row">
         <div class="span12">
             <div class="title-page">
-                <h1 class="title"><?= $customerInvite->vacancy->name; ?></h1>
+                <h3 class="text-center"><?= $customerInvite->vacancy->name; ?></h3>
             </div>
         </div>
-    </div>
+    </div-->
     <?php
     if ( $customerInvite->objecttype != 'vacancy' )
     {// отбор заявок на мероприятие или проект - пока используем старый виджет
