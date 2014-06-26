@@ -36,24 +36,37 @@ class MpInstances extends CWidget
     public function run()
     {
         $criteria = new CDbCriteria();
-        $criteria->scopes = array(
-            'forSectionInstance' => array($this->sectionInstanceId),
-            'withLinkTypes'      => array($this->markers),
-            'withMemberStatus'   => array($this->statuses),
-            'lastModified',
-        );
+        if ( $this->sectionInstanceId > 0 )
+        {// id раздела указан - выводим только заявки раздела
+            $criteria->scopes = array(
+                'forSectionInstance' => array($this->sectionInstanceId),
+                'withLinkTypes'      => array($this->markers),
+                'withMemberStatus'   => array($this->statuses),
+                'lastModified',
+            );
+            $model = 'MemberInstance';
+            $view  = '_instance';
+        }else
+        {// если id раздела не указан - выводим заявки всех разделов
+            $criteria->scopes = array(
+                //'withLinkTypes' => array($this->markers),
+                'withStatus'    => array($this->statuses),
+                'lastCreated',
+            );
+            $model = 'ProjectMember';
+            $view  = '_member';
+        }
         
-        $dataProvider = new CActiveDataProvider('MemberInstance', array(
+        $dataProvider = new CActiveDataProvider($model, array(
             'criteria'   => $criteria,
             'pagination' => array(
                 'pageSize' => $this->pageSize,
             ),
         ));
-        
         $this->widget('bootstrap.widgets.TbListView', array(
             'dataProvider' => $dataProvider,
             'ajaxUpdate'   => false,
-            'itemView'     => '_member',
+            'itemView'     => $view,
             'template'     => $this->render('_template', null, true),
             'viewData'     => array(
                 'customerInvite'     => $this->customerInvite,
@@ -62,7 +75,7 @@ class MpInstances extends CWidget
             ),
             'pager' => array(
                 'class'          => 'bootstrap.widgets.TbPager',
-                'maxButtonCount' => 30,
+                'maxButtonCount' => 25,
                 /*'pageSize'       => $this->pageSize,
                 'pages' => array(
                     'pageVar' => 'page',

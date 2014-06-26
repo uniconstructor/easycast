@@ -23,7 +23,8 @@
                 ?>
                 </div>
                 <div class="span2 text-center">
-                    <h4><?= $this->sectionName; ?>
+                <h4>
+                    <?= $this->sectionName; ?><br>
                     <b><?= $this->getMemberCount($this->sectionInstanceId); ?></b>
                 </h4>
                 </div>

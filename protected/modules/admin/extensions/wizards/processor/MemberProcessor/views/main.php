@@ -19,7 +19,15 @@
             ?>
             <div data-spy="scroll" data-target="#MpNavbar" data-offset="0">
                 <?php 
-                if ( $this->section )
+                if ( $this->sectionInstanceId < 0 )
+                {// просматриваются все заявки
+                    $this->widget('admin.extensions.wizards.processor.MpInstances.MpInstances', array(
+                        'sectionGridOptions' => $this->sectionGridOptions,
+                        'customerInvite'     => $this->customerInvite,
+                        'statuses'           => $this->currentStatuses,
+                        'pageSize'           => 25,
+                    ));
+                }elseif ( $this->section )
                 {// просматривается раздел заявок
                     $this->widget('admin.extensions.wizards.processor.MpInstances.MpInstances', array(
                         'sectionGridOptions' => $this->sectionGridOptions,

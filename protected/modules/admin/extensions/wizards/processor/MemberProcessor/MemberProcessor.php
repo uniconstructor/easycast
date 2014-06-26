@@ -114,13 +114,19 @@ class MemberProcessor extends CWidget
             throw new CException('Не найдена роль для отбора заявок');
         }
         
-        if ( $this->sectionInstanceId )
+        if ( $this->sectionInstanceId AND $this->sectionInstanceId > 0 )
         {// просматриваем раздел с заявками - получим по нему всю информацию
             $this->sectionInstance = CatalogSectionInstance::model()->findByPk($this->sectionInstanceId);
             $this->section         = $this->sectionInstance->section;
             $this->sectionName     = $this->section->name;
+        }elseif ( $this->sectionInstanceId < 0 )
+        {
+            $this->sectionName = 'Все заявки';
         }
+        $this->memberCount['-1'] = ProjectMember::model()->withStatus($this->getCurrentStatuses())->
+            forVacancy($this->vacancy->id)->count();
         $this->memberCount['0'] = $this->vacancy->countUnallocatedMembers($this->currentStatuses);
+        
         foreach ( $this->vacancy->catalogSectionInstances as $instance )
         {
             $this->memberCount[$instance->id] = ProjectMember::model()->
