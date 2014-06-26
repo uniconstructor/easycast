@@ -77,9 +77,10 @@ class QComplexValueController extends Controller
             // привязываем значение к родительскому объекту (в этом случае - анкета)
             $instance->attributes    = $instanceData;
             $instance->questionaryid = $qid;
+            
             if ( ! $instance->save() )
             {
-                throw new CHttpException(500, 'Ошибка при сохранении данных');
+                throw new CHttpException(500, 'Ошибка при создании записи');
             }else
             {
                 echo CJSON::encode($instance->getAttributes());
@@ -108,8 +109,8 @@ class QComplexValueController extends Controller
         if ( ! $item->save() )
         {// не удалось обновить запись в поле
             throw new CHttpException(500, $item->getError($field));
-            die;
         }
+        Yii::app()->end();
     }
     
     /**
@@ -127,9 +128,8 @@ class QComplexValueController extends Controller
         if ( ! $item->delete() )
         {
             throw new CHttpException(500, 'Ошибка при удалении записи');
-            die;
+            Yii::app()->end();
         }
-        
         echo $id;
     }
     
@@ -146,10 +146,10 @@ class QComplexValueController extends Controller
             $itemQuestionaryId = $this->getParentObjectId($item);
         }
         if ( $currentQuestionaryId != $itemQuestionaryId AND ! Yii::app()->user->checkAccess('Admin') )
-        {// нет прав на удаление записи
+        {// нет прав на создание/изменение/удаление записи
             throw new CHttpException(400, 'Ошибка при удалении записи: неверно указан id анкеты');
-            die;
         }
+        Yii::app()->end();
     }
     
     /**
@@ -201,8 +201,8 @@ class QComplexValueController extends Controller
     public function loadModel($id)
     {
         $modelClass = $this->modelClass;
-        $model = $modelClass::model($modelClass)->findByPk($id);
-        if ( $model === null )
+        $model      = $modelClass::model($modelClass)->findByPk($id);
+        if ( null === $model )
         {
             throw new CHttpException(404, 'Запись не найдена. (id='.$id.')');
         }
@@ -221,7 +221,7 @@ class QComplexValueController extends Controller
         {
             Yii::app()->end();
         }
-        
+        // проверка формы в общем виде
         $result = CActiveForm::validate($model);
         if ( $result != '[]' )
         {// при сохранении обнаружены ошибки
