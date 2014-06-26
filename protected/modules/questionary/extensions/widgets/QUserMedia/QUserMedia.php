@@ -55,6 +55,7 @@ class QUserMedia extends CWidget
         $result .= $this->widget('Galleria', array(
             'options' => array(
                 'transition'     => 'fade',
+                'plugins'        => array(),
                 'responsive'     => true,
                 'lightbox'       => true,
                 'dataSource'     => $items,
