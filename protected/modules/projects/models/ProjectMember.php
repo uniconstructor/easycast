@@ -276,6 +276,10 @@ class ProjectMember extends CActiveRecord
     	    'waiting' => array(
     	        'condition' => "`status` IN ('".self::STATUS_DRAFT."', '".self::STATUS_PENDING."')"
     	    ),
+	        // последние поданные заявки
+	        'lastCreated' => array(
+    	        'order' => $this->getTableAlias(true).'.`timecreated`'
+    	    ),
         );
 	}
 	
@@ -365,6 +369,33 @@ class ProjectMember extends CActiveRecord
 	            'joinType' => 'INNER JOIN',
 	            'scopes'   => array(
 	                'forObject'     => array('section_instance', $instanceId),
+	                'withLinkTypes' => array($linkTypes),
+	            ),
+	        ),
+	    );
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
+	}
+	
+    /**
+     * Именованная группа условий поиска - 
+     * @param array $linkTypes
+     * @return ProjectMember
+     */
+	public function withLinkTypes($linkTypes)
+	{
+	    if ( ! $linkTypes )
+	    {
+	        $linkTypes = array('nograde', 'good', 'normal', 'bad');
+	    }
+	    $criteria = new CDbCriteria();
+	    $criteria->together = true;
+	    $criteria->with = array(
+	        'instances' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes'   => array(
 	                'withLinkTypes' => array($linkTypes),
 	            ),
 	        ),
@@ -541,6 +572,7 @@ class ProjectMember extends CActiveRecord
 	    $this->getDbCriteria()->mergeWith($criteria);
 	    return $this;
 	}
+	
 	/**
 	 * Событие "заявка предварительно отобрана"
 	 * @param CModelEvent $event
