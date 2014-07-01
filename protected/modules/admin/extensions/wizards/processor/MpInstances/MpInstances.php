@@ -55,7 +55,7 @@ class MpInstances extends CWidget
             $criteria->scopes = array(
                 'forVacancy'    => array($this->vacancy->id),
                 'withStatus'    => array($this->statuses),
-                'lastCreated',
+                'lastModified',
             );
             $model = 'ProjectMember';
             $view  = '_member';
