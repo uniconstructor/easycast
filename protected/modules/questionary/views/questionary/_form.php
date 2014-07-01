@@ -34,8 +34,8 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
 
     // настраиваем стандартные галочки "да/нет"
     $toggleBoxJsOptions = array(
-        'on_label'  => Yii::t('coreMessages','yes'),
-        'off_label' => Yii::t('coreMessages','no'),
+        'on_label'  => Yii::t('coreMessages', 'yes'),
+        'off_label' => Yii::t('coreMessages', 'no'),
     );
     
     // начало виджета формы редактирования анкеты
@@ -277,33 +277,6 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
                 'questionary' => $questionary,
             ));
             
-            if ( Yii::app()->user->checkAccess('Admin') )
-            {// @todo загрузка файлов видео пока что только для админов
-                /*$this->widget('ext.EFineUploader.EFineUploader', array(
-                    'id'     => 'FineUploader',
-                    'config' => array(
-                        'autoUpload' => true,
-                        'request' => array(
-                            'endpoint' => $this->createUrl('/questionary/questionary/videoUpload'),// OR $this->createUrl('controller/upload'),
-                            'params'   => array('YII_CSRF_TOKEN' => Yii::app()->request->csrfToken),
-                        ),
-                        'retry' => array(
-                            'enableAuto' => true,
-                            'preventRetryResponseProperty' => true,
-                        ),
-                        'chunking'  => array('enable' => true, 'partSize' => 1000000),//bytes
-                        'callbacks' => array(
-                            'onComplete' => "js:function(id, name, response){ $('li.qq-upload-success').remove(); }",
-                            //'onError'=>"js:function(id, name, errorReason){ }",
-                            'onValidateBatch' => "js:function(fileOrBlobData) {}",
-                        ),
-                        'validation' => array(
-                            'allowedExtensions' => array('avi', 'mpg', 'mpeg', 'flv', 'wmv', 'mov'),
-                            'sizeLimit' => 500 * 1024 * 1024,//maximum file size in bytes
-                        ),
-                    )
-                ));*/
-            }
             ?>
         </fieldset>
         
@@ -1191,7 +1164,18 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
 // Выводим здесь все всплывающие modal-формы для сложных значений
 // Их оказалось нельзя выводить в середине формы анкеты потому что вложенные виджеты форм в Yii не допускаются
 // Сами формы генерируются по ходу отрисовки формы и запоминаются в клипы, а затем выводятся здесь
-
+if ( Yii::app()->user->checkAccess('Admin') )
+{// @todo загрузка файлов видео пока что только для админов
+    Yii::import("xupload.models.XUploadForm");
+    $xUploadForm = new XUploadForm;
+    
+    $this->widget('xupload.XUpload', array(
+        'url'       => Yii::app()->createUrl("//questionary/questionary/upload"),
+        'model'     => $xUploadForm,
+        'attribute' => 'file',
+        'multiple'  => false,
+    ));
+}
 $clips = Yii::app()->getModule('questionary')->formClips;
 foreach ( $clips as $clip )
 {
