@@ -49,7 +49,7 @@ class QuestionaryController extends Controller
 				'users'   => array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions' => array('update', 'ajax', 'loginAs'),
+				'actions' => array('update', 'ajax', 'loginAs', 'upload'),
 				'users'   => array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -60,6 +60,20 @@ class QuestionaryController extends Controller
 				'users' => array('*'),
 			),
 		);
+	}
+	
+	/**
+	 * @see CController::actions()
+	 */
+	public function actions()
+	{
+	    return array(
+	        'upload' => array(
+	            'class'      => 'xupload.actions.XUploadAction',
+	            'path'       => Yii::app()->getBasePath() . "/../uploads",
+	            'publicPath' => Yii::app()->getBaseUrl() . "/uploads",
+	        ),
+	    );
 	}
 
 	/**
@@ -455,7 +469,7 @@ class QuestionaryController extends Controller
         $url = Yii::app()->createUrl('/questionary/questionary/view', array('id' => $id));
         
         if ( Yii::app()->user->checkAccess('Admin') )
-        {// еще одна проверка прав потому что у меня паранойя
+        {// еще одна проверка прав
             Yii::app()->getModule('user')->forceLogin($questionary->user, true);
             Yii::app()->user->setFlash('info', 'Приятно на время стать кем-то другим :)');
         }
