@@ -12,14 +12,14 @@
 class QTheatreInstanceController extends QComplexValueController
 {
     /**
-     * @var string - класс модели сложного значения
-     */
-    protected $modelClass = 'QTheatreInstance';
-    
-    /**
      * @var int - максимальное количество театров, возвращаемых для выпадающего списка в элементе select2
      */
     const MAX_RESULTS = 15;
+    
+    /**
+     * @var string - класс модели сложного значения
+     */
+    protected $modelClass = 'QTheatreInstance';
     
     /**
      * @todo настроить доступ на основе ролей
