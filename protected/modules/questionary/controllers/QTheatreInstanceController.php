@@ -86,7 +86,7 @@ class QTheatreInstanceController extends QComplexValueController
      */
     protected function getModels($term)
     {
-        $criteria = new CDbCriteria();
+        $criteria        = new CDbCriteria();
         $criteria->limit = self::MAX_RESULTS;
         $criteria->order = "`name` ASC";
         $criteria->addSearchCondition('name', $term);
