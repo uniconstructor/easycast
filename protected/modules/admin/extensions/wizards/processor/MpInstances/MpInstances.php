@@ -24,7 +24,7 @@ class MpInstances extends CWidget
     /**
      * @var array
      */
-    public $markers = array();
+    public $markers  = array();
     /**
      * @var array
      */
