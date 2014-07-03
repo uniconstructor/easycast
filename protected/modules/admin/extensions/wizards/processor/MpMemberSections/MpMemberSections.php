@@ -136,7 +136,7 @@ class MpMemberSections extends EditableGrid
                 'name'  => 'objectid',
                 'value' => '$data->sectionInstance->section->name;',
             ),
-            // тип
+            // тип связи
             $typeOptions,
             // описание
             $commentOptions,
