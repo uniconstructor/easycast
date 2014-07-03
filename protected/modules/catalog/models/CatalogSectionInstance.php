@@ -152,6 +152,15 @@ class CatalogSectionInstance extends CActiveRecord
 	}
 	
 	/**
+	 * 
+	 * @return string
+	 */
+	public function getVisibleOption()
+	{
+	    return Yii::t('coreMessages', $this->visible);
+	}
+	
+	/**
 	 * Именованая группа условий: получить все ссылки на разделы анкет, связанные с определенным объектом
 	 *
 	 * @param string $objectType
