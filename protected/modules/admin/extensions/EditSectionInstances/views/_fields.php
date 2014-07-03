@@ -14,3 +14,8 @@ echo $form->hiddenField($model, 'objecttype');
 echo $form->hiddenField($model, 'objectid');
 // название
 echo $form->dropDownListRow($model, 'sectionid', $this->getSectionOptions());
+// видимость
+echo $form->dropDownListRow($model, 'visible', array(
+    '1' => Yii::t('coreMessages', '1'), 
+    '0' => Yii::t('coreMessages', '0'),
+));

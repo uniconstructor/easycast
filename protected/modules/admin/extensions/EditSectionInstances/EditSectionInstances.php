@@ -101,6 +101,11 @@ class EditSectionInstances extends EditableGrid
                 'name'  => 'sectionid',
                 'value' => '$data->section->name;',
             ),
+            // видимость для заказчиков
+            $this->getSelectColumnOptions('visible', array(
+                '1' => Yii::t('coreMessages', '1'), 
+                '0' => Yii::t('coreMessages', '0'),
+            ), 'visibleOption'),
         );
     }
     
