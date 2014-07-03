@@ -280,6 +280,10 @@ class ProjectMember extends CActiveRecord
 	        'lastCreated' => array(
     	        'order' => $this->getTableAlias(true).'.`timecreated` DESC'
     	    ),
+	        // последние измененные заявки
+	        'lastModified' => array(
+    	        'order' => $this->getTableAlias(true).'.`timemodified` DESC'
+    	    ),
 	        // последние поданные заявки
 	        'firstCreated' => array(
     	        'order' => $this->getTableAlias(true).'.`timecreated` ASC'
