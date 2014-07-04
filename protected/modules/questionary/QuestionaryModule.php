@@ -67,10 +67,10 @@ class QuestionaryModule extends CWebModule
                 'centeredpreview' => array(100, 100),
             ),
             'medium' => array(
-                'resize' => array(530, 330),
+                'resize'          => array(530, 330),
             ),
             'large' => array(
-                'resize' => array(800, 1000),
+                'resize'          => array(800, 1000),
             ),
             'catalog' => array(
                 'centeredpreview' => array(150, 150),
