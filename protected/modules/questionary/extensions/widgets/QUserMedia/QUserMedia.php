@@ -41,26 +41,27 @@ class QUserMedia extends CWidget
         if ( $records = GalleryPhoto::model()->findAll($criteria) )
         {
             foreach ( $records  as $record )
-            {
+            {/* @var $record GalleryPhoto */
                 $items[] = array(
                     'image'       => $record->getUrl('medium'),
                     'thumb'       => $record->getUrl('small'),
-                    'big'         => $record->getUrl(''),
+                    'big'         => $record->getUrl('large'),
                     'title'       => $record->name,
                     'description' => $record->description,
-                    //'link' => 'http://domain.com',
                 );
             }
         }
         $result .= $this->widget('Galleria', array(
             'options' => array(
                 'transition'     => 'fade',
-                'plugins'        => array(),
+                'plugins'        => false,
                 'responsive'     => true,
                 'lightbox'       => true,
                 'dataSource'     => $items,
                 'keepSource'     => true,
                 'trueFullscreen' => true,
+                'imagePan'       => true,
+                'imageCrop'      => 'width',
             ),
         ), true);
         
