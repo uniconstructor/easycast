@@ -110,7 +110,7 @@ $this->widget('bootstrap.widgets.TbDetailView',array(
         ),
 		array(
 	        'label' => ProjectsModule::t('project_leaderid'),
-	        'value' => $model->leader ? $model->leader->fullname.' ' : ' ',
+	        'value' => $model->leader ? $model->leader->fullname.' ' : '[не найден]',
             'type'  => 'text',
 	    ),
 		array(
