@@ -30,11 +30,6 @@ $this->menu = array(
         'label' => 'Все заявки',
         'url'   => array('/admin/projectMember/index', 'vid' => $model->id),
     ),
-    /* @todo удалить при рефакторинге
-     array(
-        'label' => 'Подтвержденные участники',
-        'url'   => array('/admin/projectMember/index', 'vacancyid' => $model->id, 'type' => 'members'),
-    ),*/
 );
 
 if ( $model->status === EventVacancy::STATUS_DRAFT )
@@ -88,11 +83,11 @@ if ( $model->status === EventVacancy::STATUS_ACTIVE )
 // отображение оповещений о смене статуса
 $this->widget('bootstrap.widgets.TbAlert');
 ?>
-
 <div class="row-fluid">
     <div class="span9">
-        <h1 class="title">Роль "<?php echo $model->name; ?>"</h1>
+        <h1 class="title">Роль "<?= $model->name; ?>"</h1>
         <?php
+        $registrationUrl = Yii::app()->createAbsoluteUrl('/projects/vacancy/registration', array('vid' => $model->id));
         // описание самой роли
         $this->widget('bootstrap.widgets.TbDetailView', array(
         	'data'       => $model,
@@ -107,6 +102,11 @@ $this->widget('bootstrap.widgets.TbAlert');
                     'label' => ProjectsModule::t('status'),
                     'value' => $model->statustext,
                 ),
+        		array(
+                    'label' => 'Ссылка на форму регистрации',
+                    'value' => CHtml::link($registrationUrl, $registrationUrl, array('target' => '_blank')),
+                    'type'  => 'html',
+                ),
                 'salary',
         	),
         ));
@@ -114,13 +114,13 @@ $this->widget('bootstrap.widgets.TbAlert');
     </div>
     <div class="span3">
         <?php
-        // меню
+        // меню справа - выводится отдельно, для того чтобы использовать 
         $this->beginWidget('zii.widgets.CPortlet', array(
             'title' => Yii::t('coreMessages', 'operations'),
         ));
         $this->widget('bootstrap.widgets.TbMenu', array(
-            'type'    => 'tabs', 
-            'items'   => $this->menu,
+            'type'  => 'tabs', 
+            'items' => $this->menu,
         ));
         $this->endWidget();
         ?>
