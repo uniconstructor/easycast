@@ -44,14 +44,10 @@ $dateFormatter = new CDateFormatter('ru');
 	echo $form->redactorRow($model, 'description', array(), array(
         'hint' => 'Видно всем',
     ));
-    //echo '<div class="alert">Видно всем</div>';
-    
     // Дополнительная информация для участников
     echo $form->redactorRow($model, 'memberinfo', array(), array(
         'hint' => 'Отображается только подтвержденным участникам',
     ));
-    //echo '<div class="alert">Отображается только подтвержденным участникам</div>';
-    
     // нужно создать мероприятие без даты (она пока неизвестна)
     // @todo выключать даты начала и окончания при установке этой галочки
     echo $form->checkBoxRow($model, 'nodates');
