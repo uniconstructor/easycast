@@ -2563,3 +2563,7 @@ span.required {
 .page-alternate {
     padding-top: 0px;
 }
+/* Исправление стилей для плагина galleria */
+.galleria-container {
+    background: none transparent;
+}
