@@ -322,11 +322,11 @@ class MemberInstance extends CActiveRecord
 	public function getLinkTypeOptions()
 	{
 	    return array(
-            'nolink'  => 'Не добавлять в раздел',
-            'nograde' => 'Добавить без пометки',
-            'good'    => 'Добавить с пометкой "лучшее"',
-            'normal'  => 'Добавить с пометкой "среднее"',
-            'sad'     => 'Добавить с пометкой "хушее"',
+            'nolink'  => 'Нет',
+            'nograde' => 'Да [без пометки]',
+            'good'    => 'Да [лучшее]',
+            'normal'  => 'Да [среднее]',
+            'sad'     => 'Да [хушее]',
 	    );
 	}
 	
