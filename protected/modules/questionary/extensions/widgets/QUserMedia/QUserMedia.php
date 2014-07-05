@@ -43,7 +43,7 @@ class QUserMedia extends CWidget
             foreach ( $records  as $record )
             {/* @var $record GalleryPhoto */
                 $items[] = array(
-                    'image'       => $record->getUrl('medium'),
+                    'image'       => $record->getUrl('large'),
                     'thumb'       => $record->getUrl('small'),
                     'big'         => $record->getUrl('large'),
                     'title'       => $record->name,
@@ -61,7 +61,7 @@ class QUserMedia extends CWidget
                 'keepSource'     => true,
                 'trueFullscreen' => true,
                 'imagePan'       => true,
-                'imageCrop'      => 'width',
+                'imageCrop'      => 'portrait',
             ),
         ), true);
         
