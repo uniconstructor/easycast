@@ -3,6 +3,9 @@
  * Краткая информация об участнике
  */
 /* @var $this MpMemberData */
+
+// ссылка на анкету участника
+$qUrl = Yii::app()->createUrl('/questionary/questionary/view/', array('id' => $this->questionary->id));
 ?>
 <div class="row-fluid">
     <div class="span6">
@@ -14,7 +17,10 @@
         ?>
     </div>
     <div class="span6">
-        <h2 class="text-center"><?= $this->questionary->fullname; ?>, <?= $this->questionary->age; ?></h2>
+        <h2 class="text-center">
+            <?= CHtml::link($this->questionary->fullname, $qUrl, array('target' => '_blank')); ?>, 
+            <?= $this->questionary->age; ?>
+        </h2>
         <?php 
         // краткая информация
         $this->widget('bootstrap.widgets.TbDetailView', array(
