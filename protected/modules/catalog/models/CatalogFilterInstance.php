@@ -81,7 +81,7 @@ class CatalogFilterInstance extends CActiveRecord
 	{
 	    return array(
 	        'visible' => array(
-	            'condition' => '`visible` = 1',
+	            'condition' => $this->getTableAlias(true).'.`visible` = 1',
 	        ),
 	    );
 	}
