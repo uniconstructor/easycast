@@ -142,7 +142,7 @@ $this->widget('bootstrap.widgets.TbDetailView',array(
         ),
         array(
             'label'   => $model->getAttributeLabel('timeend'),
-            'value'   => $model->timestart ? Yii::app()->getDateFormatter()->format("d MMMM yyyy, HH:mm", $model->timeend): '[дата уточняется]',
+            'value'   => $model->timeend ? Yii::app()->getDateFormatter()->format("d MMMM yyyy, HH:mm", $model->timeend): '[дата уточняется]',
             'visible' => $showDates,
         ),
 		'description:raw',
@@ -161,7 +161,7 @@ $this->widget('bootstrap.widgets.TbDetailView',array(
 
 // ТОЛЬКО ДЛЯ ГРУПП
 // список событий группы
-if ( $model->type == 'group' )
+if ( $model->type === 'group' )
 {
     echo '<h2>События в этой группе</h2>';
     $eventsList = new CActiveDataProvider('ProjectEvent', array(
@@ -205,7 +205,7 @@ if ( $model->group )
 {
     $vacanciesTitle = 'Роли события';
 }
-if ( $model->type == 'group' )
+if ( $model->type === 'group' )
 {
     $vacanciesTitle  = 'Роли группы';
     $vacanciesInfo   = '(создаются и набираются одновременно для всех событий в группе)';
