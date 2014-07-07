@@ -289,7 +289,12 @@ class ExtraFieldInstance extends CActiveRecord
 	    {
 	        return;
 	    }
-	    return $this->fieldObject->label;
+	    if ( ! $this->fieldObject )
+	    {// не найдено поле на которое ссылается экземпляр
+	        Yii::log('Не найден объект для эеземпляра поля: instanceid='.$this->id, 'error');
+	        return;
+	    }
+	    $this->fieldObject->label;
 	}
 	
 	/**
