@@ -70,7 +70,7 @@ class CatalogSectionInstance extends CActiveRecord
 	 */
 	public function afterSave()
 	{
-	    if ( $this->isNewRecord AND $this->objecttype == 'vacancy' )
+	    if ( $this->isNewRecord AND $this->objecttype === 'vacancy' )
 	    {
 	        $members = ProjectMember::model()->forVacancy($this->objectid)->findAll();;
 	        foreach ( $members as $member )
@@ -86,7 +86,6 @@ class CatalogSectionInstance extends CActiveRecord
 	            $memberInstance->save();
 	        }
 	    }
-	    
 	    parent::afterSave();
 	}
 
@@ -149,6 +148,18 @@ class CatalogSectionInstance extends CActiveRecord
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
+	}
+	
+	/**
+	 * @see CActiveRecord::scopes()
+	 */
+	public function scopes()
+	{
+	    return array(
+	        'visible' => array(
+	            'condition' => $this->getTableAlias(true).'.`visible` = 1',
+	        ),
+	    );
 	}
 	
 	/**
