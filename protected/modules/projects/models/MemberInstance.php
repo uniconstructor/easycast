@@ -15,6 +15,9 @@
  * @property string $timemodified
  * @property string $status
  * @property string $linktype
+ * 
+ * Relations:
+ * @property CatalogSectionInstance $sectionInstance
  */
 class MemberInstance extends CActiveRecord
 {
@@ -246,7 +249,7 @@ class MemberInstance extends CActiveRecord
 	    
 	    return $this->forObjects('section_instance', $instanceIds);
 	}
-	
+    	
 	/**
 	 * Именованная группа условий поиска - найти все записи с определенным типом связи с объектом
 	 * @param array $linkTypes
@@ -309,7 +312,29 @@ class MemberInstance extends CActiveRecord
     	    ),
 	    );
 	    $criteria->together = true;
-	     
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
+    }
+	
+	/**
+	 * Именованная группа условий: найти ссылки на заявки с определенным статусом заявки
+	 * @param array $statuses
+	 * @return MemberInstance
+	 */
+	public function forVisibleSectionInstances()
+	{
+	    $criteria       = new CDbCriteria();
+	    $criteria->with = array(
+	        'sectionInstance' => array(
+    	        'scopes' => array(
+    	            'visible',
+    	        ),
+    	    ),
+	    );
+	    $criteria->together = true;
+	    
 	    $this->getDbCriteria()->mergeWith($criteria);
 	    
 	    return $this;
