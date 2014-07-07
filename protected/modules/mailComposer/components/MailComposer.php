@@ -26,6 +26,7 @@ class MailComposer extends CApplicationComponent
     {
         Yii::import('application.modules.projects.models.*');
         Yii::import('application.modules.mailComposer.controllers.*');
+        
         $this->controller = $this->getController();
         
         parent::init();
@@ -84,7 +85,7 @@ class MailComposer extends CApplicationComponent
     public function createSimpleMail($header, $text, $options=array())
     {
         $defaults = $this->getMailDefaults();
-        $options = CMap::mergeArray($defaults, $options);
+        $options  = CMap::mergeArray($defaults, $options);
     
         // составляем текст письма
         $block = array(
@@ -109,7 +110,7 @@ class MailComposer extends CApplicationComponent
             // заголовок первого абзаца
             'header' => '',
             // первый абзац текста (только текст, html и самая простая разметка)
-            'text'    => '',
+            'text'   => '',
             // настройки для виджета, собирающего письмо из блоков
             'assemblerOptions' => array(),
         );
