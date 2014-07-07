@@ -12,6 +12,9 @@
  * @property string $timecreated
  * @property string $timemodified
  * 
+ * Relations:
+ * @property ExtraFieldInstance[] $instances
+ * 
  * @todo документировать код
  * @todo прописать MANY_MANY relation с ролями 
  */
@@ -94,7 +97,22 @@ class ExtraField extends CActiveRecord
 	{
 	    return parent::beforeSave();
 	}
-
+	
+	/**
+	 * @see CActiveRecord::beforeDelete()
+	 */
+	public function beforeDelete()
+	{
+	    foreach ( $this->instances as $instance )
+	    {
+	        if ( ! $instance->delete() )
+	        {
+	            throw new CException('Не удалось удалить все экземпляры удаляемого поля');
+	        }
+	    }
+	    return parent::beforeDelete();
+	}
+    
 	/**
 	 * @return array customized attribute labels (name=>label)
 	 */
