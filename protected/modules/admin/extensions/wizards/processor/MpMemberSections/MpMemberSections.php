@@ -23,11 +23,11 @@ class MpMemberSections extends EditableGrid
     /**
      * @var string - пустой класс модели (для создания формы добавления объекта)
      */
-    public $modelClass  = 'MemberInstance';
+    public $modelClass = 'MemberInstance';
     /**
      * @var array - список редактируемых полей в том порядке, в котором они идут в таблице
      */
-    public $fields = array('objectid', 'linktype', 'comment');
+    public $fields     = array('objectid', 'linktype', 'comment');
     /**
      * @var array - список текстов-заглушек, которые отображаются в случае, когда поле не заполнено
      */
@@ -39,7 +39,7 @@ class MpMemberSections extends EditableGrid
     /**
      * @var array - массив настроек виджета TbButton для кнопки "добавить"
      */
-    public $addButtonOptions = array(
+    public $addButtonOptions  = array(
         // убираем кнопку "добавить" - она здесь не нужна, потому что
         // список разделов должен обновлять свои связи сам
         'htmlOptions' => array('style' => 'display:none;'), 
@@ -148,8 +148,17 @@ class MpMemberSections extends EditableGrid
      */
     protected function getGridCriteria()
     {
-        return array(
+        /*$criteria = array(
             'condition' => "`objecttype` = 'section_instance' AND `memberid` = '{$this->member->id}'"
-        );
+        );*/
+        $criteria = new CDbCriteria();
+        $criteria->compare('objecttype', 'section_instance');
+        $criteria->compare('memberid', $this->member->id);
+        /*$criteria->compare('sectionInstance.visible', 1);
+        if ( ! Yii::app()->user->checkAccess('Admin') )
+        {
+            $criteria->compare('sectionInstance.visible', 1);
+        }*/
+        return $criteria;
     }
 }
