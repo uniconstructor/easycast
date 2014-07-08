@@ -38,7 +38,7 @@ class QSearchHandlerBase extends CComponent
      * @var string - куда сохранить данные поиска (session/db)
      * @deprecated сохранением теперь занимаются или QSearchCriteriaAssembler или классы соответствующих моделей
      */
-    public $saveTo = 'session';
+    public $saveTo   = 'session';
     
     /**
      * Можно ли текущему пользователю использовать этот фильтр?
@@ -131,8 +131,7 @@ class QSearchHandlerBase extends CComponent
      */
     protected function getFilterData()
     {
-        //Yii::import('catalog.extensions.search.filters.QSearchFilterBase.QSearchFilterBase');
-        // Получаем имя элемента в массиве, в котором должны находится данные из фильтра поиска
+        // Получаем имя элемента, в котором должны находится данные из фильтра поиска
         $name = QSearchFilterBase::defaultPrefix().$this->filter->shortname;
         if ( isset($this->data[$name]) AND ! empty($this->data[$name]) )
         {// Данные фильтра есть в массиве - значит он используется
