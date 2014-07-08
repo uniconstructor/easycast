@@ -142,6 +142,7 @@ class EventVacancy extends CActiveRecord
 	        'iconlist',
 	        'status',
 	        'city',
+	        'region',
 	    );
 	}
 	
@@ -229,6 +230,11 @@ class EventVacancy extends CActiveRecord
 	 */
 	protected function beforeSave()
 	{
+	    if ( $this->isNewRecord )
+	    {
+	        // условия для выборки анкет для роли еще не созданы - создадим условия по умолчанию
+	        $this->initVacancySearchData();
+	    }
 	    return parent::beforeSave();
 	}
 	
@@ -241,14 +247,11 @@ class EventVacancy extends CActiveRecord
 	    {// для каждой роли при создании задается обязательный минимум заполняемых при регистрации полей
 	        // который потом можно изменить
 	        $this->attachRequiredFields();
-	    }
-	    if ( ! $this->filterinstances )
-	    {// к вакансии не прикреплен ни один фильтр - прикрепляем все которые по умолчанию
-	        $this->attachDefaultFilters();
-	    }
-	    if ( ! $this->isNewRecord AND ! $this->scopeid )
-	    {// условия для выборки анкет для вакансии еще не созданы - создадим условия по умолчанию
-	        $this->initVacancyScope();
+	        if ( ! $this->filterinstances )
+	        {// к вакансии не прикреплен ни один фильтр - прикрепляем все которые по умолчанию
+	           $this->attachDefaultFilters();
+	        }
+	        $this->initVacancyScope(false);
 	    }
 	    parent::afterSave();
 	}
@@ -808,11 +811,22 @@ class EventVacancy extends CActiveRecord
 	    
 	    if ( $saveData )
 	    {// нужно сохранить модель после инициализации поисковых критериев
+	        //return (bool)$this->save(false, array('eventid', 'description', 'name', 'timecreated', 'timemodified', 'searchdata', 'scopeid'));
 	        return (bool)$this->save();
 	    }else
 	    {// модель сохранять не нужно - это произойдет само автоматически
 	        return true;
 	    }
+	}
+	
+	/**
+	 * Установить изначальные значения для формы критериев поиска на роль
+	 * @return void
+	 */
+	protected function initVacancySearchData()
+	{
+	    $this->searchdata = serialize($this->сreateStartSearchData());
+	    //$this->setSearchData($this->сreateStartSearchData());
 	}
 	
 	/**
@@ -855,12 +869,19 @@ class EventVacancy extends CActiveRecord
 	    if ( in_array('salary', $filters) AND $this->salary )
 	    {// если в вакансии указана сумма оплаты - установим ее сразу же как поисковый критерий 
 	        // (таким образом сразу же отсекаем всех кто дороже)
-	        
 	        // округляем сумму оплаты до 250 в меньшую сторону
 	        $tail      = $this->salary % 250;
 	        $maxSalary = $this->salary - $tail;
 	        $searchData[$prefix.'salary'] = array('maxsalary' => $maxSalary);
-	    }
+        }
+	    if ( in_array('region', $filters) )
+	    {// по умолчанию ищем только по региону "Москва и область"
+	        $searchData[$prefix.'region'] = array('regionid' => array(0 => '4312'));
+        }
+        if ( in_array('status', $filters) )
+        {
+            $searchData[$prefix.'status'] = array('status' => array('active', 'rejected'));
+        }
 	    
 	    return $searchData;
 	}
@@ -1049,7 +1070,7 @@ class EventVacancy extends CActiveRecord
 	
 	/**
 	 * Получить все сохраненные данные из формы поиска людей для вакансии
-	 * @return null
+	 * @return array
 	 */
 	public function getSearchData()
 	{
