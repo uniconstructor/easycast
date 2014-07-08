@@ -100,7 +100,8 @@
  * @property integer $currentcountryid
  * @property integer $visible
  * 
- * Relations: @see http://www.yiiframework.com/wiki/280/1-n-relations-sometimes-require-cdbcriteria-together/
+ * Relations: 
+ * @see http://www.yiiframework.com/wiki/280/1-n-relations-sometimes-require-cdbcriteria-together/
  * @property User $user 
  * @property Address $address
  * @property QRecordingConditions $recordingconditions
@@ -111,10 +112,10 @@
  * Поля для подсчета статистики:
  * @todo уже недостаточно гибкие для новой системы, нужно будет переписать их с применением именованных
  *       групп условий с параметрами (проще говоря прописать и использовать scopes() в связанных моделях)
- * @property int invitesCount - количество непрочитанных приглашений
- * @property int requestsCount - количество поданых заявок
- * @property int pendingRequestsCount
- * @property int upcomingEventsCount
+ * @property int $invitesCount - количество непрочитанных приглашений
+ * @property int $requestsCount - количество поданых заявок
+ * @property int $pendingRequestsCount
+ * @property int $upcomingEventsCount
  * 
  * @todo переписать функции проверки "подходит/не подходит на роль" вычислять его в момент отправки приглашений 
  *       чтобы редактирование анкеты после подачи заявки не приводило к неожиданным эффектам, 
@@ -129,7 +130,7 @@
  * @todo удалить все модели и таблицы "instances" для сложных значений: вместо них сделать одну таблицу
  *       q_instances в которой хранятся все связи по qid + objecttype + objectid
  * @todo для всех сложных значений добавить типизированные коллекции: 
- *       @see http://yiiframework.ru/doc/cookbook/ru/model.dao
+ * @see  http://yiiframework.ru/doc/cookbook/ru/model.dao
  */
 class Questionary extends CActiveRecord
 {
@@ -1324,7 +1325,7 @@ class Questionary extends CActiveRecord
     /////////////////////////////////////////
     
     /**
-     * Получить все анкеты, созданные пользователем или объектом системы (именованная группа условий)
+     * Группа условий: анкеты, созданные пользователем или объектом системы (именованная группа условий)
      * @param string $objectType - тип объекта в таблице q_creation_history (user/vacancy/...)
      * @param int $objectId
      * @return Questionary
@@ -1332,16 +1333,33 @@ class Questionary extends CActiveRecord
     public function createdBy($objectType, $objectId)
     {
         $criteria = new CDbCriteria();
-        $criteria->with = 'creationHistory';
+        $criteria->with     = 'creationHistory';
         // together Необходимо для корректного выполнения реляционного запроса
         $criteria->together = true;
         $criteria->compare('`creationHistory`.`objecttype`', $objectType);
         $criteria->compare('`creationHistory`.`objectid`', $objectId);
          
         $this->getDbCriteria()->mergeWith($criteria);
+        
         return $this;
     }
     
+    /**
+     * Группа условий: анкеты, из выбранных регионов России
+     * @param  array $regions - список id регионов 
+     * @return Questionary
+     */
+    public function fromRegions($regionIds)
+    {
+        $criteria = new CDbCriteria();
+        $criteria->with     = 'cityobj';
+        $criteria->together = true;
+        $criteria->addInCondition('`cityobj`.`regionid`', $regionIds);
+        
+        $this->getDbCriteria()->mergeWith($criteria);
+        
+        return $this;
+    }
     
     /////////////////////////////////////////////////
     // Сохранение и получение сложных полей анкеты //

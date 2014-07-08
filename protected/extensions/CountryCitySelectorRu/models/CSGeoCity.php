@@ -78,18 +78,30 @@ class CSGeoCity extends CActiveRecord
 	 */
 	public function search()
 	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
+		$criteria = new CDbCriteria;
 
-		$criteria=new CDbCriteria;
-
-		$criteria->compare('id',$this->id,true);
-		$criteria->compare('countryid',$this->countryid,true);
-		$criteria->compare('regionid',$this->regionid,true);
-		$criteria->compare('name',$this->name,true);
+		$criteria->compare('id', $this->id, true);
+		$criteria->compare('countryid', $this->countryid, true);
+		$criteria->compare('regionid', $this->regionid, true);
+		$criteria->compare('name', $this->name, true);
 
 		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
+			'criteria' => $criteria,
 		));
+	}
+	
+	/**
+	 * Группа условий: выбрать все города из определенных регионов
+	 * @param array $regionIds - список id регионов, в которых должны находиться города
+	 * @return CSGeoCity
+	 */
+	public function fromRegions($regionIds)
+	{
+	    $criteria = new CDbCriteria;
+	    $criteria->addInCondition($this->getTableAlias(true).'.`regionid`', $regionIds);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
 	}
 }
