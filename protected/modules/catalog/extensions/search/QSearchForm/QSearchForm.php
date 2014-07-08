@@ -86,8 +86,10 @@ class QSearchForm extends SearchFilters
      * @var array - распределение фильтров по колонкам формы поиска
      */
     public $columnFilters = array(
-        'sections' => array('iconlist'),
-        'base'     => array('status', 'city', 'gender', 'age', /*'email',*/ 'salary', 'height', 
+        'sections' => array(
+            'iconlist', 'region', 'city',
+        ),
+        'base'     => array('status', 'gender', 'age', /*'email',*/ 'salary', 'height', 
             'weight', 'body', 'system', 'name',
         ),
         'looks'    => array('looktype', 'physiquetype', 'haircolor', 'hairlength', 
