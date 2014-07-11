@@ -11,6 +11,7 @@ if ( $type == 'applications' )
 {
     $titleString = 'Участники';
 }
+$viewMode = 'event';
 if ( $projectid )
 {
     $project     = Project::model()->findByPk($projectid);
@@ -49,7 +50,7 @@ if ( $vacancyid )
 }
 $breadcrumbs[] = $titleString;
 // составляем верхнее меню навигации
-$this->breadcrumbs=$breadcrumbs;
+$this->breadcrumbs = $breadcrumbs;
 
 ?>
 
