@@ -16,6 +16,4 @@ return array(
     'scope_type' => 'Тип условия',
     'condition_type' => 'Тип условия',
     'comparsion_type' => 'Тип сравнения',
-    
-    //'' => '',
-    );
+);

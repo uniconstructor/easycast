@@ -74,13 +74,13 @@ class ScopeCondition extends CActiveRecord
 	{
 		return array(
 			'id' => 'ID',
-			'scopeid' => Yii::t('ESearchScopes.main', 'scope'),
-			'type' => Yii::t('ESearchScopes.main', 'condition_type'),
-			'field' => Yii::t('ESearchScopes.main', 'field'),
-			'value' => Yii::t('ESearchScopes.main', 'value'),
-			'comparison' => Yii::t('ESearchScopes.main', 'comparsion_type'),
-			'combine' => Yii::t('ESearchScopes.main', 'combine_label'),
-			'inverse' => Yii::t('ESearchScopes.main', 'inverse_label'),
+			'scopeid' => '',//Yii::t('ESearchScopes.main', 'scope'),
+			'type' => '',//Yii::t('ESearchScopes.main', 'condition_type'),
+			'field' => '',//Yii::t('ESearchScopes.main', 'field'),
+			'value' => '',//Yii::t('ESearchScopes.main', 'value'),
+			'comparison' => '',//Yii::t('ESearchScopes.main', 'comparsion_type'),
+			'combine' => '',//Yii::t('ESearchScopes.main', 'combine_label'),
+			'inverse' => '',//Yii::t('ESearchScopes.main', 'inverse_label'),
 			'previousid' => 'Previousid',
 		);
 	}
