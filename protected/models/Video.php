@@ -212,7 +212,7 @@ class Video extends SWActiveRecord
 	 */
 	public function defineVideoType($link)
 	{
-	    if ( ! $link )
+	    if ( ! $link OR mb_ereg('video.easycast.ru', $link) )
 	    {
 	        return 'file';
 	    }
@@ -292,14 +292,19 @@ class Video extends SWActiveRecord
 	 * Получить url для встраивания видео на странице
 	 * (для некоторых сервисов может отличаться от ссылки на видео)
 	 * 
+	 * @param string|int $expires - время до которого действительна ссылка unixtime или '+22 minutes'
 	 * @return string
 	 */
-	public function getEmbedUrl()
+	public function getEmbedUrl($expires='+12 hours')
 	{
 	    switch ( $this->type )
 	    {
 	        case 'youtube':
 	            return 'http://www.youtube.com/embed/'.$this->externalid.'?rel=0';
+            break;
+	        case 'file':
+	            $s3 = Yii::app()->getComponent('ecawsapi')->getS3();
+	            return $s3->getObjectUrl(Yii::app()->params['AWSVideoBucket'], $this->externalid, $expires);
             break;
 	        default: return $this->link;
 	    }
