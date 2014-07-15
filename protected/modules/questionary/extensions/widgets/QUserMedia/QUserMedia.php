@@ -61,7 +61,7 @@ class QUserMedia extends CWidget
                 'keepSource'     => true,
                 'trueFullscreen' => true,
                 'imagePan'       => true,
-                'imageCrop'      => 'portrait',
+                'imageCrop'      => false,
             ),
         ), true);
         
