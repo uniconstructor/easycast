@@ -69,7 +69,7 @@ class QuestionaryController extends Controller
 	{
 	    return array(
 	        'upload' => array(
-	            'class'      => 'xupload.actions.XUploadAction',
+	            'class'      => 'xupload.actions.S3UploadAction',
 	            'path'       => Yii::app()->getBasePath() . "/../uploads",
 	            'publicPath' => Yii::app()->getBaseUrl() . "/uploads",
 	        ),
