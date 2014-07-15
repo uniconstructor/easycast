@@ -1161,21 +1161,24 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
 <?php $this->endWidget(); ?>
 </div><!-- form -->
 <?php
-// Выводим здесь все всплывающие modal-формы для сложных значений
-// Их оказалось нельзя выводить в середине формы анкеты потому что вложенные виджеты форм в Yii не допускаются
-// Сами формы генерируются по ходу отрисовки формы и запоминаются в клипы, а затем выводятся здесь
 if ( Yii::app()->user->checkAccess('Admin') )
 {// @todo загрузка файлов видео пока что только для админов
     Yii::import("xupload.models.XUploadForm");
     $xUploadForm = new XUploadForm;
     
     $this->widget('xupload.XUpload', array(
-        'url'       => Yii::app()->createUrl("//questionary/questionary/upload"),
-        'model'     => $xUploadForm,
-        'attribute' => 'file',
-        'multiple'  => false,
+        'url'             => Yii::app()->createUrl("//questionary/questionary/upload", array('objectId' => $questionary->id)),
+        'model'           => $xUploadForm,
+        'attribute'       => 'file',
+        'autoUpload'      => true,
+        'previewImages'   => false,
+        'imageProcessing' => false,
+        'multiple'        => false,
     ));
 }
+// Выводим здесь все всплывающие modal-формы для сложных значений
+// Их оказалось нельзя выводить в середине формы анкеты потому что вложенные виджеты форм в Yii не допускаются
+// Сами формы генерируются по ходу отрисовки формы и запоминаются в клипы, а затем выводятся здесь
 $clips = Yii::app()->getModule('questionary')->formClips;
 foreach ( $clips as $clip )
 {
