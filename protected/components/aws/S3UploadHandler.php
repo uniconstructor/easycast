@@ -20,13 +20,14 @@ class S3UploadHandler extends CComponent
      */
     public $s3;
     /**
+     * note there is no "folders" in S3 though you can prefix files with a string that resembles a file system.
      * @var string
      */
-    public $prefix;
+    public $prefix = 'video';
     /**
      * @var string
      */
-    public $bucket;
+    public $bucket = "video.easycast.ru";
     
     protected $options;
 
@@ -58,20 +59,24 @@ class S3UploadHandler extends CComponent
         //Initialize the s3 client and "registerStreamWrapper()" allows using PHP's native file methods such as file_put_contents()
         //http://docs.aws.amazon.com/aws-sdk-php/guide/latest/service-s3.html#amazon-s3-stream-wrapper
         $this->s3 = Yii::app()->getComponent('ecawsapi')->getS3();
-        $this->prefix = 'video'; //note there is no "folders" in S3 though you can prefix files with a string that resembles a file system.
-        $this->bucket = "video.easycast.ru";
+        
+        if ( isset($options['prefix']) )
+        {
+            $this->prefix = $options['prefix'];
+        }
+        if ( isset($options['bucket']) )
+        {
+            $this->bucket = $options['bucket'];
+        }
 
-        //compatible with PHP frameworks such as Codeigniter by calling:
-        // $CI = & get_instance(); //get Codeigniter instance
-        //$this->form_validation= $CI->form_validation; //access some Codeigniter class and make a property of UploadHandler class
-      
         $this->options = array(
             'script_url' => $this->get_full_url().'/',
             'server_dir' => dirname($_SERVER['SCRIPT_FILENAME']).'/'.$this->prefix,
             'upload_dir' =>'s3://'.$this->bucket.'/'.$this->prefix,
             'server_url' => $this->get_full_url().'/'.$this->prefix, //$user->publish->path, 
             'upload_url' => "https://" . $this->bucket . ".s3.amazonaws.com/".$this->prefix, 
-            'user_dirs'  => true,
+            //'user_dirs'  => true,
+            'user_dirs'  => false,
             'mkdir_mode' => 0755,
             //'param_name' => 'files',
             'param_name' => 'file',
@@ -176,7 +181,6 @@ class S3UploadHandler extends CComponent
                     'max_height' => 80
                 )
             )  
-
         );
         if ($options) {
             $this->options = CMap::mergeArray($this->options, $options);
