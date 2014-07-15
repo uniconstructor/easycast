@@ -9,12 +9,41 @@ $qUrl = Yii::app()->createUrl('/questionary/questionary/view/', array('id' => $t
 ?>
 <div class="row-fluid">
     <div class="span6">
-        <?php
-        // Фото и видео участника
-        $this->widget('questionary.extensions.widgets.QUserMedia.QUserMedia', array(
-            'questionary' => $this->questionary,
-        ));
-        ?>
+        <div class="row-fluid">
+            <?php
+            // Фото и видео участника
+            $this->widget('questionary.extensions.widgets.QUserMedia.QUserMedia', array(
+                'questionary' => $this->questionary,
+            ));
+            ?>
+        </div>
+        <div class="row-fluid">
+            <?php
+            if ( Yii::app()->user->checkAccess('Admin') )
+            {// @todo кнопка загрузки файлов видео: пока что видео привязывается к анкете а не к заявке
+                $xUploadForm = new XUploadForm;
+                $this->widget('xupload.XUpload', array(
+                    'url'             => Yii::app()->createUrl("//questionary/questionary/upload", array('objectId' => $this->questionary->id)),
+                    'model'           => $xUploadForm,
+                    'attribute'       => 'file',
+                    'autoUpload'      => true,
+                    'previewImages'   => false,
+                    'imageProcessing' => false,
+                    'multiple'        => false,
+                ));
+                $expires = '+48 hours';
+            }else
+            {// @todo сделать время жизни ссылки на видео равным времени жизни приглашения заказчика
+                $expires = '+48 hours';
+            }
+            // список загруженных видео
+            $this->widget('ext.ECMarkup.ECUploadedVideo.ECUploadedVideo', array(
+                'objectType' => 'questionary',
+                'objectId'   => $this->questionary->id,
+                'expires'    => $expires,
+            ));
+            ?>
+        </div>
     </div>
     <div class="span6">
         <h2 class="text-center">
@@ -27,8 +56,6 @@ $qUrl = Yii::app()->createUrl('/questionary/questionary/view/', array('id' => $t
             'data'       => $this->getSummaryData(),
             'attributes' => $this->getSummaryAttributes(),
         ));
-        ?>
-        <?php
         // блок со статусами
         $this->render('_statuses');
         ?>
