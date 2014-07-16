@@ -450,17 +450,18 @@ return array(
 	    // как правило это руководители проектов
 	    // список разрешенных email-адресов можно посмотреть и отредактировать в админской панели Amazon SES:
 	    // @see https://console.aws.amazon.com/ses/home?region=us-east-1#verified-senders-email:
+	    // @todo вынести этот список в настройку
 	    'verifiedSenders' => array(
 	       'ad@easycast.ru',
 	       'admin@easycast.ru',
-	       'alena@easycast.ru',
+	       //@todo убрать из verified senders 'alena@easycast.ru',
 	       'anton@easycast.ru',
 	       'ceo@easycast.ru',
 	       'irina@easycast.ru',
 	       'liza@easycast.ru',
 	       'max@easycast.ru',
 	       'mr@easycast.ru',
-	       //@todo 'ron@easycast.ru',
+	       //@todo убрать из verified senders 'ron@easycast.ru',
         ),
 	    
 	    ////////////////////////////////////////////////////////////////////
