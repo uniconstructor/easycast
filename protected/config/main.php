@@ -356,6 +356,13 @@ return array(
             'class' => 'application.extensions.simpleWorkflow.SWPhpWorkflowSource',
         ),
         
+        // Компонент для работы с сервисом отправки писем {@see https://mailchimp.com}
+        // используем API последней (второй) версии
+        'mailchimp' => array(
+            'class'  => 'application.extensions.mailchimp.EMailChimp2',
+            'apikey' => '43db0f030585ce1f6b6a27fa4d13de12-us7',
+        ),
+        
         // API для работы с Мегапланом (@see http://megaplan.ru) 
         // (тут только общие настройки, ключи доступа указаны в конфигах в production и dev-ветках)
         /*'megaplan' => array(
