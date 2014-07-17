@@ -19,6 +19,7 @@
  * @property string $timefinished
  * @property string $feedback
  * @property string $status
+ * @property string $expire
  * 
  * Relations:
  * @property User $manager
@@ -63,9 +64,13 @@ class CustomerInvite extends CActiveRecord
     const STATUS_FINISHED    = 'finished';
     /**
      * @var string - статус приглашения: отклонено нами. Используется в тех случаях, когда заказчик запросил
-     *               у нас какоето-действие или доступ, а мы отказали ему.
+     *               у нас какое-то действие или доступ, а мы отказали ему.
      */
     const STATUS_REJECTED    = 'rejected';
+    /**
+     * @var string - статус приглашения: истек срок действия
+     */
+    const STATUS_EXPIRED     = 'expired';
     
     /**
      * Returns the static model of the specified AR class.
@@ -91,7 +96,7 @@ class CustomerInvite extends CActiveRecord
     public function rules()
     {
         return array(
-            array('objectid, managerid, timecreated, timeused, timefinished, userid', 'length', 'max' => 11),
+            array('objectid, managerid, timecreated, timeused, timefinished, userid, expire', 'length', 'max' => 11),
             array('key, key2', 'length', 'max' => 40),
             array('objecttype, status', 'length', 'max' => 50),
             array('email, name', 'length', 'max' => 255),
@@ -100,7 +105,7 @@ class CustomerInvite extends CActiveRecord
             array('comment, feedback', 'length', 'max' => 4095),
             
             array('id, objecttype, objectid, key, key2, email, name, managerid, timecreated, timeused,
-                 userid, timefinished, feedback, status', 'safe', 'on' => 'search'),
+                 userid, timefinished, feedback, status, expire', 'safe', 'on' => 'search'),
         );
     }
 
@@ -203,6 +208,7 @@ class CustomerInvite extends CActiveRecord
             'timefinished' => 'Время завершения',
             'feedback' => 'Отзыв заказчика после использования',
             'status' => 'Статус',
+            'expire' => 'Когда истекает',
         );
     }
 
