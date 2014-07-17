@@ -3,9 +3,10 @@
 
 // @todo пока не решен вопрос с автоматической настройкой серверов Amazon - устанавливаем все параметры здесь
 ini_set('max_execution_time', '18000');
+ini_set('max_input_time', '18000');
 ini_set('date.timezone', 'Europe/Moscow');
-ini_set('upload_max_filesize', '10M');
-ini_set('post_max_size', '11M');
+ini_set('upload_max_filesize', '5000M');
+ini_set('post_max_size', '5000M');
 
 
 // change the following paths if necessary

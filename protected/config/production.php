@@ -25,31 +25,6 @@ return CMap::mergeArray(
                 'cookieParams' => array('domain' => '.easycast.ru'),
             ),
             
-            // API для работы с Мегапланом
-            // @todo не используется, удалить при рефакторинге
-            'megaplan' => array(
-                'debug'             => false,
-                'accessId'          => '3191561bcf6adc2Ab125',
-                'secretKey'         => '3F62c64cf3fd6daC1c2543a45720Ed666e4d920f',
-                'defaultUserId'     => '1000027',
-                'defaultEmployeeId' => '1000000',
-                'auditors'          => array('1000015', '1000005', '1000012'),
-                // список id руководителей проектов в Мегаплане
-                'projectManagers'   => array(
-                    '1000001', // Ира
-                    '1000005', // Алена 
-                    '1000002', // Аня (Дуленкова)
-                    '1000008', // Максим
-                    '1000007', // Лиза
-                    '1000010', // Вероника
-                    '1000011', // Лёха (Михайлов)
-                    '1000006', // Маруся
-                    '1000012', // Петя
-                    '1000004', // Я
-                    '1000015', // Коля
-                ),
-            ),
-            
             'log' => array(
                 'class'  => 'CLogRouter',
                 'routes' => array(
