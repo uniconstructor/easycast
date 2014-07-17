@@ -19,21 +19,21 @@ class QSearchResults extends CWidget
      * @todo убрать разделение на поиск по разделам и поиск по большой форме
      * @deprecated не использовать в новых функциях
      */
-    public $mode = 'filter';
+    public $mode        = 'filter';
     /**
      * @var CatalogSection - раздел каталога внутри которого производится поиск
      *                       (если поиск производится внутри раздела)
      * @deprecated теперь вместо этого поля используется $this->searchObject
      */
-    public $section = null;
+    public $section     = null;
     /**
      * @var array - данные, пришедшие из формы поиска
      */
-    public $data = array();
+    public $data        = array();
     /**
      * @var string - url, по которому должно поисходить обновление данных
      */
-    public $route = '/catalog/catalog/ajaxSearch';
+    public $route       = '/catalog/catalog/ajaxSearch';
     /**
      * @var array - массив параметров, которые передаются вместе с номером страницы
      */
@@ -43,12 +43,12 @@ class QSearchResults extends CWidget
      *               (например вакансия или раздел каталога)
      * @todo заготовка для будущего рефакторинга
      */
-    public $objectType = 'section';
+    public $objectType  = 'section';
     /**
      * @var int - id объекта, к которому привязаны критерии поиска
      * @todo заготовка для будущего рефакторинга
      */
-    public $objectId = 1;
+    public $objectId    = 1;
     /**
      * @var CActiveRecord - модель к которой привязаны критерии и результаты поиска
      *                      Может быть вичислена на основе objectType и objectId или задана вручную
@@ -181,8 +181,7 @@ class QSearchResults extends CWidget
         }else
         {// все данные есть, получаем результаты поиска
             // @todo переместить статус и сортировку в фильтры поиска
-            //$criteria->compare('status', 'active');
-            $criteria->addCondition("`t`.`status` NOT IN ('delayed', 'draft', 'unconfirmed')");
+            $criteria->addCondition("`t`.`status` NOT IN ('delayed', 'draft', 'unconfirmed') AND `t`.`visible` = 1");
             $criteria->order = '`rating` DESC';
             
             $emptyText = $this->getAjaxMessage('noRecords');
