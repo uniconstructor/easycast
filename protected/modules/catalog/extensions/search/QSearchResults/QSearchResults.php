@@ -86,6 +86,13 @@ class QSearchResults extends CWidget
             'searchObject' => $this->searchObject,
         );
         $this->assembler = Yii::createComponent($config);
+        
+        // подключаем стили galleria, чтобы выводить фотографии участника через AJAX
+        $cs = Yii::app()->clientScript;
+        $galleriaAssets = Yii::app()->assetManager->publish(Yii::app()->basePath.'/extensions/galleria/assets');
+        $cs->registerCssFile($galleriaAssets.'/themes/classic/galleria.classic.css');
+        $cs->registerScriptFile($galleriaAssets.'/galleria.min.js');
+        $cs->registerScriptFile($galleriaAssets.'/themes/classic/galleria.classic.min.js');
     }
     
     /**

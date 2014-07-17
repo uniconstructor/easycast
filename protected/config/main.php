@@ -20,7 +20,7 @@ Yii::setPathOfAlias('libphonenumber', dirname(__FILE__).'/../components/libphone
 return array(
     // Основные параметры приложения
     // физический путь к папке "protected"
-	'basePath' => dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
+	'basePath'       => dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
     // язык приложения
     'language'       => 'ru',
     // язык исходников (установлен английский потому что он основной для большинства сторонних модулей)
@@ -69,6 +69,7 @@ return array(
 	    'ext.sweekit.Sweeml',
 	    // @todo (запланировано) компонент для работы с Google Maps 
 	    //'ext.sweekit.map.*',
+	    // галерея изображений
         'application.extensions.galleria.*',
 	),
 
@@ -179,12 +180,6 @@ return array(
         'articles' => array(
             'class' => 'application.modules.articles.ArticlesModule',
         ),
-        
-        // Оповещения
-        // @todo не используется: удалить при рефакторинге если так и не понадобится
-        /*'notifyii' => array(
-            'class' => 'application.modules.notifyii.NotifyiiModule',
-        ),*/
         
         // Письма (этот модуль отвечает за правильную верстку писем)
         'mailComposer' => array(
@@ -358,17 +353,9 @@ return array(
         
         // Компонент для работы с сервисом отправки писем {@see https://mailchimp.com}
         // используем API последней (второй) версии
-        'mailchimp' => array(
+        /*'mailchimp' => array(
             'class'  => 'application.extensions.mailchimp.EMailChimp2',
             'apikey' => '43db0f030585ce1f6b6a27fa4d13de12-us7',
-        ),
-        
-        // API для работы с Мегапланом (@see http://megaplan.ru) 
-        // (тут только общие настройки, ключи доступа указаны в конфигах в production и dev-ветках)
-        /*'megaplan' => array(
-            'class' => 'EasyCastMegaplanAPI',
-            // адрес по которому производятся все API-запросы
-            'host'  => 'easycast.megaplan.ru',
         ),*/
         
         // Настройки по умолчанию для всех виджетов Yii
