@@ -27,11 +27,6 @@
  */
 class Video extends SWActiveRecord
 {
-    /**
-     * @var resource
-     */
-    //public $videofile;
-    
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
@@ -151,6 +146,21 @@ class Video extends SWActiveRecord
 		    'timemodified' => Yii::t('coreMessages', 'timemodified'), 
 		    'visible' => 'Отображение', 
 		);
+	}
+	
+	/**
+	 * @see CActiveRecord::afterDelete()
+	 */
+	public function afterDelete()
+	{
+	    if ( $this->type === 'file' )
+	    {/* @var $s3 Aws\S3\S3Client */
+	        $s3 = Yii::app()->getComponent('ecawsapi')->getS3();
+	        $s3->deleteObject(array(
+	            'Bucket' => Yii::app()->params['AWSVideoBucket'],
+	            'Key'    => $this->externalid,
+	        ));
+	    }
 	}
 
 	/**
