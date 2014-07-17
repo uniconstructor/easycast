@@ -55,6 +55,13 @@ class ProjectMembers extends CWidget
         // подробной информации в анкетеы
         Yii::app()->getClientScript()->registerSweelixScript('shadowbox');
         
+        // подключаем стили galleria, чтобы выводить фотографии участника через AJAX
+        $cs = Yii::app()->clientScript;
+        $galleriaAssets = Yii::app()->assetManager->publish(Yii::app()->basePath.'/extensions/galleria/assets');
+        $cs->registerCssFile($galleriaAssets.'/themes/classic/galleria.classic.css');
+        $cs->registerScriptFile($galleriaAssets.'/galleria.min.js');
+        $cs->registerScriptFile($galleriaAssets.'/themes/classic/galleria.classic.min.js');
+        
         parent::init();
     }
     
