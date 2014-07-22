@@ -17,7 +17,7 @@ class EventsAgenda extends CWidget
     /**
      * @var bool - отображать ли активные события?
      */
-    public $displayActive   = false;
+    public $displayActive   = true;
     /**
      * @var bool - отображать ли завершенные события?
      */
@@ -29,7 +29,7 @@ class EventsAgenda extends CWidget
     /**
      * @var int - сколько событий отображать максимально? (0 - все что есть)
      */
-    public $eventLimit      = 0;
+    public $eventLimit      = 10;
     /**
      * @var bool - отображать ли таймер обратного отсчета рядом с событием?
      */
@@ -130,7 +130,7 @@ class EventsAgenda extends CWidget
         }
         if ( $this->eventLimit > 0 )
         {
-            $pagination = array('pageSize' => $this->eventLimit);
+            $criteria->limit = $this->eventLimit;
         }
         if ( ! $this->displayCastings )
         {
@@ -199,8 +199,8 @@ class EventsAgenda extends CWidget
         }
         $itemOptions = array();
         if ( $event->isExpired() )
-        {// если пользователь участвует в событии - выделим его другим цветом 
-            $itemOptions['style'] = 'opacity:0.8;';
+        {// @todo если пользователь участвует в событии - выделим его другим цветом 
+            //$containerOptions['style'] = 'background-color:#aaa;';
         }
         $iconImage = $event->project->getAvatarUrl();
         
@@ -213,8 +213,8 @@ class EventsAgenda extends CWidget
             'dateOptions'      => array('style' => 'font-weight:300;font-size:1.5em;line-height:1.5em;'),
             'timeOptions'      => array('style' => 'font-weight:300;font-size:0.9em;color:#888;'),
             'containerOptions' => $containerOptions,
-            //'iconOptions' => array('class' => 'cbp_tmicon-phone'),
-            'iconImage'        => $iconImage,
+            //'iconOptions'      => array('class' => 'icon-star-o'),
+            //'iconImage'        => $iconImage,
             //'iconImageOptions' => array(),
             'iconLink'         => $event->url,
             'iconLinkOptions'  => array(
