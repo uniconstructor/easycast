@@ -439,7 +439,7 @@ return array(
 	    // @see https://console.aws.amazon.com/ses/home?region=us-east-1#verified-senders-email:
 	    // @todo вынести этот список в настройку
 	    'verifiedSenders' => array(
-	       'ad@easycast.ru',
+	       //@todo убрать из verified senders 'ad@easycast.ru',
 	       'admin@easycast.ru',
 	       //@todo убрать из verified senders 'alena@easycast.ru',
 	       'anton@easycast.ru',
@@ -487,7 +487,7 @@ return array(
 	    'outputDateTimeFormat' => "d.m.Y H:i",
 	    
 	    // Настройки хостинга Amazon
-	    'AWSRegion' =>'us-east-1',
+	    'AWSRegion' => 'us-east-1',
 	    
 	    // Использовать ли прокси сервера google для кэширования картинок в отправляемых сервером письмах?
 	    // Включение этой опции позволяет всегда отображать картинки из наших писем в большинстве
