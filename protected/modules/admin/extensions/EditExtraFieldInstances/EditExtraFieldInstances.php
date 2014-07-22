@@ -132,10 +132,10 @@ class EditExtraFieldInstances extends EditableGrid
     protected function getDataColumns()
     {
         return array(
-            // название мероприятия
+            // название поля
             array(
                 'name'  => 'fieldid',
-                'value' => '$data->name;',
+                'value' => '$data->fieldObject->label;',
             ),
             // обязательное поле (да/нет)
             $this->getStaticSelect2ColumnOptions('filling', ExtraFieldInstance::model()->getFillingModes(), 'fillingMode'),
@@ -192,7 +192,7 @@ class EditExtraFieldInstances extends EditableGrid
         $options = CMap::mergeArray($options, CHtml::listData($fields, 'id', 'label'));
         
         foreach ( $this->targetObject->extraFields as $field )
-        {// ескли к этому объекту уже привязаны какие-либо поля, то не даем привязать их второй раз
+        {// если к этому объекту уже привязаны какие-либо поля, то не даем привязать их второй раз
             unset($options[$field->id]);
         }
         return $options;
