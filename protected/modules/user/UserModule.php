@@ -455,15 +455,21 @@ class UserModule extends CWebModule
 	 */
 	public function getViewMode($forceDefault=true)
 	{
-	    $defaultState = 'user';
 	    if ( Yii::app()->user->checkAccess('Admin') )
 	    {// админов сразу после входа нужно перенаправлять на страницу заказчика
 	        $defaultState = 'customer';
+	    }elseif ( $forceDefault )
+	    {
+	        $defaultState = 'user';
+	    }else
+	    {
+	        $defaultState = null;
 	    }
 	    if ( ! Yii::app()->user->hasState('userMode') AND $forceDefault )
 	    {// инициализируем режим просмотра, если пользователь зашел первый раз, и еще не определился
 	        $this->setViewMode($defaultState);
 	    }
+	    
 	    return Yii::app()->user->getState('userMode', $defaultState);
 	}
 	
