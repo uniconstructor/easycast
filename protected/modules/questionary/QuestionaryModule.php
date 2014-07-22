@@ -59,7 +59,8 @@ class QuestionaryModule extends CWebModule
         'class'       => 'GalleryBehavior',
         'idAttribute' => 'galleryid',
         // максимальное количество картинок участника - 30
-        'limit' => 30,
+        // @todo вынести в настройку
+        'limit' => 40,
         // картинка масштабируется в трех размерах: аватар,
         // обычное изображение (для списка анкет), большое изображение (посмотреть подробно)
         'versions' => array(
