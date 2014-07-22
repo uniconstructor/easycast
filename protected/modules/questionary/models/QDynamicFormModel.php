@@ -247,7 +247,7 @@ class QDynamicFormModel extends CFormModel
     public $galleryid;
     /**
      * @var string
-     * @deprecated
+     * @deprecated использовать galleryid вместо этого поля
      */
     public $photo;
     /**
@@ -526,7 +526,8 @@ class QDynamicFormModel extends CFormModel
             $this->_attributes[$this->extraFieldPrefix.$extraField->name] = null;
         }
         if ( ! $this->displayFilled )
-        {
+        {// убираем из списка полей те которые уже заполнены (если их нужно скрыть)
+            // @todo индивидуальная настройка для каждого поля
             $this->userFields  = array_intersect_key($this->userFields, $this->emptyUserFields);
             $this->extraFields = array_intersect_key($this->extraFields, $this->emptyExtraFields);
         }
