@@ -132,15 +132,52 @@ class EventInvite extends CActiveRecord
 	}
 	
 	/**
-	 * @see CActiveRecord::defaultScope()
+	 * @see CActiveRecord::scopes()
 	 */
-	public function defaultScope()
+	public function scopes()
 	{
 	    return array(
-	        'order' => '`timecreated` DESC',
+	        // истекшие приглашения: все приглашения привязанные к прошедшим событиям
+	        // (кроме приглашений на события без конкретной даты)
+	        'outdated' => array(
+    	        'condition' => $this->getTableAlias(true).'.`event`.`timeend` < '.time().' AND '.
+                               $this->getTableAlias(true).'.`event`.`nodates` = 0',
+    	    ),
+	        // последние созданные записи
+	        'lastCreated' => array(
+	            'order' => $this->getTableAlias(true).'.`timecreated` DESC'
+	        ),
+	        // последние измененные записи
+	        'lastModified' => array(
+	            'order' => $this->getTableAlias(true).'.`timemodified` DESC'
+	        ),
 	    );
 	}
-
+	
+	/**
+	 * Именованая группа условий поиска: извлечь все записи с определенным статусом
+	 * @param array $statuses
+	 * @return EventInvite
+	 */
+	public function withStatus($statuses)
+	{
+	    $criteria = new CDbCriteria();
+	    
+	    if ( ! is_array($statuses) )
+	    {// нужен только один статус, и он передан строкой - сделаем из нее массив
+	       $statuses = array($statuses);
+	    }
+	    if ( empty($statuses) )
+	    {// статус не указан - добавление условия не требуется
+            return $this;
+	    }
+	    
+	    $criteria->addInCondition($this->getTableAlias(true).'.`status`', $statuses);
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
+	}
+	
 	/**
 	 * @return array validation rules for model attributes.
 	 * 
@@ -149,10 +186,10 @@ class EventInvite extends CActiveRecord
 	public function rules()
 	{
 		return array(
-			array('deleted', 'numerical', 'integerOnly'=>true),
-			array('questionaryid, eventid, timecreated, timemodified', 'length', 'max'=>11),
-		    array('status', 'length', 'max'=>20),
-		    array('subscribekey', 'length', 'max'=>40),
+			array('deleted', 'numerical', 'integerOnly' => true),
+			array('questionaryid, eventid, timecreated, timemodified', 'length', 'max' => 11),
+		    array('status', 'length', 'max' => 50),
+		    array('subscribekey', 'length', 'max' => 40),
 		);
 	}
 
@@ -244,7 +281,7 @@ class EventInvite extends CActiveRecord
 	    {
 	        return false;
 	    }
-	
+        
 	    $this->status = $newStatus;
 	    $this->save();
 	    
