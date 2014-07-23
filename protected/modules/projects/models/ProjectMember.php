@@ -306,10 +306,10 @@ class ProjectMember extends CActiveRecord
         }
         if ( empty($statuses) )
         {// Если статус не указан - берем все кроме отклоненных
-            $criteria->compare($this->getTableAlias().'.`status`', '<>'.self::STATUS_REJECTED);
+            $criteria->compare($this->getTableAlias(true).'.`status`', '<>'.self::STATUS_REJECTED);
         }else
         {
-            $criteria->addInCondition($this->getTableAlias().'.`status`', $statuses);
+            $criteria->addInCondition($this->getTableAlias(true).'.`status`', $statuses);
         }
         $this->getDbCriteria()->mergeWith($criteria);
         
