@@ -104,9 +104,9 @@ class QUserInvites extends CWidget
         $message .= 'Можно одновременно подать заявку на несколько ролей.';
         
         return CHtml::link('Посмотреть роли', '#', array(
-            'class'   => 'btn btn-success btn-block',
-            'id'      => 'accept_button'.$invite->id,
-            'onClick'   => "ec_quinvites_success('accept', {$invite->id}, '{$message}');return false;",
+            'class'    => 'btn btn-success btn-block',
+            'id'       => 'accept_button'.$invite->id,
+            'onClick'  => "ec_quinvites_success('accept', {$invite->id}, '{$message}');return false;",
         ));
     }
     
