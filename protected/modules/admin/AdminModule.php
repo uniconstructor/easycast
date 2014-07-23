@@ -111,7 +111,7 @@ class AdminModule extends CWebModule
 	 * 
 	 * @param int $limit - максимальное количество изображений, которое будет загружено за один раз
 	 *                      
-	 * @return null
+	 * @return void
 	 */
 	public function cronTaskUploadImages($limit=3)
 	{
@@ -172,7 +172,7 @@ class AdminModule extends CWebModule
 	/**
 	 * Отправляет часть накопившейся почты, учитывая ограничения хостинга Amazon
 	 * @param int $count - сколько раз вызвать рассылку (за один раз из очереди отправляется несколько писем)
-	 * @return null
+	 * @return void
 	 */
 	public function cronTaskSendMail($count=4)
 	{
@@ -204,5 +204,18 @@ class AdminModule extends CWebModule
 	    echo "Done.\n\n";
 	    echo '</pre>';
 	    return 0;
+	}
+	
+	/**
+	 * Завершить все прошедшие события во всех проектах
+	 * (кроме событий без конкретной даты начала)
+	 * 
+	 * @return void
+	 */
+	public function cronTaskFinishExpiredEvents()
+	{
+	    // получаем все активные события с прошедшим временем окончания
+	    
+	    // помечаем их истекшими
 	}
 }
