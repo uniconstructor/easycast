@@ -33,6 +33,8 @@ class ProjectsModule extends CWebModule
 	 * @param array|SearchScope $scopes - критерий поиска анкет или несколько таких критериев поиска
 	 *         (например если мы ищем по своим критериям внутри раздела каталога)
 	 * @return CDbCriteria
+	 * 
+	 * @deprecated заменить использование этой функции использованием именованных групп условий поиска
 	 */
 	public function getProjectsCriteria($scopes=array())
 	{
@@ -40,14 +42,14 @@ class ProjectsModule extends CWebModule
 	    // Показываем в списке проектов активные и завершенные проекты
 	    $criteria->addInCondition('status', array(Project::STATUS_ACTIVE, Project::STATUS_FINISHED));
 	    
-	    if ( Yii::app()->getModule('user')->getViewMode() === 'customer' )
+	    if ( Yii::app()->getModule('user')->getViewMode() === 'customer' OR 
+	         Yii::app()->user->checkAccess('Admin') )
 	    {// Просмотр для заказчиков: cамые лучшие по рейтингу - всегда наверху
 	        $criteria->order = '`rating` DESC, `timecreated` DESC';
 	    }else
 	    {// Просмотр для участников: самые новые проекты - всегда наверху
 	        $criteria->order = '`timecreated` DESC';
 	    }
-	     
 	    return $criteria;
 	}
 
