@@ -138,7 +138,10 @@ class EventsAgenda extends CWidget
         }
         
         $criteria->addInCondition('status', $statuses);
+        // не отображаем в списке события без конкретной даты
+        $criteria->compare('nodates', 0);
         $criteria->order = "`timestart` DESC";
+        
         
         if ( $this->displayMode === 'thumbnails' )
         {
@@ -179,7 +182,10 @@ class EventsAgenda extends CWidget
      */
     protected function getTimeLineEvent($event)
     {
-        $name = CHtml::link($event->project->name, $event->url, array('style' => 'font-weight:normal;color:#fff;text-transform:capitalize;'));
+        $iconImage = CHtml::image($event->project->getAvatarUrl('small'), '', array('style' => "height:75px;width:75px;margin-right:10px;float:left;"));
+        $name  = CHtml::link($iconImage, $event->url);
+        $name .= CHtml::link($event->project->name, $event->url, array('style' => 'font-weight:normal;color:#fff;text-transform:capitalize;'));
+        
         if ( $event->nodates )
         {// мероприятие без конкретной даты - пишем "дата уточняется"
             $time = '[Дата уточняется]';
@@ -193,16 +199,15 @@ class EventsAgenda extends CWidget
         
         $containerOptions = array();
         if ( $this->questionary AND $event->hasMember($this->questionary->id) )
-        {// если пользователь участвует в событии - выделим его другим цветом 
-            $containerOptions['style'] = 'background-color:#468847;';
-            $name .= ' [вы участвуете]';
+        {// @todo если пользователь участвует в событии - выделим его другим цветом 
+            //$containerOptions['style'] = 'background-color:#468847;';
+            //$name .= ' [вы участвуете]';
         }
         $itemOptions = array();
         if ( $event->isExpired() )
         {// @todo если пользователь участвует в событии - выделим его другим цветом 
             //$containerOptions['style'] = 'background-color:#aaa;';
         }
-        $iconImage = $event->project->getAvatarUrl();
         
         $result = array(
             'date'             => $date,
