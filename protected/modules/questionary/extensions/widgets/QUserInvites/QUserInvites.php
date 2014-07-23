@@ -100,12 +100,13 @@ class QUserInvites extends CWidget
      */
     protected function createAcceptButton($invite)
     {
-        $ajaxOptions = $this->createAjaxOptions('accept', $invite);
-        $url = Yii::app()->createUrl('/projects/invite/accept');
+        $message  = 'Выберите подходящую роль и нажмите кнопку &laquo;подать заявку&raquo;.<br>';
+        $message .= 'Можно одновременно подать заявку на несколько ролей.';
         
-        return CHtml::ajaxButton('Посмотреть роли', $url, $ajaxOptions, array(
-            'class' => 'btn btn-success btn-block',
-            'id'    => 'accept_button'.$invite->id,
+        return CHtml::link('Посмотреть роли', '#', array(
+            'class'   => 'btn btn-success btn-block',
+            'id'      => 'accept_button'.$invite->id,
+            'onClick'   => "ec_quinvites_success('accept', {$invite->id}, '{$message}');return false;",
         ));
     }
     
@@ -150,15 +151,12 @@ class QUserInvites extends CWidget
         return array(
             'url'  => $url,
             'data' => array(
-                //'id' => $invite->id,
+                'id' => $invite->id,
                 Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
             ),
             'dataType' => 'json',
             'type'     => 'post',
             'success'  => "js:function() {ec_quinvites_success('{$action}', {$invite->id}, '{$message}');}",
-            //'message' => "js:function() {return $('#someid').val();}",
-            //'error' => '',
-            //'beforeSend' => $beforeSendJS,
         );
     }
 }
