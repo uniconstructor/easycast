@@ -348,10 +348,11 @@ return array(
         // любого объекта в базе
         // @todo подключение не закончено: требуется рефакторинг почти всех моделей приложения
         'swSource' => array(
-            'class' => 'application.extensions.simpleWorkflow.SWPhpWorkflowSource',
+            'class' => 'SWPhpWorkflowSource',
+            'definitionType' => 'class',
         ),
         
-        // Компонент для работы с сервисом отправки писем {@see https://mailchimp.com}
+        // @todo Компонент для работы с сервисом отправки писем {@see https://mailchimp.com}
         // используем API последней (второй) версии
         /*'mailchimp' => array(
             'class'  => 'application.extensions.mailchimp.EMailChimp2',
