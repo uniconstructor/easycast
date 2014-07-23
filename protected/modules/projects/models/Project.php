@@ -18,28 +18,31 @@
  * @property string $timecreated
  * @property string $timemodified
  * @property string $leaderid
+ * @property string $supportid
  * @property string $customerid
  * @property string $orderid
  * @property integer $isfree
  * @property string $memberscount
  * @property string $status
  * @property string $rating
- * @property string $virtual - означает что весь проект состоит только из виртуальных мероприятий 
+ * @property string $virtual - означает что весь проект состоит только из "виртуальных" мероприятий 
  *                             (настоящие в нем создать нельзя).
  *                             По смыслу идея чем-то напоминает абстрактный класс в программировании.
  * 
  * Relations:
  * @property User $leader
+ * @property User $support
  * @property array $events
  * @property array $userevents
  * @property array $activeevents
  * @property array $finishedevents
  * @property array $videos
- * @property array $groups
+ * @property ProjectEvent[] $groups
  * @property array $opengroups
  * @property array $activegroups
  * 
  * @todo переписать relations через именованные группы условий
+ * @todo сделать список типов проекта настраиваемым
  */
 class Project extends CActiveRecord
 {
@@ -47,20 +50,26 @@ class Project extends CActiveRecord
      * @var string - статус проекта: черновик. Проект только что создан. Необходимая инофрмация еще либо не внесена
      *               либо вносится в данный момент. Проект в этом статусе можно удалить.
      */
-    const STATUS_DRAFT    = 'draft';
+    const STATUS_DRAFT    = 'swProject/draft';
     /**
      * @var string - статус проекта: внесена вся информация (проект готов к запуску).
      *               Все мероприятия и вакансии (роли) созданы и описаны.
+     * @deprecated не используется, оставлено для совместимости, удалить при рефакторинге
      */
-    const STATUS_FILLED   = 'filled';
+    const STATUS_FILLED   = 'swProject/filled';
+    /**
+     * @var string - статус проекта: готов к запуску. Есть логотип, есть описание проекта.
+     *               Все мероприятия и роли созданы, описаны ир настроены.
+     */
+    const READY           = 'swProject/ready';
     /**
      * @var string - статус проекта: активен. Проект опубликован, идет набор людей или съемки.
      */
-    const STATUS_ACTIVE   = 'active';
+    const STATUS_ACTIVE   = 'swProject/active';
     /**
      * @var string - статус проекта: завершен.
      */
-    const STATUS_FINISHED = 'finished';
+    const STATUS_FINISHED = 'swProject/finished';
     
     /**
      * @var string - тип проекта: не задан 
@@ -214,7 +223,7 @@ class Project extends CActiveRecord
             'class'       => 'GalleryBehavior',
             'idAttribute' => 'galleryid',
             'limit'       => 1,
-            // картинка проекта масштабируется в трех размерах
+            // лого проекта масштабируется в двух размерах
             'versions' => array(
                 'small' => array(
                     'centeredpreview' => array(150, 150),
@@ -227,7 +236,6 @@ class Project extends CActiveRecord
             'name'        => false,
             'description' => true,
         );
-	    
 	    // Настройки фотогалереи проекта
 	    $photoGallerySettings = array(
 	        'class'       => 'GalleryBehavior',
@@ -239,14 +247,13 @@ class Project extends CActiveRecord
 	                'centeredpreview' => array(150, 150),
 	            ),
 	            'medium' => array(
-	                'resize' => array(530, 330),
+	                'resize'          => array(530, 330),
 	            ),
 	            'full' => array(
-	                'resize' => array(800, 1000),
+	                'resize'          => array(800, 1000),
 	            ),
 	        ),
-	        // галерея будет без имени
-	        'name'        => false,
+	        'name'        => true,
 	        'description' => true,
 	    );
 	    return array(
@@ -279,10 +286,10 @@ class Project extends CActiveRecord
 			array('name, type, description', 'required'),
 			array('isfree, virtual', 'numerical', 'integerOnly' => true),
 			array('name', 'length', 'max' => 255),
-			array('type, status', 'length', 'max' => 20),
+			array('type, status', 'length', 'max' => 50),
 			array('description, shortdescription, customerdescription', 'length', 'max' => 4095),
 			array('photogalleryid, galleryid, timestart, timeend, timecreated, timemodified, 
-			    leaderid, customerid, orderid, memberscount, rating, notimestart, notimeend', 'length', 'max' => 12),
+			    leaderid, supportid, customerid, orderid, memberscount, rating, notimestart, notimeend', 'length', 'max' => 12),
 		    
 		    /*array('timeend', 'type', 'type' => 'date', 
 		        'message' => 'Неправильный формат даты', 'dateFormat' => 'dd.MM.yyyy'),*/
@@ -311,6 +318,77 @@ class Project extends CActiveRecord
 			array('id, name, type, description, galleryid, timestart, timeend, timecreated, timemodified, 
 			    leaderid, customerid, orderid, isfree, virtual, memberscount, status, rating', 'safe', 'on' => 'search'),
 		);
+	}
+	
+	/**
+	 * @see CActiveRecord::scopes()
+	 */
+	public function scopes()
+	{
+	    return array(
+	        // последние созданные записи
+	        'lastCreated' => array(
+	            'order' => $this->getTableAlias(true).'.`timecreated` DESC'
+	        ),
+	        // последние измененные записи
+	        'lastModified' => array(
+	            'order' => $this->getTableAlias(true).'.`timemodified` DESC'
+	        ),
+	        // лучшие по рейтингу
+	        'bestRated' => array(
+	            'order' => $this->getTableAlias(true).'.`rating` DESC'
+	        ),
+	        // хучшие по рейтингу
+	        'worstRated' => array(
+	            'order' => $this->getTableAlias(true).'.`rating` DESC'
+	        ),
+	    );
+	}
+	
+	/**
+	 * Именованная группа условий поиска - выбрать записи по статусам
+	 * @param array|string $statuses - массив статусов или строка если статус один
+	 * @return Project
+	 */
+	public function withStatus($statuses=array())
+	{
+	    $criteria = new CDbCriteria();
+	    if ( ! is_array($statuses) )
+	    {// нужен только один статус, и он передан строкой - сделаем из нее массив
+	        $statuses = array($statuses);
+	    }
+	    if ( empty($statuses) )
+	    {// Если статус не указан - выборка по этому параметру не требуется
+	        return $this;
+	    }
+	    
+	    $criteria->addInCondition($this->getTableAlias(true).'.`status`', $statuses);
+	    $this->getDbCriteria()->mergeWith($criteria);
+	
+	    return $this;
+	}
+	
+	/**
+	 * Именованная группа условий поиска - выбрать проекты по типу
+	 * @param array $types
+	 * @return Project
+	 */
+	public function withType($types=array())
+	{
+	    $criteria = new CDbCriteria();
+	    if ( ! is_array($types) )
+	    {
+            $types = array($types);
+	    }
+	    if ( empty($types) )
+	    {// тип не указан - выборка по этому параметру не требуется
+            return $this;
+	    }
+	     
+	    $criteria->addInCondition($this->getTableAlias(true).'.`type`', $types);
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
 	}
 
 	/**
@@ -401,22 +479,21 @@ class Project extends CActiveRecord
 	 */
 	public function search()
 	{
-		$criteria=new CDbCriteria;
+		$criteria = new CDbCriteria;
 
-		$criteria->compare('id',$this->id);
-		$criteria->compare('name',$this->name,true);
-		$criteria->compare('type',$this->type,true);
-		$criteria->compare('description',$this->description,true);
-		$criteria->compare('timestart',$this->timestart,true);
-		$criteria->compare('timeend',$this->timeend,true);
-		$criteria->compare('timecreated',$this->timecreated,true);
-		$criteria->compare('timemodified',$this->timemodified,true);
-		$criteria->compare('leaderid',$this->leaderid,true);
-		$criteria->compare('customerid',$this->customerid,true);
-		$criteria->compare('orderid',$this->orderid,true);
-		$criteria->compare('isfree',$this->isfree);
-		$criteria->compare('memberscount',$this->memberscount,true);
-		$criteria->compare('status',$this->status,true);
+		$criteria->compare('id', $this->id);
+		$criteria->compare('name', $this->name, true);
+		$criteria->compare('type', $this->type, true);
+		$criteria->compare('description', $this->description, true);
+		$criteria->compare('timestart', $this->timestart, true);
+		$criteria->compare('timeend', $this->timeend, true);
+		$criteria->compare('timecreated', $this->timecreated, true);
+		$criteria->compare('timemodified', $this->timemodified, true);
+		$criteria->compare('leaderid', $this->leaderid,true);
+		$criteria->compare('customerid', $this->customerid, true);
+		$criteria->compare('orderid', $this->orderid, true);
+		$criteria->compare('memberscount', $this->memberscount, true);
+		$criteria->compare('status', $this->status, true);
 		$criteria->order = 'timecreated DESC';
 
 		return new CActiveDataProvider($this, array(
@@ -429,26 +506,25 @@ class Project extends CActiveRecord
 	 * Получить описание проекта (для участника или заказчика)
 	 * Если нужное описание отсутствует - подставляется то которое есть
 	 * @param string - режим просмотра сайта: для участника или для заказчика
-	 * @return void
+	 * @return string
 	 */
 	public function getFullDescription($userMode='')
 	{
+	    $cutomerDescription = $this->customerdescription;
+	    $userDescription    = $this->description;
+	    
 	    if ( ! $userMode )
 	    {
 	        $userMode = Yii::app()->getModule('user')->getViewMode();
 	    }
-	    
-	    $cutomerDescription = $this->customerdescription;
 	    if ( ! trim(strip_tags($cutomerDescription)) )
 	    {
 	        $cutomerDescription = $this->description;
 	    }
-	    $userDescription = $this->description;
 	    if ( ! trim(strip_tags($userDescription)) )
 	    {
 	        $userDescription = $this->customerdescription;
 	    }
-	    
 	    if ( $userMode == 'user' )
 	    {
 	        return $userDescription;
@@ -462,34 +538,19 @@ class Project extends CActiveRecord
 	 * Получить список возможных менеджеров проекта для выпадающего меню
 	 * @return array
 	 * 
-	 * @todo заменить вызовом метода из модуля User
+	 * @deprecated использовать метод из модуля User, оставлено для совместимости
 	 */
 	public function getManagerList($emptyOption=false)
 	{
-	    if ( $emptyOption )
-	    {
-	        $result = array(0 => 'Нет');
-	    }else
-        {
-            $result = array();
-        }
-	    
-	    $criteria = new CDbCriteria();
-	    $criteria->addCondition('superuser=1');
-	    $users = User::model()->findAll($criteria);
-	    foreach ( $users as $user )
-	    {
-	        $result[$user->id] = $user->username.' '.$user->fullname;
-	    }
-	    
-	    return $result;
+	    $userModule = Yii::app()->getModule('user');
+	    return $userModule::getAdminList($emptyOption);
 	}
 	
 	/**
 	 * Получить список возможных типов проекта
 	 * @return array
 	 * 
-	 * @todo заменить строковые значения константами класса
+	 * @todo получать варианты из настраиваемого списка
 	 */
 	public function getTypeList()
 	{
@@ -547,19 +608,18 @@ class Project extends CActiveRecord
 	    {
 	        return false;
 	    }
-	    
 	    foreach ( $events as $event )
 	    {
 	        $event->sendInvites();
 	    }
-	    
 	    return true;
 	}
 	
 	/**
 	 * Получить список статусов, в которые может перейти проект
-	 * @todo добавить статус "suspended"
 	 * @return array
+	 * 
+	 * @deprecated
 	 */
 	public function getAllowedStatuses()
 	{
@@ -572,7 +632,6 @@ class Project extends CActiveRecord
                 return array('finished');
             break;
 	    }
-	    
 	    return array();
 	}
 	
@@ -598,7 +657,7 @@ class Project extends CActiveRecord
 	 * @param string $newStatus
 	 * @return bool
 	 * 
-	 * @todo вынести разные статусы по разным функциям
+	 * @deprecated
 	 */
 	public function setStatus($newStatus)
 	{
