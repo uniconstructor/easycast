@@ -30,8 +30,9 @@
  * @property QUserField[] $userFields - список обязательных полей анкеты при подаче заявки
  * @property Category[] $extraFieldCategories - используемые категории доп. полей
  * @property Category[] $sectionCategories - используемые категории разделов отбора заявок
- * @property catalogSectionInstance[] $catalogSectionInstances - 
- * @property catalogSection[] $catalogSections - 
+ * @property СatalogSectionInstance[] $catalogSectionInstances - 
+ * @property СatalogSection[] $catalogSections - 
+ * @property ProjectMember[] $applicants - 
  * 
  * @todo все прямые обращения к статусам заменить на константы
  * @todo запретить редактирование поисковых условий если вакансия - не черновик
@@ -257,13 +258,51 @@ class EventVacancy extends CActiveRecord
 	}
 	
 	/**
-	 * @see CActiveRecord::defaultScope()
+	 * @see CActiveRecord::scopes()
 	 */
-	public function defaultScope()
+	public function scopes()
 	{
 	    return array(
-	        'order' => '`timecreated` DESC',
+	        // последние созданные записи
+	        'lastCreated' => array(
+	            'order' => $this->getTableAlias(true).'.`timecreated` DESC'
+	        ),
+	        // последние измененные записи
+	        'lastModified' => array(
+	            'order' => $this->getTableAlias(true).'.`timemodified` DESC'
+	        ),
 	    );
+	}
+	
+	/**
+	 * Именованная группа условий поиска - получить все роли на которые подавал заявку участник
+	 * @param int $questionaryId - id анкеты участника
+	 * @param array $statuses - статусы поданых заявок от участника заявок (чтобы можно было найти только
+     *                          те роли на которые заявки этого участника были приняты или отклонены)
+     *                          если статус не указан - он не добавляется в условие поиска
+	 * @return ProjectEvent
+	 */
+	public function containingQuestionary($questionaryId, $statuses=array())
+	{
+	    $scopes = array(
+	        'forQuestionary' => array($questionaryId),
+	    );
+	    if ( ! empty($statuses) )
+	    {
+	        $scopes['withStatus'] = array($statuses);
+	    }
+	    $criteria = new CDbCriteria();
+	    $criteria->together = true;
+	    $criteria->with = array(
+	        'applicants' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes'   => $scopes,
+	        ),
+	    );
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
 	}
 	
 	/**
@@ -325,7 +364,6 @@ class EventVacancy extends CActiveRecord
 		    //       - вынести parentid, содержащие списки разделов и наборы полей в настройку
 		    'extraFieldCategories' => array(self::MANY_MANY, 'Category', "{{category_instances}}(objectid, categoryid)", 
                 'condition' => "`objecttype` = 'vacancy' AND `parentid` = 5",
-		    //    'scopes'    => array('withType' => array('extrafields')),
 		    ),
 		    // Разделы вкладок для заявок участников, используемых в этой роли
 		    // @todo искоренить антипаттерн "magic numbers": убрать из условий конкретный parentid
@@ -333,25 +371,29 @@ class EventVacancy extends CActiveRecord
 		    //       - включить условие по scopes и убрать parentid
 		    //       - вынести parentid, содержащие списки разделов и наборы полей в настройку
 		    'sectionCategories' => array(self::MANY_MANY, 'Category', "{{category_instances}}(objectid, categoryid)",
-                'condition' => "`objecttype` = 'vacancy'  AND `parentid` = 4",
-            //    'scopes'    => array('withType' => array('sections')),
+                'condition' => "`objecttype` = 'vacancy' AND `parentid` = 4",
 		    ),
 		    
+		    // все претенденты на роль независимо от статуса поданной заявки
+		    // (это новая связь создана взамен старых: во всех запросах следует использовать только ее)
+		    'applicants' => array(self::HAS_MANY, 'ProjectMember', 'vacancyid'),
 		    
-		    // Заявки на участие
-		    // @todo переписать через именованные группы условий
+		    
+		    // только заявки на участие
+		    // @todo удалить при рефакторинге
+		    // @deprecated переписано
 		    'requests' => array(self::HAS_MANY, 'MemberRequest', 'vacancyid'),
 		    // одобренные заявки на вакансию
-		    // @todo переписать через именованные группы условий
+		    // @todo удалить при рефакторинге
 		    // @deprecated - переписано: используется функция members(), связь оставлена для совместимости
 		    //               со старым кодом, удалить ее при рефакторинге
 		    'members' => array(self::HAS_MANY, 'ProjectMember', 'vacancyid',
 		        'condition' => "`members`.`status` = 'active' OR `members`.`status` = 'finished'",
 		    ),
 		    // отклоненные заявки на вакансию
+		    // @todo удалить при рефакторинге
 		    // @deprecated - переписано: используется функция members(), связь оставлена для совместимости
 		    //               со старым кодом, удалить ее при рефакторинге
-		    // @todo переписать через именованные группы условий, удалить при рефакторинге
 		    'rejectedmembers' => array(self::HAS_MANY, 'ProjectMember', 'vacancyid',
 		        'condition' => "`status` = 'rejected'",
 		    ),
@@ -361,8 +403,6 @@ class EventVacancy extends CActiveRecord
 		    'filterinstances' => array(self::HAS_MANY, 'CatalogFilterInstance', 'linkid',
 		        'condition' => "`linktype` = 'vacancy'",
 		    ),
-		    
-		    
 		    // Статистика
 		    // Количество поданых заявок
 		    // @todo переписать через именованные группы условий
