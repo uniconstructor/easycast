@@ -7,6 +7,7 @@
  * Таблица '{{project_members}}':
  * @property integer $id
  * @property string $memberid - id анкеты участника (Questionary)
+ *                              @todo переименовать в questionaryid
  * @property string $vacancyid
  * @property string $timecreated
  * @property string $timemodified
@@ -325,6 +326,21 @@ class ProjectMember extends CActiveRecord
 	{
 	    $criteria = new CDbCriteria();
 	    $criteria->compare('vacancyid', $vacancyId);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
+	}
+	
+	/**
+	 * Именованная группа условий поиска - получить заявки принадлежащие одной анкете
+	 * @param int $questionaryId - id роли, на которую подана заявка
+	 * @return ProjectMember
+	 */
+	public function forQuestionary($questionaryId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('memberid', $questionaryId);
 	    
 	    $this->getDbCriteria()->mergeWith($criteria);
 	    
