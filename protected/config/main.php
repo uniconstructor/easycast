@@ -124,15 +124,6 @@ return array(
                 ),
             ),
         ),
-	    
-        // Форум
-        // @todo отключить, мы не смогли его адекватно использовать
-        'forum' => array(
-            'class' => 'application.modules.yii-forum.YiiForumModule',
-            'forumTableClass'    => 'table',
-            'forumListviewClass' => 'detail-view table table-striped table-condensed',
-            'forumDetailClass'   => 'detail-view table table-striped table-condensed',
-        ),
         
         // Календарь событий
         'calendar' => array(
