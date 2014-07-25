@@ -188,7 +188,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
                     'startView' => 'decade',
                     'weekStart' => 1,
                     'startDate' => '-75y',
-                    'endDate'   => '-18y',
+                    'endDate'   => '-1y',
                     'autoclose' => true,
                 ),
             ),
