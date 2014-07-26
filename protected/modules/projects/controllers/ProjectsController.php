@@ -9,36 +9,42 @@
 class ProjectsController extends Controller
 {
     /**
-     * @var максимальное количество проектов на странице
+     * @var максимальное количество проектов на одной странице
      */
     const MAX_SECTION_ITEMS = 36;
     
     /**
      * Отобразить главную страницу со списком проектов
+     * 
+     * @return void
      */
 	public function actionIndex()
 	{
-	    // Получаем раздел проектов, который надо просмотреть (если указано)
+	    $criteria = new CDbCriteria();
+	    // @todo получаем проекты по типу
 	    $type   = Yii::app()->request->getPost('type');
-	    // Получаем дополнительные данные для поиска (если пользователь захотел свой поиск по проектам)
-	    // @todo пока не реализовано
+	    // @todo получаем дополнительные данные для поиска (если нужен свой поиск по проектам)
 	    $search = Yii::app()->request->getPost('search');
-	     
-	    $criteria = Yii::app()->getModule('projects')->getProjectsCriteria();
-	    $dataProvider = new CActiveDataProvider('Project', 
-            array(
-                'criteria'   => $criteria,
-                'pagination' => array('pageSize' => self::MAX_SECTION_ITEMS),
-            )
-        );
+	    
+	    if ( Yii::app()->getModule('user')->getViewMode() === 'customer' )
+	    {// для заказчиков отображаем лучшие проекты по рейтингу
+	        $criteria->scopes = array('bestRated');
+	    }else
+	    {// для участников отображаем последние проекты
+	        $criteria->scopes = array('lastCreated');
+	    }
+	    $dataProvider = new CActiveDataProvider('Project', array(
+            'criteria'   => $criteria,
+            'pagination' => array('pageSize' => self::MAX_SECTION_ITEMS),
+        ));
 	     
 	    $this->render('index', array('dataProvider' => $dataProvider));
 	}
 	
 	/**
-	 * отобразить информацию о проекте, мероприятии или вакансии
+	 * Отобразить информацию о проекте, мероприятии или вакансии
 	 * 
-	 * @return null
+	 * @return void
 	 */
 	public function actionView()
 	{
@@ -123,7 +129,7 @@ class ProjectsController extends Controller
 	    $model = EventVacancy::model()->findByPk($id);
 	    if ( $model === null )
 	    {
-	        throw new CHttpException(404, 'Вакансия не найдена');
+	        throw new CHttpException(404, 'Роль не найдена');
 	    }
 	    return $model;
 	}
