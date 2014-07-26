@@ -44,7 +44,7 @@
  * @todo переписать relations через именованные группы условий
  * @todo сделать список типов проекта настраиваемым
  */
-class Project extends CActiveRecord
+class Project extends SWActiveRecord
 {
     /**
      * @var string - статус проекта: черновик. Проект только что создан. Необходимая инофрмация еще либо не внесена
@@ -61,7 +61,7 @@ class Project extends CActiveRecord
      * @var string - статус проекта: готов к запуску. Есть логотип, есть описание проекта.
      *               Все мероприятия и роли созданы, описаны ир настроены.
      */
-    const READY           = 'swProject/ready';
+    const STATUS_READY    = 'swProject/ready';
     /**
      * @var string - статус проекта: активен. Проект опубликован, идет набор людей или съемки.
      */
@@ -232,7 +232,6 @@ class Project extends CActiveRecord
                     'resize'          => array(530, 530),
                 ),
             ),
-            // галерея будет без имени
             'name'        => false,
             'description' => true,
         );
@@ -267,12 +266,16 @@ class Project extends CActiveRecord
 	        'galleryBehavior'      => $logoSettings,
 	        // фотогалерея
 	        'photoGalleryBehavior' => $photoGallerySettings,
-	        // отображение проектов с помощью css3
+	        // для отображения раскрывающейся сетки проектов с помощью css3
 	        'CdGridViewProjectBehavior' => array(
 	            'class'       => 'projects.behaviors.CdGridViewProjectBehavior',
 	            'ajaxOptions' => array(
 	                'url' => Yii::app()->createUrl('//projects/project/ajaxInfo'),
                 ),
+	        ),
+	        // подключаем расширение для работы со статусами
+	        'swBehavior' => array(
+	            'class' => 'application.extensions.simpleWorkflow.SWActiveRecordBehavior',
 	        ),
 	    );
 	}
