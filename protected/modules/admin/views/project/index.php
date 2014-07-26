@@ -1,12 +1,15 @@
 <?php
-$this->breadcrumbs=array(
+/**
+ * Страница со списком всех проектов в админке
+ */
+
+$this->breadcrumbs = array(
     'Администрирование' =>array('/admin'),
 	'Проекты',
 );
 
-$this->menu=array(
-	array('label'=>'Создать проект','url'=>array('//admin/project/create')),
-	//array('label'=>'Manage Project','url'=>array('admin')),
+$this->menu = array(
+	array('label' => 'Создать проект','url' => array('//admin/project/create')),
 );
 ?>
 
@@ -23,7 +26,7 @@ foreach ( $dataProvider->getData() as $project )
     $element['name'] = CHtml::link($project->name, $url);
     //$element['timestart'] = $project->timestart;
     //$element['timeend'] = $project->timeend;
-    $element['statustext'] = $project->statustext;
+    $element['statustext'] = Yii::t("ProjectsModule.projects", $str);
     $elements[] = $element;
 }
 
@@ -31,11 +34,11 @@ $arrayProvider = new CArrayDataProvider($elements);
 $this->widget('bootstrap.widgets.TbGridView', array(
     'type'         => 'striped bordered condensed',
     'dataProvider' => $arrayProvider,
-    'template'=>"{items}{pager}",
-    'columns'=>array(
-        array('name'=>'name',       'header'=>ProjectsModule::t('name'), 'type' => 'html'),
-        array('name'=>'typetext',   'header'=>ProjectsModule::t('project_type')),
-        array('name'=>'statustext', 'header'=>ProjectsModule::t('status')),
+    'template'     => "{pager}{items}{pager}",
+    'columns' => array(
+        array('name' => 'name',       'header' => ProjectsModule::t('name'), 'type' => 'html'),
+        array('name' => 'typetext',   'header' => ProjectsModule::t('project_type')),
+        array('name' => 'statustext', 'header' => ProjectsModule::t('status')),
     ),
 ));
 
