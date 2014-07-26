@@ -88,11 +88,11 @@ return array(
 
     /// Статусы ///
     // Статусы проекта
-    'project_status_draft' => 'Draft',
-    'project_status_filled' => 'Filled',
-    'project_status_active' => 'Active',
-    'project_status_suspended' => 'Suspended',
-    'project_status_finished' => 'Finished',
+    'project_status_swProject/draft' => 'Draft',
+    'project_status_swProject/filled' => 'Filled',
+    'project_status_swProject/active' => 'Active',
+    'project_status_swProject/suspended' => 'Suspended',
+    'project_status_swProject/finished' => 'Finished',
     // Статусы вакансии
     'vacancy_status_draft' => 'Draft',
     'vacancy_status_active' => 'Active',

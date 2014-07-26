@@ -91,11 +91,11 @@ return array(
 
     /// Статусы ///
     // Статусы проекта
-    'project_status_draft' => 'Черновик',
-    'project_status_filled' => 'Внесена информация',
-    'project_status_active' => 'Идет',
-    'project_status_suspended' => 'Приостановлен',
-    'project_status_finished' => 'Завершен',
+    'project_status_swProject/draft' => 'Черновик',
+    'project_status_swProject/filled' => 'Внесена информация',
+    'project_status_swProject/active' => 'Идет',
+    'project_status_swProject/suspended' => 'Приостановлен',
+    'project_status_swProject/finished' => 'Завершен',
     // Статусы вакансии
     'vacancy_status_draft' => 'Черновик',
     'vacancy_status_active' => 'Открыта',
