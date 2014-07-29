@@ -45,7 +45,7 @@ class swProject
 					'constraint' => '',
 					'transition' => array(
 					    self::READY,
-						self::ACTIVE => array($this, 'activationTask'),
+						self::ACTIVE => array($this, 'toActive'),
 					),
 				),
 				array(
@@ -53,13 +53,13 @@ class swProject
 					'label'      => 'Готов к запуску',
 					'constraint' => '$this->isReady();',
 					'transition' => array(
-					    self::ACTIVE => array($this, 'activationTask'),
+					    self::ACTIVE => array($this, 'toActive'),
 					),
 				),
 			    array(
 			        'id'         => self::ACTIVE,
 			        'label'      => 'Идет',
-			        'constraint' => '$this->canActive();',
+			        'constraint' => '$this->canActivate();',
 			        'transition' => array(
 			            self::SUSPENDED,
 			            self::FINISHED,

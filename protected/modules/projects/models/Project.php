@@ -784,6 +784,7 @@ class Project extends SWActiveRecord
 	 * @param bool $withGroups - получить ли вакансии групп мероприятий вместе с вакансиями для отдельных мероприятий?
 	 * 
 	 * @return array
+     * @deprecated 
 	 */
 	public function getActiveVacancies($withGroups=true)
 	{
@@ -893,5 +894,129 @@ class Project extends SWActiveRecord
 	            $this->$attribute = $date;
 	        }
 	    }
+	}
+    
+    
+	/**
+	 * Действия, выполняемые при запуске проекта
+	 * 
+	 * @param Project $model
+	 * @param string $srcStatus
+	 * @param string $destStatus
+	 * @return bool
+	 */
+	public function toActive($model, $srcStatus, $destStatus)
+	{
+	    // сначала активируем все группы событий
+	    $groups = ProjectEvent::model()->forProject($this->id)->
+            withStatus(ProjectEvent::STATUS_DRAFT)->groupsOnly()->findAll();
+	    foreach ( $groups as $group )
+	    {
+    	    $group->setStatus('active');
+	    }
+	    
+	    // активируем только те мероприятия на которые уже созданы роли
+	    $filledEvents = ProjectEvent::model()->forProject($this->id)->
+            withStatus(ProjectEvent::STATUS_DRAFT)->withVacancies()->findAll();
+	    foreach ( $filledEvents as $event )
+	    {// или те которые находятся в группе
+	       $event->setStatus('active');
+	    }
+	    
+	    // затем все отдельные мероприятия проекта
+	    $groupEvents = ProjectEvent::model()->forProject($this->id)->
+            withStatus(ProjectEvent::STATUS_DRAFT)->hasGroup()->findAll();
+	    foreach ( $groupEvents as $event )
+	    {// или те которые находятся в группе
+	        $event->setStatus('active');
+	    }
+	    
+	    return true;
+	}
+	
+	/**
+	 * Действия, выполняемые при завершении проекта
+	 *
+	 * @param Project $model
+	 * @param string $srcStatus
+	 * @param string $destStatus
+	 * @return bool
+	 */
+	public function toFinished($model, $srcStatus, $destStatus)
+	{
+	    // сначала завершаем все активные группы событий
+	    $activeGroups = ProjectEvent::model()->forProject($this->id)->
+            withStatus(array(ProjectEvent::STATUS_ACTIVE))->groupsOnly()->findAll();
+	    foreach ( $activeGroups as $group )
+	    {
+	        $group->setStatus('finished');
+	    }
+	    
+	    // не начатые группы событий удаляем
+	    $draftGroups = ProjectEvent::model()->forProject($this->id)->
+            withStatus(array(ProjectEvent::STATUS_DRAFT))->groupsOnly()->findAll();
+	    foreach ( $draftGroups as $group )
+	    {
+    	    $group->delete();
+	    }
+	    
+	    // завершаем все отдельные мероприятия проекта
+	    $activeEvents = ProjectEvent::model()->forProject($this->id)->
+            withStatus(array(ProjectEvent::STATUS_ACTIVE))->exceptGroups()->findAll();
+	    foreach ( $activeEvents as $event )
+	    {
+	        $event->setStatus('finished');
+	    }
+	    
+	    // удаляем все события которые так и не начались
+	    $draftEvents = ProjectEvent::model()->forProject($this->id)->
+            withStatus(array(ProjectEvent::STATUS_DRAFT))->exceptGroups()->findAll();
+	    foreach ( $draftEvents as $event )
+	    {
+	        $event->delete();
+	    }
+	    
+	    return true;
+	}
+	
+	/**
+	 * Можно ли отметить проект как готовый к запуску?
+	 * @return boolean
+	 */
+	protected function isReady()
+	{
+	    return true;
+    }
+    
+	/**
+	 * Можно ли запустить проект?
+	 * @return boolean
+	 * 
+	 * @todo до запуска проверять что для всех событий проекта есть описание
+	 * @todo до запуска проверять что для всех ролей установлены критерии поиска и описание
+	 */
+	protected function canActivate()
+	{
+	    return true;
+	}
+	
+	/**
+	 * Можно ли приостановить проект?
+	 * @return boolean
+	 * 
+	 * @todo проверять наличие хотя бы одного активного мероприятия
+	 */
+	protected function canSuspend()
+	{
+	    return true;
+	}
+	
+	/**
+	 * Можно ли сейчас завершить проект?
+	 * @return boolean
+	 */
+	protected function canFinish()
+	{
+	    return true;
 	}
 }

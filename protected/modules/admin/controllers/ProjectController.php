@@ -235,9 +235,11 @@ class ProjectController extends Controller
 	    $model = $this->loadModel($id);
 	    if ( ! $status = Yii::app()->request->getParam('status') )
 	    {
-	        throw new CHttpException(404,'Необходимо указать статус');
+	        throw new CHttpException(404, 'Необходимо указать статус');
 	    }
-	    $model->setStatus($status);
+        $status = 'swProject/'.$status;
+	    $model->swsetStatus($status);
+        $model->save();
 	     
 	    Yii::app()->user->setFlash('success', 'Статус изменен');
 	     

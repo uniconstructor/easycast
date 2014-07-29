@@ -368,15 +368,15 @@ class ProjectEvent extends CActiveRecord
 	        ),
 	        // только без конкретной даты
 	        'startsBeforeNow' => array(
-	            'condition' => $this->getTableAlias(true).'.`nodates` = 1'
+	            'condition' => $this->getTableAlias(true).'.`startdate` < '.time(),
 	        ),
 	        // только события-группы
 	        'groupsOnly' => array(
-	            'condition' => $this->getTableAlias(true).".`type` = '".self::TYPE_GROUP.'"',
+	            'condition' => $this->getTableAlias(true).".`type` = '".self::TYPE_GROUP."'",
 	        ),
 	        // все события кроме групп
 	        'exceptGroups' => array(
-	            'condition' => $this->getTableAlias(true).".`type` <> '".self::TYPE_GROUP.'"',
+	            'condition' => $this->getTableAlias(true).".`type` <> '".self::TYPE_GROUP."'",
 	        ),
 	        // только события которые находятся внутри какой-либо группы
 	        'hasGroup' => array(
