@@ -13,7 +13,7 @@
                 <p style="margin-bottom:5px;">
                     <span class="lead text-warning">
                         <?= $event->getFormattedTimeStart(); ?>
-                    </span><?= $this->getTopJoinButton(); ?>
+                    </span><!--?= $this->getTopJoinButton(); ?-->
                 </p>
                 <h4 class="media-heading"><?= $event->project->name; ?></h4>
                 <?= $eventLabels; ?>
@@ -23,9 +23,8 @@
                 </p>
             </div>
         </div>
-        
     </div>
 </div>
 <div class="row-fluid">
-    <?php $this->getVacancyList(); ?>
+    <?php echo $this->getVacancyList(); ?>
 </div>

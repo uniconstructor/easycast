@@ -49,28 +49,28 @@ class EventInfo extends CWidget
      *               popover - всплывающий блок
      *               list    - разворачивающийся div под информацией о событии
      */
-    public $vacancyListMode  = 'popover';
+    public $vacancyListMode     = 'popover';
     /**
      * @var string - расположение всплывающей подсказки со списком ролей
      */
-    public $popoverPosition  = 'bottom';
+    public $popoverPosition     = 'bottom';
     /**
      * @var string - разворачивать ли список доступных ролей изначально? (только если rolesMode='list')
      *               always   - всегда разворачивать
      *               requests - только если есть поданые заявки
      *               never    - никогда не разворачивать
      */
-    public $expandRoles      = 'never';
+    public $expandRoles         = 'never';
     /**
      * @var bool - отображать ли таймер обратного отсчета рядом с событием?
      */
-    public $displayTimer     = false;
+    public $displayTimer        = false;
     /**
      * @var string - где располагать таймер?
      *               description - в описании мероприятия
      *               logo - вместо логотипа (только если задано "не отображать логотип")
      */
-    public $timerPosition    = 'description';
+    public $timerPosition       = 'description';
     /**
      * @var string - режим просмотра: заказчик (customer) или участник (user)
      */
@@ -78,11 +78,11 @@ class EventInfo extends CWidget
     /**
      * @var string - префикс для составления уникальных id для html элементов внутри виджета
      */
-    public $tagIdPrefix      = 'event_info';
+    public $tagIdPrefix         = 'event_info';
     /**
      * @var bool - показывать троеточие в кратком описании мероприятия как ссылку на полное описание
      */
-    public $dotsAsLink       = false;
+    public $dotsAsLink          = false;
     
     /**
      * @var ProjectEvent - отображаемое событие
@@ -190,11 +190,13 @@ class EventInfo extends CWidget
                 ),
             ),
         ));
-        if ( ! Yii::app()->user->isGuest OR ! $this->vacancyListMode != 'popover' )
+        if ( $this->userMode === 'user' AND $this->vacancyListMode === 'popover' )
         {// добавляем на кнопку "участвовать" раскрывающийся список подходящих ролей
-            $buttonSelector = '#'.$this->getElementId('button', 'join');
-            $vacancyListUrl = Yii::app()->createUrl('//projects/event/ajaxVacancyList');
-            $this->displayPopover($vacancyListUrl, $buttonSelector);
+            switch ( $this->vacancyListMode )
+            {
+                case 'popover': $this->displayPopover(); break;
+                //case 'list': $this->displayPopover(); break;
+            }
         }
     }
     
@@ -454,7 +456,7 @@ class EventInfo extends CWidget
         {// список внизу не отображается: вместо него сверху кнопка "участвовать"
             return '';
         }
-        return $this->widget('project.extensions.VacancyList.VacancyList', array(
+        return $this->widget('projects.extensions.VacancyList.VacancyList', array(
             'objectType'  => 'event',
             'event'       => $this->event,
             'questionary' => $this->questionary,
@@ -467,8 +469,16 @@ class EventInfo extends CWidget
      * @param string $selector
      * @return void
      */
-    protected function displayPopover($url, $selector)
+    protected function displayPopover($url=null, $selector=null)
     {
+        if ( ! $url )
+        {
+            $url = Yii::app()->createUrl('//projects/event/ajaxVacancyList');
+        }
+        if ( ! $selector )
+        {
+            $selector = '#'.$this->getElementId('button', 'join');
+        }
         $this->widget('ext.ECMarkup.ECPopover.ECPopover', array(
             'triggerSelector'    => $selector,
             'html'               => true,
