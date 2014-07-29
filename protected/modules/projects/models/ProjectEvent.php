@@ -919,7 +919,7 @@ class ProjectEvent extends CActiveRecord
 	 */
 	public function isExpired()
 	{
-	    if ( $this->timeend < time() OR $this->status == 'finished' )
+	    if ( $this->timeend < time() OR $this->status === ProjectEvent::STATUS_FINISHED )
 	    {
 	        return true;
 	    }
