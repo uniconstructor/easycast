@@ -36,9 +36,9 @@ class QUserMedia extends CWidget
             }
         }
         
-        $criteria = new CDbCriteria();
-        $criteria->compare('gallery_id', $this->questionary->galleryid);
-        if ( $records = GalleryPhoto::model()->findAll($criteria) )
+        //$criteria = new CDbCriteria();
+        //$criteria->compare('gallery_id', $this->questionary->galleryid);
+        if ( $records = $this->questionary->getGalleryPhotos() )
         {
             foreach ( $records  as $record )
             {/* @var $record GalleryPhoto */
