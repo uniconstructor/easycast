@@ -141,6 +141,7 @@ class VacancyActions extends CWidget
             if ( ! $this->isAllowed($buttonType) )
             {
                 unset($this->buttons[$id]);
+                continue;
             }
             if ( $this->vacancy->needMoreDataFromUser($this->questionary) AND $buttonType === 'addApplication' )
             {
