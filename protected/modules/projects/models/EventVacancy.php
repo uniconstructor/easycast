@@ -304,6 +304,40 @@ class EventVacancy extends CActiveRecord
 	    
 	    return $this;
 	}
+    
+    /**
+     * Именованная группа условий поиска - получить все роли на которые подавал заявку участник
+     * @param int $eventId
+     */
+    public function forEvent($eventId)
+    {
+        $this->getDbCriteria()->compare($this->getTableAlias(true).'.`eventid`', $eventId);
+        
+        return $this;
+    }
+    
+    /**
+     * Именованная группа условий поиска - выбрать записи по статусам
+     * @param array|string $statuses - массив статусов или строка если статус один
+     * @return EventVacancy
+     */
+    public function withStatus($statuses=array())
+    {
+        $criteria = new CDbCriteria();
+        if ( ! is_array($statuses) )
+        {// нужен только один статус, и он передан строкой - сделаем из нее массив
+            $statuses = array($statuses);
+        }
+        if ( empty($statuses) )
+        {// Если статус не указан - выборка по этому параметру не требуется
+            return $this;
+        }
+         
+        $criteria->addInCondition($this->getTableAlias(true).'.`status`', $statuses);
+        $this->getDbCriteria()->mergeWith($criteria);
+    
+        return $this;
+    }
 	
 	/**
 	 * @return array validation rules for model attributes.
@@ -519,6 +553,12 @@ class EventVacancy extends CActiveRecord
 	    {// id анкеты не указан - попробуем взять текущий
 	        $questionaryId = $this->getCurrentUserQuestionaryId();
 	    }
+        
+        if ( $this->event->isExpired() )
+        {// мероприятие для этой роли уже прошло - нельзя подавать заявки
+            // на завершенные мероприятия
+            return false;
+        }
 	    
 	    if ( $this->hasApplication($questionaryId) AND ! $ignoreApplication )
 	    {// участник уже подал заявку на эту вакансию
