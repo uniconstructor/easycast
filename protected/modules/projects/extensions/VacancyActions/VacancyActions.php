@@ -66,11 +66,15 @@ class VacancyActions extends CWidget
      * @see TbButton
      */
     public $buttonSize;
+    /**
+     * @var string - дополнительный css класс для всех кнопок
+     */
+    public $buttonClass = '';
     
     /**
      * @var string - id тега, содержащего текст сообщения
      */
-    protected $messageId;
+    protected $messageId;  
     /**
      * @var string
      */
@@ -79,7 +83,7 @@ class VacancyActions extends CWidget
      * @var array - список кнопок, которые нужно отобразить.
      *              'addApplication', 'removeApplication', //'close', 'publish', 'changePrice'
      */
-    protected $buttons = array('addApplication'); // 'removeApplication'
+    protected $buttons = array('addApplication'); // 'removeApplication'   
     /**
      * @var Questionary
      */
@@ -290,7 +294,7 @@ class VacancyActions extends CWidget
      */
     protected function getButtonClass($type)
     {
-        $class = 'btn'; 
+        $class = $this->buttonClass.' btn'; 
         if ( $this->buttonSize )
         {
             $class .= ' btn-'.$this->buttonSize;
@@ -442,7 +446,6 @@ class VacancyActions extends CWidget
         {// если требуется подтверждение перед отправкой запроса - зададим его
             $options['confirm'] = $confirm;
         }
-    
         return $options;
     }
     
