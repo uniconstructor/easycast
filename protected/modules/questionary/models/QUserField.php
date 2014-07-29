@@ -217,7 +217,10 @@ class QUserField extends CActiveRecord
 	        return true;
 	    }
 	    $relationName = '';
-	    
+	    if ( $this->name === 'photo' )
+        {// @todo избавиться от этой заплатки, проверять наличие фотографий в галерее стандартным способом
+            return ! ($questionary->getGallery() AND count($questionary->getGalleryPhotos()));
+        }
 	    if ( $this->multiple )
 	    {// для полей-списков: считаем их пустыми тогда когда нет ни одной записи
 	        return ! (bool)$questionary->hasRelated($this->name);
