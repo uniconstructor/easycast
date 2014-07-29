@@ -8,7 +8,10 @@
     <div class="well well-small">
     <?php 
     $this->widget('projects.extensions.EventInfo.EventInfo', array(
-        'event' => $data,
+        'event'            => $data,
+        'displayLogo'      => false,
+        'vacancyListMode'  => 'list',
+        'displayVacancies' => true,
     ));
     ?>
     </div>

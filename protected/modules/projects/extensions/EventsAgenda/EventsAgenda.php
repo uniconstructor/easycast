@@ -102,7 +102,7 @@ class EventsAgenda extends CWidget
                 'emptyText'    => 'nodata',
                 'template'     => '{items}',
             ));
-        }else
+        }elseif ( $this->displayMode === 'timeline' )
         {
             $this->widget('ext.CdVerticalTimeLine.CdVerticalTimeLine', array(
                 'events' => $this->events,
@@ -209,11 +209,28 @@ class EventsAgenda extends CWidget
             //$containerOptions['style'] = 'background-color:#aaa;';
         }
         
+        if ( ( Yii::app()->user->checkAccess('Admin') OR Yii::app()->user->isGuest ) AND
+              ( $this->userMode === 'user' ) )
+        {// для гостей и админов показываем все открытые роли
+            $vacancies = EventVacancy::model()->forEvent($event->id)->
+                withStatus('active')->findAll();
+        }elseif ( $this->userMode === 'user' AND Yii::app()->user->checkAccess('User') )
+        {// для зарегистрированных пользователей - показываем только доступные роли
+            $vacancies = $event->getAllowedVacancies($this->questionary->id);
+        }else
+        {// для заказчиков роли не показываем 
+            $vacancies = array();
+        }
+        
         $result = array(
             'date'             => $date,
             'time'             => $time,
             'name'             => $name,
-            'description'      => $event->description,
+            //'description'      => $event->description,
+            'description'      => $this->render('_timeLineEvent', array(
+                'event'     => $event,
+                'vacancies' => $vacancies,
+            ), true),
             'itemOptions'      => $itemOptions,
             'dateOptions'      => array('style' => 'font-weight:300;font-size:1.5em;line-height:1.5em;'),
             'timeOptions'      => array('style' => 'font-weight:300;font-size:0.9em;color:#888;'),
@@ -227,7 +244,6 @@ class EventsAgenda extends CWidget
                 'data-title'  => CHtml::encode($event->project->name),
             ),
         );
-        
         return $result;
     }
 }
