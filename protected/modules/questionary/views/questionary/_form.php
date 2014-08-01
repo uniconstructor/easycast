@@ -175,8 +175,8 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         <i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('base_information'); ?></a>
     </legend>
 
-        <?= $form->textFieldRow($questionary, 'lastname', array('size' => 60,'maxlength' => 128)); ?>
-        <?= $form->textFieldRow($questionary, 'firstname', array('size' => 60,'maxlength' => 128)); ?>
+        <?= $form->textFieldRow($questionary, 'lastname',   array('size' => 60,'maxlength' => 128)); ?>
+        <?= $form->textFieldRow($questionary, 'firstname',  array('size' => 60,'maxlength' => 128)); ?>
         <?= $form->textFieldRow($questionary, 'middlename', array('size' => 60,'maxlength' => 128)); ?>
     
         <?php 
@@ -198,12 +198,6 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         );
         ?>
         
-        <label><?= QuestionaryModule::t('playage_label'); ?></label>
-        <div class="form-inline qform_subsection">
-            <?php echo $form->textFieldRow($questionary,'playagemin', array('maxlength'=>3, 'style'=>'width:30px;')); ?>
-            <?php echo $form->textFieldRow($questionary,'playagemax', array('maxlength'=>3, 'style'=>'width:30px;')); ?>
-        </div>
-    
         <?php echo $form->dropDownListRow($questionary, 'gender', $questionary->getFieldVariants('gender')); ?>
         <?php echo $form->textFieldRow($questionary, 'height', array('size' => 3, 'maxlength' => 6)); ?>
         <?php echo $form->textFieldRow($questionary,'weight', array('size' => 3, 'maxlength' => 6)); ?>
@@ -213,10 +207,10 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         <?php 
         // город проживания
         // @todo сделать выпадающий список городов зависимым от списка стран
-        echo $form->labelEx($questionary,'cityid');
+        echo $form->labelEx($questionary, 'cityid');
             $cityOptions = array(
                 'sourceUrl' => Yii::app()->createUrl('questionary/questionary/ajax?type=city&parenttype=country&parentid=RU'),
-                );
+            );
             $countrySelector->cityActiveField('cityid', $questionary, $cityOptions);
         echo $form->error($questionary, 'cityid');
         ?>
@@ -226,21 +220,21 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
 	<fieldset id="contact_information_part">
 	    <legend id="contact_information_part_label">
 	        <a class="btn btn-large btn-warning">
-	        <i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('contact_information'); ?></a>
+	        <i class="icon-chevron-down"></i>&nbsp;<?= QuestionaryModule::t('contact_information'); ?></a>
 	    </legend>
-        <?= $form->textFieldRow($questionary, 'mobilephone', array('size'=>32,'maxlength'=>32)); ?>
-        <?= $form->textFieldRow($questionary, 'homephone', array('size'=>32,'maxlength'=>32)); ?>
-        <?= $form->textFieldRow($questionary, 'addphone', array('size'=>32,'maxlength'=>32)); ?>
-        <?= $form->textFieldRow($questionary, 'vkprofile', array('size'=>60,'maxlength'=>255)); ?>
-        <?= $form->textFieldRow($questionary, 'fbprofile', array('size'=>60,'maxlength'=>255)); ?>
-        <?= $form->textFieldRow($questionary, 'okprofile', array('size'=>60,'maxlength'=>255)); ?>
+        <?= $form->textFieldRow($questionary, 'mobilephone', array('size' => 32, 'maxlength' => 32)); ?>
+        <?= $form->textFieldRow($questionary, 'homephone',   array('size' => 32, 'maxlength' => 32)); ?>
+        <?= $form->textFieldRow($questionary, 'addphone',    array('size' => 32, 'maxlength' => 32)); ?>
+        <?= $form->textFieldRow($questionary, 'vkprofile',   array('size' => 60, 'maxlength' => 255)); ?>
+        <?= $form->textFieldRow($questionary, 'fbprofile',   array('size' => 60, 'maxlength' => 255)); ?>
+        <?= $form->textFieldRow($questionary, 'okprofile',   array('size' => 60, 'maxlength' => 255)); ?>
         <hr>
 	</fieldset>
 
 	<fieldset id="looks_part">
 	    <legend id="looks_part_label">
 	        <a class="btn btn-large btn-warning">
-	        <i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('looks'); ?></a>
+	        <i class="icon-chevron-down"></i>&nbsp;<?= QuestionaryModule::t('looks'); ?></a>
         </legend>
 
         <?php 
@@ -258,7 +252,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         }else
         {
             $this->widget('GalleryManager', array(
-                 'gallery' => $questionary->galleryBehavior->getGallery(),
+                 'gallery'         => $questionary->galleryBehavior->getGallery(),
                  'controllerRoute' => '/questionary/gallery'
             ));
         }
@@ -280,11 +274,11 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
             ?>
         </fieldset>
         
-		<?php echo $form->dropDownListRow($questionary, 'looktype', $questionary->getFieldVariants('looktype')); ?>
-		<?php echo $form->dropDownListRow($questionary, 'haircolor', $questionary->getFieldVariants('haircolor')); ?>
-		<?php echo $form->dropDownListRow($questionary, 'hairlength', $questionary->getFieldVariants('hairlength')); ?>
-		<?php echo $form->dropDownListRow($questionary, 'eyecolor', $questionary->getFieldVariants('eyecolor')); ?>
-		<?php echo $form->dropDownListRow($questionary, 'physiquetype', $questionary->getFieldVariants('physiquetype')); ?>
+		<?= $form->dropDownListRow($questionary, 'looktype', $questionary->getFieldVariants('looktype')); ?>
+		<?= $form->dropDownListRow($questionary, 'haircolor', $questionary->getFieldVariants('haircolor')); ?>
+		<?= $form->dropDownListRow($questionary, 'hairlength', $questionary->getFieldVariants('hairlength')); ?>
+		<?= $form->dropDownListRow($questionary, 'eyecolor', $questionary->getFieldVariants('eyecolor')); ?>
+		<?= $form->dropDownListRow($questionary, 'physiquetype', $questionary->getFieldVariants('physiquetype')); ?>
 		
         <div>
         <fieldset id="addchars" class="qform_subsection">
@@ -300,16 +294,16 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         </fieldset>
         </div>
 
-        <label><?php echo QuestionaryModule::t('parameters'); ?></label>
+        <label><?= QuestionaryModule::t('parameters'); ?></label>
         <div class="form-inline qform_subsection">
-            <?php echo $form->textFieldRow($questionary,'chestsize',array('maxlength'=>6, 'style'=>'width:50px;')); ?>
-            <?php echo $form->textFieldRow($questionary,'waistsize',array('maxlength'=>6, 'style'=>'width:50px;')); ?>
-            <?php echo $form->textFieldRow($questionary,'hipsize',array('maxlength'=>6, 'style'=>'width:50px;')); ?>
+            <?= $form->textFieldRow($questionary, 'chestsize', array('maxlength' => 6, 'style' => 'width:50px;')); ?>
+            <?= $form->textFieldRow($questionary, 'waistsize', array('maxlength' => 6, 'style' => 'width:50px;')); ?>
+            <?= $form->textFieldRow($questionary, 'hipsize',   array('maxlength' => 6, 'style' => 'width:50px;')); ?>
         </div>
 
     <div>
         <div id="titsize">
-            <?php echo $form->dropDownListRow($questionary, 'titsize', $questionary->getFieldVariants('titsize')); ?>
+            <?= $form->dropDownListRow($questionary, 'titsize', $questionary->getFieldVariants('titsize')); ?>
         </div>
     </div>
 
@@ -326,7 +320,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
 	<fieldset id="experience_jobs_and_skills_part">
         <legend id="experience_jobs_and_skills_part_label">
             <a class="btn btn-large btn-warning">
-                <i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('experience_jobs_and_skills'); ?>
+                <i class="icon-chevron-down"></i>&nbsp;<?= QuestionaryModule::t('experience_jobs_and_skills'); ?>
             </a>
         </legend>
 
@@ -1184,5 +1178,3 @@ foreach ( $clips as $clip )
 {
     echo $this->clips[$clip];
 }
-
-?>
