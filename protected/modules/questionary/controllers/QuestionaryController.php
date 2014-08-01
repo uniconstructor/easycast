@@ -162,9 +162,8 @@ class QuestionaryController extends Controller
         $questionary->setScenario('update');
         $user        = $questionary->user;
         
-        // проверяем права доступа
         if ( ! Yii::app()->user->checkAccess('Admin') AND Yii::app()->user->id != $user->id )
-        {
+        {// проверяем права на редактирование анкеты
             $this->redirect(Yii::app()->getModule('questionary')->profileUrl);
         }
         
@@ -185,7 +184,7 @@ class QuestionaryController extends Controller
             $recordingConditions->save();
         }
         
-        if( Yii::app()->request->getPost('Questionary') )
+        if ( Yii::app()->request->getPost('Questionary') )
         {
             $user->attributes        = Yii::app()->request->getPost('User');
             // получаем данные анкеты
@@ -207,6 +206,7 @@ class QuestionaryController extends Controller
                     $user->save();
                     $address->save();
                     $recordingConditions->save();
+                    
                     $this->redirect(array('view', 'id' => $questionary->id));
                 }
             }
