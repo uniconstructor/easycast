@@ -707,9 +707,9 @@ class EventVacancy extends CActiveRecord
 	 * @param Questionary $questionary
 	 * @return void
 	 */
-	public function needMoreDataFromUser(Questionary $questionary)
+	public function needMoreDataFromUser($questionary)
 	{
-	    if ( ! $questionary->id )
+	    if ( ! $questionary OR ! $questionary->id )
 	    {
 	        return true;
 	    }

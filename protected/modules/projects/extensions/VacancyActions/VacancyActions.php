@@ -138,13 +138,18 @@ class VacancyActions extends CWidget
         //$this->buttons = $this->member->getAllowedStatuses();
         foreach ( $this->buttons as $id => $buttonType )
         {// оставляем только те кнопки, на которые есть права, и для которых не нужно указывать доп. данные
+            if ( ( $this->vacancy->needMoreDataFromUser($this->questionary) OR Yii::app()->user->isGuest ) AND
+                   $buttonType === 'addApplication' )
+            {
+                $this->buttons[$id] = 'addApplicationData';
+                if ( ! $this->vacancy->event->isExpired() )
+                {
+                    continue;
+                }
+            }
             if ( ! $this->isAllowed($buttonType) )
             {
                 unset($this->buttons[$id]);
-            }
-            if ( $this->vacancy->needMoreDataFromUser($this->questionary) AND $buttonType === 'addApplication' )
-            {
-                $this->buttons[$id] = 'addApplicationData';
             }
         }
     }

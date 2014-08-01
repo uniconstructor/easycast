@@ -51,7 +51,7 @@
         
         $this->widget('projects.extensions.VacancyActions.VacancyActions', array(
             'isAjaxRequest' => Yii::app()->request->isAjaxRequest,
-            'questionaryId' => $this->questionary->id,
+            'questionaryId' => $this->questionary ? $this->questionary->id : 0,
             'buttonSize'    => 'medium',
             'vacancy'       => $vacancy,
             'mode'          => 'normal',
