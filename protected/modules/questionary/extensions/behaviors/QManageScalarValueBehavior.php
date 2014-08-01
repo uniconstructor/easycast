@@ -43,14 +43,15 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
      */
     public function setCity($city)
     {
-        if ( is_numeric($city) )
+        if ( intval($city) )
         {
-            $this->owner->cityid = $city;
+            $this->owner->cityid = (int)$city;
             return;
         }
         $criteria = new CDbCriteria();
         $criteria->compare('name', $city);
         $criteria->compare('countryid', 3159);
+        
         if ( $record = CSGeoCity::model()->find($criteria) )
         {
             $this->owner->cityid = $record->id;
@@ -73,7 +74,7 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
     }
     
     /**
-     *
+     * 
      * @param string|int $city
      * @return void
      */
