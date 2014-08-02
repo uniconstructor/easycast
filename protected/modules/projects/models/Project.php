@@ -28,6 +28,7 @@
  * @property string $virtual - означает что весь проект состоит только из "виртуальных" мероприятий 
  *                             (настоящие в нем создать нельзя).
  *                             По смыслу идея чем-то напоминает абстрактный класс в программировании.
+ * @property string $email - почта на которую будут приходить вопросы и заявки участников
  * 
  * Relations:
  * @property User $leader
@@ -43,6 +44,7 @@
  * 
  * @todo переписать relations через именованные группы условий
  * @todo сделать список типов проекта настраиваемым
+ * @todo если понадобится сделать 2 поля email: простой и zendesk
  */
 class Project extends SWActiveRecord
 {
@@ -288,7 +290,9 @@ class Project extends SWActiveRecord
 		return array(
 			array('name, type, description', 'required'),
 			array('isfree, virtual', 'numerical', 'integerOnly' => true),
-			array('name', 'length', 'max' => 255),
+			array('name, email', 'length', 'max' => 255),
+			array('email', 'email'),
+			array('email', 'unique'),
 			array('type, status', 'length', 'max' => 50),
 			array('description, shortdescription, customerdescription', 'length', 'max' => 4095),
 			array('photogalleryid, galleryid, timestart, timeend, timecreated, timemodified, 
