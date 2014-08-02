@@ -28,8 +28,10 @@ echo $form->errorSummary($model);
 echo $form->dropDownListRow($model, 'rating', $ratings);
 // название проекта
 echo $form->textFieldRow($model, 'name', array('class' => 'span5', 'maxlength' => 255));
+// email проекта
+echo $form->textFieldRow($model, 'email', array('class' => 'span5', 'maxlength' => 255));
 // тип проекта
-echo $form->dropDownListRow($model,'type', $model->getTypeList()); 
+echo $form->dropDownListRow($model, 'type', $model->getTypeList()); 
 
 // краткое описание проекта
 echo $form->labelEx($model, 'shortdescription');

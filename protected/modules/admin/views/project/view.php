@@ -96,6 +96,7 @@ $this->widget('bootstrap.widgets.TbDetailView',array(
             'type' => 'raw', 
         ),
 		'typetext',
+        'email',
         'shortdescription:raw',
         'description:raw',
         'customerdescription:raw',
