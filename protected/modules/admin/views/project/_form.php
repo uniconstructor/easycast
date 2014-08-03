@@ -10,6 +10,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 	'id'                   => 'project-form',
 	'enableAjaxValidation' => false,
 ));
+// данные формы нужны для корректной работы элемента выбора даты
 $formData = Yii::app()->request->getParam('Project');
 
 // рейтинг проекта (задается только здесь, в админке. Нужен только для сортировки проектов 
@@ -19,9 +20,7 @@ for ( $i = 0; $i <= 1000; $i++ )
 {
     $ratings["$i"] = (string)$i;
 }
-$dateFormatter = new CDateFormatter('ru');
 
-    
 echo Yii::t('coreMessages', 'form_required_fields', array('{mark}' => '<span class="required">*</span>'));
 echo $form->errorSummary($model);
 // рейтинг 
@@ -81,11 +80,14 @@ if ( isset($formData['timestart']) )
 }elseif ( $model->timestart )
 {
     $model->timestart = date(Yii::app()->params['outputDateFormat'], (int)$model->timestart);
+}else
+{
+    $model->timestart = null;
 }
 echo $form->datepickerRow($model, 'timestart', array(
         'options' => array(
             'language'       => 'ru',
-            'format'         => 'dd.mm.yyyy',
+            'format'         => Yii::app()->params['inputDateFormat'],
             'startView'      => 'month',
             'weekStart'      => 1,
             'autoclose'      => true,
@@ -108,11 +110,14 @@ if ( isset($formData['timeend']) )
 }elseif ( $model->timeend )
 {
     $model->timeend = date(Yii::app()->params['outputDateFormat'], (int)$model->timeend);
+}else
+{
+    $model->timeend = null;
 }
 echo $form->datepickerRow($model, 'timeend', array(
         'options' => array(
             'language'       => 'ru',
-            'format'         => 'dd.mm.yyyy',
+            'format'         => Yii::app()->params['inputDateFormat'],
             'startView'      => 'month',
             'weekStart'      => 1,
             'autoclose'      => true,
