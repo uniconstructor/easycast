@@ -193,6 +193,22 @@ return array(
             'c2dmPassword' => 'my_gmail_push_account_password',
             'c2dmApplicationIdentifier' => 'my_gmail_push_app_identifier',
         ),*/
+        
+        'log' => array(
+            'routes' => array(
+                array(
+                    'class'              => 'EcLogRoute',
+                    'connectionID'       => 'db',
+                    'levels'             => 'easycast',
+                    'filter'             => array(
+                        'class'      => 'CLogFilter',
+                        'prefixUser' => true,
+                        'logUser'    => true,
+                    ),
+                    'autoCreateLogTable' => true,
+                ),
+            ),
+        ),
 	),
 
 	// Компоненты приложения
@@ -373,7 +389,6 @@ return array(
                         'class' => 'table-striped',
                     ),
                 ),
-                
                 // Выбор даты из календаря (jQuery)
                 // @todo этот элемент везде должен быть заменен более новым TbDatePicker 
                 'CJuiDatePicker' => array(
@@ -383,10 +398,8 @@ return array(
                         'dateFormat' => 'dd/mm/yy',
                     ),
                 ),
-                
                 // Галерея загрузки фотографий
                 'GalleryManager' => array(),
-                
                 // Выбор даты (календарь из библиотеки yiiBooster)
                 'TbDatePicker' => array(
                     'options' => array(
@@ -399,7 +412,6 @@ return array(
                         'autoclose' => true,
                     ),
                 ),
-                
                 // плитка изображений с раскрывающимся описанием
                 'CdGridPreview' => array(
                     // не подключаем библиотеку modernizr вместе с виджетом
