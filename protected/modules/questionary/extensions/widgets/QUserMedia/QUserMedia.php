@@ -26,12 +26,16 @@ class QUserMedia extends CWidget
         $videoCriteria = new CDbCriteria();
         $videoCriteria->compare('objecttype', 'questionary');
         $videoCriteria->compare('objectid', $this->questionary->id);
-        $videoCriteria->addInCondition('type', array('youtube', 'vimeo'));
+        $videoCriteria->addInCondition('type', array('youtube'));
         
         if ( $records = Video::model()->findAll($videoCriteria) )
         {
             foreach ( $records  as $record )
             {
+                if ( $record->type === 'youtube' AND ! $record->externalid )
+                {
+                    continue;
+                }
                 $items[] = array('video' => $record->link);
             }
         }
@@ -60,7 +64,7 @@ class QUserMedia extends CWidget
                 'dataSource'     => $items,
                 'keepSource'     => true,
                 'trueFullscreen' => true,
-                'imagePan'       => true,
+                //'imagePan'       => true,
                 'imageCrop'      => false,
             ),
         ), true);
