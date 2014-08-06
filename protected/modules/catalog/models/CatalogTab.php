@@ -16,6 +16,8 @@
  * @property CatalogSection[] $sections
  * 
  * @deprecated CatalogTab и CatalogTabInstance больше не используется, удалить эти таблицы и модели при рефакторинге
+ * @deprecated не используется, оставлено для совместимости (заменено функционалом EasyList)
+ * @todo       удалить при рефакторинге
  */
 class CatalogTab extends CActiveRecord
 {

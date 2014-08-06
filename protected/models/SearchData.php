@@ -1,9 +1,9 @@
 <?php
 
 /**
- * This is the model class for table "{{search_data}}".
+ * Условия поиска - данные из формы поиска по анкетам или условия для поиска по другим объектам
  *
- * The followings are the available columns in table '{{search_data}}':
+ * Таблица '{{search_data}}':
  * @property integer $id
  * @property string $name
  * @property string $value

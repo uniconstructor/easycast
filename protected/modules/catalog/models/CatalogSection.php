@@ -21,7 +21,8 @@
  * @property CatalogFilter[] $searchFilters
  * @property CatalogTabInstance[] $tabInstances
  * 
- * @todo добавить timecreated/timemodified
+ * @deprecated не используется, оставлено для совместимости (заменено функционалом EasyList)
+ * @todo       удалить при рефакторинге
  */
 class CatalogSection extends CActiveRecord
 {

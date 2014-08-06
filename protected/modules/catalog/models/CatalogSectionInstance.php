@@ -16,6 +16,9 @@
  * 
  * Relations:
  * @property CatalogSection $section
+ * 
+ * @deprecated не используется, оставлено для совместимости (заменено функционалом EasyList)
+ * @todo       удалить при рефакторинге
  */
 class CatalogSectionInstance extends CActiveRecord
 {

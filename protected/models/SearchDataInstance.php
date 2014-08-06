@@ -1,9 +1,9 @@
 <?php
 
 /**
- * This is the model class for table "{{search_data_instances}}".
+ * Связи условий поиска с другими объектами в базе
  *
- * The followings are the available columns in table '{{search_data_instances}}':
+ * Таблица '{{search_data_instances}}':
  * @property integer $id
  * @property string $searchdataid
  * @property string $objecttype
