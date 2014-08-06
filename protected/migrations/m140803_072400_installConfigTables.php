@@ -17,8 +17,8 @@ class m140803_072400_installConfigTables extends CDbMigration
             'title'        => "VARCHAR(255) NOT NULL",
             'description'  => "VARCHAR(4095) DEFAULT NULL",
             'type'         => "VARCHAR(20) NOT NULL DEFAULT 'text'",
+            'minvalues'    => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
             'maxvalues'    => 'int(11) UNSIGNED NOT NULL DEFAULT 1',
-            'maxvalues'    => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
             'timecreated'  => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
             'timemodified' => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
         );
