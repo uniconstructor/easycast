@@ -6,9 +6,11 @@
  * The followings are the available columns in table '{{user_list_items}}':
  * @property integer $id
  * @property string $easylistid
- * @property string $questionaryid
+ * @property string $objecttype
+ * @property string $objectid
  * @property string $timecreated
  * @property string $timemodified
+ * @property string $sortorder
  * @property string $status
  */
 class EasyListItem extends CActiveRecord
@@ -28,11 +30,11 @@ class EasyListItem extends CActiveRecord
 	{
 		return array(
 			array('status', 'required'),
-			array('easylistid, questionaryid, timecreated, timemodified', 'length', 'max'=>11),
-			array('status', 'length', 'max'=>50),
+			array('easylistid, objectid, sortorder, timecreated, timemodified', 'length', 'max'=>11),
+			array('status, objecttype', 'length', 'max'=>50),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, easylistid, questionaryid, timecreated, timemodified, status', 'safe', 'on'=>'search'),
+			array('id, easylistid, objecttype, objectid, sortorder, timecreated, timemodified, status', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -42,6 +44,7 @@ class EasyListItem extends CActiveRecord
 	public function relations()
 	{
 		return array(
+		    
 		);
 	}
 
@@ -52,10 +55,12 @@ class EasyListItem extends CActiveRecord
 	{
 		return array(
 			'id' => 'ID',
-			'easylistid' => 'Userlistid',
-			'questionaryid' => 'Questionaryid',
+			'easylistid' => 'Список',
+			'objecttype' => 'Тип объекта',
+			'objectid' => 'Номер объекта (id)',
 			'timecreated' => 'Timecreated',
 			'timemodified' => 'Timemodified',
+		    'sortorder' => 'Порядок сортировки',
 			'status' => 'Status',
 		);
 	}
@@ -80,9 +85,11 @@ class EasyListItem extends CActiveRecord
 
 		$criteria->compare('id',$this->id);
 		$criteria->compare('easylistid',$this->easylistid,true);
-		$criteria->compare('questionaryid',$this->questionaryid,true);
+		$criteria->compare('objecttype',$this->easylistid,true);
+		$criteria->compare('objectid',$this->easylistid,true);
 		$criteria->compare('timecreated',$this->timecreated,true);
 		$criteria->compare('timemodified',$this->timemodified,true);
+		$criteria->compare('sortorder',$this->sortorder,true);
 		$criteria->compare('status',$this->status,true);
 
 		return new CActiveDataProvider($this, array(
