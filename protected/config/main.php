@@ -224,6 +224,7 @@ return array(
 		),
 	    
 		// настройки преобразования url-адресов
+		// @todo найти способ настраивать сокращенные адреса из базы а не вручную через этот файл
 		'urlManager' => array(
 		    // отображаем все URL в формате /путь/к/странице (на сервере должен быть включен mod_rewrite)
 			'urlFormat' => 'path',
@@ -231,6 +232,10 @@ return array(
 				'<controller:\w+>/<id:\d+>'              => '<controller>/view',
 				'<controller:\w+>/<action:\w+>/<id:\d+>' => '<controller>/<action>',
 				'<controller:\w+>/<action:\w+>'          => '<controller>/<action>',
+				// сокращенные ссылки на специальные страницы
+				// Проект "МастерШеф"
+				'chief'       => 'projects/vacancy/registration/vid/749',
+				'masterchief' => 'projects/vacancy/registration/vid/749',
 			),
 		    'showScriptName' => false
 		),
