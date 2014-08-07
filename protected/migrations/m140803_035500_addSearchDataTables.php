@@ -24,8 +24,9 @@ class m140803_035500_addSearchDataTables extends CDbMigration
         $fields = array(
             "id"            => "pk",
             "searchdataid"  => "int(11) UNSIGNED NOT NULL DEFAULT 0",
-            "objecttype"    => "VARCHAR(50) DEFAULT NULL",
+            "objecttype"    => "VARCHAR(50) DEFAULT 'system'",
             "objectid"      => "int(11) UNSIGNED NOT NULL DEFAULT 0",
+            "targettype"    => "VARCHAR(50) DEFAULT 'questionary'",
             "timecreated"   => "int(11) UNSIGNED NOT NULL DEFAULT 0",
         );
         $this->createTable($table, $fields, $this->MySqlOptions);

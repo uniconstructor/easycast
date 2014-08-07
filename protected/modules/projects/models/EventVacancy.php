@@ -365,6 +365,7 @@ class EventVacancy extends CActiveRecord
 		    // мероприятие на которое создана вакансия
 		    'event' => array(self::BELONGS_TO, 'ProjectEvent', 'eventid'),
 		    // критерий поиска, по которому выбираются подходящие на вакансию участники 
+		    // @deprecated
 		    'scope' => array(self::BELONGS_TO, 'SearchScope', 'scopeid'),
 		    
 		    

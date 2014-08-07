@@ -8,6 +8,8 @@
  * @property string $searchdataid
  * @property string $objecttype
  * @property string $objectid
+ * @property string $targettype - тип объекта по которому происходит поиск 
+ *                                (само условие не хранит информацию о том какая модель нужна для поиска)
  * @property string $timecreated
  */
 class SearchDataInstance extends CActiveRecord
@@ -25,14 +27,12 @@ class SearchDataInstance extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
 			array('searchdataid, objectid, timecreated', 'length', 'max'=>11),
-			array('objecttype', 'length', 'max'=>50),
+			array('objecttype, targettype', 'length', 'max'=>50),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, searchdataid, objecttype, objectid, timecreated', 'safe', 'on'=>'search'),
+			array('id, searchdataid, objecttype, objectid, targettype, timecreated', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -41,9 +41,8 @@ class SearchDataInstance extends CActiveRecord
 	 */
 	public function relations()
 	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
 		return array(
+		    
 		);
 	}
 
@@ -57,6 +56,7 @@ class SearchDataInstance extends CActiveRecord
 			'searchdataid' => 'Searchdataid',
 			'objecttype' => 'Objecttype',
 			'objectid' => 'Objectid',
+			'targettype' => 'targettype',
 			'timecreated' => 'Timecreated',
 		);
 	}
@@ -83,6 +83,7 @@ class SearchDataInstance extends CActiveRecord
 		$criteria->compare('searchdataid',$this->searchdataid,true);
 		$criteria->compare('objecttype',$this->objecttype,true);
 		$criteria->compare('objectid',$this->objectid,true);
+		$criteria->compare('targettype',$this->targettype,true);
 		$criteria->compare('timecreated',$this->timecreated,true);
 
 		return new CActiveDataProvider($this, array(
