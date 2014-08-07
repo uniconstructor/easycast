@@ -92,7 +92,6 @@ $this->widget('bootstrap.widgets.TbAlert');
         $this->widget('bootstrap.widgets.TbDetailView', array(
         	'data'       => $model,
         	'attributes' => array(
-        		'name',
         		'description:html',
         		array(
                     'label' => 'Заполнение',
