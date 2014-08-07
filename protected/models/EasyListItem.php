@@ -8,6 +8,16 @@
  * @property string $easylistid
  * @property string $objecttype
  * @property string $objectid
+ * @property string $name - отображаемое название элемента списка (если связанный объект не имеет имени)
+ *                          В разных списках одни и те же объекты могут называться по-разному,
+ *                          это полезно для случаем когда название элемента из списка зависит от контекста
+ *                          Помогает избежать лишних запросов к смежным при получении списков имен объектов
+ *                          Если objecttype имеет значение 'item' - то элемент списка не ссылается 
+ *                          на другие объекты, а сам является возможным значением.
+ *                          Поле name в этом случае используется как название элемента.
+ *                          Тип 'item' используется для хранения введенных участником значений которые 
+ *                          позже (после проверки) могут стать стандартными
+ *                          (если в дополнении к стандартным пунктам списка разрешено ввести свой вариант), 
  * @property string $timecreated
  * @property string $timemodified
  * @property string $sortorder
@@ -32,9 +42,10 @@ class EasyListItem extends CActiveRecord
 			array('status', 'required'),
 			array('easylistid, objectid, sortorder, timecreated, timemodified', 'length', 'max'=>11),
 			array('status, objecttype', 'length', 'max'=>50),
+			array('name', 'length', 'max' => 255),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, easylistid, objecttype, objectid, sortorder, timecreated, timemodified, status', 'safe', 'on'=>'search'),
+			array('id, easylistid, objecttype, objectid, name, sortorder, timecreated, timemodified, status', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -58,6 +69,7 @@ class EasyListItem extends CActiveRecord
 			'easylistid' => 'Список',
 			'objecttype' => 'Тип объекта',
 			'objectid' => 'Номер объекта (id)',
+		    'name' => 'Название объекта',
 			'timecreated' => 'Timecreated',
 			'timemodified' => 'Timemodified',
 		    'sortorder' => 'Порядок сортировки',
@@ -85,8 +97,9 @@ class EasyListItem extends CActiveRecord
 
 		$criteria->compare('id',$this->id);
 		$criteria->compare('easylistid',$this->easylistid,true);
-		$criteria->compare('objecttype',$this->easylistid,true);
-		$criteria->compare('objectid',$this->easylistid,true);
+		$criteria->compare('objecttype',$this->objecttype,true);
+		$criteria->compare('objectid',$this->objectid,true);
+		$criteria->compare('name',$this->name,true);
 		$criteria->compare('timecreated',$this->timecreated,true);
 		$criteria->compare('timemodified',$this->timemodified,true);
 		$criteria->compare('sortorder',$this->sortorder,true);
