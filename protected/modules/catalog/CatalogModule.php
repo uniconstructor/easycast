@@ -13,22 +13,24 @@
 class CatalogModule extends CWebModule
 {
     /**
-     * @var string - Nип главных разделов каталога. Используется в объекте DefaultScope,
+     * @var string - Тип главных разделов каталога. Используется в объекте DefaultScope,
      *               при сохранении критериев выборки анкет в раздел.
      *               Все разделы этого типа будут считаться главными разделами каталога и
      *               отображаться в верхнем меню
+     * @deprecated больше не используются: теперь используем только иерархические списки через EasyList
      */
     const BASE_SECTION_TYPE = 'catalog|section';
     
     /**
      * @var string - Тип вкладок каталога. Используется в объекте DefaultScope,
      *               при сохранении критериев выборки анкет в раздел.
-     * @deprecated вкладки больше не используются: теперь используем только иерархические разделы
+     * @deprecated больше не используются: теперь используем только иерархические списки через EasyList
      */
     const BASE_TAB_TYPE = 'catalog|tab';
     
     /**
      * @var int - количество анкет на одной странице или вкладке каталога
+     * @deprecated больше не используются: сейчас есть настройки, использовать класс Config
      */
     const PAGE_ITEMS_COUNT = 24;
     
@@ -41,7 +43,8 @@ class CatalogModule extends CWebModule
     
     /**
      * @var string - путь к расширению "ESearchScopes" (критерии поиска)
-     *                предполагается, что расширение уже установлено на момент установки и запуска каталога
+     *               предполагается, что расширение уже установлено на момент установки и запуска каталога
+     * @deprecated больше не используется - удалить после удаления модуля
      */
     public $searchScopesPath = 'application.extensions.ESearchScopes.';
     
@@ -50,10 +53,10 @@ class CatalogModule extends CWebModule
      */
     public $controllerMap = array(
         'default' => array(
-            'class'=>'application.modules.catalog.controllers.CatalogController',
+            'class' => 'application.modules.catalog.controllers.CatalogController',
         ),
         'catalog' => array(
-            'class'=>'application.modules.catalog.controllers.CatalogController',
+            'class' => 'application.modules.catalog.controllers.CatalogController',
         ),
     );
     
@@ -62,33 +65,16 @@ class CatalogModule extends CWebModule
      */
 	public function init()
 	{
-		// import the module-level models and components
-		$this->setImport(array(
-			$this->searchScopesPath.'models.*',
-		));
+		parent::init();
 	}
 
-	/**
-	 * @see CWebModule::beforeControllerAction()
-	 */
-	public function beforeControllerAction($controller, $action)
-	{
-		if ( parent::beforeControllerAction($controller, $action) )
-		{
-			// this method is called before any module controller action is performed
-			// you may place customized code here
-			return true;
-		}
-		else
-			return false;
-	}
-	
 	/**
 	 * Получить условия для разделов каталога
 	 * @todo прописать критерий через SearchScopes
 	 * @param array|SearchScope $scopes - критерий поиска проекта или несколько таких критериев поиска
      *         (например если мы ищем по своим критериям)
 	 * @return CDbCriteria
+	 * @deprecated
 	 */
 	public function getCatalogCriteria($scopes=array())
 	{
@@ -144,14 +130,16 @@ class CatalogModule extends CWebModule
 	 * которого будут накладываться все остальные критерии поиска)
 	 *
 	 * @return CDbCriteria
+	 * @deprecated после введения списков больше не должно использоваться в новых функциях:
+	 *             условия выборки следует задавать через механизм комбинирования списков
 	 */
 	public static function createStartCriteria()
 	{
 	    $criteria = new CDbCriteria();
 	     
 	    // (по умолчанию - берем только анкеты в активном статусе)
-	    $criteria->compare('status', 'active');
-	    // $criteria->addCondition("`t`.`status` = 'active'");
+	    //$criteria->compare('status', 'active');
+	    $criteria->addCondition("`t`.`status` = 'active'");
 	    // сортируем анкеты по рейтингу (сначала лучшие)
 	    $criteria->order = '`t`.`rating` DESC';
 	     
@@ -359,10 +347,6 @@ class CatalogModule extends CWebModule
 	 */
 	protected static function initFormSearchData($namePrefix)
 	{
-	    //$searchData = self::getSessionSearchData();
-	    //$searchData['form'][$namePrefix] = array();
-	    //self::setSessionSearchData($searchData);
-	    
 	    self::initFilterSearchData($namePrefix, 1);
 	}
 	
@@ -419,11 +403,6 @@ class CatalogModule extends CWebModule
 	 */
 	public static function setFormSearchData($namePrefix, $data)
 	{
-	    //self::initFormSearchData($namePrefix);
-	    //$searchData = self::getSessionSearchData();
-	    //$searchData['form'][$namePrefix] = $data;
-	    //self::setSessionSearchData($searchData);
-	    
 	    self::setFilterSearchData($namePrefix, 1, $data);
 	}
 	
