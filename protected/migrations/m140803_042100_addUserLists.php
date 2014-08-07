@@ -10,7 +10,7 @@ class m140803_042100_addUserLists extends CDbMigration
     {
         $tableOptions = 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
 
-        $table   = "{{user_lists}}";
+        $table   = "{{easy_lists}}";
         $columns = array(
             'id'           => 'pk',
             'name'         => "VARCHAR(255) NOT NULL",
@@ -27,10 +27,10 @@ class m140803_042100_addUserLists extends CDbMigration
         unset($table);
         unset($columns);
 
-        $table   = "{{user_list_instances}}";
+        $table   = "{{easy_list_instances}}";
         $columns = array(
             'id'          => 'pk',
-            'userlistid'  => "int(11) UNSIGNED NOT NULL DEFAULT 0",
+            'easylistid'  => "int(11) UNSIGNED NOT NULL DEFAULT 0",
             'objecttype'  => "VARCHAR(50) DEFAULT NULL",
             'objectid'    => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
             'timecreated' => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
@@ -40,13 +40,16 @@ class m140803_042100_addUserLists extends CDbMigration
         unset($table);
         unset($columns);
 
-        $table   = "{{user_list_items}}";
+        $table   = "{{easy_list_items}}";
         $columns = array(
             'id'            => 'pk',
-            'userlistid'    => "int(11) UNSIGNED NOT NULL DEFAULT 0",
-            'questionaryid' => "int(11) UNSIGNED NOT NULL DEFAULT 0",
+            'easylistid'    => "int(11) UNSIGNED NOT NULL DEFAULT 0",
+            'objecttype'    => "VARCHAR(50) NOT NULL DEFAULT 'item'",
+            'objectid'      => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
+            'name'          => "VARCHAR(255) DEFAULT NULL",
             'timecreated'   => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
             'timemodified'  => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
+            'sortorder'     => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
             'status'        => "VARCHAR(50) NOT NULL",
         );
         $this->createTable($table, $columns, $tableOptions);

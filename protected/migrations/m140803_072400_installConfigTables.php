@@ -40,68 +40,14 @@ class m140803_072400_installConfigTables extends CDbMigration
         unset($table);
         unset($columns);
 
-        $table   = "{{config_instance_values}}";
-        $columns = array(
-            'id'               => 'pk',
-            'configinstanceid' => "int(11) UNSIGNED NOT NULL DEFAULT 0",
-            'type'             => "VARCHAR(20) NOT NULL DEFAULT 'string'",
-            'value'            => "VARCHAR(4095) DEFAULT NULL",
-            'timecreated'      => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
-            'timemodified'     => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
-        );
-        $this->createTable($table, $columns, $tableOptions);
-        $this->_createIndexes($table, $columns);
-        unset($table);
-        unset($columns);
-
-        $table   = "{{config_defaults}}";
+        $table   = "{{config_values}}";
         $columns = array(
             'id'           => 'pk',
             'objecttype'   => "VARCHAR(50) NOT NULL DEFAULT 'config'",
             'objectid'     => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
             'type'         => "VARCHAR(20) NOT NULL DEFAULT 'string'",
             'value'        => "VARCHAR(4095) DEFAULT NULL",
-            'timecreated'  => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
-            'timemodified' => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
-        );
-        $this->createTable($table, $columns, $tableOptions);
-        $this->_createIndexes($table, $columns);
-        unset($table);
-        unset($columns);
-
-        $table   = "{{option_lists}}";
-        $columns = array(
-            'id'           => 'pk',
-            'name'         => "VARCHAR(255) NOT NULL",
-            'description'  => "VARCHAR(4095) DEFAULT NULL",
-            'timecreated'  => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
-            'timemodified' => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
-        );
-        $this->createTable($table, $columns, $tableOptions);
-        $this->_createIndexes($table, $columns);
-        unset($table);
-        unset($columns);
-        
-        $table   = "{{option_list_instances}}";
-        $columns = array(
-            'id'           => 'pk',
-            'optionlistid' => "int(11) UNSIGNED NOT NULL DEFAULT 0",
-            'objecttype'   => "VARCHAR(50) NOT NULL DEFAULT 'system'",
-            'objectid'     => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
-            'timecreated'  => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
-        );
-        $this->createTable($table, $columns, $tableOptions);
-        $this->_createIndexes($table, $columns);
-        unset($table);
-        unset($columns);
-
-        $table   = "{{option_list_items}}";
-        $columns = array(
-            'id'           => 'pk',
-            'optionlistid' => "int(11) UNSIGNED NOT NULL DEFAULT 0",
-            'label'        => "VARCHAR(512) NOT NULL",
-            'value'        => "VARCHAR(512) DEFAULT NULL",
-            'sortorder'    => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
+            'default'      => "tinyint(1) NOT NULL DEFAULT 0",
             'timecreated'  => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
             'timemodified' => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
         );
