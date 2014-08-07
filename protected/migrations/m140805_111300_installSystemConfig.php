@@ -144,7 +144,7 @@ class m140805_111300_installSystemConfig extends CDbMigration
         ));
         // по умолчанию: показать
         $showSectionConfig = $this->dbConnection->createCommand()->select()->from($configTable)->
-            where("name='catalog.section.visible'")->query();
+            where("name='catalog.section.visible'")->queryRow();
         $this->dbConnection->createCommand()->insert($defaultsTable, array(
             'objecttype'  => 'config',
             'objectid'    => $showSectionConfig['id'],
@@ -166,7 +166,7 @@ class m140805_111300_installSystemConfig extends CDbMigration
         ));
         // по умолчанию: включить
         $enableSectionConfig = $this->dbConnection->createCommand()->select()->from($configTable)->
-            where("name='search.section.enabed'")->query();
+            where("name='search.section.enabed'")->queryRow();
         $this->dbConnection->createCommand()->insert($defaultsTable, array(
             'objecttype'  => 'easylist',
             'objectid'    => $enableSectionConfig['id'],
