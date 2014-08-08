@@ -37,16 +37,6 @@ class QDynamicFormModel extends CFormModel
     public $birthdate;
     /**
      * @var string
-     * @todo
-     */
-    //public $playagemin;
-    /**
-     * @var string
-     * @todo
-     */
-    //public $playagemax;
-    /**
-     * @var string
      */
     public $gender;
     /**
@@ -293,8 +283,7 @@ class QDynamicFormModel extends CFormModel
      * @var int
      */
     public $visible;
-    
-    // собственные поля модели
+    // поля модели QDynamicFormModel (этот класс)
     /**
      * @var string префикс для имен всех дополнительных полей формы
      */
@@ -803,7 +792,9 @@ class QDynamicFormModel extends CFormModel
     }
     
     /**
-     * Создать анкету для артиста массовых сцен
+     * Создать анкету, одновременно подав заявку на роль
+     * Заявки, поданые через регистрацию не проверяются на соответствие критериям поиска
+     * (такой небольшой бонус в честь регистрации)
      * @return User
      *
      * @todo обработать возможные ошибки
