@@ -22,6 +22,35 @@ class EventVacancyController extends Controller
 	    );
 	    return CMap::mergeArray($baseFilters, $newFilters);
 	}
+	
+	/**
+	 * @see CController::behaviors()
+	 */
+	public function behaviors()
+	{
+	    return array(
+	        'wizard' => array(
+	            'class' => 'ext.WizardBehavior',
+	            'steps' => array(
+	                'Начало' => 'Intro',
+	                'Основная информация' => 'BaseInfo',
+	                'Критерии поиска' => 'SearchData',
+	                'Разбиение заявок на группы' => 'AddSections',
+	                'Настройка групп заявок' => 'ConfigureSections',
+	                'Выбор обязательных полей' => 'AddRequired',
+	                'Настройка обязательных полей' => 'ConfigureRequired',
+	                'Добавление дополнительных полей' => 'AddExtra',
+	                'Настройка дополнительных полей' => 'ConfigureExtra',
+	                'Создание формы регистрации' => 'AddForm',
+	                'Настройка формы регистрации' => 'ConfigureForm',
+	                'Внешний вид заявки' => 'MemberDisplay',
+	                'Фильтры заявок' => 'Filters',
+	                'Проверка' => 'Success',
+	            ),
+	            'autoAdvance' => true,
+	        ),
+        );
+	}
 
 	/**
 	 * Specifies the access control rules.
@@ -37,7 +66,8 @@ class EventVacancyController extends Controller
 		    // проверка на админа происходит в модуле admin
 			array('allow', 
 			    'actions' => array(
-                    'view', 'create', 'update', 'delete', 'setStatus', 'setSearchData', 'ClearFilterSearchData',
+                    'view', 'create', 'update', 'delete', 'wizard',
+			        'setStatus', 'setSearchData', 'ClearFilterSearchData',
 			    ),
 				'users'   => array('@'),
 			),
@@ -47,7 +77,184 @@ class EventVacancyController extends Controller
 			),
 		);
 	}
-
+	
+	/**
+	 * Обработка одного шага формы
+	 * @param string $step
+	 * @return void
+	 */
+	public function actionWizard($step=null)
+	{
+	    $this->layout = '//layouts/containerAltertnate';
+	    
+	    $menuOptions = array(
+	        'type'    => TbMenu::TYPE_TABS,
+	        'stacked' => true,
+	    );
+	    $menu = $this->createWidget('bootstrap.widgets.TbMenu', $menuOptions);
+	    $this->setMenu($menu);
+	    
+	    $this->process($step);
+	}
+	
+	/**
+	 * Начало работы по заполнению формы
+	 * @param WizardEvent $event
+	 * @return void
+	 */
+	public function wizardStart($event)
+	{
+	    $event->handled = true;
+	}
+	
+	/**
+	 * Обработка события "завершен шаг": отвечает за отрисовку и проверку формы, 
+	 * а также засохранение данных в базу
+	 * @param WizardEvent $event - данные одного шага формы
+	 * @return void
+	 */
+    public function wizardProcessStep($event)
+    {
+        $name = 'process'.$event->step;
+        if ( ! method_exists($this, $name) )
+        {// неверно указан этап заполнения
+            throw new CException(Yii::t('yii', '{class} does not have a methodnamed "{name}".',
+                array('{class}' => get_class($this), '{name}' => $name)));
+        }
+        $event->handled = call_user_func(array($this, $name), $event);
+    }
+    
+    /**
+     * Обработка события "неправильно указан следующий шаг"
+     * @param WizardEvent $event - данные одного шага формы
+     * @return void
+     */
+    public function wizardInvalidStep($event)
+    {
+        Yii::app()->getUser()->setFlash('error', $event->step.': неправильно указан этап заполнения формы');
+    }
+    
+    /**
+     * Обработка события "сохранить черновик введенных данных". 
+     * @param WizardEvent $event - данные одного шага формы
+     * @return void
+     */
+    public function wizardSaveDraft($event)
+    {
+        //$user = new User();
+        //$uuid = $user->saveRegistration($event->data);
+        //$event->sender->reset();
+		//$this->render('wizard/draft', compact('uuid'));
+		$this->render('wizard/draft');
+		Yii::app()->end();
+    }
+    
+    /**
+     * Обработка окончательного сохранения 
+     * @param WizardEvent $event - данные одного шага формы
+     * @return void
+     */
+    public function wizardFinished($event)
+    {
+        $event->handled = true;
+        
+        if ( $event->step === true )
+        {// процесс успешно завершен
+            $this->render('wizard/completed', compact('event'));
+        }else
+        {// процес не удалось завершить
+            $this->render('wizard/finished', compact('event'));
+        }
+        // очистка данных модели
+        $event->sender->reset();
+        
+        Yii::app()->end();
+    }
+    
+    // Шаги создания роли // 
+    
+    /**
+     * Обработка первого шага - статическая страница
+     * @param WizardEvent $event
+     * @return bool
+     */
+    public function processIntro($event)
+    {
+        //CVarDumper::dump($event);
+        //CVarDumper::dump($_POST);
+        if ( Yii::app()->request->getPost('startWizard') )
+        {
+            $event->sender->save(array('eventid' => 999999, 'vacancyid' => 0));
+            return true;
+        }else
+        {
+            $this->render('wizard/intro');
+        }
+    }
+    
+    /**
+     *
+     * @param WizardEvent $event
+     * @return bool
+     */
+    public function processBaseInfo($event)
+    {
+        $vacancy = new EventVacancy();
+        if ( $event->data )
+        {
+            $vacancy->attributes = $event->data;
+        }
+        if ( Yii::app()->request->getPost('EventVacancy') )
+        {
+            return true;
+        }else
+        {
+            $this->render('wizard/baseInfo', array('model' => $vacancy));
+        }
+    }
+    
+    /**
+     *
+     * @param WizardEvent $event
+     * @return bool
+     */
+    public function processAddSections($event)
+    {
+        return true;
+    }
+    
+    /**
+     *
+     * @param WizardEvent $event
+     * @return bool
+     */
+    public function processConfigureSections($event)
+    {
+        return true;
+    }
+    
+    /**
+     *
+     * @param WizardEvent $event
+     * @return bool
+     */
+    public function processAddRequired($event)
+    {
+        return true;
+    }
+    
+    /**
+     *
+     * @param WizardEvent $event
+     * @return bool
+     */
+    public function processConfigureRequired($event)
+    {
+        return true;
+    }
+    
+    // Остальные действия //
+    
 	/**
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed
