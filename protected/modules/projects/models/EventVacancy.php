@@ -481,6 +481,7 @@ class EventVacancy extends CActiveRecord
 	 * @return int
 	 * 
 	 * @todo исключить из выборки тех, кто уже утвержден на эту вакансию
+	 * @todo переименовать в countPotentialMembers
 	 */
 	public function countPotentialApplicants($excludeApproved=false)
 	{
@@ -532,7 +533,7 @@ class EventVacancy extends CActiveRecord
 	    $criteria->compare('eventid', $eventId);
 	    $criteria->compare('questionaryid', $questionaryId);
 	    if ( EventInvite::model()->exists($criteria) )
-	    {// приглашение на это мкроприятие уже отправлено
+	    {// приглашение на это мероприятие уже отправлено
 	        return true;
 	    }
 	    if ( $this->hasApplication($questionaryId) )
@@ -604,8 +605,46 @@ class EventVacancy extends CActiveRecord
 	    {
 	        $criteria->addInCondition('status', $statuses);
 	    }
-	    
 	    return ProjectMember::model()->exists($criteria);
+	}
+	
+	/**
+	 * Добавить заявку участника на эту роль
+	 * 
+	 * @param int  $questionaryId - id анкеты участника
+	 * @param bool $force - добавить участника даже если он не подходит по
+	 * @return int - id созданной заявки или false
+	 */
+	public function addApplication($questionaryId, $force=false)
+	{
+	    if ( ! $this->id )
+	    {// роль не существует
+	        throw new CException('Невозможно подать заявку на несуществующую роль');
+	    }
+	    if ( ! $questionary = Questionary::model()->findByPk($questionaryId) )
+	    {// такой анкеты не существует
+	        throw new CException('Невозможно подать заявку: анкета участника не найдена');
+	    }
+	    if ( $this->status === self::STATUS_FINISHED )
+	    {// набор на роль уже завершен
+	        return false;
+	    }
+	    // сначала проверяем есть ли уже заявка от этого участника
+	    if ( $this->hasApplication($questionaryId) )
+	    {// участник уже подал заявку - возьмем ее id
+	        $existedMember = ProjectMember::model()->forVacancy($this->id)->forQuestionary($questionaryId)->find();
+	        return $existedMember->id;
+	    }
+	    // регистрируем заявку участника
+	    $member = new ProjectMember();
+	    $member->memberid  = $questionaryId;
+	    $member->vacancyid = $this->id;
+	     
+	    if ( ! $member->save() )
+	    {// по какой-то экзотической причине сохранение не удалось и об этом надо сообщить
+	        throw new CException('Не удалось сохранить заявку');
+	    }
+	    return $member->id;
 	}
 	
 	/**
@@ -624,7 +663,7 @@ class EventVacancy extends CActiveRecord
 	        }
 	    }
 	    if ( ! $statuses )
-	    {
+	    {// если не указаны статусы - то по умолчанию ищем только активные либо завершенные заявки
 	        $statuses = array(
 	            ProjectMember::STATUS_ACTIVE,
 	            ProjectMember::STATUS_FINISHED,
