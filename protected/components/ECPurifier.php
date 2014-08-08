@@ -95,19 +95,28 @@ class ECPurifier extends CHtmlPurifier
         // Enforce the maximum component length
         $maxlength = 255;
         $text = implode(array_slice(explode('<br>', wordwrap(trim(strip_tags(html_entity_decode($text))), $maxlength, '<br>', false)), 0, 1));
-        //$text = substr(, 0, $maxlength);
     
         foreach ( $matrix as $from => $to )
         {
             $text = mb_eregi_replace($from, $to, $text);
         }
-    
         // Optionally convert to lower case.
         if ( $toLowCase )
         {
-            $text = strtolower($text);
+            $text = mb_strtolower($text);
         }
-    
         return $text;
+    }
+    
+    /**
+     * Исправляет первую букву строки на заглавную
+     * (одноименная функция PHP, к сожалению не работает с русским языком)
+     * 
+     * @return string - исправленная строка
+     */
+    public static function ucfirst($str)
+    {
+        $fc = mb_strtoupper(mb_substr($str, 0, 1));
+        return $fc.mb_substr($str, 1);
     }
 }
