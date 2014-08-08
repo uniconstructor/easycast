@@ -1,22 +1,22 @@
 <?php
 /**
- * Страница завершением регистрации
- * 
- * @todo перенаправлять участника сюда после подачи заявки и напоминать ему какую-то дополнительную
- *       информацию на этой странице
- * @todo Выводить здесь список всех активных подходящих ролей на которые идет набор сейчас
+ * Страница с сообщением о том что отбор завершен и подать заявку уже нельзя
  */
-/* @var $this VacancyController */
+/* @var $this        VacancyController */
+/* @var $vacancy     EventVacancy */
+/* @var $questionary Questionary */
 ?>
 <div class="page-alternate">
     <div class="container">
         <div class="row">
             <div class="span12">
                 <div class="title-page">
-                    <h1 class="title">Заявка принята</h1>
+                    <h1 class="title">Прием заявок завершен</h1>
                     <h4 class="intro-description">
                         <?php 
-                        $this->widget('bootstrap.widgets.TbAlert');
+                        $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
+                            'message' => 'Прием заявок на эту роль завершен.',
+                        ));
                         ?>
                     </h4>
                 </div>
@@ -26,7 +26,7 @@
             <?php 
             // предлагаем посмотреть другие события
             // @todo вывести первые 5 доступных подходящих событий
-            $url = Yii::app()->createUrl('//agenda', array('newMode' => 'user'));
+            $url = Yii::app()->createUrl('//agenda');
             echo CHtml::link('Вернуться к списку событий', $url, array(
                 'class' => 'btn btn-large btn-primary',
             ));
