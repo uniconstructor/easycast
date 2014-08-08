@@ -11,9 +11,9 @@
             <div class="span12">
                 <nav id="social">
                     <ul>
-                        <!--li><a href="https://twitter.com/" title="Мы в твиттере" target="_blank"><span class="icon-twitter"></span></a></li-->
-                        <li><a href="https://vk.com/easycast" title="Наша группа Вконтакте" target="_blank"><span class="icon-vk"></span></a></li>
-                        <!--li><a href="https://www.facebook.com/pages/%D0%9A%D0%B0%D1%81%D1%82%D0%B8%D0%BD%D0%B3%D0%BE%D0%B2%D0%BE%D0%B5-%D0%B0%D0%B3%D0%B5%D0%BD%D1%82%D1%81%D1%82%D0%B2%D0%BE-easycast/756536364374995" title="Мы на Facebook" target="_blank"><span class="icon-facebook"></span></a></li-->
+                        <script type="text/javascript">var switchTo5x=true;</script>
+                        <script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script>
+                        <script type="text/javascript">stLight.options({publisher: "9144efb6-c5a7-4360-9b70-24e468be66c3", doNotHash: false, doNotCopy: false, hashAddressBar: false});</script>
                     </ul>
                 </nav>
             </div>
