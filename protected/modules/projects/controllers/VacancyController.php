@@ -185,7 +185,10 @@ class VacancyController extends Controller
             }
             $model->galleryid = $gallery->id;
         }
-        
+        if ( $model->vacancy->id == 749 )
+        {
+            $this->layout = '//landing/masterchief';
+        }
         // Отображаем страницу формы с регистрацией на роль
         $this->render('registration', array(
             'model' => $model,
@@ -210,10 +213,10 @@ class VacancyController extends Controller
         {// участник не подходит по критериям вакансии
             return false;
         }
-        
         $request = new MemberRequest();
         $request->vacancyid = $vacancy->id;
         $request->memberid  = $questionaryId;
+        
         return $request->save();
     }
     
