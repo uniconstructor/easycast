@@ -1,9 +1,9 @@
 <?php
 
 /**
- * This is the model class for table "{{extra_field_values}}".
+ * Модель для работы со значениями дополнительных полей заявки
  *
- * The followings are the available columns in table '{{extra_field_values}}':
+ * Таблица '{{extra_field_values}}':
  * @property integer $id
  * @property string $instanceid
  * @property string $questionaryid
