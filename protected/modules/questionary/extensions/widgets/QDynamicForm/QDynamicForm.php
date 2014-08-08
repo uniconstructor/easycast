@@ -37,12 +37,12 @@ class QDynamicForm extends CWidget
     /**
      * @var array - полный список всех полей формы, которые нужно указать перед подачей заявки
      */
-    protected $userFields = array();
+    protected $userFields       = array();
     /**
      * @var array - список незаполненных полей формы, которые нужно указать перед подачей заявки
      *              (только для зарегистрированных пользователей)
      */
-    protected $emptyUserFields = array();
+    protected $emptyUserFields  = array();
     /**
      * @var array - список дополнительных полей роли, которые нужно указать перед подачей заявки
      *              (это список всех обязательных полей роли минус уже заполненные поля анкеты)
@@ -51,7 +51,7 @@ class QDynamicForm extends CWidget
     /**
      * @var array - список полей формы для которых есть заранее определенная разметка
      */
-    protected $defaultLayouts = array(
+    protected $defaultLayouts   = array(
         'email',
         'firstname',
         'lastname',
@@ -101,6 +101,7 @@ class QDynamicForm extends CWidget
         {
             throw new CException('Не передан обязательный параметр');
         }
+        // перемещаем значения внутрь класса чтобы с ними было удобнее работать
         $this->questionary = $this->model->questionary;
         $this->vacancy     = $this->model->vacancy;
     }
@@ -112,9 +113,9 @@ class QDynamicForm extends CWidget
     {
         if ( $this->questionary->id AND $this->vacancy->hasApplication($this->questionary->id) )
         {// пользователь уже подал заявку - не отображаем форму второй раз
-            echo CHtml::tag('div', array('class' => 'alert alert-info text-center'), 'Вы уже подали заявку на эту роль');
+            echo CHtml::tag('div', array('class' => 'alert alert-success text-center'), 'Вы уже подали заявку на эту роль');
         }else
-        {// заявка еще не подана
+        {// заявка еще не подана - выводим форму
             $this->render('form', array(
                 'model' => $this->model,
             ));
@@ -270,7 +271,6 @@ class QDynamicForm extends CWidget
                 );
             break;
         }
-        
         return $options;
     }
     
