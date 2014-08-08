@@ -346,11 +346,13 @@ class EventVacancy extends CActiveRecord
 	{
 		return array(
 			array('name, limit', 'required'),
+			// @todo исправлять название на заглавную букву
+			// array('name', 'filter', 'filter' => array('ECPurifier', 'ucfirst')),
 			array('salary, autoconfirm, eventid, scopeid, timecreated, timemodified, timestart, timeend', 'length', 'max' => 11),
 			array('name', 'length', 'max' => 255),
 			array('description', 'length', 'max' => 4095),
 			array('limit', 'length', 'max' => 6),
-			array('status', 'length', 'max' => 9),
+			array('status', 'length', 'max' => 50),
 		    // @todo придумать более безопасный фильтр для условий поиска людей на вакансию 
 		    array('searchdata', 'safe'),
 		);
