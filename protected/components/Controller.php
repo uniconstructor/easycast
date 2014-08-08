@@ -6,12 +6,6 @@
 class Controller extends RController
 {
     /**
-     * @var array - настройки шапки страницы EasyCast 
-     * @deprecated после смены темы не используется. Удалить при рефакторинге
-     */
-    public $ecHeaderOptions = array();
-    
-    /**
      * 
      * @todo совместить с полной заменой accessFilter на RBAC если будет возможность
      * @see CController::filters()
