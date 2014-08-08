@@ -291,11 +291,11 @@ class QDynamicFormModel extends CFormModel
     /**
      * @var bool - выводить ли фрагменты формы для тех полей анкеты, которые уже заполнены
      */
-    public $displayFilled = true;
+    public $displayFilled    = true;
     /**
      * @var string - статус в котором анкеты начинают свою жизнь после регистрации
      */
-    public $initialStatus = Questionary::STATUS_UNCONFIRMED;
+    public $initialStatus    = Questionary::STATUS_UNCONFIRMED;
     
     /**
      * @var Questionary - редактируемая или создаваемая (при регистрации) анкета
@@ -469,6 +469,21 @@ class QDynamicFormModel extends CFormModel
     {
         return $this->extraFields;
     }
+    
+    /**
+     * Определить, нужно ли участнику указывать дополнительную информацию для подачи заявки
+     * или он уже заполнил все необходимые поля до этого (обязательные и дополнительные)
+     * Эта функция должна вызываться только после setUpFieldList()
+     * @return bool
+     */
+    public function hasFullInfo()
+    {
+        if ( empty($this->userFields) AND empty($this->extraFields) )
+        {// ничего заполнять не нужно - значит все данные уже есть
+            return true;
+        }
+        return false;
+    } 
     
     /**
      * @see CModel::rules()
@@ -892,17 +907,18 @@ class QDynamicFormModel extends CFormModel
             $name      = $this->extraFieldPrefix.$extraField->name;
             $newValue  = $this->$name;
             if ( $value = $extraField->getValueFor('vacancy', $this->vacancy->id, $this->questionary->id, true) )
-            {
+            {// значение для этого поля уже сохранено - просто обновим его
                 $value->value = $newValue;
                 $value->save();
             }else
             {// объект значения еще не создан в базе для этой анкеты
-                if ( ! $instance = ExtraFieldInstance::model()->forField($extraField->id)->
-                        attachedTo('vacancy', $this->vacancy->id)->find() )
+                $instance = ExtraFieldInstance::model()->forField($extraField->id)->
+                    attachedTo('vacancy', $this->vacancy->id)->find();
+                if ( ! $instance )
                 {// @todo записать в лог
                     return false;
                 }
-                
+                // создаем запись значения дополнительного поля и привязываем ее к анкете
                 $value = new ExtraFieldValue;
                 $value->instanceid    = $instance->id;
                 $value->questionaryid = $questionary->id;
@@ -917,7 +933,7 @@ class QDynamicFormModel extends CFormModel
      * @param Questionary $questionary
      * @return void
      */
-    protected function saveMemberRequest($questionary)
+    public function saveMemberRequest($questionary)
     {
         $request = new MemberRequest();
         $request->vacancyid = $this->vacancy->id;
@@ -935,12 +951,11 @@ class QDynamicFormModel extends CFormModel
         if ( $this->scenario === 'registration' OR $this->questionary->isNewRecord )
         {// если пользователь зарегистрировался через подачу заявки на эту роль - запомним это
             // отправив событие, дополняющее историю создания анкет (QCreationHistory)
-            $params = array(
+            $event = new CModelEvent($this, array(
                 'questionaryId' => $questionary->id,
                 'objectType'    => 'vacancy',
                 'objectId'      => $this->vacancy->id,
-            );
-            $event = new CModelEvent($this, $params);
+            ));
             $this->onNewUserCreatedByVacancy($event);
         }
     }
