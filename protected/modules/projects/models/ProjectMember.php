@@ -173,16 +173,6 @@ class ProjectMember extends CActiveRecord
 	}
 	
 	/**
-	 * @see CActiveRecord::defaultScope()
-	 */
-    /*public function defaultScope()
-	{
-	    return array(
-	        'order' => '`timecreated` DESC',
-	    );
-	}*/
-
-	/**
 	 * @return array validation rules for model attributes.
 	 */
 	public function rules()
