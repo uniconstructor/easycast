@@ -27,7 +27,7 @@
         ));
         ?>
     </div>
-    <div class="row">
+    <div class="row text-center">
         <span class='st__large' displayText=''></span>
         <span class='st_vkontakte_large' displayText='Vkontakte'></span>
         <span class='st_twitter_large' displayText='Tweet'></span>
@@ -38,7 +38,7 @@
         <span class='st_sharethis_large' displayText='ShareThis'></span>
         <span class='st_whatsapp_large' displayText='WhatsApp'></span>
         <?php
-        // @todo включить после запуска топ-модели
+        // @todo другие возможные роли (включить после тестирования)
         /*$this->widget('questionary.extensions.widgets.QUserInvites.QUserInvites', array(
             'questionary' => $model->questionary,
         ));*/
