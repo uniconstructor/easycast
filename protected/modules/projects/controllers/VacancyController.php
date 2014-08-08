@@ -32,7 +32,6 @@ class VacancyController extends Controller
         // от имени которого подается заявка
         $questionaryId = Yii::app()->request->getParam('questionaryId', 0);
         
-    
         // Создаем и сохраняем новый запрос на участие
         if ( $this->createApplication($vacancy, $questionaryId) )
         {
@@ -41,14 +40,13 @@ class VacancyController extends Controller
         {
             echo 'ERROR';
         }
-    
-        Yii::app()->end();
     }
     
     /**
      * Подать заявку на вакансию по токену
-     *
+     * 
      * @return null
+     * 
      * @todo сделать проверку статуса вакансии и статуса заявки. Если они устарели - выводить сообщение
      * @todo выводить сообщение, если участник не подходит по критериям вакансии
      */
@@ -62,20 +60,20 @@ class VacancyController extends Controller
         {// не передан токен
             throw new CHttpException(500, 'Token not found');
         }
-        $vacancyId = Yii::app()->request->getPost('vacancyId', null);
+        // получаем id приглашения и роли
+        $inviteId  = Yii::app()->request->getParam('inviteId', null);
+        $vacancyId = Yii::app()->request->getParam('vacancyId', null);
+        $invite    = EventInvite::model()->findByPk($inviteId);
         $vacancy   = $this->loadModel($vacancyId);
         
-        $inviteId = Yii::app()->request->getParam('inviteId', null);
-        if ( ! $invite = EventInvite::model()->findByPk($inviteId) )
-        {
+        if ( ! $invite )
+        {// для переданного токена нет приглашения
             throw new CHttpException(404, 'Приглашение не найдено');
         }
-        
         if ( $key != $invite->subscribekey )
-        {// ключ одноразовой ссылки не подходит - что-то тут не так...
+        {// переданный ключ одноразовой ссылки не подходит с хранимым в базе
             throw new CHttpException(404, 'Страница не найдена');
         }
-        
         // Создаем и сохраняем новый запрос на участие
         if ( $this->createApplication($vacancy, $invite->questionaryid ) )
         {
@@ -84,7 +82,6 @@ class VacancyController extends Controller
         {
             echo 'ERROR';
         }
-        Yii::app()->end();
     }
     
     /**
@@ -92,24 +89,32 @@ class VacancyController extends Controller
      * одновременно регистрирует пользователя в системе и подает от его имени заявку на интересующую роль
      * 
      * @return void
+     * 
      * @todo вынести в отдельный action-класс
+     * @todo обработать специальными страницами случаи когда при регистрации возникла ошибка
      */
     public function actionRegistration()
     {
-        // id роли
-        // @todo добавить проверку статуса роли
+        // id роли на которую подается заявка
         $vid     = Yii::app()->request->getParam('vid', 0);
         $vacancy = $this->loadModel($vid);
-        
-        // id анкеты: разрешаем только регистрацию новых пользователей или подачу заявки от своего имени
-        if ( Yii::app()->user->checkAccess('Admin') )
-        {// подача заявки от имени другого участника доступна только админам
-            $qid = 0;
-        }else
-        {
-            $qid = Yii::app()->getModule('questionary')->getCurrentQuestionaryId();
+        // если отбор на роль или мероприятие завершен - сообщим об этом
+        if ( $vacancy->status === EventVacancy::STATUS_FINISHED OR $vacancy->event->isExpired() )
+        {// отбор завершен - сообщим об этом
+            if ( ! Yii::app()->user->checkAccess('Admin') )
+            {
+                //$this->render('expired');
+                //return;
+            }
         }
         
+        // id анкеты: разрешаем только регистрацию новых пользователей или подачу заявки от своего имени
+        $qid = Yii::app()->getModule('questionary')->getCurrentQuestionaryId();
+        if ( Yii::app()->user->checkAccess('Admin') )
+        {// для админов: они сами не могут подать заявку, но могут регистрировать новых
+            // пользователей через эту форму
+            $qid = 0;
+        }
         if ( $qid )
         {// заявку подает существующий участник 
             $questionary = Questionary::model()->findByPk($qid);
@@ -141,29 +146,16 @@ class VacancyController extends Controller
             {
                 $model->galleryid = $gallery->id;
             }
-            // Проверка данных формы по AJAX
+            // проверка данных формы по AJAX
             $this->performAjaxValidation($model);
             
             if ( $model->validate() )
             {// все данные формы верны
                 if ( $user = $model->save() )
                 {/* @var $user User */
-                    if ( $model->scenario === 'registration' AND ! Yii::app()->user->checkAccess('Admin') )
-                    {// Вместе с сохранением данных участника сразу же происходит его авторизация на сайте
-                        Yii::app()->getModule('user')->forceLogin($user);
-                        // добавляем flash-сообщение об успешной регистрации
-                        Yii::app()->user->setFlash('success', 'Регистрация завершена');
-                    }else
-                    {// сообщаем что заявка подана
-                        Yii::app()->user->setFlash('success', 'Ваша заявка зарегистрирована<br>
-                            Об изменении ее статуса мы сообщим вам по почте');
-                    }
-                    // и перенаправляем его на страницу анкеты с открытой вкладкой заявок
-                    $url = Yii::app()->createUrl('//questionary/questionary/view', array(
-                        'id' => $user->questionary->id,
-                        'activeTab' => 'requests',
-                    )); 
-                    $this->redirect($url);
+                    // сообщаем что заявка подана
+                    $this->finishRegistration($user, 'registration');
+                    return;
                 }
             }
         }elseif ( $model->scenario === 'registration' )
@@ -183,16 +175,56 @@ class VacancyController extends Controller
                 // этот код можно будет убрать после того как будет переписан класс gallery
                 $gallery->subfolder = $gallery->id;
             }
+            // привязываем заполненную галерею к анкете
             $model->galleryid = $gallery->id;
+        }elseif ( ! $formData AND $model->hasFullInfo() AND $model->scenario === 'application' AND
+                    Yii::app()->request->getPost('alreadyFilled') )
+        {// если подается заявка от участника который уже заранее заполнил все необходимые данные:
+            // в этом случае ничего нового из формы не приходит (и это логично)
+            // поэтому просто регистрируем заявку и отпускаем пользователя с миром
+            if ( $vacancy->addApplication($questionary->id) )
+            {// сообщаем что заявка подана
+                $this->finishRegistration($questionary->user, 'registration');
+                return;
+            }
         }
-        if ( $model->vacancy->id == 749 )
+        // @todo добавить возможность указывать любую разметку (landing) для любой роли
+        if ( $vacancy->id == 749 )
         {
             $this->layout = '//landing/masterchief';
         }
-        // Отображаем страницу формы с регистрацией на роль
+        // отображаем форму с регистрацией на роль
         $this->render('registration', array(
             'model' => $model,
         ));
+    }
+    
+    /**
+     * Все действия, необходимые после завершения регистрации: сообщение о том что заявка принята,
+     * отображение дополнительной информации и перенаправление участника на страницу с его заявками
+     * 
+     * @param User $user
+     * @param string $scenario сценарий использования формы: регистрация или просто подача заявки
+     * @return void
+     */
+    protected function finishRegistration($user, $scenario)
+    {
+        if ( $scenario === 'registration' AND ! Yii::app()->user->checkAccess('Admin') )
+        {// Вместе с сохранением данных участника сразу же происходит его авторизация на сайте
+            Yii::app()->getModule('user')->forceLogin($user);
+            // добавляем flash-сообщение об успешной регистрации
+            Yii::app()->user->setFlash('success', 'Регистрация завершена');
+        }else
+        {// сообщаем что заявка подана
+            Yii::app()->user->setFlash('success', 'Ваша заявка зарегистрирована<br>
+                Обо всех изменениях мы будем сообщать вам по почте');
+        }
+        // перенаправляем участника на страницу анкеты с открытой вкладкой заявок
+        $url = Yii::app()->createUrl('//questionary/questionary/view', array(
+            'id'        => $user->questionary->id,
+            'activeTab' => 'requests',
+        ));
+        $this->redirect($url);
     }
     
     /**
@@ -213,11 +245,8 @@ class VacancyController extends Controller
         {// участник не подходит по критериям вакансии
             return false;
         }
-        $request = new MemberRequest();
-        $request->vacancyid = $vacancy->id;
-        $request->memberid  = $questionaryId;
-        
-        return $request->save();
+        // создаем и сохраняем заявку
+        return  (bool)$vacancy->addApplication($questionaryId);
     }
     
     /**
