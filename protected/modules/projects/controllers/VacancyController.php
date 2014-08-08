@@ -103,8 +103,8 @@ class VacancyController extends Controller
         {// отбор завершен - сообщим об этом
             if ( ! Yii::app()->user->checkAccess('Admin') )
             {
-                //$this->render('expired');
-                //return;
+                $this->render('expired');
+                return;
             }
         }
         
