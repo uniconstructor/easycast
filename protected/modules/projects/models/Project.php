@@ -45,6 +45,9 @@
  * @todo переписать relations через именованные группы условий
  * @todo сделать список типов проекта настраиваемым
  * @todo если понадобится сделать 2 поля email: простой и zendesk
+ * @todo созданные и приркрепленные группы полей и заявок при запуске проекта
+ *       если они не использовались (в категории разделов нет разделов + в категории полей нет полей)
+ * @todo запоминать в настройках созданную для этого проекта категорию заявок
  */
 class Project extends SWActiveRecord
 {
@@ -198,6 +201,45 @@ class Project extends SWActiveRecord
 	}
 	
 	/**
+	 * @see CActiveRecord::afterSave()
+	 */
+	public function afterSave()
+	{
+	    // после создания проекта автоматически создаем 
+	    // и прикрепляем к нему группы разделов заявок и группы дополнительных полей
+	    // @todo обработать ошибки
+	    // @todo убрать использование type при создании категории 
+	    if ( $this->isNewRecord )
+	    {
+	        // группы заявок
+	        $sectionCategory = new Category();
+	        $sectionCategory->name     = 'Группы заявок проекта '.$this->name;
+	        $sectionCategory->parentid = 4;
+	        $sectionCategory->type     = 'sections';
+	        $sectionCategory->save();
+	        // наборы дополнительных полей
+	        $sectionCategory = new Category();
+	        $sectionCategory->name     = 'Дополнительные вопросы проекта '.$this->name;
+	        $sectionCategory->parentid = 5;
+	        $sectionCategory->type     = 'extrafields';
+	        $sectionCategory->save();
+	        // шаблон создания анкеты
+	        $sectionCategory = new Category();
+	        $sectionCategory->name     = 'Шаблон создания анкеты для проекта '.$this->name;
+	        $sectionCategory->parentid = 6;
+	        $sectionCategory->type     = 'userfields';
+	        $sectionCategory->save();
+	        // шаблон отображения анкеты
+	        $sectionCategory = new Category();
+	        $sectionCategory->name     = 'Внешний вид заявки для проекта '.$this->name;
+	        $sectionCategory->parentid = 7;
+	        $sectionCategory->type     = 'categories';
+	        $sectionCategory->save();
+	    }
+	    parent::afterSave();
+	}
+	
+	/**
 	 * @see CActiveRecord::beforeDelete()
 	 */
 	protected function beforeDelete()
@@ -206,7 +248,6 @@ class Project extends SWActiveRecord
 	    {// При удалении проекта удаляем все его мероприятия
 	        $event->delete();
 	    }
-	    
 	    return parent::beforeDelete();
 	}
 	
