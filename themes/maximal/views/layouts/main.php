@@ -27,7 +27,6 @@ Yii::app()->clientScript->registerCoreScript('jquery');
     <link href="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/css/bootstrap.min.css" rel="stylesheet" type='text/css'>
     <link href="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/css/flexslider.css" rel="stylesheet" type='text/css'>
     <link href="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/css/font-awesome.min.css" rel="stylesheet" type='text/css'>
-    <link href="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/css/font-awesome.css" rel="stylesheet" type='text/css'>
     <link href="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/css/main.css" rel="stylesheet" type='text/css'>
     <link href="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" type='text/css'>
     <link href="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/css/responsive.css" rel="stylesheet" type="text/css">
