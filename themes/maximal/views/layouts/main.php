@@ -35,6 +35,7 @@ Yii::app()->clientScript->registerCoreScript('jquery');
     <link href="<?= Yii::app()->baseUrl; ?>/css/helpers.css" rel="stylesheet" type='text/css'>
     <!-- modernizr lib -->
     <script src="<?= Yii::app()->baseUrl; ?>/js/modernizr.custom.min.js" type="text/javascript"></script>
+    <script src="<?= Yii::app()->baseUrl; ?>/js/yiiFormExtensions.js" type="text/javascript"></script>
 </head>
 <body>
     <?php
