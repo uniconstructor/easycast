@@ -27,7 +27,7 @@ class ECAlert extends CWidget
     /**
      * @var string - тип сообщения
      */
-    public $type        = '';
+    public $type        = 'info';
     /**
      * @var bool - разрешить ли закрывать (убирать) сообщение?
      */
