@@ -33,7 +33,7 @@ class FuelWizard extends CWidget
     /**
      * @var bool - отображать ли кнопку назад?
      */
-    public $displayPrevButton = true;
+    public $displayButtons = true;
     /**
      * @var array - массив настроек для bootstrap-виджета TbButton
      */
@@ -62,7 +62,7 @@ class FuelWizard extends CWidget
     /**
      * @var string - JS-код который выполняется перед изменением шага
      */
-    public $onChange = "console.log('change')";
+    public $onChange = "console.log('change');";
     /**
      * @var string - JS-код который выполняется перед изменением шага
      */
@@ -79,6 +79,19 @@ class FuelWizard extends CWidget
      * @var string - JS-код который выполняется при нажатии на кнопку "назад"
      */
     public $onNext = "console.log('next');";
+    /**
+     * @var string - скрипты выполняющиеся при инициализации
+     */
+    public $onInit;
+    
+    /**
+     * @var array
+     */
+    protected $stepNumbers = array();
+    /**
+     * @var array
+     */
+    protected $stepNames   = array();
     
     /**
      * @see CWidget::init()
@@ -86,29 +99,35 @@ class FuelWizard extends CWidget
     public function init()
     {
         $this->htmlOptions['id'] = $this->getId();
-        $initId  = __CLASS__ . '#' . $this->getId();
-        $baseUrl = CHtml::asset(dirname(__FILE__) . '/assets');
-        // скрипт для инициализации виджета
-        $initScript = "";
+        $initId     = __CLASS__ . '#' . $this->getId();
+        $baseUrl    = CHtml::asset(dirname(__FILE__) . '/assets');
+        $initScript = '';
         
+        $count = 1;
+        foreach ( $this->steps as $name => $step )
+        {
+            $this->stepNumbers[$name] = $count;
+            $this->stepNames[$count]  = $name;
+            $count++;
+        }
         if ( ! $this->activeStep )
         {// устанавливаем активным шагом первый если он не задан
-            $stepNames = array_keys($this->steps);
-            $this->activeStep = $stepNames[0];
+            $this->activeStep = $this->stepNames[1];
         }
+        
+        // задаем изначальный шаг виджета
+        $initScript = "$('#{$this->htmlOptions['id']}').wizard('selectedItem', {step:{$this->stepNumbers[$this->activeStep]}});";
         if ( $this->onPrev )
         {
-            $initScript .= "$('.btn-prev').on('click', function() {
+            $initScript .= "$('.btn-prev').on('click', function(e) {
                 {$this->onPrev}
                 $('#{$this->htmlOptions['id']}').wizard('previous');
-            });
-            \n";
+            });\n";
         }
         if ( $this->onNext )
         {
-            $initScript .= "$('.btn-next').on('click', function() {
+            $initScript .= "$('.btn-next').on('click', function(e) {
                 {$this->onNext}
-                var item = $('#{$this->htmlOptions['id']}').wizard('selectedItem');
                 $('#{$this->htmlOptions['id']}').wizard('next');
             });\n";
         }
@@ -130,6 +149,8 @@ class FuelWizard extends CWidget
                 {$this->onFinish}
             });\n";
         }
+        $initScript .= $this->onInit;
+        
         // подключаем зависимости
         $clientScript = Yii::app()->clientScript;
         $clientScript->registerCoreScript('jquery');
@@ -140,7 +161,8 @@ class FuelWizard extends CWidget
         // @todo подключаем скрипты виджета
         //$clientScript->registerScriptFile($baseUrl . '/src/loader.js');
         
-        $clientScript->registerScript($initId, $initScript, CClientScript::POS_END);
+        
+        $clientScript->registerScript($initId, $initScript, CClientScript::POS_READY);
     }
     
     /**

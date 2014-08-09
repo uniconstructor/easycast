@@ -62,10 +62,13 @@ foreach ( $this->steps as $name => $step )
     echo CHtml::closeTag('div');
 }
 // кнопки
-echo CHtml::openTag('div', array('class' => 'actions'));
-$this->widget('bootstrap.widgets.TbButton', $this->prevButtonOptions);
-$this->widget('bootstrap.widgets.TbButton', $this->nextButtonOptions);
-echo CHtml::closeTag('div');
+if ( $this->displayButtons )
+{
+    echo CHtml::openTag('div', array('class' => 'actions'));
+    $this->widget('bootstrap.widgets.TbButton', $this->prevButtonOptions);
+    $this->widget('bootstrap.widgets.TbButton', $this->nextButtonOptions);
+    echo CHtml::closeTag('div');
+}
 
 // конец содержимого
 echo CHtml::closeTag('div');
