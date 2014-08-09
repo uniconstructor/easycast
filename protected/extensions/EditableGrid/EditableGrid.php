@@ -91,6 +91,10 @@ class EditableGrid extends CWidget
      */
     public $emptyTextVariants = array();
     /**
+     * @var string - текст, отображаемый когда в таблице нет ни одного значения
+     */
+    public $emptyText;
+    /**
      * @var string - id клипа (фрагмента html-кода который генерируется в одном месте а выводится в другом)
      *               Здесь используется для modal-окон с формами (их нельзя размещать внутри других форм)
      *               Если этот параметр задан - то в модуль questionary будет записан id фрагмента кода с формой
@@ -210,13 +214,13 @@ class EditableGrid extends CWidget
             'size'        => 'large',
             'label'       => $this->addButtonLabel,
             'icon'        => 'plus white',
-            'url'         => '#',
+            'url'         => '#'.$this->modalId,
             'htmlOptions' => array(
                 'id'          => $this->addButtonId,
                 'class'       => 'pull-right',
                 'data-toggle' => 'modal',
                 'data-target' => '#'.$this->modalId,
-            )
+            ),
         );
         $this->addButtonOptions = CMap::mergeArray($defaults, $this->addButtonOptions);
     }
@@ -258,13 +262,22 @@ class EditableGrid extends CWidget
      */
     protected function createAfterAddJs()
     {
-        $js = '';
+        $js = "\n";
         // js для добавления новой строки в таблицу
-        $js .= "\$.fn.yiiGridView.update('{$this->rowIdPrefix}table');";
+        $js .= "$.fn.yiiGridView.update('{$this->rowIdPrefix}table');";
         // js для очистки полей формы после добавления новой записи
         $js .= $this->createClearFormJs();
     
         return $js;
+    }
+    
+    /**
+     * Получить JS для обновления содержимого таблицы по AJAX
+     * @return string
+     */
+    protected function createGridRefreshJs()
+    {
+        return "$.fn.yiiGridView.update('{$this->rowIdPrefix}table');";
     }
     
     /**
