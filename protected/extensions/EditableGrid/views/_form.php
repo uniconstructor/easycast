@@ -10,13 +10,18 @@
 /* @var $model CActiveRecord */
 
 // отображаем всплывающее окно
-$this->beginWidget('bootstrap.widgets.TbModal', array('id' => $this->modalId));
+$this->beginWidget('bootstrap.widgets.TbModal', array(
+    'id' => $this->modalId,
+    /*'options' => array(
+        'static' => true,
+    ),*/
+));
 
 // отображаем форму
 $form = $this->beginWidget('TbActiveForm', array(
     'id' => $this->formId,
     'enableAjaxValidation'   => true,
-    'enableClientValidation' => true,
+    'enableClientValidation' => false,
     'clientOptions' => array(
         'validateOnSubmit' => true,
         'validateOnChange' => false,
@@ -48,14 +53,14 @@ $form = $this->beginWidget('TbActiveForm', array(
         'url'         => $this->createUrl,
         'ajaxOptions' => array(
             'success'  => "function (data, status) {
-                  \$('#{$this->modalId}').modal('hide');
+                  $('#{$this->modalId}').modal('hide');
                   //data = \$.parseJSON(data);
                   {$this->createAfterAddJs()}
               }",
             'type'     => 'post',
             'error'    => "function(data, status) {
               var message = '';
-              console.log(data);
+              //console.log(data);
               if ( data.responseText )
               {
                   message = ': ' + data.responseText;
