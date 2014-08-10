@@ -101,7 +101,7 @@ class VacancyController extends Controller
         // если отбор на роль или мероприятие завершен - сообщим об этом
         if ( $vacancy->status === EventVacancy::STATUS_FINISHED OR $vacancy->event->isExpired() )
         {// отбор завершен - сообщим об этом
-            if ( ! Yii::app()->user->checkAccess('Admin') )
+            if ( ! Yii::app()->user->checkAccess('Admin') AND ! YII_DEBUG )
             {
                 $this->render('expired');
                 return;
@@ -214,11 +214,35 @@ class VacancyController extends Controller
             Yii::app()->getModule('user')->forceLogin($user);
             // добавляем flash-сообщение об успешной регистрации
             Yii::app()->user->setFlash('success', 'Регистрация завершена');
+            
+            // FIXME сделать загрузку видео в зависимости от настроек
+            
+            //if ( $this->vacancy->id === 749 OR Yii::app()->user->checkAccess('Admin') )
+            {
+                $galleryId = $user->questionary->galleryid;
+                // @todo проверить можно ли тут использовать просто find
+                // @todo после подачи заявки прикреплять видео к заявке а не к анкете
+                $videos = Video::model()->forObject('gallery', $galleryId)->findAll();
+                if ( $galleryId AND $videos )
+                {
+                    $video = current($videos);
+                    $video->objecttype = 'questionary';
+                    $video->objectid   = $user->questionary->id;
+                    $video->save();
+                }
+            }
         }else
         {// сообщаем что заявка подана
             Yii::app()->user->setFlash('success', 'Ваша заявка зарегистрирована<br>
                 Обо всех изменениях мы будем сообщать вам по почте');
+            // FIXME сделать загрузку видео в зависимости от настроек
+            // @todo после подачи заявки прикреплять видео к заявке а не к анкете
+            //if ( $this->vacancy->id === 749 OR Yii::app()->user->checkAccess('Admin') )
+            //{
+            //    
+            //}
         }
+        
         // перенаправляем участника на страницу анкеты с открытой вкладкой заявок
         $url = Yii::app()->createUrl('//questionary/questionary/view', array(
             'id'        => $user->questionary->id,
@@ -271,7 +295,7 @@ class VacancyController extends Controller
      */
     protected function performAjaxValidation($model)
     {
-        if ( isset($_POST['ajax']) && $_POST['ajax'] === 'dynamic-registration-form' )
+        if ( isset($_POST['ajax']) AND $_POST['ajax'] === 'dynamic-registration-form' )
         {
             echo CActiveForm::validate($model);
             Yii::app()->end();
