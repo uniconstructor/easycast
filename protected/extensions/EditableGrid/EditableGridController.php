@@ -9,6 +9,19 @@ class EditableGridController extends Controller
      * @var string - класс модели сложного значения
      */
     protected $modelClass;
+    
+    /**
+     * @see CController::actions()
+     */
+    public function actions()
+    {
+        return array(
+            'sortable' => array(
+                'class'      => 'bootstrap.actions.TbSortableAction',
+                'modelName'  => $this->modelClass,
+            ),
+        );
+    }
 
     /**
      * @see CController::init()
@@ -43,7 +56,7 @@ class EditableGridController extends Controller
     {
         return array(
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'delete', 'toggle'),
+                'actions' => array('create', 'update', 'delete', 'toggle', 'sortable'),
                 'users'   => array('@'),
             ),
             array('deny',  // deny all users
