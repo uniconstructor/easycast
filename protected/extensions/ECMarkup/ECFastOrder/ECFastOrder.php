@@ -35,7 +35,6 @@ class ECFastOrder extends CWidget
         $data->orderSuccessMessage = Yii::t('coreMessages', 'place_order_success');
         $data->ajaxSuccessScript   = $this->getOrderAjaxSuccessScript($data);
         
-        
         $model = new FastOrder;
         // внутри всплывающего окна отображаем форму срочного заказа
         $this->render('_fastorder', array('data'=>$data,'model'=>$model));
@@ -52,25 +51,25 @@ class ECFastOrder extends CWidget
         $message = '<div class="alert alert-success">'.$data->orderSuccessMessage.'</div>';
         $message .= '<div style="text-align:center;">';
         $message .= $this->widget('bootstrap.widgets.TbButton', array(
-            'type'=>'primary',
+            'type'  => 'primary',
             'label' => Yii::t('coreMessages', 'close'),
             'htmlOptions'=>array('data-dismiss'=>'modal'),
         ), true);
         $message .= '</div>';
     
         $script = 'function(data){
-                    if(data.status == "success")
-                    {
-                        $(".modal-body").html(\''.$message.'\');
-                        $(".modal-footer").html("");
-                    }else
-                    {
-                        $.each(data, function(key, val) {
-                        $("#'.$data->formid.' #"+key+"_em_").text(val);
-                        $("#'.$data->formid.' #"+key+"_em_").show();
-                        });
-                    }
-                }';
+            if ( data.status == "success" )
+            {
+                $(".modal-body").html(\''.$message.'\');
+                $(".modal-footer").html("");
+            }else
+            {
+                $.each(data, function(key, val) {
+                    $("#'.$data->formid.' #"+key+"_em_").text(val);
+                    $("#'.$data->formid.' #"+key+"_em_").show();
+                });
+            }
+        }';
     
         return $script;
     }
