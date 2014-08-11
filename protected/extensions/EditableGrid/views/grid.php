@@ -22,7 +22,14 @@ $grid = $this->widget('bootstrap.widgets.TbExtendedGridView', array(
     //       UPD: проблема вроде как была решена обновлением Yii (ошибка оригинального GridView) нужно проверить
     'htmlOptions'  => array('class' => $this->rowIdPrefix.'table grid-view'),
     'rowHtmlOptionsExpression' => 'array("id" => "'.$this->rowIdPrefix.'".$data->id);',
-    'id'          => $this->rowIdPrefix.'table',
+    'id'           => $this->rowIdPrefix.'table',
+    // текст, отображаемый когда в таблице нет ни одного значения
+    'emptyText'    => $this->emptyText,
+    // сортировка строк таблицы 
+    'sortableRows'      => $this->sortableRows,
+    'sortableAttribute' => $this->sortableAttribute,
+    'sortableAjaxSave'  => $this->sortableAjaxSave,
+    'sortableAction'    => $this->sortableAction,
 ));
 
 // кнопка добавления новой записи

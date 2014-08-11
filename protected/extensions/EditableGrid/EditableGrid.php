@@ -104,6 +104,22 @@ class EditableGrid extends CWidget
      * @var string - id модуля, который хранит клипы с modal-формами
      */
     public $clipModule;
+    /**
+     * @var bool - разрешить ли изменять порядок строк перетаскиванием?
+     */
+    public $sortableRows      = true;
+    /**
+     * @var string - поле, по которому производится сортировка
+     */
+    public $sortableAttribute = 'sortorder';
+    /**
+     * @var bool - сохранять ли новый порядок строк через AJAX?
+     */
+    public $sortableAjaxSave  = true;
+    /**
+     * @var string - путь к обработчику сортировки строк
+     */
+    public $sortableAction;
     
     /**
      * @var CActiveRecord
@@ -132,6 +148,11 @@ class EditableGrid extends CWidget
         if ( ! $this->deleteUrl )
         {
             $this->deleteUrl = $this->gridControllerPath.'delete';
+        }
+        // url для изменения порядка строк в таблице
+        if ( ! $this->sortableAction )
+        {
+            $this->sortableAction = $this->gridControllerPath.'sortable';
         }
         // вычисляем все id для html-элементов если они не заданы
         if ( ! $this->mainIdPrefix )
