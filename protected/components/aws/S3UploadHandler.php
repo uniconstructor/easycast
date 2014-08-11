@@ -1139,13 +1139,15 @@ class S3UploadHandler extends CComponent
                 }
 
             } else {
-
-
+                $context = stream_context_create(array(
+                    's3' => array('ACL' => 'public-read'),
+                ));
                 // Non-multipart uploads (PUT method support)
                 file_put_contents(
                     $file_path,
                     fopen('php://input', 'r'),
-                    $append_file ? FILE_APPEND : 0
+                    $append_file ? FILE_APPEND : 0,
+                    $context
                 );
             }
             $file_size = $this->get_file_size($file_path, $append_file);
