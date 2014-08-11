@@ -42,6 +42,11 @@ class S3UploadAction extends XUploadAction
         $this->init();
         $objectId = Yii::app()->request->getParam('objectId', '0');
         
+        if ( $objectType = Yii::app()->request->getParam('objectType') )
+        {
+            $this->objectType = $objectType;
+        }
+        
         $model = $this->formModel;
         $model->{$this->fileAttribute} = CUploadedFile::getInstance($model, $this->fileAttribute);
         
