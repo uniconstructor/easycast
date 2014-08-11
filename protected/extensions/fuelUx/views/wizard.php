@@ -16,6 +16,7 @@ $count     = 1;
 foreach ( $this->steps as $name => $step )
 {
     $itemOptions = array(
+        'class' => '',
         'data-target' => '#'.$name,
     );
     $spanOptions = array(
@@ -23,7 +24,7 @@ foreach ( $this->steps as $name => $step )
     );
     if ( $name === $this->activeStep )
     { // выделим текущий активный шаг
-        $itemOptions['class']  = 'active';
+        $itemOptions['class'] .= ' active';
         $spanOptions['class'] .= ' badge-info';
         $completed = false;
     }
@@ -72,9 +73,7 @@ if ( $this->displayButtons )
 
 // конец содержимого
 echo CHtml::closeTag('div');
-
-
 // конец контейнера для wizard
 echo CHtml::closeTag('div');
-?>
-<script src="https://fuelcdn.com/fuelux/2.3/loader.min.js"></script>
+
+echo '<script src="https://fuelcdn.com/fuelux/2.2/loader.min.js"></script>';

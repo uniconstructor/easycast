@@ -153,14 +153,17 @@ class FuelWizard extends CWidget
         
         // подключаем зависимости
         $clientScript = Yii::app()->clientScript;
-        $clientScript->registerCoreScript('jquery');
+        //$clientScript->registerCoreScript('jquery');
         // подключаем стили виджета
-        $clientScript->registerCssFile($baseUrl . '/css/fuelux.min.css');
-        $clientScript->registerCssFile($baseUrl . '/css/fuelux-responsive.min.css');
+        //$clientScript->registerCssFile($baseUrl . '/css/fuelux.min.css');
+        //$clientScript->registerCssFile($baseUrl . '/css/fuelux-responsive.min.css');
         
         // @todo подключаем скрипты виджета
+       /* $clientScript->registerScriptFile($baseUrl . '/lib/almond.js');
+        $clientScript->registerScriptFile($baseUrl . '/lib/require.js');
+        $clientScript->registerScriptFile($baseUrl . '/lib/moment.js');
         //$clientScript->registerScriptFile($baseUrl . '/src/loader.js');
-        
+        $clientScript->registerScriptFile($baseUrl . '/src/wizard.js');*/
         
         $clientScript->registerScript($initId, $initScript, CClientScript::POS_READY);
     }
