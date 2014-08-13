@@ -81,7 +81,7 @@ return array(
     'passportdate_label' => 'Когда выдан',
     'passportorg_label' => 'Кем выдан',
     'addressid_label' => 'Адрес',
-    'policyagreed_label' => 'Соглашаюсь с условиями использования сайта',
+    'policyagreed_label' => 'Регистрируясь я соглашаюсь с <a href="//site/page/view/license" target="_blank">условиями использования</a> сайта',
     'status_label' => 'Статус',
     'encrypted_label' => 'Персональные данные анкеты зашифрованы',
     'rating_label' => 'Рейтинг анкеты',
