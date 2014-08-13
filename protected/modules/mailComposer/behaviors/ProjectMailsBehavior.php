@@ -16,7 +16,7 @@ class ProjectMailsBehavior extends CBehavior
      *
      * @param EventInvite $invite - приглашение на мероприятие
      * @return string
-     *
+     * 
      * @todo проверить Chtml::encode()
      */
     public function createNewInviteMailSubject($invite)
@@ -24,17 +24,14 @@ class ProjectMailsBehavior extends CBehavior
         // название проекта и мероприятия
         $projectName = $invite->event->project->name;
         $eventName   = $invite->event->name;
-         
         // дата и время начала мероприятия
         $startDate = $invite->event->getFormattedTimeStart();
-         
         // дата и время или название мероприятия (если время не указано)
         $eventInfo = $eventName;
         if ( $startDate AND ! $invite->event->nodates )
         {// если мероприятие создано на конкретную дату - отобразим ее
             $eventInfo = $startDate;
         }
-         
         $subject = 'Приглашение на съемки в проекте "'.$projectName.'" ('.$eventInfo.')';
         return $subject;
     }
@@ -53,7 +50,7 @@ class ProjectMailsBehavior extends CBehavior
         $segments    = new CMap();
         $mailOptions = $this->getInviteMailOptions($invite, $mailOptions);
         
-        // Создаем текст письма: приветствие и что вообще произошло (только текст, без заголовка)
+        // создаем текст письма: приветствие и что вообще произошло (только текст, без заголовка)
         $greetingBlock = $this->createNewInviteGreetingBlock($invite);
         $segments->add(null, $greetingBlock);
         
@@ -166,14 +163,14 @@ class ProjectMailsBehavior extends CBehavior
         $block['text'] .= 'Некоторое время назад вы подавали заявку на участие в проекте "'.
             $projectName.'", на роль "'.$projectMember->vacancy->name.'".'."<br>\n";
         
-        if ( ! $massRole )
+        /*if ( ! $massRole )
         {// для художественных ролей заявки отбирает режиссер
             $block['text'] .= "Мы передали вашу заявку на рассмотрение режиссеру."; 
-        }
+        }*/
         $block['text'] .= "К сожалению она была отклонена. <br> 
             Возможные причины:<br>\n";
         $block['text'] .= "<ul>";
-        $block['text'] .= "<li>Анкета одного из других кандидатов оказалась ближе к образу, уведенному режиссером.</li>";
+        $block['text'] .= "<li>Анкета одного из других кандидатов оказалась ближе к образу по мнению креативной группы кастинга.</li>";
         $block['text'] .= "<li>В вашей анкете недостаточно данных.
                 Настоятельно рекомендуем вам следить за тем чтобы ваша анкета была максимально подробно заполнена.
                 Обязательно размещайте свежие фото и видео, а также пополнять фильмографию.</li>";
@@ -213,7 +210,8 @@ class ProjectMailsBehavior extends CBehavior
         $text  = $this->createUserGreeting($projectMember->member);
         $text .= 'Ваша заявка на роль &laquo;'.$vacancyName.'&raquo; в проекте &laquo;'.$projectName.'&raquo; получала статус &laquo;предварительно одобрена&raquo;.<br>';
         $text .= 'Это означает, что вы прошли первый этап отбора, но окончательное решение пока еще не принято.<br>';
-        $text .= 'Мы свяжемся с вами после того как получим результаты финального отбора. В зависимости от них мы либо пригласим вас на съемки, либо сообщим о том что ваша заявка отклонена.<br>';
+        $text .= 'Наш менеджер обязательно свяжется с вами в ближайшее время и расскажет о дальнейших этапах кастинга!<br>';
+        $text .= 'Удачи!';
         $text .= '<br><br><i>(Это автоматическое уведомление, отвечать на него не нужно)</i>';
         
         $segments->add(null, $this->owner->textBlock($text));
@@ -318,7 +316,23 @@ class ProjectMailsBehavior extends CBehavior
     {
         return $this->owner->widget('application.modules.mailComposer.extensions.mails.EMailTMRegistration.EMailTMRegistration',
             array('questionary' => $questionary),
-            true);
+        true);
+    }
+    
+    /**
+     * Подтверждение регистрации через подачу заявки на проект "МастерШеф"
+     * @param Questionary $questionary
+     * @param EventVacancy $questionary
+     * @return string
+     */
+    public function createMCRegistrationMailText($questionary, $vacancy)
+    {
+        return $this->owner->widget('application.modules.mailComposer.extensions.mails.EMailMCRegistration.EMailMCRegistration',
+            array(
+                'questionary' => $questionary,
+                'vacancy'     => $vacancy,
+            ),
+        true);
     }
     
     /**
@@ -427,7 +441,6 @@ class ProjectMailsBehavior extends CBehavior
         {// у проекта вообще нет описания - ничего не выводим
             return;
         }
-        
         return $block;
     }
     
@@ -458,7 +471,6 @@ class ProjectMailsBehavior extends CBehavior
         {// дополнительная информация для подтвержденных участников
             $block['text'] .= $this->getEvendAddInfo($event);
         }
-         
         return $block;
     }
     
@@ -477,7 +489,6 @@ class ProjectMailsBehavior extends CBehavior
             // одно мероприятие - один блок
             $blocks[] = $this->createOneGroupEventDescription($event, $showAddInfo);
         }
-        
         return $blocks;
     }
     
@@ -509,7 +520,6 @@ class ProjectMailsBehavior extends CBehavior
         {
             $block['text'] .= $this->getEvendAddInfo($event);
         }
-         
         return $message;
     }
     
@@ -533,7 +543,6 @@ class ProjectMailsBehavior extends CBehavior
             //$text .= '<p>'.$event->memberinfo.'</p>';
             $text .= $event->memberinfo;
         }
-        
         return $text;
     }
     
@@ -570,7 +579,6 @@ class ProjectMailsBehavior extends CBehavior
             }
             $blocks[] = $vacancyBlock;
         }
-         
         return $blocks;
     }
     
@@ -717,9 +725,10 @@ class ProjectMailsBehavior extends CBehavior
         
         $block['text'] = $this->createUserGreeting($projectMember->member);
         $block['text'] .= 'Некоторое время назад вы подавали заявку на роль &laquo;'.$vacancyName.'&raquo;';
-        $block['text'] .= 'Ваша заявка была подтверждена.'."<br>\n";
-        $block['text'] .= 'Теперь вы участник проекта "'.$event->project->name.'".'."<br>\n";
-        $block['text'] .= 'Ваша роль - "'.$projectMember->vacancy->name."\"<br>\n";
+        $block['text'] .= 'Поздравляем! Ваша заявка была подтверждена!'."<br>\n";
+        $block['text'] .= 'Наш менеджер обязательно свяжется с вами в ближайшее время 
+            и расскажет о всех подробностях вашего участия в проекте!.'."<br>\n";
+        $block['text'] .= "Удачи!<br>\n";
         
         if ( $event->type == 'group' )
         {
@@ -728,7 +737,6 @@ class ProjectMailsBehavior extends CBehavior
         {
             $block['text'] .= "<br>\n".'Напоминаем вам информацию о мероприятии:';
         }
-        
         return $block;
     }
     
