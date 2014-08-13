@@ -207,6 +207,53 @@ class ExtraField extends CActiveRecord
 	}
 	
 	/**
+	 * Именованая группа условий: получить все поля, привязаные к определенному объекту
+	 * @param string $objectType
+	 * @param array $objectIds
+	 * @return ExtraField
+	 */
+	public function forObjects($objectType, $objectIds)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->with = array(
+	        'instances' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes'   => array(
+                    'forObjects' => array($objectType, $objectIds),
+                ),
+            ),
+	    );
+	    $criteria->together = true;
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    return $this;
+	}
+	
+	/**
+	 * Именованная группа условий поиска - получить записи принадлежащие определенной роли
+	 * @param EventVacancy $vacancy
+	 * @return ExtraField
+	 */
+	public function forVacancy($vacancy)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->with = array(
+	        'instances' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes'   => array(
+	                'forVacancy' => array($vacancy),
+	            ),
+	        ),
+	    );
+	    $criteria->together = true;
+	     
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    return $this;
+	}
+	
+	/**
 	 * Именованая группа условий: получить все поля, привязаные к указанным категориям
 	 * @param array $objectId
 	 * @return ExtraField
@@ -219,13 +266,35 @@ class ExtraField extends CActiveRecord
 	            'select'   => false,
 	            'joinType' => 'INNER JOIN',
 	            'scopes'   => array(
-                    'forType'    => array('category'),
-	                'forObjects' => array($categoryIds),
+	                'forObjects' => array('category', $categoryIds),
                 ),
             ),
 	    );
 	    $criteria->together = true;
 	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    return $this;
+	}
+	
+	/**
+	 * Именованая группа условий: получить все поля, привязаные к указанным этапам регистрации
+	 * @param array $ids
+	 * @return ExtraField
+	 */
+	public function forStepInstances($ids)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->with = array(
+	        'instances' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes'   => array(
+	                'forObjects' => array('wizardstepinstance', $ids),
+	            ),
+	        ),
+	    );
+	    $criteria->together = true;
+	     
 	    $this->getDbCriteria()->mergeWith($criteria);
 	    return $this;
 	}
@@ -240,7 +309,7 @@ class ExtraField extends CActiveRecord
 	 */
 	public function isEmptyFor($objectType, $objectId, $questionaryId)
 	{
-	    if ( ! $instance = $this->isAttachedTo($objectType, $vacancy->id) )
+	    if ( ! $instance = $this->isAttachedTo($objectType, $objectId) )
 	    {// поле вообще не прикреплено - в этом случае считаем что пользователь нам ничего не должен 
 	        return false;
 	    }
@@ -269,7 +338,9 @@ class ExtraField extends CActiveRecord
 	 */
 	public function isRequiredFor($objectType, $objectId)
 	{
-        if ( ! $instance = ExtraFieldInstance::model()->forField($this->id)->attachedTo($objectType, $objectId)->find() )
+	    $instance = ExtraFieldInstance::model()->forField($this->id)->
+	       attachedTo($objectType, $objectId)->find();
+        if ( ! $instance )
         {// дополнительное поле вообще не прикреплено к этому объекту - значит оно не может быть обязательным
             return false;
         }
@@ -281,6 +352,25 @@ class ExtraField extends CActiveRecord
 	}
 	
 	/**
+	 * 
+	 * @param EventVacancy $vacancy
+	 * @return ExtraField
+	 */
+	public function isRequiredForVacancy($vacancy)
+	{
+	    $instance = ExtraFieldInstance::model()->forVacancy($vacancy)->find();
+	    if ( ! $instance )
+	    {// дополнительное поле вообще не прикреплено к этому объекту - значит оно не может быть обязательным
+	       return false;
+	    }
+	    if ( $instance->filling === 'required' )
+	    {
+	        return true;
+	    }
+	    return false;
+	}
+	
+	/**
 	 * Определить, пусто ли требующее заполнения дополнительное поле (для подачи заявки)
 	 * @param EventVacancy $vacancy - роль, на которую подается заявка
 	 * @param Questionary $questionary - анкета, от имени которой подается заявка
@@ -288,16 +378,17 @@ class ExtraField extends CActiveRecord
 	 */
 	public function isEmptyForVacancy($vacancy, $questionary)
 	{
-	    if ( ! $instance = $this->isAttachedTo('vacancy', $vacancy->id) )
-	    {// поле вообще не прикреплено - в этом случае считаем что пользователь нам ничего не должен 
-	        return false;
+	    if ( ! $this->isAttachedToVacancy($vacancy) )
+	    {// поле вообще не прикреплено - в этом случае считаем что пользователь нам ничего не должен
+	       return false;
 	    }
 	    if ( $questionary->isNewRecord )
 	    {// анкета еще не сохранена
-	        return true;
+	       return true;
 	    }
+	    
 	    // получаем объект содержащий значение поля
-	    if ( ! $value = $this->getValueFor('vacancy', $vacancy->id, $questionary->id, true) )
+	    if ( ! $value = $this->getValueForVacancy($vacancy, $questionary->id, true) )
 	    {// запись со значением еще не создана - поле не заполнено
 	        return true;
 	    }
@@ -310,6 +401,7 @@ class ExtraField extends CActiveRecord
 	
 	/**
 	 * Получить значение дополнительного поля привязанное к анкете + объекту
+	 * 
 	 * @param string $objectType
 	 * @param int $objectId
 	 * @param int $questionaryId
@@ -322,8 +414,45 @@ class ExtraField extends CActiveRecord
 	    {
 	        return null;
 	    }
+	    
 	    $value = ExtraFieldValue::model()->forField($this->id)->
 	       forObject($objectType, $objectId)->forQuestionary($questionaryId)->find();
+	    if ( ! $value )
+	    {
+	        return null;
+	    }
+	    if ( $asObject )
+	    {
+	        return $value;
+	    }
+	    return $value->value;
+	}
+	
+	/**
+	 * Получить значение дополнительного поля привязанное к анкете + объекту
+	 * 
+	 * @param EventVacancy $vacancy
+	 * @param int $questionaryId
+	 * @param bool $asObject
+	 * @return null|string|ExtraFieldValue
+	 */
+	public function getValueForVacancy($vacancy, $questionaryId, $asObject=false)
+	{
+	    if ( ! $this->isAttachedToVacancy($vacancy) )
+	    {
+	        return null;
+	    }
+	    if ( $vacancy->regtype === 'form' )
+	    {
+	        $value = ExtraFieldValue::model()->forField($this->id)->
+	           forObject('vacancy', $vacancy->id)->forQuestionary($questionaryId)->find();
+	    }else
+	    {
+	        $ids = $vacancy->getWizardStepInstanceIds();
+	        $value = ExtraFieldValue::model()->forField($this->id)->
+                forObjects('wizardstepinstance', $ids)->forQuestionary($questionaryId)->find();
+	    }
+	    
 	    if ( ! $value )
 	    {
 	        return null;
@@ -343,7 +472,18 @@ class ExtraField extends CActiveRecord
 	 */
 	public function isAttachedTo($objectType, $objectId)
 	{
-	    return ExtraFieldInstance::model()->forField($this->id)->attachedTo($objectType, $objectId)->exists();
+	    return ExtraFieldInstance::model()->forField($this->id)->
+	       attachedTo($objectType, $objectId)->exists();
+	}
+	
+	/**
+	 * 
+	 * @param EvantVacancy $vacancy
+	 * @return bool
+	 */
+	public function isAttachedToVacancy($vacancy)
+	{
+	    return ExtraFieldInstance::model()->forField($this->id)->forVacancy($vacancy)->exists();
 	}
 	
 	/**
