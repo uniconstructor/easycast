@@ -14,6 +14,7 @@
  * @property string $timecreated
  * @property string $timemodified
  * @property string $default
+ * @property string $sortorder
  * 
  * Relations:
  * @property ExtraField $fieldObject
@@ -45,13 +46,13 @@ class ExtraFieldInstance extends CActiveRecord
 			array('objecttype, filling, condition', 'length', 'max' => 50),
 			array('objecttype, filling, condition', 'filter', 'filter' => 'trim'),
 		    
-			array('fieldid, objectid, timecreated, timemodified', 'length', 'max' => 11),
+			array('fieldid, objectid, timecreated, timemodified, sortorder', 'length', 'max' => 11),
 		    
 			array('default', 'length', 'max' => 255),
 			array('data', 'length', 'max' => 1023),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, fieldid, objecttype, objectid, filling, condition, data, timecreated, timemodified', 
+			array('id, fieldid, objecttype, sortorder, objectid, filling, condition, data, timecreated, timemodified', 
 			    'safe', 'on' => 'search'),
 		);
 	}
@@ -93,14 +94,17 @@ class ExtraFieldInstance extends CActiveRecord
 	{
 	    if ( $this->isNewRecord )
 	    {
-	        $criteria = new CDbCriteria();
-	        $criteria->compare('objecttype', $this->objecttype);
-	        $criteria->compare('objectid', $this->objectid);
-	        $criteria->compare('fieldid', $this->fieldid);
-	        if ( $this->exists($criteria) )
+	        $duplicate = $this->forObject($this->objecttype, $this->objectid)->
+                forField($this->fieldid)->exists();
+	        if ( $duplicate )
 	        {// запрещаем прикреплять одно и то же поле к одному объекту более одного раза
 	            return false;
 	        }
+	        // автоматически назначаем порядок сортировки для новых записей, добавляя их в конец списка
+	        // @todo вынести в behavior
+	        $lastItemCount = $this->forObject($this->objecttype, $this->objectid)->count();
+	        $lastItemCount++;
+	        $this->sortorder = $lastItemCount;
 	    }
 	    return parent::beforeSave();
 	}
@@ -140,7 +144,13 @@ class ExtraFieldInstance extends CActiveRecord
 	 */
 	public function attachedTo($objectType, $objectId)
 	{
-	    return $this->forObject($objectType, $objectId);
+	    if ( is_array($objectId) )
+	    {
+	        return $this->forObjects($objectType, $objectId);
+	    }else
+	    {
+	        return $this->forObject($objectType, $objectId);
+	    }
 	}
 	
 	/**
@@ -163,12 +173,23 @@ class ExtraFieldInstance extends CActiveRecord
 	
 	/**
 	 * Именованная группа условий поиска - получить записи принадлежащие определенной роли
-	 * @param int $vacancyId - id роли, на которую подана заявка
+	 * @param EventVacancy $vacancy - id роли, на которую подана заявка
 	 * @return ExtraFieldInstance
 	 */
-	public function forVacancy($vacancyId)
+	public function forVacancy($vacancy)
 	{
-	    return $this->forObject('vacancy', $vacancyId);
+	    if ( ! is_object($vacancy) )
+	    {
+	        $vacancy = EventVacancy::model()->findByPk($vacancy);
+	    }
+	    if ( $vacancy->regtype == 'form' )
+	    {
+	        return $this->forObject('vacancy', $vacancy->id);
+	    }else
+	    {
+	        $ids = $vacancy->getWizardStepInstanceIds();
+	        return $this->forObjects('wizardstepinstance', $ids);
+	    }
 	}
 	
 	/**
@@ -181,9 +202,9 @@ class ExtraFieldInstance extends CActiveRecord
 	{
 	    $criteria = new CDbCriteria();
 	    $criteria->compare('fieldid', $fieldId);
-	     
+	    
 	    $this->getDbCriteria()->mergeWith($criteria);
-	     
+	    
 	    return $this;
 	}
 	
@@ -207,9 +228,10 @@ class ExtraFieldInstance extends CActiveRecord
 	 * @param array $ids 
 	 * @return ExtraFieldInstance
 	 */
-	public function forObjects($ids)
+	public function forObjects($objectType, $ids)
 	{
 	    $criteria = new CDbCriteria();
+	    $criteria->compare('objecttype', $objectType);
 	    $criteria->addInCondition('objectid', $ids);
 	     
 	    $this->getDbCriteria()->mergeWith($criteria);
@@ -226,13 +248,14 @@ class ExtraFieldInstance extends CActiveRecord
 			'id' => 'ID',
 			'fieldid' => 'Дополнительное поле',
 			'objecttype' => 'Objecttype',
-			'objectid' => 'Objectid',
+			'objectid' => 'Шаг регистрации',
 			'filling' => 'Обязательно к заполнению?',
 			'condition' => 'Condition',
 			'data' => 'Изначальное значение',
 			'default' => 'Чем заполнить ранее поданые заявки?',
 			'timecreated' => 'Timecreated',
 			'timemodified' => 'Timemodified',
+			'sortorder' => 'Порядок',
 		);
 	}
 
@@ -262,6 +285,7 @@ class ExtraFieldInstance extends CActiveRecord
 		$criteria->compare('data', $this->data, true);
 		$criteria->compare('timecreated', $this->timecreated, true);
 		$criteria->compare('timemodified', $this->timemodified, true);
+		$criteria->compare('sortorder', $this->sortorder, true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria' => $criteria,
@@ -291,7 +315,7 @@ class ExtraFieldInstance extends CActiveRecord
 	    }
 	    if ( ! $this->fieldObject )
 	    {// не найдено поле на которое ссылается экземпляр
-	        Yii::log('Не найден объект для эеземпляра поля: instanceid='.$this->id, 'error');
+	        Yii::log('Не найден объект для экземпляра поля: instanceid='.$this->id, 'error');
 	        return;
 	    }
 	    $this->fieldObject->label;
@@ -339,5 +363,44 @@ class ExtraFieldInstance extends CActiveRecord
 	        'required'    => 'Да',
 	        'recommended' => 'Нет',
 	    );
+	}
+	
+	/**
+	 * 
+	 * @return string
+	 */
+	public function getStepName()
+	{
+	    $stepInstance = $this->getLinkedStepInstance();
+	    if ( $stepInstance )
+	    {
+	        return $stepInstance->step->name;
+	    }
+	    return '';
+	}
+	
+	/**
+	 *
+	 * @param int $id
+	 * @return WizardStepInstance
+	 */
+	public function getLinkedStepInstance()
+	{
+	    if ( $this->objecttype === 'wizardstepinstance' )
+	    {
+	        $stepInstance = WizardStepInstance::model()->findByPk($this->objectid);
+	    }
+	    if ( $this->objecttype === 'vacancy' )
+	    {
+	        $criteria = new CDbCriteria();
+	        $criteria->compare('objecttype', 'wizardstepinstance');
+	        $criteria->compare('fieldid', $this->fieldid);
+	        if ( ! $linkToStep = $this->find($criteria) )
+	        {
+	            return '';
+	        }
+	        $stepInstance = WizardStepInstance::model()->findByPk($this->objectid);
+	    }
+	    return $stepInstance;
 	}
 }
