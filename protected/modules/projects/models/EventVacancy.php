@@ -21,6 +21,7 @@
  * @property string $salary
  * @property string $timestart
  * @property string $timeend
+ * @property string $regtype
  * 
  * Relations:
  * @property SearchScope $scope
@@ -352,7 +353,7 @@ class EventVacancy extends CActiveRecord
 			array('name', 'length', 'max' => 255),
 			array('description', 'length', 'max' => 4095),
 			array('limit', 'length', 'max' => 6),
-			array('status', 'length', 'max' => 50),
+			array('status, regtype', 'length', 'max' => 50),
 		    // @todo придумать более безопасный фильтр для условий поиска людей на вакансию 
 		    array('searchdata', 'safe'),
 		);
@@ -471,7 +472,28 @@ class EventVacancy extends CActiveRecord
 			'salary' => 'Размер оплаты за съемочный день',
 			'timestart' => 'Время начала',
 			'timeend' => 'Время окончания',
+			'regtype' => 'Тип регистрации',
 		);
+	}
+	
+	/**
+	 * 
+	 * @return array
+	 */
+	public function getWizardStepInstanceIds()
+	{
+	    $ids = array();
+	    if ( $this->regtype != 'wizard' )
+	    {
+	        return $ids;
+	    }
+	    
+	    $stepInstances = WizardStepInstance::model()->forVacancy($this->id)->findAll();
+	    foreach ( $stepInstances as $stepInstance )
+	    {
+	        $ids[] = $stepInstance->id;
+	    }
+	    return $ids;
 	}
 	
 	/**
