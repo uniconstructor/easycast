@@ -365,7 +365,7 @@ class QActivityType extends CActiveRecord
 	        $criteria->compare('id', '<>'.$this->id);
 	    }
 	    
-	    return ! (bool)QActivityType::model()->exists($condition, $params);
+	    return ! (bool)QActivityType::model()->exists($criteria);
 	}
 	
 	/**
