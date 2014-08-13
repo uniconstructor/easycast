@@ -48,11 +48,11 @@ class EditExtraFieldInstances extends EditableGrid
     /**
      * @var array - список редактируемых полей в том порядке, в котором они идут в таблице
      */
-    public $fields = array('name', 'filling');
+    public $fields;
     /**
      * @var string - html-id формы для ввода новой записи
     */
-    public $formId = 'extra-instance-form';
+    public $formId  = 'extra-instance-form';
     /**
      * @var string - html-id modal-окна для ввода новой записи
      */
@@ -81,6 +81,10 @@ class EditExtraFieldInstances extends EditableGrid
      * @var string - id модуля, который хранит клипы с modal-формами
      */
     public $clipModule = 'admin';
+    /**
+     * @var string
+     */
+    public $sortableAction = 'admin/extraFieldInstance/sortable';
     
     /**
      * @var CActiveRecord - объект к которому привязываются дополнительные поля
@@ -99,6 +103,13 @@ class EditExtraFieldInstances extends EditableGrid
         // загружаем объект к которому привязываются дополнительные поля
         $this->loadTargetObject();
         
+        if ( $this->bindObjectType === 'wizardstepinstance' )
+        {
+            $this->fields = array('objectid', 'name', 'filling');
+        }else
+        {
+            $this->fields = array('name', 'filling');
+        }
         parent::init();
     }
     
@@ -121,7 +132,7 @@ class EditExtraFieldInstances extends EditableGrid
     {
         $this->model = new $this->modelClass;
         $this->model->filling    = 'required';
-        $this->model->objecttype = $this->objectType;
+        $this->model->objecttype = $this->getBindObjectType();
         $this->model->objectid   = $this->objectId;
     }
     
@@ -131,7 +142,34 @@ class EditExtraFieldInstances extends EditableGrid
      */
     protected function getDataColumns()
     {
+        $columns = array();
+        $columns['form'] = array(
+            // @todo возможность редактировать название
+            // название поля
+            array(
+                'name'  => 'fieldid',
+                'value' => '$data->fieldObject->label;',
+            ),
+            // обязательное поле (да/нет)
+            $this->getStaticSelect2ColumnOptions('filling', ExtraFieldInstance::model()->getFillingModes(), 'fillingMode'),
+        );
+        $columns['wizard'] = array(
+            $this->getSelectColumnOptions('objectid', $this->getWizardStepOptions(), 'stepName'),
+            // @todo возможность редактировать название
+            // название поля
+            array(
+                'name'  => 'fieldid',
+                'value' => '$data->fieldObject->label;',
+            ),
+            // обязательное поле (да/нет)
+            $this->getStaticSelect2ColumnOptions('filling', ExtraFieldInstance::model()->getFillingModes(), 'fillingMode'),
+        );
+        if ( $this->objectType === 'vacancy' )
+        {
+            return $columns[$this->targetObject->regtype];
+        }
         return array(
+            // @todo возможность редактировать название
             // название поля
             array(
                 'name'  => 'fieldid',
@@ -152,8 +190,8 @@ class EditExtraFieldInstances extends EditableGrid
         $js .= "\$('#{$this->modelClass}_name').val('');\n";
         // сбрасываем кнопку "да/нет" в исходное состояние
         $js .= "\$('#{$this->modelClass}_filling').val('required');\n";
-        $js .= "\$('#{$this->id}_filling_on_button').addClass('btn-primary');\n";
-        $js .= "\$('#{$this->id}_filling_off_button').removeClass('btn-primary');\n";
+        //$js .= "\$('#{$this->id}_filling_on_button').addClass('btn-primary');\n";
+        //$js .= "\$('#{$this->id}_filling_off_button').removeClass('btn-primary');\n";
     
         return $js;
     }
@@ -164,8 +202,19 @@ class EditExtraFieldInstances extends EditableGrid
      */
     protected function getGridCriteria()
     {
+        if ( $this->bindObjectType === 'wizardstepinstance' )
+        {// поля привязываются к разделам формы регистрации
+            $ids = array_keys($this->getWizardStepOptions());
+            return array(
+                'scopes' => array(
+                    'forObjects' => array('wizardstepinstance', $ids),
+                ),
+                'order' => "`sortorder` ASC",
+            );
+        }
         return array(
             'condition' => "`objectid` = '{$this->objectId}' AND `objecttype` = '{$this->objectType}'",
+            'order'     => "`sortorder` ASC",
         );
     }
     
@@ -191,11 +240,49 @@ class EditExtraFieldInstances extends EditableGrid
         $options = array('' => Yii::t('coreMessages', 'not_set'));
         $options = CMap::mergeArray($options, CHtml::listData($fields, 'id', 'label'));
         
-        foreach ( $this->targetObject->extraFields as $field )
+        /*foreach ( $this->targetObject->extraFields as $field )
         {// если к этому объекту уже привязаны какие-либо поля, то не даем привязать их второй раз
             unset($options[$field->id]);
-        }
+        }*/
         return $options;
+    }
+    
+    /**
+     *
+     * @return string
+     */
+    protected function getBindObjectType()
+    {
+        if ( $this->objectType === 'vacancy' AND $this->targetObject->regtype === 'wizard' )
+        {
+            return 'wizardstepinstance';
+        }
+        return $this->objectType;
+    }
+    
+    /**
+     * Получить список шагов в форме регистрации на эту роль, к которым можно привязать поле
+     * @return void
+     */
+    protected function getWizardStepOptions()
+    {
+        $steps   = WizardStepInstance::model()->forObject($this->objectType, $this->objectId)->findAll();
+        $options = CHtml::listData($steps, 'id', 'step.name');
+    
+        return $options;
+    }
+    
+    /**
+     * Получить id этапа регистрации (WizardStepInstance), к которому прикреплено это поле
+     * @param ExtraField $fieldInstance
+     * @return int
+     */
+    protected function getFieldStep($fieldInstance)
+    {
+        if ( $stepInstance = $fieldInstance->getLinkedStepInstance() )
+        {
+            return $stepInstance->id;
+        }
     }
     
     /**

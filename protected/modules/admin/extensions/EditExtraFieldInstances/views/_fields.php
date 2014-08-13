@@ -11,8 +11,17 @@
 echo $form->errorSummary(array($model), null, null, array('id' => $this->formId.'_errors'));
 // тип и id для привязки нового поля 
 echo $form->hiddenField($model, 'objecttype');
-echo $form->hiddenField($model, 'objectid');
 
+//echo CHtml::label('Шаг регистрации', 'wizardStepInstanceId');
+//echo CHtml::dropDownList('wizardStepInstanceId', $this->getFieldStep($model), $this->getWizardSteps());
+// шаг регистрации
+if ( $this->bindObjectType === 'wizardstepinstance' )
+{
+    echo $form->dropDownListRow($model, 'objectid', $this->getWizardStepOptions(), array(), array());
+}else
+{
+    echo $form->hiddenField($model, 'objectid');
+}
 // прикрепляемое поле
 $options = $this->getFieldIdOptions();
 echo $form->dropDownListRow($model, 'fieldid', $options, array(), array());
