@@ -4,8 +4,9 @@
  */
 /* @var $this  EventVacancyController */
 /* @var $model EventVacancy */
+/* @var $form  TbActiveForm */
 
-$form = $this->beginWidget('bootstrap.widgets.TbActiveForm',array(
+$form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'id' => 'event-vacancy-form',
     'enableAjaxValidation' => false,
 ));
@@ -18,9 +19,16 @@ echo $form->redactorRow($model, 'description');
 echo $form->textFieldRow($model, 'limit', array('maxlength' => 6));
 // оплата за день
 echo $form->textFieldRow($model, 'salary', array('maxlength' => 7));
+// тип регистрации
+echo $form->dropDownListRow($model, 'regtype', array(
+    'form'   => 'Одна форма',
+    'wizard' => 'По шагам',
+));
+// ошибки формы
+echo $form->errorSummary($model);
 
 echo '<br>';
-$this->widget('bootstrap.widgets.TbButton', array(
+$form->widget('bootstrap.widgets.TbButton', array(
 	'buttonType' => 'submit',
 	'type'       => 'primary',
 	'size'       => 'large',
