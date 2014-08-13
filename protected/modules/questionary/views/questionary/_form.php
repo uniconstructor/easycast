@@ -1141,8 +1141,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         <?php
         echo $form->errorSummary($questionary, null, null, array('id' => 'questionary-form-footer-es'));
         // Кнопка сохранения 
-        $form->widget('bootstrap.widgets.TbButton',
-            array(
+        $form->widget('bootstrap.widgets.TbButton', array(
                 'buttonType'  => 'submit',
                 'type'        => 'success',
                 'size'        => 'large',
