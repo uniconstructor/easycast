@@ -204,6 +204,22 @@ class MailComposerModule extends CWebModule
                 }
                 return $mailComposer->createTMRegistrationMailText($params['questionary']);
             break;
+            // @todo
+            /*case 'VacancyRegistration':
+                if ( ! isset($params['questionary']) )
+                {
+                    throw new CException('questionary for mail is not set');
+                }
+                return $mailComposer->createVacancyRegistrationMailText($params['questionary']);
+            break;*/
+            // подтверждение регистрации через подачу заявки на проект "МастерШеф"
+            case 'MCRegistration':
+                if ( ! isset($params['questionary']) )
+                {
+                    throw new CException('questionary for mail is not set');
+                }
+                return $mailComposer->createMCRegistrationMailText($params['questionary'], $params['vacancy']);
+            break;
         }
     }
     
