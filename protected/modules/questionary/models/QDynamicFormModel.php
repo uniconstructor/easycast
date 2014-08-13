@@ -503,8 +503,10 @@ class QDynamicFormModel extends CFormModel
         {// можем начинать только если есть все необходимые параметры
             return;
         }
+        $userFields  = QUserField::model()->forVacancy($this->vacancy)->findAll();
+        $extraFields = ExtraField::model()->forVacancy($this->vacancy)->findAll();
         
-        foreach ( $this->vacancy->userFields as $userField )
+        foreach ( $userFields as $userField )
         {/* @var $userField QUserField */
             if ( ! $this->questionary->id OR $userField->isEmptyIn($this->questionary) )
             {// определяем каких полей для этой роли не хватает в анкете и храним их отдельно
@@ -516,7 +518,7 @@ class QDynamicFormModel extends CFormModel
             // (если потребуется дать возможность дополнять информацию перед подачей заявки)
             $this->userFields[$userField->name] = $userField;
         }
-        foreach ( $this->vacancy->extraFields as $extraField )
+        foreach ( $extraFields as $extraField )
         {/* @var $extraField ExtraField */
             if ( ! $this->questionary->id OR $extraField->isEmptyForVacancy($this->vacancy, $this->questionary) )
             {// определяем каких полей для этой роли не хватает в заявке и храним их отдельно
@@ -670,14 +672,14 @@ class QDynamicFormModel extends CFormModel
             $rules[$fieldName][] = array($fieldName, 'filter', 'filter' => 'trim');
         }
         
-        if ( $field->isRequiredFor('vacancy', $this->vacancy->id) AND 
+        if ( $field->isRequiredForVacancy($this->vacancy) AND 
              ! Yii::app()->user->checkAccess('Admin') AND ! $field->multiple )
         {// некоторые поля анкеты могут быть обязательными при подаче заявки, но админов
             // которые регистрируют заявки вручную это не касается
             // списки полей также не могут быть обязательными: они сохраняются отдельно от формы
             $rules[$field->name][] = array($field->name, 'required');
         }
-        if ( $field->isForcedFor('vacancy', $this->vacancy->id) AND $field->isEmptyIn($this->questionary) )
+        if ( $field->isForcedForVacancy($this->vacancy) AND $field->isEmptyIn($this->questionary) )
         {// некоторые поля анкеты могут быть установлены автоматически, если не заполнены
             $default = QFieldInstance::model()->attachedTo('vacancy', $this->vacancy->id)->
                 forField($field->id)->find();
@@ -707,9 +709,9 @@ class QDynamicFormModel extends CFormModel
         $fieldName = $this->extraFieldPrefix.$field->name;
         $rules = array(
             array($fieldName, 'filter', 'filter' => 'trim'),
-            array($fieldName, 'length', 'max' => 4000),
+            array($fieldName, 'length', 'max' => 4090),
         );
-        if ( $field->isRequiredFor('vacancy', $this->vacancy->id) AND ! Yii::app()->user->checkAccess('Admin') )
+        if ( $field->isRequiredForVacancy($this->vacancy) AND ! Yii::app()->user->checkAccess('Admin') )
         {
             $rules[] = array($fieldName, 'required');
         }
@@ -717,7 +719,8 @@ class QDynamicFormModel extends CFormModel
     }
     
     /**
-     * Перенести данные из модели анкеты и связаных с анкетой таблиц в модель динамической формы (этот класс)
+     * Перенести данные из модели анкеты и связаных с анкетой таблиц 
+     * в модель динамической формы (этот класс)
      * @return void
      */
     protected function setUpData()
@@ -734,7 +737,8 @@ class QDynamicFormModel extends CFormModel
                 $this->_attributes[$fieldName] = '';
             }else
             {
-                $this->_attributes[$fieldName] = (string)$extraField->getValueFor('vacancy', $this->vacancy->id, $this->questionary->id);
+                $this->_attributes[$fieldName] = (string)$extraField->
+                    getValueForVacancy($this->vacancy, $this->questionary->id);
             }
         }
         foreach ( $this->userFields as $name => $userField )
@@ -757,6 +761,10 @@ class QDynamicFormModel extends CFormModel
      */
     public function checkInputDate($date)
     {
+        if ( strpos($date, '.') === false )
+        {// дата из базу уже в unixtime: она не нуждается в преобразовании
+            return $date;
+        }
         return CDateTimeParser::parse($date, Yii::app()->params['inputDateFormat']);
     }
     
@@ -768,9 +776,36 @@ class QDynamicFormModel extends CFormModel
     {
         if ( ! $this->hasPhotos($this->galleryid) )
         {
-            $this->addError('galleryid', '<div class="alert alert-block alert-error">Нужно загрузить хотя бы одну фотографию</div>');
+            $this->addError('galleryid', '<div class="alert alert-block alert-error">
+                Нужно загрузить хотя бы одну фотографию</div>');
         }
         return parent::beforeValidate();
+    }
+    
+    /**
+     * Эта функция проверяет обязательное наличие хотя бы одной загруженной фотографии
+     * 
+     * @return bool
+     */
+    /*protected function validateGalleryId()
+    {
+        if ( $this->hasPhotos($this->galleryid) )
+        {// фотографии есть, все ОК
+            return true;
+        }
+        // фотографии не загружены - добавляем в общий список сообщение об ошибке
+        $this->addError('galleryid', '<div class="alert alert-block alert-error">
+            Нужно загрузить хотя бы одну фотографию</div>');
+        // возвращаем false чтобы прервать дальшейшие проверки
+        return false;
+    }*/
+    
+    /**
+     * @see CModel::validate()
+     */
+    public function validate($attributes=null, $clearErrors=true)
+    {
+        return parent::validate($attributes, $clearErrors);
     }
     
     /**
@@ -906,20 +941,26 @@ class QDynamicFormModel extends CFormModel
         {
             $name      = $this->extraFieldPrefix.$extraField->name;
             $newValue  = $this->$name;
-            if ( $value = $extraField->getValueFor('vacancy', $this->vacancy->id, $this->questionary->id, true) )
+            
+            if ( $value = ExtraFieldValue::model()->
+                    forVacancy($this->vacancy)->
+                    forQuestionary($questionary)->
+                    forField($extraField->id)->find() )
             {// значение для этого поля уже сохранено - просто обновим его
                 $value->value = $newValue;
                 $value->save();
             }else
             {// объект значения еще не создан в базе для этой анкеты
-                $instance = ExtraFieldInstance::model()->forField($extraField->id)->
-                    attachedTo('vacancy', $this->vacancy->id)->find();
+                $instance = ExtraFieldInstance::model()->
+                    forVacancy($this->vacancy)->
+                    forField($extraField->id)->find();
                 if ( ! $instance )
                 {// @todo записать в лог
+                    throw new CException('Instance not found');
                     return false;
                 }
                 // создаем запись значения дополнительного поля и привязываем ее к анкете
-                $value = new ExtraFieldValue;
+                $value                = new ExtraFieldValue;
                 $value->instanceid    = $instance->id;
                 $value->questionaryid = $questionary->id;
                 $value->value         = $newValue;
@@ -963,11 +1004,11 @@ class QDynamicFormModel extends CFormModel
     /**
      * Отправить пользователю письмо с приглашением и паролем
      * 
-     * @param unknown $questionary
-     * @param unknown $sourcePassword
+     * @param Questionary $questionary
+     * @param string $sourcePassword
      * @return void
      * 
-     * @todo брать текст письма в зависимости от роли
+     * @todo брать адрес почты в зависимости от роли, переименовать action
      */
     protected function sendUserNotification($questionary, $sourcePassword)
     {
@@ -975,13 +1016,13 @@ class QDynamicFormModel extends CFormModel
         {// высылаем пользователю подтверждение регистрации с логином  и паролем
             $params = array(
                 'channel' => 'email',
-                //'action'  => 'VacancyRegistration',
-                'action'  => 'TMRegistration',
+                'action'  => 'MCRegistration',
                 'params'  => array(
                     'questionary' => $questionary,
                     'vacancy'     => $this->vacancy,
                     'password'    => $sourcePassword,
                 ),
+                'subject' => 'Ваша заявка на участие в кастинге проекта «'.$this->vacancy->event->project->name.'» зарегистрирована',
                 'sendNow' => true,
                 'email'   => $questionary->user->email,
                 'from'    => 'admin@easycast.ru',
@@ -1020,7 +1061,7 @@ class QDynamicFormModel extends CFormModel
      */
     public function attributeLabels()
     {
-        $labels = $this->questionary->attributeLabels();
+        $labels      = $this->questionary->attributeLabels();
         $extraLabels = array();
         
         foreach ( $this->extraFields as $name => $extraField )
