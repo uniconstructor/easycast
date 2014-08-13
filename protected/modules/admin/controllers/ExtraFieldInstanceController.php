@@ -11,7 +11,7 @@ class ExtraFieldInstanceController extends Controller
      * @var string - класс модели сложного значения
      */
     protected $modelClass = 'ExtraFieldInstance';
-
+    
     /**
      * @see CController::init()
      */
@@ -47,7 +47,7 @@ class ExtraFieldInstanceController extends Controller
     {
         return array(
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'delete', 'toggle'),
+                'actions' => array('create', 'update', 'delete', 'toggle', 'sortable'),
                 'users'   => array('@'),
             ),
             array('deny',  // deny all users
@@ -66,6 +66,10 @@ class ExtraFieldInstanceController extends Controller
                 'class'     => 'bootstrap.actions.TbToggleAction',
                 'modelName' => $this->modelClass,
             ),
+            'sortable' => array(
+                'class'      => 'bootstrap.actions.TbSortableAction',
+                'modelName'  => $this->modelClass,
+            ),
         );
     }
 
@@ -75,6 +79,7 @@ class ExtraFieldInstanceController extends Controller
      */
     public function actionCreate()
     {
+        $stepInstanceId = Yii::app()->request->getParam('wizardStepInstanceId');
         // создаем модель для добавления
         $instance = $this->initModel();
         
@@ -95,6 +100,14 @@ class ExtraFieldInstanceController extends Controller
             {
                 echo CJSON::encode($instance->getAttributes());
             }
+        }
+        if ( $stepInstanceId )
+        {// если поле нужно добавить на определенном этапе регистрации - привязываем его
+            $stepInstance = new ExtraFieldInstance();
+            $stepInstance->objecttype = 'wizardstepinstance';
+            $stepInstance->objectid   = $stepInstanceId;
+            $stepInstance->fieldid    = $instance->fieldid;
+            $stepInstance->save();
         }
     }
 
