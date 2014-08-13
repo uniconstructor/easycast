@@ -310,24 +310,10 @@ class SiteController extends Controller
     }
     
     /**
-     * Отобразить страницу онлайн-кастинга
-     * @return null
-     * 
-     * @deprecated удалить при рефакторинге
+     * Действие для загрузки больших файлов через HTML4 file upload
+     * @return void
      */
-    public function actionViewOnlineCasting()
-    {
-        
-    }
-    
-    /**
-     * Отображает форму запроса на проведение онлайн-кастинга (для гостей)
-     * Или форму создания онлайн-кастинга (для зарегистрированных заказчиков или по одноразовой ссылке)
-     * @return null
-     * 
-     * @deprecated удалить при рефакторинге
-     */
-    public function actionCreateOnlineCasting()
+    public function actionUpload()
     {
         
     }
