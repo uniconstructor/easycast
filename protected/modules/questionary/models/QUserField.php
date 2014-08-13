@@ -123,6 +123,54 @@ class QUserField extends CActiveRecord
 	}
 	
 	/**
+	 * Именованая группа условий: получить все записи, связанные с определенным объектом
+	 * @param string $objectType
+	 * @param string $objectId
+	 * @return QUserField
+	 */
+	public function forObject($objectType, $objectId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->with = array(
+	        'fieldInstances' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes'   => array(
+	                'forObject' => array($objectType, $objectId),
+	            ),
+	        ),
+	    );
+	    $criteria->together = true;
+	
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    return $this;
+	}
+	
+	/**
+	 * Именованая группа условий: получить все записи, связанные с определенным объектом
+	 * @param string $objectType
+	 * @param array  $objectIds
+	 * @return QUserField
+	 */
+	public function forObjects($objectType, $objectIds)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->with = array(
+	        'fieldInstances' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes'   => array(
+	                'forObjects' => array($objectType, $objectIds),
+	            ),
+	        ),
+	    );
+	    $criteria->together = true;
+	
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    return $this;
+	}
+	
+	/**
 	 * 
 	 * @return string
 	 */
@@ -183,6 +231,48 @@ class QUserField extends CActiveRecord
 	}
 	
 	/**
+	 * Именованая группа условий:
+	 * @param EventVacancy $vacancy
+	 * @return QUserField
+	 */
+	public function forVacancy($vacancy)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->with = array(
+	        'fieldInstances' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes'   => array(
+	                'forVacancy' => array($vacancy),
+	            ),
+	        ),
+	    );
+	    $criteria->together = true;
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    return $this;
+	}
+	
+	/**
+	 * 
+	 * @param EventVacancy $vacancy
+	 * @return bool
+	 */
+	public function isRequiredForVacancy($vacancy)
+	{
+	    $instance = QFieldInstance::model()->forVacancy($vacancy)->forField($this->id)->find();
+	    if ( ! $instance )
+	    {
+	        return false;
+	    }
+	    if ( $instance->filling === 'required' )
+	    {
+	        return true;
+	    }
+	    return false;
+	}
+	
+	/**
 	 * 
 	 * @param unknown $objectType
 	 * @param unknown $objectId
@@ -191,6 +281,25 @@ class QUserField extends CActiveRecord
 	public function isForcedFor($objectType, $objectId)
 	{
 	    $instance = QFieldInstance::model()->attachedTo($objectType, $objectId)->forField($this->id)->find();
+	    if ( ! $instance )
+	    {
+	        return false;
+	    }
+	    if ( $instance->filling === 'forced' )
+	    {
+	        return true;
+	    }
+	    return false;
+	}
+	
+	/**
+	 * 
+	 * @param EventVacancy $vacancy
+	 * @return QUserField
+	 */
+	public function isForcedForVacancy($vacancy)
+	{
+	    $instance = QFieldInstance::model()->forVacancy($vacancy)->forField($this->id)->find();
 	    if ( ! $instance )
 	    {
 	        return false;
@@ -256,9 +365,9 @@ class QUserField extends CActiveRecord
 	    {
 	        switch ( $option )
 	        {
-	            case 'null':        $conditions[] = "( {$name} IS NULL )"; break;
-	            case 'zero':        $conditions[] = "( {$name} = 0 )"; break;
-	            case 'emptystring': $conditions[] = "( {$name} = '' )"; break;
+	            case 'null':        $conditions[] = " ( {$name} IS NULL ) "; break;
+	            case 'zero':        $conditions[] = " ( {$name} = 0 ) "; break;
+	            case 'emptystring': $conditions[] = " ( {$name} = '' ) "; break;
 	        }
 	    }
 	    $criteria->addCondition(implode(' OR ', $conditions));
