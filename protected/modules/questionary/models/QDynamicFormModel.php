@@ -621,7 +621,9 @@ class QDynamicFormModel extends CFormModel
                     'message' => 'Нужно указать дату в формате дд.мм.гггг',
                 ),
             ),
-            'photo' => array(array('photo', 'safe')),
+            'photo' => array(
+                array('photo', 'safe'),
+            ),
             'chestsize' => array(
                 array('chestsize', 'compare', 'compareValue' => 1, 'operator' => '>', 
                     'message' => 'Не указаны тела (объем груди)',
