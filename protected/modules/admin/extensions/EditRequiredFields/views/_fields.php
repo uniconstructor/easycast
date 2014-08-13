@@ -9,10 +9,18 @@
 
 // ошибки формы
 echo $form->errorSummary(array($model), null, null, array('id' => $this->formId.'_errors'));
+
 // тип и id для привязки нового поля 
-echo CHtml::hiddenField('objectType', $this->objectType);
+echo CHtml::hiddenField('objectType', $this->bindObjectType);
 echo CHtml::hiddenField('objectId', $this->objectId);
 
+//echo CHtml::label('Шаг регистрации', 'stepid');
+//echo CHtml::dropDownList('stepid', $this->getFieldStep($model), $this->getWizardSteps());
+// шаг регистрации (если в роли используется регистрация по шагам)
+if ( $this->bindObjectType === 'wizardstepinstance' )
+{
+    echo $form->dropDownListRow($model, 'objectid', $this->getWizardStepOptions(), array(), array());
+}
 // прикрепляемое поле
 echo $form->dropDownListRow($model, 'fieldid', $this->getFieldIdOptions(), array(), array());
 // галочка "обязательно к заполнению"

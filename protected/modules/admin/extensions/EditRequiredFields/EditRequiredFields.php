@@ -43,7 +43,7 @@ class EditRequiredFields extends EditableGrid
     /**
      * @var array - список редактируемых полей в том порядке, в котором они идут в таблице
      */
-    public $fields  = array('name', 'filling');
+    public $fields;
     /**
      * @var string - html-id формы для ввода новой записи
     */
@@ -75,6 +75,10 @@ class EditRequiredFields extends EditableGrid
      * @var string - id модуля, который хранит клипы с modal-формами
     */
     public $clipModule = 'admin';
+    /**
+     * @var string - адрес по которому происходит изменение порядка сортировки элементов по AJAX
+     */
+    public $sortableAction = 'admin/qFieldInstance/sortable';
     
     /**
      * @var CActiveRecord - объект к которому привязываются дополнительные поля
@@ -94,7 +98,14 @@ class EditRequiredFields extends EditableGrid
         Yii::import('application.modules.questionary.models.QFieldInstance');
         // загружаем объект к которому привязываются дополнительные поля
         $this->loadTargetObject();
-    
+        
+        if ( $this->bindObjectType === 'wizardstepinstance' )
+        {
+            $this->fields = array('objectid', 'name', 'filling', 'data');
+        }else
+        {
+            $this->fields = array('name', 'filling', 'data');
+        }
         parent::init();
     }
     
@@ -141,8 +152,40 @@ class EditRequiredFields extends EditableGrid
      */
     protected function getDataColumns()
     {
+        $columns = array();
+        $columns['form'] = array(
+            // название поля
+            // @todo возможность редактировать название
+            array(
+                'name'  => 'fieldid',
+                'value' => '$data->name;',
+            ),
+            // обязательное поле (да/нет/задано автоматически)
+            $this->getStaticSelect2ColumnOptions('filling', QFieldInstance::model()->getFillingModes(), 'fillingMode'),
+            // автоматическое значение (если есть)
+            $this->getTextColumnOptions('data'),
+        );
+        $columns['wizard'] = array(
+            // шаг регистрации
+            $this->getSelectColumnOptions('objectid', $this->getWizardStepOptions(), 'stepName'),
+            // @todo возможность редактировать название
+            // название поля
+            array(
+                'name'  => 'fieldid',
+                'value' => '$data->name;',
+            ),
+            // обязательное поле (да/нет/задано автоматически)
+            $this->getStaticSelect2ColumnOptions('filling', QFieldInstance::model()->getFillingModes(), 'fillingMode'),
+            // автоматическое значение (если есть)
+            $this->getTextColumnOptions('data'),
+        );
+        if ( $this->objectType === 'vacancy' )
+        {
+            return $columns[$this->targetObject->regtype];
+        }
         return array(
-            // название мероприятия
+            // название поля
+            // @todo возможность редактировать название
             array(
                 'name'  => 'fieldid',
                 'value' => '$data->name;',
@@ -160,8 +203,19 @@ class EditRequiredFields extends EditableGrid
      */
     protected function getGridCriteria()
     {
+        if ( $this->bindObjectType === 'wizardstepinstance' )
+        {// поля привязываются к разделам формы регистрации
+            $ids = array_keys($this->getWizardStepOptions());
+            return array(
+                'scopes' => array(
+                    'forObjects' => array('wizardstepinstance', $ids),
+                ),
+                'order' => "`sortorder` ASC",
+            );
+        }
         return array(
             'condition' => "`objectid` = '{$this->objectId}' AND `objecttype` = '{$this->objectType}'",
+            'order'     => "`sortorder` ASC",
         );
     }
     
@@ -175,13 +229,51 @@ class EditRequiredFields extends EditableGrid
         $fields  = QUserField::model()->findAll();
         $options = CHtml::listData($fields, 'id', 'label');
     
-        foreach ( $this->targetObject->userFields as $field )
+        /*foreach ( $this->targetObject->userFields as $field )
         {// ескли к этому объекту уже привязаны какие-либо поля, то не даем привязать их второй раз
             unset($options[$field->id]);
-        }
+        }*/
         asort($options);
         
         return CMap::mergeArray(array('' => Yii::t('coreMessages', 'not_set')), $options);
+    }
+    
+    /**
+     * 
+     * @return string
+     */
+    protected function getBindObjectType()
+    {
+        if ( $this->objectType === 'vacancy' AND $this->targetObject->regtype === 'wizard' )
+        {
+            return 'wizardstepinstance';
+        }
+        return $this->objectType;
+    }
+    
+    /**
+     * Получить список шагов в форме регистрации на эту роль, к которым можно привязать поле
+     * @return void
+     */
+    protected function getWizardStepOptions()
+    {
+        $steps   = WizardStepInstance::model()->forObject($this->objectType, $this->objectId)->findAll();
+        $options = CHtml::listData($steps, 'id', 'step.name');
+        
+        return $options;
+    }
+    
+    /**
+     * Получить id этапа регистрации (WizardStepInstance), к которому прикреплено это поле
+     * @param QUserField $fieldInstance
+     * @return int
+     */
+    protected function getFieldStep($fieldInstance)
+    {
+        if ( $stepInstance = $fieldInstance->getLinkedStepInstance() )
+        {
+            return $stepInstance->id;
+        }
     }
     
     /**
