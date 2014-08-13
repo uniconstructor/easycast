@@ -316,20 +316,27 @@ class EventVacancyController extends Controller
 
 		// Uncomment the following line if AJAX validation is needed
 		$this->performAjaxValidation($model);
-
+        
+		//CVarDumper::dump(Yii::app()->request->isAjaxRequest);die;
 		if ( isset($_POST['EventVacancy']) )
 		{
 			$model->attributes = $_POST['EventVacancy'];
-			if ( $model->save() )
-			{
+			if ( $model->save() AND ! Yii::app()->request->isAjaxRequest )
+			{// перенаправляем участника на сраницу просмотра 
+			    // (если это не сохранение через AJAX)
 			    $this->redirect(array('view', 'id' => $model->id));
 			}
 		}
-
-		$this->render('update', array(
-			'model' => $model,
-		    'step'  => $step,
-		));
+		if ( ! Yii::app()->request->isAjaxRequest )
+		{
+		    $this->render('update', array(
+		        'model' => $model,
+		        'step'  => $step,
+		    ));
+		}else
+		{
+		    echo 'OK';
+		}
 	}
 
 	/**
@@ -471,7 +478,7 @@ class EventVacancyController extends Controller
 	 */
 	protected function performAjaxValidation($model)
 	{
-		if ( isset($_POST['ajax']) && $_POST['ajax'] === 'event-vacancy-form' )
+		if ( isset($_POST['ajax']) AND $_POST['ajax'] === 'event-vacancy-form' )
 		{
 			echo CActiveForm::validate($model);
 			Yii::app()->end();
