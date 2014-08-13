@@ -20,6 +20,15 @@ class QuestionaryController extends Controller
 	public $layout = '//layouts/column1';
 	
 	/**
+	 * @see CController::init()
+	 */
+	public function init()
+	{
+	    Yii::app()->getComponent('ecawsapi')->getS3();
+	    parent::init();
+	}
+	
+	/**
 	 * @return array
 	 * 
 	 * @todo настроить проверку прав на основе RBAC
@@ -45,11 +54,12 @@ class QuestionaryController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions' => array('index', 'view', 'catalog', 'ajaxGetUserInfo', 'invite', 'dismiss', 'userActivation'),
+				'actions' => array('upload', 'index', 'view', 'catalog', 'ajaxGetUserInfo', 'invite', 'dismiss', 'userActivation'),
 				'users'   => array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions' => array('update', 'ajax', 'loginAs', 'upload'),
+                // FIXME запретить загрузку файлов для гостей
+				'actions' => array('update', 'ajax', 'loginAs',/* 'upload'*/),
 				'users'   => array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -70,8 +80,8 @@ class QuestionaryController extends Controller
 	    return array(
 	        'upload' => array(
 	            'class'      => 'xupload.actions.S3UploadAction',
-	            'path'       => Yii::app()->getBasePath() . "/../uploads",
-	            'publicPath' => Yii::app()->getBaseUrl() . "/uploads",
+	            'path'       => "s3://video.easycast.ru/uploads/",
+	            'publicPath' => "https://s3.amazonaws.com/video.easycast.ru/",
 	        ),
 	    );
 	}
