@@ -6,7 +6,11 @@
 /* @var $model QDynamicFormModel */
 
 // заголовок страницы для поисковой индексации и публикации в соцсетях
+// @todo брать название из настроек роли
 $this->pageTitle = "Регистрация для участия в проекте ".$model->vacancy->event->project->name;
+// Описание страницы для поисковиков
+// @todo брать описание из настроек роли
+Yii::app()->clientScript->registerMetaTag('Телеканал СТС объявляет кастинг участников на самое кулинарное шоу мира!', 'description', null, array('lang' => 'ru'));
 ?>
 <div class="container">
     <div class="row">
