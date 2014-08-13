@@ -101,7 +101,7 @@ class VacancyController extends Controller
         // если отбор на роль или мероприятие завершен - сообщим об этом
         if ( $vacancy->status === EventVacancy::STATUS_FINISHED OR $vacancy->event->isExpired() )
         {// отбор завершен - сообщим об этом
-            if ( ! Yii::app()->user->checkAccess('Admin') AND ! YII_DEBUG )
+            if ( ! Yii::app()->user->checkAccess('Admin') )
             {
                 $this->render('expired');
                 return;
@@ -154,7 +154,7 @@ class VacancyController extends Controller
                 if ( $user = $model->save() )
                 {/* @var $user User */
                     // сообщаем что заявка подана
-                    $this->finishRegistration($user, 'registration');
+                    $this->finishRegistration($user, $vacancy, 'registration');
                     return;
                 }
             }
@@ -184,11 +184,11 @@ class VacancyController extends Controller
             // поэтому просто регистрируем заявку и отпускаем пользователя с миром
             if ( $vacancy->addApplication($questionary->id) )
             {// сообщаем что заявка подана
-                $this->finishRegistration($questionary->user, 'registration');
+                $this->finishRegistration($questionary->user, $vacancy, 'registration');
                 return;
             }
         }
-        // @todo добавить возможность указывать любую разметку (landing) для любой роли
+        // FIXME добавить возможность указывать любую разметку (landing) для любой роли
         if ( $vacancy->id == 749 )
         {
             $this->layout = '//landing/masterchief';
@@ -200,14 +200,82 @@ class VacancyController extends Controller
     }
     
     /**
+     * AJAX-проверка одного шага анкеты
+     * @return void
+     */
+    public function actionValidateStep()
+    {
+        if ( ! Yii::app()->request->isPostRequest OR ! Yii::app()->request->isAjaxRequest )
+        {
+            Yii::app()->end();
+        }
+        //CVarDumper::dump($_POST);
+        if ( ! $index    = Yii::app()->request->getParam('_index', 1) )
+        {
+            $index = 1;
+        }
+        $steps    = Yii::app()->request->getParam('steps');
+        $formData = Yii::app()->request->getParam('QDynamicFormModel');
+        $qid      = Yii::app()->request->getParam('qid');
+        $vid      = Yii::app()->request->getParam('vid');
+        // анкета
+        if ( ! $questionary = Questionary::model()->findByPk($qid) )
+        {
+            $scenario    = 'registration';
+            $questionary = new Questionary();
+        }else
+        {
+            $scenario    = 'application';
+        }
+        // роль
+        $vacancy = $this->loadModel($vid);
+        
+        $fields = array();
+        $stepId = $steps[$index];
+        $step   = WizardStepInstance::model()->findByPk($stepId);
+        
+        $userFields  = QUserField::model()->forObject('wizardstepinstance', $step->id)->findAll();
+        foreach ( $userFields as $userField )
+        {
+            $fields[] = $userField->name;
+        }
+        $extraFields = ExtraField::model()->forObject('wizardstepinstance', $step->id)->findAll();
+        foreach ( $extraFields as $extraField )
+        {
+            $fields[] = 'ext_'.$extraField->name;
+        }
+        
+        $model = new QDynamicFormModel($scenario);
+        $model->galleryid   = $formData['galleryid'];
+        $model->questionary = $questionary;
+        $model->vacancy     = $vacancy;
+        
+        //CVarDumper::dump($formData['galleryid']);
+        //CVarDumper::dump($model->galleryid);
+        
+        //$test = QUserField::model()->findByPk(4)->isEmptyIn($questionary);// getValueForVacancy($vacancy, $questionaryId, $asObject=true)
+        //CVarDumper::dump($test);
+        
+        $result = CActiveForm::validate($model, $fields);
+        //$result = CActiveForm::validate($model, $fields);
+        /*$result = CJSON::decode($result);
+        $result['QDynamicFormModel_email'] = array('545454');
+        $result = CJSON::encode($result);*/
+        
+        echo $result;
+        Yii::app()->end();
+    }
+    
+    /**
      * Все действия, необходимые после завершения регистрации: сообщение о том что заявка принята,
      * отображение дополнительной информации и перенаправление участника на страницу с его заявками
      * 
      * @param User $user
+     * @param EventVacancy $vacancy
      * @param string $scenario сценарий использования формы: регистрация или просто подача заявки
      * @return void
      */
-    protected function finishRegistration($user, $scenario)
+    protected function finishRegistration($user, $vacancy, $scenario)
     {
         if ( $scenario === 'registration' AND ! Yii::app()->user->checkAccess('Admin') )
         {// Вместе с сохранением данных участника сразу же происходит его авторизация на сайте
@@ -216,8 +284,7 @@ class VacancyController extends Controller
             Yii::app()->user->setFlash('success', 'Регистрация завершена');
             
             // FIXME сделать загрузку видео в зависимости от настроек
-            
-            //if ( $this->vacancy->id === 749 OR Yii::app()->user->checkAccess('Admin') )
+            if ( $vacancy->id == 749 OR Yii::app()->user->checkAccess('Admin') )
             {
                 $galleryId = $user->questionary->galleryid;
                 // @todo проверить можно ли тут использовать просто find
@@ -237,18 +304,30 @@ class VacancyController extends Controller
                 Обо всех изменениях мы будем сообщать вам по почте');
             // FIXME сделать загрузку видео в зависимости от настроек
             // @todo после подачи заявки прикреплять видео к заявке а не к анкете
-            //if ( $this->vacancy->id === 749 OR Yii::app()->user->checkAccess('Admin') )
-            //{
-            //    
-            //}
+            if ( $vacancy->id == 749 OR Yii::app()->user->checkAccess('Admin') )
+            {
+                
+            }
         }
-        
-        // перенаправляем участника на страницу анкеты с открытой вкладкой заявок
-        $url = Yii::app()->createUrl('//questionary/questionary/view', array(
+        $finalRedirect = Yii::app()->createUrl('//questionary/questionary/view', array(
             'id'        => $user->questionary->id,
             'activeTab' => 'requests',
         ));
-        $this->redirect($url);
+        // FIXME адрес редиректа настройкой
+        if ( $vacancy->id == 749 )
+        {
+            Yii::app()->user->setFlash('success', 'Заявка принята. Вы можете перейти обратно на сайт проекта.');
+            $finalRedirect = 'http://ctc.ru/rus/projects/show/76527/';
+        }
+        
+        $this->render('finish', array(
+            'redirectUrl' => $finalRedirect,
+            'user'        => $user,
+            'vacancy'     => $vacancy,
+        ));
+        // перенаправляем участника на страницу анкеты с открытой вкладкой заявок
+        //$url = Yii::app()->createUrl('//projects/vacancy/finish');
+        //$this->redirect($url);
     }
     
     /**
