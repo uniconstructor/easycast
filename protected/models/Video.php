@@ -189,6 +189,23 @@ class Video extends SWActiveRecord
 	}
 	
 	/**
+	 * Именованная группа условий: все видео привзязанные к анкете
+	 * @param string $objectType
+	 * @param int $objectId
+	 * @return Video
+	 */
+	public function forObject($objectType, $objectId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('objecttype', $objectType);
+	    $criteria->compare('objectid', $objectId);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
+	}
+	
+	/**
 	 * Массив для конфигурации формы добавления нескольких видео со сторонних ресурсов
 	 * 
 	 * @return array
