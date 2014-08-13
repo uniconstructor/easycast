@@ -93,10 +93,14 @@ class ExtraFieldValue extends CActiveRecord
 	 * @param int $id
 	 * @return ExtraFieldValue
 	 */
-	public function forQuestionary($id)
+	public function forQuestionary($questionary)
 	{
+	    if ( ! is_object($questionary) )
+	    {
+	        $questionary = Questionary::model()->findByPk($questionary);
+	    }
 	    $criteria = new CDbCriteria();
-	    $criteria->compare('questionaryid', (int)$id);
+	    $criteria->compare('questionaryid', $questionary->id);
 	    
 	    $this->getDbCriteria()->mergeWith($criteria);
 	    
@@ -112,12 +116,17 @@ class ExtraFieldValue extends CActiveRecord
 	 */
 	public function forField($fieldId)
 	{
-	    if ( ! $fieldId )
-	    {
-	        throw new CException('Не передан обязательный параметр для условия поиска');
-	    }
 	    $criteria = new CDbCriteria();
-	    $criteria->compare('fieldInstance.fieldid', $fieldId);
+	    $criteria->with = array(
+	        'fieldInstance' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes'   => array(
+	                'forField' => array($fieldId),
+	            ),
+	        ),
+	    );
+	    $criteria->together = true;
 	     
 	    $this->getDbCriteria()->mergeWith($criteria);
 	     
@@ -128,12 +137,23 @@ class ExtraFieldValue extends CActiveRecord
 	 * Получить значения всех дополнительных полей от всех пользователей по одной роли 
 	 * (именованая группа условий)
 	 * 
-	 * @param int $vacancyId
+	 * @param EventVacancy $vacancyId
 	 * @return ExtraFieldValue
 	 */
-	public function forVacancy($vacancyId)
+	public function forVacancy($vacancy)
 	{
-	    return $this->forObject('vacancy', $vacancyId);
+	    if ( ! is_object($vacancy) )
+	    {
+	        $vacancy = EventVacancy::model()->findByPk($vacancy);
+	    }
+	    if ( $vacancy->regtype === 'form' )
+	    {
+	        return $this->forObject('vacancy', $vacancy->id);
+	    }else
+	    {
+	        $ids = $vacancy->getWizardStepInstanceIds();
+	        return $this->forObjects('wizardstepinstance', $ids);
+	    }
 	}
 	
 	/**
@@ -151,10 +171,57 @@ class ExtraFieldValue extends CActiveRecord
 	        throw new CException('Не передан обязательный параметр для условия поиска');
 	    }
 	    $criteria = new CDbCriteria();
-	    $criteria->with = array('fieldInstance');
+	    $criteria->with = array(
+	        'fieldInstance' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes'   => array(
+	                'forObject' => array($objectType, $objectId),
+	            ),
+	        ),
+	    );
+	    $criteria->together = true;
+	    
+	    /*$criteria->with = array('fieldInstance');
 	    $criteria->together = true;
 	    $criteria->compare('fieldInstance.objecttype', $objectType);
-	    $criteria->compare('fieldInstance.objectid', $objectId);
+	    $criteria->compare('fieldInstance.objectid', $objectId);*/
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
+	}
+	
+	/**
+	 * Получить значения всех дополнительных полей от всех пользователей по одному объекту
+	 * (именованая группа условий)
+	 *
+	 * @param string $objectType
+	 * @param array  $objectIds
+	 * @return ExtraFieldValue
+	 */
+	public function forObjects($objectType, $objectIds)
+	{
+	    if ( ! $objectType OR ! $objectIds )
+	    {
+	        throw new CException('Не передан обязательный параметр для условия поиска');
+	    }
+	    $criteria = new CDbCriteria();
+	    $criteria->with = array(
+	        'fieldInstance' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes'   => array(
+	                'forObject' => array($objectType, $objectIds),
+	            ),
+	        ),
+	    );
+	    $criteria->together = true;
+	    
+	    /*$criteria->with = array('fieldInstance');
+	    $criteria->together = true;
+	    $criteria->compare('fieldInstance.objecttype', $objectType);
+	    $criteria->addInCondition('fieldInstance.objectid', $objectIds);*/
 	    
 	    $this->getDbCriteria()->mergeWith($criteria);
 	    
