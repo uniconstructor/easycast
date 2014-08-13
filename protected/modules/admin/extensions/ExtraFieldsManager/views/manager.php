@@ -44,27 +44,51 @@ $newSectionsUrl = Yii::app()->createUrl('/admin/category/index/', array('parentI
         </div>
         <?php
             // Список разделов анкет, которые используются в этом проекте
-            if ( $this->vacancy->sectionCategories )
-            {// становится доступным только после выбора хотя бы одной категории
-                $this->widget('admin.extensions.EditSectionInstances.EditSectionInstances', array(
+            $noSectionInstances = $this->widget('application.extensions.ECMarkup.ECAlert.ECAlert', array(
+                'type'    => 'info',
+                'message' => 'Перед добавлением разделов добавьте хотя бы одну группу слева и обновите страницу.',
+            ), true);
+            $this->widget('admin.extensions.EditSectionInstances.EditSectionInstances', array(
+                'objectType' => 'vacancy',
+                'objectId'   => $this->vacancy->id,
+                'categories' => $this->vacancy->sectionCategories,
+                'emptyText'  => $noSectionInstances,
+            ));
+            ?>
+    </div>
+</div>
+<div class="page-alternate row-fluid">
+    <div class="span12">
+        <div class="title-page">
+            <h2>Шаги регистрации</h2>
+            <h4 class="title-description">
+                Разделите регистрацию на несколько шагов чтобы участникам было проще
+                заполнять анкету.
+            </h4>
+        </div>
+        <div class="row-fluid">
+            <div class="container">
+                <?php 
+                // Список шагов регистрации
+                $noSteps = $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
+                    'type'    => 'info',
+                    'message' => 'Сейчас регистрация не разбита ша шаги.
+                        Пользователь увидит одну форму со всеми полями, не разбитую на этапы.',
+                ), true);
+                $this->widget('admin.extensions.EditWizardSteps.EditWizardSteps', array(
                     'objectType' => 'vacancy',
                     'objectId'   => $this->vacancy->id,
-                    'categories' => $this->vacancy->sectionCategories,
+                    'emptyText'  => $noSteps,
                 ));
-            }else
-            {// пока не выбрано ни одной категории полей - выводим сообщение
-                $this->widget('application.extensions.ECMarkup.ECAlert.ECAlert', array(
-                    'type'    => 'info',
-                    'message' => 'Перед добавлением разделов добавьте хотя бы одну группу слева и обновите страницу.',
-                ));
-            }
-            ?>
+                ?>
+            </div>
+        </div>
     </div>
 </div>
 <div class="page-alternate row-fluid">
     <div class="span6">
         <div class="title-page">
-            <h2 class="muted">Группы обязательных полей анкеты [в разработке]</h2>
+            <h2 class="muted">Наборы полей анкеты [в разработке]</h2>
             <h4 class="title-description muted">
                 [Пока что ничего выбирать не нужно, раздел находится в разработке]
             </h4>
@@ -72,7 +96,7 @@ $newSectionsUrl = Yii::app()->createUrl('/admin/category/index/', array('parentI
     </div>
     <div class="span6">
         <div class="title-page">
-            <h2>Обязательные поля для анкеты</h2>
+            <h2>Поля анкеты, указываемые при регистрации</h2>
             <h4 class="title-description">
                 Выберите поля анкеты которые будет предложено заполнить участнику перед подачей заявки.
                 Чем больше полей заполнено - тем меньше данных будет предложено внести участнику.
@@ -93,7 +117,7 @@ $newSectionsUrl = Yii::app()->createUrl('/admin/category/index/', array('parentI
 <div class="page row-fluid">
     <div class="span6">
         <div class="title-page">
-            <h2>Категории дополнительных полей</h2>
+            <h2>Наборы полей заявки</h2>
             <h4 class="title-description">
                 Вопросы для роли создаются 
                 <a href="<?= $newFieldsUrl; ?>" target="_blank">по этой ссылке</a>. 
@@ -113,29 +137,26 @@ $newSectionsUrl = Yii::app()->createUrl('/admin/category/index/', array('parentI
     </div>
     <div class="span6">
         <div class="title-page">
-            <h2>Дополнительные поля для заявки</h2>
+            <h2>Поля для заявки</h2>
             <h4 class="title-description">
                 Этих полей нет в анкете, они привязаны к заявке и хранятся вместе с ней.
-                Здесь нужно указывать поля <b>которые нужны только один раз</b> (например только для этой роли).
+                Здесь нужно указывать поля <b>которые нужны только один раз</b>
+                (например только для этой роли).
             </h4>
         </div>
         <div class="row-fluid">
             <?php
             // список самих дополнительных полей
-            if ( $this->vacancy->extraFieldCategories )
-            {// становится доступным только после выбора хотя бы одной категории
-                $this->widget('admin.extensions.EditExtraFieldInstances.EditExtraFieldInstances', array(
-                    'objectType' => 'vacancy',
-                    'objectId'   => $this->vacancy->id,
-                    'categories' => $this->vacancy->extraFieldCategories,
-                ));
-            }else
-            {// пока не выбрано ни одной категории полей - выводим сообщение
-                $this->widget('application.extensions.ECMarkup.ECAlert.ECAlert', array(
-                    'type'    => 'info',
-                    'message' => 'Перед добавлением полей добавьте хотя бы одну категорию слева и обновите страницу.',
-                ));
-            }
+            $noExtraFields = $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
+                'type'    => 'info',
+                'message' => 'Перед добавлением полей добавьте хотя бы одну категорию и обновите страницу',
+            ), true);
+            $this->widget('admin.extensions.EditExtraFieldInstances.EditExtraFieldInstances', array(
+                'objectType' => 'vacancy',
+                'objectId'   => $this->vacancy->id,
+                'categories' => $this->vacancy->extraFieldCategories,
+                'emptyText'  => $noExtraFields,
+            ));
             ?>
         </div>
     </div>
