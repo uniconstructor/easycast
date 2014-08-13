@@ -24,6 +24,14 @@ class QDynamicForm extends CWidget
      * @var QDynamicFormModel - создаваемая или редактируемая анкета
      */
     public $model;
+    /**
+     * @var string - уникальный id формы на странице: автоматически создается если не указан
+     */
+    public $formId   = 'dynamic-registration-form';
+    /**
+     * @var string - уникальный id элемента wizard на странице: автоматически создается если не указан
+     */
+    public $wizardId = 'dynamic-registration-wizard';
     
     /**
      * @var Questionary - создаваемая или редактируемая анкета
@@ -116,7 +124,7 @@ class QDynamicForm extends CWidget
             echo CHtml::tag('div', array('class' => 'alert alert-success text-center'), 'Вы уже подали заявку на эту роль');
         }else
         {// заявка еще не подана - выводим форму
-            $this->render('form', array(
+            $this->render($this->vacancy->regtype, array(
                 'model' => $this->model,
             ));
         }
@@ -347,5 +355,100 @@ class QDynamicForm extends CWidget
         array_unshift($models, $russia);
         // создаем массив для выпадающего списка
         return CHtml::listData($models, 'id', 'name');
+    }
+    
+    /**
+     * Получить содержимое одной вкладки 
+     * @param TbActiveForm $form
+     * @param WizardStepInstance $stepInstance
+     * @param int $count - номер вкладки
+     * @return string
+     */
+    protected function createStepContent($form, $stepInstance, $count)
+    {
+        $result = '';
+        // добавляем заголовок
+        $header = CHtml::tag('h3', array(), $stepInstance->step->header);
+        $userFields = QUserField::model()->forObject('wizardstepinstance', $stepInstance->id)->findAll();
+        // добавляем все обязательные поля
+        foreach ( $userFields as $userField )
+        {// обязательные поля формы 
+            if ( $userField->isEmptyIn($this->questionary) )
+            {
+                $result .= $this->getUserFieldLayout($form, $this->model, $userField);
+            }
+        }
+        // добавляем все дополнительные поля
+        $extraFields = ExtraField::model()->forObject('wizardstepinstance', $stepInstance->id)->findAll();
+        foreach ( $extraFields as $extraField )
+        {// дополнительные поля заявки
+            if ( $extraField->isEmptyForVacancy($this->vacancy, $this->questionary) )
+            {
+                $result .= $this->getExtraFieldLayout($form, $this->model, $extraField);
+            }
+        }
+        if ( ! $result )
+        {// ни одного поля на этом шаге заполнять не нужно - скажем об этом
+            $result .= $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
+                'message' => 'В вашей анкете достаточно информации для того чтобы пропустить этот шаг.',
+                'type'    => 'success',
+            ), true);
+        }else
+        {
+            $result = $header.' '.$result;
+        }
+        return $result;
+    }
+    
+    /**
+     * 
+     * @param WizardStepInstance $stepInstance
+     * @return string
+     */
+    protected function createNextStepJs($stepInstance, $count)
+    {
+        return '';
+    }
+    
+    /**
+     * 
+     * @param WizardStepInstance $stepInstance
+     * @return void
+     */
+    protected function createFirstStepJs($stepInstance)
+    {
+        return '
+            if (  )
+            {
+        
+            }
+            ';
+    }
+    
+    /**
+     * 
+     * @param WizardStepInstance $stepInstance
+     * @return void
+     */
+    protected function createLastStepJs($stepInstance, $count)
+    {
+        // создаем AJAX-скрипт для отправки данных
+        $ajaxSubmit = CHtml::ajax(array(
+            'dataType' => 'json',
+            'type'     => 'post',
+            'data'     => new CJavaScriptExpression("$('#{$this->formId}').serialize()"),
+            'url' => Yii::app()->createUrl('//projects/vacancy/registration', array(
+                'vid' => $this->vacancy->id,
+            )),
+        ));
+        $count--;
+        return "
+            if ( index === {$count} )
+            {
+                //formObj.submit();
+                $('.button-next').hide();
+                $('#dynamic-registration-submit_{$this->vacancy->id}').show();
+            }
+            ";
     }
 }
