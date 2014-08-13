@@ -11,7 +11,24 @@ class QFieldInstanceController extends Controller
      * @var string - класс модели сложного значения
      */
     protected $modelClass = 'QFieldInstance';
-
+    
+    /**
+     * @see CController::actions()
+     */
+    public function actions()
+    {
+        return array(
+            'sortable' => array(
+                'class'      => 'bootstrap.actions.TbSortableAction',
+                'modelName'  => $this->modelClass,
+            ),
+            'toggle' => array(
+                'class'     => 'bootstrap.actions.TbToggleAction',
+                'modelName' => $this->modelClass,
+            ),
+        );
+    }
+    
     /**
      * @see CController::init()
      */
@@ -47,7 +64,7 @@ class QFieldInstanceController extends Controller
     {
         return array(
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'delete', 'toggle'),
+                'actions' => array('create', 'update', 'delete', 'toggle', 'sortable'),
                 'users'   => array('@'),
             ),
             array('deny',  // deny all users
@@ -56,19 +73,6 @@ class QFieldInstanceController extends Controller
         );
     }
     
-    /**
-     * @see CController::actions()
-     */
-    public function actions()
-    {
-        return array(
-            'toggle' => array(
-                'class'     => 'bootstrap.actions.TbToggleAction',
-                'modelName' => $this->modelClass,
-            ),
-        );
-    }
-
     /**
      * Создать запись
      * @return void
