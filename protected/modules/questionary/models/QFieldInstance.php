@@ -13,6 +13,7 @@
  * @property string $data
  * @property string $timecreated
  * @property string $timemodified
+ * @property string $sortorder
  * 
  * Relations:
  * @property QUserField $fieldObject
@@ -44,7 +45,7 @@ class QFieldInstance extends CActiveRecord
 	{
 		return array(
 			array('objecttype', 'required'),
-			array('fieldid, objectid, timecreated, timemodified', 'length', 'max' => 11),
+			array('fieldid, objectid, timecreated, timemodified, sortorder', 'length', 'max' => 11),
 			array('objecttype, filling, condition', 'length', 'max' => 50),
 			array('newlabel', 'length', 'max' => 255),
 			array('newdescription', 'length', 'max' => 2047),
@@ -53,6 +54,21 @@ class QFieldInstance extends CActiveRecord
 			// @todo Please remove those attributes that should not be searched.
 			array('id, fieldid, objecttype, objectid, filling, condition, data, timecreated, timemodified', 'safe', 'on'=>'search'),
 		);
+	}
+	
+	/**
+	 * @see CActiveRecord::beforeSave()
+	 */
+	public function beforeSave()
+	{
+	    if ( $this->isNewRecord )
+	    {// автоматически назначаем порядок сортировки для новых записей, добавляя их в конец списка
+    	    // @todo вынести в behavior
+    	    $lastItemCount = $this->forObject($this->objecttype, $this->objectid)->count();
+    	    $lastItemCount++;
+    	    $this->sortorder = $lastItemCount;
+	    }
+	    return parent::beforeSave();
 	}
 
 	/**
@@ -76,12 +92,13 @@ class QFieldInstance extends CActiveRecord
 			'id' => 'ID',
 			'fieldid' => 'Поле анкеты',
 			'objecttype' => 'Objecttype',
-			'objectid' => 'Objectid',
+			'objectid' => 'Шаг регистрации',
 			'filling' => 'Обязательно к заполнению?',
 			'condition' => 'Condition',
 			'data' => 'Изначальное значение',
 			'timecreated' => 'Timecreated',
 			'timemodified' => 'Timemodified',
+			'sortorder' => 'Сортировка',
 		);
 	}
 
@@ -111,6 +128,7 @@ class QFieldInstance extends CActiveRecord
 		$criteria->compare('data', $this->data, true);
 		$criteria->compare('timecreated', $this->timecreated, true);
 		$criteria->compare('timemodified', $this->timemodified, true);
+		$criteria->compare('sortorder', $this->sortorder, true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria' => $criteria,
@@ -182,6 +200,45 @@ class QFieldInstance extends CActiveRecord
 	}
 	
 	/**
+	 * 
+	 * @return string
+	 */
+	public function getStepName()
+	{
+	    $stepInstance = $this->getLinkedStepInstance();
+	    if ( $stepInstance )
+	    {
+	        return $stepInstance->step->name;
+	    }
+	    return '[]';
+	}
+	
+	/**
+	 * 
+	 * @param int $id
+	 * @return WizardStepInstance
+	 */
+	public function getLinkedStepInstance()
+	{
+	    if ( $this->objecttype === 'wizardstepinstance' )
+	    {
+	        $stepInstance = WizardStepInstance::model()->findByPk($this->objectid);
+	    }
+	    if ( $this->objecttype === 'vacancy' )
+	    {
+	        $criteria = new CDbCriteria();
+	        $criteria->compare('objecttype', 'wizardstepinstance');
+	        $criteria->compare('fieldid', $this->fieldid);
+	        if ( ! $linkToStep = $this->find($criteria) )
+	        {
+	            return '';
+	        }
+	        $stepInstance = WizardStepInstance::model()->findByPk($this->objectid);
+	    }
+	    return $stepInstance;
+	}
+	
+	/**
 	 * Получить экземпляр записи привязаный к определенному полю 
 	 * 
 	 * @param int $fieldId
@@ -200,15 +257,63 @@ class QFieldInstance extends CActiveRecord
 	 * Именованая группа условий: получить все записи, привязанные к определенному объекту (например к роли)
 	 * @param string $objectType - тип объекта к которому привязано поле
 	 * @param int $objectId - id объекта к которому привязано поле
-	 * @return ExtraFieldInstance
+	 * @return QFieldInstance
 	 */
-	public function attachedTo($objectType, $objectId)
+	public function forObject($objectType, $objectId)
 	{
 	    $criteria = new CDbCriteria();
 	    $criteria->compare('objecttype', $objectType);
 	    $criteria->compare('objectid', $objectId);
-	    
+	     
 	    $this->getDbCriteria()->mergeWith($criteria);
+	     
 	    return $this;
+	}
+	
+	/**
+	 * Именованая группа условий: получить все записи, привязанные к нескольким объектам одного типа
+	 * @param string $objectType - тип объекта к которому привязано поле
+	 * @param array $objectIds - id объектов к которому привязано поле
+	 * @return QFieldInstance
+	 */
+	public function forObjects($objectType, $objectIds)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('objecttype', $objectType);
+	    $criteria->addInCondition('objectid', $objectIds);
+	     
+	    $this->getDbCriteria()->mergeWith($criteria);
+	     
+	    return $this;
+	}
+	
+	/**
+	 * Именованая группа условий: получить все записи, привязанные к определенному объекту (например к роли)
+	 * @param string $objectType - тип объекта к которому привязано поле
+	 * @param int $objectId - id объекта к которому привязано поле
+	 * @return QFieldInstance
+	 * 
+	 * @todo оставлено для совместимости: везде используем forObject
+	 */
+	public function attachedTo($objectType, $objectId)
+	{
+	    return $this->forObject($objectType, $objectId);
+	}
+	
+	/**
+	 * 
+	 * @param EventVacancy $vacancy
+	 * @return QFieldInstance
+	 */
+	public function forVacancy($vacancy)
+	{
+	    if ( $vacancy->regtype == 'form' )
+	    {
+	        return $this->forObject('vacancy', $vacancy->id);
+	    }else
+	    {
+	        $ids = $vacancy->getWizardStepInstanceIds();
+	        return $this->forObjects('wizardstepinstance', $ids);
+	    }
 	}
 }
