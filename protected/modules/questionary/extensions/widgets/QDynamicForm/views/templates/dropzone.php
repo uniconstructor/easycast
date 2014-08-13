@@ -1,5 +1,10 @@
 <?php
-
+/**
+ * Разметка dropzone-поля для загрузки больших файлов
+ */
+/* @var $form  TbActiveForm */
+/* @var $this  QDynamicForm */
+/* @var $model QDynamicFormModel */
 ?>
 <div class="table table-striped" class="files" id="previews">
     <div id="template" class="file-row">
