@@ -6,6 +6,7 @@
  * @subpackage admin
  * 
  * @todo удалять из JSON те данные поисковых критериев, которые были удалены из набора
+ * @deprecated этот виджет устарел - нужно заменить его более новым, из темы SmartAdmin
  */
 class SearchFilterManager extends CWidget
 {
