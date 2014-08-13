@@ -38,14 +38,15 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
     
     /**
      * 
-     * @param string $city
+     * @param int|string $city
      * @return void
      */
     public function setCity($city)
     {
-        if ( intval($city) )
+        $city = trim($city);
+        if ( $cityId = intval($city) )
         {
-            $this->owner->cityid = (int)$city;
+            $this->owner->cityid = $cityId;
             return;
         }
         $criteria = new CDbCriteria();
@@ -57,7 +58,7 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
             $this->owner->cityid = $record->id;
         }else
         {
-            $this->owner->city = $city;
+            $this->owner->city   = $city;
         }
     }
     
