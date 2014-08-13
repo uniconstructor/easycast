@@ -20,6 +20,10 @@ class EditableGridController extends Controller
                 'class'      => 'bootstrap.actions.TbSortableAction',
                 'modelName'  => $this->modelClass,
             ),
+            'toggle' => array(
+                'class'     => 'bootstrap.actions.TbToggleAction',
+                'modelName' => $this->modelClass,
+            ),
         );
     }
 
@@ -66,19 +70,6 @@ class EditableGridController extends Controller
     }
 
     /**
-     * @see CController::actions()
-     */
-    public function actions()
-    {
-        return array(
-            'toggle' => array(
-                'class'     => 'bootstrap.actions.TbToggleAction',
-                'modelName' => $this->modelClass,
-            ),
-        );
-    }
-
-    /**
      * Создать запись
      * @return void
      */
@@ -102,6 +93,7 @@ class EditableGridController extends Controller
                 echo CJSON::encode($instance->getAttributes());
             }
         }
+        return $instance;
     }
 
     /**

@@ -399,7 +399,6 @@ class EditableGrid extends CWidget
         {// подставляем значение по умолчанию (если есть)
             $options['value'] = $value;
         }
-        
         return $options;
     }
     
@@ -461,7 +460,6 @@ class EditableGrid extends CWidget
                 ),
             ),
         );
-    
         return $options;
     }
     
