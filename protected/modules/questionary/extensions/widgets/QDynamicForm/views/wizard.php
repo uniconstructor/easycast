@@ -145,7 +145,7 @@ $('.button-next').bind('click', function (e) {
         type: formObj.attr('method'),
         data: formObj.serialize() + extData,
         dataType: 'json',
-    }).done(function(data) {
+    }).done(function(data){
         var dataType = typeof data;
         if ( ( dataType == 'string' && data == '[]' ) || ( dataType == 'object' && $(data).length === 0 ) )
         {
@@ -153,6 +153,7 @@ $('.button-next').bind('click', function (e) {
             console.log('next');
             
             $('#dynamic-registration-form_es_').hide();
+            $('#dynamic-registration-form_galleryid_em_').hide();
             $('#dynamic-registration-wizard').bootstrapWizard('next');
         }else
         {
