@@ -4,6 +4,9 @@
  */
 /* @var $this  VacancyController */
 /* @var $model QDynamicFormModel */
+
+// заголовок страницы для поисковой индексации и публикации в соцсетях
+$this->pageTitle = "Регистрация для участия в проекте ".$model->vacancy->event->project->name;
 ?>
 <div class="container">
     <div class="row">
