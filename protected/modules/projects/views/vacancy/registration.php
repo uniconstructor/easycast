@@ -29,7 +29,7 @@
     </div>
     <div class="row text-center">
         <!-- ShareThis widget -->
-        <script type="text/javascript">var switchTo5x=true;</script>
+        <!--script type="text/javascript">var switchTo5x=true;</script>
         <script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script>
         <script type="text/javascript">stLight.options({publisher: "9144efb6-c5a7-4360-9b70-24e468be66c3", doNotHash: false, doNotCopy: false, hashAddressBar: false});</script>
         <span class='st__large' displayText=''></span>
@@ -40,7 +40,7 @@
         <span class='st_googleplus_large' displayText='Google +'></span>
         <span class='st_livejournal_large' displayText='LiveJournal'></span>
         <span class='st_sharethis_large' displayText='ShareThis'></span>
-        <span class='st_whatsapp_large' displayText='WhatsApp'></span>
+        <span class='st_whatsapp_large' displayText='WhatsApp'></span-->
         <?php
         // @todo другие возможные роли (включить после тестирования)
         /*$this->widget('questionary.extensions.widgets.QUserInvites.QUserInvites', array(
