@@ -9,11 +9,19 @@
 <div class="row-fluid">
     <div class="offset2 span8">
         <?php
+        // FIXME сделать загрузку видео в зависимости от настроек
+        if ( $this->vacancy->id == 749 )
+        {
+            $this->render('templates/xupload', array(
+                'model' => $model,
+            ));
+        }
+        
         $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
             'id' => 'dynamic-registration-form',
             'enableAjaxValidation'   => ! $model->hasFullInfo(),
             'enableClientValidation' => false,
-            'type'                   => 'horizontal',
+            'type'                   => 'vertical',
             'clientOptions' => array(
                 'validateOnSubmit' => ! $model->hasFullInfo(),
                 'validateOnChange' => false,
@@ -57,6 +65,7 @@
         {// для подачи заявки нужны доп. данные
             $this->render('_inputDisclaimer');
         }
+        
         // @todo добавить возможность вводить дополнительную информацию перед формой
         //       (например правила участия)
         
