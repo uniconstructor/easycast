@@ -106,6 +106,7 @@ $this->widget('bootstrap.widgets.TbAlert');
                     'value' => CHtml::link($registrationUrl, $registrationUrl, array('target' => '_blank')),
                     'type'  => 'html',
                 ),
+        		'regtype',
                 'salary',
         	),
         ));
