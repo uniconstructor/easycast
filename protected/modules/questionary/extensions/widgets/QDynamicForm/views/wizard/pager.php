@@ -7,7 +7,7 @@
 
 // все сообщения об ошибках
 echo $form->errorSummary($this->model, null, null, array('id' => $this->formId.'_es_'));
-// 
+// сообщение о том что нужно загрузить фотографии прежде чем продолжить
 echo $form->error($this->model, 'galleryid', array('id' => $this->formId.'_galleryid_em_'), true).'<br>';
 ?>
 <div style="float:right">

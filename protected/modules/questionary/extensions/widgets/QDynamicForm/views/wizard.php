@@ -70,7 +70,6 @@
             if ( \$button && \$button.length) {
                 extData += '&' + \$button.attr('name') + '=' + \$button.attr('value');
             }
-            
         ";
         $stepSuccessJs = "";
         foreach ( $stepInstances as $stepInstance )
@@ -124,13 +123,26 @@
             ),
             'tabs' => $tabs,
         ));
+        //'success'  => $data->ajaxSuccessScript,
+        $ajaxSubmit = CHtml::ajax(array(
+            'dataType' => 'json',
+            'type'     => 'post',
+            //'data'     => new CJavaScriptExpression("js:function(){return \$('#{$this->formId}').serialize();}"),
+            'data'     => new CJavaScriptExpression("formObj.serialize() + extData"),
+            'url'      => Yii::app()->createUrl('//projects/vacancy/registration/', array(
+                'qid' => (int)$this->questionary->id,
+                'vid' => (int)$this->vacancy->id,
+                Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
+            )),
+        ));
         ?>
         <?php $this->endWidget(); ?>
     </div>
 </div>
 <script>
+// проверка промежуточных шагов
 $('.button-next').bind('click', function (e) {
-    var formObj = $('#<?= $this->formId?>');
+    var formObj = $('#<?= $this->formId; ?>');
     var settings = formObj.data('settings');
     var messages = {};
     var $button = formObj.data('submitObject'),
@@ -145,7 +157,7 @@ $('.button-next').bind('click', function (e) {
         type: formObj.attr('method'),
         data: formObj.serialize() + extData,
         dataType: 'json',
-    }).done(function(data){
+    }).done( function ( data ) {
         var dataType = typeof data;
         if ( ( dataType == 'string' && data == '[]' ) || ( dataType == 'object' && $(data).length === 0 ) )
         {
@@ -163,8 +175,44 @@ $('.button-next').bind('click', function (e) {
         }
         return moveNext;
     });
-    
     console.log('finish');
+    return false;
+});
+// проверка и отправка данных формы на финальном шаге
+$('#dynamic-registration-submit_<?= $this->vacancy->id; ?>').bind('click', function (e) {
+    var formObj  = $('#<?= $this->formId; ?>');
+    var settings = formObj.data('settings');
+    var messages = {};
+    var $button  = formObj.data('submitObject'),
+        extData  = '&' + settings.ajaxVar + '=' + formObj.attr('id');
+    if ( $button && $button.length) {
+        extData += '&' + $button.attr('name') + '=' + $button.attr('value');
+    }
+    
+    e.preventDefault();
+    $.ajax({
+        url:  settings.validationUrl,
+        type: formObj.attr('method'),
+        data: formObj.serialize() + extData,
+        dataType: 'json',
+    }).done( function (data) {
+        var dataType = typeof data;
+        if ( ( dataType == 'string' && data == '[]' ) || ( dataType == 'object' && $(data).length === 0 ) )
+        {
+            moveNext = true;
+            console.log('next[final]');
+            $('#dynamic-registration-form_es_').hide();
+            $('#dynamic-registration-form_galleryid_em_').hide();
+            formObj.submit();
+        }else
+        {
+            triggerAjaxValidation(formObj);
+            console.log('stop[final]');
+            moveNext = false;
+        }
+        return moveNext;
+    });
+    console.log('finish[final]');
     return false;
 });
 </script>
