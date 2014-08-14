@@ -236,4 +236,3 @@ class EJuiAutoCompleteFkField extends CJuiAutoComplete {
         );
     }
 }
-?>
