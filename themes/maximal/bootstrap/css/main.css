@@ -2567,3 +2567,8 @@ span.required {
 .galleria-container {
     background: none transparent;
 }
+/* Уменьшение размера подписей к полям формы с дополнительными пояснениями */
+.help-block {
+    font-size: 14px;
+    font-style: italic;
+}
