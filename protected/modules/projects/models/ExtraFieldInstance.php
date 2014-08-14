@@ -88,6 +88,37 @@ class ExtraFieldInstance extends CActiveRecord
 	}
 	
 	/**
+	 * @see CActiveRecord::defaultScope()
+	 */
+	public function defaultScope()
+	{
+	    return array(
+	        'order' => $this->getTableAlias(true).'.`sortorder` ASC'
+	    );
+	}
+	
+	/**
+	 * @see CActiveRecord::scopes()
+	 */
+	public function scopes()
+	{
+	    return array(
+	        // последние поданные заявки
+	        'lastCreated' => array(
+	            'order' => $this->getTableAlias(true).'.`timecreated` DESC'
+	        ),
+	        // последние измененные заявки
+	        'lastModified' => array(
+	            'order' => $this->getTableAlias(true).'.`timemodified` DESC'
+	        ),
+	        // последние поданные заявки
+	        'firstCreated' => array(
+	            'order' => $this->getTableAlias(true).'.`timecreated` ASC'
+	        ),
+	    );
+	}
+	
+	/**
 	 * @see CActiveRecord::beforeSave()
 	 */
 	public function beforeSave()
