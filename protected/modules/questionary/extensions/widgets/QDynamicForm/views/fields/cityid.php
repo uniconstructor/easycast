@@ -1,42 +1,45 @@
 <?php
 /**
- * Разметка одного поля анкеты
+ * Разметка поля "город"
+ * @todo брать значение страны из select-списка ранее или из настроек, и проверять наличие элемента 
+ *       в форме прежде чем братьиз него id страны
  */
 /* @var $form  TbActiveForm */
 /* @var $this  QDynamicForm */
 /* @var $model QDynamicFormModel */
 
+$ajaxData = array(
+    'type'       => "city",
+    'parenttype' => "country",
+    'parentid'   => 3159,
+    'term'       => 'js:term'
+);
+$ajaxData = CJavaScript::encode($ajaxData);
+$dataCallback = 'js:function (term, page) {return '.$ajaxData.'; }';
 // город проживания
-echo $form->textFieldRow($model, 'city', 
-    array(
-        'size'        => 60,
-        'maxlength'   => 128,
-        'placeholder' => 'Город проживания',
+echo $form->select2Row($model, 'cityid', array(
+        'asDropDownList' => false,
+        'options' => array(
+            'minimumInputLength' => 1,
+            'ajax' => array(
+                'url'      => Yii::app()->createUrl('//site/geoLookup'),
+                // варинты списка приходят в формате JSON
+                'dataType' => 'json',
+                'data'     => $dataCallback,
+                // задержка в миллисекундах перед отправкой запроса
+                'quietMillis' => 150,
+                'results'     => "js:function(data, page) {
+                    return {
+                        'results': data,
+                    };
+                }",
+            ),
+        ),
     ),
     array(
-        'prepend'     => '<i class="icon icon-map-marker"></i>',
+        'prepend' => '<i class="icon icon-map-marker"></i>',
     )
 );
-
-
-
-
-/*
-Yii::import('ext.CountryCitySelectorRu.*');
-$countryConfig['country']['default'] = 'RU';
-$countrySelector = new CountryCitySelectorRu($countryConfig);
-$countrySelector->controller = $this;
-
-echo $form->labelEx($model, 'cityid');
-$cityOptions = array(
-    'sourceUrl' => Yii::app()->createUrl('questionary/questionary/ajax?type=city&parenttype=country&parentid=RU'),
-);
-$countrySelector->cityActiveField('cityid', $model, $cityOptions);
-echo $form->error($model, 'cityid');
-*/
-
-
-
 
 /*
 $tags = true;
