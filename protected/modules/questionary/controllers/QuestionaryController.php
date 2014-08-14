@@ -105,19 +105,18 @@ class QuestionaryController extends Controller
 	    }
 	    // если нужно открыть анкету на конкретной вкладке
 	    $activeTab = Yii::app()->request->getParam('activeTab', 'main');
-	    
 	    // загружаем анкету, которую будем просматривать
 	    $questionary = $this->loadModel($id);
+	    // берем
+	    
 	    
 	    if ( ! Yii::app()->user->isGuest AND 
 	         ! Yii::app()->getModule('user')->user()->questionary->timemodified AND
 	         ! Yii::app()->user->checkAccess('Admin') )
 	    {// анкета участника еще не заполнена - и он пользователь или актер - перенаправляем его на страницу анкеты
-	        $this->redirect(
-	            Yii::app()->createUrl('//questionary/questionary/update',
+	        $this->redirect(Yii::app()->createUrl('//questionary/questionary/update',
 	                array('id' => Yii::app()->getModule('user')->user()->questionary->id)));
 	    }
-	    
 	    // Проверяем права для отображения кнопки редактирования анкеты
 	    $canEdit = $this->canEditUser($questionary->user->id);
 	    
@@ -140,24 +139,30 @@ class QuestionaryController extends Controller
                 $dismissButton = $this->createCustomerButton($id, 'dismiss');
                 $orderMessageClass = 'alert alert-info';
                 $orderMessageStyle = '';
-                $myChoiceLink = CHtml::link(Yii::t('coreMessages','mainmenu_item_my_choice'), 
-                                    Yii::app()->createUrl('//catalog/catalog/myChoice'), array('target' => '_blank'));
+                $myChoiceLink = CHtml::link(Yii::t('coreMessages', 'mainmenu_item_my_choice'), 
+                    Yii::app()->createUrl('//catalog/catalog/myChoice'), array('target' => '_blank'));
                 $orderMessage = QuestionaryModule::t('already_invited_message', array('{link}' => $myChoiceLink));
             }
         }
 	    
-	    $address = $questionary->address;
-		$this->render('view', array(
-			'questionary'  => $questionary,
-		    'address'      => $address,
-		    'canEdit'      => $canEdit,
-		    'dismissButton' => $dismissButton,
-		    'inviteButton'  => $inviteButton,
-		    'orderMessage'  => $orderMessage,
-		    'orderMessageClass' => $orderMessageClass,
-		    'orderMessageStyle' => $orderMessageStyle,
-		    'activeTab' => $activeTab,
-		));
+	    if ( $questionary->visible OR $canEdit )
+	    {// анкета участника открыта и доступна в поиске
+	        // (скрытые анкеты также видны самим участникам и админам)
+	        $this->render('view', array(
+	            'questionary'       => $questionary,
+	            'address'           => $questionary->address,
+	            'canEdit'           => $canEdit,
+	            'dismissButton'     => $dismissButton,
+	            'inviteButton'      => $inviteButton,
+	            'orderMessage'      => $orderMessage,
+	            'orderMessageClass' => $orderMessageClass,
+	            'orderMessageStyle' => $orderMessageStyle,
+	            'activeTab'         => $activeTab,
+	        ));
+	    }else
+	    {// анкета скрыта и прав для просмотра нет - выводим заглушку
+	        $this->render('hidden');
+	    }
 	}
 
 	/**
@@ -547,8 +552,7 @@ class QuestionaryController extends Controller
 	 */
 	protected function canEditUser($userId)
 	{
-	    if ( ! Yii::app()->user->isGuest AND 
-	        ( Yii::app()->user->checkAccess('Admin') OR Yii::app()->user->id == $userId ) )
+	    if ( Yii::app()->user->checkAccess('Admin') OR Yii::app()->user->id == $userId )
 	    {
 	        return true;
 	    }
