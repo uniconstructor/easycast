@@ -6,14 +6,14 @@
  */
 /* @var $this Controller */
 
-// jQuery должен быть на всех страницых темы
+// jQuery должен быть на всех страницах темы
 Yii::app()->clientScript->registerCoreScript('jquery');
 ?><!DOCTYPE html>
 <!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
 <!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
 <!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
 <!--[if (IE 9)]><html class="no-js ie9" lang="en"><![endif]-->
-<!--[if gt IE 8]><!--> <html lang="ru"> <!--<![endif]-->
+<!--[if gt IE 8]><!--><html lang="ru"><!--<![endif]-->
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="language" content="ru" />
