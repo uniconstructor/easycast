@@ -73,7 +73,6 @@ if ( $model->galleryBehavior->getGallery() === null )
 }
 
 // дата начала проекта
-$defaultStart = '';
 if ( isset($formData['timestart']) )
 {
     $model->timestart = $formData['timestart'];
@@ -103,7 +102,6 @@ echo $form->datepickerRow($model, 'timestart', array(
 echo $form->checkBoxRow($model, 'notimestart');
 
 // дата окончания проекта
-$defaultEnd = '';
 if ( isset($formData['timeend']) )
 {
     $model->timeend = $formData['timeend'];
@@ -152,26 +150,27 @@ if ( $model->photoGalleryBehavior->getGallery() === null )
          'controllerRoute' => '/admin/gallery',
     ));
 }
+// кнопка сохранения 
+$this->widget('bootstrap.widgets.TbButton', array(
+	'buttonType' => 'submit',
+	'type'       => 'primary',
+	'label'      => $model->isNewRecord ? Yii::t('coreMessages', 'create') : Yii::t('coreMessages', 'save'),
+)); 
+// конец формы
+$this->endWidget();
 ?>
 <fieldset>
     <legend>Видео</legend>
     <?php
     // список видео
-    // @todo убрать использование multiModelForm, заменить на нашу версию Grid view
     if ( ! $model->isNewRecord )
-    {// не показываем добавление видео при создании проекта - оно там не нужно и отвлекает
-        echo $form->errorSummary($validatedVideos);
-        $videoFormConfig = $video->formConfig();
-        $this->widget('ext.multimodelform.MultiModelForm', array(
-            'addItemText'    => Yii::t('coreMessages','add'),
-            'removeText'     => Yii::t('coreMessages','delete'),
-            'removeConfirm'  => 'Удалить это видео?',
-            'id'             => 'id_video', //the unique widget id
-            'formConfig'     => $videoFormConfig, //the form configuration array
-            'model'          => $video, //instance of the form model
-            'validatedItems' => $validatedVideos,
-            // ранее сохраненные видео
-            'data' => $model->videos,
+    {// не показываем добавление видео при создании проекта - его не к чему прикреплять пока проект не создан
+        // список видео
+        $this->widget('ext.ECEditVideo.ECEditVideo', array(
+            'questionary' => $questionary,
+            'objectType'  => 'project',
+            'objectId'    => $model->id,
+            'clipModule'  => 'admin',
         ));
     }else
     {
@@ -179,12 +178,9 @@ if ( $model->photoGalleryBehavior->getGallery() === null )
     }
     ?>
 </fieldset>
-<?php
-// кнопка сохранения 
-$this->widget('bootstrap.widgets.TbButton', array(
-	'buttonType' => 'submit',
-	'type'       => 'primary',
-	'label'      => $model->isNewRecord ? Yii::t('coreMessages', 'create') : Yii::t('coreMessages', 'save'),
-)); 
-
-$this->endWidget();
+<?php 
+$clips = Yii::app()->getModule('admin')->formClips;
+foreach ( $clips as $clip )
+{
+    echo $this->clips[$clip];
+}
