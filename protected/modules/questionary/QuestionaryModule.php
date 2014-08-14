@@ -116,8 +116,8 @@ class QuestionaryModule extends CWebModule
         
         if ( method_exists(Yii::app(), 'getAssetManager') )
         {
-            $this->_assetsUrl = Yii::app()->getAssetManager()->publish(Yii::app()->modulePath . DIRECTORY_SEPARATOR .
-                'questionary'. DIRECTORY_SEPARATOR .'assets');
+            $this->_assetsUrl = Yii::app()->getAssetManager()->publish(Yii::app()->modulePath . 
+                DIRECTORY_SEPARATOR . 'questionary'. DIRECTORY_SEPARATOR .'assets');
         }
         // Normally the default controller is "questionary".
         $this->defaultController = 'questionary';
@@ -137,10 +137,10 @@ class QuestionaryModule extends CWebModule
         $cs->registerCoreScript('jquery.ui');
     
         // Make sure we want to register a style sheet.
-        if( $this->cssFile!==false )
+        if( $this->cssFile !== false )
         {
             // Default style sheet is used unless one is provided.
-            if( $this->cssFile===null )
+            if( $this->cssFile === null )
                 $this->cssFile = $assetsUrl.'/css/default.css';
             else
                 $this->cssFile = Yii::app()->request->baseUrl.$this->cssFile;
