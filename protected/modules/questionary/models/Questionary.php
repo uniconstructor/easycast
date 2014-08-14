@@ -602,7 +602,6 @@ class Questionary extends CActiveRecord
             'twinlist', 'parodistlist', 'emceelist', 'films', 'actoruniversities', 'addchars', 'theatres',
             'video',
         );
-        
         foreach ( $relations as $data )
         {
             foreach ( $this->$data as $object )
@@ -610,7 +609,6 @@ class Questionary extends CActiveRecord
                 $object->delete();
             }
         }
-        
         return parent::beforeDelete();
     }
     
@@ -628,7 +626,6 @@ class Questionary extends CActiveRecord
         {
             $this->addError('galleryid', 'Нужно загрузить хотя бы одну фотографию в разделе "внешность"');
         }
-        
         return parent::beforeValidate();
     }
     
@@ -702,7 +699,7 @@ class Questionary extends CActiveRecord
     protected function hasPhotos($galleryId)
     {
         if ( ! $gallery = Gallery::model()->findByPk($galleryId) )
-        {
+        {// галерея не прикреплена к участнику
             return false;
         }
         if ( $gallery->galleryPhotos )
@@ -1335,14 +1332,19 @@ class Questionary extends CActiveRecord
     public function createdBy($objectType, $objectId)
     {
         $criteria = new CDbCriteria();
-        $criteria->with     = 'creationHistory';
+        $criteria->with = array(
+            'creationHistory' => array(
+                'select'   => false,
+                'joinType' => 'INNER JOIN',
+                'scopes'   => array(
+                    'forObject' => array($objectType, $objectId),
+                ),
+            ),
+        );
         // together Необходимо для корректного выполнения реляционного запроса
         $criteria->together = true;
-        $criteria->compare('`creationHistory`.`objecttype`', $objectType);
-        $criteria->compare('`creationHistory`.`objectid`', $objectId);
          
         $this->getDbCriteria()->mergeWith($criteria);
-        
         return $this;
     }
     
@@ -1359,7 +1361,6 @@ class Questionary extends CActiveRecord
         $criteria->addInCondition('`cityobj`.`regionid`', $regionIds);
         
         $this->getDbCriteria()->mergeWith($criteria);
-        
         return $this;
     }
     
