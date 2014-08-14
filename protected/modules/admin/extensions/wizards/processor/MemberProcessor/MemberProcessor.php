@@ -18,7 +18,7 @@ class MemberProcessor extends CWidget
      * @var int - id текущей просматриваемой вкладки (CatalogSectionInstance)
      *            0 -  неразобранные заявки
      */
-    public $sectionInstanceId = 0;
+    public $sectionInstanceId = -1;
     /**
      * @var int - id текущей просматриваемой заявки (ProjectMember)
      *            Всегда 0 если указан sectionId (в разделах видны только списки)
