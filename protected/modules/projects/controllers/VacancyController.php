@@ -246,7 +246,10 @@ class VacancyController extends Controller
         }
         
         $model = new QDynamicFormModel($scenario);
-        $model->galleryid   = $formData['galleryid'];
+        if ( isset($formData['galleryid']) )
+        {
+            $model->galleryid   = $formData['galleryid'];
+        }
         $model->questionary = $questionary;
         $model->vacancy     = $vacancy;
         
