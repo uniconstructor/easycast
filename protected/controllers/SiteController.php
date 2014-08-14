@@ -272,7 +272,7 @@ class SiteController extends Controller
         
         // request type ('city' ot 'region')
         $type       = Yii::app()->request->getParam('type');
-        // counry or region
+        // country or region
         $parentType = Yii::app()->request->getParam('parenttype');
         // record id or country code
         $parentId   = Yii::app()->request->getParam('parentid');
