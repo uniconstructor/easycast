@@ -8,7 +8,6 @@
 
 // jQuery должен быть на всех страницых темы
 Yii::app()->clientScript->registerCoreScript('jquery');
-
 ?><!DOCTYPE html>
 <!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
 <!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
@@ -33,6 +32,7 @@ Yii::app()->clientScript->registerCoreScript('jquery');
     <link href="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/rs-plugin/css/settings.css" rel="stylesheet" type="text/css">
     <!-- Our helper styles -->
     <link href="<?= Yii::app()->baseUrl; ?>/css/helpers.css" rel="stylesheet" type='text/css'>
+    <!--link rel="stylesheet" href="https://fuelcdn.com/fuelux/2.3/css/fuelux.min.css"-->
     <!-- modernizr lib -->
     <script src="<?= Yii::app()->baseUrl; ?>/js/modernizr.custom.min.js" type="text/javascript"></script>
     <script src="<?= Yii::app()->baseUrl; ?>/js/yiiFormExtensions.js" type="text/javascript"></script>
