@@ -107,7 +107,6 @@ class VacancyController extends Controller
                 return;
             }
         }
-        
         // id анкеты: разрешаем только регистрацию новых пользователей или подачу заявки от своего имени
         $qid = Yii::app()->getModule('questionary')->getCurrentQuestionaryId();
         if ( Yii::app()->user->checkAccess('Admin') )
@@ -115,8 +114,9 @@ class VacancyController extends Controller
             // пользователей через эту форму
             $qid = 0;
         }
+        
         if ( $qid )
-        {// заявку подает существующий участник 
+        {// заявку подает существующий участник
             $questionary = Questionary::model()->findByPk($qid);
             $model       = new QDynamicFormModel('application');
             // не показываем те поля анкеты которые уже заполнены участником 
@@ -127,10 +127,14 @@ class VacancyController extends Controller
             //       - использовать последнее заполненное значение молча, не давая его изменить
             //       - всегда требовать новый ответ 
             $model->displayFilled = false;
+            // id галереи
+            $model->galleryid = $questionary->galleryid;
         }else
         {// участник регистрируется через подачу заявки
             $questionary = new Questionary;
             $model       = new QDynamicFormModel('registration');
+            // id галереи
+            $model->galleryid = $questionary->galleryid;
         }
         // запоминаем роль и анкету, от имени которой будет подаваться заявка
         $model->vacancy     = $vacancy;
@@ -145,7 +149,12 @@ class VacancyController extends Controller
             }elseif ( $gallery = $questionary->getGallery() )
             {
                 $model->galleryid = $gallery->id;
+            }else
+            {
+                $model->galleryid = Yii::app()->session->get('galleryid');
             }
+            // сохраняем в сессию тот id галереи, который смогли вытащить
+            Yii::app()->session->add('galleryid', $model->galleryid);
             // проверка данных формы по AJAX
             $this->performAjaxValidation($model);
             
@@ -160,15 +169,23 @@ class VacancyController extends Controller
             }
         }elseif ( $model->scenario === 'registration' )
         {// это регистрация и у пользователя нет аккаунта:
-            // cоздаем пустую галерею чтобы было куда загружать изображения
-            $gallery = new Gallery();
-            // Определяем в каких размерах создавать миниатюры изображений в галерее
-            $gallery->versions    = Yii::app()->getModule('questionary')->gallerySettings['versions'];
-            $gallery->limit       = 40;
-            $gallery->name        = 1;
-            $gallery->description = 1;
-            $gallery->save();
-            
+            if ( $galleryId = Yii::app()->session->get('galleryid') )
+            {// берем id галереи из сессии если она уже была сохранена
+                $gallery = Gallery::model()->findByPk($galleryId);
+            }else
+            {// cоздаем пустую галерею чтобы было куда загружать изображения
+                $gallery = new Gallery();
+                // Определяем в каких размерах создавать миниатюры изображений в галерее
+                $gallery->versions    = Yii::app()->getModule('questionary')->gallerySettings['versions'];
+                $gallery->limit       = 40;
+                $gallery->name        = 1;
+                $gallery->description = 1;
+                
+                if ( ! $gallery->save() )
+                {// не удалось сохранить галерею
+                    Yii::log('Не удалось сохранить галерею', CLogger::LEVEL_ERROR);
+                }
+            }
             if ( ! $gallery->subfolder )
             {// @todo beforeSave не может знать id для записи в subfolder до сохранения записи
                 // поэтому загрузка изображений происходила в неправильные директории
@@ -177,7 +194,9 @@ class VacancyController extends Controller
             }
             // привязываем заполненную галерею к анкете
             $model->galleryid = $gallery->id;
-        }elseif ( ! $formData AND $model->hasFullInfo() AND $model->scenario === 'application' AND
+            // сохраняем id галереи в сессию
+            Yii::app()->session->add('galleryid', $gallery->id);
+        }elseif ( ! $formData AND $model->hasFullInfo() AND $model->scenario === 'application' AND 
                     Yii::app()->request->getPost('alreadyFilled') )
         {// если подается заявка от участника который уже заранее заполнил все необходимые данные:
             // в этом случае ничего нового из формы не приходит (и это логично)
@@ -206,65 +225,70 @@ class VacancyController extends Controller
     public function actionValidateStep()
     {
         if ( ! Yii::app()->request->isPostRequest OR ! Yii::app()->request->isAjaxRequest )
-        {
+        {// проверка данных только через POST AJAX
             Yii::app()->end();
         }
-        //CVarDumper::dump($_POST);
-        if ( ! $index    = Yii::app()->request->getParam('_index', 1) )
-        {
+        if ( ! $index = Yii::app()->request->getParam('_index', 1) )
+        {// получаем текущий шаг регистрации
             $index = 1;
         }
+        // собираем входные параметры
         $steps    = Yii::app()->request->getParam('steps');
         $formData = Yii::app()->request->getParam('QDynamicFormModel');
         $qid      = Yii::app()->request->getParam('qid');
         $vid      = Yii::app()->request->getParam('vid');
-        // анкета
-        if ( ! $questionary = Questionary::model()->findByPk($qid) )
-        {
+        // определяем на какую роль подается заявка
+        $vacancy = $this->loadModel($vid);
+        // определяем кто подает заявку и будет ли регистрация
+        if ( ! $questionary = Yii::app()->getModule('questionary')->getCurrentQuestionary() )
+        {// анкета еще не создана - происходит регистрация с одновременной подачей заявки
             $scenario    = 'registration';
             $questionary = new Questionary();
         }else
-        {
-            $scenario    = 'application';
+        {// зарегистрированный участник подает заявку: 
+            $scenario = 'application';
         }
-        // роль
-        $vacancy = $this->loadModel($vid);
-        
+        // на каждом шаге регистрации проверяется определенный набор полей (только часть а не вся форма)
+        // определяем на каком этапе мы находимся и какие поля нужно проверять
         $fields = array();
         $stepId = $steps[$index];
         $step   = WizardStepInstance::model()->findByPk($stepId);
-        
+        // список полей из анкеты участника
         $userFields  = QUserField::model()->forObject('wizardstepinstance', $step->id)->findAll();
         foreach ( $userFields as $userField )
         {
             $fields[] = $userField->name;
         }
+        // список полей заявки
         $extraFields = ExtraField::model()->forObject('wizardstepinstance', $step->id)->findAll();
         foreach ( $extraFields as $extraField )
         {
             $fields[] = 'ext_'.$extraField->name;
         }
-        
+        // создаем модель формы и загружаем туда данные для проверки
         $model = new QDynamicFormModel($scenario);
-        if ( isset($formData['galleryid']) )
-        {
-            $model->galleryid   = $formData['galleryid'];
-        }
         $model->questionary = $questionary;
         $model->vacancy     = $vacancy;
-        
+        if ( isset($formData['galleryid']) AND $formData['galleryid'] )
+        {// галерея передана при сохранении формы 
+            $model->galleryid = $formData['galleryid'];
+            Yii::app()->session->add('galleryid', $formData['galleryid']);
+        }else
+        {// галерея не передана - но мы помним ее в сессии
+            $model->galleryid = Yii::app()->session->get('galleryid');
+        }
         //CVarDumper::dump($formData['galleryid']);
         //CVarDumper::dump($model->galleryid);
         
-        //$test = QUserField::model()->findByPk(4)->isEmptyIn($questionary);// getValueForVacancy($vacancy, $questionaryId, $asObject=true)
-        //CVarDumper::dump($test);
-        
+        // используем страндартные проверки модели формы для проверки всех полей анкеты
         $result = CActiveForm::validate($model, $fields);
+        
         //$result = CActiveForm::validate($model, $fields);
         /*$result = CJSON::decode($result);
         $result['QDynamicFormModel_email'] = array('545454');
         $result = CJSON::encode($result);*/
         
+        // отправляем результат проверки как JSON
         echo $result;
         Yii::app()->end();
     }
@@ -312,6 +336,7 @@ class VacancyController extends Controller
                 
             }
         }
+        // адрес по которому происходит переход после "thank you page"
         $finalRedirect = Yii::app()->createUrl('//questionary/questionary/view', array(
             'id'        => $user->questionary->id,
             'activeTab' => 'requests',
@@ -322,7 +347,7 @@ class VacancyController extends Controller
             Yii::app()->user->setFlash('success', 'Заявка принята. Вы можете перейти обратно на сайт проекта.');
             $finalRedirect = 'http://ctc.ru/rus/projects/show/76527/';
         }
-        
+        // отображаем страницу с итоговым результатом регистрации
         $this->render('finish', array(
             'redirectUrl' => $finalRedirect,
             'user'        => $user,
