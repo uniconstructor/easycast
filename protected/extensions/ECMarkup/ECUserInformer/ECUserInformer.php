@@ -88,13 +88,13 @@ class ECUserInformer extends CdCustomDropDown
         
         if ( Yii::app()->user->checkAccess('Admin') )
         {// для админов показываем специальную пометку, и не выводим статус анкеты - он не важен
-            $note = '<small class="text-error">[Администратор]</small>';
+            $note .= '<small class="text-error">[Администратор]</small>';
         }else
         {// для участников показываем статус анкеты и количество новых приглашений
             switch ( $this->questionary->status )
             {
                 case Questionary::STATUS_ACTIVE: 
-                    $note = '<small class="text-success">[Анкета одобрена]</small>';
+                    $note .= '<small class="text-success">[Анкета одобрена]</small>';
                 break;
                 // @todo пока не включаем, чтобы участники не звонили постоянно
                 /*case Questionary::STATUS_PENDING: 
@@ -104,6 +104,10 @@ class ECUserInformer extends CdCustomDropDown
                     $note = '<small class="text-warning">[Нужно дополнить анкету]</small>';
                 break;*/
             }
+        }
+        if ( ! $this->questionary->visible )
+        {// для скрытых анкет подтвердим лишний раз что она скрыта 
+            $note .= '<small class="muted">[Анкета скрыта]</small>';
         }
         if ( $note )
         {
