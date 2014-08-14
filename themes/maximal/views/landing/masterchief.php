@@ -14,13 +14,6 @@ $this->beginContent('//layouts/main');
             <div class="row">
                 <div class="span12">
                     <div class="widgetContainer">
-                        <div class="imageContainer">
-                            <div class="noLinkImage text-center">
-                                
-                            </div>
-                        </div>
-                    </div>
-                    <div class="widgetContainer">
                         <div class="headingContainer heading-3 text-center">
                             <h3>Телеканал СТС объявляет кастинг участников на самое кулинарное шоу мира!</h3>
                         </div>
