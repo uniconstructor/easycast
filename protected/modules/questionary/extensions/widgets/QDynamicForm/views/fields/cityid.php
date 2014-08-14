@@ -35,9 +35,6 @@ echo $form->select2Row($model, 'cityid', array(
                 }",
             ),
         ),
-    ),
-    array(
-        'prepend' => '<i class="icon icon-map-marker"></i>',
     )
 );
 
