@@ -93,7 +93,7 @@ class ExtraFieldInstance extends CActiveRecord
 	public function defaultScope()
 	{
 	    return array(
-	        'order' => $this->getTableAlias(true).'.`sortorder` ASC'
+	        'order' => $this->getTableAlias(true, false).'.`sortorder` ASC'
 	    );
 	}
 	
