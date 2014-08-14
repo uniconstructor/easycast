@@ -651,7 +651,7 @@ class QDynamicFormModel extends CFormModel
             ), 
         );
         
-        $integerOnly = array('cityid', 'isactor', 'isamateuractor', 'hasfilms', 'isemcee', 'istvshowmen',
+        $integerOnly = array(/*'cityid',*/ 'isactor', 'isamateuractor', 'hasfilms', 'isemcee', 'istvshowmen',
             'isstatist', 'ismassactor', 'isparodist', 'istwin', 'ismodel', 'isphotomodel', 'ispromomodel', 
             'isdancer', 'hasawards', 'isstripper', 'issinger', 'ismusician', 'issportsman', 'isextremal', 
             'isathlete', 'hasskills', 'hastricks','haslanuages', 'hasinshurancecard', 'countryid', 
@@ -667,7 +667,7 @@ class QDynamicFormModel extends CFormModel
         $trim = array('birthdate', 'formattedBirthDate', 'firstname', 'lastname', 'middlename',
             'gender', 'galleryid', 'mobilephone', 'homephone', 'addphone', 'vkprofile', 'fbprofile', 'okprofile',
             'passportdate', 'height', 'weight', 'wearsize', 'looktype', 'haircolor', 'hairlength', 'eyecolor', 
-            'cityid', 'passportexpires','chestsize', 'waistsize', 'hipsize',
+            'city', 'cityid', 'passportexpires','chestsize', 'waistsize', 'hipsize',
         );
         foreach ( $trim as $fieldName )
         {
