@@ -53,7 +53,6 @@ $breadcrumbs[] = $titleString;
 $this->breadcrumbs = $breadcrumbs;
 
 ?>
-
 <div class="page">
 <?php
     if ( $vacancyid )
