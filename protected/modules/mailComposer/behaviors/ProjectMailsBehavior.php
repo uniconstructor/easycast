@@ -162,11 +162,6 @@ class ProjectMailsBehavior extends CBehavior
         $block['text'] = $this->createUserGreeting($projectMember->member);
         $block['text'] .= 'Некоторое время назад вы подавали заявку на участие в проекте "'.
             $projectName.'", на роль "'.$projectMember->vacancy->name.'".'."<br>\n";
-        
-        /*if ( ! $massRole )
-        {// для художественных ролей заявки отбирает режиссер
-            $block['text'] .= "Мы передали вашу заявку на рассмотрение режиссеру."; 
-        }*/
         $block['text'] .= "К сожалению она была отклонена. <br> 
             Возможные причины:<br>\n";
         $block['text'] .= "<ul>";
@@ -178,9 +173,11 @@ class ProjectMailsBehavior extends CBehavior
         {
             $block['text'] .= "<li>Вы подали заявку слишком поздно и достаточное количество человек уже набрано.</li>";
         }
-        
         $block['text'] .= "</ul>";
-        
+        if ( $projectMember->vacancy->id == 749 )
+        {// @todo временно заменяем текст для кастинга СТС 
+            $block['text'] = $this->getMCRejectionText($projectMember);
+        }
         $segments->add(null, $block);
         
         //$message .= 'Необходимое количество человек для мероприятия "'.$eventName.'" уже набрано.'."<br>\n<br>\n";
@@ -192,6 +189,28 @@ class ProjectMailsBehavior extends CBehavior
         return $this->owner->widget('application.modules.mailComposer.extensions.widgets.EMailAssembler.EMailAssembler',
             $mailOptions, true);
     }
+    
+    /**
+     * FIXME заглушка на время проведения кастинга СТС
+     * 
+     * @return string
+     */
+    protected function getMCRejectionText($projectMember)
+    {
+        $block = array();
+        $block['text'] = $this->createUserGreeting($projectMember->member);
+        $block['text'] .= 'Некоторое время назад вы подавали заявку на участие в проекте "'.
+            $projectName.'", на роль "'.$projectMember->vacancy->name.'".'."<br>\n";
+        $block['text'] .= "К сожалению она была отклонена. <br>
+            Возможные причины:<br>\n";
+        $block['text'] .= "<ul>";
+        $block['text'] .= "<li>Вы недостаточно разрернуто ответили на вопросы анкеты</li>";
+        $block['text'] .= "<li>Ваше видео не отвечает указанным в форме требованиям или не соответствует формату передачи.</li>";
+        $block['text'] .= "<li>Было набрано достаточное количество человек вашего типажа.</li>";
+        $block['text'] .= "</ul>";
+        
+        return $block['text'];
+    } 
     
     /**
      * Получить текст письма для участника, с информацией о том, что его заявка на роль предварительно одобрена
