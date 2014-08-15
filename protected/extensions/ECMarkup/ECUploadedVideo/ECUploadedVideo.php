@@ -44,6 +44,9 @@ class ECUploadedVideo extends CWidget
     {
         if ( ! $this->videos )
         {
+            $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
+                'message' => 'Видео пока не загружено участником',
+            ));
             return;
         }
         echo CHtml::openTag('ul');
