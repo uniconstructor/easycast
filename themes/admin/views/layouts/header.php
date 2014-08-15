@@ -41,7 +41,7 @@
     <div class="pull-right">
         <!-- collapse menu button -->
         <div class="btn-header pull-right" id="hide-menu">
-            <span><a href="javascript:void(0);" title=CollapseMenu"></a></span>
+            <span><a href="javascript:void(0);" title="CollapseMenu"></a></span>
         </div>
         <!-- end collapse menu -->
     

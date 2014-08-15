@@ -5,7 +5,7 @@
 /* @var $this Controller */
 
 // путь к корню темы оформления (там лежат все скрипты и стили)
-$themeUrl = Yii::app()->theme->baseUrl.'/';
+$themeUrl = Yii::app()->theme->baseUrl.'/assets/';
 ?>
 <!-- [BEGIN HEAD_INFO] -->
 <head>
@@ -21,8 +21,9 @@ $themeUrl = Yii::app()->theme->baseUrl.'/';
     <!-- SmartAdmin Styles : Please note (smartadmin-production.css) was created using LESS variables -->
     <link href="<?= $themeUrl; ?>css/smartadmin-production.css" media="screen" rel="stylesheet" type="text/css">
     <link href="<?= $themeUrl; ?>css/smartadmin-skins.css" media="screen" rel="stylesheet" type="text/css">
-    <!-- Demo purpose only: goes with demo.js, you can delete this css when designing your own WebApp -->
-    <link href="<?= $themeUrl; ?>css/demo.css" media="screen" rel="stylesheet" type="text/css">
+    <!-- We recommend you use "your_style.css" to override SmartAdmin
+		     specific styles this will also ensure you retrain your customization with each SmartAdmin update.
+		<link rel="stylesheet" type="text/css" media="screen" href="css/your_style.css"> -->
     <!-- FAVICONS -->
     <link href="<?= $themeUrl; ?>img/favicon/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="<?= $themeUrl; ?>img/favicon/favicon.ico" rel="icon" type="image/x-icon">
@@ -38,10 +39,8 @@ $themeUrl = Yii::app()->theme->baseUrl.'/';
     <meta content="yes" name="apple-mobile-web-app-capable">
     <meta content="black" name="apple-mobile-web-app-status-bar-style">
     <!-- Startup image for web apps -->
-    <link href="<?= $themeUrl; ?>img/splash/ipad-landscape.png"
-        media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:landscape)" rel="apple-touch-startup-image">
-    <link href="<?= $themeUrl; ?>img/splash/ipad-portrait.png"
-        media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait)" rel="apple-touch-startup-image">
+    <link href="<?= $themeUrl; ?>img/splash/ipad-landscape.png" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:landscape)" rel="apple-touch-startup-image">
+    <link href="<?= $themeUrl; ?>img/splash/ipad-portrait.png" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait)" rel="apple-touch-startup-image">
     <link href="<?= $themeUrl; ?>img/splash/iphone.png" media="screen and (max-device-width: 320px)" rel="apple-touch-startup-image">
 </head>
 <!-- [END HEAD_INFO] -->

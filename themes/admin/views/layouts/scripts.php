@@ -9,27 +9,17 @@
 /* @var $this Controller */
 
 // путь к корню темы оформления (там лежат все скрипты и стили)
-$themeUrl = Yii::app()->theme->baseUrl.'/';
+$themeUrl = Yii::app()->theme->baseUrl.'/assets/';
 ?>
 <!-- END SHORTCUT AREA -->
 <!--================================================== -->
 <!-- PACE LOADER - turn this on if you want ajax loading to show (caution: uses lots of memory on iDevices)
 <script data-pace-options='{ "restartOnRequestAfter": true }' src="js/plugin/pace/pace.min.js"></script>-->
 <!-- Link to Google CDN's jQuery + jQueryUI; fall back to local -->
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
-<script>
-if ( ! window.jQuery ) {
-    document.write('<script src="<?= $themeUrl; ?>js/libs/jquery-2.0.2.min.js"></script>');
-}
-</script>
-<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-<script>
-if ( ! window.jQuery.ui ) {
-    document.write('<script src="<?= $themeUrl; ?>js/libs/jquery-ui-1.10.3.min.js"></script>');
-}
-</script>
+<script src="<?= $themeUrl; ?>js/libs/jquery-2.0.2.min.js"></script>
+<script src="<?= $themeUrl; ?>js/libs/jquery-ui-1.10.3.min.js"></script>
 <!-- JS TOUCH : include this plugin for mobile drag / drop touch events -->
-<script src="<?= Yii::app()->theme->baseUrl; ?>js/plugin/jquery-touch/jquery.ui.touch-punch.min.js"></script>
+<!--script src="<?= Yii::app()->theme->baseUrl; ?>js/plugin/jquery-touch/jquery.ui.touch-punch.min.js"></script-->
 <!-- BOOTSTRAP JS -->
 <script src="<?= $themeUrl; ?>js/bootstrap/bootstrap.min.js"></script>
 <!-- CUSTOM NOTIFICATION -->
@@ -52,6 +42,6 @@ if ( ! window.jQuery.ui ) {
 <script src="<?= $themeUrl; ?>js/plugin/msie-fix/jquery.mb.browser.min.js"></script>
 <!-- FastClick: For mobile devices: you can disable this in app.js -->
 <script src="<?= $themeUrl; ?>js/plugin/fastclick/fastclick.js"></script>
-<script src="<?= $themeUrl; ?>js/demo.js"></script>
+<!--script src="<?= $themeUrl; ?>js/demo.js"></script-->
 <!-- MAIN APP JS FILE -->
 <script src="<?= $themeUrl; ?>js/app.js"></script>

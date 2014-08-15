@@ -28,19 +28,17 @@ class AdminModule extends CWebModule
      */
 	public function init()
 	{
-		// import the module-level models and components
 		$this->setImport(array(
-			'admin.models.*',
-			'admin.components.*',
 		    // Подключаем модели проекта - чтобы можно было работать с событиями и проектами
 		    'projects.models.*',
-		    
-		    // Подключаем загрузку изображений
+		    // Подключаем галерею изображений
 		    'ext.galleryManager.*',
 		    'ext.galleryManager.models.*',
 		));
-		
+		// основной контроллер по умолчанию
 		$this->defaultController = 'admin';
+		// в админке переключаемся на специальную тему оформления
+		Yii::app()->setTheme('admin');
 	}
     
 	/**
