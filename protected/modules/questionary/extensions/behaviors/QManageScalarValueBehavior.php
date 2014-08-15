@@ -75,6 +75,18 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
     }
     
     /**
+     * Получить название города проживания
+     */
+    public function getCityName()
+    {
+        if ( $this->owner->cityid AND $city = CSGeoCity::model()->findByPk($this->owner->cityid) )
+        {
+            return $city->name;
+        }
+        return $this->owner->city->name;
+    }
+    
+    /**
      * 
      * @param string|int $city
      * @return void
@@ -96,6 +108,19 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
             return $this->getDefaultCityId();
         }
         return $this->owner->cityid;
+    }
+    
+    /**
+     * 
+     * @return string
+     */
+    public function getRegionName()
+    {
+        if ( ! $city = $this->owner->cityobj )
+        {/* @var $city CSGeoCity */
+            return null;
+        }
+        return $city->region->name;
     }
     
     /**
