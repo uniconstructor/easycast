@@ -141,3 +141,19 @@ $userLink     = CHtml::link('Участникам', $userUrl);
         </div>
     </div>
 </div>
+<div class="page-alternate">
+    <div class="container">
+        <div class="title-page">
+            <h1 class="title">Текущие события</h1>
+            <h4 class="intro-description">
+                На эти события в данный момент идет набор.
+            </h4>
+        </div>
+        <?php 
+        // все текущие события выводятся одним виджетом
+        $this->widget('projects.extensions.EventsAgenda.EventsAgenda', array(
+            'displayActive' => true,
+        ));
+        ?>
+    </div>
+</div>
