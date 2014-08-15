@@ -8,8 +8,6 @@
  */
 /* @var $this Controller */
 
-// навигация, и все что выше
-//$this->beginContent('//layouts/main');
 ?>
 <!-- MAIN_PANEL -->
 <div id="main">
@@ -20,7 +18,7 @@
         <!-- breadcrumb -->
         <ol class="breadcrumb">
             <!-- if you are using the AJAX version, the breadcrumb area will be empty -->
-            <li>Blank Page</li>
+            <!--li>Blank Page</li-->
         </ol>
         <!-- end breadcrumb -->
     </div>

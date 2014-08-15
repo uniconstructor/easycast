@@ -1,14 +1,13 @@
 <!-- Bread crumb is created dynamically -->
 <!-- row -->
 <div class="row">
-
 	<!-- col -->
 	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-		<h1 class="page-title txt-color-blueDark"><!-- PAGE HEADER --><i class="fa fa-lg fa-fw fa-cube"></i> SmartAdmin Intel <span>>
-			App Settings </span></h1>
+		<h1 class="page-title txt-color-blueDark">
+        <!-- PAGE HEADER --><i class="fa fa-lg fa-fw fa-cube"></i> SmartAdmin Intel <span>
+			App Settings</span></h1>
 	</div>
 	<!-- end col -->
-
 </div>
 <!-- end row -->
 
@@ -349,14 +348,11 @@ the <section></section> and you can use wells or panels instead
 						</div>
 
 						<hr>
-
 						<div class="padding-gutter padding-top-0 padding-bottom-0">
 							Switch to top menu by adding class <code>
 								.menu-on-top</code>
 						</div>
-
 						<div class="padding-gutter">
-
 							<div style="background: #f1f1f1;border-radius:3px;overflow: hidden">
 								<div style="width: 100%;height: auto;background:#ddd;font-size:11px;font-weight: bold;padding:13px 10px">
 									<img src="img/logo.png" alt="SmartAdmin" style="width:75px;">
@@ -371,20 +367,14 @@ the <section></section> and you can use wells or panels instead
 									Footer
 								</div>
 							</div>
-
 						</div>
-
 					</div>
 					<!-- end widget content -->
-
 				</div>
 				<!-- end widget div -->
-
 			</div>
 			<!-- end widget -->
-
 		</article>
-
 	</div>
 
 	<!-- end row -->

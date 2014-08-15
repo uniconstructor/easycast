@@ -14,12 +14,14 @@ $themeUrl = Yii::app()->theme->baseUrl.'/assets/';
 <!-- END SHORTCUT AREA -->
 <!--================================================== -->
 <!-- PACE LOADER - turn this on if you want ajax loading to show (caution: uses lots of memory on iDevices)
-<script data-pace-options='{ "restartOnRequestAfter": true }' src="js/plugin/pace/pace.min.js"></script>-->
+<script data-pace-options='{ "restartOnRequestAfter": true }' src="<?= $themeUrl; ?>js/plugin/pace/pace.min.js"></script>-->
 <!-- Link to Google CDN's jQuery + jQueryUI; fall back to local -->
 <script src="<?= $themeUrl; ?>js/libs/jquery-2.0.2.min.js"></script>
 <script src="<?= $themeUrl; ?>js/libs/jquery-ui-1.10.3.min.js"></script>
+<!-- IMPORTANT: APP CONFIG -->
+<script src="<?= $themeUrl; ?>js/app.config.js"></script>
 <!-- JS TOUCH : include this plugin for mobile drag / drop touch events -->
-<!--script src="<?= Yii::app()->theme->baseUrl; ?>js/plugin/jquery-touch/jquery.ui.touch-punch.min.js"></script-->
+<!--script src="<?= $themeUrl; ?>js/plugin/jquery-touch/jquery.ui.touch-punch.min.js"></script-->
 <!-- BOOTSTRAP JS -->
 <script src="<?= $themeUrl; ?>js/bootstrap/bootstrap.min.js"></script>
 <!-- CUSTOM NOTIFICATION -->
@@ -41,7 +43,7 @@ $themeUrl = Yii::app()->theme->baseUrl.'/assets/';
 <!-- browser msie issue fix -->
 <script src="<?= $themeUrl; ?>js/plugin/msie-fix/jquery.mb.browser.min.js"></script>
 <!-- FastClick: For mobile devices: you can disable this in app.js -->
-<script src="<?= $themeUrl; ?>js/plugin/fastclick/fastclick.js"></script>
-<!--script src="<?= $themeUrl; ?>js/demo.js"></script-->
+<!--script src="<?= $themeUrl; ?>js/plugin/fastclick/fastclick.js"></script-->
+<script src="<?= $themeUrl; ?>js/demo.js"></script>
 <!-- MAIN APP JS FILE -->
 <script src="<?= $themeUrl; ?>js/app.js"></script>

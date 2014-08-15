@@ -19,7 +19,7 @@
 ?><!DOCTYPE html>
 <html lang="ru">
     <?php $this->renderPartial('//layouts/head_info'); ?>
-    <body class="">
+    <body class="smart-style-0 fixed-navigation">
         <?php $this->renderPartial('//layouts/header'); ?>
         <?php $this->renderPartial('//layouts/aside_nav'); ?>
         <?php 
@@ -30,5 +30,6 @@
         ?>
         <div id="shortcut"></div>
         <?php $this->renderPartial('//layouts/scripts'); ?>
+        <?php $this->renderPartial('//layouts/ajax/_pageSetup'); ?>
     </body>
 </html>

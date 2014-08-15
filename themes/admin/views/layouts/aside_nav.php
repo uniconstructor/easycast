@@ -7,7 +7,7 @@
 /* @var $questionary Questionary */
 
 $module = Yii::app()->getModule('questionary');
-if ( ! $questionary = $module->getCurrentQuestionary() )
+if ( $questionary = $module->getCurrentQuestionary() )
 {
     $avatar = '<img alt="me" class="online" src="'.$questionary->avatarUrl.'">';
     $name   = $questionary->fullname;
@@ -32,7 +32,10 @@ if ( ! $questionary = $module->getCurrentQuestionary() )
         <?php 
         // левая колонка меню с навигацией
         $this->widget('zii.widgets.CMenu', array(
-            'items' => $this->sideBar,
+            'items'         => $this->sideBar,
+            'activateItems' => false,
+            'encodeLabel'   => false,
+            'htmlOptions'   => array('id' => ''),
         ));
         ?>
     </nav>
