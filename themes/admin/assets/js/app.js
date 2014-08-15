@@ -374,7 +374,7 @@ var calc_navbar_height = function() {
 				if (!null) {
 					$('nav ul').jarvismenu({
 						accordion : true,
-						speed : menu_speed,
+						speed : 250,
 						closedSign : '<em class="fa fa-plus-square-o"></em>',
 						openedSign : '<em class="fa fa-minus-square-o"></em>'
 					});
@@ -382,7 +382,6 @@ var calc_navbar_height = function() {
 					alert("Error - menu anchor does not exist");
 				}
 			}
-			
 		};
 		/* ~ END: ACTIVATE NAVIGATION */
 		
@@ -517,7 +516,7 @@ var calc_navbar_height = function() {
 	        str_delay = 'delay',
 	        str_throttle = 'throttleWindow';
 	
-	    jq_resize[str_delay] = throttle_delay;
+	    jq_resize[str_delay] = 250;
 	
 	    jq_resize[str_throttle] = true;
 	
