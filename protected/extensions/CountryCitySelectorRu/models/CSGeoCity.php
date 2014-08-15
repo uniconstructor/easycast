@@ -8,6 +8,8 @@
  * @property string $countryid
  * @property string $regionid
  * @property string $name
+ * 
+ * @property CSGeoRegion $region
  */
 class CSGeoCity extends CActiveRecord
 {
