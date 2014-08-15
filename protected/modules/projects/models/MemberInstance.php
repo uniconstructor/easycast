@@ -177,6 +177,21 @@ class MemberInstance extends CActiveRecord
 	}
 	
 	/**
+	 * Именованая группа условий: 
+	 * @param int $memberId
+	 * @return MemberInstance
+	 */
+	public function forMember($memberId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->getTableAlias(true).'.`memberid`', $memberId);
+	
+	    $this->getDbCriteria()->mergeWith($criteria);
+	
+	    return $this;
+	}
+	
+	/**
 	 * Именованая группа условий: получить все ссылки на заявку для определенного объекта
 	 * (например все заявки внутри вкладки роли)
 	 * @param string $objectType
