@@ -35,7 +35,6 @@ if ( $questionary = $module->getCurrentQuestionary() )
             'items'         => $this->sideBar,
             'activateItems' => false,
             'encodeLabel'   => false,
-            'htmlOptions'   => array('id' => ''),
         ));
         ?>
     </nav>
