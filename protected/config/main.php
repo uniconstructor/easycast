@@ -305,18 +305,13 @@ return array(
         'bootstrap' => array(
             'class'          => 'bootstrap.components.Bootstrap',
             // подключаем набор иконок "Font Awesome"
-            'fontAwesomeCss' => false,
+            //'fontAwesomeCss' => true,
             // сжимаем скрипты и стили
-            'minify'         => false,
+            'minify'         => true,
             // отключаем базовые css для bootstrap при использовании темы maximal
             'coreCss'        => false,
             'bootstrapCss'   => false,
             'responsiveCss'  => false,
-            'yiiCss'         => false,
-            'jqueryCss'         => false,
-            'enableJS'         => false,
-            'enableBootboxJS'         => false,
-            'enableNotifierJS'         => false,
         ),
 
         // библиотека для работы с изображениями (требуется для плагина galleryManager)
