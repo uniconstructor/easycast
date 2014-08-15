@@ -37,8 +37,6 @@ class AdminModule extends CWebModule
 		));
 		// основной контроллер по умолчанию
 		$this->defaultController = 'admin';
-		// в админке переключаемся на специальную тему оформления
-		Yii::app()->setTheme('admin');
 	}
     
 	/**
