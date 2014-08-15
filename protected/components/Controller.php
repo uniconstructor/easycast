@@ -2,6 +2,9 @@
 /**
  * Controller is the customized base controller class.
  * All controller classes for this application should extend from this base class.
+ * 
+ * @todo убрать sideBar, header и subtitle если их использование будет 
+ * ограничиваться только темой оформления SmartAdmin 
  */
 class Controller extends RController
 {
@@ -9,6 +12,14 @@ class Controller extends RController
      * @var array левая панель навигации в меню
      */
     public $sideBar = array();
+    /**
+     * @var unknown
+     */
+    public $pageHeader;
+    /**
+     * @var string
+     */
+    public $subTitle;
      
     /**
      * 
