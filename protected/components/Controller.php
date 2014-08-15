@@ -6,6 +6,11 @@
 class Controller extends RController
 {
     /**
+     * @var array левая панель навигации в меню
+     */
+    public $sideBar = array();
+     
+    /**
      * 
      * @todo совместить с полной заменой accessFilter на RBAC если будет возможность
      * @see CController::filters()
