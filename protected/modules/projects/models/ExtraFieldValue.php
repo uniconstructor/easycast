@@ -113,6 +113,8 @@ class ExtraFieldValue extends CActiveRecord
 	 * 
 	 * @param int $id
 	 * @return ExtraFieldValue
+	 * 
+	 * @todo принимать объект в качестве параметра
 	 */
 	public function forField($fieldId)
 	{
