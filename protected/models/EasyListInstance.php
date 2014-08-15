@@ -96,4 +96,40 @@ class EasyListInstance extends CActiveRecord
 	{
 		return parent::model($className);
 	}
+	
+	/**
+	 * Именованая группа условий:
+	 *
+	 * @param string $objectType
+	 * @param string $objectId
+	 * @return CategoryInstance
+	 */
+	public function forObject($objectType, $objectId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('objecttype', $objectType);
+	    $criteria->compare('objectid', $objectId);
+	
+	    $this->getDbCriteria()->mergeWith($criteria);
+	
+	    return $this;
+	}
+	
+	/**
+	 * Именованая группа условий:
+	 *
+	 * @param string $objectType
+	 * @param string $objectIds
+	 * @return CategoryInstance
+	 */
+	public function forObject($objectType, $objectIds)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('objecttype', $objectType);
+	    $criteria->addInCondition('objectid', $objectIds);
+	
+	    $this->getDbCriteria()->mergeWith($criteria);
+	
+	    return $this;
+	}
 }
