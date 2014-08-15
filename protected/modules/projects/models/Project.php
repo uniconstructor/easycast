@@ -17,8 +17,8 @@
  * @property string $notimeend
  * @property string $timecreated
  * @property string $timemodified
- * @property string $leaderid
- * @property string $supportid
+ * @property string $leaderid - id руководителя проекта в таблице User
+ * @property string $supportid - id помошника руководителя в таблице User
  * @property string $customerid
  * @property string $orderid
  * @property integer $isfree
@@ -432,10 +432,23 @@ class Project extends SWActiveRecord
 	    {// тип не указан - выборка по этому параметру не требуется
             return $this;
 	    }
-	     
 	    $criteria->addInCondition($this->getTableAlias(true).'.`type`', $types);
 	    $this->getDbCriteria()->mergeWith($criteria);
 	    
+	    return $this;
+	}
+	
+	/**
+	 * Именованная группа условий: получить все проекты руководителя
+	 * @param int $userId - id руководителя проекта в таблице Users
+	 * @return Project
+	 */
+	public function forLeader($userId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->getTableAlias(true).'.`leaderid`', $userId);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
 	    return $this;
 	}
 
