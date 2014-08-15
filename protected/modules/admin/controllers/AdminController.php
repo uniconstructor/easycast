@@ -9,7 +9,7 @@
  */
 class AdminController extends Controller
 {
-    public $layout = '//layouts/index';
+    public $layout = '//layouts/column2';
     
     /**
      * Отображение главного меню администратора
