@@ -750,8 +750,38 @@ class ProjectMember extends CActiveRecord
 	        $event = new CModelEvent($this);
 	        $this->onCancel($event);
 	    }
-	    
 	    return true;
+	}
+	
+	/**
+	 * 
+	 * @param unknown $instanceId
+	 * @return boolean
+	 */
+	public function addToInstance($instanceId)
+	{
+	    $existedLink = MemberInstance::model()->forMember($this->id)->
+	       forSectionInstance($instanceId)->exists();
+	    if ( $existedLink )
+	    {
+	        return true;
+	    }
+	    $link = new MemberInstance();
+	    $link->memberid = $this->id;
+	    $link->objecttype = 'section_instance';
+	    $link->objectid   = $instanceId;
+	    return $link->save();
+	}
+	
+	/**
+	 * Убрать заявку из раздела роли
+	 * @param int $instanceId
+	 * @return boolean
+	 */
+	public function removeFromInstance($instanceId)
+	{
+	    return MemberInstance::model()->forMember($this->id)->
+	       forSectionInstance($instanceId)->delete();
 	}
 	
 	/**
@@ -780,6 +810,8 @@ class ProjectMember extends CActiveRecord
 	/**
 	 * Автоматически создать связи со существующими разделами заявок в роли после подачи заявки
 	 * @return void
+	 * 
+	 * @deprecated связь 'nolink' больше не используется - этот метод больше не нужен
 	 */
 	protected function createMemberInstances()
 	{
