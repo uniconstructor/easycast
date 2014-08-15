@@ -44,6 +44,8 @@ $themeUrl = Yii::app()->theme->baseUrl.'/assets/';
 <script src="<?= $themeUrl; ?>js/plugin/msie-fix/jquery.mb.browser.min.js"></script>
 <!-- FastClick: For mobile devices: you can disable this in app.js -->
 <!--script src="<?= $themeUrl; ?>js/plugin/fastclick/fastclick.js"></script-->
-<script src="<?= $themeUrl; ?>js/demo.js"></script>
+<!-- script src="<?= $themeUrl; ?>js/demo.js"></script-->
 <!-- MAIN APP JS FILE -->
-<script src="<?= $themeUrl; ?>js/app.js"></script>
+<script src="<?= $themeUrl; ?>js/app.min.js"></script>
+<!-- jGrowl: tiny notifications -->
+<script src="<?= Yii::app()->baseUrl; ?>/js/jquery.jgrowl.min.js"></script>

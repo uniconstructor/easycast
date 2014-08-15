@@ -22,8 +22,9 @@ $themeUrl = Yii::app()->theme->baseUrl.'/assets/';
     <!-- SmartAdmin Styles : Please note (smartadmin-production.css) was created using LESS variables -->
     <link href="<?= $themeUrl; ?>css/smartadmin-production.css" media="screen" rel="stylesheet" type="text/css">
     <link href="<?= $themeUrl; ?>css/smartadmin-skins.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="<?= Yii::app()->baseUrl; ?>/css/jquery.jgrowl.min.css" rel="stylesheet" type="text/css">
     <!-- Demo purpose only: goes with demo.js, you can delete this css when designing your own WebApp -->
-    <link rel="stylesheet" type="text/css" media="screen" href="<?= $themeUrl; ?>css/demo.min.css">
+    <!-- link rel="stylesheet" type="text/css" media="screen" href="<?= $themeUrl; ?>css/demo.min.css" -->
     <!-- We recommend you use "your_style.css" to override SmartAdmin
 		     specific styles this will also ensure you retrain your customization with each SmartAdmin update.
 		<link rel="stylesheet" type="text/css" media="screen" href="css/your_style.css"> -->

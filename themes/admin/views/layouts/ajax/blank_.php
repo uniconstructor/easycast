@@ -13,18 +13,17 @@
 			<!-- PAGE HEADER -->
 			<i class="fa-fw fa fa-home"></i> 
 				<?= $this->pageHeader; ?>
-			<span>>  
+			<span>  
 				<?= $this->subTitle; ?>
 			</span>
 		</h1>
 	</div>
 	<!-- end col -->
-	
 	<!-- right side of the page with the sparkline graphs -->
 	<!-- col -->
 	<div class="col-xs-12 col-sm-5 col-md-5 col-lg-8">
 		<!-- sparks -->
-		<ul id="sparks">
+		<!--ul id="sparks">
 			<li class="sparks-info">
 				<h5> My Income <span class="txt-color-blue">$47,171</span></h5>
 				<div class="sparkline txt-color-blue hidden-mobile hidden-md hidden-sm">
@@ -43,7 +42,7 @@
 					110,150,300,130,400,240,220,310,220,300, 270, 210
 				</div>
 			</li>
-		</ul>
+		</ul-->
 		<!-- end sparks -->
 	</div>
 	<!-- end col -->
@@ -54,7 +53,6 @@
 	You do not need to use widgets if you dont want to. Simply remove 
 	the <section></section> and you can use wells or panels instead 
 	-->
-
 <!-- widget grid -->
 <section id="widget-grid" class="">
 	<!-- row -->

@@ -39,3 +39,4 @@ if ( $questionary = $module->getCurrentQuestionary() )
         ?>
     </nav>
 </aside>
+<div id="jGrowl" class="jGrowl"></div>

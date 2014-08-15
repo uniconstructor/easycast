@@ -1,15 +1,13 @@
 <?php
 /**
- * Верстка сетки из нескольких виджетов
+ * Заготовка для верстки во всю ширину содержимого
  */
 /* @var $this Controller */
 ?>
 <!-- row -->
 <div class="row">
 	<!-- a blank row to get started -->
-	<div class="col-sm-12">
-		<?= $content; ?>
-	</div>
+	<?= $content; ?>
 </div>
 <!-- end row -->
 <?php 
