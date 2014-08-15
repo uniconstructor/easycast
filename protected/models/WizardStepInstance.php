@@ -121,6 +121,47 @@ class WizardStepInstance extends CActiveRecord
 	}
 	
 	/**
+	 * Получить название вкладки
+	 * @return string
+	 */
+	public function getName()
+	{
+	    return $this->step->name;
+	}
+	
+	/**
+	 * Получить название вкладки
+	 * @return string
+	 */
+	public function getHeader()
+	{
+	    return $this->step->header;
+	}
+	
+	/**
+	 * Получить список полей, присутствующих в этом разделе (массив записей)
+	 * 
+	 * @return void
+	 */
+	public function getFields()
+	{
+	    $result = array();
+	    // поля анкеты
+	    $userFields  = QFieldInstance::model()->forObject('wizardstepinstance', $this->id)->findAll();
+	    foreach ( $userFields as $userField )
+	    {
+	        $result[] = $userField;
+	    }
+	    // поля заявки
+	    $extraFields = ExtraFieldInstance::model()->forObject('wizardstepinstance', $this->id)->findAll();
+	    foreach ( $extraFields as $extraField )
+	    {
+	        $result[] = $extraField;
+	    }
+	    return $result;
+	}
+	
+	/**
 	 * Получить список полей, присутствующих в этом разделе (для отображения)
 	 * @return string
 	 */
