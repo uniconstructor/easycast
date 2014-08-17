@@ -15,7 +15,7 @@
             'htmlOptions' => array(
                 'data-title'     => CHtml::encode($vacancy->name),
                 'data-placement' => 'left',
-                'data-content'   => '<div style="color:#000;font-size: 0.8em;">'.$vacancy->description.'</div>',
+                'data-content'   => '<div style="color:#000;font-size: 0.8em;">'.CHtml::encode($vacancy->description).'</div>',
                 'data-toggle'    => 'popover',
                 'data-html'      => true,
                 'class'          => 'btn-block'
