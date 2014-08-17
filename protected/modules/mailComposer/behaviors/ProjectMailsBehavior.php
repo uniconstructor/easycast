@@ -193,6 +193,7 @@ class ProjectMailsBehavior extends CBehavior
     /**
      * FIXME заглушка на время проведения кастинга СТС
      * 
+     * @param ProjecMember $projectMember 
      * @return string
      */
     protected function getMCRejectionText($projectMember)
@@ -200,7 +201,8 @@ class ProjectMailsBehavior extends CBehavior
         $block = array();
         $block['text'] = $this->createUserGreeting($projectMember->member);
         $block['text'] .= 'Некоторое время назад вы подавали заявку на участие в проекте "'.
-            $projectName.'", на роль "'.$projectMember->vacancy->name.'".'."<br>\n";
+            $projectMember->vacancy->event->project->name.
+            '", на роль "'.$projectMember->vacancy->name.'".'."<br>\n";
         $block['text'] .= "К сожалению она была отклонена. <br>
             Возможные причины:<br>\n";
         $block['text'] .= "<ul>";
