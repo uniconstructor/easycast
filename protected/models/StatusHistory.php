@@ -44,7 +44,21 @@ class StatusHistory extends CActiveRecord
 	public function relations()
 	{
 		return array(
+		    
 		);
+	}
+	
+	/**
+	 * @see CModel::behaviors()
+	 */
+	public function behaviors()
+	{
+	    return array(
+	        'CTimestampBehavior' => array(
+	            'class'            => 'zii.behaviors.CTimestampBehavior',
+	            'createAttribute' => 'timecreated',
+	        ),
+	    );
 	}
 
 	/**
@@ -101,19 +115,6 @@ class StatusHistory extends CActiveRecord
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
-	}
-	
-	/**
-	 * @see CModel::behaviors()
-	 */
-	public function behaviors()
-	{
-	    return array(
-	        'CTimestampBehavior' => array(
-    	        'class'            => 'zii.behaviors.CTimestampBehavior',
-        	     'createAttribute' => 'timecreated',
-	        ),
-	    );
 	}
 	
 	/**

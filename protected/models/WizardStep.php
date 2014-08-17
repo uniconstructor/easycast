@@ -38,7 +38,7 @@ class WizardStep extends CActiveRecord
 			array('id, name, header, description, prevlabel, nextlabel, timecreated, timemodified', 'safe', 'on'=>'search'),
 		);
 	}
-
+	
 	/**
 	 * @return array relational rules.
 	 */
@@ -47,6 +47,21 @@ class WizardStep extends CActiveRecord
 		return array(
 		    'instances' => array(self::HAS_MANY, 'WizardStepInstance', 'wizardstepid'),
 		);
+	}
+	
+	/**
+	 * @see CModel::behaviors()
+	 */
+	public function behaviors()
+	{
+        return array(
+            // автоматическое заполнение дат создания и изменения
+            'CTimestampBehavior' => array(
+                'class'           => 'zii.behaviors.CTimestampBehavior',
+                'createAttribute' => 'timecreated',
+                'updateAttribute' => 'timemodified',
+            ),
+        );
 	}
 
 	/**
@@ -81,7 +96,6 @@ class WizardStep extends CActiveRecord
 	public function search()
 	{
 		// @todo Please modify the following code to remove attributes that should not be searched.
-
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);

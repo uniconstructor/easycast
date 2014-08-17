@@ -45,6 +45,20 @@ class SearchDataInstance extends CActiveRecord
 		    
 		);
 	}
+	
+	/**
+	 * @see CModel::behaviors()
+	 */
+	public function behaviors()
+	{
+	    return array(
+	        // автоматическое заполнение дат создания и изменения
+	        'CTimestampBehavior' => array(
+	            'class'           => 'zii.behaviors.CTimestampBehavior',
+	            'createAttribute' => 'timecreated',
+	        ),
+	    );
+	}
 
 	/**
 	 * @return array customized attribute labels (name=>label)
