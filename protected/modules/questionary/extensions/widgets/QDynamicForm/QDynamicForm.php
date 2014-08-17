@@ -387,6 +387,7 @@ class QDynamicForm extends CWidget
                 $result .= $this->getExtraFieldLayout($form, $this->model, $extraField);
             }
         }
+        
         if ( ! $result )
         {// ни одного поля на этом шаге заполнять не нужно - скажем об этом
             $result .= $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
@@ -395,7 +396,7 @@ class QDynamicForm extends CWidget
             ), true);
         }else
         {
-            $result = $header.' '.$result;
+            $result = $header.' <div class="well">'.$result.'</div>';
         }
         return $result;
     }
