@@ -297,6 +297,6 @@ class QSearchResults extends CWidget
      */
     protected function getMaxSectionItems()
     {
-        return 35;
+        return 100;
     }
 }
