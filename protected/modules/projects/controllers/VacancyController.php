@@ -224,10 +224,10 @@ class VacancyController extends Controller
      */
     public function actionValidateStep()
     {
-        if ( ! Yii::app()->request->isPostRequest OR ! Yii::app()->request->isAjaxRequest )
+        /*if ( ! Yii::app()->request->isPostRequest OR ! Yii::app()->request->isAjaxRequest )
         {// проверка данных только через POST AJAX
             Yii::app()->end();
-        }
+        }*/
         if ( ! $index = Yii::app()->request->getParam('_index', 1) )
         {// получаем текущий шаг регистрации
             $index = 1;
@@ -239,6 +239,7 @@ class VacancyController extends Controller
         $vid      = Yii::app()->request->getParam('vid');
         // определяем на какую роль подается заявка
         $vacancy = $this->loadModel($vid);
+        
         // определяем кто подает заявку и будет ли регистрация
         if ( ! $questionary = Yii::app()->getModule('questionary')->getCurrentQuestionary() )
         {// анкета еще не создана - происходит регистрация с одновременной подачей заявки
@@ -247,7 +248,9 @@ class VacancyController extends Controller
         }else
         {// зарегистрированный участник подает заявку: 
             $scenario = 'application';
+            $formData['galleryid'] = $questionary->galleryid;
         }
+        
         // на каждом шаге регистрации проверяется определенный набор полей (только часть а не вся форма)
         // определяем на каком этапе мы находимся и какие поля нужно проверять
         $fields = array();
@@ -265,6 +268,7 @@ class VacancyController extends Controller
         {
             $fields[] = 'ext_'.$extraField->name;
         }
+        
         // создаем модель формы и загружаем туда данные для проверки
         $model = new QDynamicFormModel($scenario);
         $model->questionary = $questionary;
