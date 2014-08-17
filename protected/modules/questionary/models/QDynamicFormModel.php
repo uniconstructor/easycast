@@ -556,7 +556,7 @@ class QDynamicFormModel extends CFormModel
             $this->_rules = CMap::mergeArray($this->_rules, $this->getUserFieldRules($userField));
         }
         foreach ( $this->extraFields as $extraField )
-        {/// добавляем правила для дополнительных полей
+        {// добавляем правила для дополнительных полей
             $this->_rules = CMap::mergeArray($this->_rules, $this->getExtraFieldRules($extraField));
         }
     }
@@ -624,9 +624,11 @@ class QDynamicFormModel extends CFormModel
             'photo' => array(
                 array('photo', 'safe'),
             ),
-            'chestsize' => array(
+            // @todo устанавливать эти правила только если одно из этих полей
+            //       установлено как обязательное
+            /*'chestsize' => array(
                 array('chestsize', 'compare', 'compareValue' => 1, 'operator' => '>', 
-                    'message' => 'Не указаны тела (объем груди)',
+                    'message' => 'Не указаны параметры тела (объем груди)',
                 ),
             ),
             'waistsize' => array(
@@ -648,7 +650,7 @@ class QDynamicFormModel extends CFormModel
                 array('weight', 'compare', 'compareValue' => 1, 'operator' => '>',
                     'message' => 'Не указан вес',
                 ),
-            ), 
+            ),*/ 
         );
         
         $integerOnly = array(/*'cityid',*/ 'isactor', 'isamateuractor', 'hasfilms', 'isemcee', 'istvshowmen',
@@ -711,7 +713,7 @@ class QDynamicFormModel extends CFormModel
         $fieldName = $this->extraFieldPrefix.$field->name;
         $rules = array(
             array($fieldName, 'filter', 'filter' => 'trim'),
-            array($fieldName, 'length', 'max' => 4090),
+            array($fieldName, 'length', 'max' => 4095),
         );
         if ( $field->isRequiredForVacancy($this->vacancy) AND ! Yii::app()->user->checkAccess('Admin') )
         {
