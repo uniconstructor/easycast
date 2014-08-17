@@ -9,13 +9,13 @@
         <?php
         $this->widget('bootstrap.widgets.TbButton', array(
             'id'    => 'vacancy_description_'.$vacancy->id,
-            'label' => CHtml::encode($vacancy->name),
+            'label' => strip_tags($vacancy->name),
             'type'  => 'default',
             'icon'  => 'icon-chevron-left',
             'htmlOptions' => array(
-                'data-title'     => CHtml::encode($vacancy->name),
+                'data-title'     => strip_tags($vacancy->name),
                 'data-placement' => 'left',
-                'data-content'   => '<div style="color:#000;font-size: 0.8em;">'.CHtml::encode($vacancy->description).'</div>',
+                'data-content'   => '<div style="color:#000;font-size: 0.8em;">'.strip_tags($vacancy->description).'</div>',
                 'data-toggle'    => 'popover',
                 'data-html'      => true,
                 'class'          => 'btn-block'
@@ -31,7 +31,7 @@
     </div>
     <div class="row-fluid text-center">
         <?php 
-
+        // размер оплаты для зарегистрированных участников или сообщение о том что отбор завершен
         if ( $vacancy->salary AND ! $vacancy->event->isExpired() AND
              $vacancy->status === EventVacancy::STATUS_ACTIVE AND 
              $this->userMode === 'user' AND 
@@ -48,7 +48,7 @@
     </div>
     <div class="row-fluid text-center">
         <?php 
-        
+        // кнопки возможных действий для участника
         $this->widget('projects.extensions.VacancyActions.VacancyActions', array(
             'isAjaxRequest' => Yii::app()->request->isAjaxRequest,
             'questionaryId' => $this->questionary ? $this->questionary->id : 0,
