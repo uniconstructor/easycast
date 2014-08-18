@@ -113,21 +113,6 @@ class ProjectMember extends CActiveRecord
 	}
 	
 	/**
-	 * @see parent::behaviors
-	 */
-	public function behaviors()
-	{
-	    return array(
-	        // автоматическое заполнение дат создания и изменения
-	        'CTimestampBehavior' => array(
-	            'class' => 'zii.behaviors.CTimestampBehavior',
-	            'createAttribute' => 'timecreated',
-	            'updateAttribute' => 'timemodified',
-	        )
-	    );
-	}
-	
-	/**
 	 * @see CActiveRecord::beforeSave()
 	 */
 	public function beforeSave()
@@ -213,6 +198,21 @@ class ProjectMember extends CActiveRecord
 	            "{{member_instances}}(memberid, objectid)",
 	            'condition' => "`objecttype` = 'section_instance' AND `linktype` <> 'nolink'",
 	        ),
+	    );
+	}
+	
+	/**
+	 * @see parent::behaviors
+	 */
+	public function behaviors()
+	{
+	    return array(
+	        // автоматическое заполнение дат создания и изменения
+	        'CTimestampBehavior' => array(
+	            'class' => 'zii.behaviors.CTimestampBehavior',
+	            'createAttribute' => 'timecreated',
+	            'updateAttribute' => 'timemodified',
+	        )
 	    );
 	}
 	
@@ -396,6 +396,8 @@ class ProjectMember extends CActiveRecord
      * Именованная группа условий поиска - 
      * @param array $linkTypes
      * @return ProjectMember
+     * 
+     * @deprecated оценки анкет больше не используются
      */
 	public function withLinkTypes($linkTypes)
 	{
@@ -695,7 +697,7 @@ class ProjectMember extends CActiveRecord
                 );
             break;
 	    }
-	
+        // переход из этого статуса недоступен
 	    return array();
 	}
 	
@@ -754,8 +756,8 @@ class ProjectMember extends CActiveRecord
 	}
 	
 	/**
-	 * 
-	 * @param unknown $instanceId
+	 * Добавить заявку в раздел роли
+	 * @param int $instanceId - id ссылки на раздел роли (CatalogSectionInstance)
 	 * @return boolean
 	 */
 	public function addToInstance($instanceId)
@@ -767,7 +769,7 @@ class ProjectMember extends CActiveRecord
 	        return true;
 	    }
 	    $link = new MemberInstance();
-	    $link->memberid = $this->id;
+	    $link->memberid   = $this->id;
 	    $link->objecttype = 'section_instance';
 	    $link->objectid   = $instanceId;
 	    return $link->save();
@@ -775,7 +777,7 @@ class ProjectMember extends CActiveRecord
 	
 	/**
 	 * Убрать заявку из раздела роли
-	 * @param int $instanceId
+	 * @param int $instanceId - id ссылки на раздел роли (CatalogSectionInstance)
 	 * @return boolean
 	 */
 	public function removeFromInstance($instanceId)
