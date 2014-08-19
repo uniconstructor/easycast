@@ -140,7 +140,7 @@ class CustomerInvite extends CActiveRecord
             'CTimestampBehavior' => array(
                 'class'           => 'zii.behaviors.CTimestampBehavior',
                 'createAttribute' => 'timecreated',
-                //'updateAttribute' => null,
+                'updateAttribute' => null,
             ),
         );
     }
