@@ -64,7 +64,7 @@ $this->breadcrumbs = $breadcrumbs;
                 'gridControllerPath' => '/admin/memberInstanceGrid/',
                 'updateUrl'          => '/admin/memberInstanceGrid/update',
             ),
-            'sectionInstanceId' => Yii::app()->request->getParam('siid', 0),
+            'sectionInstanceId' => Yii::app()->request->getParam('siid', -1),
             'currentMemberId'   => Yii::app()->request->getParam('cmid', 0),
             'lastMemberId'      => Yii::app()->request->getParam('lmid', 0),
             'draft'             => Yii::app()->request->getParam('draft', 0),
