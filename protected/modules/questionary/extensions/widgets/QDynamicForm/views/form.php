@@ -9,14 +9,13 @@
 <div class="row-fluid">
     <div class="offset2 span8">
         <?php
-        // FIXME сделать загрузку видео в зависимости от настроек
-        if ( $this->vacancy->id == 749 )
-        {
-            $this->render('templates/xupload', array(
-                'model' => $model,
-            ));
-        }
-        
+        // выводим специальный скрытый элемент, который каждую минуту
+        // посылает запрос на сайт, чтобы при длительном
+        // заполнении анкеты не произошла потеря сессии и все данные не пропали
+        $this->widget('ext.EHiddenKeepAlive.EHiddenKeepAlive', array(
+            'url'    => Yii::app()->createAbsoluteUrl('//site/keepAlive'),
+            'period' => 45,
+        ));
         $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
             'id' => 'dynamic-registration-form',
             'enableAjaxValidation'   => ! $model->hasFullInfo(),
@@ -26,8 +25,6 @@
                 'validateOnSubmit' => ! $model->hasFullInfo(),
                 'validateOnChange' => false,
                 // @todo при AJAX-проверке данных делать кнопку неактивной
-                // @todo не происходит перенаправление участника после подачи заявки если 
-                //       у него заполнены все поля еще до регистрации
                 /*'beforeValidate'   => "js:function(form){
                     $('#dynamic-registration-submit_{$this->vacancy->id}').prop('disabled', 'disabled');
                     $('#dynamic-registration-submit_{$this->vacancy->id}').removeClass('btn-success');
@@ -49,13 +46,6 @@
                 ),
             ),
         ));
-        // выводим специальный скрытый элемент, который каждую минуту
-        // посылает запрос на сайт, чтобы при длительном
-        // заполнении анкеты не произошла потеря сессии и все данные не пропали
-        $this->widget('ext.EHiddenKeepAlive.EHiddenKeepAlive', array(
-            'url'    => Yii::app()->createAbsoluteUrl('//site/keepAlive'),
-            'period' => 45,
-        ));
         if ( empty($model->extraFields) AND empty($model->userFields) )
         {// участник все заполнил, поблагодарим его за это
             $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
@@ -71,7 +61,6 @@
         
         // @todo добавить возможность вводить дополнительную информацию перед формой
         //       (например правила участия)
-        
         foreach ( $model->userFields as $userField )
         {// обязательные поля формы (оставлены только нужные)
             echo $this->getUserFieldLayout($form, $model, $userField);
@@ -80,6 +69,7 @@
         {// дополнительные поля заявки (оставлены только нужные)
             echo $this->getExtraFieldLayout($form, $model, $extraField);
         }
+        
         if ( $model->hasFullInfo() )
         {// параметр для индикации того что все данные у участника уже есть
             echo CHtml::hiddenField('alreadyFilled', '1');
