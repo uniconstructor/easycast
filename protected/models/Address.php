@@ -76,8 +76,6 @@ class Address extends CActiveRecord
 	 */
 	public function relations()
 	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
 		return array(
 		    'cityobj'    => array(self::BELONGS_TO, 'CSGeoCity', 'cityid'),
 		    'region'  => array(self::BELONGS_TO, 'CSGeoRegion', 'regionid'),
@@ -101,7 +99,6 @@ class Address extends CActiveRecord
 	}
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::beforeSave()
 	 */
 	protected function beforeSave()
