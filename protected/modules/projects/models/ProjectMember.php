@@ -315,7 +315,7 @@ class ProjectMember extends CActiveRecord
 	public function forVacancy($vacancyId)
 	{
 	    $criteria = new CDbCriteria();
-	    $criteria->compare('vacancyid', $vacancyId);
+	    $criteria->compare($this->getTableAlias(true).'.`vacancyid`', $vacancyId);
 	    
 	    $this->getDbCriteria()->mergeWith($criteria);
 	    
@@ -330,7 +330,7 @@ class ProjectMember extends CActiveRecord
 	public function forQuestionary($questionaryId)
 	{
 	    $criteria = new CDbCriteria();
-	    $criteria->compare('memberid', $questionaryId);
+	    $criteria->compare($this->getTableAlias(true).'.`memberid`', $questionaryId);
 	    
 	    $this->getDbCriteria()->mergeWith($criteria);
 	    
