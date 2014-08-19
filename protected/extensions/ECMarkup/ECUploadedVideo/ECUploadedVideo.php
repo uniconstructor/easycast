@@ -55,8 +55,8 @@ class ECUploadedVideo extends CWidget
             $url = Sweeml::raiseOpenShadowboxUrl('#', array(
                 'player'  => 'html',
                 'content' => '<div><video controls src="'.$video->getEmbedUrl($this->expires).'" width="640" height="480"></video></div>',
-                'width'   => 640,
-                'height'  => 480,
+                'width'   => 650,
+                'height'  => 490,
             ));
             echo CHtml::tag('li', array(), CHtml::link(CHtml::encode($video->name), $url));
         }
