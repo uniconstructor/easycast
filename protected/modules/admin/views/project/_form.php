@@ -167,7 +167,6 @@ $this->endWidget();
     {// не показываем добавление видео при создании проекта - его не к чему прикреплять пока проект не создан
         // список видео
         $this->widget('ext.ECEditVideo.ECEditVideo', array(
-            'questionary' => $questionary,
             'objectType'  => 'project',
             'objectId'    => $model->id,
             'clipModule'  => 'admin',
