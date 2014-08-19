@@ -579,24 +579,35 @@ class EventVacancy extends CActiveRecord
 	    {// id анкеты не указан - попробуем взять текущий
 	        $questionaryId = $this->getCurrentUserQuestionaryId();
 	    }
-        
         if ( $this->event->isExpired() )
         {// мероприятие для этой роли уже прошло - нельзя подавать заявки
             // на завершенные мероприятия
             return false;
         }
-	    
 	    if ( $this->hasApplication($questionaryId) AND ! $ignoreApplication )
 	    {// участник уже подал заявку на эту вакансию
 	        return false;
 	    }
-	    
 	    if ( ! $this->userMatchVacancyConditions($questionaryId) )
 	    {// участник не подходит под указанные в вакансии критерии
 	        return false;
 	    }
-	    
 	    return true;
+	}
+	
+	/**
+	 * Определить, является ли процесс подачи заявки на роль одношаговым
+	 * (нужно ли выводить wizard с шагами для регистрации)
+	 * 
+	 * @return bool
+	 */
+	public function needWizard()
+	{
+	    if ( $this->regtype === 'form' )
+	    {// форма в принципе не разбита на шаги
+	        return false;
+	    }
+	    return false;
 	}
 	
 	/**
