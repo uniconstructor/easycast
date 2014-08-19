@@ -54,7 +54,8 @@ class QuestionaryController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions' => array('upload', 'index', 'view', 'catalog', 'ajaxGetUserInfo', 'invite', 'dismiss', 'userActivation'),
+			    // FIXME запретить загрузку файлов для гостей
+			    'actions' => array('upload', 'index', 'view', 'catalog', 'ajaxGetUserInfo', 'invite', 'dismiss', 'userActivation'),
 				'users'   => array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
