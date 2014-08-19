@@ -127,15 +127,26 @@ class QDynamicForm extends CWidget
             $this->render($this->vacancy->regtype, array(
                 'model' => $this->model,
             ));
+            /*if ( $this->vacancy->needWizard() )
+            {// форму с шагами, если она нужна
+                $this->render('wizard', array(
+                    'model' => $this->model,
+                ));
+            }else
+            {// один шаг или вообще нет разбиения - обойдемся одностраничной формой
+                $this->render('form', array(
+                    'model' => $this->model,
+                ));
+            }*/
         }
     }
     
     /**
      * Получить разметку для одного поля анкеты
      * 
-     * @param TbActiveForm $form
+     * @param TbActiveForm  $form
      * @param CActiveRecord $model
-     * @param QUserField $field
+     * @param QUserField    $field
      * @return string
      */
     protected function getUserFieldLayout($form, $model, $field)
