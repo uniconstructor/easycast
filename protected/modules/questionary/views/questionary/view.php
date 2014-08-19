@@ -9,39 +9,6 @@ Yii::import('application.modules.catalog.CatalogModule');
 Yii::import('application.modules.catalog.models.*');
 
 $this->breadcrumbs = array();
-$this->breadcrumbs[QuestionaryModule::t('catalog')] = array('/catalog/catalog/faces');
-
-if ( $sectionId = CatalogModule::getNavigationParam('sectionId') AND $sectionId != 1 )
-{// выстраиваем верхнюю навигацию в зависимости от того, с какого раздела каталога мы перешли
-    $tabName = CatalogModule::getNavigationParam('tab');
-    if ( ! $page = CatalogModule::getNavigationParam('page') )
-    {
-        $page = 1;
-    }
-    if ( $section = CatalogSection::model()->findByPk($sectionId) )
-    {
-        $this->breadcrumbs[$section->name] = array('/catalog/catalog',
-            'sectionid'        => $sectionId,
-            'Questionary_page' => $page,
-        );
-    }
-    if ( $tabName AND $section )
-    {
-        foreach ( $section->instances as $tabInstance )
-        {
-            if ( $tabInstance->tab->shortname == $tabName )
-            {
-                $this->breadcrumbs[$tabInstance->tab->name] = array(
-                    '/catalog/catalog',
-                    'sectionId'        => $sectionId,
-                    'tab'              => $tabName,
-                    'Questionary_page' => $page
-                );
-                break;
-            }
-        }
-    }
-}
 $this->breadcrumbs[] = $questionary->user->fullname;
 
 // Кнопка "редактировать"
@@ -57,25 +24,24 @@ if ( $canEdit )
 $this->widget('bootstrap.widgets.TbAlert');
 ?>
 <div class="row-fluid">
-    <div id="order_message" 
-        class="<?php echo $orderMessageClass; ?>" 
-        style="margin-top:20px;<?= $orderMessageStyle; ?>">
-        <?php // сообщение о том что участник приглашен на съемки
-            echo $orderMessage; 
-            echo '<br><br>';
-            echo $dismissButton;
+    <div id="order_message" class="<?= $orderMessageClass; ?>" style="margin-top:20px;<?= $orderMessageStyle; ?>">
+        <?php 
+        // сообщение о том что участник приглашен на съемки
+        echo $orderMessage; 
+        echo '<br>';
+        echo $dismissButton;
         ?>
     </div>
     <h2 class="pull-right">
-        <?php // Имя, фамилия, возраст 
-            echo $questionary->user->fullname;
-            if ( $questionary->age )
-            {
-                echo ', '.$questionary->age;
-            }
-        ?>
-        <?php // кнопки "редактировать" и "пригласить" 
-            echo '&nbsp;'.$editIcon.$inviteButton;
+        <?php 
+        // Имя, фамилия, возраст 
+        echo $questionary->user->fullname;
+        if ( $questionary->age )
+        {
+            echo ', '.$questionary->age;
+        }
+        // кнопки "редактировать" и "пригласить" 
+        echo '&nbsp;'.$editIcon.$inviteButton;
         ?>
     </h2>
 </div>
