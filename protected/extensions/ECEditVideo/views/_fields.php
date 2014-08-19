@@ -9,6 +9,9 @@
 
 // ошибки формы
 echo $form->errorSummary(array($model), null, null, array('id' => $this->formId.'_errors'));
+// объект к которому прикрепляется видео
+echo $form->hiddenField($model, 'objecttype');
+echo $form->hiddenField($model, 'objectid');
 // название
 echo $form->textFieldRow($model, 'name');
 // ссылка

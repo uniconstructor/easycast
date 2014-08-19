@@ -1,7 +1,7 @@
 <?php 
 
 // Подключаем родительский класс контроллера сложных значений
-Yii::import('questionary.controllers.QComplexValueController');
+Yii::import('ext.EditableGrid.EditableGridController');
 
 /**
  * Контроллер для работы с видео: позволяет прикреплять видеоролики к любым моделям
@@ -15,7 +15,7 @@ Yii::import('questionary.controllers.QComplexValueController');
  * @todo добавить возможность добавлять видео незарегистрированным пользователям
  *      (только если это понадобится в форме быстрой регистрации)
  */
-class VideoController extends QComplexValueController
+class VideoController extends EditableGridController
 {
     /**
      * @var string - класс модели сложного значения формы: в этом контроллере значение всегда будет 'Video',
@@ -26,49 +26,36 @@ class VideoController extends QComplexValueController
     /**
      * @var sting - тип объекта которому по умолчанию принадлежит видео
      */
-    protected $objectType = 'questionary';
-    
+    protected $objectType;
     /**
-     * @see QComplexValueController::initModel()
-     * @return Video
+     * @var int
      */
-    protected function initModel()
-    {
-        $modelClass = $this->modelClass;
-        $model = new $modelClass();
-        $model->objecttype = $this->objectType;
-        
-        return $model;
-    }
+    protected $objectId;
     
     /**
-     * Привязать видео к анкете
+     * Проверить, есть ли у пользователя доступ к добавлению, редактированию или удалению объекта
+     * @param Video $item
      * @return void
      */
-    public function actionCreate()
+    protected function checkAccess($item)
     {
-        $instance = $this->initModel();
-        // id анкеты к которой добавляется видео
-        $qid = Yii::app()->request->getParam('qid', 0);
-        // ajax-проверка введенных данных
-        $this->performAjaxValidation($instance);
-    
-        if ( $instanceData = Yii::app()->request->getPost($this->modelClass) )
-        {// проверяем права на добавление фильмографии к этой анкете
-            $this->checkAccess($instance, $qid);
-            // привязываем видео к модели
-            $instance->attributes = $instanceData;
-            $instance->objectid   = $qid;
-            if ( ! $instance->save() )
-            {
-                $errors = implode(', ', $instance->getErrors());
-                throw new CHttpException(500, 'Ошибка при добавлении видео. '.$errors);
-            }else
-            {// при успешном сохранении видео - отдаем json с его данными, они могут понадобится для вывода
-                // сообщения через AJAX
-                echo CJSON::encode($instance->getAttributes());
-            }
+        if ( Yii::app()->user->checkAccess('Admin') )
+        {
+            return true;
         }
-        Yii::app()->end();
+        switch ( $item->objecttype )
+        {
+            case 'questionary': 
+                if ( $item->objectid == Yii::app()->getModule('questionary')->getCurrentQuestionary() )
+                {// в свою анкету участникам можо загружать видео
+                    return true;
+                }
+                return false;
+            break;
+            case 'project': 
+                return Yii::app()->user->checkAccess('Admin');
+            break;
+        }
+        return true;
     }
 }

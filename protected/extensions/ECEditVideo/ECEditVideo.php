@@ -1,39 +1,31 @@
 <?php
 
 // подключение родительского класса
-Yii::import('questionary.extensions.widgets.QGridEditBase.QGridEditBase');
+Yii::import('ext.EditableGrid.EditableGrid');
 
 /**
  * Виджет для редактирования списка видео
  * 
  * @package easycast
  */
-class ECEditVideo extends QGridEditBase
+class ECEditVideo extends EditableGrid
 {
     /**
      * @var string
      */
-    public $objectType = 'questionary';
+    public $objectType;
+    /**
+     * @var int
+     */
+    public $objectId;
+    /**
+     * @see EditableGrid::gridControllerPath
+     */
+    public $gridControllerPath = '/video/';
     /**
      * @var string - сообщение перед удалением записи
      */
     public $deleteConfirmation = 'Удалить это видео?';
-    /**
-     * @var string - url по которому происходит удаление записей
-     */
-    public $deleteUrl = "/video/delete";
-    /**
-     * @var string - url по которому происходит создание записей
-     */
-    public $createUrl = "/video/create";
-    /**
-     * @var string - url по которому происходит обновление записей
-     */
-    public $updateUrl = "/video/update";
-    /**
-     * @var string - префикс html-id для каждой строки таблицы (чтобы можно было удалять строки)
-     */
-    public $rowIdPrefix = 'video_row_';
     /**
      * @var string - пустой класс модели (для создания формы добавления объекта)
      */
@@ -41,19 +33,7 @@ class ECEditVideo extends QGridEditBase
     /**
      * @var array - список редактируемых полей в том порядке, в котором они идут в таблице
      */
-    public $fields  = array('name', 'link', 'visible');
-    /**
-     * @var string - html-id формы для ввода новой записи
-    */
-    public $formId  = 'video-instance-form';
-    /**
-     * @var string - html-id modal-окна для ввода новой записи
-     */
-    public $modalId = 'video-instance-modal';
-    /**
-     * @var string - html-id кнопки для ввода новой записи
-     */
-    public $addButtonId = 'add-video-instance-button';
+    public $fields      = array('name', 'link', 'visible');
     /**
      * @var string - надпись на кнопке добавления новой записи
      */
@@ -69,6 +49,10 @@ class ECEditVideo extends QGridEditBase
         'name' => '[не указано]',
         'link' => '[не указана]',
     );
+    /**
+     * @var string - id модуля, который хранит клипы с modal-формами
+     */
+    public $clipModule = 'questionary';
     
     /**
      * @see QGridEditBase::initModel()
@@ -76,8 +60,8 @@ class ECEditVideo extends QGridEditBase
     public function initModel()
     {
         $this->model = new $this->modelClass;
-        $this->model->objecttype = 'questionary';
-        $this->model->objectid   = $this->questionary->id;
+        $this->model->objecttype = $this->objectType;
+        $this->model->objectid   = $this->objectId;
         
         return $this->model;
     }
@@ -88,7 +72,7 @@ class ECEditVideo extends QGridEditBase
     protected function getGridCriteria()
     {
         return array(
-            'condition' => "`objecttype` = '{$this->objectType}' AND `objectid` = '{$this->questionary->id}'",
+            'condition' => "`objecttype` = '{$this->objectType}' AND `objectid` = '{$this->objectId}'",
         );
     }
 
@@ -116,7 +100,7 @@ class ECEditVideo extends QGridEditBase
             // ссылка на видео
             $this->getTextColumnOptions('link'),
             // отображение
-            $this->getStaticSelect2ColumnOptions('visible', $this->model->visibleOptions, 'visibleOption'),
+            $this->getSelectColumnOptions('visible', $this->model->visibleOptions, 'visibleOption'),
         );
     }
 }
