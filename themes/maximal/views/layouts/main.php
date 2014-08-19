@@ -30,6 +30,10 @@ Yii::app()->clientScript->registerCoreScript('jquery');
     <link href="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" type='text/css'>
     <link href="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/css/responsive.css" rel="stylesheet" type="text/css">
     <link href="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/rs-plugin/css/settings.css" rel="stylesheet" type="text/css">
+    <!-- Dropzone.js -->
+    <link href="<?= Yii::app()->theme->baseUrl; ?>/dropzone/css/basic.css" rel="stylesheet" type="text/css">
+    <link href="<?= Yii::app()->theme->baseUrl; ?>/dropzone/css/dropzone.css" rel="stylesheet" type="text/css">
+    <script src="<?= Yii::app()->theme->baseUrl; ?>/dropzone/js/dropzone.min.js" type="text/javascript"></script>
     <!-- Our helper styles -->
     <link href="<?= Yii::app()->baseUrl; ?>/css/helpers.css" rel="stylesheet" type='text/css'>
     <!--link rel="stylesheet" href="https://fuelcdn.com/fuelux/2.3/css/fuelux.min.css"-->
@@ -53,13 +57,13 @@ Yii::app()->clientScript->registerCoreScript('jquery');
     $this->widget('ext.ECMarkup.ECResponsiveFooter.ECResponsiveFooter');
     ?>
     <!-- Bootstrap skin JS -->
-    
     <script src="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/js/jquery.isotope.js" type="text/javascript"></script>
     <script src="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/js/placeholder.js" type="text/javascript"></script>
     <script src="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/js/plugins.js" type="text/javascript"></script>
-    <!--script src="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/js/theme.js" type="text/javascript"></script-->
+    <!-- script src="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/js/theme.js" type="text/javascript"></script -->
     <script src="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/rs-plugin/js/jquery.themepunch.revolution.min.js" type="text/javascript"></script> <!-- Revolution Slider -->
     <script src="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/rs-plugin/pluginsources/jquery.themepunch.plugins.min.js" type="text/javascript"></script> <!-- Revolution Slider -->
-    <!--script src="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/js/jquery.flexslider-min.js" type="text/javascript"></script-->
+    <!-- script src="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/js/jquery.flexslider-min.js" type="text/javascript"></script -->
+    
 </body>
 </html>
