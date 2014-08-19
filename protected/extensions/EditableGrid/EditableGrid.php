@@ -107,7 +107,7 @@ class EditableGrid extends CWidget
     /**
      * @var bool - разрешить ли изменять порядок строк перетаскиванием?
      */
-    public $sortableRows      = true;
+    public $sortableRows      = false;
     /**
      * @var string - поле, по которому производится сортировка
      */
