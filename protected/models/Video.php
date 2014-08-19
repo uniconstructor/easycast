@@ -331,7 +331,10 @@ class Video extends SWActiveRecord
             break;
 	        case 'file':
 	            $s3 = Yii::app()->getComponent('ecawsapi')->getS3();
-	            return $s3->getObjectUrl(Yii::app()->params['AWSVideoBucket'], $this->externalid, $expires);
+	            // FIXME разобраться с предварительно подписанными URL: они внезапно перестают открываться
+	            // return $s3->getObjectUrl(Yii::app()->params['AWSVideoBucket'], $this->externalid, $expires);
+	            // return $this->link;
+	            return $s3->getObjectUrl(Yii::app()->params['AWSVideoBucket'], urlencode($this->externalid));
             break;
 	        default: return $this->link;
 	    }
