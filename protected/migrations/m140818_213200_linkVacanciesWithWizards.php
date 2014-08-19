@@ -18,10 +18,16 @@ class m140818_213200_linkVacanciesWithWizards extends CDbMigration
         $listInstancesTable       = "{{easy_list_instances}}";
         $listItemsTable           = "{{easy_list_items}}";
         
-        
+        $allStepInstances = $this->dbConnection->createCommand()->select()->
+            from($wizardStepInstancesTable)->where("objecttype='vacancy'")->queryAll();
+        $vacancyIds = array();
+        foreach ( $allStepInstances as $currentInstance )
+        {
+            $vacancyIds[$currentInstance['objectid']] = $currentInstance['objectid'];
+        }
         // Получить все роли, использующие регистрацию по шагам
         $vacancies = $this->dbConnection->createCommand()->select()->
-            from($vacanciesTable)->where("regtype='wizard'")->queryAll();
+            from($vacanciesTable)->where("id IN (".implode(',', $vacancyIds).")")->queryAll();
         foreach ( $vacancies as $vacancy )
         {
             // счетчик для количества полей в роли 
@@ -29,9 +35,9 @@ class m140818_213200_linkVacanciesWithWizards extends CDbMigration
             $fieldNum = 0;
             // для каждой роли, заполняемой по шагам добавляем и привязываем wizard
             $wizard = array(
-                'name'         => "VARCHAR(255) DEFAULT NULL",
-                'timecreated'  => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
-                'timemodified' => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
+                'name'         => "Этапы регистрации для роли {$vacancy['name']}",
+                'timecreated'  => time(),
+                'timemodified' => 0,
                 'objecttype'   => "vacancy",
                 'objectid'     => $vacancy['id'],
             );
@@ -41,7 +47,7 @@ class m140818_213200_linkVacanciesWithWizards extends CDbMigration
             // Получить все экземпляры шагов регистрации для роли
             $stepInstances = $this->dbConnection->createCommand()->select()->
                 from($wizardStepInstancesTable)->
-                where("objecttype='vacancy' AND objectid=".$wizardId)->queryAll();
+                where("objecttype='vacancy' AND objectid=".$vacancy['id'])->queryAll();
             
             // из каждого экземпляра создаем отдельный шаг регистрации
             foreach ( $stepInstances as $stepInstance )
@@ -146,8 +152,8 @@ class m140818_213200_linkVacanciesWithWizards extends CDbMigration
                         foreach ( $efValues as $efValue )
                         {// переносим все сохраненные значения в роль, к уже существующем экземпляру поля
                             $this->update($extraFieldValuesTable, array(
-                                'instanceid' => $existedInstance,
-                            ), 'id='.$efValues['id']);
+                                'instanceid' => $existedInstance['id'],
+                            ), 'id='.$efValue['id']);
                         }
                         // после чего старый удаляем
                         $this->delete($extraFieldInstancesTable, "id=".$extraFieldInstance['id']);

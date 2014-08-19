@@ -23,6 +23,14 @@ class m140818_200300_installWizardObjects extends CDbMigration
         $this->_createIndexes($table, $columns);
         unset($table);
         unset($columns);
+        
+        $table   = "{{wizard_steps}}";
+        $this->addColumn($table, 'objecttype', "VARCHAR(50) DEFAULT NULL");
+        $this->createIndex('idx_objecttype', $table, 'objecttype');
+        $this->addColumn($table, 'objectid', "int(11) UNSIGNED NOT NULL DEFAULT 0");
+        $this->createIndex('idx_objectid', $table, 'objectid');
+        $this->addColumn($table, 'sortorder', "int(11) UNSIGNED NOT NULL DEFAULT 0");
+        $this->createIndex('idx_sortorder', $table, 'sortorder');
     }
     
     /**
