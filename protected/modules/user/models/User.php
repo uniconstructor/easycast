@@ -331,10 +331,11 @@ class User extends CActiveRecord
         $this->lastaccess = date('Y-m-d H:i:s',$value);
     }
     
-    /** Получить анкету пользователя
+    /** 
+     * Получить анкету пользователя
      * @todo переписать после добавления в модель поля questionaryid
      * 
-     * @return NULL|Ambigous <CActiveRecord, mixed, NULL, multitype:, multitype:unknown Ambigous <CActiveRecord, NULL> , multitype:unknown >
+     * @return Questionary
      */
     public function getQuestionary()
     {
