@@ -10,8 +10,12 @@ class QUserMedia extends CWidget
      */
     public $questionary;
     /**
+     * @var bool - отображать ли видео вместе с фото?
+     */
+    public $displayVideo = true;
+    /**
      * @var bool - выводить ли скрипты рядом с кодом? (необходимо для загрузки по ajax)
-     * @deprecated
+     * @deprecated теперь всегда используем переменную isAjaxRequest для таких целей
      */
     public $echoScripts = false;
     
@@ -28,7 +32,7 @@ class QUserMedia extends CWidget
         $videoCriteria->compare('objectid', $this->questionary->id);
         $videoCriteria->addInCondition('type', array('youtube'));
         
-        if ( $records = Video::model()->findAll($videoCriteria) )
+        if ( $this->displayVideo AND $records = Video::model()->findAll($videoCriteria) )
         {
             foreach ( $records  as $record )
             {
@@ -62,7 +66,6 @@ class QUserMedia extends CWidget
                 'dataSource'     => $items,
                 'keepSource'     => true,
                 'trueFullscreen' => true,
-                //'imagePan'       => true,
                 'imageCrop'      => false,
             ),
         ), true);
@@ -89,7 +92,7 @@ class QUserMedia extends CWidget
     {
         $userId = $this->questionary->user->id;
         if ( ! Yii::app()->user->isGuest AND
-        ( Yii::app()->user->checkAccess('Admin') OR Yii::app()->user->id == $userId ) )
+           ( Yii::app()->user->checkAccess('Admin') OR Yii::app()->user->id == $userId ) )
         {
             return true;
         }
