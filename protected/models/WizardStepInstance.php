@@ -59,6 +59,7 @@ class WizardStepInstance extends CActiveRecord
 	        'CTimestampBehavior' => array(
 	            'class'           => 'zii.behaviors.CTimestampBehavior',
 	            'createAttribute' => 'timecreated',
+	            'updateAttribute' => null,
 	        ),
 	    );
 	}
@@ -206,8 +207,8 @@ class WizardStepInstance extends CActiveRecord
 	public function forObject($objectType, $objectId)
 	{
 	    $criteria = new CDbCriteria();
-	    $criteria->compare('objecttype', $objectType);
-	    $criteria->compare('objectid', $objectId);
+	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
+	    $criteria->compare($this->getTableAlias(true).'.`objectid`', $objectId);
 	     
 	    $this->getDbCriteria()->mergeWith($criteria);
 	     
@@ -223,21 +224,36 @@ class WizardStepInstance extends CActiveRecord
 	public function forObjects($objectType, $objectIds)
 	{
 	    $criteria = new CDbCriteria();
-	    $criteria->compare('objecttype', $objectType);
-	    $criteria->addInCondition('objectid', $objectIds);
+	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
+	    $criteria->addInCondition($this->getTableAlias(true).'.`objectid`', $objectIds);
 	     
 	    $this->getDbCriteria()->mergeWith($criteria);
-	     
+	    
 	    return $this;
 	}
 	
 	/**
-	 * Именованая группа условий: получить все записи, прикрепленные к роли 
-	 * @param int $id
+	 * Именованная группа условий: получить все записи, прикрепленные к роли 
+	 * @param int $vacancyId
 	 * @return WizardStepInstance
 	 */
-	public function forVacancy($id)
+	public function forVacancy($vacancyId)
 	{
-	    return $this->forObject('vacancy', $id);
+	    return $this->forObject('vacancy', $vacancyId);
+	}
+	
+	/**
+	 * Именованная группа условий
+	 * @param int $stepId
+	 * @return WizardStepInstance
+	 */
+	public function forStep($stepId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->getTableAlias(true).'.`wizardstepid`', $stepId);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
 	}
 }
