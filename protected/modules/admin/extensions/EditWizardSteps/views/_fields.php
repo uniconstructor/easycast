@@ -9,7 +9,7 @@
 
 // ошибки формы
 echo $form->errorSummary(array($model), null, null, array('id' => $this->formId.'_errors'));
-// для автоматической привязки шага при создании
+// для автоматической привязки шага к роли при создании
 echo CHtml::hiddenField('objectType', $this->objectType);
 echo CHtml::hiddenField('objectId', $this->objectId);
 // название

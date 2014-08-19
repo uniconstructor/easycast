@@ -3,6 +3,12 @@
 // родительский класс
 Yii::import('ext.EditableGrid.EditableGrid');
 
+/**
+ * Виджет для редактирования списка шагов регистрации на роль
+ * @todo использовать TbRelationalColumn для отображения списка полей в каждом шаге
+ * @todo сделать проверку: хотя бы один шаг формы должен быть доступен сразу же,
+ *       и при этом содержать email
+ */
 class EditWizardSteps extends EditableGrid
 {
     /**
@@ -59,7 +65,7 @@ class EditWizardSteps extends EditableGrid
     /**
      * @var string
      */
-    public $sortableAction = 'admin/extraFieldInstance/sortable';
+    public $sortableAction = 'admin/wizardStep/sortable';
     
     /**
      * @var CActiveRecord - объект к которому привязываются дополнительные поля
@@ -90,15 +96,6 @@ class EditWizardSteps extends EditableGrid
     }
     
     /**
-     * Создать пустую модель для формы добавления объекта
-     * @return void
-     */
-    /*protected function initModel()
-    {
-        $this->model = new $this->modelClass;
-    }*/
-    
-    /**
      * Получить настройки для колонок таблицы с данными
      * @return array
      */
@@ -111,38 +108,7 @@ class EditWizardSteps extends EditableGrid
             $this->getTextColumnOptions('header'),
             // описание
             $this->getTextAreaColumnOptions('description'),
-            // список полей (анкета)
-            /*array(
-                'name'     => 'userfields',
-                'class'    => 'bootstrap.widgets.TbEditableColumn',
-                //'value'    => '$data->getFieldList();',
-                'editable' => array(
-                    'type'      => 'select',
-                    'title'     => 'Список полей',
-                    'url'       => $this->gridControllerPath.'setUserFields',
-                    'emptytext' => '[пусто]',
-                    'source'    => $this->getAvailableFields('user'),
-                    'params' => array(
-                        Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
-                    ),
-                ),
-            ),*/
-            /*// список полей (заявка)
-            array(
-                'name'     => 'extrafields',
-                'class'    => 'bootstrap.widgets.TbEditableColumn',
-                'value'    => '"[...]"',
-                'editable' => array(
-                    'type'      => 'checklist',
-                    'title'     => 'Список полей',
-                    'url'       => $this->gridControllerPath.'setExtraFields',
-                    'emptytext' => '[пусто]',
-                    'source'    => $this->getAvailableFields('extra'),
-                    'params' => array(
-                        Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
-                    ),
-                ),
-            ),*/
+            // @todo общий список обязательных и дополнительных полей (связанная таблица)
         );
     }
     
