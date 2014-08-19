@@ -434,8 +434,8 @@ class EditableGrid extends CWidget
     /**
      * Получить параметры для создания editable-колонки в таблице (обычный select без подгрузки элементов по AJAX)
      *
-     * @param string $field - поле модели для которого создается редактируемая колонка таблицы
-     * @param array $variants - список вариантов для выбора
+     * @param string $field 	 - поле модели для которого создается редактируемая колонка таблицы
+     * @param array  $variants   - список вариантов для выбора
      * @param string $valueField - поле из которого берется отображаемое значание
      * @return array
      */
