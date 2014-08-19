@@ -85,8 +85,8 @@ class Video extends SWActiveRecord
 		    //array('name', 'required'),
 		    //array('videofile', 'file', 'types' => 'avi, mov, flv, mpg, mpeg, mkv, wmv'),
 		    
-			array('objecttype, type', 'length', 'max' => 20),
-			array('status', 'length', 'max' => 50),
+			array('type', 'length', 'max' => 20),
+			array('objecttype, status', 'length', 'max' => 50),
 			array('timemodified, objectid, timecreated, uploaderid, size, visible', 'length', 'max' => 11),
 			array('name, description, link, externalid', 'length', 'max' => 255),
 			array('md5', 'length', 'max' => 128),
@@ -203,33 +203,6 @@ class Video extends SWActiveRecord
 	    $this->getDbCriteria()->mergeWith($criteria);
 	    
 	    return $this;
-	}
-	
-	/**
-	 * Массив для конфигурации формы добавления нескольких видео со сторонних ресурсов
-	 * 
-	 * @return array
-	 * @deprecated раньше использовалось для multimodelform
-	 * @todo удалить, когда все видео будут добавляться без использования multimodelform
-	 */
-	public function formConfig()
-	{
-	    return array(
-	        'elements'=>array(
-	            // название
-	            'name'=>array(
-	                'type'      => 'text',
-	                'maxlength' => 255,
-	                'visible'   => true,
-	            ),
-	            // Ссылка на видео
-	            'link'=>array(
-	                'type'      => 'url',
-	                'maxlength' => 255,
-	                'visible'   => true,
-	            ),
-	        )
-	    );
 	}
 	
 	/**
