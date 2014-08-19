@@ -56,6 +56,7 @@ class ConfigInstance extends CActiveRecord
 	        'CTimestampBehavior' => array(
 	            'class'           => 'zii.behaviors.CTimestampBehavior',
 	            'createAttribute' => 'timecreated',
+	            'updateAttribute' => null,
 	        ),
 	    );
 	}
