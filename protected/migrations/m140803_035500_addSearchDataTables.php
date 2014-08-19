@@ -4,6 +4,9 @@ class m140803_035500_addSearchDataTables extends CDbMigration
 {
     protected $MySqlOptions = "ENGINE=InnoDB CHARSET=utf8";
     
+    /**
+     * @see CDbMigration::safeUp()
+     */
     public function safeUp()
     {
         $table  = "{{search_data}}";

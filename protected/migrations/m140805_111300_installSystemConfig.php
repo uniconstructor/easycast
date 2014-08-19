@@ -17,14 +17,14 @@ class m140805_111300_installSystemConfig extends CDbMigration
         
         // создаем системную настройку для каждой базовой категории
         $configDefaults = array(
-            'catalog.sections.category' => 2,
-            'search.sections.category' => 3,
-            'vacancy.sections.category' => 4,
-            'extrafield.sections.category' => 5,
+            'catalog.sections.category'     => 2,
+            'search.sections.category'      => 3,
+            'vacancy.sections.category'     => 4,
+            'extrafield.sections.category'  => 5,
             'registration.wizards.category' => 6,
-            'questionary.views.category' => 7,
-            'questionary.tabs.category' => 8,
-            'tags.category' => 9,
+            'questionary.views.category'    => 7,
+            'questionary.tabs.category'     => 8,
+            'tags.category'                 => 9,
         );
         
         // Разделы и вкладки каталога

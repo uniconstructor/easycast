@@ -2,9 +2,8 @@
 
 class m140803_042100_addUserLists extends CDbMigration
 {
-
     /**
-     * 
+     * @see CDbMigration::safeUp()
      */
     public function safeUp()
     {
