@@ -63,7 +63,7 @@ class WizardStep extends CActiveRecord
             ),
         );
 	}
-
+	
 	/**
 	 * @return array customized attribute labels (name=>label)
 	 */
@@ -80,7 +80,7 @@ class WizardStep extends CActiveRecord
 			'timemodified' => 'Timemodified',
 		);
 	}
-
+	
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.
 	 *
@@ -191,7 +191,6 @@ class WizardStep extends CActiveRecord
 	    $criteria->together = true;
 	
 	    $this->getDbCriteria()->mergeWith($criteria);
-	
 	    return $this;
 	}
 }
