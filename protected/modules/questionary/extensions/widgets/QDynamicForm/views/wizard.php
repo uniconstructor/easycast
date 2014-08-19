@@ -10,13 +10,6 @@
 <div class="row-fluid">
     <div class="container">
         <?php
-        // FIXME сделать загрузку видео в зависимости от настроек
-        if ( $this->vacancy->id == 749 )
-        {
-            $this->render('templates/xupload', array(
-                'model' => $this->model,
-            ));
-        }
         // выводим специальный скрытый элемент, который каждую минуту
         // посылает запрос на сайт, чтобы при длительном
         // заполнении анкеты не произошла потеря сессии и все данные не пропали
@@ -46,36 +39,31 @@
                 'validationUrl'    => $validationUrl,
             ),
         ));
+        $stepSuccessJs = "";
+        $initJs        = "";
+        
         // скрытое поле для хранения текущего шага
         echo CHtml::hiddenField('_index', '1', array('id' => 'wIndex'));
-        
-        $ajaxSubmit = CHtml::ajax(array(
-            'dataType' => 'json',
-            'type'     => 'post',
-            'url'      => $submitUrl,
-            'data'     => new CJavaScriptExpression("$('#{$this->formId}').serialize()"),
-        ));
         
         // составляем шаги формы
         $stepInstances = WizardStepInstance::model()->forVacancy($this->vacancy->id)->findAll();
         $stepIds       = CJSON::encode(CHtml::listData($stepInstances, 'id', 'step.name'));
         $totalCount    = count($stepInstances);
-        $tabs   = array();
-        $count  = 1;
-        $nextJs = "var formObj = $('#{$this->formId}');
+        $tabs          = array();
+        $count         = 1;
+        $nextJs = "var formObj = \$('#{$this->formId}');
             var settings = formObj.data('settings');
             var messages = {};
             var \$button = formObj.data('submitObject'),
                 extData = '&' + settings.ajaxVar + '=' + formObj.attr('id');
             if ( \$button && \$button.length) {
                 extData += '&' + \$button.attr('name') + '=' + \$button.attr('value');
-            }
-        ";
-        $stepSuccessJs = "";
+            }\n";
+        
         foreach ( $stepInstances as $stepInstance )
-        {
+        {// создаем отдельную вкладку для каждого шага
             $tabs['step'.$count] = array(
-                'label'   => $stepInstance->step->name,
+                'label'   => $stepInstance->name,
                 'content' => $this->createStepContent($form, $stepInstance, $count),
             );
             // скрытое поле, содержащее id текущей проверяемой вкладки
@@ -85,9 +73,15 @@
             if ( $totalCount == $count )
             {// последний шаг формы - отправляем и сохраняем данные
                 $stepSuccessJs .= $this->createLastStepJs($stepInstance, $count);
+            }elseif ( $count > $totalCount )
+            {// шаг формы только один - скрываем все элементы wizard
+                $stepSuccessJs .= $this->createLastStepJs($stepInstance, $totalCount);
+                $initJs        .= "$('.button-next').hide();\n";
+                $initJs        .= "$('.button-previous').hide();\n";
+                $initJs        .= "$('.nav-pills').hide();\n";
+                $initJs        .= "$('#dynamic-registration-submit_{$this->vacancy->id}').show();\n";
             }
         }
-        $nextJs .= "";
         
         // виджет с формой создания роли по шагам
         // wizard с формой создания кастинга и отбора людей
@@ -104,7 +98,7 @@
                     var $current = index + 1;
                     var $percent = ($current/$total) * 100;
                     $("#wizard-bar > .bar").css({width:$percent + "%"});
-                    $("#wIndex").val(index+1);
+                    $("#wIndex").val(index + 1);
                 }',
                 'onNext' => "js:function(tab, navigation, index) {
                     {$stepSuccessJs}
@@ -116,6 +110,7 @@
                 }",
                 'onInit' => "js:function(tab, navigation, index) {
                     $('#wIndex').val(1);
+                    {$initJs}
                 }",
             ),
             'htmlOptions' => array(
@@ -123,11 +118,10 @@
             ),
             'tabs' => $tabs,
         ));
-        //'success'  => $data->ajaxSuccessScript,
+        // скрипт для AJAX-отправки формы
         $ajaxSubmit = CHtml::ajax(array(
             'dataType' => 'json',
             'type'     => 'post',
-            //'data'     => new CJavaScriptExpression("js:function(){return \$('#{$this->formId}').serialize();}"),
             'data'     => new CJavaScriptExpression("formObj.serialize() + extData"),
             'url'      => Yii::app()->createUrl('//projects/vacancy/registration/', array(
                 'qid' => (int)$this->questionary->id,
@@ -135,8 +129,9 @@
                 Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
             )),
         ));
+        // конец формы подачи заявки
+        $this->endWidget();
         ?>
-        <?php $this->endWidget(); ?>
     </div>
 </div>
 <script>
