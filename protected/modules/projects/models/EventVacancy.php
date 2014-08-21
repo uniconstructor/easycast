@@ -42,6 +42,7 @@
  * @todo запретить редактирование списка поисковых фильтров если вакансия - не черновик
  * @todo миграция, заменяющая все старые критерии поиска: заменить sections на iconlist
  * @todo сделать количество человек необязательным полем для кастингов
+ * @todo не разрешать запускать роль с хотя бы одним пустым шагом в любой из форм роли
  */
 class EventVacancy extends CActiveRecord
 {
@@ -233,8 +234,7 @@ class EventVacancy extends CActiveRecord
 	protected function beforeSave()
 	{
 	    if ( $this->isNewRecord )
-	    {
-	        // условия для выборки анкет для роли еще не созданы - создадим условия по умолчанию
+	    {// условия для выборки анкет для роли еще не созданы - создадим условия по умолчанию
 	        $this->initVacancySearchData();
 	    }
 	    return parent::beforeSave();
@@ -254,6 +254,21 @@ class EventVacancy extends CActiveRecord
 	           $this->attachDefaultFilters();
 	        }
 	        $this->initVacancyScope(false);
+	        
+	        // к каждой новой роли мы после создания прикрепляем новый объект Wizard
+	        // этот объект будет служить изначальным каркасом для создания формы регистрации на роль
+	        // Wizard требуется для любых форм регистрации : и для пошаговых и для одностраничных
+            $wizard = new Wizard();
+            $wizard->name =  "Форма регистрации для роли ".$this->name;
+            $wizard->objecttype = 'vacancy';
+            $wizard->objectid   = $this->id;
+            if ( ! $wizard->save() )
+            {// не должно случаться но обработать ошибку мы обязаны
+                throw new CException('Не удалось создать заготовку формы регистрации 
+                    при создании роли. По неизвестным причинам. Наши межгалактические мультиплексоры
+                    уже работают над этой проблемой, но вам придется создать форму самостоятельно
+                    на странице управления ролью.');
+            }
 	    }
 	    parent::afterSave();
 	}
@@ -537,7 +552,6 @@ class EventVacancy extends CActiveRecord
 	        $invite->eventid       = $this->event->id;
 	        $invite->save();
 	    }
-	    
 	    return true;
 	}
 	
@@ -554,6 +568,7 @@ class EventVacancy extends CActiveRecord
 	    $criteria = new CDbCriteria();
 	    $criteria->compare('eventid', $eventId);
 	    $criteria->compare('questionaryid', $questionaryId);
+	    
 	    if ( EventInvite::model()->exists($criteria) )
 	    {// приглашение на это мероприятие уже отправлено
 	        return true;
@@ -727,7 +742,7 @@ class EventVacancy extends CActiveRecord
 	    
 	    // получаем всех участников роли
 	    $members = ProjectMember::model()->forVacancy($this->id)->withStatus($statuses)->
-	       unlocked()->findAll(array('order' => "`t`.`timecreated` DESC"));
+            unlocked()->findAll(array('order' => "`t`.`timecreated` DESC"));
 	    
 	    foreach ( $members as $member )
 	    {/* @var $member ProjectMember */
