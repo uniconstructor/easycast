@@ -62,6 +62,39 @@ class Wizard extends CActiveRecord
 	        ),
 	    );
 	}
+	
+	/**
+	 * @see CActiveRecord::afterSave()
+	 */
+	public function afterSave()
+	{
+	    if ( $this->isNewRecord )
+	    {// каждой новой форме при создании мы добавляем список для полей формы,
+	        // на случай если эта форма будет не пошаговой а обычной
+	        // создаем пустой список для полей формы
+	        $easyList = new EasyList();
+	        // в списке полей все элементы должны быть уникальными:
+	        // нельзя добавить одно поле в форму два раза
+	        $easyList->unique = 1;
+	        $easyList->name   = 'Общий список полей формы ('.$this->name.')';
+	        if ( ! $easyList->save() )
+	        {
+	            throw new CException('Не удалось создать новый список полей для формы регистрации');
+	        }
+	        
+	        // прикрепляем список полей к шагу регистрации
+	        $easyListInstance = new EasyListInstance();
+	        $easyListInstance->easylistid = $easyList->id;
+	        $easyListInstance->objecttype = 'Wizard';
+	        $easyListInstance->objectid   = $this->id;
+	        if ( ! $easyListInstance->save() )
+	        {// что-то не так с привязкой списка - откатываем изменения
+	            $easyList->delete();
+	            throw new CException('Не удалось привязать созданный список полей к форме регистрации');
+	        }
+	    }
+	    parent::afterSave();
+	}
 
 	/**
 	 * @return array customized attribute labels (name=>label)
