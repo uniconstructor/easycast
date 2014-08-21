@@ -1,9 +1,9 @@
 <?php
 
 /**
- * This is the model class for table "{{wizard_steps}}".
+ * Шаги формы
  *
- * The followings are the available columns in table '{{wizard_steps}}':
+ * Таблица '{{wizard_steps}}':
  * @property integer $id
  * @property string $name
  * @property string $header
@@ -29,14 +29,36 @@ class WizardStep extends CActiveRecord
 	public function rules()
 	{
 		return array(
-			array('name, prevlabel, nextlabel', 'length', 'max'=>128),
-			array('header', 'length', 'max'=>255),
-			array('description', 'length', 'max'=>4095),
-			array('timecreated, timemodified', 'length', 'max'=>11),
+			array('name, prevlabel, nextlabel', 'length', 'max' => 128),
+			array('header', 'length', 'max' => 255),
+			array('description', 'length', 'max' => 4095),
+			array('timecreated, timemodified', 'length', 'max' => 11),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('id, name, header, description, prevlabel, nextlabel, timecreated, timemodified', 'safe', 'on'=>'search'),
 		);
+	}
+	
+	/**
+	 * @see CActiveRecord::afterSave()
+	 */
+	public function afterSave()
+	{
+	    if ( $this->isNewRecord )
+	    {// при создании нового шага формы автоматически создаем 
+	        // пустой список для полей формы
+	        $easyList = new EasyList();
+	        $easyList->unique = 1;
+	        $easyList->name   = 'Список полей ('.$this->name.')';
+	        $easyList->save();
+	        // прикрепляем список полей к шагу регистрации
+	        $easyListInstance = new EasyListInstance();
+	        $easyListInstance->easylistid = $easyList->id;
+	        $easyListInstance->objecttype = 'WizardStep';
+	        $easyListInstance->objectid   = $this->id;
+	        $easyListInstance->save();
+	    }
+	    parent::afterSave();
 	}
 	
 	/**
@@ -45,7 +67,9 @@ class WizardStep extends CActiveRecord
 	public function relations()
 	{
 		return array(
-		    'instances' => array(self::HAS_MANY, 'WizardStepInstance', 'wizardstepid'),
+		    'wizard' => array(self::BELONGS_TO, 'Wizard', 'objectid',
+		        'condition' => "objecttype='wizard'",
+		    ),
 		);
 	}
 	
@@ -71,9 +95,9 @@ class WizardStep extends CActiveRecord
 	{
 		return array(
 			'id' => 'ID',
-			'name' => 'Название',
+			'name' => Yii::t('coreMessages', 'title'),
 			'header' => 'Заголовок',
-			'description' => 'Описание',
+			'description' => Yii::t('coreMessages', 'description'),
 			'prevlabel' => 'Prevlabel',
 			'nextlabel' => 'Nextlabel',
 			'timecreated' => 'Timecreated',
@@ -124,29 +148,6 @@ class WizardStep extends CActiveRecord
 	}
 	
 	/**
-	 * Именованная группа условий: получить все записи связанные с ролью
-	 * @param int $id
-	 * @return WizardStep
-	 */
-	public function forVacancy($id)
-	{
-	    $criteria = new CDbCriteria();
-	    $criteria->with = array(
-	        'instances' => array(
-	            'select'   => false,
-	            'joinType' => 'INNER JOIN',
-	            'scopes'   => array(
-	                'forVacancy' => array($id),
-	            ),
-	        ),
-	    );
-	    $criteria->together = true;
-	     
-	    $this->getDbCriteria()->mergeWith($criteria);
-	    return $this;
-	}
-	
-	/**
 	 * Именованая группа условий: получить все записи, связанные с определенным объектом
 	 * @param string $objectType
 	 * @param string $objectId
@@ -155,18 +156,11 @@ class WizardStep extends CActiveRecord
 	public function forObject($objectType, $objectId)
 	{
 	    $criteria = new CDbCriteria();
-	    $criteria->with = array(
-	        'instances' => array(
-	            'select'   => false,
-	            'joinType' => 'INNER JOIN',
-	            'scopes'   => array(
-	                'forObject' => array($objectType, $objectId),
-	            ),
-	        ),
-	    );
-	    $criteria->together = true;
-	     
+	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
+	    $criteria->compare($this->getTableAlias(true).'.`objectid`', $objectId);
+	    
 	    $this->getDbCriteria()->mergeWith($criteria);
+	    
 	    return $this;
 	}
 	
@@ -179,18 +173,11 @@ class WizardStep extends CActiveRecord
 	public function forObjects($objectType, $objectIds)
 	{
 	    $criteria = new CDbCriteria();
-	    $criteria->with = array(
-	        'instances' => array(
-	            'select'   => false,
-	            'joinType' => 'INNER JOIN',
-	            'scopes'   => array(
-	                'forObjects' => array($objectType, $objectIds),
-	            ),
-	        ),
-	    );
-	    $criteria->together = true;
-	
+	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
+	    $criteria->compare($this->getTableAlias(true).'.`objectid`', $objectId);
+	    
 	    $this->getDbCriteria()->mergeWith($criteria);
+	    
 	    return $this;
 	}
 }
