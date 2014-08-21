@@ -40,7 +40,7 @@ class EasyListInstance extends CActiveRecord
 	public function relations()
 	{
 		return array(
-		    
+		    'easyList' => array(self::BELONGS_TO, 'EasyList', 'easylistid'),
 		);
 	}
 	
@@ -115,16 +115,16 @@ class EasyListInstance extends CActiveRecord
 	
 	/**
 	 * Именованая группа условий:
-	 *
+	 * 
 	 * @param string $objectType
-	 * @param string $objectId
-	 * @return CategoryInstance
+	 * @param int    $objectId
+	 * @return EasyListInstance
 	 */
 	public function forObject($objectType, $objectId)
 	{
 	    $criteria = new CDbCriteria();
-	    $criteria->compare('objecttype', $objectType);
-	    $criteria->compare('objectid', $objectId);
+	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
+	    $criteria->compare($this->getTableAlias(true).'.`objectid`', $objectId);
 	
 	    $this->getDbCriteria()->mergeWith($criteria);
 	
@@ -135,14 +135,14 @@ class EasyListInstance extends CActiveRecord
 	 * Именованая группа условий:
 	 *
 	 * @param string $objectType
-	 * @param string $objectIds
-	 * @return CategoryInstance
+	 * @param array $objectIds
+	 * @return EasyListInstance
 	 */
-	public function forObject($objectType, $objectIds)
+	public function forObjects($objectType, $objectIds)
 	{
 	    $criteria = new CDbCriteria();
-	    $criteria->compare('objecttype', $objectType);
-	    $criteria->addInCondition('objectid', $objectIds);
+	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
+	    $criteria->addInCondition($this->getTableAlias(true).'.`objectid`', $objectIds);
 	
 	    $this->getDbCriteria()->mergeWith($criteria);
 	
