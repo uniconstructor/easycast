@@ -954,7 +954,6 @@ class Project extends SWActiveRecord
 	    }
 	}
     
-    
 	/**
 	 * Действия, выполняемые при запуске проекта
 	 * 
