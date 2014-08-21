@@ -1,9 +1,9 @@
 <?php
 
 /**
- * This is the model class for table "{{q_user_fields}}".
+ * Модель для работы с одним полем анкеты участника
  *
- * The followings are the available columns in table '{{q_user_fields}}':
+ * Таблица '{{q_user_fields}}':
  * @property integer $id
  * @property string $name
  * @property string $storage
@@ -130,20 +130,20 @@ class QUserField extends CActiveRecord
 	 */
 	public function forObject($objectType, $objectId)
 	{
-	    $criteria = new CDbCriteria();
-	    $criteria->with = array(
-	        'fieldInstances' => array(
-	            'select'   => false,
-	            'joinType' => 'INNER JOIN',
-	            'scopes'   => array(
-	                'forObject' => array($objectType, $objectId),
-	            ),
-	        ),
-	    );
-	    $criteria->together = true;
-	
-	    $this->getDbCriteria()->mergeWith($criteria);
-	    return $this;
+        $criteria = new CDbCriteria();
+        $criteria->with = array(
+            'fieldInstances' => array(
+                'select'   => false,
+                'joinType' => 'INNER JOIN',
+                'scopes'   => array(
+                    'forObject' => array($objectType, $objectId),
+                ),
+            ),
+        );
+        $criteria->together = true;
+        
+        $this->getDbCriteria()->mergeWith($criteria);
+        return $this;
 	}
 	
 	/**
