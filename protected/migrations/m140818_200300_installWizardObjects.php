@@ -31,6 +31,12 @@ class m140818_200300_installWizardObjects extends CDbMigration
         $this->createIndex('idx_objectid', $table, 'objectid');
         $this->addColumn($table, 'sortorder', "int(11) UNSIGNED NOT NULL DEFAULT 0");
         $this->createIndex('idx_sortorder', $table, 'sortorder');
+        unset($table);
+        
+        // добавляем возможность задавать уникальность элементов в списках
+        $table = "{{easy_lists}}";
+        $this->addColumn($table, 'unique', "tinyint(1) NOT NULL DEFAULT 0");
+        $this->createIndex('idx_unique', $table, 'unique');
     }
     
     /**
