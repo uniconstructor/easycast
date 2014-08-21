@@ -28,6 +28,10 @@ class QUserInfo extends CWidget
      */
     public $activeTab = 'main';
     /**
+     * @var string - расположение линейки вкладок
+     */
+    public $placement = 'right';
+    /**
      * @var bool
      */
     public $nameAsLink;
@@ -88,8 +92,8 @@ class QUserInfo extends CWidget
         }
         
         $this->widget('bootstrap.widgets.TbTabs', array(
-            'type'      => 'tabs',
-            'placement' => 'right',
+            'type'      => 'pills',
+            'placement' => $this->placement,
             'tabs'      => $tabs,
         ));
     }
