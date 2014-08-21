@@ -7,6 +7,9 @@
  * @property integer $id
  * @property string $name
  * @property string $description
+ * @property string $filltype - тип заполнения формы - возможные значения:
+ *                              'form' - заполнение в один клик (традиционная форма)
+ *                              'wizard' - заполнение в несколько шагов (иногда с промежуточным сохранением)
  * @property string $timecreated
  * @property string $timemodified
  * @property string $objecttype
@@ -28,13 +31,14 @@ class Wizard extends CActiveRecord
 	public function rules()
 	{
 		return array(
-			array('name', 'length', 'max'=>255),
-			array('description', 'length', 'max'=>4095),
-			array('timecreated, timemodified, objectid', 'length', 'max'=>11),
-			array('objecttype', 'length', 'max'=>50),
+			array('name', 'length', 'max' => 255),
+			array('description', 'length', 'max' => 4095),
+			array('timecreated, timemodified, objectid', 'length', 'max' => 11),
+			array('objecttype', 'length', 'max' => 50),
+			array('filltype', 'length', 'max' => 20),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, name, description, timecreated, timemodified, objecttype, objectid', 'safe', 'on'=>'search'),
+			array('id, name, description, timecreated, timemodified, objecttype, objectid', 'safe', 'on' => 'search'),
 		);
 	}
 
@@ -105,6 +109,7 @@ class Wizard extends CActiveRecord
 			'id' => 'ID',
 			'name' => Yii::t('coreMessages', 'title'),
 			'description' => Yii::t('coreMessages', 'description'),
+			'filltype' => 'Тип заполнения',
 			'timecreated' => 'Timecreated',
 			'timemodified' => 'Timemodified',
 			'objecttype' => 'Objecttype',
@@ -128,13 +133,14 @@ class Wizard extends CActiveRecord
 	{
 		$criteria = new CDbCriteria;
 
-		$criteria->compare('id',$this->id);
-		$criteria->compare('name',$this->name, true);
-		$criteria->compare('description',$this->description, true);
-		$criteria->compare('timecreated',$this->timecreated, true);
-		$criteria->compare('timemodified',$this->timemodified, true);
-		$criteria->compare('objecttype',$this->objecttype, true);
-		$criteria->compare('objectid',$this->objectid, true);
+		$criteria->compare('id', $this->id);
+		$criteria->compare('name', $this->name, true);
+		$criteria->compare('description', $this->description, true);
+		$criteria->compare('timecreated', $this->timecreated, true);
+		$criteria->compare('timemodified', $this->timemodified, true);
+		$criteria->compare('objecttype', $this->objecttype, true);
+		$criteria->compare('objectid', $this->objectid, true);
+		$criteria->compare('filltype', $this->filltype, true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria' => $criteria,
@@ -155,7 +161,7 @@ class Wizard extends CActiveRecord
 	/**
 	 * Именованая группа условий: получить все записи, связанные с определенным объектом
 	 * @param string $objectType
-	 * @param int $objectId
+	 * @param int    $objectId
 	 * @return Wizard
 	 */
 	public function forObject($objectType, $objectId)
