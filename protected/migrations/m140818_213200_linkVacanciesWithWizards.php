@@ -30,9 +30,6 @@ class m140818_213200_linkVacanciesWithWizards extends CDbMigration
             from($vacanciesTable)->where("id IN (".implode(',', $vacancyIds).")")->queryAll();
         foreach ( $vacancies as $vacancy )
         {
-            // счетчик для количества полей в роли 
-            // чтобы правильно расставить их в списке по полю sortorder
-            $fieldNum = 0;
             // для каждой роли, заполняемой по шагам добавляем и привязываем wizard
             $wizard = array(
                 'name'         => "Этапы регистрации для роли {$vacancy['name']}",
@@ -52,6 +49,9 @@ class m140818_213200_linkVacanciesWithWizards extends CDbMigration
             // из каждого экземпляра создаем отдельный шаг регистрации
             foreach ( $stepInstances as $stepInstance )
             {
+                // счетчик для количества полей в роли
+                // чтобы правильно расставить их в списке по полю sortorder
+                $fieldNum = 0;
                 // получаем полную информацию о шаге
                 $stepInfo = $this->dbConnection->createCommand()->select()->
                     from($wizardStepsTable)->where("id=".$stepInstance['wizardstepid'])->queryRow();
@@ -63,8 +63,8 @@ class m140818_213200_linkVacanciesWithWizards extends CDbMigration
                     'timecreated' => time(),
                     'prevlabel'   => $stepInfo['prevlabel'],
                     'nextlabel'   => $stepInfo['nextlabel'],
-                    'objecttype'  => $stepInstance['objecttype'],
-                    'objectid'    => $stepInstance['objectid'],
+                    'objecttype'  => 'wizard',
+                    'objectid'    => $wizardId,
                 );
                 $this->insert($wizardStepsTable, $newStep);
                 $newStepId = $this->dbConnection->getLastInsertID();
@@ -73,6 +73,7 @@ class m140818_213200_linkVacanciesWithWizards extends CDbMigration
                 $newList = array(
                     'name'        => 'Список полей раздела '.$stepInfo['name'],
                     'timecreated' => time(),
+                    'unique'      => 1,
                 );
                 $this->insert($listsTable, $newList);
                 $newListId = $this->dbConnection->getLastInsertID();
