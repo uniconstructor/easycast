@@ -14,6 +14,7 @@ class m140818_200300_installWizardObjects extends CDbMigration
             'id'           => 'pk',
             'name'         => "VARCHAR(255) DEFAULT NULL",
             'description'  => "VARCHAR(4095) DEFAULT NULL",
+            'filltype'     => "VARCHAR(20) NOT NULL DEFAULT 'form'",
             'timecreated'  => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
             'timemodified' => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
             'objecttype'   => "VARCHAR(50) DEFAULT NULL",
@@ -24,7 +25,7 @@ class m140818_200300_installWizardObjects extends CDbMigration
         unset($table);
         unset($columns);
         
-        $table   = "{{wizard_steps}}";
+        $table = "{{wizard_steps}}";
         $this->addColumn($table, 'objecttype', "VARCHAR(50) DEFAULT NULL");
         $this->createIndex('idx_objecttype', $table, 'objecttype');
         $this->addColumn($table, 'objectid', "int(11) UNSIGNED NOT NULL DEFAULT 0");

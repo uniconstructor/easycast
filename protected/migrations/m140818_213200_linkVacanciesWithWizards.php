@@ -35,11 +35,31 @@ class m140818_213200_linkVacanciesWithWizards extends CDbMigration
                 'name'         => "Этапы регистрации для роли {$vacancy['name']}",
                 'timecreated'  => time(),
                 'timemodified' => 0,
+                'filltype'     => 'wizard',
                 'objecttype'   => "vacancy",
                 'objectid'     => $vacancy['id'],
             );
             $this->insert($wizardsTable, $wizard);
             $wizardId = $this->dbConnection->getLastInsertID();
+            
+            // создаем новый пустой список для полей
+            $wizardList = array(
+                'name'        => 'Список полей формы '.$vacancy['name'],
+                'timecreated' => time(),
+                'unique'      => 1,
+            );
+            $this->insert($listsTable, $wizardList);
+            $wizardListId = $this->dbConnection->getLastInsertID();
+            
+            // и привязываем созданный список к форме
+            $wizardListInstance = array(
+                'easylistid'  => $wizardListId,
+                'objecttype'  => 'Wizard',
+                'objectid'    => $wizardId,
+                'timecreated' => time(),
+            );
+            $this->insert($listInstancesTable, $wizardListInstance);
+            $wizardListInstanceId = $this->dbConnection->getLastInsertID();
             
             // Получить все экземпляры шагов регистрации для роли
             $stepInstances = $this->dbConnection->createCommand()->select()->
