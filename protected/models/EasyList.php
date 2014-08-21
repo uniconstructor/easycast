@@ -13,6 +13,7 @@
  * @property string $timemodified
  * @property string $timeupdated
  * @property string $updateperiod
+ * @property string $unique - должны ли элементы в списке быть уникальными
  */
 class EasyList extends CActiveRecord
 {
@@ -35,10 +36,10 @@ class EasyList extends CActiveRecord
 			array('name', 'length', 'max'=>255),
 			array('description', 'length', 'max'=>4095),
 			array('updatemethod', 'length', 'max'=>10),
-			array('timecreated, timemodified, timeupdated, updateperiod', 'length', 'max'=>11),
+			array('timecreated, timemodified, timeupdated, updateperiod, unique', 'length', 'max'=>11),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, name, description, allowupdate, updatemethod, timecreated, timemodified, timeupdated, updateperiod', 'safe', 'on'=>'search'),
+			array('id, name, description, allowupdate, updatemethod, timecreated, timemodified, timeupdated, updateperiod, unique', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -48,7 +49,7 @@ class EasyList extends CActiveRecord
 	public function relations()
 	{
 		return array(
-		    
+		    'instances' => array(self::HAS_MANY, 'EasyListInstance', 'easylistid'),
 		);
 	}
 	
@@ -74,14 +75,15 @@ class EasyList extends CActiveRecord
 	{
 		return array(
 			'id' => 'ID',
-			'name' => 'Name',
-			'description' => 'Description',
+			'name' => Yii::t('coreMessages', 'title'),
+			'description' => Yii::t('coreMessages', 'description'),
 			'allowupdate' => 'Allowupdate',
 			'updatemethod' => 'Updatemethod',
 			'timecreated' => 'Timecreated',
 			'timemodified' => 'Timemodified',
 			'timeupdated' => 'Timeupdated',
 			'updateperiod' => 'Updateperiod',
+			'unique' => 'Требовать уникальность элементов?',
 		);
 	}
 
@@ -112,6 +114,7 @@ class EasyList extends CActiveRecord
 		$criteria->compare('timemodified',$this->timemodified,true);
 		$criteria->compare('timeupdated',$this->timeupdated,true);
 		$criteria->compare('updateperiod',$this->updateperiod,true);
+		$criteria->compare('unique',$this->unique,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
