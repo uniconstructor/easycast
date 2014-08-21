@@ -196,7 +196,7 @@ class MemberInstance extends CActiveRecord
 	 * (например все заявки внутри вкладки роли)
 	 * @param string $objectType
 	 * @param int    $objectId
-	 * @return StatusHistory
+	 * @return MemberInstance
 	 */
 	public function forObject($objectType, $objectId)
 	{
@@ -217,7 +217,7 @@ class MemberInstance extends CActiveRecord
 	 *             objecttype для каждой связи
 	 * @param string $objectType
 	 * @param array  $objectIds - массив id объектов
-	 * @return StatusHistory
+	 * @return MemberInstance
 	 */
 	public function forObjects($objectType, $objectIds)
 	{
