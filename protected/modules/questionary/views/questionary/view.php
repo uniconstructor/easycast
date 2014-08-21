@@ -74,6 +74,7 @@ $this->widget('bootstrap.widgets.TbAlert');
             // Выводим всю остальную информацию о пользователе
             $this->widget('questionary.extensions.widgets.QUserInfo.QUserInfo', array(
                 'questionary' => $questionary,
+                'placement'   => 'right',
                 'activeTab'   => $activeTab,
             ));
             ?>
