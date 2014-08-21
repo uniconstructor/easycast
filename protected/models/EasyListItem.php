@@ -2,8 +2,9 @@
 
 /**
  * Элемент списка пользователей
+ * Предполагается что одному элементу списка может принадлежать максимум одна модель  
  *
- * The followings are the available columns in table '{{user_list_items}}':
+ * Таблица '{{user_list_items}}':
  * @property integer $id
  * @property string $easylistid
  * @property string $objecttype
@@ -48,6 +49,27 @@ class EasyListItem extends CActiveRecord
 			array('id, easylistid, objecttype, objectid, name, sortorder, timecreated, timemodified, status', 'safe', 'on'=>'search'),
 		);
 	}
+	
+	/**
+	 * @see CActiveRecord::beforeSave()
+	 */
+	public function beforeSave()
+	{
+	    if ( $this->isNewRecord )
+	    {// автоматически назначаем порядок сортировки для новых записей, добавляя их в конец списка
+	        // @todo вынести в behavior
+	        $lastItemCount = $this->forList($this->easylistid)->count();
+	        $lastItemCount++;
+	        $this->sortorder = $lastItemCount;
+	        // проверяем, присутствует ли уже этот элемент в этом списке
+	        $existedItem = $this->forList($this->easylistid)->forObject($this->objecttype, $this->objectid)->exists();
+	        if ( $existedItem )
+	        {
+	            return false;
+	        }
+	    }
+	    return parent::beforeSave();
+	}
 
 	/**
 	 * @return array relational rules.
@@ -55,7 +77,7 @@ class EasyListItem extends CActiveRecord
 	public function relations()
 	{
 		return array(
-		    
+		    'easyList' => array(self::BELONGS_TO, 'EasyList', 'easylistid'),
 		);
 	}
 	
@@ -124,7 +146,7 @@ class EasyListItem extends CActiveRecord
 			'criteria'=>$criteria,
 		));
 	}
-
+	
 	/**
 	 * Returns the static model of the specified AR class.
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!
@@ -134,5 +156,89 @@ class EasyListItem extends CActiveRecord
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
+	}
+	
+	/**
+	 * @see CActiveRecord::defaultScope()
+	 */
+	public function defaultScope()
+	{
+	    return array(
+	        'order' => $this->getTableAlias(true, false).'.`sortorder` ASC'
+	    );
+	}
+	
+	/**
+	 * Обновить привязанный к элементу списка объект
+	 * @param string $field
+	 * @param string $value
+	 * @return bool
+	 */
+	public function updateProxy($field, $value)
+	{
+	    $proxy = $this->getProxy();
+	    $proxy->$field = $value;
+	    return $proxy->save();
+	}
+	
+	/**
+	 * Получить привязанный к этому элементу списка объект
+	 * @return CActiveRecord
+	 */
+	public function getProxy()
+	{
+	    $modelClass = $this->objecttype;
+	    return $modelClass::model()->findByPk($this->objectid);
+	}
+	
+	/**
+	 * Именованная группа условий: получить все элементы списка
+	 * @param int $easyListId
+	 * @return EasyListItem
+	 */
+	public function forList($easyListId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->getTableAlias(true).'.`easylistid`', $easyListId);
+	     
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
+	}
+	
+	/**
+	 * Именованая группа условий: все элементы всех списков, связанные с определенным объектом
+	 * (например, если нужно узнать в каких списках числится объект)
+	 * @param string $objectType
+	 * @param int    $objectId
+	 * @return EasyListItem
+	 */
+	public function forObject($objectType, $objectId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
+	    $criteria->compare($this->getTableAlias(true).'.`objectid`', $objectId);
+	
+	    $this->getDbCriteria()->mergeWith($criteria);
+	
+	    return $this;
+	}
+	
+	/**
+	 * Именованая группа условий: то же что и forObject, но с одновременным поиском по нескольким
+	 * объектом одного типа
+	 * @param string $objectType
+	 * @param array  $objectIds - массив id объектов
+	 * @return EasyListItem
+	 */
+	public function forObjects($objectType, $objectIds)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
+	    $criteria->addInCondition($this->getTableAlias(true).'.`objectid`', $objectIds);
+	
+	    $this->getDbCriteria()->mergeWith($criteria);
+	
+	    return $this;
 	}
 }
