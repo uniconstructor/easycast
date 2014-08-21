@@ -48,15 +48,25 @@ class WizardStep extends CActiveRecord
 	    {// при создании нового шага формы автоматически создаем 
 	        // пустой список для полей формы
 	        $easyList = new EasyList();
+	        // в списке полей все элементы должны быть уникальными:
+	        // нельзя добавить одно поле в шаг формы два раза
 	        $easyList->unique = 1;
-	        $easyList->name   = 'Список полей ('.$this->name.')';
-	        $easyList->save();
+	        $easyList->name   = 'Список полей этапа ('.$this->name.')';
+	        if ( $easyList->save() )
+	        {
+	            throw new CException('Не удалось создать список полей для шага регистрации');
+	        }
+	        
 	        // прикрепляем список полей к шагу регистрации
 	        $easyListInstance = new EasyListInstance();
 	        $easyListInstance->easylistid = $easyList->id;
 	        $easyListInstance->objecttype = 'WizardStep';
 	        $easyListInstance->objectid   = $this->id;
-	        $easyListInstance->save();
+	        if ( $easyListInstance->save() )
+	        {
+	            $easyList->delete();
+	            throw new CException('Не удалось привязать созданный список полей к форме регистрации');
+	        }
 	    }
 	    parent::afterSave();
 	}
