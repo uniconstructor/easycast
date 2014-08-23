@@ -492,23 +492,28 @@ class EventVacancy extends CActiveRecord
 	}
 	
 	/**
-	 * 
+	 * Получить полный список обязательных и дополнительных полей, прикрепленных к этой роли
+	 * в виде одного массива: индексом массива является название поля а значением объект модели
+	 * Индекс поля составляется по тем же правилам что и в модели QDynamicFormModel
 	 * @return array
 	 */
-	public function getWizardStepInstanceIds()
+	public function getCombinedFieldList()
 	{
-	    $ids = array();
-	    if ( $this->regtype != 'wizard' )
-	    {
-	        return $ids;
-	    }
+	    $result = array();
+	    // получаем все прявязанные обязательные поля
+	    $qUserFields = QUserField::model()->forObject('vacancy', $this->id)->findAll();
+	    // получаем все привязанные дополннительные поля
+	    $extraFields = ExtraField::model()->forObject('vacancy', $this->id)->findAll();
 	    
-	    $stepInstances = WizardStepInstance::model()->forVacancy($this->id)->findAll();
-	    foreach ( $stepInstances as $stepInstance )
+	    foreach ( $qUserFields as $qUserField )
 	    {
-	        $ids[] = $stepInstance->id;
+	        $result[$qUserField->name] = $qUserField;
 	    }
-	    return $ids;
+	    foreach ( $extraFields as $extraField )
+	    {
+	        $result['ext_'.$extraField->name] = $extraField;
+	    }
+	    return $result;
 	}
 	
 	/**
