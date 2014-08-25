@@ -14,8 +14,8 @@ Yii::import('ext.CountryCitySelectorRu.*');
 // Загружаем дополнительные стили для формы:
 // @todo удалить файл эти стили после переработки верстки анкеты, так как они станут не нужны 
 $assetsUrl = CHtml::asset($this->module->basePath . DIRECTORY_SEPARATOR . 'assets');
-Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 
-    'questionary-form.css');
+Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 
+    'css' . DIRECTORY_SEPARATOR . 'questionary-form.css');
 
 ?>
 <div class="form wide">
@@ -172,7 +172,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
 	<fieldset id="base_information_part">
 	<legend id="base_information_part_label">
         <a class="btn btn-large btn-warning">
-        <i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('base_information'); ?></a>
+        <i class="icon-chevron-down"></i>&nbsp;<?= QuestionaryModule::t('base_information'); ?></a>
     </legend>
 
         <?= $form->textFieldRow($questionary, 'lastname',   array('size' => 60,'maxlength' => 128)); ?>
@@ -268,7 +268,8 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
             );
             // список видео
             $this->widget('ext.ECEditVideo.ECEditVideo', array(
-                'questionary' => $questionary,
+                'objectType' => 'questionary',
+                'objectId'   => $questionary->id,
             ));
             
             ?>
@@ -327,27 +328,28 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         <?php 
         // Профессиональный актер
         $this->widget('ext.EToggleBox.EToggleBox', array(
-              'model'     => $questionary,
-              'attribute' => 'isactor',
-              'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
-                    // при включении: скрываем поле "непрофессиональный актер", показываем список вузов
-                    // показываем фильмографию
-                    // @todo выключаем пункт "непрофессиональный актер" (если он был выбран)
-                    'after_on'  => 'js:function () {
-                        $("#actoruniversities").fadeIn(200);
-                        $("#amateuractor").fadeOut(200);
-                        $("#films_part").fadeIn(200);
-                        }',
-                    // при выключении: показываем "непрофессиональный актер", скрываем фильмографию, 
-                    // скрываем список актерских ВУЗов
-                    'after_off' => 'js:function () {
-                        $("#actoruniversities").fadeOut(200);
-                        $("#amateuractor").fadeIn(200);
-                        $("#films_part").fadeOut(200);
-                        }'))
-                     ));
-         ?>
-    
+            'model'     => $questionary,
+            'attribute' => 'isactor',
+            'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
+                // при включении: скрываем поле "непрофессиональный актер", показываем список вузов
+                // показываем фильмографию
+                // @todo выключаем пункт "непрофессиональный актер" (если он был выбран)
+                'after_on'  => 'js:function () {
+                    $("#actoruniversities").fadeIn(200);
+                    $("#amateuractor").fadeOut(200);
+                    $("#films_part").fadeIn(200);
+                    }',
+                // при выключении: показываем "непрофессиональный актер", скрываем фильмографию, 
+                // скрываем список актерских ВУЗов
+                'after_off' => 'js:function () {
+                    $("#actoruniversities").fadeOut(200);
+                    $("#amateuractor").fadeIn(200);
+                    $("#films_part").fadeOut(200);
+                    }',
+                )),
+            )
+        );
+        ?>
     <div>
         <fieldset id="actoruniversities" class="qform_subsection">
             <legend class="qform_subsection_label"><?php echo QuestionaryModule::t('actor_universities_label'); ?></legend>
@@ -363,7 +365,6 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
             ?>
         </fieldset>
     </div>
-    
     <div>
         <div id="amateuractor">
             <?php 
@@ -384,7 +385,6 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
             ?>
         </div>
     </div>
-    
     <?php
     if ( Yii::app()->user->checkAccess('Admin') )
     {// медийный актер (проставляется только админами)
@@ -395,7 +395,6 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         ));
     }
     ?>
-    
     <div>
         <div id="films_part">
             <?php 
@@ -1127,10 +1126,10 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         ));
         echo $form->error($questionary, 'privatecomment');
         // Комментарий к анкете (пояснение)
-        $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription',
-            array(
-                'field' => 'privatecomment',
-                'type'  => 'info'));
+        $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', array(
+            'field' => 'privatecomment',
+            'type'  => 'info',
+        ));
         ?>
         <br><br>
         </div>
@@ -1142,19 +1141,31 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR . 'cs
         echo $form->errorSummary($questionary, null, null, array('id' => 'questionary-form-footer-es'));
         // Кнопка сохранения 
         $form->widget('bootstrap.widgets.TbButton', array(
-                'buttonType'  => 'submit',
-                'type'        => 'success',
-                'size'        => 'large',
-                'label'       => Yii::t('coreMessages', 'save'),
-                'htmlOptions' => array('id' => 'save_questionary')
-            ));
+            'buttonType'  => 'submit',
+            'type'        => 'success',
+            'size'        => 'large',
+            'label'       => Yii::t('coreMessages', 'save'),
+            'htmlOptions' => array('id' => 'save_questionary')
+        ));
         ?>
 	</div>
 
 <?php $this->endWidget(); ?>
 </div><!-- form -->
+
+<!-- form action="/site/upload" class="dropzone" id="my-awesome-dropzone" method="post" enctype="multipart/form-data">
+    <input type="file" name="testfile" />
+    <input type="hidden" name="<?= Yii::app()->request->csrfTokenName ?>" value="<?= Yii::app()->request->csrfToken; ?>">
+</form>
+<script>
+Dropzone.options.myAwesomeDropzone = {
+        maxFileSize: 300,
+        paramName: "testfile",
+        uploadMultiple: false,
+}
+</script-->
 <?php
-if ( Yii::app()->user->checkAccess('Admin') )
+if ( Yii::app()->user->checkAccess('Admin') OR Yii::app()->user->checkAccess('User') )
 {// @todo загрузка файлов видео пока что только для админов
     Yii::import("xupload.models.XUploadForm");
     $xUploadForm = new XUploadForm;
