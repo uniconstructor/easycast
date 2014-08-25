@@ -123,7 +123,8 @@
                                     $this->widget('ext.ECMarkup.ECUploadedVideo.ECUploadedVideo', array(
                                         'objectType' => 'questionary',
                                         'objectId'   => $projectMember->questionary->id,
-                                        //'expires'    => $expires,
+                                        // @todo добавить параметр expires когда будет решена проблема с 
+                                        //       подписанными ссылками на видео
                                     ));
                                     ?>
                                 </div>
