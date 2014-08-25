@@ -13,6 +13,7 @@ class SmartMemberInfo extends CWidget
      * @var ProjectMember
      */
     public $projectMember;
+    
     /**
      * @var array - список полей анкеты которые показываются в краткой информации
      *              и не выводятся во вкладках внизу (чтобы не дублировать информацию)
@@ -112,6 +113,7 @@ class SmartMemberInfo extends CWidget
         {// получаем ответ участника
             $result .= $this->getQuestionBlock($fields[$i], $projectMember);
         }
+        // конец первой колонки
         $result .= CHtml::closeTag('div');
         
         // вторая колонка ответов
@@ -120,8 +122,9 @@ class SmartMemberInfo extends CWidget
         {
             $result .= $this->getQuestionBlock($fields[$i], $projectMember);
         }
+        // конец второй колонки
         $result .= CHtml::closeTag('div');
-        // конец блока
+        // конец блока с ответами
         $result .= CHtml::closeTag('div');
         
         return $result;
@@ -137,9 +140,9 @@ class SmartMemberInfo extends CWidget
     {
         // функция getName общая у разных экземпляров классов, поэтому получаем название
         // поле от instance а не от самого объекта
-        $question    = $fieldInstance->getName();
-        $field       = $fieldInstance->fieldObject;
-        $answer      = '';
+        $question = $fieldInstance->getName();
+        $field    = $fieldInstance->fieldObject;
+        $answer   = '';
         
         $projectMember->questionary->setScenario('view');
         if ( $field instanceof QUserField )
@@ -153,11 +156,11 @@ class SmartMemberInfo extends CWidget
             $answer    = $projectMember->questionary->$fieldName;
         }else
         {
-            $valueObject = ExtraFieldValue::model()->
-                forField($field->id)->forQuestionary($projectMember->questionary)->
+            $valueObject = ExtraFieldValue::model()->forField($field->id)->
+                forQuestionary($projectMember->questionary)->
                 forVacancy($this->vacancy)->find();
             if ( ! $valueObject )
-            {// @todo записать в лог:, потому что вообще это не очень
+            {// @todo записать в лог, потому что вообще это не очень
                 // нормальная ситуация: у нас может не быть значения
                 // в объекте но не может не быть объекта значения для поля
                 $answer = '';
