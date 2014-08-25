@@ -310,11 +310,45 @@ class SiteController extends Controller
     }
     
     /**
-     * Действие для загрузки больших файлов через HTML4 file upload
+     * Действие для загрузки больших файлов 
      * @return void
      */
     public function actionUpload()
     {
-        
+        die();
+        $s3 = Yii::app()->getComponent('ecawsapi')->getS3();
+        // без установки контекста потока сохранение на S3 работать не будет
+        // @todo пока что устанавливаем полномочия файла как public-read: 
+        //       позже следует изменить это поверение
+        $context = stream_context_create(array(
+            's3' => array('ACL' => 'public-read'),
+        ));
+        // @todo загружаем файл в хранилище Amazon S3 прямо из потока, не сохраняя его на сервере
+        // Что это дает: 
+        // 1) при загрузке больших файлов мы не держим их в памяти 
+        // 2) при загрузке больших файлов мы не тратим место на виртуальной ноде
+        // 3) файл не загружается сначала на сервер а потом в хранилище: 
+        //    это в 2 раза быстрее и в 2 раза меньше трафика
+        //CVarDumper::dump($_FILES);
+        $file = CUploadedFile::getInstanceByName($this->getInputFileIndex());
+        $file->saveAs($this->getUploadPath().$file->getTempName().'.'.$file->getExtensionName());
+    }
+    
+    /**
+     * 
+     * @return void
+     */
+    protected function getUploadPath()
+    {
+        return "s3://temp.easycast.ru/test/";
+    }
+    
+    /**
+     * 
+     * @return void
+     */
+    protected function getInputFileIndex()
+    {
+        return 'testfile';
     }
 }
