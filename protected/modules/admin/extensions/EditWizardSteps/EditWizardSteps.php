@@ -12,17 +12,19 @@ Yii::import('ext.EditableGrid.EditableGrid');
 class EditWizardSteps extends EditableGrid
 {
     /**
-     * @var string - тип объекта к которому добавляется шаг регистрации 
+     * @var string - тип объекта к которому добавляется шаг формы 
      */
-    public $objectType = 'vacancy';
+    public $objectType = 'wizard';
     /**
-     * @var int - id объекта к которому добавляется шаг регистрации
+     * @var int - id объекта к которому добавляется шаг формы
      */
     public $objectId;
     /**
      * @var string - сообщение перед удалением записи
+     * @todo Переносить поля в предыдущий/следующий шаг если этот был удален
     */
-    public $deleteConfirmation = 'Удалить шаг регистрации?';
+    public $deleteConfirmation = 'Удалить шаг формы?
+        Все поля формы внутри него будут удалены из этой роли.';
     /**
      * @var string - если для всех трех действий (create, update, delete) используется один контроллер
      *               то здесь можно указать относительный путь к нему: в этом случае не нужно
@@ -108,6 +110,10 @@ class EditWizardSteps extends EditableGrid
             $this->getTextColumnOptions('header'),
             // описание
             $this->getTextAreaColumnOptions('description'),
+            // собственный текст на кнопке "назад"
+            $this->getTextColumnOptions('prevlabel'),
+            // собственный текст на кнопке "далее"
+            $this->getTextColumnOptions('nextlabel'),
             // @todo общий список обязательных и дополнительных полей (связанная таблица)
         );
     }
@@ -119,7 +125,6 @@ class EditWizardSteps extends EditableGrid
     protected function getGridCriteria()
     {
         return array(
-            //'condition' => "`objectid` = '{$this->objectId}' AND `objecttype` = '{$this->objectType}'",
             'scopes' => array(
                 'forObject' => array($this->objectType, $this->objectId),
             ),
