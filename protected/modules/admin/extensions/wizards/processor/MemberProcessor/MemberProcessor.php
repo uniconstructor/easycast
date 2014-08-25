@@ -86,11 +86,11 @@ class MemberProcessor extends CWidget
     /**
      * @var array
      */
-    protected $markers  = array('sad', 'nograde', 'normal', 'good');
+    protected $markers     = array('sad', 'nograde', 'normal', 'good');
     /**
      * @var array
      */
-    protected $statuses = array('active', 'pending', 'draft', 'rejected');
+    protected $statuses    = array('active', 'pending', 'draft', 'rejected');
     /**
      * @var string название текущего раздела
      */
@@ -113,6 +113,8 @@ class MemberProcessor extends CWidget
         {
             throw new CException('Не найдена роль для отбора заявок');
         }
+        // подключаем стили для всплывающего окна с видео
+        Yii::app()->getClientScript()->registerSweelixScript('shadowbox');
         
         if ( $this->sectionInstanceId AND $this->sectionInstanceId > 0 )
         {// просматриваем раздел с заявками - получим по нему всю информацию
