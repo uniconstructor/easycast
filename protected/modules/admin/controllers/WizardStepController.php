@@ -15,7 +15,7 @@ class WizardStepController extends EditableGridController
     /**
      * Проверить, есть ли у пользователя доступ к добавлению, редактированию или удалению объекта
      * @param CActiveRecord $item
-     * @return void
+     * @return bool
      */
     protected function checkAccess($item)
     {
