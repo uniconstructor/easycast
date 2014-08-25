@@ -80,10 +80,10 @@ class S3UploadAction extends XUploadAction
                         "size" => $model->{$this->sizeAttribute},
                         "url"  => $this->createPreSignedUrl($objectId, $uploadResult['XUploadForm'][0]->name, '+24 hours'),
                         "thumbnail_url" => $model->getThumbnailUrl($this->getPublicPath()),
-                        "delete_url" => $this->getController()->createUrl($this->getId(), array(
+                        "delete_url" => '#',/*$this->getController()->createUrl($this->getId(), array(
                             "_method" => "delete",
                             "file"    => $model->{$this->fileNameAttribute},
-                        )),
+                        )),*/
                         "delete_type" => "POST"
                     )));
                 }else
@@ -129,7 +129,7 @@ class S3UploadAction extends XUploadAction
     }
     
     /**
-     * Создать временный url для просмотра видео
+     * Создать постоянный или временный url для просмотра видео
      * 
      * @param int $objectId
      * @param string $newFileName
