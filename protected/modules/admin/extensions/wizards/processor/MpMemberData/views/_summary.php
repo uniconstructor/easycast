@@ -40,7 +40,7 @@ $qUrl = Yii::app()->createUrl('/questionary/questionary/view/', array('id' => $t
             $this->widget('ext.ECMarkup.ECUploadedVideo.ECUploadedVideo', array(
                 'objectType' => 'questionary',
                 'objectId'   => $this->questionary->id,
-                'expires'    => $expires,
+                //'expires'    => $expires,
             ));
             ?>
         </div>
@@ -52,9 +52,13 @@ $qUrl = Yii::app()->createUrl('/questionary/questionary/view/', array('id' => $t
         </h2>
         <?php 
         // краткая информация
-        $this->widget('bootstrap.widgets.TbDetailView', array(
+        /*$this->widget('bootstrap.widgets.TbDetailView', array(
             'data'       => $this->getSummaryData(),
             'attributes' => $this->getSummaryAttributes(),
+        ));*/
+        $this->widget('questionary.extensions.widgets.QUserInfo.QUserInfo', array(
+            'questionary' => $this->questionary,
+            'placement'   => 'above',
         ));
         // блок со статусами
         $this->render('_statuses');

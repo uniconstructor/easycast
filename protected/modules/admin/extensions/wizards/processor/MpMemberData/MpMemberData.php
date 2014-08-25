@@ -26,11 +26,11 @@ class MpMemberData extends CWidget
     /**
      * @var array
      */
-    public $customerFields = array('height', 'weight', 'chestsize', 'waistsize', 'hipsize', 'shoessize', 'countryName');
+    public $customerFields     = array('height', 'weight', 'chestsize', 'waistsize', 'hipsize', 'shoessize', 'countryName');
     /** 
      * @var array
      */
-    public $adminFields    = array('mobilephone', 'email', 'status');
+    public $adminFields        = array('mobilephone', 'email', 'status');
     /**
      * @var array - настройки виджета MpMemberSections
      */
@@ -38,11 +38,11 @@ class MpMemberData extends CWidget
     /**
      * @var bool - свернуть ли изначально блок дополнительных полей?
      */
-    public $collapseExtra    = true;
+    public $collapseExtra      = true;
     /**
      * @var bool - свернуть ли изначально блок c разделами заявки?
      */
-    public $collapseSections = true;
+    public $collapseSections   = true;
     
     /**
      * @var Questionary
@@ -92,8 +92,9 @@ class MpMemberData extends CWidget
      */
     protected function getSummaryData()
     {
-        $data = array('id' => 1);
+        $data   = array('id' => 1);
         $fields = $this->customerFields;
+        
         if ( Yii::app()->user->checkAccess('Admin') )
         {
             $fields = CMap::mergeArray($fields, $this->adminFields);
@@ -112,7 +113,8 @@ class MpMemberData extends CWidget
     protected function getSummaryAttributes()
     {
         $attributes = array();
-        $fields = $this->customerFields;
+        $fields     = $this->customerFields;
+        
         if ( Yii::app()->user->checkAccess('Admin') )
         {
             $fields = CMap::mergeArray($fields, $this->adminFields);
