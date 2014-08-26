@@ -14,14 +14,13 @@ class EditWizardSteps extends EditableGrid
     /**
      * @var string - тип объекта к которому добавляется шаг формы 
      */
-    public $objectType = 'wizard';
+    public $objectType = 'vacancy';
     /**
      * @var int - id объекта к которому добавляется шаг формы
      */
     public $objectId;
     /**
      * @var string - сообщение перед удалением записи
-     * @todo Переносить поля в предыдущий/следующий шаг если этот был удален
     */
     public $deleteConfirmation = 'Удалить шаг формы?
         Все поля формы внутри него будут удалены из этой роли.';
