@@ -129,5 +129,6 @@ return array(
     'application_approved' => '',
     'application_removed' => '',
     'date_and_time' => 'Date and time',
+    'project_manager' => 'Руководитель проекта',
     // '' => '',
 );
