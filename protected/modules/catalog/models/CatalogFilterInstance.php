@@ -125,7 +125,7 @@ class CatalogFilterInstance extends CActiveRecord
 	 * Именованая группа условий: 
 	 * @param string $objectType
 	 * @param string $objectId
-	 * @return CatalogSectionInstance
+	 * @return CatalogFilterInstance
 	 */
 	public function forObject($objectType, $objectId)
 	{
