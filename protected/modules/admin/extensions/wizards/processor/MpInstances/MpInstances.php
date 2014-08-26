@@ -53,8 +53,8 @@ class MpInstances extends CWidget
         }else
         {// если id раздела не указан - выводим заявки всех разделов
             $criteria->scopes = array(
-                'forVacancy'    => array($this->vacancy->id),
-                'withStatus'    => array($this->statuses),
+                'forVacancy' => array($this->vacancy->id),
+                'withStatus' => array($this->statuses),
                 'lastModified',
             );
             $model = 'ProjectMember';
