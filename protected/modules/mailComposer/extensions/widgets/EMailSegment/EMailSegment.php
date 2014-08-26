@@ -117,7 +117,6 @@ class EMailSegment extends CWidget
     protected $blockWidth;
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
      */
     public function init()
@@ -145,7 +144,6 @@ class EMailSegment extends CWidget
     }
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::run()
      */
     public function run()
