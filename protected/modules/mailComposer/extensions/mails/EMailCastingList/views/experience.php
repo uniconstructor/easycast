@@ -7,6 +7,6 @@
 
 ?>
 <div class="article-content">
-<?= $this->getEducationTable($questionary); ?>
-<?= $this->getFilmsTable($questionary); ?>
+    <?= $this->getEducationTable($questionary); ?>
+    <?= $this->getFilmsTable($questionary); ?>
 </div>

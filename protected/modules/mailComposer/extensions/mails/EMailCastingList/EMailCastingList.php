@@ -16,11 +16,50 @@ Yii::import('application.modules.mailComposer.extensions.mails.EMailCallList.EMa
 class EMailCastingList extends EMailCallList
 {
     /**
-     * Добавить в письмо блок с фотографией и описанием одного актера
-     * @param Questionary $questionary
+     * Добавить в письмо блок с описанием роли и всех утвержденных на нее актеров
+     * @param EventVacancy $vacancy
      * @return void
      */
-    protected function addActor($questionary)
+    protected function addVacancy($vacancy)
+    {
+        // добавляем информацию о роли
+        $vacancyInfo = array();
+        $vacancyInfo['type']   = 'subHeader';
+        $vacancyInfo['header'] = ProjectsModule::t('role').': ';
+        if ( $this->language != 'ru' AND isset($vacancy['translation']) )
+        {
+            $vacancyInfo['header'] .= $vacancy['translation'];
+        }else
+        {
+            $vacancyInfo['header'] .= $vacancy['name'];
+        }
+        $vacancyInfo['headerInfo']     = $this->getVacancyTimePeriod($vacancy);
+        $vacancyInfo['addHeaderRuler'] = true;
+    
+        //CVarDumper::dump($vacancy, 10, true);die;
+        // и упаковываем ее в блок письма
+        $this->addSegment($vacancyInfo);
+    
+        // добавляем всех участников роли
+        foreach ( $vacancy['members'] as $qid => $member )
+        {
+            if ( ! $questionary = Questionary::model()->findByPk($qid) )
+            {// на момент формирования фотовызывного участник в базе был, а в момент отправки или отображения
+                // его нет - не можем показать его анкету
+                // @todo достаточно редкая ситуация, но все равно нужно записать эту ошибку в лог
+                continue;
+            }
+            $this->addActor($questionary, $member->vacancyid);
+        }
+    }
+    
+    /**
+     * Добавить в письмо блок с фотографией и описанием одного актера
+     * @param Questionary $questionary
+     * @param int         $vacancyId
+     * @return void
+     */
+    protected function addActor($questionary, $vacancyId=null)
     {
         // добавляем основную информацию об актере
         $mainBlock = array();
@@ -39,6 +78,14 @@ class EMailCastingList extends EMailCallList
         $expBlock['addTextRuler']   = true;
         $expBlock['pageBreakAfter'] = 'always';
         $this->addSegment($expBlock);
+        
+        // добавляем доп. поля из заявки
+        $addBlock = array();
+        $addBlock['type']           = 'text640';
+        $addBlock['text']           = $this->getExtraFieldsTable($questionary, $vacancyId);
+        $addBlock['addTextRuler']   = false;
+        $addBlock['pageBreakAfter'] = 'always';
+        $this->addSegment($addBlock);
     }
     
     /**
@@ -148,7 +195,7 @@ class EMailCastingList extends EMailCallList
             break;
             case 'playage':
                 $placeholder = '['.Yii::t('coreMessages', 'not_set').']';
-                $value = $questionary->playage;
+                $value       = $questionary->playage;
             break;
             case 'looktype':
                 if ( $questionary->nativecountry )
@@ -156,7 +203,7 @@ class EMailCastingList extends EMailCallList
                     $hint = $questionary->getAttributeLabel('nativecountryid').': '.$questionary->nativecountry->name;
                 }
                 $placeholder = '['.Yii::t('coreMessages', 'not_set').']';
-                $value = $questionary->getScalarFieldDisplayValue($field, $questionary->$field);
+                $value       = $questionary->getScalarFieldDisplayValue($field, $questionary->$field);
             break;
             case 'height':
             case 'chestsize':
@@ -183,7 +230,9 @@ class EMailCastingList extends EMailCallList
                     $value = $questionary->getScalarFieldDisplayValue($field, $questionary->$field);
                 }
             break;
-            default: $value = $questionary->getScalarFieldDisplayValue($field, $questionary->$field); break;
+            default: 
+                $value = $questionary->getScalarFieldDisplayValue($field, $questionary->$field);
+            break;
         }
         if ( ! $value )
         {// значение не указано - выведем заглушку
@@ -191,13 +240,13 @@ class EMailCastingList extends EMailCallList
             // @todo если пользователь - админ то показывать что поле не заполнено
             // $muted = true;
         }
-    
         return array($label, $value.' '.$affix);
     }
     
+    
     /**
      * Получить содержимое вкладки "Образование"
-     *
+     * @param Questionary $questionary
      * @return string - html-код содержимого вкладки
      */
     protected function getEducationTable($questionary)
@@ -211,14 +260,12 @@ class EMailCastingList extends EMailCallList
             $content .= '<h3 style="text-align:center;">'.$module::t('actor_universities_label').'</h3>';
             $content .= $this->getUniversityTable($questionary->actoruniversities);
         }
-    
         // музыкальные ВУЗы
         if ( $questionary->musicuniversities )
         {
             $content .= '<h3 style="text-align:center;">'.$module::t('music_universities_label').'</h3>';
             $content .= $this->getUniversityTable($questionary->musicuniversities);
         }
-    
         // Модельные школы
         if ( $questionary->modelschools )
         {
@@ -241,13 +288,12 @@ class EMailCastingList extends EMailCallList
                 ),
             ), true);
         }
-    
         return $content;
     }
     
     /**
      * Получить таблицу со списком ВУЗов
-     * @param array $universities
+     * @param  array $universities
      * @return string
      */
     protected function getUniversityTable($universities)
@@ -319,16 +365,68 @@ class EMailCastingList extends EMailCallList
                 'columns'      => array(
                     array(
                         'name'   => 'name',
-                        'header' => $module::t('film_name_label')),
+                        'header' => $module::t('film_name_label'),
+                    ),
                     array(
                         'name'   => 'role',
-                        'header' => $module::t('film_role_label')),
+                        'header' => $module::t('film_role_label'),
+                    ),
                     array(
                         'name'   => 'year',
-                        'header' => $module::t('film_year_label')),
+                        'header' => $module::t('film_year_label'),
+                    ),
                     array(
                         'name'   => 'director',
-                        'header' => $module::t('film_director_label')),
+                        'header' => $module::t('film_director_label'),
+                    ),
+                ),
+            ), true);
+        }
+        return $content;
+    }
+    
+    /**
+     * Получить таблицу со списком доп. полей
+     * 
+     * @return string - html-код таблицы с доп. полями
+     */
+    protected function getExtraFieldsTable($questionary, $vacancyId)
+    {
+        $content  = '';
+        $module   = Yii::app()->getModule('questionary');
+        
+        $efValues = ExtraFieldValue::model()->
+            forQuestionary($questionary)->forVacancy($vacancyId)->findAll();
+        if ( $efValues )
+        {
+            $content .= '<h3 style="text-align:center;">Дополнительная информация</h3>';
+            $extraValues = array();
+            foreach ( $efValues as $efValue )
+            {// собираем информацию по фильмографии
+                $extraValues[] = $this->getExtraFieldInfo($efValue);
+            }
+        
+            $dataProvider = new CArrayDataProvider($extraValues, array('pagination' => false));
+            $content .= $this->widget('bootstrap.widgets.TbGridView', array(
+                'type'         => 'striped bordered condensed responsive',
+                'htmlOptions'  => array(
+                    'style' => 'border-width:1px;border-color:#ccc;',
+                ),
+                'dataProvider' => $dataProvider,
+                'template'     => "{items}",
+                'columns'      => array(
+                    array(
+                        'name'   => 'name',
+                        'header' => Yii::t('coreMessages', 'question'),
+                        'type'   => 'html',
+                        'htmlOptions' => array(
+                            'style' => 'text-style:italic;', 
+                        ),
+                    ),
+                    array(
+                        'name'   => 'value',
+                        'header' => Yii::t('coreMessages', 'answer'),
+                    ),
                 ),
             ), true);
         }
@@ -366,6 +464,7 @@ class EMailCastingList extends EMailCallList
     /**
      * Получить информацию о ВУЗе
      * Если фотовызывной формируется на английском - то вся информация пишется транслитом
+     * 
      * @param unknown $university
      * @return void
      */
@@ -394,6 +493,7 @@ class EMailCastingList extends EMailCallList
     
     /**
      * Получить информацию о модельной школе
+     * 
      * @param QModelSchool $school
      * @return array
      */
@@ -412,6 +512,24 @@ class EMailCastingList extends EMailCallList
             $item['name'] = $school->school;
             $item['year'] = $school->year;
         }
+        return $item;
+    }
+    
+    /**
+     * Получить информацию об одном фмльме из фильмографии
+     * Если фотовызывной формируется на английском - то вся информация пишется транслитом
+     * 
+     * @param ExtraFieldValue $extraFieldValue
+     * @return array
+     */
+    protected function getExtraFieldInfo($extraFieldValue)
+    {
+        $item = array();
+        
+        $item['id']    = $extraFieldValue->id;
+        $item['name']  = $extraFieldValue->fieldObject->label;
+        $item['value'] = $extraFieldValue->value;
+        
         return $item;
     }
 }
