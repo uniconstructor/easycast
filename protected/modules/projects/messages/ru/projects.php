@@ -132,5 +132,6 @@ return array(
     'application_approved' => 'Заявка одобрена',
     'application_removed' => 'Заявка отозвана',
     'date_and_time' => 'Дата и время',
+    'project_manager' => 'Руководитель проекта',
     // '' => '',
 );
