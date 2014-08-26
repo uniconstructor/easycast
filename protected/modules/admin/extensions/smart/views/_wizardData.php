@@ -5,7 +5,7 @@
 /* @var $this SmartMemberInfo */
 
 $tabs          = array();
-$stepInstances = WizardStepInstance::model()->forVacancy($this->vacancy->id)->findAll();
+$stepInstances = WizardStep::model()->forVacancy($this->vacancy->id)->findAll();
 
 foreach ( $stepInstances as $instance )
 {// собираем информацию по каждому разделу
