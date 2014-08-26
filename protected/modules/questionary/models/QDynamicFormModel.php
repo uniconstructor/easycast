@@ -877,7 +877,7 @@ class QDynamicFormModel extends CFormModel
             // и все связанные с анкетой записи
             if ( ! $user->save() )
             {
-                throw new CException('Не удалось создать пользователя');
+                throw new CException('Не удалось создать пользователя'.implode(', ', $user->getErrors()));
             }
         }else
         {// берем пользователя из анкеты, если запись на роль производится администратором
@@ -894,13 +894,16 @@ class QDynamicFormModel extends CFormModel
         $this->saveQuestionary($user->questionary);
         // сохраняем доп. поля для этой роли
         $this->saveExtraFields($user->questionary);
-        // создаем заявку на роль
-        $this->saveMemberRequest($user->questionary);
-        // обновляем историю создания анкет
-        $this->updateCreationHistory($user->questionary);
+        
+        if ( $this->scenario != 'finalization' )
+        {// создаем новую заявку на роль (если это не дополнение существующих данных)
+            $this->saveMemberRequest($user->questionary);
+        }
         if ( $this->scenario === 'registration' )
         {// если это регистрация - отправляем пользователю письмо с приглашением и паролем
             $this->sendUserNotification($user->questionary, $sourcePassword);
+            // обновляем историю создания анкет
+            $this->updateCreationHistory($user->questionary);
         }
         return $user;
     }
