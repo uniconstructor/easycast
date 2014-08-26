@@ -18,3 +18,7 @@ echo $form->textFieldRow($model, 'name');
 echo $form->textFieldRow($model, 'header');
 // описание
 echo $form->textAreaRow($model, 'description');
+// текст кнопки "назад"
+echo $form->textFieldRow($model, 'prevlabel');
+// текст кнопки "вперед"
+echo $form->textFieldRow($model, 'nextlabel');
