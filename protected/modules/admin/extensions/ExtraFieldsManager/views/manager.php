@@ -11,7 +11,6 @@
 $newFieldsUrl   = Yii::app()->createUrl('/admin/category/index/', array('parentId' => 5));
 // ссылка на создание новых разделов
 $newSectionsUrl = Yii::app()->createUrl('/admin/category/index/', array('parentId' => 4));
-
 ?>
 <div class="page row-fluid">
     <div class="span6">
