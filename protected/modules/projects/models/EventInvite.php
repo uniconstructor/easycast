@@ -15,7 +15,7 @@
  * @property string $subscribekey
  * 
  * Связи с другими таблицами:
- * @property Questionary $questionary - анкета приглашенного участника
+ * @property Questionary  $questionary - анкета приглашенного участника
  * @property ProjectEvent $event - мероприятие
  * 
  * @todo заменить во всем коде модели текст статусов константами
@@ -77,7 +77,7 @@ class EventInvite extends CActiveRecord
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
-	 * @return EventInvites the static model class
+	 * @return EventInvite the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
