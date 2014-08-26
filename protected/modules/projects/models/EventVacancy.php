@@ -640,6 +640,8 @@ class EventVacancy extends CActiveRecord
 	 *                           - или завершенные (finished) заявки
 	 *                           А также любые комбинации этих статусов
 	 * @return boolean
+	 * 
+	 * @todo использовать именованные группы условий поиска здесь
 	 */
 	public function hasApplication($questionaryId=null, $statuses=null)
 	{

@@ -118,17 +118,33 @@ class VacancyController extends Controller
         if ( $qid )
         {// заявку подает существующий участник
             $questionary = Questionary::model()->findByPk($qid);
-            $model       = new QDynamicFormModel('application');
-            // не показываем те поля анкеты которые уже заполнены участником 
-            // при регистрации или редактировании профиля, а также скрываем те дополнительные поля
-            // которые уже были заполнены участником при подаче заявки на другие роли
-            // @todo сделать настройку если обязательное или доп. поле уже заполнено участником:
-            //       - предложить изменить последнее значение
-            //       - использовать последнее заполненное значение молча, не давая его изменить
-            //       - всегда требовать новый ответ 
-            $model->displayFilled = false;
-            // id галереи
-            $model->galleryid = $questionary->galleryid;
+            
+            $statuses = array(
+                ProjectMember::STATUS_DRAFT,
+                ProjectMember::STATUS_ACTIVE,
+                ProjectMember::STATUS_FINISHED,
+                ProjectMember::STATUS_SUCCEED,
+                ProjectMember::STATUS_REJECTED,
+                ProjectMember::STATUS_UNCHECKED,
+                ProjectMember::STATUS_INCOMPLETE,
+            );
+            if (  $vacancy->hasMember($qid, $statuses) )
+            {// дополение существующих данных
+                
+            }else
+            {// подача заявки от зарегистрированного участника
+                $model       = new QDynamicFormModel('application');
+                // не показываем те поля анкеты которые уже заполнены участником
+                // при регистрации или редактировании профиля, а также скрываем те дополнительные поля
+                // которые уже были заполнены участником при подаче заявки на другие роли
+                // @todo сделать настройку если обязательное или доп. поле уже заполнено участником:
+                //       - предложить изменить последнее значение
+                //       - использовать последнее заполненное значение молча, не давая его изменить
+                //       - всегда требовать новый ответ
+                $model->displayFilled = false;
+                // id галереи
+                $model->galleryid = $questionary->galleryid;
+            }
         }else
         {// участник регистрируется через подачу заявки
             $questionary = new Questionary;

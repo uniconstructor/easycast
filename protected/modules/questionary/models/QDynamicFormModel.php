@@ -3,6 +3,10 @@
 /**
  * Модель для динамической формы анкеты
  * Определяет нужные проверки (rules) в зависимости от того какие поля нужно вывести
+ * Список возможных сценариев:
+ * - registration - регистрация + заявка
+ * - application  - заявка от существующего участника
+ * - finalization - дополнение участником уже введенных данных
  * 
  * @todo определить сценарии формы
  * @todo заменить все проверки $questionary->isNewRecord на $this->scenario
@@ -857,7 +861,7 @@ class QDynamicFormModel extends CFormModel
     {
         /* @var $questionary Questionary */
         /* @var $user User */
-        if ( $this->scenario === 'registration' OR $this->questionary->isNewRecord )
+        if ( $this->scenario === 'registration' )
         {// создаем пользователя, если это регистрация
             $user           = new User();
             $sourcePassword = $user->generatePassword();
