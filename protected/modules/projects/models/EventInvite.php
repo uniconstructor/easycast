@@ -27,33 +27,39 @@ class EventInvite extends CActiveRecord
      * @var string - статус приглашения: ждет ответа
      *               Участник получил приглашение, но пока на него не ответил
      */
-    const STATUS_PENDING  = 'pending';
+    const STATUS_PENDING    = 'pending';
     /**
      * @var string - статус приглашения: принято
      *               Участник получил приглашение, и принял согласился на участие в мероприятии
      *               Приглашение в таком статусе означает только сам факт согласия участвовать в съемках
      *               Пользователь может и не подать заявку на участие
      */
-    const STATUS_ACCEPTED = 'accepted';
+    const STATUS_ACCEPTED   = 'accepted';
+    /**
+     * @var string - статус приглашения: требуются дополнительные данные в заявке.
+     *               Выставляется в случае если на проект подана заявка, но не все дополнительные
+     *               поля были заполнены для дальнейшего отбора участника на роль (или отбора в кастинге)
+     */
+    const STATUS_INCOMPLETE = 'incomplete';
     /**
      * @var string - статус приглашения: отклонено
      *               Участник получил приглашение, и отказался участвовать в съемках
      *               Приглашение в таком статусе означает только сам факт отказа от участия в съемках
      *               Пользователь все равно может подать заявку на участие после отказа
      */
-    const STATUS_REJECTED = 'rejected';
+    const STATUS_REJECTED   = 'rejected';
     /**
      * @var string - статус приглашения: время истекло
      *               Участник получил приглашение, но не успел с ним ознакомиться,
      *               или слишком долго тупил с подачей заявки на участие
      */
-    const STATUS_EXPIRED  = 'expired';
+    const STATUS_EXPIRED    = 'expired';
     /**
      * @var string - статус приглашения: отменено
      *               Участник получил приглашение, но вакансия была удалена (например из-за того что создана по ошибке)
      *               Этот статус используется редко
      */
-    const STATUS_CANCELED = 'canceled';
+    const STATUS_CANCELED   = 'canceled';
     
     /**
      * @see CActiveRecord::init()
@@ -249,20 +255,38 @@ class EventInvite extends CActiveRecord
 	    switch ( $this->status )
 	    {
 	        case self::STATUS_PENDING:
-	            return array(self::STATUS_ACCEPTED, self::STATUS_REJECTED, self::STATUS_EXPIRED, self::STATUS_CANCELED);
-	            break;
+	            return array(
+    	            self::STATUS_ACCEPTED,
+    	            self::STATUS_INCOMPLETE,
+    	            self::STATUS_REJECTED, 
+    	            self::STATUS_EXPIRED, 
+    	            self::STATUS_CANCELED,
+	            );
 	        case self::STATUS_ACCEPTED:
-	            return array(self::STATUS_REJECTED, self::STATUS_EXPIRED, self::STATUS_CANCELED);
-	            break;
+	            return array(
+	               self::STATUS_REJECTED,
+	               self::STATUS_INCOMPLETE,
+	               self::STATUS_EXPIRED, 
+	               self::STATUS_CANCELED,
+	            );
+	        case self::STATUS_INCOMPLETE:
+	            return array(
+	               self::STATUS_REJECTED, 
+	               self::STATUS_ACCEPTED, 
+	               self::STATUS_EXPIRED, 
+	               self::STATUS_CANCELED,
+	            );
 	        case self::STATUS_REJECTED:
-	            return array(self::STATUS_ACCEPTED, self::STATUS_EXPIRED, self::STATUS_CANCELED);
-	            break;
+	            return array(
+	               self::STATUS_PENDING,
+	               self::STATUS_ACCEPTED,
+	               self::STATUS_EXPIRED,
+	               self::STATUS_CANCELED,
+	            );
 	        case self::STATUS_EXPIRED:
 	            return array();
-	            break;
 	        case self::STATUS_CANCELED:
 	            return array();
-	            break;
 	    }
 	
 	    return array();
