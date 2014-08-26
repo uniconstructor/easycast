@@ -189,19 +189,33 @@ class CatalogSectionInstance extends CActiveRecord
 	
 	/**
 	 * Именованая группа условий: получить все ссылки на разделы анкет, связанные с определенным объектом
-	 *
 	 * @param string $objectType
 	 * @param string $objectId
-	 * @return CategoryInstance
+	 * @return CatalogSectionInstance
 	 */
 	public function forObject($objectType, $objectId)
 	{
 	    $criteria = new CDbCriteria();
-	    $criteria->compare('objecttype', $objectType);
-	    $criteria->compare('objectid', $objectId);
+	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
+	    $criteria->compare($this->getTableAlias(true).'.`objectid`', $objectId);
 	     
 	    $this->getDbCriteria()->mergeWith($criteria);
 	     
+	    return $this;
+	}
+	
+	/**
+	 * 
+	 * @param int $sectionId
+	 * @return CatalogSectionInstance
+	 */
+	public function forSection($sectionId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->getTableAlias(true).'.`sectionid`', $sectionId);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
 	    return $this;
 	}
 }
