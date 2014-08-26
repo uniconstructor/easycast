@@ -91,6 +91,19 @@ class CatalogSectionInstance extends CActiveRecord
 	    }
 	    parent::afterSave();
 	}
+	
+	/**
+	 * @see CActiveRecord::beforeDelete()
+	 */
+	public function beforeDelete()
+	{
+	    $memberInstances = MemberInstance::model()->forObject('section_instance', $this->id)->findAll();
+	    foreach ( $memberInstances as $instance )
+	    {
+	        $instance->delete();
+	    }
+	    return parent::beforeDelete();
+	}
 
 	/**
 	 * @return array customized attribute labels (name=>label)
