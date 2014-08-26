@@ -21,7 +21,7 @@ $qUrl = Yii::app()->createUrl('/questionary/questionary/view/', array('id' => $t
             <?php
             if ( Yii::app()->user->checkAccess('Admin') )
             {// @todo кнопка загрузки файлов видео: пока что видео привязывается к анкете а не к заявке
-                $xUploadForm = new XUploadForm;
+                /*$xUploadForm = new XUploadForm;
                 $this->widget('xupload.XUpload', array(
                     'url'             => Yii::app()->createUrl("//questionary/questionary/upload", array('objectId' => $this->questionary->id)),
                     'model'           => $xUploadForm,
@@ -30,7 +30,7 @@ $qUrl = Yii::app()->createUrl('/questionary/questionary/view/', array('id' => $t
                     'previewImages'   => false,
                     'imageProcessing' => false,
                     'multiple'        => false,
-                ));
+                ));*/
                 $expires = '+48 hours';
             }else
             {// @todo сделать время жизни ссылки на видео равным времени жизни приглашения заказчика
