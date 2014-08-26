@@ -74,18 +74,18 @@ class EMailCastingList extends EMailCallList
         // добавляем образование и фильмографию
         $expBlock = array();
         $expBlock['type']           = 'text640';
-        $expBlock['text']           = $this->addActorExperience($questionary);
+        $expBlock['text']           = $this->addActorExperience($questionary, $vacancyId);
         $expBlock['addTextRuler']   = true;
         $expBlock['pageBreakAfter'] = 'always';
         $this->addSegment($expBlock);
         
         // добавляем доп. поля из заявки
-        $addBlock = array();
+        /*$addBlock = array();
         $addBlock['type']           = 'text640';
         $addBlock['text']           = $this->getExtraFieldsTable($questionary, $vacancyId);
         $addBlock['addTextRuler']   = false;
         $addBlock['pageBreakAfter'] = 'always';
-        $this->addSegment($addBlock);
+        $this->addSegment($addBlock);*/
     }
     
     /**
@@ -156,13 +156,16 @@ class EMailCastingList extends EMailCallList
      * @param Questionary $questionary
      * @return string
      */
-    protected function addActorExperience($questionary)
+    protected function addActorExperience($questionary, $vacancyId=null)
     {
         $result     = '';
         $data       = array();
         $attributes = array();
         
-        $result .= $this->render('experience', array('questionary' => $questionary), true);
+        $result .= $this->render('experience', array(
+            'questionary' => $questionary,
+            'vacancyId'   => $vacancyId,
+        ), true);
         
         return $result;
     }
