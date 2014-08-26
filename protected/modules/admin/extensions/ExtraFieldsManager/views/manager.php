@@ -60,26 +60,22 @@ $newSectionsUrl = Yii::app()->createUrl('/admin/category/index/', array('parentI
 <div class="page-alternate row-fluid">
     <div class="span12">
         <div class="title-page">
-            <h2>Формы для регистрации и дополнения информации об участниках</h2>
+            <h2>Шаги регистрации</h2>
             <h4 class="title-description">
-                Определите, сколько форм нужно для того чтобы собрать всю информацию об участнике,
-                необходимую для участия в этой роли.<br>
-                При необходимости разделите регистрацию на несколько шагов чтобы 
-                участникам было проще заполнять анкету.<br>
-                Для лучшей конверсии рекомендуется создать одну простую форму для регистрации на роль
-                и несколько дополнительных форм для указания дополнительной информации.
+                Разделите регистрацию на несколько шагов чтобы участникам было проще
+                заполнять анкету.
             </h4>
         </div>
         <div class="row-fluid">
             <div class="container">
                 <?php 
-                // Список форм регистрации
+                // Список шагов регистрации
                 $noSteps = $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
                     'type'    => 'info',
                     'message' => 'Сейчас регистрация не разбита ша шаги.
                         Пользователь увидит одну форму со всеми полями, не разбитую на этапы.',
                 ), true);
-                $this->widget('admin.extensions.EditWizards.EditWizards', array(
+                $this->widget('admin.extensions.EditWizardSteps.EditWizardSteps', array(
                     'objectType' => 'vacancy',
                     'objectId'   => $this->vacancy->id,
                     'emptyText'  => $noSteps,
@@ -110,10 +106,10 @@ $newSectionsUrl = Yii::app()->createUrl('/admin/category/index/', array('parentI
         <div class="row-fluid">
             <?php
             // список обязательных полей 
-            /*$this->widget('admin.extensions.EditRequiredFields.EditRequiredFields', array(
+            $this->widget('admin.extensions.EditRequiredFields.EditRequiredFields', array(
                 'objectType' => 'vacancy',
                 'objectId'   => $this->vacancy->id,
-            ));*/
+            ));
             ?>
         </div>
     </div>
@@ -155,12 +151,12 @@ $newSectionsUrl = Yii::app()->createUrl('/admin/category/index/', array('parentI
                 'type'    => 'info',
                 'message' => 'Перед добавлением полей добавьте хотя бы одну категорию и обновите страницу',
             ), true);
-            /*$this->widget('admin.extensions.EditExtraFieldInstances.EditExtraFieldInstances', array(
+            $this->widget('admin.extensions.EditExtraFieldInstances.EditExtraFieldInstances', array(
                 'objectType' => 'vacancy',
                 'objectId'   => $this->vacancy->id,
                 'categories' => $this->vacancy->extraFieldCategories,
                 'emptyText'  => $noExtraFields,
-            ));*/
+            ));
             ?>
         </div>
     </div>
