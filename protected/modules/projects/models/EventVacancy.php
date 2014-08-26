@@ -254,21 +254,6 @@ class EventVacancy extends CActiveRecord
 	           $this->attachDefaultFilters();
 	        }
 	        $this->initVacancyScope(false);
-	        
-	        // к каждой новой роли мы после создания прикрепляем новый объект Wizard
-	        // этот объект будет служить изначальным каркасом для создания формы регистрации на роль
-	        // Wizard требуется для любых форм регистрации : и для пошаговых и для одностраничных
-            $wizard = new Wizard();
-            $wizard->name =  "Форма регистрации для роли ".$this->name;
-            $wizard->objecttype = 'vacancy';
-            $wizard->objectid   = $this->id;
-            if ( ! $wizard->save() )
-            {// не должно случаться но обработать ошибку мы обязаны
-                throw new CException('Не удалось создать заготовку формы регистрации 
-                    при создании роли. По неизвестным причинам. Наши межгалактические мультиплексоры
-                    уже работают над этой проблемой, но вам придется создать форму самостоятельно
-                    на странице управления ролью.');
-            }
 	    }
 	    parent::afterSave();
 	}
@@ -492,28 +477,23 @@ class EventVacancy extends CActiveRecord
 	}
 	
 	/**
-	 * Получить полный список обязательных и дополнительных полей, прикрепленных к этой роли
-	 * в виде одного массива: индексом массива является название поля а значением объект модели
-	 * Индекс поля составляется по тем же правилам что и в модели QDynamicFormModel
+	 * 
 	 * @return array
 	 */
-	public function getCombinedFieldList()
+	public function getWizardStepInstanceIds()
 	{
-	    $result = array();
-	    // получаем все прявязанные обязательные поля
-	    $qUserFields = QUserField::model()->forObject('vacancy', $this->id)->findAll();
-	    // получаем все привязанные дополннительные поля
-	    $extraFields = ExtraField::model()->forObject('vacancy', $this->id)->findAll();
+	    $ids = array();
+	    if ( $this->regtype != 'wizard' )
+	    {
+	        return $ids;
+	    }
 	    
-	    foreach ( $qUserFields as $qUserField )
+	    $stepInstances = WizardStepInstance::model()->forVacancy($this->id)->findAll();
+	    foreach ( $stepInstances as $stepInstance )
 	    {
-	        $result[$qUserField->name] = $qUserField;
+	        $ids[] = $stepInstance->id;
 	    }
-	    foreach ( $extraFields as $extraField )
-	    {
-	        $result['ext_'.$extraField->name] = $extraField;
-	    }
-	    return $result;
+	    return $ids;
 	}
 	
 	/**
