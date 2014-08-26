@@ -48,6 +48,10 @@ class MpMemberSections extends EditableGrid
      * @var string - id модуля, который хранит клипы с modal-формами
      */
     public $clipModule = 'admin';
+    /**
+     * @var string
+     */
+    public $gridControllerPath = '/admin/memberInstanceGrid/';
     
     /**
      * @see EditableGrid::init()
@@ -105,9 +109,10 @@ class MpMemberSections extends EditableGrid
     protected function getDataColumns()
     {
         // настройки для типа связи
-        $oldTypeOptions = $this->getSelectColumnOptions('linktype',  $this->model->getLinkTypeOptions());
+        $oldTypeOptions = $this->getSelectColumnOptions('linktype',  $this->model->getLinkTypeOptions(), 'getLinkTypeOption()');
         $newTypeOptions = array(
-            'value'    => '$data->linkTypeOption;',
+            //'value'    => '$data->getLinkTypeOption();',
+            'type'     => 'raw',
             'editable' => array(
                 'mode'    => 'inline',
                 'options' => array(
@@ -120,9 +125,9 @@ class MpMemberSections extends EditableGrid
         // настраиваем поле комментария
         $oldCommentOptions = $this->getTextAreaColumnOptions('comment');
         $newCommentOptions = array(
+            'type'     => 'raw',
             'editable' => array(
-                'mode'      => 'inline',
-                'placement' => 'left',
+                'mode'    => 'inline',
                 'options' => array(
                     'showbuttons' => 'bottom',
                 ),
@@ -148,12 +153,12 @@ class MpMemberSections extends EditableGrid
      */
     protected function getGridCriteria()
     {
-        /*$criteria = array(
+        $criteria = array(
             'condition' => "`objecttype` = 'section_instance' AND `memberid` = '{$this->member->id}'"
-        );*/
-        $criteria = new CDbCriteria();
+        );
+        /*$criteria = new CDbCriteria();
         $criteria->compare('objecttype', 'section_instance');
-        $criteria->compare('memberid', $this->member->id);
+        $criteria->compare('memberid', $this->member->id);*/
         /*$criteria->compare('sectionInstance.visible', 1);
         if ( ! Yii::app()->user->checkAccess('Admin') )
         {
