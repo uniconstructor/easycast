@@ -948,8 +948,8 @@ class EventVacancy extends CActiveRecord
 	 * Условие создается не полностью пустым - изначально в него добавляется правило 
 	 * "искать только анкеты в активном статусе" и несколько других условий, в зависимости от 
 	 * данных с которыми создана роль
-	 * Создает объект SearchScope с серавлизованным критерием выборки на борту и JSON-массив для формы поиска людей
-	 * на вакансию
+	 * Создает объект SearchScope с серавлизованным критерием выборки на борту и 
+	 * JSON-массив для формы поиска людей на вакансию
 	 * 
 	 * @throws CDbException
 	 * @return int - id группы условий (SearchScope) которая содержит один пустой критерий выборки анкет
@@ -957,15 +957,17 @@ class EventVacancy extends CActiveRecord
 	 * @todo предусмотреть возможность отключать изначальное содержание CDbCriteria
 	 * @todo если понадобится - сделать настройку "добавлять/не добавлять префикс 't' к полю status"
 	 * @todo переименовать в initObjectScope для того чтобы позже можно было создать общий интерфейс для 
-	 *       всех объектов использующих плагин SearchScope 
+	 *       всех объектов использующих плагин SearchScope
+	 *  
+	 * @deprecated c введением условий поиска, находящихся в отдельных объектах класс ESearchScopes устарел
 	 */
 	protected function initVacancyScope($saveData=false)
 	{
 	    // создаем группу для условий поиска
-	    $scope = new SearchScope;
-	    $scope->name      = $this->name;
-	    $scope->modelid   = SearchScope::QMODEL_ID;
-	    $scope->type      = 'vacancy';
+	    $scope          = new SearchScope;
+	    $scope->name    = $this->name;
+	    $scope->modelid = SearchScope::QMODEL_ID;
+	    $scope->type    = 'vacancy';
 	    $scope->save();
 	    
 	    // получаем те условия поиска, которые можем сразу же создать из вакансии
@@ -973,7 +975,7 @@ class EventVacancy extends CActiveRecord
 	    $criteria   = $this->createSearchCriteria($searchData);
 	    
 	    // создаем само условие
-	    $condition = new ScopeCondition();
+	    $condition          = new ScopeCondition();
 	    $condition->scopeid = $scope->id;
 	    $condition->type    = 'serialized';
 	    $condition->value   = serialize($criteria);
