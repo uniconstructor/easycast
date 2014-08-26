@@ -403,6 +403,10 @@ class EMailCastingList extends EMailCallList
             $extraValues = array();
             foreach ( $efValues as $efValue )
             {// собираем информацию по фильмографии
+                if ( ! trim($efValue->value) )
+                {// не выводим незаполненные поля
+                    continue;
+                }
                 $extraValues[] = $this->getExtraFieldInfo($efValue);
             }
         
