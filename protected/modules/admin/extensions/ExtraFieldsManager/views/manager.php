@@ -43,7 +43,7 @@ $newSectionsUrl = Yii::app()->createUrl('/admin/category/index/', array('parentI
         </div>
         <?php
             // Список разделов анкет, которые используются в этом проекте
-            $noSectionInstances = $this->widget('application.extensions.ECMarkup.ECAlert.ECAlert', array(
+            $noSectionInstances = $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
                 'type'    => 'info',
                 'message' => 'Перед добавлением разделов добавьте хотя бы одну группу слева и обновите страницу.',
             ), true);
