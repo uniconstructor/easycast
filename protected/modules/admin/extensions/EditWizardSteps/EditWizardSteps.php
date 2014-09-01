@@ -42,7 +42,7 @@ class EditWizardSteps extends EditableGrid
     /**
      * @var array - список редактируемых полей в том порядке, в котором они идут в таблице
      */
-    public $fields = array('name', 'header', 'description');
+    public $fields = array('name', 'header', 'description', 'prevlabel', 'nextlabel');
     /**
      * @var string - заголовок всплывающего окна с формой добавления новой записи
      */
@@ -58,6 +58,8 @@ class EditWizardSteps extends EditableGrid
         'name'        => '[без названия]',
         'header'      => '[не указано]',
         'description' => '[не указано]',
+        'prevlabel'   => '[по умолчанию]',
+        'nextlabel'   => '[по умолчанию]',
     );
     /**
      * @var string - id модуля, который хранит клипы с modal-формами

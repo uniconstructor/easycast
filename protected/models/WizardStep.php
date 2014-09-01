@@ -59,8 +59,8 @@ class WizardStep extends CActiveRecord
 			'name' => 'Название',
 			'header' => 'Заголовок',
 			'description' => 'Описание',
-			'prevlabel' => 'Prevlabel',
-			'nextlabel' => 'Nextlabel',
+			'prevlabel' => 'Текст кнопки "Назад"',
+			'nextlabel' => 'Текст кнопки "Вперед"',
 			'timecreated' => 'Timecreated',
 			'timemodified' => 'Timemodified',
 		);
