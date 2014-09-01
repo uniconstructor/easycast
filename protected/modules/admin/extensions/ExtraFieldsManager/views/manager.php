@@ -2,8 +2,8 @@
 /**
  * Два списка полей: 
  * 1) обязательные поля, которые нужно добавить в анкету чтобы подать заявку
- * 2) дополнительные поля, которых нет в анкете и которые прикрепляются к роли: пользователи также заполняют
- *    их при подаче заявки
+ * 2) дополнительные поля, которых нет в анкете и которые прикрепляются к роли:
+ *    пользователи также заполняют их при подаче заявки
  */
 /* @var $this ExtraFieldsManager */
 
@@ -41,7 +41,8 @@ $newSectionsUrl = Yii::app()->createUrl('/admin/category/index/', array('parentI
                 помещена сразу в несколько разделов.
             </h4>
         </div>
-        <?php
+        <div class="row-fluid">
+            <?php
             // Список разделов анкет, которые используются в этом проекте
             $noSectionInstances = $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
                 'type'    => 'info',
@@ -54,6 +55,7 @@ $newSectionsUrl = Yii::app()->createUrl('/admin/category/index/', array('parentI
                 'emptyText'  => $noSectionInstances,
             ));
             ?>
+        </div>
     </div>
 </div>
 <div class="page-alternate row-fluid">
