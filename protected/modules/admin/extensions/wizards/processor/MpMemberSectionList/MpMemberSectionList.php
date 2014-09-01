@@ -54,6 +54,11 @@ class MpMemberSectionList extends CWidget
         {/* @var $memberInstances MemberInstance */
             $sectionInstance = CatalogSectionInstance::model()->findByPk($memberInstance->objectid);
             $value           = $memberInstance->getLinkTypeOption();
+            if ( ! $sectionInstance OR ! isset($sectionInstance->section) )
+            {// ссылка на несуществующий раздел
+                Yii::log('Не удалось найти рездел для вкладок: '.var_export($sectionInstance, true), CLogger::LEVEL_ERROR);
+                continue;
+            }
             $attribute = array(
                 'name'  => $sectionInstance->section->id,
                 'label' => $sectionInstance->section->name,
