@@ -23,13 +23,13 @@ $collapseContainerOptions = array(
         <?php
         // сначала выводим свернутый блок с краткой информацией
         $this->render('_summary');
-        
-        echo 'Дата создания заявки: '.date('Y-m-d H:i', $this->member->timecreated);
         ?>
     </div>
     <?php
     // виджет для сворачивающихся блоков 
     //$collapse = $this->beginWidget('bootstrap.widgets.TbCollapse', $collapseContainerOptions);
+    if ( $this->displayExtraFields() )
+    {
     ?>
     <div class="accordion-group">
         <div class="accordion-heading">
@@ -46,6 +46,11 @@ $collapseContainerOptions = array(
             </div>
         </div>
     </div>
+    <?php 
+    }
+    if ( $this->displayVacancySections() )
+    {// отображаем доступеые разделы для заявок если это имеет смысл
+    ?>
     <div class="accordion-group">
         <div class="accordion-heading">
             <a class="accordion-toggle" data-toggle="collapse" href="#collapse_sections_<?= $this->id; ?>">
@@ -62,6 +67,7 @@ $collapseContainerOptions = array(
         </div>
     </div>
     <?php
+    }
     // конец виджета со сворачивающимися полями 
     //$this->endWidget();
     ?>

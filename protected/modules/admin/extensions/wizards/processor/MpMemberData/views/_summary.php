@@ -62,6 +62,8 @@ $qUrl = Yii::app()->createUrl('/questionary/questionary/view/', array('id' => $t
         ));
         // блок со статусами
         $this->render('_statuses');
+        
+        echo 'Дата создания заявки: '.date('Y-m-d H:i', $this->member->timecreated);
         ?>
     </div>
 </div>

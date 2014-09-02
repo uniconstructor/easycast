@@ -56,7 +56,7 @@ class MpMemberSectionList extends CWidget
             $value           = $memberInstance->getLinkTypeOption();
             if ( ! $sectionInstance OR ! isset($sectionInstance->section) )
             {// ссылка на несуществующий раздел
-                Yii::log('Не удалось найти рездел для вкладок: '.var_export($sectionInstance, true), CLogger::LEVEL_ERROR);
+                Yii::log('Не удалось найти раздел для вкладок: '.var_export($sectionInstance, true), CLogger::LEVEL_ERROR);
                 continue;
             }
             $attribute = array(
