@@ -55,6 +55,7 @@ class MpMemberData extends CWidget
     public function init()
     {
         Yii::import("xupload.models.XUploadForm");
+        
         if ( ( $this->member instanceof ProjectMember ) AND isset($this->member->questionary) )
         {
             $this->questionary = $this->member->questionary;

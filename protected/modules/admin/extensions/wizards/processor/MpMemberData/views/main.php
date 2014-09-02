@@ -72,3 +72,4 @@ $collapseContainerOptions = array(
     //$this->endWidget();
     ?>
 </div>
+<hr>
