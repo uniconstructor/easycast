@@ -72,16 +72,17 @@ class CustomerInviteController extends Controller
 	public function actionCreate()
 	{
 		$model = new CustomerInvite;
-		
 		// AJAX validation
 		$this->performAjaxValidation($model);
 		
-		// Определяем куда создается приглашение
-		if ( ! $objectType = Yii::app()->request->getParam('objectType') )
-		{
+		
+		$objectType      = Yii::app()->request->getParam('objectType');
+		$objectId        = Yii::app()->request->getParam('objectId', 0);
+		if ( ! $objectType )
+		{// Определяем куда создается приглашение
 		    throw new CHttpException(400, 'Не указан тип объекта для создания приглашения');
 		}
-		$objectId = Yii::app()->request->getParam('objectId', 0);
+		
 		switch ( $objectType )
 		{
 		    case 'project': 
@@ -107,16 +108,22 @@ class CustomerInviteController extends Controller
 		{
 			$model->attributes = $attributes;
 			if ( $model->validate() AND $model->save() )
-			{// @todo проставить setFlash здесь и на странице отображения
-			    // получаем список статусов, которые должны присутствовать в приглашении
+			{// получаем список статусов, которые должны присутствовать в приглашении
 			    $statuses = Yii::app()->request->getParam('statuses');
 			    if ( empty($statuses) )
-			    {
+			    {// эй, ну хоть что-то мы должны отправить?
 			        throw new CHttpException(400, 'Нужно выбрать хотя бы одну галочку в списке статусов');
 			    }
-			    // сохраняем статусы, которые нужно отобразить заказчику
+			    // включать или не включать контакты в письмо
+			    $displayContacts = Yii::app()->request->getParam('displayContacts', 0);
+			    
+			    // сохраняем статусы и другие связанные данные, которые нужно отобразить заказчику
 			    // @todo в связи с новым виджетом отбора людей возможно больше не актуально
-			    $model->saveData(array('statuses' => $statuses));
+			    $model->saveData(array(
+			        'statuses'        => $statuses,
+			        'displayContacts' => $displayContacts,
+			    ));
+			    // сообщаем о результате
 			    Yii::app()->user->setFlash('success', 'Приглашение отправлено');
 			    
 			    // после создания приглашения перенаправляем пользователя на страницу создания 
@@ -126,7 +133,6 @@ class CustomerInviteController extends Controller
 			    ));
 			}
 		}
-
 		$this->render('create', array(
 			'model' => $model,
 		));

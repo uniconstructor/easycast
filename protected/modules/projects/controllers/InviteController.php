@@ -133,7 +133,6 @@ class InviteController extends Controller
         $key  = Yii::app()->request->getParam('k1', '');
         $key2 = Yii::app()->request->getParam('k2', '');
         
-        
         // проверяем, что приглашение существует и ключи доступа правильные
         $customerInvite = $this->loadCustomerInviteModel($id);
         $this->checkCustomerInviteKeys($customerInvite, $key, $key2);

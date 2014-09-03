@@ -48,6 +48,10 @@ class MpMemberData extends CWidget
      * @var Questionary
      */
     protected $questionary;
+    /**
+     * @var bool
+     */
+    protected $displayContacts = false;
     
     /**
      * @see CWidget::init()
@@ -62,9 +66,15 @@ class MpMemberData extends CWidget
             $this->sectionGridOptions['member'] = $this->member;
         }
         $this->sectionGridOptions['customerInvite'] = $this->customerInvite;
+        
         if ( ! $this->wrapperId )
         {
             $this->wrapperId = 'wrapper_'.$this->id;
+        }
+        $inviteData = $this->customerInvite->loadData();
+        if ( isset($inviteData['displayContacts']) AND $inviteData['displayContacts'] )
+        {
+            $this->displayContacts = true;
         }
         parent::init();
     }

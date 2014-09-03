@@ -57,8 +57,9 @@ $qUrl = Yii::app()->createUrl('/questionary/questionary/view/', array('id' => $t
             'attributes' => $this->getSummaryAttributes(),
         ));*/
         $this->widget('questionary.extensions.widgets.QUserInfo.QUserInfo', array(
-            'questionary' => $this->questionary,
-            'placement'   => 'above',
+            'questionary'     => $this->questionary,
+            'placement'       => 'above',
+            'displayContacts' => $this->displayContacts,
         ));
         // блок со статусами
         $this->render('_statuses');
