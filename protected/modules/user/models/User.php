@@ -239,9 +239,24 @@ class User extends CActiveRecord
     {
         return CMap::mergeArray(Yii::app()->getModule('user')->defaultScope, array(
             'alias'  => 'user',
-            'select' => 'user.*',
+            //'select' => 'user.*',
         ));
     }
+
+    /**
+     * Именованая гнруппа условий поиска
+     * @param string $email
+     * @return User
+     */
+    public function withEmail($email)
+    {
+        $criteria = new CDbCriteria();
+        $criteria->compare('email', $email);
+         
+        $this->getDbCriteria()->mergeWith($criteria);
+        
+        return $this;
+    } 
 	
     /**
      * 

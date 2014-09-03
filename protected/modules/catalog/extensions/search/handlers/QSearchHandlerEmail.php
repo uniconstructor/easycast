@@ -24,14 +24,16 @@ class QSearchHandlerEmail extends QSearchHandlerBase
         $data = $this->getFilterData();
         
         $criteria = new CDbCriteria();
-        $criteria->with = array('user');
-        // Необходимо для корректного выполнения реляционного запроса
         $criteria->together = true;
-        
-        if ( isset($data['email']) )
-        {
-            $criteria->addInCondition('user.email', $data['email']);
-        }
+        $criteria->with = array(
+            'user' => array(
+                'select'   => false,
+                'joinType' => 'INNER JOIN',
+                'scopes'   => array(
+                    'withEmail' => array($data['email']),
+                ),
+            ),
+        );
         return $criteria;
     }
 }

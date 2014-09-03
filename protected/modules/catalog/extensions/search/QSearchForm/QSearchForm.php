@@ -89,7 +89,7 @@ class QSearchForm extends SearchFilters
         'sections' => array(
             'iconlist', 'region', 'city',
         ),
-        'base'     => array('status', 'gender', 'age', /*'email',*/ 'salary', 'height', 
+        'base'     => array('status', 'gender', 'age', 'email', 'salary', 'height', 
             'weight', 'body', 'system', 'name',
         ),
         'looks'    => array('looktype', 'physiquetype', 'haircolor', 'hairlength', 

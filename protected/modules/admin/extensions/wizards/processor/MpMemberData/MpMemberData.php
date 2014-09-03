@@ -71,10 +71,13 @@ class MpMemberData extends CWidget
         {
             $this->wrapperId = 'wrapper_'.$this->id;
         }
-        $inviteData = $this->customerInvite->loadData();
-        if ( isset($inviteData['displayContacts']) AND $inviteData['displayContacts'] )
+        if ( $this->customerInvite )
         {
-            $this->displayContacts = true;
+            $inviteData = $this->customerInvite->loadData();
+            if ( isset($inviteData['displayContacts']) AND $inviteData['displayContacts'] )
+            {
+                $this->displayContacts = true;
+            }
         }
         parent::init();
     }
