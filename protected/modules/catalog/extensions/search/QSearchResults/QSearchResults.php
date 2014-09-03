@@ -182,7 +182,7 @@ class QSearchResults extends CWidget
         {// все данные есть, получаем результаты поиска
             // @todo переместить статус и сортировку в фильтры поиска
             if ( ! Yii::app()->user->checkAccess('Admin') )
-            {
+            {// отложенные, неподтвержденные и скрытые анкеты видны только админам
                 $criteria->addCondition("`t`.`status` NOT IN ('delayed', 'draft', 'unconfirmed') AND `t`.`visible` = 1");
             }
             $criteria->order = '`rating` DESC';
