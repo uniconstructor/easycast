@@ -123,7 +123,7 @@ class VacancyController extends Controller
                 ProjectMember::STATUS_FINISHED,
                 ProjectMember::STATUS_SUCCEED,
                 ProjectMember::STATUS_REJECTED,
-                ProjectMember::STATUS_UNCHECKED,
+                ProjectMember::STATUS_FINALIZED,
                 ProjectMember::STATUS_INCOMPLETE,
             );
             if ( $vacancy->hasMember($qid, $statuses) )
