@@ -5,6 +5,9 @@
 /* @var $customerInvite CustomerInvite */
 /* @var $this InviteController */
 
+// запрет индексации поисковиками
+Yii::app()->clientScript->registerMetaTag('noindex', 'robots');
+
 //$this->breadcrumbs = array();
 
 // блок всплывающих сообщений
