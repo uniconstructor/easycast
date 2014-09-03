@@ -181,10 +181,13 @@ class QSearchResults extends CWidget
         }else
         {// все данные есть, получаем результаты поиска
             // @todo переместить статус и сортировку в фильтры поиска
-            $criteria->addCondition("`t`.`status` NOT IN ('delayed', 'draft', 'unconfirmed') AND `t`.`visible` = 1");
+            if ( ! Yii::app()->user->checkAccess('Admin') )
+            {
+                $criteria->addCondition("`t`.`status` NOT IN ('delayed', 'draft', 'unconfirmed') AND `t`.`visible` = 1");
+            }
             $criteria->order = '`rating` DESC';
             
-            $emptyText = $this->getAjaxMessage('noRecords');
+            $emptyText    = $this->getAjaxMessage('noRecords');
             $dataProvider = new CActiveDataProvider('Questionary', array(
                 'criteria'   => $criteria,
                 'pagination' => array(
@@ -194,7 +197,6 @@ class QSearchResults extends CWidget
                 ),
             ));
         }
-        
         $this->printCss3Grid($dataProvider, $emptyText);
     }
     
