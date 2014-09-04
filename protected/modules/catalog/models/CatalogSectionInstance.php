@@ -37,7 +37,7 @@ class CatalogSectionInstance extends CActiveRecord
 	{
 		return array(
 			array('sectionid', 'required'),
-			array('visible', 'numerical', 'integerOnly' => true),
+			array('sectionid, objectid, visible', 'numerical', 'integerOnly' => true),
 			array('sectionid, objectid, timecreated, timemodified', 'length', 'max' => 11),
 			array('objecttype', 'length', 'max' => 50),
 			array('newname, newdescription', 'length', 'max' => 255),
@@ -67,6 +67,18 @@ class CatalogSectionInstance extends CActiveRecord
 	        ),
 		);
 	}
+	
+	/**
+	 * @see CActiveRecord::beforeSave()
+	 */
+	public function beforeSave()
+	{
+	    if ( ! $section = CatalogSection::model()->findByPk($this->sectionid) )
+	    {
+	        throw new CException('Не найден прикрепляемый раздел');
+	    }
+	    return parent::beforeSave();
+	} 
 	
 	/**
 	 * @see CActiveRecord::afterSave()
@@ -205,8 +217,8 @@ class CatalogSectionInstance extends CActiveRecord
 	}
 	
 	/**
-	 * 
-	 * @param int $sectionId
+	 * Именованная группа условий: получить все ссылки на раздел
+	 * @param  int $sectionId
 	 * @return CatalogSectionInstance
 	 */
 	public function forSection($sectionId)
