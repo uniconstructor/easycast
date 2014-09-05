@@ -5,8 +5,8 @@
  * 
  * @todo языковые строки
  */
-/* @var $this EasyController */
-/* @var $form TbActiveForm */
+/* @var $this          EasyController */
+/* @var $form          TbActiveForm */
 /* @var $massActorForm MassActorsForm */
 
 $this->pageTitle   = 'Регистрация';
@@ -15,7 +15,6 @@ $this->breadcrumbs = array(
 );
 
 ?>
-
 <div class="row-fluid">
     <div class="span8 offset2">
         <?php
@@ -117,6 +116,17 @@ $this->breadcrumbs = array(
             array(
                 'hint'    => 'Нажмите на название месяца или на год',
                 'prepend' => '<i class="icon-calendar"></i>',
+            )
+        );
+        // размер оплаты за день
+        echo $form->textFieldRow($massActorForm, 'salary', array(
+                'size'        => 60,
+                'placeholder' => '',
+            ),
+            array(
+                'hint'    => 'за один съемочный день',
+                //'prepend' => '<i class="icon-info"></i>',
+                'append'  => 'p.',
             )
         );
         
