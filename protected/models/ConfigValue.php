@@ -9,7 +9,7 @@
  * @property string $objectid
  * @property string $type
  * @property string $value
- * @property string $default
+ * @property string $default - является ли это значение стандартным?
  * @property string $timecreated
  * @property string $timemodified
  */
