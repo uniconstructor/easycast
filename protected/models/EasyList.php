@@ -1,9 +1,27 @@
 <?php
 
 /**
- * Списки пользователей "{{user_lists}}".
+ * Списки для группировки объектов системы.
+ * Один список может быть прикреплен одновременно к нескольким объектам
+ * Списки могут содержать в себе модели разных типов, для этого каждую модель нужно прикрепить
+ * к EasyListItem, и уже список EasyListItem можно перебирать как оычные связанные со списком записи
+ * 
+ * Списки могут быть:
+ * - статическими (например снимок одобренных заявок на роль в определенный период)
+ *   такие списки не пополняюстя и не очищаются со временем: данные в них всегда находятся в таком же
+ *   состоянии как и в момент создания списка
+ * - динамическими или дополняемыми: например список подходящих актеров на роль
+ *   Если набор на роль идет несколько дней и на сайте регистрируются подходящие на
+ *   роль актеры - то динамический список список будет пополнятся в зависимости от критериев поиска,
+ *   которые прикреплены к нему
+ *   
+ * Каждый список может содержать только уникальные элементы 
+ * (в такие списки нельзя добавить один и тот же объект два раза)
+ * или же, наоборот, не требовать уникальности 
+ * (один элемент можно добавлять в список много раз)
  *
- * The followings are the available columns in table '{{user_lists}}':
+ * Таблица '{{easy_lists}}':
+ * 
  * @property integer $id
  * @property string $name
  * @property string $description
@@ -13,6 +31,7 @@
  * @property string $timemodified
  * @property string $timeupdated
  * @property string $updateperiod
+ * 
  * @todo @property string $unique - должны ли элементы в списке быть уникальными
  */
 class EasyList extends CActiveRecord
@@ -125,7 +144,7 @@ class EasyList extends CActiveRecord
 	 * Returns the static model of the specified AR class.
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!
 	 * @param string $className active record class name.
-	 * @return UserList the static model class
+	 * @return EasyList the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
