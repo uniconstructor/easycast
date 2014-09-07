@@ -1,17 +1,24 @@
 <?php
 
 /**
- * This is the model class for table "{{config_defaults}}".
+ * Модель для работы с значениями настроек
  *
- * The followings are the available columns in table '{{config_defaults}}':
+ * Таблица '{{config_values}}':
+ * 
  * @property integer $id
- * @property string $objecttype
- * @property string $objectid
- * @property string $type
+ * @property string $configid
+ * @property string $type - тип значения:
+ *                          'string' - обычная строка (используется в большинстве случаев)
+ *                          'option' - стандартное значение из списка 
+ *                          (в этом случае поле value должно содержать id элемента ListItem 
+ *                          внутри списка, прикрепленного к настройке)
+ *                          'json' - массив в формате JSON
  * @property string $value
- * @property string $default - является ли это значение стандартным?
  * @property string $timecreated
  * @property string $timemodified
+ * 
+ * Relations:
+ * @property Config $config - настройка к которой привязано значение
  */
 class ConfigValue extends CActiveRecord
 {
@@ -28,16 +35,16 @@ class ConfigValue extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
-			array('objecttype', 'length', 'max'=>50),
-			array('objectid, default, timecreated, timemodified', 'length', 'max'=>11),
-			array('type', 'length', 'max'=>20),
-			array('value', 'length', 'max'=>4095),
+			array('configid, timecreated, timemodified', 'length', 'max' => 11),
+			array('type', 'length', 'max' => 20),
+			array('value', 'length', 'max' => 4095),
+		    
 			// The following rule is used by search().
-			// @todo Please remove those attributes that should not be searched.
-			array('id, objecttype, objectid, default, type, value, timecreated, timemodified', 'safe', 'on'=>'search'),
+			array('id, configid, type, value, timecreated, timemodified', 
+			    'safe',
+			    'on' => 'search',
+            ),
 		);
 	}
 
@@ -47,7 +54,8 @@ class ConfigValue extends CActiveRecord
 	public function relations()
 	{
 		return array(
-		    
+		    // настройка к которой привязано значение
+		    'config' => array(self::BELONGS_TO, 'Config', 'configid'),
 		);
 	}
 	
@@ -73,11 +81,9 @@ class ConfigValue extends CActiveRecord
 	{
 		return array(
 			'id' => 'ID',
-			'objecttype' => 'Objecttype',
-			'objectid' => 'Objectid',
+			'configid' => 'Настройка',
 			'type' => 'Type',
 			'value' => 'Value',
-			'default' => 'Использовать по умолчанию',
 			'timecreated' => 'Timecreated',
 			'timemodified' => 'Timemodified',
 		);
@@ -102,11 +108,9 @@ class ConfigValue extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
-		$criteria->compare('objecttype',$this->objecttype,true);
-		$criteria->compare('objectid',$this->objectid,true);
+		$criteria->compare('configid',$this->configid,true);
 		$criteria->compare('type',$this->type,true);
 		$criteria->compare('value',$this->value,true);
-		$criteria->compare('default',$this->default,true);
 		$criteria->compare('timecreated',$this->timecreated,true);
 		$criteria->compare('timemodified',$this->timemodified,true);
 
@@ -124,5 +128,24 @@ class ConfigValue extends CActiveRecord
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
+	}
+	
+	/**
+	 * Именованая группа условий: получить все значения для одной настройки
+	 * @param Config|int $config
+	 * @return ConfigValue
+	 */
+	public function forConfig($config)
+	{
+	    if ( ! is_object($config) )
+	    {// передан id настройки вместо объекта настройки - извлечем весь объект
+	        $config = Config::model()->findByPk($config);
+	    }
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->getTableAlias(true).'.`configid`', $config->id);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
 	}
 }
