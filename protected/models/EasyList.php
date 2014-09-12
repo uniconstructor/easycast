@@ -19,23 +19,91 @@
  * (в такие списки нельзя добавить один и тот же объект два раза)
  * или же, наоборот, не требовать уникальности 
  * (один элемент можно добавлять в список много раз)
+ * 
+ * Если модель удаляется из списка - то мы обновляем статус EasyListItem и
+ * устанавливаем objectid=0 но не удаляем саму запись элемента списка из базы чтобы сохранить историю
  *
  * Таблица '{{easy_lists}}':
  * 
  * @property integer $id
- * @property string $name
- * @property string $description
- * @property integer $allowupdate
- * @property string $updatemethod
+ * @property string $name - название списка
+ * @property string $description - описание списка
+ * @property string $triggerupdate
+ * @property string $triggercleanup
  * @property string $timecreated
  * @property string $timemodified
- * @property string $timeupdated
- * @property string $updateperiod
+ * @property string $lastupdate
+ * @property string $lastcleanup
+ * @property string $updateperiod - интервал (в секундах) через который содержимое списка снова будет
+ *                                  считаться устаревшим и требовать проверки
+ * @property string $cleanUpPeriod - интервал (в секундах) через который содержимое списка снова будет
+ *                                  считаться устаревшим и требовать проверки
+ * @property string $unique - должны ли элементы (EasyListItem) в этом списке быть уникальными?
+ *                            (не применимо для objecttype='item' && objectid=0)
  * 
- * @todo @property string $unique - должны ли элементы в списке быть уникальными
+ * Relations:
+ * @property EasyListInstance[] $instances - все экземпляры этого списка
+ *                                           (если он прикреплен к другим объектам через objecttype/objectid)
  */
 class EasyList extends CActiveRecord
 {
+    /**
+     * @var string - условие запуска дополнения или очистки списка: запретить менять содержимое списка  
+     *               (для статических списков которые работают как снимки состояния системы)
+     *               Такие списки могут содержать или не содержать условия поиска, но никогда
+     *               не могут быть обновлены автоматически или вручную.
+     *               Обновлять эти списки запрещено обновлять потому что их главной задачей
+     *               является сохранение точного состояния системы на определенный момент времени.
+     *               Если такой список содержит условия поиска - то это поможет 
+     *               сравнивать текущие результаты выборки с прошлыми.
+     *               Если криериев поиска в таком списке нет - значит он или нужен для того
+     *               чтобы сохранить хорошую подборку или для того чтобы запомнить связанных
+     *               определенным событием или местом людей (например нам нужно точно запомнить
+     *               сколько человек приехали вовремя, кто опоздал и конечно же, кто именно эти люди) 
+     */
+    const TRIGGER_NEVER  = 'never';
+    /**
+     * @var string - условие запуска дополнения или очистки списка: обновлять список вручную
+     *               (для динамических списков которые дополняются и очищаются вручную, без
+     *               каких-либо правил или условий выборки)
+     *               Такие списки не могут обновляться автоматически потому что не содержат критериев
+     *               поиска для составления выборки записей
+     *               Их удобно использовать для редко произвольно составляемых списков записей:
+     *               например если нужно составить подборку из разных анкет участников для того чтобы
+     *               показать их режиссеру как кандидатов на роль
+     */
+    const TRIGGER_MANUAL = 'manual';
+    /**
+     * @var string - условие запуска дополнения или очистки списка: обновлять список автоматически
+     *               (для динамических списков которые дополняются и очищаются по мере того
+     *               как объекты системы начинают или перестают подходить условиям выборки)
+     *               Такие списки будут обновляться автоматически (например по крону). 
+     *               Период обновления должен быть больше нуля. 
+     *               Обновлять такие списки вручную можно только если для них полностью 
+     *               запрещена очистка неподходящих значений
+     *               (потому что вручную добавленные объекты могут не подходить
+     *               по критериям выборки списка, и первая же операция очистки удалит всех кто
+     *               не прошел по параметрам)
+     */
+    const TRIGGER_AUTO   = 'auto';
+    /**
+     * @var string - условие запуска дополнения или очистки списка: обновлять список автоматически и вручную
+     *               (для динамических списков которые дополняются и очищаются по мере того
+     *               как объекты системы начинают или перестают подходить условиям выборки)
+     *               Такие списки будут обновляться по крону, период обновления может быть
+     *               задан больше нуля (иначе будет доступно только ручное обновление списка).
+     *               Такие списки содержат и критерии поиска и список вручную добавленных участников
+     *               (как отдельный критерий "дополнительный список участников для поиска")
+     *               Автоматически в этот список добавляются только подходящие по критериям поиска значения, 
+     *               но мы можем вручную добавить к ним любые записи (при наличии прав, конечно же).
+     *               Запуск очистки устаревших записей такого списка не удалит вручную введенные записи, 
+     *               потому что присутствие в списке "участники, приглашенные на роль вручную" - 
+     *               это такой же критерий поиска как рост или возраст
+     *               (только он добавляется к остальным всегда через условие OR чтобы все критерии поиска
+     *               и мой отобранный список имели одинаковую значимость)
+     */
+    const TRIGGER_ALL    = 'all';
+    
 	/**
 	 * @return string the associated database table name
 	 */
@@ -43,6 +111,18 @@ class EasyList extends CActiveRecord
 	{
 		return '{{easy_lists}}';
 	}
+	
+	/**
+	 * @see CActiveRecord::beforeDelete()
+	 */
+	public function beforeDelete()
+	{
+	    foreach ( $this->instances as $instance )
+	    {
+	        $instance->delete();
+	    }
+	    return parent::beforeDelete();
+	} 
 
 	/**
 	 * @return array validation rules for model attributes.
@@ -51,14 +131,15 @@ class EasyList extends CActiveRecord
 	{
 		return array(
 			array('name', 'required'),
-			array('allowupdate', 'numerical', 'integerOnly'=>true),
-			array('name', 'length', 'max'=>255),
-			array('description', 'length', 'max'=>4095),
-			array('updatemethod', 'length', 'max'=>10),
-			array('timecreated, timemodified, timeupdated, updateperiod', 'length', 'max'=>11), //unique
+            array('unique', 'numerical', 'integerOnly' => true),
+			array('name', 'length', 'max' => 255),
+			array('description', 'length', 'max' => 4095),
+			array('triggerupdate, triggercleanup', 'length', 'max' => 20),
+			array('timecreated, timemodified, lastupdate, lastcleanup, updateperiod, unique', 'length', 'max' => 11),
+			
 			// The following rule is used by search().
-			// @todo Please remove those attributes that should not be searched.
-			array('id, name, description, allowupdate, updatemethod, timecreated, timemodified, timeupdated, updateperiod, unique', 'safe', 'on'=>'search'),
+			/*array('id, name, description, triggerupdate, 
+			    timecreated, timemodified, lastupdate, updateperiod, unique', 'safe', 'on' => 'search'),*/
 		);
 	}
 
@@ -68,7 +149,11 @@ class EasyList extends CActiveRecord
 	public function relations()
 	{
 		return array(
+		    // связи этого списка с другими объектами
+		    // (если он прикреплен к ним через пару objecttype/objectid)
 		    'instances' => array(self::HAS_MANY, 'EasyListInstance', 'easylistid'),
+		    // все элементы входящие вэтот спискок
+		    'listItems' => array(self::HAS_MANY, 'EasyListItem', 'easylistid'),
 		);
 	}
 	
@@ -96,13 +181,15 @@ class EasyList extends CActiveRecord
 			'id' => 'ID',
 			'name' => Yii::t('coreMessages', 'title'),
 			'description' => Yii::t('coreMessages', 'description'),
-			'allowupdate' => 'Allowupdate',
-			'updatemethod' => 'Updatemethod',
+			'triggerupdate' => 'Дополненять список',
+			'triggercleanup' => 'Очищать список',
 			'timecreated' => 'Timecreated',
 			'timemodified' => 'Timemodified',
-			'timeupdated' => 'Timeupdated',
-			'updateperiod' => 'Updateperiod',
-			//'unique' => 'Требовать уникальность элементов?',
+			'lastupdate' => 'Последний запуск дополнения списка',
+			'lastcleanup' => 'Последний запуск очистки списка',
+			'updateperiod' => 'Интервал дополнения списка',
+			'cleanupperiod' => 'Интервал очистки списка',
+			'unique' => 'Запретить одинаковые элементы в этом списке?',
 		);
 	}
 
@@ -118,27 +205,24 @@ class EasyList extends CActiveRecord
 	 * @return CActiveDataProvider the data provider that can return the models
 	 * based on the search/filter conditions.
 	 */
-	public function search()
+	/*public function search()
 	{
-		// @todo Please modify the following code to remove attributes that should not be searched.
+		$criteria = new CDbCriteria;
 
-		$criteria=new CDbCriteria;
-
-		$criteria->compare('id',$this->id);
-		$criteria->compare('name',$this->name,true);
-		$criteria->compare('description',$this->description,true);
-		$criteria->compare('allowupdate',$this->allowupdate);
-		$criteria->compare('updatemethod',$this->updatemethod,true);
-		$criteria->compare('timecreated',$this->timecreated,true);
-		$criteria->compare('timemodified',$this->timemodified,true);
-		$criteria->compare('timeupdated',$this->timeupdated,true);
-		$criteria->compare('updateperiod',$this->updateperiod,true);
-		//$criteria->compare('unique',$this->unique,true);
+		$criteria->compare('id', $this->id);
+		$criteria->compare('name', $this->name,true);
+		$criteria->compare('description', $this->description,true);
+		$criteria->compare('triggerupdate', $this->triggerupdate,true);
+		$criteria->compare('timecreated', $this->timecreated,true);
+		$criteria->compare('timemodified', $this->timemodified,true);
+		$criteria->compare('lastupdate', $this->lastupdate,true);
+		$criteria->compare('updateperiod', $this->updateperiod,true);
+		$criteria->compare('unique', $this->unique,true);
 
 		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
+			'criteria' => $criteria,
 		));
-	}
+	}*/
 
 	/**
 	 * Returns the static model of the specified AR class.
@@ -149,5 +233,28 @@ class EasyList extends CActiveRecord
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
+	}
+	
+	/**
+	 * Получить все списки содержащие элемент с указанным id, либо ссылающиеся на него
+	 * @param int|array $itemId - id значения (EasyListItem) или массив id
+	 * @return EasyList
+	 */
+	public function forItem($itemId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->with = array(
+	        'listItems' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes' => array(
+    	            'withItemId' => array($itemId),
+    	        ),
+	        ),
+	    );
+	    $criteria->together = true;
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
 	}
 }
