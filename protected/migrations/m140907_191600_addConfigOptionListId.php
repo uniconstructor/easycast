@@ -19,6 +19,19 @@ class m140907_191600_addConfigOptionListId extends CDbMigration
         $this->createIndex('idx_objecttype', $table, 'objecttype');
         $this->addColumn($table, 'objectid', "int(11) UNSIGNED NOT NULL DEFAULT 0");
         $this->createIndex('idx_objectid', $table, 'objectid');
+        // возможность ссылаться на поля других моделей в качестве значений
+        $this->addColumn($table, 'valuetype', "VARCHAR(50) NOT NULL");
+        $this->createIndex('idx_valuetype', $table, 'valuetype');
+        $this->addColumn($table, 'valuefield', "VARCHAR(50) NOT NULL");
+        $this->createIndex('idx_valuefield', $table, 'valuefield');
+        $this->addColumn($table, 'valueid', "int(11) UNSIGNED NOT NULL DEFAULT 0");
+        $this->createIndex('idx_valueid', $table, 'valueid');
+        // список где хранятся добавленные участником значения 
+        // (если разрешено вводить свои значения настройки помимо стандартных)
+        // (не путать в выбранными значениями) 
+        // по умолчанию списки дополнять запрещено
+        $this->addColumn($table, 'userlistid', "int(11) UNSIGNED NOT NULL DEFAULT 0");
+        $this->createIndex('idx_userlistid', $table, 'userlistid');
         unset($table);
         
         $table = "{{config_values}}";
@@ -46,11 +59,21 @@ class m140907_191600_addConfigOptionListId extends CDbMigration
             }
         }
         
+        $configItems = $this->dbConnection->createCommand()->select()->
+            from('{{config}}')->queryAll();
+        foreach ( $configItems as $configItem )
+        {
+            $this->update('{{config}}', array('objecttype' => 'system'), 'id='.$configItem['id']);
+        }
+        
         // удаляем поле "тип объекта" из таблицы значений для настроек
         // (теперь значения привязываются только к модели настройки) 
         $this->dropColumn('{{config_values}}', 'objecttype');
         
         // удаляем таблицу с экземплярами настроек (после оптимизации архитектуры не нужна)
         $this->dropTable('{{config_instances}}');
+        
+        // удаляем таблицу значений настроек (после второй оптимизации архитектуры тоже стала не нужна)
+        $this->dropTable('{{config_values}}');
     }
 }
