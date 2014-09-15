@@ -12,18 +12,19 @@ class QSearchHandlerAge extends QSearchHandlerBase
      */
     protected function createCriteria()
     {
-        $data = $this->getFilterData();
-        
+        $data     = $this->getFilterData();
         $criteria = new CDbCriteria();
-        if ( isset($data['minage']) AND $data['minage'] )
-        {
-            $criteria->addCondition('`birthdate` <= ( CAST(UNIX_TIMESTAMP() AS SIGNED) - CAST(:minage*366*24*3600 AS SIGNED) )');
-            $criteria->params[':minage'] = $data['minage'];
+        
+        if ( isset($data['minage']) AND $minAge = intval($data['minage']) )
+        {// минимальный возраст
+            $minTimestamp = time() - ( $minAge * 365 * 24 * 3600 );
+            $criteria->compare('birthdate', '<='.$minTimestamp);
         }
-        if ( isset($data['maxage']) )
-        {
-            $criteria->addCondition('`birthdate` >= ( CAST(UNIX_TIMESTAMP() AS SIGNED) - CAST(:maxage*366*24*3600 AS SIGNED) )');
-            $criteria->params[':maxage'] = $data['maxage'];
+        if ( isset($data['maxage']) AND $maxAge = intval($data['maxage']) )
+        {// максимальный возраст: прибавляем единицу к указанному в форме,
+            // чтобы найти всех участников до указанного возраста включительно
+            $maxTimestamp = time() - ( (1 + $maxAge) * 365 * 24 * 3600 );
+            $criteria->compare('birthdate', '>='.$maxTimestamp);
         }
         return $criteria;
     }
