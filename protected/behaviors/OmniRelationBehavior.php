@@ -22,7 +22,7 @@
  * @todo метод exceptLinkedWithAnyValue($field, $values, $compare='AND')
  * @todo метод exceptLinkedWithEveryValue($field, $values, $compare='AND')
  */
-class OmniRelatedRecordBehavior extends CActiveRecordBehavior
+class OmniRelationBehavior extends CActiveRecordBehavior
 {
     /**
      * @var string
@@ -39,19 +39,19 @@ class OmniRelatedRecordBehavior extends CActiveRecordBehavior
     /**
      * @var string
      */
-    public $targeRelationType = CActiveRecord::BELONGS_TO;
+    public $targeRelationType  = CActiveRecord::BELONGS_TO;
     /**
      * @var array
      */
-    public $customRelations = array();
+    public $customRelations    = array();
     /**
      * @var array
      */
-    public $customScopes = array();
+    public $customScopes       = array();
     /**
      * @var array
      */
-    public $customObjectTypes = array();
+    public $customObjectTypes  = array();
     /**
      * @var string
      */
@@ -75,7 +75,7 @@ class OmniRelatedRecordBehavior extends CActiveRecordBehavior
     /**
      * @var array
      */
-    public $enabledModels = array();
+    public $enabledModels  = array();
     /**
      * @var array
      */
