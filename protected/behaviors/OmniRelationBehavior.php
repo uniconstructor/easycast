@@ -82,12 +82,13 @@ class OmniRelationBehavior extends CActiveRecordBehavior
     public $disabledModels = array();
     /**
      * @var string
+     *            'field' => (bool)true,//[allowEmpty]
      */
-    public $extraKeyField;
+    public $extraKeyFields = array();
     /**
      * @var bool
      */
-    public $enableEmptyExtraKey = false;
+    //public $allowedEmptyExtraKeys = array();
     
     /**
      * 
@@ -111,6 +112,28 @@ class OmniRelationBehavior extends CActiveRecordBehavior
         $modelRelations = $this->owner->relations();
         // возвращаем список в котором совмещены связи модели ниши связи через составно внешний ключ
         return CMap::mergeArray($modelRelations, $this->customRelations);
+    }
+    
+    /**
+     * Именованая группа условий: получить все настройки прикрепленные к переданной модели
+     * Эта функция нужна для обращения к настройкам модели в общем виде
+     *
+     * @param CActiveRecord $object - модель к которой прикреплены настройки
+     *                                или название класса такой модели если мо хотим получить
+     *                                базовые настройки для всех моделей этого класса
+     * @return Config
+     */
+    public function forModel($model)
+    {
+        if ( ! is_object($object) )
+        {// передана модель целиком
+            throw new CException('Не передана модель для составления условия');
+        }
+        // достаем из модели тип и id
+        $objectType = get_class($object);
+        $objectId   = $object->id;
+        // обращаемся к существующей функции
+        return $this->forObject($objectType, $objectId);
     }
     
     /**
