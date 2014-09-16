@@ -13,11 +13,14 @@
  * 
  * Содержит все проверки при сохранении/удалении записей а также все именованые группы условий поиска
  * 
- * @var CActiveRecord $owner
+ * @property CActiveRecord $owner
  * 
  * @todo проверка наличия полей при присоединении
  * @todo документировать все поля
  * @todo документировать методы
+ * @todo метод withAnyValueInField
+ * @todo метод exceptLinkedWithAnyValue($field, $values, $compare='AND')
+ * @todo метод exceptLinkedWithEveryValue($field, $values, $compare='AND')
  */
 class OmniRelatedRecordBehavior extends CActiveRecordBehavior
 {
@@ -498,6 +501,68 @@ class OmniRelatedRecordBehavior extends CActiveRecordBehavior
         $criteria->addColumnCondition($columns, 'AND', 'AND');
         
         $this->owner->getDbCriteria()->mergeWith($criteria,  $operation.' NOT ');
+        
+        return $this->owner;
+    }
+    
+    /**
+     * Все записи, кроме тех, которые хотя бы по одному разу связаны с каждым из типов
+     * моделей в списке
+     *
+     * @param string    $field - 
+     * @param int|array $values - 
+     * @param string    $operation - как присоединить это условие к остальным? (AND/OR)
+     * @return CActiveRecord
+     */
+    public function withAnyCustomValue($field, $values, $operation='AND')
+    {
+        if ( ! $values )
+        {// условие не используется
+            return $this->owner;
+        }
+        if ( ! is_array($values) )
+        {
+            $values = array($values);
+        }
+        $criteria = new CDbCriteria();
+        $criteria->compare($this->owner->getTableAlias(true).'.`'.$field.'`', $values);
+        
+        $this->owner->getDbCriteria()->mergeWith($criteria, $operation);
+        
+        return $this->owner;
+    }
+    
+    /**
+     * Все записи, кроме тех, которые хотя бы по одному разу связаны с каждым из типов
+     * моделей в списке
+     *
+     * @param string    $field  -
+     * @param int|array $values -
+     * @param string    $operation  - как присоединить это условие к остальным? (AND/OR)
+     * @return CActiveRecord
+     */
+    public function withEveryCustomValue($field, $values, $operation='AND')
+    {
+        if ( ! $values )
+        {// условие не используется
+            return $this->owner;
+        }
+        if ( ! is_array($values) )
+        {
+            $values = array($values);
+        }
+        
+        $columns = array();
+        foreach ( $values as $value )
+        {
+            $columns[]= array(
+                $this->owner->getTableAlias(true).".`{$field}`" => $value,
+            );
+        }
+        $criteria = new CDbCriteria();
+        $criteria->addColumnCondition($columns, 'AND', 'AND');
+        
+        $this->owner->getDbCriteria()->mergeWith($criteria,  $operation);
         
         return $this->owner;
     }
