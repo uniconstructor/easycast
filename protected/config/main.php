@@ -36,14 +36,15 @@ return array(
     // Используем собственную тему оформления для сайта
     'theme' => 'maximal',
     
-	// autoloading model and component classes
+	// автозагрузка для основных классов приложения
     'import' => array(
         // основные компоненты приложения
+		'application.behaviors.*',
 		'application.models.*',
 		'application.filters.*',
 		'application.components.*',
 	    'application.extensions.*',
-        // Выбор страны и города
+        // @todo заменить выбор страны и города на GeoNames
 	    'application.extensions.CountryCitySelectorRu.models.*',
 	    // User module
 	    'application.modules.user.models.*',
