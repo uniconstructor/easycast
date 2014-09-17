@@ -64,10 +64,10 @@ class ObjectLock extends CActiveRecord
 	{
 	    return array(
 	        // автоматическое заполнение дат создания
-	        'CTimestampBehavior' => array(
-	            'class'           => 'zii.behaviors.CTimestampBehavior',
-	            'createAttribute' => 'timecreated',
-	            'updateAttribute' => 'timemodified',
+	        'EcTimestampBehavior' => array(
+	            'class'           => 'application.behaviors.EcTimestampBehavior',
+	            //'createAttribute' => 'timecreated',
+	            //'updateAttribute' => 'timemodified',
 	        ),
 	    );
 	}
