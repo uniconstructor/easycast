@@ -7,7 +7,6 @@
  * @todo дополнительные именованые группы условий: 
  *       - созданные за день/неделю/месяц, 
  *       - отредактированые за тот же период
- *       - условия добавляющие сортировку
  */
 class EcTimestampBehavior extends CTimestampBehavior
 {
@@ -61,15 +60,11 @@ class EcTimestampBehavior extends CTimestampBehavior
     public function attributeLabels()
     {
         $labels = $this->owner->attributeLabels();
-        if ( $this->createAttribute AND 
-             ( ! isset($labels[$this->createAttribute]) OR 
-                 $labels[$this->createAttribute] === 'Timecreated' ) )
+        if ( $this->createAttribute AND ( ! isset($labels[$this->createAttribute]) OR $labels[$this->createAttribute] === 'Timecreated' ) )
         {
             $labels[$this->createAttribute] = Yii::t('coreMessages', 'timecreated');
         }
-        if ( $this->updateAttribute AND
-           ( ! isset($labels[$this->updateAttribute]) OR 
-               $labels[$this->updateAttribute] === 'Timemodified' ) )
+        if ( $this->updateAttribute AND ( ! isset($labels[$this->updateAttribute]) OR $labels[$this->updateAttribute] === 'Timemodified' ) )
         {
             $labels[$this->updateAttribute] = Yii::t('coreMessages', 'timemodified');
         }
@@ -78,8 +73,8 @@ class EcTimestampBehavior extends CTimestampBehavior
     
     /**
      * 
-     * @param int $time
-     * @param string $operation
+     * @param  int    $time
+     * @param  string $operation
      * @return CActiveRecord
      */
     public function createdBefore($time, $operation='AND')
@@ -98,8 +93,8 @@ class EcTimestampBehavior extends CTimestampBehavior
     
     /**
      * 
-     * @param int $time
-     * @param string $operation
+     * @param  int    $time
+     * @param  string $operation
      * @return CActiveRecord
      */
     public function createdAfter($time, $operation='AND')
@@ -118,8 +113,8 @@ class EcTimestampBehavior extends CTimestampBehavior
     
     /**
      *
-     * @param int $time
-     * @param string $operation
+     * @param  int    $time
+     * @param  string $operation
      * @return CActiveRecord
      */
     public function updatedBefore($time, $operation='AND')
@@ -138,8 +133,8 @@ class EcTimestampBehavior extends CTimestampBehavior
     
     /**
      *
-     * @param int $time
-     * @param string $operation
+     * @param  int    $time
+     * @param  string $operation
      * @return CActiveRecord
      */
     public function updatedAfter($time, $operation='AND')
