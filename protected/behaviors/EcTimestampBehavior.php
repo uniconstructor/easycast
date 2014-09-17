@@ -2,6 +2,12 @@
 
 /**
  * Расширенный класс для работы с датами создания/изменения объекта
+ * 
+ * @todo документировать все методы
+ * @todo дополнительные именованые группы условий: 
+ *       - созданные за день/неделю/месяц, 
+ *       - отредактированые за тот же период
+ *       - условия добавляющие сортировку
  */
 class EcTimestampBehavior extends CTimestampBehavior
 {
@@ -22,15 +28,52 @@ class EcTimestampBehavior extends CTimestampBehavior
         $modelScopes     = $this->owner->scopes();
         $timestampScopes = array(
             // отредактированые записи
-            'modified' => array(
-                'condition' => $this->owner->getTableAlias(true).".`{$this->createAttribute}` > 0",
+            'modifiedOnly' => array(
+                'condition' => $this->owner->getTableAlias(true).".`{$this->updateAttribute}` > 0",
             ),
             // никогда не редактировавшиеся записи
             'neverModified' => array(
                 'condition' => $this->owner->getTableAlias(true).".`{$this->updateAttribute}` = 0",
             ),
+            // порядок сортировки: по времени создания (сначала новые)
+            'lastCreated' => array(
+                'order' => $this->owner->getTableAlias(true).".`{$this->createAttribute}` DESC",
+            ),
+            // порядок сортировки: по времени создания (сначала старые)
+            'firstCreated' => array(
+                'order' => $this->owner->getTableAlias(true).".`{$this->createAttribute}` ASC",
+            ),
+            // порядок сортировки: по времени изменения (сначала новые)
+            'lastModified' => array(
+                'order' => $this->owner->getTableAlias(true).".`{$this->updateAttribute}` DESC",
+            ),
+            // порядок сортировки: по времени изменения (сначала старые)
+            'firstModified' => array(
+                'order' => $this->owner->getTableAlias(true).".`{$this->updateAttribute}` ASC",
+            ),
 	    );
         return CMap::mergeArray($timestampScopes, $modelScopes);
+    }
+    
+    /**
+     * @return array customized attribute labels (name=>label)
+     */
+    public function attributeLabels()
+    {
+        $labels = $this->owner->attributeLabels();
+        if ( $this->createAttribute AND 
+             ( ! isset($labels[$this->createAttribute]) OR 
+                 $labels[$this->createAttribute] === 'Timecreated' ) )
+        {
+            $labels[$this->createAttribute] = Yii::t('coreMessages', 'timecreated');
+        }
+        if ( $this->updateAttribute AND
+           ( ! isset($labels[$this->updateAttribute]) OR 
+               $labels[$this->updateAttribute] === 'Timemodified' ) )
+        {
+            $labels[$this->updateAttribute] = Yii::t('coreMessages', 'timemodified');
+        }
+        return $labels;
     }
     
     /**
