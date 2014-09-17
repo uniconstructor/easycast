@@ -113,10 +113,10 @@ class Video extends SWActiveRecord
 	{
 	    return array(
 	        // автоматическое заполнение дат создания и изменения
-	        'CTimestampBehavior' => array(
-	            'class'           => 'zii.behaviors.CTimestampBehavior',
-	            'createAttribute' => 'timecreated',
-	            'updateAttribute' => 'timemodified',
+	        'EcTimestampBehavior' => array(
+	            'class'           => 'application.behaviors.EcTimestampBehavior',
+	            //'createAttribute' => 'timecreated',
+	            //'updateAttribute' => 'timemodified',
 	        ),
 	        // подключаем расширение для работы со статусами
 	        'swBehavior' => array(
