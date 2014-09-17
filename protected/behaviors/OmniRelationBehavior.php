@@ -37,7 +37,10 @@ class OmniRelationBehavior extends CActiveRecordBehavior
      */
     public $targetRelationName = 'targetObject';
     /**
-     * @var string
+     * @var string - тип связи с объектом, к которому прикрепляется модель
+     *               Возможные значения:
+     *               - CActiveRecord::BELONGS_TO
+     *               - CActiveRecord::HAS_ONE
      */
     public $targeRelationType  = CActiveRecord::BELONGS_TO;
     /**
@@ -59,15 +62,15 @@ class OmniRelationBehavior extends CActiveRecordBehavior
     /**
      * @var int
      */
-    public $defaultObjectId = 0;
+    public $defaultObjectId        = 0;
     /**
      * @var bool
      */
-    public $enableEmptyObjectType = false;
+    public $enableEmptyObjectType  = false;
     /**
      * @var bool
      */
-    public $enableEmptyObjectId   = false;
+    public $enableEmptyObjectId    = false;
     /**
      * @var int
      */
@@ -75,16 +78,16 @@ class OmniRelationBehavior extends CActiveRecordBehavior
     /**
      * @var array
      */
-    public $enabledModels  = array();
+    //public $enabledModels          = array();
     /**
      * @var array
      */
-    public $disabledModels = array();
+    public $disabledModels         = array();
     /**
      * @var string
      *            'field' => (bool)true,//[allowEmpty]
      */
-    public $extraKeyFields = array();
+    public $extraKeyFields         = array();
     /**
      * @var bool
      */
@@ -335,28 +338,6 @@ class OmniRelationBehavior extends CActiveRecordBehavior
     }
     
     /**
-     * Все записи, кроме тех которые одновременно свзязанны с каждым из указаных типов объекта
-     * (список объектов может быть разнородным)
-     *
-     * @param array  $objectTypes - тип объекта (как правило класс модели) или индексированый
-     *                              массив со списком классов моделей
-     * @param string $operation  - как присоединить это условие к остальным? (AND/OR)
-     * @return CActiveRecord
-     * 
-     * @todo не отличается от withAnyObjectType - удалить
-     */
-    /*
-    public function withEveryObjectType($objectTypes, $operation='AND')
-    {
-        
-    }
-    public function withEveryObjectId($objectIds, $operation='AND')
-    {
-    
-    }
-    */
-    
-    /**
      * Все записи, которые хотя бы раз связаны с любым из переданых id (независимо от типа)
      *
      * @param int|array $objectIds - id модели в таблице: 0 для записей относящихся ко всем
@@ -591,15 +572,15 @@ class OmniRelationBehavior extends CActiveRecordBehavior
     }
     
     /**
-     * 
+     * Создать связь с целевым объектом (к которому прикрепляется модель)
+     * опираясь на значения по умолчанию
      * @return array
      */
     protected function getDefaultTargetRelation()
     {
         // получаем название класса связаной модели из текущего значения модели
-        $objectTypeField = $this->$objectTypeField;
-        $objectType      = $this->owner->$objectTypeField;
-        
+        $objectTypeField = $this->objectTypeField;
+        // создаем массив с названиями и параметрами реляционной связи
         return array(
             $this->targetRelationName => array(
                 $this->targetRelationType,
@@ -609,39 +590,3 @@ class OmniRelationBehavior extends CActiveRecordBehavior
         );
     }
 }
-
-/*$columns         = array();
- $objectTypeField = $this->objectTypeField;
-$objectIdField   = $this->objectIdField;
-foreach ( $objects as $condition )
-{// проверяем и составляем массив с условиями
-if ( is_array($condition) )
-{// массив с параметрами поиска
-if ( ! isset($condition[$objectTypeField]) OR ! isset($condition[$objectIdField]) )
-{// пара objecttype/objectid обязательна
-throw new CException('Для этого условия пара objecttype/objectid обязательна');
-}
-$columns[] = $condition;
-}elseif ( is_object($condition) )
-{// модель с параметрами поиска: берем из нее только objecttype/objectid
-if ( ! isset($condition->$objectTypeField) OR ! isset($condition->$objectIdField) )
-{// пара objecttype/objectid обязательна
-throw new CException('Для этого условия пара objecttype/objectid обязательна');
-}
-$columns[] = array(
-    $objectTypeField => $condition->$objectTypeField,
-    $objectIdField   => $condition->$objectIdField,
-);
-}else
-{
-throw new CException('Список параметров для этого условия поиска должен быть
-    массивом c параметрами для addColumnCondition()');
-}
-}
-foreach ( $columns as $column )
-{
-foreach ( $column as $field => $value )
-{
-
-}
-}*/
