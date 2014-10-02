@@ -2,9 +2,8 @@
 
 /**
  * Модель "приглашение на съемки"
- * Таблица "{{event_invites}}".
- *
- * The followings are the available columns in table '{{event_invites}}':
+ * 
+ * Таблица "{{event_invites}}":
  * @property integer $id
  * @property string $questionaryid
  * @property string $eventid
@@ -19,7 +18,10 @@
  * @property ProjectEvent $event - мероприятие
  * 
  * @todo заменить во всем коде модели текст статусов константами
+ * @todo внедрить simpleWorkflow
  * @todo переписать delete() на мягкое удаление
+ * @todo изучить возможно ли объединение с таблицей customer_invites для того чтобы сделать 
+ *       общую модель приглашений для всего приложения
  */
 class EventInvite extends CActiveRecord
 {
@@ -167,8 +169,6 @@ class EventInvite extends CActiveRecord
 	 */
 	public function withStatus($statuses)
 	{
-	    $criteria = new CDbCriteria();
-	    
 	    if ( ! is_array($statuses) )
 	    {// нужен только один статус, и он передан строкой - сделаем из нее массив
 	       $statuses = array($statuses);
@@ -177,10 +177,49 @@ class EventInvite extends CActiveRecord
 	    {// статус не указан - добавление условия не требуется
             return $this;
 	    }
-	    
+	    $criteria = new CDbCriteria();
 	    $criteria->addInCondition($this->getTableAlias(true).'.`status`', $statuses);
+	    
 	    $this->getDbCriteria()->mergeWith($criteria);
 	    
+	    return $this;
+	}
+	
+	/**
+	 * Именованая группа условий: все записи для участника или нескольких участников
+	 * @param int|array|Questionary $questionary
+	 * @return EventInvite
+	 */
+	public function forQuestionary($questionary)
+	{
+	    if ( $questionary instanceof Questionary )
+	    {
+	        $questionary = $questionary->id;
+	    }
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->getTableAlias(true).'.`questionaryid`', $questionary);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	     
+	    return $this;
+	}
+	
+	/**
+	 * Именованая группа условий: все записи для мероприятия
+	 * @param int|array|ProjectEvent $event
+	 * @return EventInvite
+	 */
+	public function forEvent($event)
+	{
+	    if ( $event instanceof ProjectEvent )
+	    {
+	        $event = $event->id;
+	    }
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->getTableAlias(true).'.`eventid`', $event);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	     
 	    return $this;
 	}
 	
@@ -212,7 +251,7 @@ class EventInvite extends CActiveRecord
 		    
 		    /** 
 		     * {@todo одобренная заявка на участие в проекте 
-		     *     (после создания таблицы связей приглашений с вакансиями)}
+		     *        (после создания таблицы связей приглашений с вакансиями)}
 		     * 'request'     => array(self::HAS_ONE, 'MemberRequest', array() ),
 		     * {@todo одобренная заявка на участие в проекте}
 		     * 'member'      => array(self::HAS_ONE, 'ProjectMember', array() ),
