@@ -39,12 +39,11 @@
  * 
  * @property CActiveRecord $owner
  * 
+ * @see OmniRelationTargetBehavior
+ * 
  * @todo проверка наличия нужных полей при присоединении к модели
  * @todo документировать все поля
  * @todo документировать методы
- * @todo прописать все методы этого класса в комментариях, чтобы потом копировать этот список
- *       в комментарий к классу модели к которому прикрепляется это поведение: это нужно
- *       чтобы нормально работал code assist по методам owner-класса при обращении к модели 
  */
 class OmniRelationBehavior extends CActiveRecordBehavior
 {
@@ -66,7 +65,7 @@ class OmniRelationBehavior extends CActiveRecordBehavior
      *               - CActiveRecord::BELONGS_TO
      *               - CActiveRecord::HAS_ONE
      */
-    public $targeRelationType  = CActiveRecord::BELONGS_TO;
+    public $targetRelationType  = CActiveRecord::BELONGS_TO;
     /**
      * @var array
      */
