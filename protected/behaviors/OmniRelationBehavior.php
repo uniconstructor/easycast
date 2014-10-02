@@ -1,12 +1,36 @@
 <?php
+/**
+ * Заготовка phpdoc чтобы нормально работал code assist по методам owner-класса при обращении к модели
+ * Скопируйте ее в комментарий к AR-классу модели к которому прикрепляется это поведение
+ * 
+ * Методы класса OmniRelationBehavior:
+ * @method CActiveRecord forModel(CActiveRecord $model)
+ * @method CActiveRecord forAnyObject(string $objectType, array|int $objectId, string $operation='AND')
+ * @method CActiveRecord forObject(string $objectType, array|int $objectId, string $operation='AND')
+ * @method CActiveRecord forEveryObject(string $objectType, array|int $objectId, string $operation='AND')
+ * @method CActiveRecord exceptLinkedWithAny(string $objectType, array|int $objectId, string $operation='AND')
+ * @method CActiveRecord exceptLinkedWith(string $objectType, array|int $objectId, string $operation='AND')
+ * @method CActiveRecord exceptLinkedWithEvery(array $objects, string $operation='AND')
+ * @method CActiveRecord withAnyObjectType(array|string $objectTypes, string $operation='AND')
+ * @method CActiveRecord withObjectType(array|string $objectTypes, string $operation='AND')
+ * @method CActiveRecord withAnyObjectId(array|int $objectIds, string $operation='AND')
+ * @method CActiveRecord withObjectId(array|int $objectIds, string $operation='AND')
+ * @method CActiveRecord exceptLinkedWithAnyObjectType(array|string $objectTypes, string $operation='AND')
+ * @method CActiveRecord exceptLinkedWithEveryObjectType(array|string $objectTypes, string $operation='AND')
+ * @method CActiveRecord exceptLinkedWithAnyObjectId(array|int $objectIds, string $operation='AND')
+ * @method CActiveRecord exceptLinkedWithEveryObjectId(array|int $objectIds, string $operation='AND')
+ * @method CActiveRecord hasCustomValue(string $field, array|string $values, string $operation='AND')
+ * @method CActiveRecord exceptCustomValue(string $field, array|string $values, string $operation='AND')
+ * @method bool          isUniqueForObject(string $objectType, int $objectId=0, int $extraKeyId=0)
+ */
 
 /**
- * Класс для работы с любыми AR-моделями которые могут ссылаться на другие модели
+ * Класс для работы с любыми AR-моделями которые ссылаются на другие модели
  * при помощи пары полей objecttype/objectid
- * Присоединяется к прикрепляемой модели (в той, которая содержит эту пару полей и ссылается
- * на другую модель)
- * Поле objecttype всегда содержит класс модели. Создаваемые модели могут не привязываться
- * к другим моделям (это необязательно)
+ * Присоединяется к прикрепляемой модели 
+ * (в той, которая содержит эту пару полей и ссылается на другую модель)
+ * Поле objecttype всегда содержит класс модели. 
+ * Создаваемые модели не обязательно должны быть привязаны к чему-либо,
  * 
  * Работает в паре c поведением OmniRelatedTargetModelBehavior, которое присоединяется к
  * модели на которую ссылается эта запись через objecttype/objectid
@@ -15,12 +39,12 @@
  * 
  * @property CActiveRecord $owner
  * 
- * @todo проверка наличия полей при присоединении
+ * @todo проверка наличия нужных полей при присоединении к модели
  * @todo документировать все поля
  * @todo документировать методы
- * @todo метод withAnyValueInField
- * @todo метод exceptLinkedWithAnyValue($field, $values, $compare='AND')
- * @todo метод exceptLinkedWithEveryValue($field, $values, $compare='AND')
+ * @todo прописать все методы этого класса в комментариях, чтобы потом копировать этот список
+ *       в комментарий к классу модели к которому прикрепляется это поведение: это нужно
+ *       чтобы нормально работал code assist по методам owner-класса при обращении к модели 
  */
 class OmniRelationBehavior extends CActiveRecordBehavior
 {
@@ -72,7 +96,10 @@ class OmniRelationBehavior extends CActiveRecordBehavior
      */
     public $enableEmptyObjectId    = false;
     /**
-     * @var int
+     * @var int - максимальное количество прикрепляемых к целевой модели объектов
+     *            ноль в этом поле означает отсутствие ограничений на количество 
+     *            прикрепляемых к целевой модели объектов 
+     *            (например если нужно разрешить прикреплять любое количество видео к заявке)
      */
     public $maxLinksToTargetObject = 0;
     /**
@@ -84,8 +111,17 @@ class OmniRelationBehavior extends CActiveRecordBehavior
      */
     public $disabledModels         = array();
     /**
-     * @var string
-     *            'field' => (bool)true,//[allowEmpty]
+     * @var array - список полей для дополнительных внешних ключей с указанием того, 
+     *              допустимо ли нулевое значение для этого поля.
+     *              Индексы в этом массиве это названия полей в owner-модели а значения
+     *              указывают допустим ли ноль в этом поле 
+     *              array(
+     *                  'myexternalid'   => true,
+     *                  'myexternaltype' => true,
+     *                  ...
+     *              ),
+     *              ...
+     *             
      */
     public $extraKeyFields         = array();
     /**
@@ -94,7 +130,6 @@ class OmniRelationBehavior extends CActiveRecordBehavior
     //public $allowedEmptyExtraKeys = array();
     
     /**
-     * 
      * @return void
      */
     public function init()
@@ -121,10 +156,10 @@ class OmniRelationBehavior extends CActiveRecordBehavior
      * Именованая группа условий: получить все настройки прикрепленные к переданной модели
      * Эта функция нужна для обращения к настройкам модели в общем виде
      *
-     * @param CActiveRecord $object - модель к которой прикреплены настройки
+     * @param CActiveRecord $model - модель к которой прикреплены настройки
      *                                или название класса такой модели если мо хотим получить
      *                                базовые настройки для всех моделей этого класса
-     * @return Config
+     * @return CActiveRecord
      */
     public function forModel($model)
     {
@@ -135,7 +170,7 @@ class OmniRelationBehavior extends CActiveRecordBehavior
         // достаем из модели тип и id
         $objectType = get_class($object);
         $objectId   = $object->id;
-        // обращаемся к существующей функции
+        
         return $this->forObject($objectType, $objectId);
     }
     
@@ -145,7 +180,7 @@ class OmniRelationBehavior extends CActiveRecordBehavior
      * @param string    $objectType - тип объекта (как правило класс модели)
      * @param int|array $objectId   - id модели в таблице: 0 для записей относящихся ко всем
      *                                объектам модели одновременно
-     * @param string    $operation  - как присоединить это условие к остальным? (AND/OR)
+     * @param string    $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
     public function forAnyObject($objectType, $objectId, $operation='AND')
@@ -165,7 +200,7 @@ class OmniRelationBehavior extends CActiveRecordBehavior
      * @param string    $objectType - тип объекта (как правило класс модели)
      * @param int|array $objectId   - id модели в таблице: 0 для записей относящихся ко всем
      *                                объектам модели одновременно
-     * @param string    $operation  - как присоединить это условие к остальным? (AND/OR)
+     * @param string    $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
     public function forObject($objectType, $objectId, $operation='AND')
@@ -183,7 +218,7 @@ class OmniRelationBehavior extends CActiveRecordBehavior
      *                             стандартные) а также дополнительно содержать список других
      *                             полей модели $this->owner для подстановки 
      *                             в функцию addColumnCondition
-     * @param string $operation  - как присоединить это условие к остальным? (AND/OR)
+     * @param string $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
     public function forEveryObject($objects, $operation='AND')
@@ -204,9 +239,9 @@ class OmniRelationBehavior extends CActiveRecordBehavior
         {// проверяем и составляем массив с условиями
             if ( is_array($condition) )
             {// массив с параметрами поиска
-                if ( ! isset($condition[$objectTypeField]) OR ! isset($condition[$objectIdField]) )
-                {// пара objecttype/objectid обязательна
-                    throw new CException('Для этого условия пара objecttype/objectid обязательна');
+                if ( empty($condition) )
+                {// пропускаем пустые условия
+                    continue;
                 }
                 $columns[] = $condition;
             }elseif ( is_object($condition) )
@@ -239,7 +274,7 @@ class OmniRelationBehavior extends CActiveRecordBehavior
      * @param string    $objectType - тип объекта (как правило класс модели)
      * @param int|array $objectId   - id модели в таблице: 0 для записей относящихся ко всем
      *                                объектам модели одновременно
-     * @param string    $operation  - как присоединить это условие к остальным? (AND/OR)
+     * @param string    $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
     public function exceptLinkedWithAny($objectType, $objectId, $operation='AND')
@@ -264,24 +299,24 @@ class OmniRelationBehavior extends CActiveRecordBehavior
      * @param string    $objectType - тип объекта (как правило класс модели)
      * @param int|array $objectId   - id модели в таблице: 0 для записей относящихся ко всем
      *                                объектам модели одновременно
-     * @param string    $operation  - как присоединить это условие к остальным? (AND/OR)
+     * @param string    $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
-    public function exceptObject($objectType, $objectId, $operation='AND')
+    public function exceptLinkedWith($objectType, $objectId, $operation='AND')
     {
         return $this->exceptLinkedWithAny($objectType, $objectId, $operation);
     }
     
     /**
      * Все записи, кроме тех которые одновременно свзязанны с каждым из указаных объектов
-     * (список объектов может быть разнородным)
+     * (список объектов может быть разнородным, то есть содержать модели разных классов)
      *
      * @param array  $objects    - список объектов (тот же класс что и возможного targetType)
      *                             либо индексированый массив, каждый элемент котрого содержит
      *                             ключи objecttype, objecttd (если имена столбцов в targetModel
      *                             стандартные) а также дополнительно содержать список других
      *                             условий для подстановки в функцию addColumnCondition
-     * @param string $operation  - как присоединить это условие к остальным? (AND/OR)
+     * @param string $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
     public function exceptLinkedWithEvery($objects, $operation='AND')
@@ -303,7 +338,7 @@ class OmniRelationBehavior extends CActiveRecordBehavior
      *
      * @param string    $objectTypes - тип объекта (как правило класс модели) или индексированый
      *                                 массив со списком классов моделей
-     * @param string    $operation   - как присоединить это условие к остальным? (AND/OR)
+     * @param string    $operation   - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
     public function withAnyObjectType($objectTypes, $operation='AND')
@@ -325,7 +360,7 @@ class OmniRelationBehavior extends CActiveRecordBehavior
      *
      * @param string    $objectTypes - тип объекта (как правило класс модели) или индексированый
      *                                 массив со списком классов моделей
-     * @param string    $operation   - как присоединить это условие к остальным? (AND/OR)
+     * @param string    $operation   - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
     public function withObjectType($objectTypes, $operation='AND')
@@ -341,9 +376,8 @@ class OmniRelationBehavior extends CActiveRecordBehavior
      * Все записи, которые хотя бы раз связаны с любым из переданых id (независимо от типа)
      *
      * @param int|array $objectIds - id модели в таблице: 0 для записей относящихся ко всем
-     *                               объектам модели одновременно, или индексированый масив
-     *                               таких id
-     * @param string    $operation - как присоединить это условие к остальным? (AND/OR)
+     *                               объектам модели одновременно, или индексированый масив таких id
+     * @param string    $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
     public function withAnyObjectId($objectIds, $operation='AND')
@@ -363,10 +397,9 @@ class OmniRelationBehavior extends CActiveRecordBehavior
     /**
      * Все записи, которые хотя бы раз связаны с любым из переданых id (независимо от типа)
      *
-     * @param int|array $objectIds - id модели в таблице: 0 для записей относящихся ко всем
-     *                               объектам модели одновременно, или индексированый масив
-     *                               таких id
-     * @param string    $operation  - как присоединить это условие к остальным? (AND/OR)
+     * @param int|array $objectIds  - id модели в таблице: 0 для записей относящихся ко всем
+     *                                объектам модели одновременно, или индексированый масив таких id
+     * @param string    $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
     public function withObjectId($objectIds, $operation='AND')
@@ -375,11 +408,32 @@ class OmniRelationBehavior extends CActiveRecordBehavior
     }
     
     /**
+     * Именованая группа условий: все записи с указанными id
+     *
+     * @param  int|array $id - id записи или массив из id записей
+     * @return CActiveRecord
+     */
+    public function withId($id)
+    {
+        if ( ! $id )
+        {// условие не используется
+            return $this;
+        }
+        $criteria = new CDbCriteria();
+        $criteria->compare($this->getTableAlias(true).'.`id`', $id);
+    
+        $this->getDbCriteria()->mergeWith($criteria);
+    
+        return $this;
+    }
+    
+    /**
      * Все записи, кроме тех, которые хотя бы раз связаны хотя бы с одним из типов
      * моделей в списке
      *
      * @param string|array $objectTypes- тип объекта (как правило класс модели)
-     * @param string       $operation  - как присоединить это условие к остальным? (AND/OR)
+     * @param string       $operation  - как присоединить это условие к остальным?
+     *                                   (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
     public function exceptLinkedWithAnyObjectType($objectTypes, $operation='AND')
@@ -406,10 +460,9 @@ class OmniRelationBehavior extends CActiveRecordBehavior
      * моделей в списке
      *
      * @param string    $objectType - тип объекта (как правило класс модели)
-     * @param int|array $objectIds - id модели в таблице: 0 для записей относящихся ко всем
-     *                               объектам модели одновременно, или индексированый масив
-     *                               таких id
-     * @param string    $operation  - как присоединить это условие к остальным? (AND/OR)
+     * @param int|array $objectIds  - id модели в таблице: 0 для записей относящихся ко всем
+     *                                объектам модели одновременно, или индексированый масив таких id
+     * @param string    $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
     public function exceptLinkedWithEveryObjectType($objectTypes, $operation='AND')
@@ -430,9 +483,7 @@ class OmniRelationBehavior extends CActiveRecordBehavior
                 $this->owner->getTableAlias(true).".`{$this->objectTypeField}`" => $objectType,
             );
         }
-        
-        // итоговое условие требует одновременного выполнения условий 
-        // для каждого переданного типа в отличии от IN
+        // итоговое условие требует одновременной связки с каждым переданным типом (в отличии от IN)
         $criteria = new CDbCriteria();
         $criteria->addColumnCondition($columns, 'AND', 'AND');
         
@@ -445,10 +496,9 @@ class OmniRelationBehavior extends CActiveRecordBehavior
      * Все записи, кроме тех, которые хотя бы раз связаны хотя бы с одним из id
      * объектов в списке (без учета типа)
      *
-     * @param int|array $objectIds - id модели в таблице: 0 для записей относящихся ко всем
-     *                               объектам модели одновременно, или индексированый масив
-     *                               таких id
-     * @param string    $operation  - как присоединить это условие к остальным? (AND/OR)
+     * @param int|array $objectIds  - id модели в таблице: 0 для записей относящихся ко всем
+     *                                объектам модели одновременно, или индексированый масив таких id
+     * @param string    $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
     public function exceptLinkedWithAnyObjectId($objectIds, $operation='AND')
@@ -474,14 +524,14 @@ class OmniRelationBehavior extends CActiveRecordBehavior
      * Все записи, кроме тех, которые хотя бы раз связаны с каждым из id
      * объектов в списке (без учета типа)
      *
-     * @param int|array $objectIds - id модели в таблице: 0 для записей относящихся ко всем
-     *                               объектам модели одновременно, или индексированый масив
-     *                               таких id
-     * @param string    $operation  - как присоединить это условие к остальным? (AND/OR)
+     * @param int|array $objectIds  - id модели в таблице: 0 для записей относящихся ко всем
+     *                                объектам модели одновременно, или индексированый масив таких id
+     * @param string    $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
     public function exceptLinkedWithEveryObjectId($objectIds, $operation='AND')
     {
+        $columns = array();
         if ( ! $objectIds )
         {// условие не используется
             return $this->owner;
@@ -490,17 +540,13 @@ class OmniRelationBehavior extends CActiveRecordBehavior
         {
             $objectIds = array($objectIds);
         }
-        
-        $columns = array();
         foreach ( $objectIds as $objectId )
-        {// для каждого id создаем условие сравнения
+        {// для каждого id создаем по одному условию строгого сравнения
             $columns[] = array(
                 $this->owner->getTableAlias(true).".`{$this->objectIdField}`" => $objectId,
             );
         }
-        
-        // итоговое условие требует одновременного выполнения условий
-        // для каждого переданного типа в отличии от IN
+        // итоговое условие требует одновременной связки с каждым переданным id (в отличии от IN)
         $criteria = new CDbCriteria();
         $criteria->addColumnCondition($columns, 'AND', 'AND');
         
@@ -510,23 +556,18 @@ class OmniRelationBehavior extends CActiveRecordBehavior
     }
     
     /**
-     * Все записи, кроме тех, которые хотя бы по одному разу связаны с каждым из типов
-     * моделей в списке
+     * Все записи с указаным значением в указанном поле
      *
-     * @param string    $field - 
-     * @param int|array $values - 
-     * @param string    $operation - как присоединить это условие к остальным? (AND/OR)
+     * @param  string    $field     - поле в котором ищется значение
+     * @param  int|array $values    - значение или список значений, которые нужно найти в поле
+     * @param  string    $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
-    public function withAnyCustomValue($field, $values, $operation='AND')
+    public function hasCustomValue($field, $values, $operation='AND')
     {
         if ( ! $values )
         {// условие не используется
             return $this->owner;
-        }
-        if ( ! is_array($values) )
-        {
-            $values = array($values);
         }
         $criteria = new CDbCriteria();
         $criteria->compare($this->owner->getTableAlias(true).'.`'.$field.'`', $values);
@@ -537,43 +578,57 @@ class OmniRelationBehavior extends CActiveRecordBehavior
     }
     
     /**
-     * Все записи, кроме тех, которые хотя бы по одному разу связаны с каждым из типов
-     * моделей в списке
+     * Условие поиска: все модели кроме тех которые содержат хотя бы одно
+     * из перечисленных значений внутри указанного поля
      *
-     * @param string    $field  -
-     * @param int|array $values -
-     * @param string    $operation  - как присоединить это условие к остальным? (AND/OR)
+     * @param  string    $field     - поле в котором ищется значение
+     * @param  int|array $values    - значение или список значений, которые нужно найти в поле
+     * @param  string    $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
-    public function withEveryCustomValue($field, $values, $operation='AND')
+    public function exceptCustomValue($field, $values, $operation='AND')
     {
         if ( ! $values )
         {// условие не используется
             return $this->owner;
         }
-        if ( ! is_array($values) )
+        if ( ! is_array($objectIds) )
         {
-            $values = array($values);
-        }
-        
-        $columns = array();
-        foreach ( $values as $value )
-        {
-            $columns[]= array(
-                $this->owner->getTableAlias(true).".`{$field}`" => $value,
-            );
+            $objectIds = array($objectIds);
         }
         $criteria = new CDbCriteria();
-        $criteria->addColumnCondition($columns, 'AND', 'AND');
+        $criteria->addNotInCondition($this->owner->getTableAlias(true).'.`'.$field.'`', $values);
         
-        $this->owner->getDbCriteria()->mergeWith($criteria,  $operation);
+        $this->owner->getDbCriteria()->mergeWith($criteria, $operation);
         
         return $this->owner;
     }
     
     /**
+     * Определить, является ли текущая owner-модель единственной моделью
+     * которая ссылается на объект с таким objecttype/objectid
+     * 
+     * @param  string $objectType - тип объекта (как правило класс модели)
+     * @param  number $objectId   - id модели
+     * @param  number $extraKeyId - id дополнительного внешнего ключа (если есть)
+     * @return bool
+     * 
+     * @todo дописать логику для проверки дополнительного ключа и придумать что делать
+     *       если дополнительных внешних ключей несколько
+     */
+    public function isUniqueForObject($objectType, $objectId=0, $extraKeyId=0)
+    {
+        if ( $this->forObject($objectType, $objectId)->count() > 1 )
+        {
+            return false;
+        }
+        return true;
+    }
+    
+    /**
      * Создать связь с целевым объектом (к которому прикрепляется модель)
      * опираясь на значения по умолчанию
+     * 
      * @return array
      */
     protected function getDefaultTargetRelation()
