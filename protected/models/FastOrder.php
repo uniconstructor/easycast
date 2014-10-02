@@ -161,11 +161,9 @@ class FastOrder extends CActiveRecord
 	public function behaviors()
 	{
 	    return array(
-	    // автоматическое заполнение дат создания и изменения
-	    'CTimestampBehavior' => array(
-	        'class' => 'zii.behaviors.CTimestampBehavior',
-    	        'createAttribute' => 'timecreated',
-    	        'updateAttribute' => 'timemodified',
+    	    // автоматическое заполнение дат создания и изменения
+    	    'EcTimestampBehavior' => array(
+    	        'class' => 'application.behaviors.EcTimestampBehavior',
 	        ),
 	    );
 	}
