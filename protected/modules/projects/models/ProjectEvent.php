@@ -400,17 +400,26 @@ class ProjectEvent extends CActiveRecord
     {
         $scopes = array();
         if ( ! empty($statuses) )
-        {
+        {// нужны мероприятия с ролями в указанном статусе
+            $scopes['withStatus'] = array($statuses);
+        }else
+        {// нужны мероприятия с ролями в любом статусе
+            $statuses = array(
+                EventVacancy::STATUS_DRAFT,
+                EventVacancy::STATUS_ACTIVE,
+                EventVacancy::STATUS_FINISHED,
+            );
             $scopes['withStatus'] = array($statuses);
         }
         $criteria = new CDbCriteria();
-        $criteria->together = true;
         $criteria->with = array(
             'vacancies' => array(
                 'select'   => false,
+                'joinType' => 'INNER JOIN',
                 'scopes'   => $scopes,
             ),
         );
+        $criteria->together = true;
         $this->getDbCriteria()->mergeWith($criteria);
          
         return $this;
