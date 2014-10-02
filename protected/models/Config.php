@@ -84,7 +84,7 @@
  * 
  * @todo проверка для максимального/минимального количества значений
  * @todo проверка правильности указания служебного имени
- * @todo Создаваемые корневые настройки должны быть сразу же помечены измененными
+ * @todo прописать все scope-условия в комментариях как "method" чтобы работал codeAssist
  */
 class Config extends CActiveRecord
 {
@@ -158,7 +158,7 @@ class Config extends CActiveRecord
 	public function beforeSave()
 	{
 	    if ( $this->isNewRecord )
-	    {
+	    {// создание новой настройки
 	        $listTypes = array(self::TYPE_CHECKBOXLIST, self::TYPE_SELECT, self::TYPE_RADIO);
 	        if ( in_array($this->type, $listTypes) )
 	        {// для новой настройки создаем список стандартных значений (если требуется)
@@ -213,24 +213,25 @@ class Config extends CActiveRecord
 	    {// Корневые или системные настройки удаляются только миграцией
 	        throw new CException('Корневые или системные настройки удаляются только миграцией');
 	    }
-	    foreach ( $this->configValues as $value )
-	    {// удаляем все значений этой настройки
-	        $value->delete();
-	    }
+	    
 	    foreach ( $this->withParentId($this->id)->findAll() as $config )
-	    {// удаляем все настройки, наследуемые от этой
-	        $config->delete();
+	    {// обновляем все настройки, наследуемые от этой: убираем ссылку на удаляемую запись
+	        // и заменяем ее ссылкой на элемент уровнем выше
+	        $config->parentid = $this->parentid;
+	        $config->save();
 	    }
-	    // @todo удаляем привязаный список стандартных значений (если он больше нигде не используется)
+	    
 	    if ( $this->forUserList($this->userList) )
-	    {// удаляем введенные пользовательские значения для настройки при удалении настройки,
-	        // если список нигде не используется: список введенных пользователем значений
+	    {// удаляем введенные пользовательские варианты для настройки при удалении настройки:
+	        // список введенных пользователем дополнительных значений
 	        // с гораздо меньшей вероятностью где-то используется, поэтому будем искать
 	        // ссылки на него только в настройках
 	        // @todo каждый раз при привязке списка создавать EasyListInstance чтобы 
 	        //       запоминать какие модели нужно проверить перед удалением списка
 	        $this->userList->delete();
 	    }
+	    
+	    // @todo удаляем привязаный список стандартных значений (если он больше нигде не используется)
 	    return parent::beforeDelete();
 	}
 	
@@ -250,13 +251,13 @@ class Config extends CActiveRecord
 		    // (если значение настройки задано как ссылка на поле в другой модели)
 		    // @todo не добавлять эту связь если у настройки нет значения или тип значения 
 		    // не является классом модели
-		    'valueObject'  => array(self::BELONGS_TO, $this->valuetype, 'valueid'),
+		    //'valueObject'  => array(self::BELONGS_TO, $this->valuetype, 'valueid'),
 		    // список текущих значений этой настройки (только для настроек с множественным выбором)
 		    // @todo проверить работу составного ключа
 		    // @todo добавлять эту настройку только если valueType=easylist и maxvalues <> 0
 		    'valueObjects' => array(self::HAS_MANY, $this->valuetype, array('valueid' => $this->valuefield)),
 		    // список содержащий значения для выбранной настройки (частный случай valueObject)
-		    'valueListObject' => array(self::BELONGS_TO, 'EasyList', 'valueid'),
+		    'valueList' => array(self::BELONGS_TO, 'EasyList', 'valueid'),
 		);
 	}
 	
@@ -267,13 +268,29 @@ class Config extends CActiveRecord
 	{
 	    return array(
 	        // автоматическое заполнение дат создания и изменения
-	        'CTimestampBehavior' => array(
-	            'class'           => 'zii.behaviors.CTimestampBehavior',
+	        'EcTimestampBehavior' => array(
+	            'class'           => 'application.behaviors.EcTimestampBehavior',
 	            'createAttribute' => 'timecreated',
-	            // следует считать изменением настройки только изменение ее значений (ConfigValue) 
-	            // Каждое удаление, изменение или добавление записей значений ссылающихся на эту 
-	            // (а не родительскую) настройку должно обновлять timemodified
+	            // изменением настройки считается не только изменение значения модели (Config): 
+	            // каждое удаление, изменение или добавление записей значений ссылающихся на эту 
+	            // настройку должно обновлять timemodified
+	            // Этим занимается контроллер виджета редактирования настроек, так как
+	            // отслеживать редактирование элементов связанного списка (EasyList)
+	            // должен или сам список или связанный с ним контроллер
+	            // Отслеживание событий списков из модели настройки - дорогая операция 
+	            // да и сама идея не очень вдохновляет
+	            // Отслеживание связанных значений в других моделях производится или самими моделями 
+	            // (если к ним прикреплено поведение настроек) либо через cron
 	            'updateAttribute' => 'timemodified',
+	        ),
+	        // универсальные связи с другими моделями
+	        'OmniRelationBehavior' => array(
+	            'class' => 'application.behaviors.OmniRelationBehavior',
+	            //'targetRelationName'  => 'valueObject',
+	            //'objectTypeField'     => 'valuetype',
+	            //'objectIdField'       => 'valueid',
+	            'customObjectTypes'   => array('system'),
+	            'enableEmptyObjectId' => true,
 	        ),
 	    );
 	}
@@ -294,8 +311,6 @@ class Config extends CActiveRecord
 			'type' => 'Тип настройки',
 			'minvalues' => 'Минимальное количество выбранных значений',
 			'maxvalues' => 'Максимальное количество выбранных значений (включительно)',
-			'timecreated' => Yii::t('coreMessages', 'timecreated'),
-			'timemodified' => Yii::t('coreMessages', 'timemodified'),
 			'valuetype' => 'Тип значения или название класса модели в котором оно хранится',
 			'valuefield' => 'Поле, в котором хранится значение',
 			'valueid' => 'id модели в которой хранится значение настройки',
@@ -304,7 +319,6 @@ class Config extends CActiveRecord
 	
 	/**
 	 * @see CActiveRecord::scopes()
-	 * @todo прописать все условия в комментариях класа как method чтобы работал codeAssist
 	 */
 	public function scopes()
 	{
@@ -343,14 +357,6 @@ class Config extends CActiveRecord
 	            ),
 	        ),*/
 	        // @todo hasUserOptions
-	        // отредактированые записи
-	        'modified' => array(
-	            'condition' => $this->getTableAlias(true).".`timemodified` > 0",
-	        ),
-	        // никогда не редактировавшиеся записи
-	        'neverModified' => array(
-	            'condition' => $this->getTableAlias(true).".`timemodified` = 0",
-	        ),
 	    );
 	}
 
@@ -407,7 +413,7 @@ class Config extends CActiveRecord
 	 */
 	public function isSystem()
 	{
-	    return $this->systemOnly()->exists();
+	    return $this->withId($this->id)->systemOnly()->exists();
 	}
 	
 	/**
@@ -416,7 +422,7 @@ class Config extends CActiveRecord
 	 */
 	public function isMultiple()
 	{
-	    return $this->multipleOnly()->exists();
+	    return $this->withId($this->id)->multipleOnly()->exists();
 	}
 	
 	/**
@@ -427,13 +433,13 @@ class Config extends CActiveRecord
 	 * Эта функция вызывается из модели ConfigValue перед сохранением редактированием или обновлением
 	 *
 	 * @param  string      $operation - действие производимое с настройкой (ConfigValue):
-	 *                                  insert
-	 *                                  update
-	 *                                  delete
+	 *                                  insert/update/delete
 	 * @param  ConfigValue $configValue - создаваемое, обновляемое или удаляемое значение настройки
 	 * @return bool
+	 * 
+	 * @deprecated переместить в контроллер для настроек
 	 */
-	public function beforeFirstEdit($operation, $configValue)
+	/*public function beforeFirstEdit($operation, $configValue)
 	{
 	    if ( $this->timemodified OR ! $this->parentid OR $this->isSystem() )
 	    {// это не первое редактирование настройки или настройка корневая/системная:
@@ -447,15 +453,16 @@ class Config extends CActiveRecord
 	    }
 	    $this->timemodified = time();
 	    
+	    // определим какая операция выполняется
 	    switch ( $operation )
-	    {// определим какая операция выполняется
+	    {
 	        // добавляется новое значение настройки
 	        case 'insert':
 	            if ( $this->isMultiple() )
 	            {// у настройки может быть несколько значений
 	                
 	            }else
-	            {// у настройки может бытьтолько одно значение
+	            {// у настройки может быть только одно значение
 	                
 	            }
                 if ( ! $this->parentConfig->configValues )
@@ -476,16 +483,16 @@ class Config extends CActiveRecord
             default: throw new CException('Неизвестный тип операции с настройкой:'.$operation);
 	    }
 	    return $this->save();
-	}
+	}*/
 	
 	/**
 	 * Именованая группа условий: все записи привязанные к объекту определенного типа
 	 *
-	 * @param  string $objectType
-	 * @param  int    $objectId
+	 * @param  string    $objectType
+	 * @param  int|array $objectId
 	 * @return Config
 	 */
-	public function forObject($objectType, $objectId)
+	/*public function forObject($objectType, $objectId)
 	{
 	    $criteria = new CDbCriteria();
 	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
@@ -494,50 +501,48 @@ class Config extends CActiveRecord
 	    $this->getDbCriteria()->mergeWith($criteria);
 	
 	    return $this;
-	}
-	
-	/**
-	 * Именованая группа условий: все записи привязанные к нескольким объектам
-	 *
-	 * @param string $objectType
-	 * @param array  $objectIds
-	 * @return Config
-	 */
-	public function forObjects($objectType, $objectIds)
-	{
-	    $criteria = new CDbCriteria();
-	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
-	    $criteria->addInCondition($this->getTableAlias(true).'.`objectid`', $objectIds);
-	
-	    $this->getDbCriteria()->mergeWith($criteria);
-	
-	    return $this;
-	}
+	}*/
 	
 	/**
 	 * Именованая группа условий: получить все настройки прикрепленные к переданной модели 
+	 * Эта функция нужна для обращения к настройкам модели в общем виде
 	 *
-	 * @param string|CActiveRecord $object - модель к которой прикреплены настройки 
-	 *                                       или название класса такой модели если мо хотим получить
-	 *                                       базовые настройки для всех моделей этого класса
+	 * @param CActiveRecord $object - модель к которой прикреплены настройки 
+	 *                                или название класса такой модели если мо хотим получить
+	 *                                базовые настройки для всех моделей этого класса
 	 * @return Config
 	 */
-	public function forModel($object)
+	/*public function forModel($model)
 	{
-	    if ( is_object($object) )
+	    if ( ! is_object($object) )
 	    {// передана модель целиком
-	        $objectType = get_class($object);
-	        $objectId   = $object->id;
-	    }else
-	    {// пердано только название класа
-	        $objectType = $object;
-	        $objectId   = 0;
+	        throw new CException('Не передана модель для составления условия');
 	    }
-	    $criteria = new CDbCriteria();
-	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
-	    $criteria->compare($this->getTableAlias(true).'.`objectid`', $objectId);
+	    // достаем из модели тип и id
+	    $objectType = get_class($object);
+	    $objectId   = $object->id;
+	    // обращаемся к существующей функции
+	    $this->forObject($objectType, $objectId);
 	
-	    $this->getDbCriteria()->mergeWith($criteria);
+	    return $this;
+	}*/
+	
+	/**
+	 * Именованая группа условий: все настройки по списку id
+	 *
+	 * @param  int|array $id - id записи или массив из id записей
+	 * @return Config
+	 */
+	public function withId($id)
+	{
+        if ( ! $id )
+        {// условие не используется
+            return $this;
+        }
+        $criteria = new CDbCriteria();
+        $criteria->compare($this->getTableAlias(true).'.`id`', $id);
+
+        $this->getDbCriteria()->mergeWith($criteria);
 	
 	    return $this;
 	}
@@ -545,13 +550,13 @@ class Config extends CActiveRecord
 	/**
 	 * Именованая группа условий: все настройки, использующие этот список вариантов значений
 	 *
-	 * @param  int|EasyList $easyList - список, на который ссылаются настройки   
+	 * @param  int|array|EasyList $easyList - список, на который ссылаются настройки   
 	 * @return Config
 	 */
 	public function forEasyList($easyList)
 	{
 	    if ( is_object($easyList) )
-	    {// передан объекта целиком
+	    {// передан объект целиком
 	        $id = $easyList->id;
 	    }else
 	    {
@@ -568,13 +573,13 @@ class Config extends CActiveRecord
 	/**
 	 * Именованая группа условий: все настройки, использующие список дополнительных значений настройки
 	 *
-	 * @param  int|EasyList $userList - список, на который ссылаются настройки   
+	 * @param  int|array|EasyList $userList - список, на который ссылаются настройки   
 	 * @return Config
 	 */
 	public function forUserList($userList)
 	{
 	    if ( is_object($userList) )
-	    {// передан объекта целиком
+	    {// передан объект целиком
 	        $id = $userList->id;
 	    }else
 	    {
@@ -589,9 +594,8 @@ class Config extends CActiveRecord
 	}
 	
 	/**
-	 * Именованая группа условий: все записи c заданным названием (полное совпедение)
-	 *
-	 * @param  string $name - название настройки
+	 * Именованая группа условий: все записи c заданным служебным названием
+	 * @param  string|array $name - название настройки (или список названий)
 	 * @return Config
 	 */
 	public function withName($name)
@@ -610,7 +614,7 @@ class Config extends CActiveRecord
 	 * @param  string $objectType - тип связи либо название класса модели
 	 * @return Config
 	 */
-	public function withObjectType($objectType)
+	/*public function withObjectType($objectType)
 	{
 	    $criteria = new CDbCriteria();
 	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
@@ -618,7 +622,7 @@ class Config extends CActiveRecord
 	    $this->getDbCriteria()->mergeWith($criteria);
 	
 	    return $this;
-	}
+	}*/
 	
 	/**
 	 * Именованая группа условий: 
@@ -626,7 +630,7 @@ class Config extends CActiveRecord
 	 * @param  int $objectId - id связанного объекта
 	 * @return Config
 	 */
-	public function withObjectId($objectId)
+	/*public function withObjectId($objectId)
 	{
 	    $criteria = new CDbCriteria();
 	    $criteria->compare($this->getTableAlias(true).'.`objectid`', $objectId);
@@ -634,11 +638,10 @@ class Config extends CActiveRecord
 	    $this->getDbCriteria()->mergeWith($criteria);
 	
 	    return $this;
-	}
+	}*/
 	
 	/**
 	 * Именованая группа условий: все дочерние записи для указанной настройки
-	 *
 	 * @param  string $parentId - id родительской настройки
 	 * @return Config
 	 */
@@ -654,22 +657,22 @@ class Config extends CActiveRecord
 	
 	/**
 	 * Именованая группа условий: все настройки с указанным значением в привязаном объекте значения
-	 *
 	 * @param  array|string $value - требуемое значение в поле value для связанной модели
 	 * @return Config
 	 * 
-	 * @todo функция withLinkedValueId все настройки с указанным EasyListItem.id 
+	 * @todo функция withOptionId все multiple-настройки с указанным EasyListItem.id 
 	 *       в привязаном объекте значения (получаем одно или несколько EasyListItem.id 
 	 *       из стандартного (или пользовательского) списка занчений и ищем в своем 
 	 *       списке ссылки на них)
 	 */
 	public function withLinkedValue($value)
 	{
-	    $criteria = new CDbCriteria();
 	    if ( $this->isMultiple() )
-	    {// настройка с множественным выбором всегда ссылается на список значений
+	    {// настройка с множественным выбором всегда ссылается на список значений (EasyList)
 	        $with = array(
-	            'valueListObject' => array(
+	            'valueList' => array(
+	                'select'   => false,
+	                'joinType' => 'INNER JOIN',
     	            'scopes' => array(
         	            'withValue' => array($value),
                     ),
@@ -681,15 +684,19 @@ class Config extends CActiveRecord
 	        $model = $this->valuetype;
 	        $alias = $model::model()->getTableAlias(true);
 	        // @todo IN-условие если значений несколько
+	        // @todo проверить вариант с $criteria вместо строки с условием (condition)
 	        // создаем условие поиска по значению связанного поля
 	        $with = array(
 	            'valueObject' => array(
-                    'condition' => "{$alias}.`{$this->valuefield}` = '{$value}'",
+	                'select'    => false,
+	                'joinType'  => 'INNER JOIN',
+                    'condition' => $alias.".`{$this->valuefield}` = '{$value}'",
     	        ),
     	    );
-	        // @todo проверить вариант с $criteria
 	    }
-	    $criteria->with = $with;
+	    $criteria = new CDbCriteria();
+	    $criteria->with     = $with;
+	    $criteria->together = true;
 	    
 	    $this->getDbCriteria()->mergeWith($criteria);
 	    
@@ -697,15 +704,73 @@ class Config extends CActiveRecord
 	}
 	
 	/**
-	 * Именованая группа условий: все настройки с указанным значением 
-	 * (в привязаном объекте значения)
-	 *
-	 * @param  array $values - требуемые значения настройки (масив строк, ищется любое из указанных)
-	 *                         ключами в массиве могут быть типы значений - тогда
-	 *                         это условие будет учитывать их при поиске
+	 * Получить все настройки в которых используется (выбран) переданый вариант стандартного 
+	 * значения настройки (как из стандартного списка вариантов так и из пользовательского)
+	 * 
+	 * @param  int|array|EasyListItem $option
 	 * @return Config
 	 */
-	/*public function withValues($values)
+	public function forOption($option)
+	{
+	    if ( is_object($option) )
+	    {// передана дна модель с вариантом значения
+	        $optionId = $option->id;
+	    }elseif ( is_array($option) )
+	    {// передано несколько вариантов, будем искать любое совпедение
+	        $optionList = $option;
+	        $optionId   = array();
+	        foreach ( $optionList as $optionItem )
+	        {// проверим что за массив нам передали: масив id или массив элементов списка (EasyListItem)
+	            if ( is_object($optionItem) )
+	            {
+	                $optionId[] = $optionItem->id;
+	            }elseif ( is_numeric($option) )
+	            {
+	                $optionId[] = $optionItem;
+	            }else
+	            {
+                    throw new CException('Неправильно указан параметр $option (поиск по элементу списка)');
+	            }
+	        }
+	    }elseif ( is_numeric($option) )
+	    {
+	        $optionId = $option;
+	    }else
+	    {
+	        throw new CException('Неправильно указан параметр $option (поиск по элементу списка)');
+	    }
+	    $criteria = new CDbCriteria();
+	    $criteria->with = array(
+	        'valueList' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes' => array(
+	                'withValue' => array($value),
+	            ),
+	        ),
+	    );
+	    $criteria->together = true;
+	    
+	}
+	
+	/**
+	 * Именованая группа условий: все настройки, содержащие указаный вариант стандартного значения
+	 * 
+	 * @param EasyListItem|int|array $option
+	 * @return Config
+	 */
+	/*public function forDefaultOption($option)
+	{
+	    
+	}*/
+	
+	/**
+	 * Именованая группа условий: все настройки, содержащие указаный вариант пользовательского значения
+	 * 
+	 * @param EasyListItem|int|array $option
+	 * @return Config
+	 */
+	/*public function forCustomOption($option)
 	{
 	    
 	}*/
