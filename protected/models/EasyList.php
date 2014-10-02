@@ -34,16 +34,28 @@
  * @property string $timemodified
  * @property string $lastupdate
  * @property string $lastcleanup
- * @property string $updateperiod - интервал (в секундах) через который содержимое списка снова будет
- *                                  считаться устаревшим и требовать проверки
+ * @property string $updateperiod  - интервал (в секундах) через который содержимое списка снова будет
+ *                                   считаться устаревшим и требовать проверки
  * @property string $cleanUpPeriod - интервал (в секундах) через который содержимое списка снова будет
- *                                  считаться устаревшим и требовать проверки
+ *                                   считаться устаревшим и требовать проверки
  * @property string $unique - должны ли элементы (EasyListItem) в этом списке быть уникальными?
  *                            (не применимо для objecttype='item' && objectid=0)
  * 
  * Relations:
  * @property EasyListInstance[] $instances - все экземпляры этого списка
- *                                           (если он прикреплен к другим объектам через objecttype/objectid)
+ *           (если он прикреплен к другим объектам через objecttype/objectid)
+ *           
+ * Методы класса EcTimestampBehavior:
+ * @method CActiveRecord createdBefore(int $time, string $operation='AND')
+ * @method CActiveRecord createdAfter(int $time, string $operation='AND')
+ * @method CActiveRecord updatedBefore(int $time, string $operation='AND')
+ * @method CActiveRecord updatedAfter(int $time, string $operation='AND')
+ * @method CActiveRecord modifiedOnly()
+ * @method CActiveRecord neverModified()
+ * @method CActiveRecord lastCreated()
+ * @method CActiveRecord firstCreated()
+ * @method CActiveRecord lastModified()
+ * @method CActiveRecord firstModified()
  */
 class EasyList extends CActiveRecord
 {
@@ -164,10 +176,8 @@ class EasyList extends CActiveRecord
 	{
 	    return array(
 	        // автоматическое заполнение дат создания и изменения
-	        'CTimestampBehavior' => array(
-	            'class'           => 'zii.behaviors.CTimestampBehavior',
-	            'createAttribute' => 'timecreated',
-	            'updateAttribute' => 'timemodified',
+	        'EcTimestampBehavior' => array(
+	            'class'           => 'application.behaviors.EcTimestampBehavior',
 	        ),
 	    );
 	}
@@ -181,7 +191,7 @@ class EasyList extends CActiveRecord
 			'id' => 'ID',
 			'name' => Yii::t('coreMessages', 'title'),
 			'description' => Yii::t('coreMessages', 'description'),
-			'triggerupdate' => 'Дополненять список',
+			'triggerupdate' => 'Дополннять список',
 			'triggercleanup' => 'Очищать список',
 			'timecreated' => 'Timecreated',
 			'timemodified' => 'Timemodified',
@@ -237,18 +247,22 @@ class EasyList extends CActiveRecord
 	
 	/**
 	 * Получить все списки содержащие элемент с указанным id, либо ссылающиеся на него
-	 * @param int|array $itemId - id значения (EasyListItem) или массив id
+	 * @param EasyListItem|int|array $itemId - id значения (EasyListItem) или массив id
 	 * @return EasyList
 	 */
-	public function forItem($itemId)
+	public function forItem($item)
 	{
+	    if ( is_object($item) )
+	    {// вытаскиваем id из модели если передана модель
+	        $item = $item->id;
+	    }
 	    $criteria = new CDbCriteria();
 	    $criteria->with = array(
 	        'listItems' => array(
 	            'select'   => false,
 	            'joinType' => 'INNER JOIN',
 	            'scopes' => array(
-    	            'withItemId' => array($itemId),
+    	            'withItemId' => array($item),
     	        ),
 	        ),
 	    );

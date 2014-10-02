@@ -14,6 +14,18 @@
  * 
  * Relations:
  * @property EasyList $easyList
+ * 
+ * Методы класса EcTimestampBehavior:
+ * @method CActiveRecord createdBefore(int $time, string $operation='AND')
+ * @method CActiveRecord createdAfter(int $time, string $operation='AND')
+ * @method CActiveRecord updatedBefore(int $time, string $operation='AND')
+ * @method CActiveRecord updatedAfter(int $time, string $operation='AND')
+ * @method CActiveRecord modifiedOnly()
+ * @method CActiveRecord neverModified()
+ * @method CActiveRecord lastCreated()
+ * @method CActiveRecord firstCreated()
+ * @method CActiveRecord lastModified()
+ * @method CActiveRecord firstModified()
  */
 class EasyListInstance extends CActiveRecord
 {
@@ -55,10 +67,8 @@ class EasyListInstance extends CActiveRecord
 	{
 	    return array(
 	        // автоматическое заполнение дат создания и изменения
-	        'CTimestampBehavior' => array(
-	            'class'           => 'zii.behaviors.CTimestampBehavior',
-	            'createAttribute' => 'timecreated',
-	            'updateAttribute' => 'timemodified',
+	        'EcTimestampBehavior' => array(
+	            'class'           => 'application.behaviors.EcTimestampBehavior',
 	        ),
 	    );
 	}
@@ -73,8 +83,6 @@ class EasyListInstance extends CActiveRecord
 			'easylistid' => 'Userlistid',
 			'objecttype' => 'Objecttype',
 			'objectid' => 'Objectid',
-			'timecreated' => 'Timecreated',
-			'timemodified' => 'Timecreated',
 		);
 	}
 
@@ -142,15 +150,11 @@ class EasyListInstance extends CActiveRecord
 	 * @param string $objectType
 	 * @param array $objectIds
 	 * @return EasyListInstance
+	 * 
+	 * @deprecated
 	 */
 	public function forObjects($objectType, $objectIds)
 	{
-	    $criteria = new CDbCriteria();
-	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
-	    $criteria->addInCondition($this->getTableAlias(true).'.`objectid`', $objectIds);
-	
-	    $this->getDbCriteria()->mergeWith($criteria);
-	
-	    return $this;
+	    return $this->forObject($objectType, $objectId);
 	}
 }
