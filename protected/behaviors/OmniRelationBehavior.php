@@ -104,10 +104,12 @@ class OmniRelationBehavior extends CActiveRecordBehavior
     public $maxLinksToTargetObject = 0;
     /**
      * @var array
+     * @todo
      */
-    //public $enabledModels          = array();
+    public $enabledModels          = array();
     /**
      * @var array
+     * @todo
      */
     public $disabledModels         = array();
     /**
@@ -121,13 +123,14 @@ class OmniRelationBehavior extends CActiveRecordBehavior
      *                  ...
      *              ),
      *              ...
-     *             
+     * @todo
      */
     public $extraKeyFields         = array();
     /**
      * @var bool
+     * @todo
      */
-    //public $allowedEmptyExtraKeys = array();
+    public $allowedEmptyExtraKeys = array();
     
     /**
      * @return void
