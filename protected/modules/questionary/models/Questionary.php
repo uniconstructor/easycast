@@ -1357,9 +1357,16 @@ class Questionary extends CActiveRecord
     public function fromRegions($regionIds)
     {
         $criteria = new CDbCriteria();
-        $criteria->with     = 'cityobj';
+        $criteria->with = array(
+            'cityobj' => array(
+                'select'   => false,
+                'joinType' => 'INNER JOIN',
+                'scopes'   => array(
+                    'fromRegions' => array($regionIds),
+                ),
+            ),
+        );
         $criteria->together = true;
-        $criteria->addInCondition('`cityobj`.`regionid`', $regionIds);
         
         $this->getDbCriteria()->mergeWith($criteria);
         return $this;
