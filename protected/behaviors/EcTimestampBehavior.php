@@ -1,4 +1,20 @@
 <?php
+/**
+ * Заготовка phpdoc чтобы нормально работал code assist по методам owner-класса при обращении к модели
+ * Скопируйте ее в комментарий к AR-классу модели к которому прикрепляется это поведение
+ * 
+ * Методы класса EcTimestampBehavior:
+ * @method CActiveRecord createdBefore(int $time, string $operation='AND')
+ * @method CActiveRecord createdAfter(int $time, string $operation='AND')
+ * @method CActiveRecord updatedBefore(int $time, string $operation='AND')
+ * @method CActiveRecord updatedAfter(int $time, string $operation='AND')
+ * @method CActiveRecord modifiedOnly()
+ * @method CActiveRecord neverModified()
+ * @method CActiveRecord lastCreated()
+ * @method CActiveRecord firstCreated()
+ * @method CActiveRecord lastModified()
+ * @method CActiveRecord firstModified()
+ */
 
 /**
  * Расширенный класс для работы с датами создания/изменения объекта
