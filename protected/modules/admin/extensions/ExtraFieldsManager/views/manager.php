@@ -58,7 +58,7 @@ $newSectionsUrl = Yii::app()->createUrl('/admin/category/index/', array('parentI
         </div>
     </div>
 </div>
-<div class="page-alternate row-fluid">
+<!--div class="page-alternate row-fluid">
     <div class="span12">
         <div class="title-page">
             <h2>Шаги регистрации</h2>
@@ -71,7 +71,8 @@ $newSectionsUrl = Yii::app()->createUrl('/admin/category/index/', array('parentI
             <div class="container">
                 <?php 
                 // Список шагов регистрации
-                $noSteps = $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
+                // @todo временно отключено пока не добавлена новая структура визардов (со списками)
+                /*$noSteps = $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
                     'type'    => 'info',
                     'message' => 'Сейчас регистрация не разбита ша шаги.
                         Пользователь увидит одну форму со всеми полями, не разбитую на этапы.',
@@ -80,12 +81,12 @@ $newSectionsUrl = Yii::app()->createUrl('/admin/category/index/', array('parentI
                     'objectType' => 'vacancy',
                     'objectId'   => $this->vacancy->id,
                     'emptyText'  => $noSteps,
-                ));
+                ));*/
                 ?>
             </div>
         </div>
     </div>
-</div>
+</div-->
 <div class="page-alternate row-fluid">
     <div class="span6">
         <div class="title-page">
