@@ -44,7 +44,7 @@ class m140908_020200_updateListStructure extends CDbMigration
         // добавляем поля значения и описания для того чтобы списки стаи самодостаточными
         // это позволит больше не нуждаться в дополнительных таблицах или моделях с
         // сомнительными наборами полей
-        $this->addColumn($table, 'value', "VARCHAR(255) DEFAULT NULL");
+        $this->addColumn($table, 'value', "VARCHAR(4095) DEFAULT NULL");
         $this->createIndex('idx_value', $table, 'value');
         $this->addColumn($table, 'description', "VARCHAR(4095) DEFAULT NULL");
         $this->createIndex('idx_description', $table, 'description');
