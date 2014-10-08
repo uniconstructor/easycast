@@ -178,6 +178,20 @@ class OmniRelationBehavior extends CActiveRecordBehavior
     
     /**
      * Все записи, свзязанные хотя бы с одним из объектов указанного типа
+     *
+     * @param string    $objectType - тип объекта (как правило класс модели)
+     * @param int|array $objectId   - id модели в таблице: 0 для записей относящихся ко всем
+     *                                объектам модели одновременно
+     * @param string    $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+     * @return CActiveRecord
+     */
+    public function forObject($objectType, $objectId, $operation='AND')
+    {
+        return $this->forAnyObject($objectType, $objectId, $operation);
+    }
+    
+    /**
+     * Все записи, свзязанные хотя бы с одним из объектов указанного типа
      *  
      * @param string    $objectType - тип объекта (как правило класс модели)
      * @param int|array $objectId   - id модели в таблице: 0 для записей относящихся ко всем
@@ -194,20 +208,6 @@ class OmniRelationBehavior extends CActiveRecordBehavior
         $this->owner->getDbCriteria()->mergeWith($criteria, $operation);
         
         return $this->owner;
-    }
-    
-    /**
-     * Все записи, свзязанные хотя бы с одним из объектов указанного типа
-     * 
-     * @param string    $objectType - тип объекта (как правило класс модели)
-     * @param int|array $objectId   - id модели в таблице: 0 для записей относящихся ко всем
-     *                                объектам модели одновременно
-     * @param string    $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
-     * @return CActiveRecord
-     */
-    public function forObject($objectType, $objectId, $operation='AND')
-    {
-        return $this->forAnyObject($objectType, $objectId, $operation);
     }
     
     /**
