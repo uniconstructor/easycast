@@ -14,7 +14,7 @@
  * по objecttype/objectid в классе OmniRelationBehavior потому что две модели могут одновременно 
  * ссылаться друг на друга, а значит использовать оба класса поведения
  * Для того чтобы избежать конфликта имен методов в такой ситуации используем правило:
- * все функции поиска по связанным (дочерним) объектам содержат в названии слова linked или linked
+ * все функции поиска по связанным (дочерним) объектам содержат в названии слова link или linked
  * 
  * Одно подключенное поведение - одна связь
  * 
@@ -22,7 +22,7 @@
  * OmniRelationBehavior::forObject() 
  *     найти все записи которые ссылаются на указанный объект
  *     (например всех участников события)
- * OmniRelationTargetBehavior::forLinkedObject() 
+ * OmniRelationTargetBehavior::withLinkFromObject() 
  *     найти все записи на которые ссылается указанный объект
  *     (обратная операция: например все события участника)
  *     
@@ -36,18 +36,18 @@
  * 
  * @see OmniRelationBehavior
  * 
- * @todo автопроверки при присоединении к модели
+ * @todo автопроверки существования relation-связей при присоединении к классу owner-модели
  */
 class OmniRelationTargetBehavior extends CActiveRecordBehavior
 {
     /**
      * @var string
      */
-    public $linkObjectTypeField     = 'objecttype';
+    public $linkObjectTypeField      = 'objecttype';
     /**
      * @var string
      */
-    public $linkObjectIdField       = 'objectid';
+    public $linkObjectIdField        = 'objectid';
     /**
      * @var string - название HAS_MANY связи в owner-модели которая содержит все записи которые
      *               ссылаются сюда по objecttype/objectid
@@ -96,20 +96,34 @@ class OmniRelationTargetBehavior extends CActiveRecordBehavior
      */
     public function withLinkFromObject($objectType, $objectId=0, $operator='AND')
     {
+        $criteria = new CDbCriteria();
+        $criteria->together = true;
+        $criteria->with = array(
+            $this->linkedModelsRelationName => array(
+                'joinType' => 'INNER JOIN',
+                'scopes'   => array(
+                    'forObject' => array($objectType, $objectId),
+                ),
+            ),
+        );
+        $this->owner->getDbCriteria()->mergeWith($criteria, $operator);
         
+        return $this->owner;
     }
     
     /**
-     * Условие поиска: получить все записи связанные с определенным объектом (alias)
-     * 
-     * @param  string    $objectType - тип дочерней модели которая ссылается сюда
-     * @param  array|int $objectId   - id дочерней модели которая ссылается сюда
-     * @param  string    $operator   - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+     * Условие поиска: получить все записи на которые ссылается хотя бы один из переданых объектов
+     * (достаточно связи хотя бы с одним объектом из $objects)
+     *
+     * @param  array|int $objects  - список объектов которые должны быть связаны с owner-моделью
+     * @param  string    $operator - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
+     * 
+     * @todo
      */
-    public function forLinkFromObject($objectType, $objectId=0, $operator='AND')
+    /*public function withLinkFromAny($objects, $operator='AND')
     {
-        return $this->withLinkFromObject($objectType, $objectId, $operator);
+        
     }
     
     /**
@@ -122,20 +136,19 @@ class OmniRelationTargetBehavior extends CActiveRecordBehavior
      */
     public function withLinkFromEvery($objects, $operator='AND')
     {
-    
-    }
-    
-    /**
-     * Условие поиска: получить все записи на которые ссылается хотя бы один из переданых объектов
-     * (достаточно связи хотя бы с одним объектом из $objects)
-     *
-     * @param  array|int $objects  - список объектов которые должны быть связаны с owner-моделью
-     * @param  string    $operator - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
-     * @return CActiveRecord
-     */
-    public function withLinkFromAny($objects, $operator='AND')
-    {
-    
+        $criteria = new CDbCriteria();
+        $criteria->together = true;
+        $criteria->with = array(
+            $this->linkedModelsRelationName => array(
+                'joinType' => 'INNER JOIN',
+                'scopes'   => array(
+                    'forEveryObject' => array($objects),
+                ),
+            ),
+        );
+        $this->owner->getDbCriteria()->mergeWith($criteria, $operator);
+        
+        return $this->owner;
     }
     
     /**
@@ -148,125 +161,221 @@ class OmniRelationTargetBehavior extends CActiveRecordBehavior
      */
     public function exceptHavingAnyLinkFrom($objectType, $objectId, $operator='AND')
     {
+        $criteria = new CDbCriteria();
+        $criteria->together = true;
+        $criteria->with = array(
+            $this->linkedModelsRelationName => array(
+                'joinType' => 'INNER JOIN',
+                'scopes'   => array(
+                    'exceptLinkedWith' => array($objectType, $objectId),
+                ),
+            ),
+        );
+        $this->owner->getDbCriteria()->mergeWith($criteria, $operator);
         
+        return $this->owner;
     }
     
     /**
      * Условие поиска: получить все записи кроме тех на которые ссылается каждый переданный объект
      * 
-     * @param  string    $objectType - тип дочерней модели которая ссылается сюда
-     * @param  array|int $objectId   - id дочерней модели которая ссылается сюда
-     * @param  string    $operator   - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+     * @param  array|int $objects  - список объектов которые должны быть связаны с owner-моделью
+     * @param  string    $operator - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
     public function exceptHavingEveryLinkFrom($objects, $operator='AND')
     {
+        $criteria = new CDbCriteria();
+        $criteria->together = true;
+        $criteria->with = array(
+            $this->linkedModelsRelationName => array(
+                'joinType' => 'INNER JOIN',
+                'scopes'   => array(
+                    'exceptLinkedWithEvery' => array($objects),
+                ),
+            ),
+        );
+        $this->owner->getDbCriteria()->mergeWith($criteria, $operator);
         
+        return $this->owner;
     }
     
     /**
-     * Все записи, на которые ссылаются модели определенного класса
+     * Условие поиска: все записи, на которые ссылаются модели определенного класса (alias)
      *
-     * @param string    $linkTypes - тип ссылок на эту модель (как правило тоже класс модели) 
-     *                               или индексированый массив со списком классов моделей
-     * @param string    $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
-     * @return CActiveRecord
-     */
-    public function withLinkFromAnyType($linkTypes, $operation='AND')
-    {
-        
-    }
-    
-    /**
-     * Все записи, на которые ссылаются модели определенного класса (alias)
-     *
-     * @param string|array $linkTypes - тип ссылок на эту модель (как правило тоже класс модели) 
-     *                               или индексированый массив со списком классов моделей
-     * @param string       $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+     * @param  string|array $linkTypes - тип ссылок на эту модель (как правило тоже класс модели)
+     *                                   или индексированый массив со списком классов моделей
+     * @param  string       $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
     public function withLinkFromType($linkTypes, $operation='AND')
     {
-        
+        return $this->withLinkFromAnyType($linkTypes, $operation);
     }
     
     /**
-     * Все записи, на которые одновременно ссылаются несколько моделей разных классов
+     * Условие поиска: все записи, на которые ссылаются модели определенного класса
      *
-     * @param string|array $linkTypes - тип ссылок на эту модель (как правило тоже класс модели) 
-     *                               или индексированый массив со списком классов моделей
-     * @param string       $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+     * @param  string|array $linkTypes - тип ссылок на эту модель (как правило тоже класс модели) 
+     *                                   или индексированый массив со списком классов моделей
+     * @param  string       $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
+     */
+    public function withLinkFromAnyType($linkTypes, $operation='AND')
+    {
+        $criteria = new CDbCriteria();
+        $criteria->together = true;
+        $criteria->with = array(
+            $this->linkedModelsRelationName => array(
+                'joinType' => 'INNER JOIN',
+                'scopes'   => array(
+                    'withAnyObjectType' => array($linkTypes),
+                ),
+            ),
+        );
+        $this->owner->getDbCriteria()->mergeWith($criteria, $operator);
+        
+        return $this->owner;
+    }
+    
+    /**
+     * Условие поиска: все записи, на которые одновременно ссылаются несколько моделей разных классов
+     *
+     * @param  string|array $linkTypes - тип ссылок на эту модель (как правило тоже класс модели) 
+     *                                   или индексированый массив со списком классов моделей
+     * @param  string       $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+     * @return CActiveRecord
+     * 
+     * @todo
      */
     public function withLinkFromEveryType($linkTypes, $operation='AND')
     {
+        if ( ! $linkTypes )
+        {// условие не используется
+            return $this->owner;
+        }
+        if ( ! is_array($linkTypes) )
+        {// нормализуем входные данные перед поиском
+            $linkTypes = array($linkTypes);
+        }
+        $linkTypes = array_unique($linkTypes);
         
+        $criteria = new CDbCriteria();
+        $criteria->together = true;
+        foreach ( $linkTypes as $linkType )
+        {// для каждого из типа связей добавляем обязательное условие существования 
+            // связанной записи с определенным objecttype
+            $linkCriteria = new CDbCriteria();
+            $linkCriteria->together = true;
+            $linkCriteria->with = array(
+                $this->linkedModelsRelationName => array(
+                    'joinType' => 'INNER JOIN',
+                    'scopes'   => array(
+                        'withAnyObjectType' => array($linkType),
+                    ),
+                ),
+            );
+            $criteria->mergeWith($linkCriteria, 'AND');
+        }
+        $this->owner->getDbCriteria()->mergeWith($criteria, $operator);
+        
+        return $this->owner;
     }
     
     /**
-     * Все записи, на которые ссылается хотя бы одна модель c id из переданного списка (alias)
+     * Условие поиска: все записи, на которые ссылается хотя бы одна модель c id из переданного списка (alias)
      *
-     * @param array     $linkIds   - id ссылок на эту модель
-     * @param string    $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+     * @param  array|int $linkIds   - id ссылок на эту модель
+     * @param  string    $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
     public function withLinkFromId($linkIds, $operation='AND')
     {
-        
+        return $this->withLinkFromAnyId($linkIds, $operation);
     }
     
     /**
-     * Все записи, на которые ссылается хотя бы одна модель c id из переданного списка
+     * Условие поиска: все записи, на которые ссылается хотя бы одна модель c id из переданного списка
      *
-     * @param array     $linkIds   - id ссылок на эту модель
-     * @param string    $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+     * @param  array|int $linkIds   - id ссылок на эту модель
+     * @param  string    $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
     public function withLinkFromAnyId($linkIds, $operation='AND')
     {
+        $criteria = new CDbCriteria();
+        $criteria->together = true;
+        $criteria->with = array(
+            $this->linkedModelsRelationName => array(
+                'joinType' => 'INNER JOIN',
+                'scopes'   => array(
+                    'withId' => array($linkIds),
+                ),
+            ),
+        );
+        $this->owner->getDbCriteria()->mergeWith($criteria, $operator);
         
+        return $this->owner;
     }
     
     /**
-     * Все записи, на которые одновременно ссылаются все модели c id из переданного списка
+     * Условие поиска: все записи, на которые одновременно ссылаются все модели c id из переданного списка
      *
-     * @param string    $linkIds   - id ссылок на эту модель 
-     * @param string    $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+     * @param  array|int $linkIds   - id ссылок на эту модель 
+     * @param  string    $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
+     * 
+     * @todo
      */
-    public function withLinkFromEveryId($linkIds, $operation='AND')
+    /*public function withLinkFromEveryId($linkIds, $operation='AND')
     {
         
-    }
+    }*/
     
     /**
-     * Все записи, кроме тех на которые ссылаются модели определенного класса (хотя бы одна)
+     * Условие поиска: все записи, кроме тех на которые ссылаются модели определенного класса (хотя бы одна)
      *
-     * @param string|array $linkTypes - тип ссылок на эту модель (как правило тоже класс модели)
-     *                                  или индексированый массив со списком классов моделей
-     * @param string       $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+     * @param  string|array $linkTypes - тип ссылок на эту модель (как правило тоже класс модели)
+     *                                   или индексированый массив со списком классов моделей
+     * @param  string       $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
+     * 
+     * @todo возможно не имеет смысла - дочерние связанные объекты будут иметь строго определенный objecttype 
      */
-    public function exceptHavingAnyLinkFromType($linkTypes, $operation='AND')
+    /*public function exceptHavingAnyLinkFromType($linkTypes, $operation='AND')
     {
         
-    }
+    }*/
     
     /**
-     * Все записи, кроме тех на которые ссылаются модели определенного класса (хотя бы одна)
+     * Условие поиска: все записи, кроме тех на которые ссылаются модели определенного с определенным id
      *
-     * @param array|int $linkIds   - id ссылок на эту модель
-     * @param string    $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+     * @param  array|int $linkIds   - id ссылок на эту модель
+     * @param  string    $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
-    public function exceptHavingAnyLinkFromId($linkIds, $operation='AND')
+    public function exceptHavingAnyLinkId($linkIds, $operation='AND')
     {
-        
+        return $this->withLinkFromAnyId($linkIds, 'NOT '.$operation);
     }
     
     /**
-     * Именованая группа условий: все записи с указанными id
+     * Условие поиска: все записи, кроме тех на которые ссылаются модели определенного с определенным objectid
      *
+     * @param  array|int $linkIds   - id ссылок на эту модель
+     * @param  string    $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+     * @return CActiveRecord
+     * 
+     * @todo возможно не имеет смысла - дочерние связанные объекты будут иметь строго определенный linkid
+     */
+    /*public function exceptHavingAnyLinkObjectId($linkIds, $operation='AND')
+    {
+        
+    }*/
+    
+    /**
+     * Условие поиска: все записи с указанными id
+     * 
      * @param  int|array $id - id записи или массив из id записей
      * @return CActiveRecord
      */
@@ -274,14 +383,14 @@ class OmniRelationTargetBehavior extends CActiveRecordBehavior
     {
         if ( ! $id )
         {// условие не используется
-            return $this;
+            return $this->owner;
         }
         $criteria = new CDbCriteria();
         $criteria->compare($this->getTableAlias(true).'.`id`', $id);
     
-        $this->getDbCriteria()->mergeWith($criteria);
+        $this->owner->getDbCriteria()->mergeWith($criteria);
     
-        return $this;
+        return $this->owner;
     }
     
     /**
@@ -301,17 +410,9 @@ class OmniRelationTargetBehavior extends CActiveRecordBehavior
                 $this->linkedModelsClass,
                 $this->linkObjectIdField,
                 'scopes' => array(
-                    'withObjectType' => array(get_class($this->owner)),
+                    'forObject' => array(get_class($this->owner), $this->owner->id),
                 ),
             ),
         );
-    }
-    
-    /**
-     * @return string
-     */
-    protected function getOwnerClass()
-    {
-        return get_class($this->owner);
     }
 }
