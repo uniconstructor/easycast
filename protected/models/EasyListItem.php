@@ -14,6 +14,8 @@
  * и моделей с непонятным набором полей
  * Такие элементы списков должны иметь значения objecttype='EasyListItem' и objectid=собственный_id
  * (для упрощения поиска по связанным объектам)
+ * 
+ * Извлекаемые записи всегда сортируются по sortorder если не указано иное
  *
  * Таблица '{{easy_list_items}}':
  * 
@@ -177,7 +179,7 @@ class EasyListItem extends CActiveRecord
 	 */
 	public function afterSave()
 	{
-	    if ( $this->objecttype == 'item' AND ! $this->objectid )
+	    if ( $this->objecttype === 'item' AND ! $this->objectid )
 	    {// оригинал записи после сохранения делаем ссылкой на самого себя
 	        $this->objecttype  = 'EasyListItem';
 	        $this->objectfield = 'value';
@@ -197,30 +199,20 @@ class EasyListItem extends CActiveRecord
 		    'easyList'    => array(self::BELONGS_TO, 'EasyList', 'easylistid'),
 		    // модель, на которую ссылается этот элемент списка
 		    'valueObject' => array(self::BELONGS_TO, $this->objecttype, 'objectid'),
-		    // все элементы, ссылающиеся на значение поля 'value' из этого элемента
-		    'itemValueInstances' =>  array(self::HAS_MANY, 'EasyListItems', 'valueid',
+		    // все элементы списка, ссылающиеся на значение поля 'value' из этой модели
+		    'itemValueInstances' =>  array(self::HAS_MANY, 'EasyListItems', 'objectid',
 		        'scopes' => array(
-    		        'forObject'       => array('EasyListItem', $this->id),
+    		        'forObjectType'   => array('EasyListItem'),
 		            'withObjectField' => array('value'),
     		    ),
             ),
 		    // все элементы списка, ссылающиеся на эту модель любым способом
-		    'itemInstances' => array(self::HAS_MANY, 'EasyListItems', 'valueid',
+		    'itemInstances' => array(self::HAS_MANY, 'EasyListItems', 'objectid',
 		        'scopes' => array(
-    		        'forObject' => array('EasyListItem', $this->id),
+    		        'forObjectType' => array('EasyListItem'),
     		    ),
             ),
 		);
-		// модель, на которую ссылается этот элемент списка
-		/*if ( $this->objectid AND $this->objectid != $this->id )
-		{// связь для ссылок на объект
-		    
-		}else
-		{// запрещаем объектам, содержащим оригинальное значение ссылаться на самих себя
-		    // (исключаем возможность бесконечной рекурсии)
-		    
-		}*/
-		//return $relations;
 	}
 	
 	/**
@@ -237,8 +229,6 @@ class EasyListItem extends CActiveRecord
 	        'OmniRelationBehavior' => array(
 	            'class' => 'application.behaviors.OmniRelationBehavior',
 	            'targetRelationName'  => 'valueObject',
-	            //'objectTypeField'     => 'valuetype',
-	            //'objectIdField'       => 'valueid',
 	            'customObjectTypes'   => array('system'),
 	            'enableEmptyObjectId' => true,
 	        ),
@@ -461,7 +451,7 @@ class EasyListItem extends CActiveRecord
 	 * @param  array|string $statuses - массив статусов или строка если статус один
 	 * @return EasyListItem
 	 */
-	public function withStatus($statuses=array())
+	public function withStatus($statuses)
 	{
 	    if ( empty($statuses) )
 	    {// Если статус не указан - выборка по этому параметру не требуется
@@ -525,20 +515,18 @@ class EasyListItem extends CActiveRecord
 	    {// условие не используется
 	        return $this;
 	    }
-	    if ( is_array($item) )
+	    if ( is_array($item) OR is_numeric($item) )
 	    {
-	        return $this->forObject('EasyListItem', $item);
-	    }
-	    if ( isset($item->id) )
+	        $itemId = $item;
+	    }elseif ( is_object($item) AND isset($item->id) )
 	    {
-	        return $this->forObject('EasyListItem', $item->id);
-	    }elseif ( is_numeric($item) )
-	    {
-	        return $this->forObject('EasyListItem', $item);
+	        $itemId = $item->id;
 	    }else
 	    {
 	        throw new CException('Ошибочный формат данных при составлении условия поиска');
 	    }
+	    
+	    return $this->forObject('EasyListItem', $itemId);
 	}
 	
 	/**
@@ -714,6 +702,7 @@ class EasyListItem extends CActiveRecord
 	/**
 	 * Определить является ли этот элемент списка "оригиналом" - то есть той записью, на которую
 	 * ссылаются все остальные элементы при дублировании списка
+	 * 
 	 * @return bool
 	 */
 	public function isOriginalItem()
@@ -723,6 +712,26 @@ class EasyListItem extends CActiveRecord
 	        return true;
 	    }
 	    if ( $this->id == $this->objectid AND $this->objecttype === 'EasyListItem' )
+	    {
+	        return true;
+	    }
+	    return false;
+	}
+	
+	/**
+	 * Определить является ли этот элемент списка "простым" - то есть той записью, которая является
+	 * "оригиналом" {@see EasyListItem::isOriginalItem()} либо ссылается только на одну запись строго 
+	 * того же класса что и она сама (EasyListItem)
+	 * 
+	 * @return bool
+	 */
+	public function isSimpleItem()
+	{
+	    if ( $this->objecttype === 'EasyListItem' )
+	    {
+	        return true;
+	    }
+	    if ( $this->isOriginalItem() )
 	    {
 	        return true;
 	    }
