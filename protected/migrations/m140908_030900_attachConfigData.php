@@ -319,6 +319,42 @@ class m140908_030900_attachConfigData extends CDbMigration
         date_default_timezone_set($timezoneSettingBackup);
         
         
+        // cоздаем список для вариантов "скрыть/показать мою анкету в поиске"
+        $this->insert("{{easy_lists}}", array(
+            'name'          => 'Список "скрыть/показать"',
+            'description'   => 'Список с двумя пунктами',
+            'triggerupdate' => 'manual',
+        ));
+        // запоминаем id списка вариантов оповещения
+        $qVisibleOptionsListId = $this->dbConnection->lastInsertID;
+        // добавляем все возможные варианты для настройки оповещения по SMS
+        $sortOrder           = 1;
+        $qVisibleOptionTypes = array(
+            array(
+                'easylistid'  => $qVisibleOptionsListId,
+                'name'        => 'Скрыть',
+                'value'       => 'hide',
+                'sortorder'   => $sortOrder++,
+                'timecreated' => time(),
+            ),
+            array(
+                'easylistid'  => $qVisibleOptionsListId,
+                'name'        => 'Показать',
+                'value'       => 'show',
+                'sortorder'   => $sortOrder++,
+                'timecreated' => time(),
+            ),
+        );
+        // запоминаем какие id каким вариантам соответствуют
+        $qVisibleOptionTypeIds = array();
+        foreach ( $qVisibleOptionTypes as $qVisibleOptionType )
+        {
+            $this->insert("{{easy_list_items}}", $qVisibleOptionType);
+            $qVisibleOptionTypeIds[$qVisibleOptionType['value']] = $this->dbConnection->lastInsertID;
+        }
+        unset($sortOrder);
+        
+        
         // создаем системную настройку в которой хранится id списка с типами проекта
         // мы будем обращаться к ней каждый раз когда нам нужен будет список типов проекта
         $this->insert("{{config}}", array(
@@ -493,6 +529,30 @@ class m140908_030900_attachConfigData extends CDbMigration
         );
         $this->insert("{{config}}", $smsNotificationTypesConfig);
         $smsNotificationTypesConfigId = $this->dbConnection->lastInsertID;
+        
+        // создаем настройку анкеты "отображать/скрыть мои данные"
+        $qVisibleConfig = array(
+            'name'         => 'visible',
+            'title'        => 'Скрыть/показать анкету в поиске',
+            'description'  => 'Вы можете скрыть свою анкету из всех разделов каталога и не 
+                выводить ее в поиске. Эта настройка не влияет на возможность участвовать в 
+                съемках и кастингах: вы по прежнему сможете получать приглашения и отправлять заявки.',
+            'type'         => 'select',
+            'minvalues'    => 1,
+            'maxvalues'    => 1,
+            'objecttype'   => 'Questionary',
+            'objectid'     => 0,
+            'timecreated'  => time(),
+            'timemodified' => time(),
+            // список вариантов условий при которых участник будет оповещен
+            'easylistid'   => $qVisibleOptionsListId,
+            // по умолчанию: не оповещать
+            'valuetype'    => 'EasyList',
+            'valuefield'   => 'value',
+            'valueid'      => $qVisibleOptionTypeIds['no'],
+        );
+        $this->insert("{{config}}", $qVisibleConfig);
+        $qVisibleConfigId = $this->dbConnection->lastInsertID;
         
         $questionaries = $this->dbConnection->createCommand()->select('id')->
             from('{{questionaries}}')->queryAll();
