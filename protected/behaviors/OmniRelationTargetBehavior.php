@@ -37,6 +37,7 @@
  * @see OmniRelationBehavior
  * 
  * @todo автопроверки существования relation-связей при присоединении к классу owner-модели
+ * @todo тесты для всех методов этого класса
  */
 class OmniRelationTargetBehavior extends CActiveRecordBehavior
 {

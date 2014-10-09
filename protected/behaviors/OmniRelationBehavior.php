@@ -35,7 +35,9 @@
  * Работает в паре c поведением OmniRelatedTargetModelBehavior, которое присоединяется к
  * модели на которую ссылается эта запись через objecttype/objectid
  * 
- * Содержит все проверки при сохранении/удалении записей а также все именованые группы условий поиска
+ * Содержит все проверки при сохранении/удалении записей а также все именованые группы условий поиска,
+ * которые можно будет использовать в каждой модели, использующей это поведение: это сильно сокращает
+ * количество дублируемого кода в классах этих моделей
  * 
  * @property CActiveRecord $owner
  * 
@@ -44,6 +46,8 @@
  * @todo проверка наличия нужных полей при присоединении к модели
  * @todo документировать все поля
  * @todo документировать методы
+ * @todo scopes()
+ * @todo тесты для всех методов этого класса
  */
 class OmniRelationBehavior extends CActiveRecordBehavior
 {
@@ -67,7 +71,7 @@ class OmniRelationBehavior extends CActiveRecordBehavior
      */
     public $targetRelationType  = CActiveRecord::BELONGS_TO;
     /**
-     * @var array
+     * @var array - массив с дополнительными связями (relations) для owner-модели
      */
     public $customRelations    = array();
     /**
@@ -79,11 +83,11 @@ class OmniRelationBehavior extends CActiveRecordBehavior
      */
     public $customObjectTypes  = array();
     /**
-     * @var string
+     * @var string - стандартное значение для objecttype (если не задано)
      */
     public $defaultObjectType;
     /**
-     * @var int
+     * @var int - стандартное значение для objectid (если не задано)
      */
     public $defaultObjectId        = 0;
     /**
@@ -134,10 +138,10 @@ class OmniRelationBehavior extends CActiveRecordBehavior
     /**
      * @return void
      */
-    public function init()
+    /*public function init()
     {
         $this->owner->init();
-    }
+    }*/
     
     /**
      * @return array
@@ -146,7 +150,7 @@ class OmniRelationBehavior extends CActiveRecordBehavior
      */
     public function relations()
     {
-        // добавляем к стандартной связи все связи из настроек
+        // добавляем к стандартной связи все указанные в параметрах поведения при подключении модели
         $this->customRelations = CMap::mergeArray($this->getDefaultTargetRelation(), $this->customRelations);
         // получаем существующие связи модели 
         $modelRelations = $this->owner->relations();
@@ -358,7 +362,7 @@ class OmniRelationBehavior extends CActiveRecordBehavior
     }
     
     /**
-     * Все записи, которые хотя бы раз связаны с любым из указаных классов моделей
+     * Все записи, которые хотя бы раз связаны с любым из указаных классов моделей (alias)
      *
      * @param string    $objectTypes - тип объекта (как правило класс модели) или индексированый
      *                                 массив со списком классов моделей
