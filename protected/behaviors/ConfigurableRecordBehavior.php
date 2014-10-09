@@ -215,6 +215,36 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
     
     /**
      * Условие поиска по настройкам: все записи у которых есть хотя бы одна настройка 
+     * c указанным parentid (или хотя бы одним parentid из списка если передан массив)
+     *
+     * @param  string|array $parentId - служебное название настройки (или список названий)
+     * @return CActiveRecord
+     */
+    public function withConfigParentId($parentId, $operation='AND')
+    {
+        if ( ! $parentId )
+        {// условие не используется
+            return $this->owner;
+        }
+        $criteria = new CDbCriteria();
+        $criteria->with = array(
+            $this->configRelationName => array(
+                'select'   => false,
+                'joinType' => 'INNER JOIN',
+                'scopes' => array(
+                    'withParentId' => array($parentId),
+                ),
+            ),
+        );
+        $criteria->together = true;
+        
+        $this->owner->getDbCriteria()->mergeWith($criteria, $operation);
+        
+        return $this->owner;
+    }
+    
+    /**
+     * Условие поиска по настройкам: все записи у которых есть хотя бы одна настройка 
      * c указанным id (или хотя бы одним id из списка если передан массив)
      *
      * @param  int|array $configId - id настройки в таблице config (или список таких id)
