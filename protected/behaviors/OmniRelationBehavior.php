@@ -423,14 +423,14 @@ class OmniRelationBehavior extends CActiveRecordBehavior
     {
         if ( ! $id )
         {// условие не используется
-            return $this;
+            return $this->owner;
         }
         $criteria = new CDbCriteria();
-        $criteria->compare($this->getTableAlias(true).'.`id`', $id);
+        $criteria->compare($this->owner->getTableAlias(true).'.`id`', $id);
     
-        $this->getDbCriteria()->mergeWith($criteria);
+        $this->owner->getDbCriteria()->mergeWith($criteria);
     
-        return $this;
+        return $this->owner;
     }
     
     /**

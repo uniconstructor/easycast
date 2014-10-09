@@ -73,7 +73,7 @@ class EcTimestampBehavior extends CTimestampBehavior
     /**
      * @return array customized attribute labels (name=>label)
      */
-    public function attributeLabels()
+    /*public function attributeLabels()
     {
         $labels = $this->owner->attributeLabels();
         if ( $this->createAttribute AND ( ! isset($labels[$this->createAttribute]) OR $labels[$this->createAttribute] === 'Timecreated' ) )
@@ -85,7 +85,7 @@ class EcTimestampBehavior extends CTimestampBehavior
             $labels[$this->updateAttribute] = Yii::t('coreMessages', 'timemodified');
         }
         return $labels;
-    }
+    }*/
     
     /**
      * 

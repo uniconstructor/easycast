@@ -194,13 +194,18 @@ class EasyListItem extends CActiveRecord
 	 */
 	public function relations()
 	{
+	    $objectType = 'EasyListItem';
+        if ( isset($this->objecttype) AND $objectType = $this->objecttype )
+        {
+            $objectType = $this->objecttype;
+        }
 		return array(
 		    // список в которой находится значение
 		    'easyList'    => array(self::BELONGS_TO, 'EasyList', 'easylistid'),
 		    // модель, на которую ссылается этот элемент списка
-		    'valueObject' => array(self::BELONGS_TO, $this->objecttype, 'objectid'),
+		    //'valueObject' => array(self::BELONGS_TO, $objectType, 'objectid'),
 		    // все элементы списка, ссылающиеся на значение поля 'value' из этой модели
-		    'itemValueInstances' =>  array(self::HAS_MANY, 'EasyListItems', 'objectid',
+		    'itemValueInstances' => array(self::HAS_MANY, 'EasyListItem', 'objectid',
 		        'scopes' => array(
     		        'forObjectType'   => array('EasyListItem'),
 		            'withObjectField' => array('value'),
@@ -223,7 +228,7 @@ class EasyListItem extends CActiveRecord
 	    return array(
 	        // автоматическое заполнение дат создания и изменения
 	        'EcTimestampBehavior' => array(
-	            'class'           => 'application.behaviors.EcTimestampBehavior',
+	            'class' => 'application.behaviors.EcTimestampBehavior',
 	        ),
 	        // поведение для связи с другими моделями
 	        'OmniRelationBehavior' => array(
@@ -353,7 +358,7 @@ class EasyListItem extends CActiveRecord
 	 * @param int    $objectId
 	 * @return EasyListItem
 	 */
-	public function forObject($objectType, $objectId)
+	/*public function forObject($objectType, $objectId)
 	{
 	    $criteria = new CDbCriteria();
 	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
@@ -362,7 +367,7 @@ class EasyListItem extends CActiveRecord
 	    $this->getDbCriteria()->mergeWith($criteria);
 	
 	    return $this;
-	}
+	}*/
 	
 	/**
 	 * Именованая группа условий: то же что и forObject, но с одновременным поиском по нескольким
@@ -389,7 +394,7 @@ class EasyListItem extends CActiveRecord
 	 * @param string $objectType - значение или список значений которые ищутся в поле objectfield
 	 * @return EasyListItem
 	 */
-	public function withObjectType($objectType)
+	/*public function withObjectType($objectType)
 	{
 	    $criteria = new CDbCriteria();
 	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
@@ -397,7 +402,7 @@ class EasyListItem extends CActiveRecord
 	    $this->getDbCriteria()->mergeWith($criteria);
 	
 	    return $this;
-	}
+	}*/
 	
 	/**
 	 * Именованная группа условий: получить все элементы c указаным значением в поле objectid

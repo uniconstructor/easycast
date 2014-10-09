@@ -203,6 +203,34 @@ class Config extends CActiveRecord
      */
     const TYPE_MULTISELECT  = 'multiselect';
     
+    /**
+     * @see CActiveRecord::init()
+     */
+    /*public function init()
+    {
+        parent::init();
+        
+        $this->refreshMetaData();
+        $this->getMetaData();
+        $this->refresh();
+        
+        CVarDumper::dump($this->attributes, 10, true);
+        CVarDumper::dump($this->getMetaData()->relations, 10, true);die;
+    }*/
+    
+    /**
+     * @see CActiveRecord::afterFind()
+     */
+    /*public function afterFind()
+    {
+        parent::afterFind();
+        
+        $this->refreshMetaData();
+        
+        CVarDumper::dump($this->attributes, 10, true);
+        CVarDumper::dump($this->getMetaData()->relations, 10, true);die;
+    }*/
+    
 	/**
 	 * @return string the associated database table name
 	 */
@@ -223,17 +251,8 @@ class Config extends CActiveRecord
 			array('type', 'length', 'max' => 20),
 			array('objecttype, valuetype, valuefield', 'length', 'max' => 50),
 			array('userlistid, easylistid, parentid, minvalues, maxvalues, objectid, valueid, 
-			    timecreated, timemodified', 
-			    'length', 
-			    'max' => 11,
+			    timecreated, timemodified', 'length', 'max' => 11,
             ),
-			
-			// The following rule is used by search().
-			/*array('id, easylistid, parentid, name, title, description, type, 
-			    minvalues, maxvalues, objecttype, objectid, timecreated, timemodified', 
-			    'safe', 
-			    'on' => 'search',
-            ),*/
 		);
 	}
 	
@@ -326,11 +345,11 @@ class Config extends CActiveRecord
 	 */
 	public function relations()
 	{
-		return array(
+		$relations = array(
 		    // родительская настройка (из которой создана эта)
 		    'parentConfig' => array(self::BELONGS_TO, 'Config', 'parentid'),
 		    // Список (EasyList) содержащий стандартные значения этой настройки
-		    'defaultList'  => array(self::BELONGS_TO, 'EasyList', 'easylistid'),
+		    'defaultList' => array(self::BELONGS_TO, 'EasyList', 'easylistid'),
 		    // Все стандартные значения этой настройки (EasyListItem) из списка "defaultList"
 		    // Эта связь всегда содержит только объекты класса EasyListItem либо пустой массив
 		    'defaultListItems' => array(self::HAS_MANY, 'EasyListItem', array('easylistid' => 'easylistid')),
@@ -341,21 +360,32 @@ class Config extends CActiveRecord
 		    'userListItems' => array(self::HAS_MANY, 'EasyListItem', array('userlistid' => 'easylistid')),
 		    // объект-список (EasyList) содержащий значения для выбранной настройки 
 		    // (частный случай связи selectedValue, только для настроек с множественным выбором)
-		    'selectedList'   => array(self::BELONGS_TO, 'EasyList', 'valueid'),
+		    'selectedList' => array(self::BELONGS_TO, 'EasyList', 'valueid'),
 		    // список всех выбранных вариантов значений этой настройки (как стандартных так пользовательских) 
 		    // Используется только для настроек с множественным выбором. Эта связь всегда содержит
 		    // только объекты класса EasyListItem либо пустой массив
-		    'selectedListItems' => array(self::HAS_MANY, 'EasyListItem', array('valueid' => 'easylistid')),
+		    'selectedListItems' => array(self::HAS_MANY, 'EasyListItem', array('easylistid' => 'valueid')),
+		    // Текущее выбранное значение настройки (для настроек содержащих только одно значение)
+		    'selectedListItem' => array(self::BELONGS_TO, 'EasyListItem', 'valueid'),
+		    //'selectedValue' => array(self::BELONGS_TO, $this->getAttribute('valuefield'), 'valueid'),
+		    //'selectedValues' => array(self::HAS_MANY, 'EasyListItem', 'valueid'),
+		);
+		/*if ( $this->getAttribute('valuetype') )
+		{
 		    // модель в которой хранится значение настройки
 		    // (если значение настройки задано как ссылка на поле в другой модели)
 		    // @todo не добавлять эту связь если тип значения (valuetype) не является классом модели
-		    'selectedValue'  => array(self::BELONGS_TO, $this->valuetype, 'valueid'),
+		    $relations['selectedValue'] = array(self::BELONGS_TO, $this->getAttribute('valuetype'), 'valueid');
+		}*/
+		/*if ( $this->getAttribute('valuefield') )
+		{
 		    // список текущих выбранных значений этой настройки (только для настроек с множественным выбором)
 		    // @todo создать связь с использованием through
 		    // @todo сразу возвращать готовый список моделей нужных классов если элементы списка
 		    //       ссылаются на другие модели в качестве значений
-		    'selectedValues' => array(self::HAS_MANY, 'EasyListItem', array('valueid' => $this->valuefield)),
-		);
+		    $relations['selectedValues'] = array(self::HAS_MANY, 'EasyListItem', 'valueid');
+		}*/
+		return $relations;
 	}
 	
 	/**
@@ -467,42 +497,6 @@ class Config extends CActiveRecord
 	}
 
 	/**
-	 * Retrieves a list of models based on the current search/filter conditions.
-	 *
-	 * Typical usecase:
-	 * - Initialize the model fields with values from filter form.
-	 * - Execute this method to get CActiveDataProvider instance which will filter
-	 * models according to data in model fields.
-	 * - Pass data provider to CGridView, CListView or any similar widget.
-	 *
-	 * @return CActiveDataProvider the data provider that can return the models
-	 * based on the search/filter conditions.
-	 */
-	/*public function search()
-	{
-		// @todo Please modify the following code to remove attributes that should not be searched.
-		$criteria = new CDbCriteria;
-
-		$criteria->compare('id',$this->id);
-		$criteria->compare('easylistid',$this->easylistid,true);
-		$criteria->compare('parentid',$this->parentid,true);
-		$criteria->compare('name',$this->name,true);
-		$criteria->compare('title',$this->title,true);
-		$criteria->compare('description',$this->description,true);
-		$criteria->compare('type',$this->type,true);
-		$criteria->compare('minvalues',$this->minvalues,true);
-		$criteria->compare('maxvalues',$this->maxvalues,true);
-		$criteria->compare('objecttype',$this->objecttype,true);
-		$criteria->compare('objectid',$this->objectid,true);
-		$criteria->compare('timecreated',$this->timecreated,true);
-		$criteria->compare('timemodified',$this->timemodified,true);
-
-		return new CActiveDataProvider($this, array(
-			'criteria' => $criteria,
-		));
-	}*/
-
-	/**
 	 * Returns the static model of the specified AR class.
 	 * 
 	 * @param  string $className active record class name.
@@ -568,16 +562,22 @@ class Config extends CActiveRecord
 	    }
 	    if ( $this->isSingle() )
 	    {// получаем одно значение
-	        if ( ! $this->valuetype OR ! $this->selectedValue )
+	        if ( ! $modelClass = $this->valuetype OR ! $this->selectedListItem )
 	        {// значение настройки пусто
 	            return null;
 	        }
-	        if ( $field = $this->valuefield )
+	        if ( $field = $this->valuefield AND $id = $this->valueid )
 	        {// указано поле модели: значение из него будет считаться значением настройки
-	            return $this->selectedValue->$field;
+	            if ( $model = $modelClass::model()->findByPk($id) )
+	            {
+	                return $model->$field;
+	            }else
+	            {
+	                return null;
+	            }
 	        }else
 	        {// поле модели неизвестно: возвращаем весь объект целиком
-	            return $this->selectedValue;
+	            return $modelClass::model()->findByPk($id);
 	        }
 	    }else
 	    {// получаем список выбранных вариантов (это всегда EasyListItem) и извлекаем данные из каждого
@@ -804,14 +804,14 @@ class Config extends CActiveRecord
 	    }else
 	    {// настройка с одиночным выбором всегда ссылается на значение в поле другой модели
 	        /* @var $model CActiveRecord */
-	        $model     = $this->valuetype;
-	        $alias     = $model::model()->getTableAlias(true);
+	        $model = $this->valuetype;
+	        $alias = $model::model()->getTableAlias(true);
 	        // используем методы CDbCriteria для обработки случая с несколькими $value
 	        $condition = new CDbCriteria();
             $condition->compare("{$alias}.`{$this->valuefield}`", $value);
 	        // создаем условие поиска по значению связанного поля
 	        $with = array(
-	            'selectedValue' => array(
+	            'selectedListItem' => array(
 	                'select'    => false,
 	                'joinType'  => 'INNER JOIN',
                     'condition' => $condition,

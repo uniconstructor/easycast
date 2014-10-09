@@ -579,6 +579,10 @@ class m140908_030900_attachConfigData extends CDbMigration
             $configData['parentid'] = $smsNotificationTypesConfigId;
             $notifiationSetting = CMap::mergeArray($smsNotificationTypesConfig, $configData);
             $this->insert("{{config}}", $notifiationSetting);
+            // Скрыть/показать мою анкету
+            $configData['parentid'] = $qVisibleConfigId;
+            $qVisibleSetting = CMap::mergeArray($qVisibleConfig, $configData);
+            $this->insert("{{config}}", $qVisibleSetting);
         }
     }
 }
