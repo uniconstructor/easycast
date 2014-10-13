@@ -51,14 +51,14 @@ class ECUserInformer extends CdCustomDropDown
      */
     protected function getMainContent()
     {
-        if ( ! Yii::app()->user->isGuest )
+        if ( ! Yii::app()->user->isGuest AND $this->questionary )
         {// если участник зашел на сайт - выводим его имя и аватар
             return $this->getUserLabel();
         }elseif ( $this->isCustomer() )
         {// если заказчик начал набирать актеров - покажем их количество
             return $this->getCustomerLabel();
         }else
-        {// для гостей:  
+        {// для гостей
             if ( Yii::app()->getModule('user')->viewMode === 'user' )
             {// участникам пишем слово "гость (участник)"
                 return Yii::t('coreMessages', 'guest').' ('.Yii::t('coreMessages', 'user').')';
@@ -107,7 +107,7 @@ class ECUserInformer extends CdCustomDropDown
         }
         if ( ! $this->questionary->visible )
         {// для скрытых анкет подтвердим лишний раз что она скрыта 
-            $note .= '<small class="muted">[Анкета скрыта]</small>';
+            //$note .= '<small class="muted">[Анкета скрыта]</small>';
         }
         if ( $note )
         {
@@ -156,8 +156,10 @@ class ECUserInformer extends CdCustomDropDown
         if ( Yii::app()->user->checkAccess('Admin') )
         {// показываем меню администратора
             return $this->getAdminItems();
-        }elseif ( Yii::app()->user->checkAccess('User') )
+        }elseif ( Yii::app()->user->checkAccess('User') AND ! Yii::app()->user->isGuest )
         {// показываем меню участника
+            // @todo Сравнить и выяснить Yii::app()->user->isGuest и Yii::app()->user->checkAccess('User')
+            //       убрать проверку на гостя, если потребуется
             return $this->getUserItems();
         }elseif ( $this->isCustomer() )
         {// показываем список выбранных актеров для заказчика

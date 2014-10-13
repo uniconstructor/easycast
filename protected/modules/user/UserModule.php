@@ -375,12 +375,14 @@ class UserModule extends CWebModule
         {
             $id = Yii::app()->user->id;
         }
-        
 		if ( $id ) 
 		{
             if ( ! isset(self::$_users[$id]) || $clearCache)
             {
-                $user = User::model()->findbyPk($id);
+                if ( ! $user = User::model()->findbyPk($id) )
+                {// @todo более подробно разобрать ошибку запроса несуществующего пользователя
+                    return false;
+                }
                 $user->superuser = (int)Yii::app()->user->isSuperuser;
                 self::$_users[$id] = $user;
                 return self::$_users[$id];
