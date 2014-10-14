@@ -16,8 +16,6 @@
  * Для того чтобы избежать конфликта имен методов в такой ситуации используем правило:
  * все функции поиска по связанным (дочерним) объектам содержат в названии слова link или linked
  * 
- * Одно подключенное поведение - одна связь
- * 
  * Пример:
  * OmniRelationBehavior::forObject() 
  *     найти все записи которые ссылаются на указанный объект
@@ -25,8 +23,14 @@
  * OmniRelationTargetBehavior::withLinkFromObject() 
  *     найти все записи на которые ссылается указанный объект
  *     (обратная операция: например все события участника)
- *     
- * TL;DR: (наглядный пример) 
+ * 
+ * Одно подключенное поведение должно отвечать за все связи с дочерними моделями.
+ * Например, если на модель Questionary ссылаются модели EasyListItem и Video, то 
+ * подключая это поведение к Questionary нужно описать в его настройках две связи,
+ * но не подключать это поведение два раза с разными настройками
+ * 
+ * 
+ * TL;DR: (пример) 
  *        OmniRelationBehavior связывает пользователей с событиями а 
  *        OmniRelationTargetBehavior крепится к событиям чтобы ссылаться на пользователей 
  *        "с другой стороны". Два эти поведения позволяют искать пользователей по событиям и 
@@ -35,43 +39,63 @@
  * @property CActiveRecord $owner
  * 
  * @see OmniRelationBehavior
+ * @see http://www.yiiframework.com/doc/guide/1.1/en/database.ar#named-scopes
  * 
  * @todo автопроверки существования relation-связей при присоединении к классу owner-модели
  * @todo тесты для всех методов этого класса
+ * @todo переименовать в CustomRelationTargetBehavior
  */
-class OmniRelationTargetBehavior extends CActiveRecordBehavior
+class OmniRelationTargetBehavior extends CustomScopesBehavior
 {
     /**
-     * @var string
+     * @var string - поле в связанных записях содержащее класс owner-модели
      */
-    public $linkObjectTypeField      = 'objecttype';
+    public $linkObjectTypeField = 'objecttype';
     /**
-     * @var string
+     * @var string - поле в связанных записях содержащее id owner-модели
      */
-    public $linkObjectIdField        = 'objectid';
+    public $linkObjectIdField   = 'objectid';
     /**
      * @var string - название HAS_MANY связи в owner-модели которая содержит все записи которые
      *               ссылаются сюда по objecttype/objectid
      */
-    public $linkedModelsRelationName = 'linkedModels';
+    public $defaultRelationName = 'linkedItems';
     /**
-     * @var string - обязательный параметр: класс AR-моделей которые ссылаются сюда 
-     *               (то есть на эту owner-модель: модель к которой прикреплено это поведение)
-     *               модели которые ссылаются сюда должны использовать OmniRelationBehavior
+     * @var array - обязательный параметр: класc AR-моделей которые ссылаются сюда
+     *              (на owner-модель: к которой прикреплено это поведение)
+     *              модели которые ссылаются сюда должны использовать OmniRelationBehavior
+     *              По умолчанию установлен класс элемента списка (EasyListItem) так как
+     *              любые модели в приложении могут быть включены в список
      */
-    public $linkedModelsClass;
+    public $defaultLinkModel    = 'EasyListItem';
+    /**
+     * @var array - список всех дополнительных связей для модели, задается при подключении
+     *              В этом массиве должны быть описаны все HAS_MANY связи с моделями, 
+     *              которые ссылаются сюда по objecttype/objectid
+     *              Пример:
+     *              array(
+     *                  'listItems' => array(
+     *                      'model'     => 'EasyListItem',
+     *                      'typeField' => 'objecttype',
+     *                      'idField'   => 'objectid',
+     *                  ),
+     *                  ...
+     *              )
+     */
+    public $customRelations = array();
+    
     /**
      * @var array
      */
-    public $linkedModelsRelation = array();
+    protected $linkedModelsRelation = array();
     
     /**
      * @return void
      */
-    public function init()
+    /*public function init()
     {
         $this->owner->init();
-    }
+    }*/
     
     /**
      * @return array
@@ -87,6 +111,26 @@ class OmniRelationTargetBehavior extends CActiveRecordBehavior
     }
     
     /**
+     * Именованая группа условий: получить все записи к которым прикреплена переданная модель
+     *
+     * @param  CActiveRecord $model - модель связь с которой будем искать
+     * @param  string $operator - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+     * @return CActiveRecord
+     */
+    public function withLinkFrom($model, $operator='AND')
+    {
+        if ( ! is_object($object) )
+        {// передана модель целиком
+            throw new CException('Не передана модель для составления условия');
+        }
+        // достаем из модели тип и id
+        $objectType = get_class($object);
+        $objectId   = $object->id;
+    
+        return $this->withLinkFrom($objectType, $objectId, $operator);
+    }
+    
+    /**
      * Условие поиска: получить все записи на которые ссылается указаный объект 
      * (или хотя бы один объект из списка id)
      * 
@@ -95,12 +139,12 @@ class OmniRelationTargetBehavior extends CActiveRecordBehavior
      * @param  string    $operator   - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
-    public function withLinkFromObject($objectType, $objectId=0, $operator='AND')
+    public function withLinkFrom($objectType, $objectId=0, $operator='AND')
     {
         $criteria = new CDbCriteria();
         $criteria->together = true;
         $criteria->with = array(
-            $this->linkedModelsRelationName => array(
+            $this->defaultRelationName => array(
                 'joinType' => 'INNER JOIN',
                 'scopes'   => array(
                     'forObject' => array($objectType, $objectId),
@@ -140,7 +184,7 @@ class OmniRelationTargetBehavior extends CActiveRecordBehavior
         $criteria = new CDbCriteria();
         $criteria->together = true;
         $criteria->with = array(
-            $this->linkedModelsRelationName => array(
+            $this->defaultRelationName => array(
                 'joinType' => 'INNER JOIN',
                 'scopes'   => array(
                     'forEveryObject' => array($objects),
@@ -165,7 +209,7 @@ class OmniRelationTargetBehavior extends CActiveRecordBehavior
         $criteria = new CDbCriteria();
         $criteria->together = true;
         $criteria->with = array(
-            $this->linkedModelsRelationName => array(
+            $this->defaultRelationName => array(
                 'joinType' => 'INNER JOIN',
                 'scopes'   => array(
                     'exceptLinkedWith' => array($objectType, $objectId),
@@ -189,7 +233,7 @@ class OmniRelationTargetBehavior extends CActiveRecordBehavior
         $criteria = new CDbCriteria();
         $criteria->together = true;
         $criteria->with = array(
-            $this->linkedModelsRelationName => array(
+            $this->defaultRelationName => array(
                 'joinType' => 'INNER JOIN',
                 'scopes'   => array(
                     'exceptLinkedWithEvery' => array($objects),
@@ -227,7 +271,7 @@ class OmniRelationTargetBehavior extends CActiveRecordBehavior
         $criteria = new CDbCriteria();
         $criteria->together = true;
         $criteria->with = array(
-            $this->linkedModelsRelationName => array(
+            $this->defaultRelationName => array(
                 'joinType' => 'INNER JOIN',
                 'scopes'   => array(
                     'withAnyObjectType' => array($linkTypes),
@@ -269,7 +313,7 @@ class OmniRelationTargetBehavior extends CActiveRecordBehavior
             $linkCriteria = new CDbCriteria();
             $linkCriteria->together = true;
             $linkCriteria->with = array(
-                $this->linkedModelsRelationName => array(
+                $this->defaultRelationName => array(
                     'joinType' => 'INNER JOIN',
                     'scopes'   => array(
                         'withAnyObjectType' => array($linkType),
@@ -307,7 +351,7 @@ class OmniRelationTargetBehavior extends CActiveRecordBehavior
         $criteria = new CDbCriteria();
         $criteria->together = true;
         $criteria->with = array(
-            $this->linkedModelsRelationName => array(
+            $this->defaultRelationName => array(
                 'joinType' => 'INNER JOIN',
                 'scopes'   => array(
                     'withId' => array($linkIds),
@@ -375,45 +419,109 @@ class OmniRelationTargetBehavior extends CActiveRecordBehavior
     }*/
     
     /**
-     * Условие поиска: все записи с указанными id
-     * 
-     * @param  int|array $id - id записи или массив из id записей
+     * Все записи, на которые ссылается хотя бы одна модель с указаным значением в указанном поле 
+     *
+     * @param  string    $field     - поле связанной записи в котором ищется значение
+     * @param  int|array $values    - значение или список значений, которые нужно найти в поле
+     * @param  string    $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
-    public function withId($id)
+    public function withCustomLinkValue($field, $values, $operation='AND')
     {
-        if ( ! $id )
-        {// условие не используется
-            return $this->owner;
-        }
         $criteria = new CDbCriteria();
-        $criteria->compare($this->getTableAlias(true).'.`id`', $id);
-    
-        $this->owner->getDbCriteria()->mergeWith($criteria);
-    
+        $criteria->together = true;
+        $criteria->with = array(
+            $this->defaultRelationName => array(
+                'joinType' => 'INNER JOIN',
+                'scopes'   => array(
+                    'withCustomValue' => array($field, $values),
+                ),
+            ),
+        );
+        $this->owner->getDbCriteria()->mergeWith($criteria, $operation);
+        
         return $this->owner;
     }
     
     /**
-     * Создать связь с целевым объектом (к которому прикрепляется модель)
-     * опираясь на значения по умолчанию
+     * Все записи, кроме тех на которые ссылается хотя бы одна модель с указаным значением в указанном поле 
      *
-     * @return array
+     * @param  string    $field     - поле связанной записи в котором ищется значение
+     * @param  int|array $values    - значение или список значений, которые нужно найти в поле
+     * @param  string    $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+     * @return CActiveRecord
      */
-    protected function getDefaultLinkedModelsRelation()
+    public function exceptCustomLinkValue($field, $values, $operation='AND')
     {
-        // получаем название класса связаной модели из текущего значения модели
-        $objectTypeField = $this->linkObjectTypeField;
-        // создаем массив с названиями и параметрами связи
-        return array(
-            $this->linkedModelsRelationName => array(
-                CActiveRecord::HAS_MANY,
-                $this->linkedModelsClass,
-                $this->linkObjectIdField,
-                'scopes' => array(
-                    'forObject' => array(get_class($this->owner), $this->owner->id),
+        $criteria = new CDbCriteria();
+        $criteria->together = true;
+        $criteria->with = array(
+            $this->defaultRelationName => array(
+                'joinType' => 'INNER JOIN',
+                'scopes'   => array(
+                    'exceptCustomValue' => array($field, $values),
                 ),
             ),
         );
+        $this->owner->getDbCriteria()->mergeWith($criteria, $operation);
+        
+        return $this->owner;
+    }
+    
+    /**
+     * Создать все дополнительные связи для модели опираясь на значения по умолчанию
+     *
+     * @return array
+     * 
+     * @todo добавить проверку ошибок в структуре массива $this->customRelations
+     */
+    protected function createCustomRelations()
+    {
+        // начинаем со связи по умолчанию
+        $relations = array(
+            $this->defaultRelationName => array(
+                CActiveRecord::HAS_MANY,
+                $this->defaultLinkModel,
+                $this->linkObjectIdField,
+                'scopes' => array(
+                    'withObjectType' => array(get_class($this->owner)),
+                ),
+            ),
+        );
+        foreach ( $this->customRelations as $name => $data )
+        {// затем добавляем все дополнительные
+            $model     = '';
+            $typeField = $this->linkObjectTypeField;
+            $idField   = $this->linkObjectIdField;
+            if ( ! is_array($data) )
+            {
+                $data = array('model' => $data);
+            }
+            if ( isset($data['model']) )
+            {
+                $model = $data['model'];
+            }else
+            {
+                throw new CException('Не указан класс модели для создания связи');
+            }
+            if ( isset($data['typeField']) )
+            {
+                $typeField = $data['typeField'];
+            }
+            if ( isset($data['idField']) )
+            {
+                $idField = $data['idField'];
+            }
+            
+            $relations[$name] = array(
+                CActiveRecord::HAS_MANY,
+                $model,
+                $idField,
+                'scopes' => array(
+                    'withObjectType' => array(get_class($this->owner)),
+                ),
+            );
+        }
+        return $relations;
     }
 }

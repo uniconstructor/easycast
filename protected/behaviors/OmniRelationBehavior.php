@@ -19,37 +19,43 @@
  * @method CActiveRecord exceptLinkedWithEveryObjectType(array|string $objectTypes, string $operation='AND')
  * @method CActiveRecord exceptLinkedWithAnyObjectId(array|int $objectIds, string $operation='AND')
  * @method CActiveRecord exceptLinkedWithEveryObjectId(array|int $objectIds, string $operation='AND')
- * @method CActiveRecord hasCustomValue(string $field, array|string $values, string $operation='AND')
+ * @method CActiveRecord withCustomValue(string $field, array|string $values, string $operation='AND')
  * @method CActiveRecord exceptCustomValue(string $field, array|string $values, string $operation='AND')
  * @method bool          isUniqueForObject(string $objectType, int $objectId=0, int $extraKeyId=0)
  */
 
 /**
- * Класс для работы с любыми AR-моделями которые ссылаются на другие модели
- * при помощи пары полей objecttype/objectid
- * Присоединяется к прикрепляемой модели 
- * (в той, которая содержит эту пару полей и ссылается на другую модель)
- * Поле objecttype всегда содержит класс модели. 
- * Создаваемые модели не обязательно должны быть привязаны к чему-либо,
+ * Класс со списком условий поиска для моделей которые используют составной внешний ключ (objecttype/objectid) 
+ * Работает с любыми AR-моделями которые используют для составного ключа поля "objecttype" (класс модели)
+ * и "objectid" (первичный ключ модели)
+ * Присоединяется к модели которая содержит эту пару полей
  * 
- * Работает в паре c поведением OmniRelatedTargetModelBehavior, которое присоединяется к
- * модели на которую ссылается эта запись через objecttype/objectid
+ * Создаваемые записи не обязательно должны быть привязаны к существующей модели 
+ * (см. настройки поведения)
  * 
- * Содержит все проверки при сохранении/удалении записей а также все именованые группы условий поиска,
- * которые можно будет использовать в каждой модели, использующей это поведение: это сильно сокращает
- * количество дублируемого кода в классах этих моделей
+ * Работает в паре c поведением OmniRelatedTargetModelBehavior: оно присоединяется "с другой стороны связи",
+ * то есть к модели НА Ккоторую ссылается эта запись содержащая пару objecttype/objectid
+ * Такая модель называется target-моделью
+ * 
+ * Содержит все проверки при сохранении/удалении записей а также именованые группы условий для поиска
+ * Подключение этого поведения сильно сокращает количество дублируемого кода в моделях с составным 
+ * внешним ключом
  * 
  * @property CActiveRecord $owner
  * 
  * @see OmniRelationTargetBehavior
+ * @see http://www.yiiframework.com/doc/guide/1.1/en/database.ar#named-scopes
  * 
  * @todo проверка наличия нужных полей при присоединении к модели
  * @todo документировать все поля
  * @todo документировать методы
  * @todo scopes()
  * @todo тесты для всех методов этого класса
+ * @todo переименовать в CustomRelationBehavior
+ * @todo придумать каким образом можно автоматически подключать CustomScopesBehavior 
+ *       при подключении этого поведения (пока используем наследование)
  */
-class OmniRelationBehavior extends CActiveRecordBehavior
+class OmniRelationBehavior extends CustomScopesBehavior
 {
     /**
      * @var string
@@ -69,7 +75,7 @@ class OmniRelationBehavior extends CActiveRecordBehavior
      *               - CActiveRecord::BELONGS_TO
      *               - CActiveRecord::HAS_ONE
      */
-    public $targetRelationType  = CActiveRecord::BELONGS_TO;
+    public $targetRelationType = CActiveRecord::BELONGS_TO;
     /**
      * @var array - массив с дополнительными связями (relations) для owner-модели
      */
@@ -133,7 +139,7 @@ class OmniRelationBehavior extends CActiveRecordBehavior
      * @var bool
      * @todo
      */
-    public $allowedEmptyExtraKeys = array();
+    public $allowedEmptyExtraKeys  = array();
     
     /**
      * @return void
@@ -163,11 +169,12 @@ class OmniRelationBehavior extends CActiveRecordBehavior
      * Эта функция нужна для обращения к настройкам модели в общем виде
      *
      * @param CActiveRecord $model - модель к которой прикреплены настройки
-     *                                или название класса такой модели если мо хотим получить
-     *                                базовые настройки для всех моделей этого класса
+     *                               или название класса такой модели если мо хотим получить
+     *                               базовые настройки для всех моделей этого класса
+     * @param string $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
-    public function forModel($model)
+    public function forModel($model, $operator='AND')
     {
         if ( ! is_object($object) )
         {// передана модель целиком
@@ -177,7 +184,7 @@ class OmniRelationBehavior extends CActiveRecordBehavior
         $objectType = get_class($object);
         $objectId   = $object->id;
         
-        return $this->forObject($objectType, $objectId);
+        return $this->forObject($objectType, $objectId, $operator);
     }
     
     /**
@@ -414,26 +421,6 @@ class OmniRelationBehavior extends CActiveRecordBehavior
     }
     
     /**
-     * Именованая группа условий: все записи с указанными id
-     *
-     * @param  int|array $id - id записи или массив из id записей
-     * @return CActiveRecord
-     */
-    public function withId($id)
-    {
-        if ( ! $id )
-        {// условие не используется
-            return $this->owner;
-        }
-        $criteria = new CDbCriteria();
-        $criteria->compare($this->owner->getTableAlias(true).'.`id`', $id);
-    
-        $this->owner->getDbCriteria()->mergeWith($criteria);
-    
-        return $this->owner;
-    }
-    
-    /**
      * Все записи, кроме тех, которые хотя бы раз связаны хотя бы с одним из типов
      * моделей в списке
      *
@@ -557,55 +544,6 @@ class OmniRelationBehavior extends CActiveRecordBehavior
         $criteria->addColumnCondition($columns, 'AND', 'AND');
         
         $this->owner->getDbCriteria()->mergeWith($criteria,  $operation.' NOT ');
-        
-        return $this->owner;
-    }
-    
-    /**
-     * Все записи с указаным значением в указанном поле
-     *
-     * @param  string    $field     - поле в котором ищется значение
-     * @param  int|array $values    - значение или список значений, которые нужно найти в поле
-     * @param  string    $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
-     * @return CActiveRecord
-     */
-    public function hasCustomValue($field, $values, $operation='AND')
-    {
-        if ( ! $values )
-        {// условие не используется
-            return $this->owner;
-        }
-        $criteria = new CDbCriteria();
-        $criteria->compare($this->owner->getTableAlias(true).'.`'.$field.'`', $values);
-        
-        $this->owner->getDbCriteria()->mergeWith($criteria, $operation);
-        
-        return $this->owner;
-    }
-    
-    /**
-     * Условие поиска: все модели кроме тех которые содержат хотя бы одно
-     * из перечисленных значений внутри указанного поля
-     *
-     * @param  string    $field     - поле в котором ищется значение
-     * @param  int|array $values    - значение или список значений, которые нужно найти в поле
-     * @param  string    $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
-     * @return CActiveRecord
-     */
-    public function exceptCustomValue($field, $values, $operation='AND')
-    {
-        if ( ! $values )
-        {// условие не используется
-            return $this->owner;
-        }
-        if ( ! is_array($objectIds) )
-        {
-            $objectIds = array($objectIds);
-        }
-        $criteria = new CDbCriteria();
-        $criteria->addNotInCondition($this->owner->getTableAlias(true).'.`'.$field.'`', $values);
-        
-        $this->owner->getDbCriteria()->mergeWith($criteria, $operation);
         
         return $this->owner;
     }
