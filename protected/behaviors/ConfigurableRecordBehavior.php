@@ -143,6 +143,8 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      */
     public function afterSave($event)
     {
+        parent::afterSave($event);
+        
         if ( $this->owner->isNewRecord )
         {// после создания каждой записи создаем для нее стандартный набор настроек
             $configParams = $this->getRootConfigParams();
@@ -175,6 +177,8 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      */
     public function afterDelete($event)
     {
+        parent::afterDelete($event);
+        
         foreach ( $this->owner->$configRelationName as $configParam )
         {// после удаления модели удяляем все связанные с ней настройки
             if ( ! $configParam->delete() )
