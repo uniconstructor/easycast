@@ -50,24 +50,40 @@ class OmniRelationTargetBehavior extends CustomScopesBehavior
     /**
      * @var string - поле в связанных записях содержащее класс owner-модели
      */
-    public $linkObjectTypeField = 'objecttype';
+    public $defaultTypeField = 'objecttype';
     /**
      * @var string - поле в связанных записях содержащее id owner-модели
      */
-    public $linkObjectIdField   = 'objectid';
+    public $defaultIdField   = 'objectid';
     /**
-     * @var string - название HAS_MANY связи в owner-модели которая содержит все записи которые
+     * @var string - Связь в owner-модели, которая используется по умолчанию для составления всех условий
+     *               поиска дочерним записям (все методы этого класса производящие join-запрос используют
+     *               этот параметр)  
+     *               Содержит название HAS_MANY связи в owner-модели которая содержит все записи которые
      *               ссылаются сюда по objecttype/objectid
      */
-    public $defaultRelationName = 'linkedItems';
+    public $searchRelation;
     /**
-     * @var array - обязательный параметр: класc AR-моделей которые ссылаются сюда
-     *              (на owner-модель: к которой прикреплено это поведение)
-     *              модели которые ссылаются сюда должны использовать OmniRelationBehavior
-     *              По умолчанию установлен класс элемента списка (EasyListItem) так как
-     *              любые модели в приложении могут быть включены в список
+     * @var array - связи по умолчанию: они должны быть у любого объекта
+     * 
+     * @todo пока не используется
+     * @todo configItems - все настройки ссылающиеся сюда за значением
+     * @todo comments    - все связанные комментарии
      */
-    public $defaultLinkModel    = 'EasyListItem';
+    public $defaultRelations = array(
+        // все элементы списка, содержащие эту модель
+        'linkedItems' => array(
+            'model'     => 'EasyListItem',
+            'typeField' => 'objecttype',
+            'idField'   => 'objectid',
+        ),
+        // все настройки, прикрепленные к этой модели
+        'configParams' => array(
+            'model'     => 'Config',
+            'typeField' => 'objecttype',
+            'idField'   => 'objectid',
+        ),
+    );
     /**
      * @var array - список всех дополнительных связей для модели, задается при подключении
      *              В этом массиве должны быть описаны все HAS_MANY связи с моделями, 
@@ -98,6 +114,33 @@ class OmniRelationTargetBehavior extends CustomScopesBehavior
     }*/
     
     /**
+     * 
+     * @param string $name
+     * @return void
+     */
+    public function setSearchRelation($name)
+    {
+        $this->searchRelation = $name;
+    }
+    
+    /**
+     * 
+     * @return string
+     */
+    public function getSearchRelation()
+    {
+        return $this->searchRelation;
+    }
+    
+    /**
+     * @see CActiveRecordBehavior::afterFind()
+     */
+    /*public function afterFind($event)
+    {
+        
+    }*/
+    
+    /**
      * @return array
      *
      * @todo создавать исключение если связи с такими именами в модели уже есть
@@ -105,9 +148,8 @@ class OmniRelationTargetBehavior extends CustomScopesBehavior
     public function relations()
     {
         // получаем существующие связи модели и возвращаем список
-        $this->linkedModelsRelation = $this->getDefaultLinkedModelsRelation();
         // в котором совмещены связи модели наши связи с дочерними объектами
-        return CMap::mergeArray($this->owner->relations(), $this->linkedModelsRelation);
+        return CMap::mergeArray($this->owner->relations(), $this->createCustomRelations());
     }
     
     /**
@@ -117,13 +159,13 @@ class OmniRelationTargetBehavior extends CustomScopesBehavior
      * @param  string $operator - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
-    public function withLinkFrom($model, $operator='AND')
+    public function withLinkFromModel($model, $operator='AND')
     {
         if ( ! is_object($object) )
         {// передана модель целиком
             throw new CException('Не передана модель для составления условия');
         }
-        // достаем из модели тип и id
+        // достаем из модели ее тип и id
         $objectType = get_class($object);
         $objectId   = $object->id;
     
@@ -144,7 +186,7 @@ class OmniRelationTargetBehavior extends CustomScopesBehavior
         $criteria = new CDbCriteria();
         $criteria->together = true;
         $criteria->with = array(
-            $this->defaultRelationName => array(
+            $this->searchRelation => array(
                 'joinType' => 'INNER JOIN',
                 'scopes'   => array(
                     'forObject' => array($objectType, $objectId),
@@ -184,7 +226,7 @@ class OmniRelationTargetBehavior extends CustomScopesBehavior
         $criteria = new CDbCriteria();
         $criteria->together = true;
         $criteria->with = array(
-            $this->defaultRelationName => array(
+            $this->searchRelation => array(
                 'joinType' => 'INNER JOIN',
                 'scopes'   => array(
                     'forEveryObject' => array($objects),
@@ -209,7 +251,7 @@ class OmniRelationTargetBehavior extends CustomScopesBehavior
         $criteria = new CDbCriteria();
         $criteria->together = true;
         $criteria->with = array(
-            $this->defaultRelationName => array(
+            $this->searchRelation => array(
                 'joinType' => 'INNER JOIN',
                 'scopes'   => array(
                     'exceptLinkedWith' => array($objectType, $objectId),
@@ -233,7 +275,7 @@ class OmniRelationTargetBehavior extends CustomScopesBehavior
         $criteria = new CDbCriteria();
         $criteria->together = true;
         $criteria->with = array(
-            $this->defaultRelationName => array(
+            $this->searchRelation => array(
                 'joinType' => 'INNER JOIN',
                 'scopes'   => array(
                     'exceptLinkedWithEvery' => array($objects),
@@ -271,7 +313,7 @@ class OmniRelationTargetBehavior extends CustomScopesBehavior
         $criteria = new CDbCriteria();
         $criteria->together = true;
         $criteria->with = array(
-            $this->defaultRelationName => array(
+            $this->searchRelation => array(
                 'joinType' => 'INNER JOIN',
                 'scopes'   => array(
                     'withAnyObjectType' => array($linkTypes),
@@ -313,7 +355,7 @@ class OmniRelationTargetBehavior extends CustomScopesBehavior
             $linkCriteria = new CDbCriteria();
             $linkCriteria->together = true;
             $linkCriteria->with = array(
-                $this->defaultRelationName => array(
+                $this->searchRelation => array(
                     'joinType' => 'INNER JOIN',
                     'scopes'   => array(
                         'withAnyObjectType' => array($linkType),
@@ -351,7 +393,7 @@ class OmniRelationTargetBehavior extends CustomScopesBehavior
         $criteria = new CDbCriteria();
         $criteria->together = true;
         $criteria->with = array(
-            $this->defaultRelationName => array(
+            $this->searchRelation => array(
                 'joinType' => 'INNER JOIN',
                 'scopes'   => array(
                     'withId' => array($linkIds),
@@ -431,7 +473,7 @@ class OmniRelationTargetBehavior extends CustomScopesBehavior
         $criteria = new CDbCriteria();
         $criteria->together = true;
         $criteria->with = array(
-            $this->defaultRelationName => array(
+            $this->searchRelation => array(
                 'joinType' => 'INNER JOIN',
                 'scopes'   => array(
                     'withCustomValue' => array($field, $values),
@@ -456,7 +498,7 @@ class OmniRelationTargetBehavior extends CustomScopesBehavior
         $criteria = new CDbCriteria();
         $criteria->together = true;
         $criteria->with = array(
-            $this->defaultRelationName => array(
+            $this->searchRelation => array(
                 'joinType' => 'INNER JOIN',
                 'scopes'   => array(
                     'exceptCustomValue' => array($field, $values),
@@ -474,15 +516,24 @@ class OmniRelationTargetBehavior extends CustomScopesBehavior
      * @return array
      * 
      * @todo добавить проверку ошибок в структуре массива $this->customRelations
+     * @todo обработать случай с нестандартными именами objecttype/objectid
      */
     protected function createCustomRelations()
     {
         // начинаем со связи по умолчанию
         $relations = array(
-            $this->defaultRelationName => array(
+            'listItems' => array(
                 CActiveRecord::HAS_MANY,
-                $this->defaultLinkModel,
-                $this->linkObjectIdField,
+                'EasyListItem',
+                'objectid',
+                'scopes' => array(
+                    'withObjectType' => array(get_class($this->owner)),
+                ),
+            ),
+            'configParams' => array(
+                CActiveRecord::HAS_MANY,
+                'Config',
+                'objectid',
                 'scopes' => array(
                     'withObjectType' => array(get_class($this->owner)),
                 ),
@@ -491,8 +542,8 @@ class OmniRelationTargetBehavior extends CustomScopesBehavior
         foreach ( $this->customRelations as $name => $data )
         {// затем добавляем все дополнительные
             $model     = '';
-            $typeField = $this->linkObjectTypeField;
-            $idField   = $this->linkObjectIdField;
+            $typeField = $this->defaultTypeField;
+            $idField   = $this->defaultIdField;
             if ( ! is_array($data) )
             {
                 $data = array('model' => $data);
