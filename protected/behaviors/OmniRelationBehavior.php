@@ -70,6 +70,20 @@ class OmniRelationBehavior extends CustomScopesBehavior
      */
     public $targetRelationName = 'targetObject';
     /**
+     * @var string - класс модели, используемый в связи по умолчанию в том случае когда 
+     *               $this->owner->objecttype не задан
+     *               Нужен для того чтобы можно было использовать группы условий поиска
+     *               даже тогда, когда в модель еще не загружены данные 
+     */
+    public $defaultTargetType;
+    /**
+     * @var int    - id модели, используемый в связи по умолчанию в том случае когда 
+     *               $this->owner->objectid не задан
+     *               Нужен для того чтобы можно было использовать группы условий поиска
+     *               даже тогда, когда в модель еще не загружены данные
+     */
+    public $defaultTargetId;
+    /**
      * @var string - тип связи с объектом, к которому прикрепляется модель
      *               Возможные значения:
      *               - CActiveRecord::BELONGS_TO
@@ -83,19 +97,21 @@ class OmniRelationBehavior extends CustomScopesBehavior
     /**
      * @var array
      */
-    public $customScopes       = array();
+    //public $customScopes       = array();
     /**
      * @var array
      */
     public $customObjectTypes  = array();
     /**
      * @var string - стандартное значение для objecttype (если не задано)
+     *               используется при создании новой модели
      */
-    public $defaultObjectType;
+    //public $defaultObjectType;
     /**
      * @var int - стандартное значение для objectid (если не задано)
+     *            используется при создании новой модели
      */
-    public $defaultObjectId        = 0;
+    //public $defaultObjectId        = 0;
     /**
      * @var bool
      */
@@ -106,21 +122,22 @@ class OmniRelationBehavior extends CustomScopesBehavior
     public $enableEmptyObjectId    = false;
     /**
      * @var int - максимальное количество прикрепляемых к целевой модели объектов
-     *            ноль в этом поле означает отсутствие ограничений на количество 
-     *            прикрепляемых к целевой модели объектов 
-     *            (например если нужно разрешить прикреплять любое количество видео к заявке)
+     *            Ноль в этом поле означает отсутствие ограничений на количество 
+     *            прикрепляемых к target-модели объектов 
+     *            (например если нужно разрешить прикреплять любое количество комментариев к заявке)
      */
     public $maxLinksToTargetObject = 0;
     /**
-     * @var array
-     * @todo
+     * @var array - список моделей на которые записи могут ссылаться по objecttype/objectid
+     * 
+     * @todo автоматически создавать по одной связи для каждого класса из этого списка
      */
     public $enabledModels          = array();
     /**
      * @var array
      * @todo
      */
-    public $disabledModels         = array();
+    //public $disabledModels         = array();
     /**
      * @var array - список полей для дополнительных внешних ключей с указанием того, 
      *              допустимо ли нулевое значение для этого поля.
@@ -134,34 +151,108 @@ class OmniRelationBehavior extends CustomScopesBehavior
      *              ...
      * @todo
      */
-    public $extraKeyFields         = array();
+    //public $extraKeyFields         = array();
     /**
      * @var bool
      * @todo
      */
-    public $allowedEmptyExtraKeys  = array();
+    //public $allowedEmptyExtraKeys  = array();
     
     /**
+     * @param  string $name
      * @return void
      */
-    /*public function init()
+    public function setDefaultTargetType($type)
     {
-        $this->owner->init();
-    }*/
+        $this->defaultTargetType = $type;
+    }
     
     /**
-     * @return array
-     * 
-     * @todo создавать исключение если связи с такими именами в модели уже есть
+     * @return string
      */
-    public function relations()
+    public function getDefaultTargetType()
     {
+        if ( ! $this->defaultTargetType )
+        {
+            $this->defaultTargetType = $this->owner->getAttribute($this->objectTypeField);
+        }
+        return $this->defaultTargetType;
+    }
+    
+    /**
+     * @param  string $name
+     * @return void
+     */
+    public function setDefaultTargetId($id)
+    {
+        $this->defaultTargetId = $id;
+    }
+    
+    /**
+     * @return string
+     */
+    public function getDefaultTargetId()
+    {
+        if ( ! $this->defaultTargetId )
+        {
+            $this->defaultTargetId = $this->owner->getAttribute($this->objectIdField);
+        }
+        return $this->defaultTargetId;
+    }
+    
+    /**
+     * Добавить в owner-модель связь с target-объектом
+     * (чтобы по его полям можно было искать записи из этой таблицы)
+     * Эта функция вызывается перед выполнением поиска и проверяет, подгружена ли в owner-модель
+     * нужная связь и если нет - то добавляет ее, обновляя метаданные owner-модели
+     * 
+     * @param  string $objectType   - класс модели для создания связи
+     * @param  string $relationName - название связи
+     * @return void
+     */
+    public function initTargetRelation($objectType=null, $relationName=null)
+    {
+        if ( ! $objectType AND ! $objectType = $this->getDefaultTargetType() )
+        {// недостаточно данных для создания связи
+            throw new CException('Невозможно задать условие поиска по target-модели: 
+                в owner-модель не загружен составной ключ (objecttype/objectid). 
+                Для использования условий поиска из поведения '.get_class($this).
+                ' попробуйте использовать модель с данными [$modelObject->forObject(...)] 
+                вместо пустой модели [ModelClass::model()->forObject(...)]');
+        }
+        if ( ! $relationName )
+        {
+            $relationName = $this->targetRelationName; // 'related'.$objectType
+        }
+        if ( ! $this->owner->hasRelated($relationName) )
+        {// добавляем связь к модели (если ее там еще нет)
+            $this->owner->addCustomRelation($relationName, current($this->getCustomTargetRelation($objectType)));
+        }
+    }
+    
+    /**
+     * @see CBehavior::attach()
+     */
+    public function attach($owner)
+    {
+        parent::attach($owner);
         // добавляем к стандартной связи все указанные в параметрах поведения при подключении модели
         $this->customRelations = CMap::mergeArray($this->getDefaultTargetRelation(), $this->customRelations);
-        // получаем существующие связи модели 
-        $modelRelations = $this->owner->relations();
-        // возвращаем список в котором совмещены связи модели ниши связи через составно внешний ключ
-        return CMap::mergeArray($modelRelations, $this->customRelations);
+        if ( $this->customRelations )
+        {// после присоединения к модели добавляем в нее дополнительные связи
+            $this->owner->addCustomRelations($this->customRelations);
+        }
+    }
+    
+    /**
+     * @see CActiveRecordBehavior::afterFind()
+     */
+    public function afterFind($event)
+    {
+        parent::afterFind($event);
+        // получаем objecttype для построения условий поиска
+        $type = $this->owner->getAttribute($this->objectTypeField);
+        $this->initTargetRelation($type);
     }
     
     /**
@@ -570,6 +661,23 @@ class OmniRelationBehavior extends CustomScopesBehavior
     }
     
     /**
+     * Получить объект на который ссылается эта запись
+     * 
+     * @return CActiveRecord
+     */
+    public function getTargetObject()
+    {
+        $modelClass = $this->getDefaultTargetType();
+        $id         = $this->getDefaultTargetId();
+        
+        if ( ! $modelClass )
+        {
+            return null;
+        }
+        return $modelClass::model()->findByPk($id);
+    }
+    
+    /**
      * Создать связь с целевым объектом (к которому прикрепляется модель)
      * опираясь на значения по умолчанию
      * 
@@ -577,13 +685,26 @@ class OmniRelationBehavior extends CustomScopesBehavior
      */
     protected function getDefaultTargetRelation()
     {
-        // получаем название класса связаной модели из текущего значения модели
-        $objectTypeField = $this->objectTypeField;
+        return $this->getCustomTargetRelation();
+    }
+    
+    /**
+     * Создать связь с целевым объектом (к которому прикрепляется модель)
+     * опираясь на значения по умолчанию
+     * 
+     * @return array
+     */
+    protected function getCustomTargetRelation($objectType=null)
+    {
+        if ( ! $objectType )
+        {
+            $objectType = $this->getDefaultTargetType();
+        }
         // создаем массив с названиями и параметрами реляционной связи
         return array(
             $this->targetRelationName => array(
                 $this->targetRelationType,
-                $this->owner->$objectTypeField,
+                $objectType,
                 $this->objectIdField,
             ),
         );

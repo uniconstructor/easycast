@@ -64,27 +64,6 @@ class OmniRelationTargetBehavior extends CustomScopesBehavior
      */
     public $searchRelation;
     /**
-     * @var array - связи по умолчанию: они должны быть у любого объекта
-     * 
-     * @todo пока не используется
-     * @todo configItems - все настройки ссылающиеся сюда за значением
-     * @todo comments    - все связанные комментарии
-     */
-    public $defaultRelations = array(
-        // все элементы списка, содержащие эту модель
-        'linkedItems' => array(
-            'model'     => 'EasyListItem',
-            'typeField' => 'objecttype',
-            'idField'   => 'objectid',
-        ),
-        // все настройки, прикрепленные к этой модели
-        'configParams' => array(
-            'model'     => 'Config',
-            'typeField' => 'objecttype',
-            'idField'   => 'objectid',
-        ),
-    );
-    /**
      * @var array - список всех дополнительных связей для модели, задается при подключении
      *              В этом массиве должны быть описаны все HAS_MANY связи с моделями, 
      *              которые ссылаются сюда по objecttype/objectid
@@ -106,25 +85,27 @@ class OmniRelationTargetBehavior extends CustomScopesBehavior
     protected $linkedModelsRelation = array();
     
     /**
-     * @return void
+     * @see CBehavior::attach()
      */
-    /*public function init()
+    public function attach($owner)
     {
-        $this->owner->init();
-    }*/
+        parent::attach($owner);
+        if ( $relations = $this->createCustomRelations() )
+        {// после присоединения к модели добавляем в нее дополнительные связи
+            $this->owner->addCustomRelations($relations);
+        }
+    }
     
     /**
-     * 
      * @param string $name
      * @return void
      */
-    public function setSearchRelation($name)
+    public function initSearchRelation($name)
     {
         $this->searchRelation = $name;
     }
     
     /**
-     * 
      * @return string
      */
     public function getSearchRelation()
@@ -133,24 +114,16 @@ class OmniRelationTargetBehavior extends CustomScopesBehavior
     }
     
     /**
-     * @see CActiveRecordBehavior::afterFind()
-     */
-    /*public function afterFind($event)
-    {
-        
-    }*/
-    
-    /**
      * @return array
      *
      * @todo создавать исключение если связи с такими именами в модели уже есть
      */
-    public function relations()
+    /*public function relations()
     {
         // получаем существующие связи модели и возвращаем список
         // в котором совмещены связи модели наши связи с дочерними объектами
         return CMap::mergeArray($this->owner->relations(), $this->createCustomRelations());
-    }
+    }*/
     
     /**
      * Именованая группа условий: получить все записи к которым прикреплена переданная модель
@@ -161,12 +134,12 @@ class OmniRelationTargetBehavior extends CustomScopesBehavior
      */
     public function withLinkFromModel($model, $operator='AND')
     {
-        if ( ! is_object($object) )
+        if ( ! is_object($model) )
         {// передана модель целиком
             throw new CException('Не передана модель для составления условия');
         }
         // достаем из модели ее тип и id
-        $objectType = get_class($object);
+        $objectType = get_class($model);
         $objectId   = $object->id;
     
         return $this->withLinkFrom($objectType, $objectId, $operator);
@@ -546,27 +519,9 @@ class OmniRelationTargetBehavior extends CustomScopesBehavior
      */
     protected function createCustomRelations()
     {
-        // начинаем со связи по умолчанию
-        $relations = array(
-            'listItems' => array(
-                CActiveRecord::HAS_MANY,
-                'EasyListItem',
-                'objectid',
-                'scopes' => array(
-                    'withObjectType' => array(get_class($this->owner)),
-                ),
-            ),
-            'configParams' => array(
-                CActiveRecord::HAS_MANY,
-                'Config',
-                'objectid',
-                'scopes' => array(
-                    'withObjectType' => array(get_class($this->owner)),
-                ),
-            ),
-        );
+        $relations = array();
         foreach ( $this->customRelations as $name => $data )
-        {// затем добавляем все дополнительные
+        {// добавляем все дополнительные связи
             $model     = '';
             $typeField = $this->defaultTypeField;
             $idField   = $this->defaultIdField;
