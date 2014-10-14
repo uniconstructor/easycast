@@ -337,18 +337,25 @@ class EasyListItem extends CActiveRecord
 	}
 	
 	/**
-	 * Именованная группа условий: получить все элементы списка
-	 * @param int $easyListId
+	 * Именованная группа условий: получить все элементы из указанного списка (alias)
+	 * 
+	 * @param  int|array $listId - id списка (EasyListItem)
 	 * @return EasyListItem
 	 */
-	public function forList($easyListId)
+	/*public function forList($listId)
 	{
-	    $criteria = new CDbCriteria();
-	    $criteria->compare($this->getTableAlias(true).'.`easylistid`', $easyListId);
-	     
-	    $this->getDbCriteria()->mergeWith($criteria);
-	    
-	    return $this;
+	    return $this->withListId($listId);
+	}*/
+	
+	/**
+	 * Именованная группа условий: получить все элементы из указанного списка
+	 * 
+	 * @param  int|array $listId - id списка (EasyListItem)
+	 * @return EasyListItem
+	 */
+	public function withListId($listId, $operation='AND')
+	{
+	    return $this->withCustomValue('easylistid', $listId, $operation);
 	}
 	
 	/**
@@ -378,7 +385,7 @@ class EasyListItem extends CActiveRecord
 	 * 
 	 * @deprecated использовать forObject($objectType, $objectId)
 	 */
-	public function forObjects($objectType, $objectIds)
+	/*public function forObjects($objectType, $objectIds)
 	{
 	    $criteria = new CDbCriteria();
 	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
@@ -387,7 +394,7 @@ class EasyListItem extends CActiveRecord
 	    $this->getDbCriteria()->mergeWith($criteria);
 	
 	    return $this;
-	}
+	}*/
 	
 	/**
 	 * Именованная группа условий: получить все элементы c указаным значением в поле objecttype
