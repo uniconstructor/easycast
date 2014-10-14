@@ -1,17 +1,21 @@
 <?php
 
 /**
- * This is the model class for table "{{status_history}}".
+ * Модель для работы с историей изменения статусов объекта
+ * Используется для всех объектов у которых есть статус
  *
- * The followings are the available columns in table '{{status_history}}':
+ * Таблица '{{status_history}}':
  * @property integer $id
  * @property string $objecttype
  * @property string $objectid
  * @property string $oldstatus
  * @property string $newstatus
  * @property string $timecreated
- * @property string $sourceid
  * @property string $sourcetype
+ * @property string $sourceid
+ * 
+ * @todo подключить OmniRelationBehavior
+ * @todo дописать недостающие условия поиска
  */
 class StatusHistory extends CActiveRecord
 {
@@ -30,11 +34,8 @@ class StatusHistory extends CActiveRecord
 	{
 		return array(
 			array('objecttype, oldstatus, newstatus', 'required'),
-			array('sourcetype, objecttype, oldstatus, newstatus', 'length', 'max'=>50),
-			array('objectid, timecreated, sourceid', 'length', 'max'=>11),
-			// The following rule is used by search().
-			// @todo Please remove those attributes that should not be searched.
-			array('id, objecttype, objectid, oldstatus, newstatus, timecreated, sourceid', 'safe', 'on'=>'search'),
+			array('sourcetype, objecttype, oldstatus, newstatus', 'length', 'max' => 50),
+			array('objectid, timecreated, sourceid', 'length', 'max' => 11),
 		);
 	}
 
@@ -54,9 +55,9 @@ class StatusHistory extends CActiveRecord
 	public function behaviors()
 	{
 	    return array(
-	        'CTimestampBehavior' => array(
-	            'class'            => 'zii.behaviors.CTimestampBehavior',
-	            'createAttribute' => 'timecreated',
+	        // автоматическое заполнение дат создания и изменения
+	        'EcTimestampBehavior' => array(
+	            'class' => 'application.behaviors.EcTimestampBehavior',
 	            'updateAttribute' => null,
 	        ),
 	    );
@@ -73,43 +74,13 @@ class StatusHistory extends CActiveRecord
 			'objectid' => 'Objectid',
 			'oldstatus' => 'Oldstatus',
 			'newstatus' => 'Newstatus',
-			'timecreated' => 'Timecreated',
 		);
-	}
-
-	/**
-	 * Retrieves a list of models based on the current search/filter conditions.
-	 *
-	 * Typical usecase:
-	 * - Initialize the model fields with values from filter form.
-	 * - Execute this method to get CActiveDataProvider instance which will filter
-	 * models according to data in model fields.
-	 * - Pass data provider to CGridView, CListView or any similar widget.
-	 *
-	 * @return CActiveDataProvider the data provider that can return the models
-	 * based on the search/filter conditions.
-	 */
-	public function search()
-	{
-		$criteria = new CDbCriteria;
-
-		$criteria->compare('id', $this->id);
-		$criteria->compare('objecttype', $this->objecttype, true);
-		$criteria->compare('objectid', $this->objectid, true);
-		$criteria->compare('oldstatus', $this->oldstatus, true);
-		$criteria->compare('newstatus', $this->newstatus, true);
-		$criteria->compare('timecreated', $this->timecreated, true);
-		$criteria->compare('sourceid', $this->sourceid, true);
-		$criteria->compare('sourcetype', $this->sourcetype, true);
-
-		return new CActiveDataProvider($this, array(
-			'criteria' => $criteria,
-		));
 	}
 
 	/**
 	 * Returns the static model of the specified AR class.
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!
+	 * 
 	 * @param string $className active record class name.
 	 * @return StatusHistory the static model class
 	 */
@@ -120,8 +91,9 @@ class StatusHistory extends CActiveRecord
 	
 	/**
 	 * Именованая группа условий: получить всю историю изменения статусов по одному объекту
-	 * @param string $objectType
-	 * @param int    $objectId
+	 * 
+	 * @param  string $objectType
+	 * @param  int    $objectId
 	 * @return StatusHistory
 	 */
 	public function forObject($objectType, $objectId)
@@ -137,12 +109,13 @@ class StatusHistory extends CActiveRecord
 	
 	/**
 	 * Именованая группа условий: получить последнюю запись об изменении объекта если она есть
+	 * 
 	 * @return StatusHistory|null
 	 */
 	public function getLastItem()
 	{
 	    $criteria = new CDbCriteria();
-	    $criteria->order = $this->getTableAlias().".`timecreated` DESC";
+	    $criteria->order = $this->getTableAlias(true).".`timecreated` DESC";
 	    $criteria->limit = 1;
 	    if ( ! $result = $this->findAll($criteria) )
 	    {
@@ -152,6 +125,8 @@ class StatusHistory extends CActiveRecord
 	}
 	
 	/**
+	 * Получить название объекта, который дал команду изменить статус
+	 * (например имя пользователя который запустил мероприятие)
 	 * 
 	 * @return string
 	 */
