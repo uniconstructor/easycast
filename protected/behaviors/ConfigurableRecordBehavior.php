@@ -120,9 +120,8 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
     public $configRelationName = 'configParams';
     
     /**
-     * 
      * @return array
-     * @see CActiveRecordBehavior::relations()
+     * @see CActiveRecord::relations()
      *
      * @todo создавать исключение если связи с такими именами в модели уже есть
      */
