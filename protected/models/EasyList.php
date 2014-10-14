@@ -40,6 +40,12 @@
  *                                   считаться устаревшим и требовать проверки
  * @property string $unique - должны ли элементы (EasyListItem) в этом списке быть уникальными?
  *                            (не применимо для objecttype='item' && objectid=0)
+ * @property string $itemtype - тип элементов в списке (по умолчанию EasyListItem)
+ *                              если список содержит разородные элементы то в этом поле будет значение mixed
+ * @property string $searchdataid - id набора поисковых критериев (SearchData), по которым определяется 
+ *                                  какие элементы должны быть в списке а какие нет
+ *                                  Используется при обновлении и очистке списка, статические списки не
+ *                                  могут иметь поисковых критериев 
  * 
  * Relations:
  * @property EasyListInstance[] $instances - все экземпляры этого списка
@@ -56,6 +62,10 @@
  * @method CActiveRecord firstCreated()
  * @method CActiveRecord lastModified()
  * @method CActiveRecord firstModified()
+ * 
+ * @todo после рефакторинга условий поиска добавить поле searchdataid, которое
+ *       будет хранить условия по которым элементы добавляются или удаляются из списка
+ *       при обновлении
  */
 class EasyList extends CActiveRecord
 {
@@ -75,7 +85,7 @@ class EasyList extends CActiveRecord
      */
     const TRIGGER_NEVER  = 'never';
     /**
-     * @var string - условие запуска дополнения или очистки списка: обновлять список вручную
+     * @var string - условие запуска дополнения или очистки списка: обновлять список только вручную
      *               (для динамических списков которые дополняются и очищаются вручную, без
      *               каких-либо правил или условий выборки)
      *               Такие списки не могут обновляться автоматически потому что не содержат критериев
@@ -86,7 +96,7 @@ class EasyList extends CActiveRecord
      */
     const TRIGGER_MANUAL = 'manual';
     /**
-     * @var string - условие запуска дополнения или очистки списка: обновлять список автоматически
+     * @var string - условие запуска дополнения или очистки списка: обновлять список только автоматически
      *               (для динамических списков которые дополняются и очищаются по мере того
      *               как объекты системы начинают или перестают подходить условиям выборки)
      *               Такие списки будут обновляться автоматически (например по крону). 
@@ -99,7 +109,7 @@ class EasyList extends CActiveRecord
      */
     const TRIGGER_AUTO   = 'auto';
     /**
-     * @var string - условие запуска дополнения или очистки списка: обновлять список автоматически и вручную
+     * @var string - условие запуска дополнения или очистки списка: обновлять список и автоматически и вручную
      *               (для динамических списков которые дополняются и очищаются по мере того
      *               как объекты системы начинают или перестают подходить условиям выборки)
      *               Такие списки будут обновляться по крону, период обновления может быть
@@ -147,7 +157,9 @@ class EasyList extends CActiveRecord
 			array('name', 'length', 'max' => 255),
 			array('description', 'length', 'max' => 4095),
 			array('triggerupdate, triggercleanup', 'length', 'max' => 20),
-			array('timecreated, timemodified, lastupdate, lastcleanup, updateperiod, unique', 'length', 'max' => 11),
+			array('itemtype', 'length', 'max' => 50),
+			array('timecreated, timemodified, lastupdate, lastcleanup, updateperiod, unique, searchdataid', 
+			    'length', 'max' => 11),
 			
 			// The following rule is used by search().
 			/*array('id, name, description, triggerupdate, 
@@ -166,6 +178,8 @@ class EasyList extends CActiveRecord
 		    'instances' => array(self::HAS_MANY, 'EasyListInstance', 'easylistid'),
 		    // все элементы входящие вэтот спискок
 		    'listItems' => array(self::HAS_MANY, 'EasyListItem', 'easylistid'),
+		    // условия выборки для элементов списка
+		    'searchData' => array(self::BELONGS_TO, 'SearchData', 'searchdataid')
 		);
 	}
 	
@@ -177,7 +191,7 @@ class EasyList extends CActiveRecord
 	    return array(
 	        // автоматическое заполнение дат создания и изменения
 	        'EcTimestampBehavior' => array(
-	            'class'           => 'application.behaviors.EcTimestampBehavior',
+	            'class' => 'application.behaviors.EcTimestampBehavior',
 	        ),
 	    );
 	}
@@ -200,6 +214,8 @@ class EasyList extends CActiveRecord
 			'updateperiod' => 'Интервал дополнения списка',
 			'cleanupperiod' => 'Интервал очистки списка',
 			'unique' => 'Запретить одинаковые элементы в этом списке?',
+			'itemtype' => 'Тип элементов списка',
+			'searchdataid' => 'Условия выборки для элементов списка',
 		);
 	}
 
