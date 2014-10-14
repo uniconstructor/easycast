@@ -511,6 +511,32 @@ class OmniRelationTargetBehavior extends CustomScopesBehavior
     }
     
     /**
+     * Условие поиска: все модели, присутствующие в указанном списке
+     *
+     * @param  int|array    $listId    - id списка (EasyList) или массив таких id
+     * @param  string|array $status    - статусы элементов списка, которые должны ссылаться на этот объект
+     * @param  string       $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+     * @return CActiveRecord
+     */
+    public function inList($listId, $status=EasyListItem::STATUS_ACTIVE, $operation='AND')
+    {
+        $criteria = new CDbCriteria();
+        $criteria->together = true;
+        $criteria->with = array(
+            'listItems' => array(
+                'joinType' => 'INNER JOIN',
+                'scopes'   => array(
+                    'withListId' => array($listId),
+                    'withStatus' => array($status),
+                ),
+            ),
+        );
+        $this->owner->getDbCriteria()->mergeWith($criteria, $operation);
+        
+        return $this->owner;
+    }
+    
+    /**
      * Создать все дополнительные связи для модели опираясь на значения по умолчанию
      *
      * @return array
