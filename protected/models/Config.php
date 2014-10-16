@@ -100,14 +100,14 @@
  *                                  Если значение настройки не задано - то в этом поле будет null 
  * 
  * Relations:
- * @property Config          $parentConfig   - родительская настройка, из которой была создана эта
- * @property EasyList        $defaultList    - список, содержащий стандартные значения для этой настройки
+ * @property Config          $parentConfig     - родительская настройка, из которой была создана эта
+ * @property EasyList        $defaultList      - список, содержащий стандартные значения для этой настройки
  * @property EasyListItem[]  $defaultListItems - 
  * @property EasyList        $userList - список, содержащий введенные пользователем значения для
  *                           этой настройки. Используется если ни один из стандартных вариантов 
  *                           не подошел пользователю и если в настройке разрешено добавление 
  *                           собственных значений
- * @property EasyListItem[]  $userListItems    - 
+ * @property EasyListItem[]  $userListItems  - 
  * @property CActiveRecord   $selectedValue  - модель, содержащая значение настройки 
  *                           (если настройка предусматривает максимум одно значение)
  *                           Если выбранных значений настройки может быть несколько - то эта связь содержит 
@@ -410,7 +410,11 @@ class Config extends CActiveRecord
 	            // (если к ним прикреплено поведение настроек) либо через cron
 	            'updateAttribute' => 'timemodified',
 	        ),
-	        // универсальные связи с другими моделями
+	        // это поведение позволяет изменять набор связей модели в процессе выборки
+	        'CustomRelationsBehavior' => array(
+	            'class' => 'application.behaviors.CustomRelationsBehavior',
+	        ),
+	        // это поведение добавляет группы условий поиска (scopes)
 	        'OmniRelationBehavior' => array(
 	            'class' => 'application.behaviors.OmniRelationBehavior',
 	            'targetRelationName'  => 'configTarget',
