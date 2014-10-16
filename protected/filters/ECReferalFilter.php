@@ -79,7 +79,7 @@ class ECReferalFilter extends CFilter
             // приглашение не найдено - не производим вход
             return true;
         }
-        if ( $invite->key != $key )
+        if ( ! isset($invite->subscribekey) OR $invite->subscribekey != $key )
         {// ключ доступа не совпадает с указанным - не производим вход
             return true;
         }
