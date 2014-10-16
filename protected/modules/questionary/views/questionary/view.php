@@ -15,7 +15,6 @@ $this->breadcrumbs[] = $questionary->user->fullname;
 $editIcon = '';
 if ( $canEdit )
 {// анкету пользователя может редактировать только админ и сам пользователь
-    //$editIcon = CHtml::image($editIcon, Yii::t('coreMessages', 'edit'));
     $editIcon = CHtml::link(Yii::t('coreMessages', 'edit'), 
         Yii::app()->createUrl('//questionary/questionary/update', array('id' => $questionary->id)),
         array('class' => 'btn btn-warning btn-large'));
@@ -103,5 +102,8 @@ if ( Yii::app()->user->checkAccess('Admin') )
             'questionary' => $questionary,
         ));
     }
+    //$params = $questionary->getConfig();
+    //CVarDumper::dump($params, 10, true);
+    //CVarDumper::dump(Config::model()->findByPk(20), 10, true);
     ?>
 </div>
