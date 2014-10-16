@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>        
+<project name="Сборка EasyCast для автоматических тестов" default="finish" basedir="../">
+	<!-- Указываем путь к Yii -->  
+	<property name="yii.dir" value="../yiisoft/yii/"/>
+	<!-- Указываем путь к ядру EasyCast -->
+	<property name="core.dir" value="/home/frost/git/easycast(core)/"/>
+	<!-- Указываем путь к проекту с плагинами -->
+	<property name="plugins.dir" value="/home/frost/git/easycast(plugins)/"/>
+	<!-- Путь к папке с файлами для версии с автоматическими тестами -->
+    <property name="test.dir" value="."/>
+	
+	<!-- Папка с промежуточными результатами сборки -->
+    <property name="test_output.dir" value="/home/frost/tmp/release/easycast/TEST/"/>
+	<!-- Папка веб-сервера -->
+    <property name="webserver.dir" value="/home/frost/server/sites/bglance-test/"/>
+    
+	<target name="clear-webserver-directory">
+        <echo>Очищаем папку веб-сервера</echo>
+        <delete includeemptydirs="true" deleteonexit="false" failonerror="false">
+              <fileset dir="${webserver.dir}" defaultexcludes="false">
+                  <include name="**"/>
+              	  <exclude name="gallery/**"/>
+              </fileset>
+        </delete>
+    </target>
+	
+    <target name="clear-output-directory" depends="clear-webserver-directory">
+        <echo>Очищаем папку от старых файлов</echo>
+        <delete includeemptydirs="true" deleteonexit="false" failonerror="false">
+              <fileset dir="${test_output.dir}" defaultexcludes="false">
+                  <include name="**"/>
+              </fileset>
+        </delete>
+    </target>
+
+    <target name="copy-yii" depends="clear-output-directory">
+        <echo>Копируем файлы Yii (вариант для разработчика)</echo>      
+        <copy todir="${test_output.dir}" overwrite="true" includeemptydirs="true">
+            <fileset dir="${yii.dir}">
+                <include name="framework/**"/>
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="adding-core" depends="copy-yii">
+        <echo>Добавляем ядро проекта</echo>
+        <copy todir="${test_output.dir}" overwrite="true" includeemptydirs="true">
+            <fileset dir="${core.dir}">
+                <include name="**"/>
+            </fileset>
+        </copy>
+    </target>
+	
+	<target name="adding-plugins" depends="adding-core">
+        <echo>Добавляем сторонние плагины</echo>
+        <copy todir="${test_output.dir}" overwrite="true" includeemptydirs="true">
+            <fileset dir="${plugins.dir}">
+                <include name="**"/>
+            </fileset>
+        </copy>
+    </target>
+	
+	<target name="setup-project-enviroment" depends="adding-plugins">
+        <echo>Настраиваем систему для проведения тестов</echo>
+        <copy todir="${test_output.dir}" overwrite="true">
+            <fileset dir="${test.dir}">
+                <include name="**"/>
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="cleanup" depends="setup-project-enviroment">
+        <echo>Удаление мусорных файлов</echo>
+    	<delete includeemptydirs="true" failonerror="false" deleteonexit="false">
+    		<fileset dir="${test_output.dir}" defaultexcludes="false">
+    		    <include name="**/.*/**"/>
+    		    <include name="**/.*"/>
+    		    <exclude name="**/.htaccess"/>
+            </fileset>
+        </delete>
+    </target>
+	
+	<target name="update-local-webserver" depends="cleanup">
+        <echo>Загружаем сборку разработчика на локальный веб-сервер</echo>
+        <copy includeemptydirs="true" todir="${webserver.dir}" overwrite="true">
+            <fileset dir="${test_output.dir}">
+                <include name="**"/>
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="finish" depends="update-local-webserver">
+        <echo>Development version assembled. Ready to go.</echo>
+    </target>
+</project>
