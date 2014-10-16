@@ -544,17 +544,17 @@ class m140908_030900_attachConfigData extends CDbMigration
             'objectid'     => 0,
             'timecreated'  => time(),
             'timemodified' => time(),
-            // список вариантов условий при которых участник будет оповещен
+            // список вариантов (скрыть/показать)
             'easylistid'   => $qVisibleOptionsListId,
-            // по умолчанию: не оповещать
             'valuetype'    => 'EasyList',
             'valuefield'   => 'value',
-            'valueid'      => $qVisibleOptionTypeIds['no'],
+            // по умолчанию: показать
+            'valueid'      => $qVisibleOptionTypeIds['show'],
         );
         $this->insert("{{config}}", $qVisibleConfig);
         $qVisibleConfigId = $this->dbConnection->lastInsertID;
         
-        $questionaries = $this->dbConnection->createCommand()->select('id')->
+        $questionaries = $this->dbConnection->createCommand()->select('id, visible, status')->
             from('{{questionaries}}')->queryAll();
         foreach ( $questionaries as $questionary )
         {// создаем по одной настройке каждого типа для каждого пользователя
@@ -581,6 +581,10 @@ class m140908_030900_attachConfigData extends CDbMigration
             $this->insert("{{config}}", $notifiationSetting);
             // Скрыть/показать мою анкету
             $configData['parentid'] = $qVisibleConfigId;
+            if ( ! $questionary['visible'] OR in_array($questionary['status'], array('unconfirmed', 'delayed')) )
+            {// дополнительно скрываем анкеты со статусами "ждет подтверждения участника" и "отложена"
+                $configData['valueid'] = $qVisibleOptionTypeIds['hide'];
+            }
             $qVisibleSetting = CMap::mergeArray($qVisibleConfig, $configData);
             $this->insert("{{config}}", $qVisibleSetting);
         }
