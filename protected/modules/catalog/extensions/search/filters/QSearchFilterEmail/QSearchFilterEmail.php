@@ -4,7 +4,7 @@
  * Фильтр для поиска по полю email (для администраторов)
  * @todo добавить подсказку при вводе
  */
-class QSearchFilterEmail extends QSearchFilterBaseSelect2
+class QSearchFilterEmail extends QSearchFilterBase
 {
     /**
      * @var array - список имен input-полей, которые содержатся в фрагменте формы
@@ -28,48 +28,61 @@ class QSearchFilterEmail extends QSearchFilterBaseSelect2
     }
     
     /**
-     * Получить настройки для плагина select2
+     * получить все html-содержимое виджета фрагмента формы поиска
+     * (функция заменяет run() для обычных виджетов)
      *
-     * @return array
+     * @return null
      */
-    protected function createSelect2Options()
+    protected function getContent()
     {
-        $selected = array();
-        if ( $params = $this->loadLastSearchParams() AND isset($params[$this->getShortName()]) )
-        {// получаем значения по умолчанию (если они были)
-            $selected = $params[$this->getShortName()];
+        $content = '';
+        $name    = $this->getFullInputName('email');
+        
+        // Получаем данные по умолчанию
+        $default = '';
+        if ( $params = $this->loadLastSearchParams() )
+        {
+            $default = $params['email'];
         }
-        return array(
-            // текст-заглушка
-            'placeholder'    => '',
-            // разрешить удалять верианты из списка
-            'allowClear'     => true,
-            // select не закрывается, чтобы можно было быстро выбрать несколько вариантов
-            'closeOnSelect'  => false,
-            // отсылать событие change каждый раз при изменении данных
-            'triggerChange ' => true,
-            // максимальная ширина всегда
-            'width'          => '100%',
-            // разрешаем ввод собственных значений (пока не добавлен autocomplete при вводе)
-            // @todo параметр tags не разрешен в select2 когда используется select
-            //       вернуться к использованию getMenuVariants
-            //'tags'           => $selected,
-        );
+        $htmlOptions = array('placeholder' => 'email');
+        // Выводим текстовое поле для ФИО
+        $content .= CHtml::textField($name, $default, $htmlOptions);
+        
+        return $content;
     }
     
     /**
-     * @see QSearchFilterBaseSelect2::getMenuVariants()
+     * Получить JS-код, который реагирует на событие собирает все данные из фрагмента формы в JSON-массив
+     * (для отправки по AJAX, чтобы тут же обновлять данные поиска в сессии или динамически обновлять содержимое поиска)
+     * (этот метод - индивидуальный для каждого фильтра)
+     * 
+     * @return string
      */
-    protected function getMenuVariants()
+    protected function createCollectFilterDataJs()
     {
-        return array();
+        $selector = $this->inputSelectors['email'];
+        
+        return  "function {$this->collectDataJsName}(){
+            var data  = {};
+            var value = jQuery.trim(jQuery('{$selector}').val());
+            
+            if ( value.length > 0 )
+            {
+                data.email = value;
+            }
+            return data;
+        };";
     }
     
     /**
-     * @see QSearchFilterBaseSelect2::createSelectVariants()
+     * Получить js-код для очистки выбранных пользователем значений в фрагменте формы
+     * (Этот JS очищает только данные на стороне клиента. Код уникальный для каждого элемента)
+     *
+     * @return string
      */
-    protected function createSelectVariants()
+    protected function createClearFormDataJs()
     {
-        return array();
+        $selector = $this->inputSelectors['email'];
+        return "$('{$selector}').val('')";
     }
 }

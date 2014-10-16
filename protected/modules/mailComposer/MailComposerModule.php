@@ -218,7 +218,7 @@ class MailComposerModule extends CWebModule
                 {
                     throw new CException('questionary for mail is not set');
                 }
-                return $mailComposer->createMCRegistrationMailText($params['questionary'], $params['vacancy']);
+                return $mailComposer->createMCRegistrationMailText($params['questionary'], $params['vacancy'], $params['password']);
             break;
         }
     }

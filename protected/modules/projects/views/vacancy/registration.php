@@ -10,7 +10,7 @@
 $this->pageTitle = "Регистрация для участия в проекте ".$model->vacancy->event->project->name;
 // Описание страницы для поисковиков
 // @todo брать описание из настроек роли
-Yii::app()->clientScript->registerMetaTag('Телеканал СТС объявляет кастинг участников на самое кулинарное шоу мира!', 'description', null, array('lang' => 'ru'));
+Yii::app()->clientScript->registerMetaTag(strip_tags($model->vacancy->event->project->shortdescription), 'description', null, array('lang' => 'ru'));
 ?>
 <div class="container">
     <div class="row">

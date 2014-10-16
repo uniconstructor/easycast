@@ -2,13 +2,30 @@
 
 /**
  * Экземпляры списков пользователей
+ * Эта модель позволяет связывать списки с любыми другими объектами в системе
  *
- * The followings are the available columns in table '{{user_list_instances}}':
+ * Таблица '{{user_list_instances}}':
  * @property integer $id
  * @property string $easylistid
  * @property string $objecttype
  * @property string $objectid
  * @property string $timecreated
+ * @property string $timemodified
+ * 
+ * Relations:
+ * @property EasyList $easyList
+ * 
+ * Методы класса EcTimestampBehavior:
+ * @method CActiveRecord createdBefore(int $time, string $operation='AND')
+ * @method CActiveRecord createdAfter(int $time, string $operation='AND')
+ * @method CActiveRecord updatedBefore(int $time, string $operation='AND')
+ * @method CActiveRecord updatedAfter(int $time, string $operation='AND')
+ * @method CActiveRecord modifiedOnly()
+ * @method CActiveRecord neverModified()
+ * @method CActiveRecord lastCreated()
+ * @method CActiveRecord firstCreated()
+ * @method CActiveRecord lastModified()
+ * @method CActiveRecord firstModified()
  */
 class EasyListInstance extends CActiveRecord
 {
@@ -26,11 +43,10 @@ class EasyListInstance extends CActiveRecord
 	public function rules()
 	{
 		return array(
-			array('easylistid, objectid, timecreated', 'length', 'max'=>11),
-			array('objecttype', 'length', 'max'=>50),
+			array('easylistid, objectid, timecreated, timemodified', 'length', 'max' => 11),
+			array('objecttype', 'length', 'max' => 50),
 			// The following rule is used by search().
-			// @todo Please remove those attributes that should not be searched.
-			array('id, easylistid, objecttype, objectid, timecreated', 'safe', 'on'=>'search'),
+			//array('id, easylistid, objecttype, objectid, timecreated', 'safe', 'on' => 'search'),
 		);
 	}
 
@@ -51,10 +67,8 @@ class EasyListInstance extends CActiveRecord
 	{
 	    return array(
 	        // автоматическое заполнение дат создания и изменения
-	        'CTimestampBehavior' => array(
-	            'class'           => 'zii.behaviors.CTimestampBehavior',
-	            'createAttribute' => 'timecreated',
-	            'updateAttribute' => null,
+	        'EcTimestampBehavior' => array(
+	            'class'           => 'application.behaviors.EcTimestampBehavior',
 	        ),
 	    );
 	}
@@ -69,7 +83,6 @@ class EasyListInstance extends CActiveRecord
 			'easylistid' => 'Userlistid',
 			'objecttype' => 'Objecttype',
 			'objectid' => 'Objectid',
-			'timecreated' => 'Timecreated',
 		);
 	}
 
@@ -85,22 +98,22 @@ class EasyListInstance extends CActiveRecord
 	 * @return CActiveDataProvider the data provider that can return the models
 	 * based on the search/filter conditions.
 	 */
-	public function search()
+	/*public function search()
 	{
 		// @todo Please modify the following code to remove attributes that should not be searched.
 
 		$criteria=new CDbCriteria;
 
-		$criteria->compare('id',$this->id);
-		$criteria->compare('easylistid',$this->easylistid,true);
-		$criteria->compare('objecttype',$this->objecttype,true);
-		$criteria->compare('objectid',$this->objectid,true);
-		$criteria->compare('timecreated',$this->timecreated,true);
+		$criteria->compare('id', $this->id);
+		$criteria->compare('easylistid', $this->easylistid,true);
+		$criteria->compare('objecttype', $this->objecttype,true);
+		$criteria->compare('objectid', $this->objectid,true);
+		$criteria->compare('timecreated', $this->timecreated,true);
 
 		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
+			'criteria' => $criteria,
 		));
-	}
+	}*/
 
 	/**
 	 * Returns the static model of the specified AR class.
@@ -137,15 +150,11 @@ class EasyListInstance extends CActiveRecord
 	 * @param string $objectType
 	 * @param array $objectIds
 	 * @return EasyListInstance
+	 * 
+	 * @deprecated
 	 */
 	public function forObjects($objectType, $objectIds)
 	{
-	    $criteria = new CDbCriteria();
-	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
-	    $criteria->addInCondition($this->getTableAlias(true).'.`objectid`', $objectIds);
-	
-	    $this->getDbCriteria()->mergeWith($criteria);
-	
-	    return $this;
+	    return $this->forObject($objectType, $objectId);
 	}
 }

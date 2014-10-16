@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Шаги формы
+ * This is the model class for table "{{wizard_steps}}".
  *
- * Таблица '{{wizard_steps}}':
+ * The followings are the available columns in table '{{wizard_steps}}':
  * @property integer $id
  * @property string $name
  * @property string $header
@@ -29,75 +29,26 @@ class WizardStep extends CActiveRecord
 	public function rules()
 	{
 		return array(
-			array('name, prevlabel, nextlabel', 'length', 'max' => 128),
-			array('header', 'length', 'max' => 255),
-			array('description', 'length', 'max' => 4095),
-			array('timecreated, timemodified', 'length', 'max' => 11),
+			array('name, prevlabel, nextlabel', 'length', 'max'=>128),
+			array('header', 'length', 'max'=>255),
+			array('description', 'length', 'max'=>4095),
+			array('timecreated, timemodified', 'length', 'max'=>11),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('id, name, header, description, prevlabel, nextlabel, timecreated, timemodified', 'safe', 'on'=>'search'),
 		);
 	}
-	
-	/**
-	 * @see CActiveRecord::afterSave()
-	 */
-	public function afterSave()
-	{
-	    if ( $this->isNewRecord )
-	    {// при создании нового шага формы автоматически создаем 
-	        // пустой список для полей формы
-	        $easyList = new EasyList();
-	        // в списке полей все элементы должны быть уникальными:
-	        // нельзя добавить одно поле в шаг формы два раза
-	        $easyList->unique = 1;
-	        $easyList->name   = 'Список полей этапа ('.$this->name.')';
-	        if ( $easyList->save() )
-	        {
-	            throw new CException('Не удалось создать список полей для шага регистрации');
-	        }
-	        
-	        // прикрепляем список полей к шагу регистрации
-	        $easyListInstance = new EasyListInstance();
-	        $easyListInstance->easylistid = $easyList->id;
-	        $easyListInstance->objecttype = 'WizardStep';
-	        $easyListInstance->objectid   = $this->id;
-	        if ( $easyListInstance->save() )
-	        {
-	            $easyList->delete();
-	            throw new CException('Не удалось привязать созданный список полей к форме регистрации');
-	        }
-	    }
-	    parent::afterSave();
-	}
-	
+
 	/**
 	 * @return array relational rules.
 	 */
 	public function relations()
 	{
 		return array(
-		    'wizard' => array(self::BELONGS_TO, 'Wizard', 'objectid',
-		        'condition' => "objecttype='wizard'",
-		    ),
+		    'instances' => array(self::HAS_MANY, 'WizardStepInstance', 'wizardstepid'),
 		);
 	}
-	
-	/**
-	 * @see CModel::behaviors()
-	 */
-	public function behaviors()
-	{
-        return array(
-            // автоматическое заполнение дат создания и изменения
-            'CTimestampBehavior' => array(
-                'class'           => 'zii.behaviors.CTimestampBehavior',
-                'createAttribute' => 'timecreated',
-                'updateAttribute' => 'timemodified',
-            ),
-        );
-	}
-	
+
 	/**
 	 * @return array customized attribute labels (name=>label)
 	 */
@@ -105,16 +56,16 @@ class WizardStep extends CActiveRecord
 	{
 		return array(
 			'id' => 'ID',
-			'name' => Yii::t('coreMessages', 'title'),
+			'name' => 'Название',
 			'header' => 'Заголовок',
-			'description' => Yii::t('coreMessages', 'description'),
-			'prevlabel' => 'Prevlabel',
-			'nextlabel' => 'Nextlabel',
+			'description' => 'Описание',
+			'prevlabel' => 'Текст кнопки "Назад"',
+			'nextlabel' => 'Текст кнопки "Вперед"',
 			'timecreated' => 'Timecreated',
 			'timemodified' => 'Timemodified',
 		);
 	}
-	
+
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.
 	 *
@@ -130,6 +81,7 @@ class WizardStep extends CActiveRecord
 	public function search()
 	{
 		// @todo Please modify the following code to remove attributes that should not be searched.
+
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
@@ -158,6 +110,29 @@ class WizardStep extends CActiveRecord
 	}
 	
 	/**
+	 * Именованная группа условий: получить все записи связанные с ролью
+	 * @param int $id
+	 * @return WizardStep
+	 */
+	public function forVacancy($id)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->with = array(
+	        'instances' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes'   => array(
+	                'forVacancy' => array($id),
+	            ),
+	        ),
+	    );
+	    $criteria->together = true;
+	     
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    return $this;
+	}
+	
+	/**
 	 * Именованая группа условий: получить все записи, связанные с определенным объектом
 	 * @param string $objectType
 	 * @param string $objectId
@@ -166,11 +141,18 @@ class WizardStep extends CActiveRecord
 	public function forObject($objectType, $objectId)
 	{
 	    $criteria = new CDbCriteria();
-	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
-	    $criteria->compare($this->getTableAlias(true).'.`objectid`', $objectId);
-	    
+	    $criteria->with = array(
+	        'instances' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes'   => array(
+	                'forObject' => array($objectType, $objectId),
+	            ),
+	        ),
+	    );
+	    $criteria->together = true;
+	     
 	    $this->getDbCriteria()->mergeWith($criteria);
-	    
 	    return $this;
 	}
 	
@@ -183,11 +165,19 @@ class WizardStep extends CActiveRecord
 	public function forObjects($objectType, $objectIds)
 	{
 	    $criteria = new CDbCriteria();
-	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
-	    $criteria->compare($this->getTableAlias(true).'.`objectid`', $objectId);
-	    
+	    $criteria->with = array(
+	        'instances' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes'   => array(
+	                'forObjects' => array($objectType, $objectIds),
+	            ),
+	        ),
+	    );
+	    $criteria->together = true;
+	
 	    $this->getDbCriteria()->mergeWith($criteria);
-	    
+	
 	    return $this;
 	}
 }

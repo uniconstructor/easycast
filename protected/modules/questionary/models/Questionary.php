@@ -6,6 +6,7 @@
  * 
  * Все данные об участнике хранятся здесь, или в связанных таблицах
  * Модель User используется только для хранения служебных данных (логин, email и так далее)
+ * 
  * Если нужно добавить новое поле в анкету - то нужно сначала ответить на несколько вопросов:
  * - действительно ли это поле должно быть привязано к пользователю? 
  *   (например дополнительные поля, указываемые при подаче заявки должны быть привязаны к заявке)
@@ -15,7 +16,6 @@
  *   мы добавили и убрали из анкеты много полей. Часть из них нужно будет вынести в отдельные связанные
  *   таблицы, в первую очередь все данные для документов и все комментарии, кроме privatecomment
  *   которое нужно для наших пометок, не видно пользователям и скорее всего мы захотим по нему искать)
- * - 
  *
  * Поля:
  * @property integer $id
@@ -230,7 +230,8 @@ class Questionary extends CActiveRecord
     }
     
     /**
-     * Returns the static model of the specified AR class.
+     * Returns the static model of the specified AR class
+     * 
      * @param string $className active record class name.
      * @return Questionary the static model class
      */
@@ -303,12 +304,14 @@ class Questionary extends CActiveRecord
     {
         return array(
             // только подтвержденные (одобренные модератором) анкеты
+            // @todo - не используется, удалить при рефакторинге
             'active' => array(
-                'condition' => "`status` = '".self::STATUS_ACTIVE."'"
+                'condition' => $this->getTableAlias(true).".`status` = '".self::STATUS_ACTIVE."'",
             ),
             // только те анкеты, которые могут подавать заявки
+            // @todo - не используется, удалить при рефакторинге
             'admitted' => array(
-                'condition' => "`status` IN ('".self::STATUS_ACTIVE."','".self::STATUS_PENDING."','".self::STATUS_REJECTED."')"
+                'condition' => $this->getTableAlias(true).".`status` IN ('".self::STATUS_ACTIVE."','".self::STATUS_PENDING."','".self::STATUS_REJECTED."')",
             ),
         );
     }
@@ -489,10 +492,8 @@ class Questionary extends CActiveRecord
             // подключаем behavior для загрузки изображений в анкету актера
             'galleryBehavior' => $gallerySettings,
             // автоматическое заполнение дат создания и изменения
-            'CTimestampBehavior' => array(
-                'class' => 'zii.behaviors.CTimestampBehavior',
-                'createAttribute' => 'timecreated',
-                'updateAttribute' => 'timemodified',
+            'EcTimestampBehavior' => array(
+                'class' => 'application.behaviors.EcTimestampBehavior',
             ),
             // проверки для простых полей формы
             'QScalarRules' => array(
@@ -505,6 +506,11 @@ class Questionary extends CActiveRecord
                     'url'  => Yii::app()->createUrl('//questionary/questionary/ajaxGetUserInfo'),
                     'data' => array('displayType' => 'searchResults'),
                 ),
+            ),
+            // настройки анкеты
+            'ConfigurableRecordBehavior' => array(
+                'class' => 'application.behaviors.ConfigurableRecordBehavior',
+                'defaultOwnerClass' => get_class($this),
             ),
         );
     }
@@ -1284,16 +1290,17 @@ class Questionary extends CActiveRecord
     }
     
     /**
-     * Разрешено ли участнику подавать заявку на роль? 
+     * Разрешено ли участнику подавать заявку на роль?
+     * 
      * @return boolean
+     * 
+     * @deprecated устаревшая функция, оставлена для совместимости,удалить при рефакторинге:
+     *             мы отказались от того чтобы в принципе запрещать кому-то подавать заявки
+     *             Вместо этого мы просто не показываем непроверенные заявки в итоговой выборке
      */
     public function isAdmitted()
     {
-        if ( in_array($this->status, array(self::STATUS_ACTIVE, self::STATUS_PENDING, self::STATUS_REJECTED)) )
-        {
-            return true;
-        }
-        return false;
+        return true;
     }
     
     /**
@@ -1341,10 +1348,10 @@ class Questionary extends CActiveRecord
                 ),
             ),
         );
-        // together Необходимо для корректного выполнения реляционного запроса
         $criteria->together = true;
          
         $this->getDbCriteria()->mergeWith($criteria);
+        
         return $this;
     }
     
@@ -1356,11 +1363,19 @@ class Questionary extends CActiveRecord
     public function fromRegions($regionIds)
     {
         $criteria = new CDbCriteria();
-        $criteria->with     = 'cityobj';
+        $criteria->with = array(
+            'cityobj' => array(
+                'select'   => false,
+                'joinType' => 'INNER JOIN',
+                'scopes'   => array(
+                    'fromRegions' => array($regionIds),
+                ),
+            ),
+        );
         $criteria->together = true;
-        $criteria->addInCondition('`cityobj`.`regionid`', $regionIds);
         
         $this->getDbCriteria()->mergeWith($criteria);
+        
         return $this;
     }
     
@@ -1866,7 +1881,6 @@ class Questionary extends CActiveRecord
         {
             return array();
         }
-        
         $num = 0;
         foreach ($photos as $photo)
         {
@@ -1886,7 +1900,6 @@ class Questionary extends CActiveRecord
             $tbPhotos[] = $element;
             $num++;
         }
-        
         return $tbPhotos;
     }
 }

@@ -1,10 +1,12 @@
 <?php
 /**
  * Страница отбора актеров для заказчика
- * @todo создать layout с выделеным местом под affix
  */
 /* @var $customerInvite CustomerInvite */
 /* @var $this InviteController */
+
+// запрет индексации поисковиками
+Yii::app()->clientScript->registerMetaTag('noindex', 'robots');
 
 //$this->breadcrumbs = array();
 

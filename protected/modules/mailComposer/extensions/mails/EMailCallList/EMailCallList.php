@@ -38,7 +38,7 @@ class EMailCallList extends EMailBase
     /**
      * @var string - язык на котором формируется фотовызывной
      */
-    protected $language = 'ru';
+    protected $language    = 'ru';
     /**
      * @var array - массив с дополнительными строками для перевода тех частей 
      *              фотовызывного, которые нельзя перевести автоматически 

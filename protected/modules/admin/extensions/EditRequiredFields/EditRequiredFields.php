@@ -10,16 +10,13 @@ Yii::import('ext.EditableGrid.EditableGrid');
  * @todo добавить возможность менять выбранное поле по AJAX
  * @todo добавить разбивку по категориям в select-списке полей
  * @todo добавить возможность переопределять название и описание поля
- * 
- * @deprecated с вводом списков этот виджет больше не используется
- *             используйте виджет EditFieldList 
  */
 class EditRequiredFields extends EditableGrid
 {
     /**
-     * @var string - тип объекта к которому добавляется ввода (как правило это шаг регистрации)
+     * @var string - тип объекта к которому добавляется ввода (как правило это роль)
      */
-    public $objectType = 'WizardStep';
+    public $objectType;
     /**
      * @var int - id объекта к которому добавляется ввода
      */
@@ -38,17 +35,27 @@ class EditRequiredFields extends EditableGrid
     /**
      * @var string - префикс html-id для каждой строки таблицы (чтобы можно было удалять строки)
      */
-    //public $rowIdPrefix = 'qfield_instance_row_';
+    public $rowIdPrefix = 'qfield_instance_row_';
     /**
      * @var string - пустой класс модели (для создания формы добавления объекта)
      */
-    public $modelClass  = 'EasyListItem';
+    public $modelClass  = 'QFieldInstance';
     /**
      * @var array - список редактируемых полей в том порядке, в котором они идут в таблице
-     *              (в этом виджете набор различается в зависимости от типа, 
-     *              поэтому сразу ничего не задаем)
      */
     public $fields;
+    /**
+     * @var string - html-id формы для ввода новой записи
+    */
+    public $formId  = 'qfield-instance-form';
+    /**
+     * @var string - html-id modal-окна для ввода новой записи
+     */
+    public $modalId = 'qfield-instance-modal';
+    /**
+     * @var string - html-id кнопки для ввода новой записи
+     */
+    public $addButtonId = 'add-qfield-instance-button';
     /**
      * @var string - заголовок всплывающего окна с формой добавления новой записи
      */
@@ -92,7 +99,13 @@ class EditRequiredFields extends EditableGrid
         // загружаем объект к которому привязываются дополнительные поля
         $this->loadTargetObject();
         
-        
+        if ( $this->bindObjectType === 'wizardstepinstance' )
+        {
+            $this->fields = array('objectid', 'name', 'filling', 'data');
+        }else
+        {
+            $this->fields = array('name', 'filling', 'data');
+        }
         parent::init();
     }
     

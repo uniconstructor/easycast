@@ -12,6 +12,15 @@
 class ProjectMailsBehavior extends CBehavior
 {
     /**
+     * @var string - префикс для пути к папке с виджетами-заготовками писем
+     */
+    protected $_mailsPrefix   = 'application.modules.mailComposer.extensions.mails.';
+    /**
+     * @var string - префикс для пути к папке с виджетами-заготовками писем
+     */
+    protected $_widgetsPrefix = 'application.modules.mailComposer.extensions.widgets.';
+    
+    /**
      * Составить тему письма для приглашения на съемки
      *
      * @param EventInvite $invite - приглашение на мероприятие
@@ -94,7 +103,7 @@ class ProjectMailsBehavior extends CBehavior
         // добавляем все блоки с информацией в массив настроек для виджета EMailAssembler
         $mailOptions['segments'] = $segments;
         // создаем виджет и получаем из него полный HTML-код письма
-        return $this->owner->widget('application.modules.mailComposer.extensions.widgets.EMailAssembler.EMailAssembler',
+        return $this->owner->widget($this->_widgetsPrefix.'EMailAssembler.EMailAssembler',
             $mailOptions, true); 
     }
     
@@ -130,7 +139,7 @@ class ProjectMailsBehavior extends CBehavior
         // добавляем все блоки с информацией в массив настроек для виджета EMailAssembler
         $mailOptions['segments'] = $segments;
         // создаем виджет и получаем из него полный HTML-код письма
-        return $this->owner->widget('application.modules.mailComposer.extensions.widgets.EMailAssembler.EMailAssembler',
+        return $this->owner->widget($this->_widgetsPrefix.'EMailAssembler.EMailAssembler',
             $mailOptions, true);
     }
     
@@ -186,7 +195,7 @@ class ProjectMailsBehavior extends CBehavior
         // добавляем все блоки с информацией в массив настроек для виджета EMailAssembler
         $mailOptions['segments'] = $segments;
         // создаем виджет и получаем из него полный HTML-код письма
-        return $this->owner->widget('application.modules.mailComposer.extensions.widgets.EMailAssembler.EMailAssembler',
+        return $this->owner->widget($this->_widgetsPrefix.'EMailAssembler.EMailAssembler',
             $mailOptions, true);
     }
     
@@ -238,7 +247,7 @@ class ProjectMailsBehavior extends CBehavior
         $segments->add(null, $this->owner->textBlock($text));
         $mailOptions['segments'] = $segments;
         // создаем виджет и получаем из него полный HTML-код письма
-        return $this->owner->widget('application.modules.mailComposer.extensions.widgets.EMailAssembler.EMailAssembler',
+        return $this->owner->widget($this->_widgetsPrefix.'EMailAssembler.EMailAssembler',
             $mailOptions, true);
     }
     
@@ -300,7 +309,7 @@ class ProjectMailsBehavior extends CBehavior
         
         $mailOptions['segments'] = $segments;
         // создаем виджет и получаем из него полный HTML-код письма
-        return $this->owner->widget('application.modules.mailComposer.extensions.widgets.EMailAssembler.EMailAssembler',
+        return $this->owner->widget($this->_widgetsPrefix.'EMailAssembler.EMailAssembler',
             $mailOptions, true);
     }
     
@@ -308,12 +317,15 @@ class ProjectMailsBehavior extends CBehavior
      * Создать текст письма с приглашением активировать анкету для актеров из базы Светланы Строиловой
      * @param Questionary $questionary
      * @return string
+     * 
+     * @deprecated ввод анкет базы Светланы Строиловой завершен, 
+     *             больше не используется, удалить при рефакторинге
      */
     public function createSSInviteMailText($questionary)
     {
-        return $this->owner->widget('application.modules.mailComposer.extensions.mails.EMailSSNotification.EMailSSNotification',
-            array('questionary' => $questionary),
-            true);
+        return $this->owner->widget($this->_mailsPrefix.'EMailSSNotification.EMailSSNotification', array(
+            'questionary' => $questionary,
+        ), true);
     }
     
     /**
@@ -323,9 +335,9 @@ class ProjectMailsBehavior extends CBehavior
      */
     public function createECRegistrationMailText($questionary)
     {
-        return $this->owner->widget('application.modules.mailComposer.extensions.mails.EMailECRegistration.EMailECRegistration',
-            array('questionary' => $questionary),
-            true);
+        return $this->owner->widget($this->_mailsPrefix.'EMailECRegistration.EMailECRegistration', array(
+            'questionary' => $questionary,
+        ), true);
     }
     
     /**
@@ -335,25 +347,25 @@ class ProjectMailsBehavior extends CBehavior
      */
     public function createTMRegistrationMailText($questionary)
     {
-        return $this->owner->widget('application.modules.mailComposer.extensions.mails.EMailTMRegistration.EMailTMRegistration',
-            array('questionary' => $questionary),
-        true);
+        return $this->owner->widget($this->_mailsPrefix.'EMailTMRegistration.EMailTMRegistration', array(
+            'questionary' => $questionary,
+        ), true);
     }
     
     /**
      * Подтверждение регистрации через подачу заявки на проект "МастерШеф"
-     * @param Questionary $questionary
+     * @param Questionary  $questionary
      * @param EventVacancy $questionary
+     * @param string       $password
      * @return string
      */
-    public function createMCRegistrationMailText($questionary, $vacancy)
+    public function createMCRegistrationMailText($questionary, $vacancy, $password)
     {
-        return $this->owner->widget('application.modules.mailComposer.extensions.mails.EMailMCRegistration.EMailMCRegistration',
-            array(
-                'questionary' => $questionary,
-                'vacancy'     => $vacancy,
-            ),
-        true);
+        return $this->owner->widget($this->_mailsPrefix.'EMailMCRegistration.EMailMCRegistration', array(
+            'questionary' => $questionary,
+            'vacancy'     => $vacancy,
+            'password'    => $password,
+        ), true);
     }
     
     /**
@@ -364,9 +376,10 @@ class ProjectMailsBehavior extends CBehavior
      */
     public function createCallListMailText($callList, $addContacts=false)
     {
-        return $this->owner->widget('application.modules.mailComposer.extensions.mails.EMailCallList.EMailCallList',
-            array('callList' => $callList, 'addContacts' => $addContacts),
-            true);
+        return $this->owner->widget($this->_mailsPrefix.'EMailCallList.EMailCallList', array(
+            'callList'    => $callList,
+            'addContacts' => $addContacts,
+        ), true);
     }
     
     /**
@@ -377,9 +390,10 @@ class ProjectMailsBehavior extends CBehavior
      */
     public function createCastingListMailText($castingList, $addContacts=false)
     {
-        return $this->owner->widget('application.modules.mailComposer.extensions.mails.EMailCastingList.EMailCastingList',
-            array('callList' => $castingList, 'addContacts' => $addContacts),
-            true);
+        return $this->owner->widget($this->_mailsPrefix.'EMailCastingList.EMailCastingList', array(
+            'callList'    => $castingList,
+            'addContacts' => $addContacts,
+        ), true);
     }
     
     /**
@@ -390,8 +404,10 @@ class ProjectMailsBehavior extends CBehavior
      */
     public function createOfferMailText($offer, $manager=null)
     {
-        return $this->owner->widget('application.modules.mailComposer.extensions.mails.EMailOffer.EMailOffer',
-            array('offer' => $offer, 'manager' => $manager), true);
+        return $this->owner->widget($this->_mailsPrefix.'EMailOffer.EMailOffer', array(
+            'offer'   => $offer, 
+            'manager' => $manager,
+        ), true);
     }
     
     /**
@@ -404,8 +420,10 @@ class ProjectMailsBehavior extends CBehavior
      */
     public function createOrderMailText($order, $target)
     {
-        return $this->owner->widget('application.modules.mailComposer.extensions.mails.EMailOrder.EMailOrder',
-            array('order' => $order, 'target' => $target), true);
+        return $this->owner->widget($this->_mailsPrefix.'EMailOrder.EMailOrder', array(
+            'order'  => $order,
+            'target' => $target,
+        ), true);
     }
     
     /**

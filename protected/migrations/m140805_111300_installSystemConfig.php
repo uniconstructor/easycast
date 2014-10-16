@@ -31,7 +31,7 @@ class m140805_111300_installSystemConfig extends CDbMigration
         $this->dbConnection->createCommand()->insert($configTable, array(
             'name'        => 'catalog.sections.category',
             'title'       => 'Основная категория для разделов каталога',
-            'description' => 'Хранит все разделы каталога доступные в каталоге',
+            'description' => 'Хранит все разделы доступные в каталоге',
             'minvalues'   => 1,
             'maxvalues'   => 1,
             'type'        => 'text',

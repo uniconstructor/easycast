@@ -11,6 +11,11 @@
  * @property string $timecreated
  * @property string $timemodified
  * 
+ * Relations:
+ * @property ExtraField         $fieldObject
+ * @property ExtraFieldInstance $fieldInstance
+ * @property Questionary        $questionary
+ * 
  * @todo документировать код
  * @todo прописать unique-правило в rules
  */
@@ -60,8 +65,8 @@ class ExtraFieldValue extends CActiveRecord
 	{
 		return array(
 		    'fieldInstance' => array(self::BELONGS_TO, 'ExtraFieldInstance', 'instanceid'),
-		    'fieldObject' => array(self::BELONGS_TO, 'ExtraField', 'fieldid', 'through' => 'fieldInstance'),
-		    'questionary' => array(self::BELONGS_TO, 'Questionary', 'questionaryid'),
+		    'fieldObject'   => array(self::BELONGS_TO, 'ExtraField', 'fieldid', 'through' => 'fieldInstance'),
+		    'questionary'   => array(self::BELONGS_TO, 'Questionary', 'questionaryid'),
 		);
 	}
 	

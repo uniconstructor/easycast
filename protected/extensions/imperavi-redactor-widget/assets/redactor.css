@@ -1,10 +1,10 @@
 .redactor_box {
 	position: relative;
-	border: 1px solid #333;
+	border: 1px solid #ddd;
 	overflow: visible;
 }
 .redactor_box, .redactor_box textarea {
-	background-color: #121417;
+	background-color: #fff;
 }
 
 body .redactor_air {
@@ -86,7 +86,7 @@ body .redactor_box_fullscreen {
 	padding: 15px !important;
 	margin: 0 !important;
 	background: none;
-	background: #131517 !important;
+	background: #fff !important;
 	overflow: auto;
 	white-space: normal;
 }
@@ -293,6 +293,7 @@ body .redactor_air .redactor_toolbar {
 	width: 25px;
 	height: 25px;
 	border: 1px solid transparent;
+	* border: 1px solid #eee;
 	display: block;
 	line-height: 0;
 	font-size: 0;

@@ -115,36 +115,35 @@ class VacancyController extends Controller
             $qid = 0;
         }
         
-        if ( $qid )
-        {// заявку подает существующий участник
-            $questionary = Questionary::model()->findByPk($qid);
-            
+        if ( $questionary = Questionary::model()->findByPk($qid) )
+        {// заявку подает существующий участник:
             $statuses = array(
                 ProjectMember::STATUS_DRAFT,
                 ProjectMember::STATUS_ACTIVE,
                 ProjectMember::STATUS_FINISHED,
                 ProjectMember::STATUS_SUCCEED,
                 ProjectMember::STATUS_REJECTED,
-                ProjectMember::STATUS_UNCHECKED,
+                ProjectMember::STATUS_FINALIZED,
                 ProjectMember::STATUS_INCOMPLETE,
             );
-            if (  $vacancy->hasMember($qid, $statuses) )
-            {// дополение существующих данных
-                
+            if ( $vacancy->hasMember($qid, $statuses) )
+            {// происходит дополение существующих данных
+                $scenario = 'finalization';
             }else
             {// подача заявки от зарегистрированного участника
-                $model       = new QDynamicFormModel('application');
-                // не показываем те поля анкеты которые уже заполнены участником
-                // при регистрации или редактировании профиля, а также скрываем те дополнительные поля
-                // которые уже были заполнены участником при подаче заявки на другие роли
-                // @todo сделать настройку если обязательное или доп. поле уже заполнено участником:
-                //       - предложить изменить последнее значение
-                //       - использовать последнее заполненное значение молча, не давая его изменить
-                //       - всегда требовать новый ответ
-                $model->displayFilled = false;
-                // id галереи
-                $model->galleryid = $questionary->galleryid;
+                $scenario = 'application';
             }
+            $model = new QDynamicFormModel($scenario);
+            // не показываем те поля анкеты которые уже заполнены участником
+            // при регистрации или редактировании профиля, а также скрываем те дополнительные поля
+            // которые уже были заполнены участником при подаче заявки на другие роли
+            // @todo сделать настройку если обязательное или доп. поле уже заполнено участником:
+            //       - предложить изменить последнее значение
+            //       - использовать последнее заполненное значение молча, не давая его изменить
+            //       - всегда требовать новый ответ
+            $model->displayFilled = false;
+            // id галереи
+            $model->galleryid = $questionary->galleryid;
         }else
         {// участник регистрируется через подачу заявки
             $questionary = new Questionary;
@@ -345,6 +344,9 @@ class VacancyController extends Controller
                     $video->save();
                 }
             }
+        }elseif ( $scenario === 'finalization' )
+        {// сообщаем что данные заявки дополнены
+            Yii::app()->user->setFlash('success', 'Данные в вашей заявке дополнены');
         }else
         {// сообщаем что заявка подана
             Yii::app()->user->setFlash('success', 'Ваша заявка зарегистрирована<br>

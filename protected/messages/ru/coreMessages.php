@@ -71,6 +71,8 @@ return array(
     'customer' => 'Заказчик',
     'user' => 'Участник',
     'title' => 'Название',
+    'question' => 'Вопрос',
+    'answer' => 'Ответ',
     
     // Формы
     'form_required_fields' => 'Поля, помеченные звездочкой {mark} - обязательные',

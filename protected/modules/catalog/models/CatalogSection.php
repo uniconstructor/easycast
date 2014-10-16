@@ -62,6 +62,24 @@ class CatalogSection extends CActiveRecord
 	}
 	
 	/**
+	 * @see CActiveRecord::beforeDelete()
+	 */
+	public function beforeDelete()
+	{
+	    $instances = CatalogSectionInstance::model()->forSection($this->id)->findAll();
+	    foreach ( $instances as $instance )
+	    {
+	        $instance->delete();
+	    }
+	    $filterInstances = CatalogFilterInstance::model()->forObject('section', $this->id)->findAll();
+	    foreach ( $filterInstances as $filterInstance )
+	    {
+	        $filterInstance->delete();
+	    }
+	    return parent::beforeDelete();
+	}
+	
+	/**
 	 * @see CModel::behaviors()
 	 */
 	public function behaviors()

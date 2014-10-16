@@ -3,6 +3,7 @@
  * Полная разметка одной заявки
  */
 /* @var $this MpMemberData */
+
 $collapseExtraStyle    = '';
 $collapseSectionsStyle = '';
 if ( ! $this->collapseExtra )
@@ -13,6 +14,9 @@ if ( ! $this->collapseSections )
 {
     $collapseSectionsStyle = ' in';
 }
+$collapseContainerOptions = array(
+    'id' => 'collapse_accordion_wrapper_'.$this->id,
+);
 ?>
 <div id="<?= $this->wrapperId; ?>">
     <div class="row-fluid">
@@ -21,10 +25,15 @@ if ( ! $this->collapseSections )
         $this->render('_summary');
         ?>
     </div>
-        <?php $collapse = $this->beginWidget('bootstrap.widgets.TbCollapse'); ?>
+    <?php
+    // виджет для сворачивающихся блоков 
+    //$collapse = $this->beginWidget('bootstrap.widgets.TbCollapse', $collapseContainerOptions);
+    if ( $this->displayExtraFields() )
+    {
+    ?>
     <div class="accordion-group">
         <div class="accordion-heading">
-            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapse_extra_<?= $this->id; ?>">
+            <a class="accordion-toggle" data-toggle="collapse" href="#collapse_extra_<?= $this->id; ?>">
                 <b>Анкета участника</b>
             </a>
         </div>
@@ -37,9 +46,14 @@ if ( ! $this->collapseSections )
             </div>
         </div>
     </div>
+    <?php 
+    }
+    if ( $this->displayVacancySections() )
+    {// отображаем доступеые разделы для заявок если это имеет смысл
+    ?>
     <div class="accordion-group">
         <div class="accordion-heading">
-            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapse_sections_<?= $this->id; ?>">
+            <a class="accordion-toggle" data-toggle="collapse" href="#collapse_sections_<?= $this->id; ?>">
                 <b>В каких разделах эта заявка?</b>
             </a>
         </div>
@@ -52,5 +66,10 @@ if ( ! $this->collapseSections )
             </div>
         </div>
     </div>
-    <?php $this->endWidget(); ?>
+    <?php
+    }
+    // конец виджета со сворачивающимися полями 
+    //$this->endWidget();
+    ?>
 </div>
+<hr>

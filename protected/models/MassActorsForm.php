@@ -41,6 +41,10 @@ class MassActorsForm extends CFormModel
      * @var bool - согласие с условиями использования сайта
      */
     public $policyagreed;
+    /**
+     * @var int - размер оплаты за съемочный день
+     */
+    public $salary;
     
     /**
      * @see CFormModel::init()
@@ -60,18 +64,21 @@ class MassActorsForm extends CFormModel
     public function rules()
     {
         return array(
-            array('firstname, lastname, email, phone, birthdate, gender, galleryid', 'filter', 'filter' => 'trim'),
+            array('firstname, lastname, email, phone, birthdate, gender, galleryid, salary', 'filter',
+                'filter' => 'trim',
+            ),
             // Сохраняем номер телефона в правильном формате (10 цифр)
-            array('phone', 'LPNValidator', 
+            /*array('phone', 'LPNValidator', 
                 'defaultCountry' => 'RU',
                 'message'        => 'Неправильно указан номер телефона',
                 'allowEmpty'     => false,
-            ),
+            ),*/
             // проверяем дату рождения отдельным фильтром
             array('birthdate', 'filter', 
                 'filter'  => array($this, 'checkBirthDate'),
                 'message' => 'Нужно указать дату рождения в формате дд.мм.гггг',
             ),
+            // email должен быть уникальным при регистрации
             array('email', 'email'),
             array('email', 'unique', 'className' => 'User'),
             // галочка согласия с условиями обязательно должна стоять
@@ -80,7 +87,7 @@ class MassActorsForm extends CFormModel
                 'compareValue' => 1,
                 'message'      => 'Для регистрации требуется ваше согласие', 
             ),
-            
+            array('salary', 'numerical', 'integerOnly' => true),
             // все поля формы обязательные
             array('firstname, lastname, email, phone, birthdate, gender, galleryid, policyagreed', 'required'),
         );
@@ -103,6 +110,7 @@ class MassActorsForm extends CFormModel
             'gender'       => 'Пол',
             'galleryid'    => 'Фотографии',
             'policyagreed' => 'Соглашаюсь с '.$policyLink.' сайта',
+            'salary'       => 'Присылать приглашения на съемки с оплатой от',
         );
     }
     

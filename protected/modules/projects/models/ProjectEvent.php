@@ -400,17 +400,26 @@ class ProjectEvent extends CActiveRecord
     {
         $scopes = array();
         if ( ! empty($statuses) )
-        {
+        {// нужны мероприятия с ролями в указанном статусе
+            $scopes['withStatus'] = array($statuses);
+        }else
+        {// нужны мероприятия с ролями в любом статусе
+            $statuses = array(
+                EventVacancy::STATUS_DRAFT,
+                EventVacancy::STATUS_ACTIVE,
+                EventVacancy::STATUS_FINISHED,
+            );
             $scopes['withStatus'] = array($statuses);
         }
         $criteria = new CDbCriteria();
-        $criteria->together = true;
         $criteria->with = array(
             'vacancies' => array(
                 'select'   => false,
+                'joinType' => 'INNER JOIN',
                 'scopes'   => $scopes,
             ),
         );
+        $criteria->together = true;
         $this->getDbCriteria()->mergeWith($criteria);
          
         return $this;
@@ -1094,22 +1103,20 @@ class ProjectEvent extends CActiveRecord
 	    {
 	        return array();
 	    }
-	    
 	    // @todo решить, каким образом лучше всего проверять доступность вакансий группы
 	    /*if ( $this->group )
 	    {// если это мероприятие входит в состав группы, то проверим и вакансии группы
     	    // @todo убрать эту проверку, когда все вакансии будут прописаны через relations
     	    $activeVacancies = $this->group->getAllowedVacancies($questionaryId);
 	    }*/
-	    
 	    foreach ( $this->activevacancies as $vacancy )
 	    {// проверяем каждую вакансию мероприятия, и определяем, подходит ли для нее участник 
+	        /* @var $vacancy EventVacancy */
 	        if ( $vacancy->isAvailableForUser($questionaryId) )
 	        {
 	            $vacancies[$vacancy->id] = $vacancy;
 	        }
 	    }
-	    
 	    return $vacancies;
 	}
 	

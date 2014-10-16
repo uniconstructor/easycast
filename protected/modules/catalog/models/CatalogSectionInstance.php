@@ -37,7 +37,7 @@ class CatalogSectionInstance extends CActiveRecord
 	{
 		return array(
 			array('sectionid', 'required'),
-			array('visible', 'numerical', 'integerOnly' => true),
+			array('sectionid, objectid, visible', 'numerical', 'integerOnly' => true),
 			array('sectionid, objectid, timecreated, timemodified', 'length', 'max' => 11),
 			array('objecttype', 'length', 'max' => 50),
 			array('newname, newdescription', 'length', 'max' => 255),
@@ -69,6 +69,18 @@ class CatalogSectionInstance extends CActiveRecord
 	}
 	
 	/**
+	 * @see CActiveRecord::beforeSave()
+	 */
+	public function beforeSave()
+	{
+	    if ( ! $section = CatalogSection::model()->findByPk($this->sectionid) )
+	    {
+	        throw new CException('Не найден прикрепляемый раздел');
+	    }
+	    return parent::beforeSave();
+	} 
+	
+	/**
 	 * @see CActiveRecord::afterSave()
 	 */
 	public function afterSave()
@@ -90,6 +102,19 @@ class CatalogSectionInstance extends CActiveRecord
 	        }
 	    }
 	    parent::afterSave();
+	}
+	
+	/**
+	 * @see CActiveRecord::beforeDelete()
+	 */
+	public function beforeDelete()
+	{
+	    $memberInstances = MemberInstance::model()->forObject('section_instance', $this->id)->findAll();
+	    foreach ( $memberInstances as $instance )
+	    {
+	        $instance->delete();
+	    }
+	    return parent::beforeDelete();
 	}
 
 	/**
@@ -176,19 +201,33 @@ class CatalogSectionInstance extends CActiveRecord
 	
 	/**
 	 * Именованая группа условий: получить все ссылки на разделы анкет, связанные с определенным объектом
-	 *
 	 * @param string $objectType
 	 * @param string $objectId
-	 * @return CategoryInstance
+	 * @return CatalogSectionInstance
 	 */
 	public function forObject($objectType, $objectId)
 	{
 	    $criteria = new CDbCriteria();
-	    $criteria->compare('objecttype', $objectType);
-	    $criteria->compare('objectid', $objectId);
+	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
+	    $criteria->compare($this->getTableAlias(true).'.`objectid`', $objectId);
 	     
 	    $this->getDbCriteria()->mergeWith($criteria);
 	     
+	    return $this;
+	}
+	
+	/**
+	 * Именованная группа условий: получить все ссылки на раздел
+	 * @param  int $sectionId
+	 * @return CatalogSectionInstance
+	 */
+	public function forSection($sectionId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->getTableAlias(true).'.`sectionid`', $sectionId);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
 	    return $this;
 	}
 }

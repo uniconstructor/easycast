@@ -185,7 +185,7 @@ class VacancyActions extends CWidget
         {// участник вошел на сайт или происходит подача заявки по токену 
             if ( $this->vacancy->hasApplication($this->questionaryId) )
             {// участник уже подал заявку - сообщим ему об этом
-                $this->message .= 'Вы уже подали заявку на эту роль';
+                $this->message     .= 'Вы уже подали заявку на эту роль';
                 $this->messageClass = 'alert alert-block';
             }
             if ( $this->vacancy->isAvailableForUser($this->questionaryId) )
@@ -255,18 +255,18 @@ class VacancyActions extends CWidget
     {
         if ( $type === 'addApplicationData' )
         {
-            return Yii::app()->createUrl('/projects/vacancy/registration',
-                array('vid' => $this->vacancy->id)
-            );
+            return Yii::app()->createUrl('/projects/vacancy/registration', array(
+                'vid' => $this->vacancy->id,
+            ));
         }
         if ( $this->mode === 'normal' )
         {// подача заявки от авторизованного участника
             switch ( $type )
             {
                 case 'addApplication':
-                    return Yii::app()->createUrl('/projects/vacancy/addApplication',
-                        array('vacancyId' => $this->vacancy->id)
-                    );
+                    return Yii::app()->createUrl('/projects/vacancy/addApplication', array(
+                        'vacancyId' => $this->vacancy->id,
+                    ));
                 break;
             }
         }elseif ( $this->mode === 'token' )
@@ -274,9 +274,9 @@ class VacancyActions extends CWidget
             switch ( $type )
             {
                 case 'addApplication':
-                    return Yii::app()->createUrl('/projects/vacancy/addApplicationByToken',
-                        array('vacancyId' => $this->vacancy->id)
-                    );
+                    return Yii::app()->createUrl('/projects/vacancy/addApplicationByToken', array(
+                        'vacancyId' => $this->vacancy->id,
+                    ));
                 break;
             }
         }

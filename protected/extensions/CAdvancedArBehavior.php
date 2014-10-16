@@ -73,8 +73,6 @@
  * 
  * Assign -1 to a attribute to let it be untouched by the behavior.
  */
-
-
 class CAdvancedArbehavior extends CActiveRecordBehavior
 {
 	// Set this to false to disable tracing of changes

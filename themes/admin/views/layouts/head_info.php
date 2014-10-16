@@ -11,7 +11,7 @@ $themeUrl = Yii::app()->theme->baseUrl.'/assets/';
 <head>
     <meta charset="utf-8">
     <!--<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">-->
-    <title><?= CHtml::encode($this->pageTitle); ?></title>
+    <title><<?= CHtml::encode($this->pageTitle); ?></title>
     <meta content="" name="description">
     <meta content="" name="author">
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
@@ -20,12 +20,14 @@ $themeUrl = Yii::app()->theme->baseUrl.'/assets/';
     <link href="<?= $themeUrl; ?>css/font-awesome.min.css" media="screen" rel="stylesheet" type="text/css">
     
     <!-- SmartAdmin Styles : Please note (smartadmin-production.css) was created using LESS variables -->
-    <link href="<?= $themeUrl; ?>css/smartadmin-production.min.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="<?= $themeUrl; ?>css/smartadmin-skins.min.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="<?= $themeUrl; ?>css/smartadmin-production.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="<?= $themeUrl; ?>css/smartadmin-skins.css" media="screen" rel="stylesheet" type="text/css">
     <link href="<?= Yii::app()->baseUrl; ?>/css/jquery.jgrowl.min.css" rel="stylesheet" type="text/css">
-    
+    <!-- Demo purpose only: goes with demo.js, you can delete this css when designing your own WebApp -->
     <!-- link rel="stylesheet" type="text/css" media="screen" href="<?= $themeUrl; ?>css/demo.min.css" -->
-	<!-- link rel="stylesheet" type="text/css" media="screen" href="<?= $themeUrl; ?>css/easycast.css" -->
+    <!-- We recommend you use "your_style.css" to override SmartAdmin
+		     specific styles this will also ensure you retrain your customization with each SmartAdmin update.
+		<link rel="stylesheet" type="text/css" media="screen" href="css/your_style.css"> -->
     <!-- FAVICONS -->
     <link href="<?= $themeUrl; ?>img/favicon/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="<?= $themeUrl; ?>img/favicon/favicon.ico" rel="icon" type="image/x-icon">

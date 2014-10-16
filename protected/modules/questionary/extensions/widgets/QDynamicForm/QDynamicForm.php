@@ -121,24 +121,15 @@ class QDynamicForm extends CWidget
     {
         if ( $this->questionary->id AND $this->vacancy->hasApplication($this->questionary->id) )
         {// пользователь уже подал заявку - не отображаем форму второй раз
-            echo CHtml::tag('div', array('class' => 'alert alert-success text-center'), 'Вы уже подали заявку на эту роль');
-        }else
-        {// заявка еще не подана - выводим форму
-            $this->render($this->vacancy->regtype, array(
-                'model' => $this->model,
-            ));
-            /*if ( $this->vacancy->needWizard() )
-            {// форму с шагами, если она нужна
-                $this->render('wizard', array(
-                    'model' => $this->model,
-                ));
-            }else
-            {// один шаг или вообще нет разбиения - обойдемся одностраничной формой
-                $this->render('form', array(
-                    'model' => $this->model,
-                ));
-            }*/
+            echo CHtml::tag('div', array(
+                'class' => 'alert alert-success text-center',
+            ), 'Вы уже подали заявку на эту роль, но вы можете дополнить недостающие данные.
+            Наиболее подробно заполненные заявки получают более высокий приоритет при отборе.');
         }
+        // выводим форму регистрации или дополнения существующих данных
+        $this->render($this->vacancy->regtype, array(
+            'model' => $this->model,
+        ));
     }
     
     /**

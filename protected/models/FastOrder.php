@@ -3,8 +3,8 @@
 /**
  * Модель для работы с обычными или срочными заказами
  * Онлайн-кастинг и заявка на расчет стоимости - это тоже заказ
- * Таблица "{{fast_orders}}".
- *
+ * 
+ * Таблица "{{fast_orders}}":
  * @property integer $id
  * @property string $timecreated
  * @property string $timemodified
@@ -20,6 +20,18 @@
  * @property string $orderdata - любые дополнительные данные заказа в сериализованном виде
  * @property string $version
  * @property string $megaplanid
+ * 
+ * Методы класса EcTimestampBehavior:
+ * @method CActiveRecord createdBefore(int $time, string $operation='AND')
+ * @method CActiveRecord createdAfter(int $time, string $operation='AND')
+ * @method CActiveRecord updatedBefore(int $time, string $operation='AND')
+ * @method CActiveRecord updatedAfter(int $time, string $operation='AND')
+ * @method CActiveRecord modifiedOnly()
+ * @method CActiveRecord neverModified()
+ * @method CActiveRecord lastCreated()
+ * @method CActiveRecord firstCreated()
+ * @method CActiveRecord lastModified()
+ * @method CActiveRecord firstModified()
  * 
  * @todo выяснить, могут ли несколько проектов быть привязаны к одному заказу
  * @todo завершать заказы на сайте синхронно с задачами Мегаплана
@@ -161,11 +173,9 @@ class FastOrder extends CActiveRecord
 	public function behaviors()
 	{
 	    return array(
-	    // автоматическое заполнение дат создания и изменения
-	    'CTimestampBehavior' => array(
-	        'class' => 'zii.behaviors.CTimestampBehavior',
-    	        'createAttribute' => 'timecreated',
-    	        'updateAttribute' => 'timemodified',
+    	    // автоматическое заполнение дат создания и изменения
+    	    'EcTimestampBehavior' => array(
+    	        'class' => 'application.behaviors.EcTimestampBehavior',
 	        ),
 	    );
 	}

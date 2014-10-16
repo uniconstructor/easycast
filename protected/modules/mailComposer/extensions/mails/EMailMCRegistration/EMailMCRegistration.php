@@ -16,6 +16,10 @@ class EMailMCRegistration extends EMailBase
      * @var EventVacancy
      */
     public $vacancy;
+    /**
+     * @var string
+     */
+    public $password;
     
     /**
      * @see EMailBase::init()
@@ -38,10 +42,16 @@ class EMailMCRegistration extends EMailBase
         $this->addSegment($this->createGreetingBlock());
         // персональные данные
         //$this->addSegment($this->createPersonalDataBlock());
+        // @todo подробнее о нас (пока не готово)
+        if ( $this->password )
+        {// на всякий случай: напоминание про логин и пароль добавляем только 
+            // если есть что отправлять 
+            $this->createMoreInfoBlock();
+        }
+        $this->addSegment($this->createMoreInfoBlock());
         // кнопка активации
         $this->addSegment($this->createInviteBlock());
-        // @todo подробнее о нас (пока не готово)
-        // $this->addSegment($this->createMoreInfoBlock());
+        
         // заключение
         //$this->addSegment($this->createConclusionBlock());
         
@@ -98,7 +108,11 @@ class EMailMCRegistration extends EMailBase
      */
     protected function createMoreInfoBlock()
     {
-        return '';
+        $text = 'Для того чтобы изменить или дополнить данные в своей анкете используйте эти данные:<br>
+            Логин:<b>'.$this->questionary->user->email.'</b><br>
+            Пароль:<b>'.$this->password.'</b><br>
+            <br>';
+        return $this->textBlock($text);
     }
     
     /**

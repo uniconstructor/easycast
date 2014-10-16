@@ -48,6 +48,10 @@ class MpMemberData extends CWidget
      * @var Questionary
      */
     protected $questionary;
+    /**
+     * @var bool
+     */
+    protected $displayContacts = false;
     
     /**
      * @see CWidget::init()
@@ -55,15 +59,25 @@ class MpMemberData extends CWidget
     public function init()
     {
         Yii::import("xupload.models.XUploadForm");
+        
         if ( ( $this->member instanceof ProjectMember ) AND isset($this->member->questionary) )
         {
             $this->questionary = $this->member->questionary;
             $this->sectionGridOptions['member'] = $this->member;
         }
         $this->sectionGridOptions['customerInvite'] = $this->customerInvite;
+        
         if ( ! $this->wrapperId )
         {
             $this->wrapperId = 'wrapper_'.$this->id;
+        }
+        if ( $this->customerInvite )
+        {
+            $inviteData = $this->customerInvite->loadData();
+            if ( isset($inviteData['displayContacts']) AND $inviteData['displayContacts'] )
+            {
+                $this->displayContacts = true;
+            }
         }
         parent::init();
     }
@@ -80,14 +94,14 @@ class MpMemberData extends CWidget
             {
                 $memberId = $this->member->id;
             }
-            Yii::log('Не удалось отобразать заявку, memberid:'.$memberId, CLogger::LEVEL_ERROR);
+            Yii::log('Не удалось отобразать заявку, memberid: '.$memberId, CLogger::LEVEL_ERROR);
             return;
         }
         $this->render('main');
     }
     
     /**
-     * 
+     * Получить список значений для краткой информации об участнике (для виджета TbDetailView)
      * @return array
      */
     protected function getSummaryData()
@@ -96,7 +110,7 @@ class MpMemberData extends CWidget
         $fields = $this->customerFields;
         
         if ( Yii::app()->user->checkAccess('Admin') )
-        {
+        {// админам видно больше полей чам заказчикам
             $fields = CMap::mergeArray($fields, $this->adminFields);
         }
         foreach ( $fields as $field )
@@ -107,7 +121,7 @@ class MpMemberData extends CWidget
     }
     
     /**
-     * 
+     * Получить список отображаемых полей для краткой информации об участнике (для виджета TbDetailView)
      * @return array
      */
     protected function getSummaryAttributes()
@@ -116,7 +130,7 @@ class MpMemberData extends CWidget
         $fields     = $this->customerFields;
         
         if ( Yii::app()->user->checkAccess('Admin') )
-        {
+        {// админам видно больше полей чам заказчикам
             $fields = CMap::mergeArray($fields, $this->adminFields);
         }
         foreach ( $fields as $field )
@@ -124,5 +138,47 @@ class MpMemberData extends CWidget
             $attributes[] = array('name' => $field, 'label' => $this->questionary->getAttributeLabel($field));
         }
         return $attributes;
+    }
+    
+    /**
+     * Определить нужно ли отображать разворачивающийся блок с дополнительной информацией об участнике
+     * (это дополнительная информация, указываемая участником)
+     * @return bool
+     * 
+     * @todo сделать настройку "скрыть дополнительные поля" и проверять ее здесь
+     */
+    protected function displayExtraFields()
+    {
+        $extraFieldCount = ExtraField::model()->
+            forVacancy($this->member->vacancy)->count();
+        if ( ! $extraFieldCount )
+        {// к роли не прикреплено ни одного дополнительного поля - не отображаем блок с доп. полями
+            return false;
+        }
+        if ( $extraFieldCount < 5 )
+        {// не сворачиваем изначально блок с доп. информацией, если полей мало
+            $this->collapseExtra = false;
+        }
+        return true;
+    }
+    
+    /**
+     * Определить, нужно ли отображать раскрывающийся 
+     * блок со списком разделов, в которые можно распределить заявки
+     * @return bool
+     */
+    protected function displayVacancySections()
+    {
+        $sectionCount = CatalogSectionInstance::model()->
+            forObject('vacancy', $this->member->vacancy->id)->count();
+        if ( ! $sectionCount )
+        {// заявки роли не разбиты на разделы - не выводим ненужный блок
+            return false;
+        }
+        if ( $sectionCount < 5 )
+        {// не сворачиваем изначально блок с разделами, если разделов мало
+            $this->collapseSections = false;
+        }
+        return true;
     }
 }

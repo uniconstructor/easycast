@@ -14,14 +14,13 @@ class EditWizardSteps extends EditableGrid
     /**
      * @var string - тип объекта к которому добавляется шаг формы 
      */
-    public $objectType = 'wizard';
+    public $objectType = 'vacancy';
     /**
      * @var int - id объекта к которому добавляется шаг формы
      */
     public $objectId;
     /**
      * @var string - сообщение перед удалением записи
-     * @todo Переносить поля в предыдущий/следующий шаг если этот был удален
     */
     public $deleteConfirmation = 'Удалить шаг формы?
         Все поля формы внутри него будут удалены из этой роли.';
@@ -43,7 +42,7 @@ class EditWizardSteps extends EditableGrid
     /**
      * @var array - список редактируемых полей в том порядке, в котором они идут в таблице
      */
-    public $fields = array('name', 'header', 'description');
+    public $fields = array('name', 'header', 'description', 'prevlabel', 'nextlabel');
     /**
      * @var string - заголовок всплывающего окна с формой добавления новой записи
      */
@@ -59,6 +58,8 @@ class EditWizardSteps extends EditableGrid
         'name'        => '[без названия]',
         'header'      => '[не указано]',
         'description' => '[не указано]',
+        'prevlabel'   => '[по умолчанию]',
+        'nextlabel'   => '[по умолчанию]',
     );
     /**
      * @var string - id модуля, который хранит клипы с modal-формами

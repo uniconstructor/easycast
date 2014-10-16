@@ -9,22 +9,24 @@
 // виджет с редактируемой и дополняемой таблицей
 $grid = $this->widget('bootstrap.widgets.TbExtendedGridView', array(
     // таблица должна подстраиваться поэ экран при просмотре с мобильного телефона
-    'responsiveTable' => true,
-    'type'            => 'striped bordered',
+    'responsiveTable'   => true,
+    'type'              => 'striped bordered',
     // получаем изначальное содержимое таблицы
     // (список вузов, виды спорта и т. д. в зависимости от того что редактируем)
-    'dataProvider'    => $this->createGridDataProvider(),
-    'template'        => "{items}",
+    'dataProvider'      => $this->createGridDataProvider(),
+    'template'          => "{items}",
     // получаем настройки для всех колонок таблицы
-    'columns'         => $this->getTableColumns(),
+    'columns'           => $this->getTableColumns(),
     // @todo в виджете TbExtendedGridView невозможно задать id
     //       Изменить селектор после того как проблема будет решена
     //       UPD: проблема вроде как была решена обновлением Yii (ошибка оригинального GridView) нужно проверить
-    'htmlOptions'  => array('class' => $this->rowIdPrefix.'table grid-view'),
+    'htmlOptions'       => array(
+        'class' => $this->rowIdPrefix.'table grid-view',
+    ),
     'rowHtmlOptionsExpression' => 'array("id" => "'.$this->rowIdPrefix.'".$data->id);',
-    'id'           => $this->rowIdPrefix.'table',
+    'id'                => $this->rowIdPrefix.'table',
     // текст, отображаемый когда в таблице нет ни одного значения
-    'emptyText'    => $this->emptyText,
+    'emptyText'         => $this->emptyText,
     // сортировка строк таблицы 
     'sortableRows'      => $this->sortableRows,
     'sortableAttribute' => $this->sortableAttribute,

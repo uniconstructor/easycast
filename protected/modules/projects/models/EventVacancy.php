@@ -201,7 +201,6 @@ class EventVacancy extends CActiveRecord
         {
             QFieldInstance::model()->forField($field->id)->attachedTo('vacancy', $this->id)->deleteAll();
         }*/
-	    
 	    return parent::beforeDelete();
 	}
 	
@@ -254,21 +253,6 @@ class EventVacancy extends CActiveRecord
 	           $this->attachDefaultFilters();
 	        }
 	        $this->initVacancyScope(false);
-	        
-	        // к каждой новой роли мы после создания прикрепляем новый объект Wizard
-	        // этот объект будет служить изначальным каркасом для создания формы регистрации на роль
-	        // Wizard требуется для любых форм регистрации : и для пошаговых и для одностраничных
-            $wizard = new Wizard();
-            $wizard->name =  "Форма регистрации для роли ".$this->name;
-            $wizard->objecttype = 'vacancy';
-            $wizard->objectid   = $this->id;
-            if ( ! $wizard->save() )
-            {// не должно случаться но обработать ошибку мы обязаны
-                throw new CException('Не удалось создать заготовку формы регистрации 
-                    при создании роли. По неизвестным причинам. Наши межгалактические мультиплексоры
-                    уже работают над этой проблемой, но вам придется создать форму самостоятельно
-                    на странице управления ролью.');
-            }
 	    }
 	    parent::afterSave();
 	}
@@ -328,7 +312,6 @@ class EventVacancy extends CActiveRecord
     public function forEvent($eventId)
     {
         $this->getDbCriteria()->compare($this->getTableAlias(true).'.`eventid`', $eventId);
-        
         return $this;
     }
     
@@ -348,7 +331,6 @@ class EventVacancy extends CActiveRecord
         {// Если статус не указан - выборка по этому параметру не требуется
             return $this;
         }
-         
         $criteria->addInCondition($this->getTableAlias(true).'.`status`', $statuses);
         $this->getDbCriteria()->mergeWith($criteria);
     
@@ -492,28 +474,23 @@ class EventVacancy extends CActiveRecord
 	}
 	
 	/**
-	 * Получить полный список обязательных и дополнительных полей, прикрепленных к этой роли
-	 * в виде одного массива: индексом массива является название поля а значением объект модели
-	 * Индекс поля составляется по тем же правилам что и в модели QDynamicFormModel
+	 * 
 	 * @return array
 	 */
-	public function getCombinedFieldList()
+	public function getWizardStepInstanceIds()
 	{
-	    $result = array();
-	    // получаем все прявязанные обязательные поля
-	    $qUserFields = QUserField::model()->forObject('vacancy', $this->id)->findAll();
-	    // получаем все привязанные дополннительные поля
-	    $extraFields = ExtraField::model()->forObject('vacancy', $this->id)->findAll();
+	    $ids = array();
+	    if ( $this->regtype != 'wizard' )
+	    {
+	        return $ids;
+	    }
 	    
-	    foreach ( $qUserFields as $qUserField )
+	    $stepInstances = WizardStepInstance::model()->forVacancy($this->id)->findAll();
+	    foreach ( $stepInstances as $stepInstance )
 	    {
-	        $result[$qUserField->name] = $qUserField;
+	        $ids[] = $stepInstance->id;
 	    }
-	    foreach ( $extraFields as $extraField )
-	    {
-	        $result['ext_'.$extraField->name] = $extraField;
-	    }
-	    return $result;
+	    return $ids;
 	}
 	
 	/**
@@ -843,17 +820,18 @@ class EventVacancy extends CActiveRecord
 	        // @todo записать ошибку в лог
 	        return false;
 	    }
-	    if ( ! $questionary->isAdmitted() )
-	    {// быстро отсекаем тех, у кого не подтверждена анкета
-	        return false;
+	    // сначала проверим, был ли участник приглашен на роль это более простая проверка
+	    // чем проверка всех критериев поиска, к тому же нет риска что участник перестал подходить
+	    // на роль (если он отредактировал свою анкету после получения приглашения)
+	    if ( $this->isInvited($questionaryId, $this->event->id) )
+	    {// участник был приглашен - значит как минимум подходил нам в момент отправки приглашения
+	        return true;
 	    }
-	    
-	    // Получаем полные условия соответствия вакансии
-	    //$criteria = $this->scope->getCombinedCriteria();
-	    
+	    // получаем полные условия соответствия роли
 	    $criteria = $this->getSearchCriteria();
 	    // сужаем их до единственного человека
-	    $criteria->addCondition('`t`.`id` = '.$questionary->id);
+	    $criteria->addCondition(Questionary::model()->getTableAlias(true).'.`id` = '.$questionary->id);
+	    
 	    // и в итоге просто проверяем существование такой записи
 	    return Questionary::model()->exists($criteria);
 	}
@@ -1018,13 +996,11 @@ class EventVacancy extends CActiveRecord
 	protected function createStartCriteria()
 	{
 	    $criteria = new CDbCriteria();
-	    
-	    // (по умолчанию - берем только анкеты в активном статусе)
-	    // $criteria->compare('status', 'active');
-	    // @todo в качестве alias таблицы проставить не "t" а alias в модели Questionary
-	    $criteria->addCondition("`t`.`status` NOT IN ('delayed', 'draft', 'unconfirmed')");
+	    // (по умолчанию - не берем анкеты-черновики, недозаполненные и неподтвержденные участником)
+	    $criteria->addCondition(Questionary::model()->getTableAlias(true).
+	        ".`status` NOT IN ('delayed', 'draft', 'unconfirmed')");
 	    // сортируем анкеты по рейтингу (сначала лучшие)
-	    $criteria->order = '`t`.`rating` DESC';
+	    $criteria->order = Questionary::model()->getTableAlias(true).'.`rating` DESC';
 	    
 	    return $criteria;
 	}
@@ -1058,10 +1034,9 @@ class EventVacancy extends CActiveRecord
 	        $searchData[$prefix.'region'] = array('regionid' => array(0 => '4312'));
         }
         if ( in_array('status', $filters) )
-        {
+        {// по умолчанию только "проверена" и "отклонена"
             $searchData[$prefix.'status'] = array('status' => array('active', 'rejected'));
         }
-	    
 	    return $searchData;
 	}
 	
@@ -1075,20 +1050,19 @@ class EventVacancy extends CActiveRecord
 	 * @return CDbCriteria
 	 * 
 	 * @todo предусмотреть возможность отключать изначальное содержание CDbCriteria
-	 * @todo если понадобится - сделать настройку "добавлять/не добавлять префикс 't' к полю status"
 	 */
 	protected function createSearchCriteria($data)
 	{
 	    // указываем путь к классу, который занимается сборкой поискового запроса из отдельных частей
 	    $pathToAssembler = 'catalog.extensions.search.handlers.QSearchCriteriaAssembler';
 	    // создаем основу для критерия выборки
-	    $startCriteria = $this->createStartCriteria();
+	    $startCriteria   = $this->createStartCriteria();
 	    
 	    // Указываем параметры для сборки поискового запроса по анкетам
 	    $config = array(
-	        'class'           => $pathToAssembler,
-	        'data'            => $data,
-	        'startCriteria'   => $startCriteria,
+	        'class'         => $pathToAssembler,
+	        'data'          => $data,
+	        'startCriteria' => $startCriteria,
 	    );
 	    if ( $this->isNewRecord )
 	    {// вакансия создается, она пока еще не сохранена в БД, поэтому
@@ -1128,7 +1102,6 @@ class EventVacancy extends CActiveRecord
 	/**
 	 * Это функция-заглушка, которая присоединяет к каждой созданной вакансии стандартный набор
 	 * поисковых фильтров
-	 * 
 	 * @return null
 	 * 
 	 * @todo позже заменить на интерфейс, позволяющий выбирать фильтры вручную при создании
@@ -1277,7 +1250,6 @@ class EventVacancy extends CActiveRecord
 	
 	/**
 	 * Удалить все поисковые данные всех фильтров из формы поиска людей для вакансии
-	 * 
 	 * @return null
 	 */
 	public function clearSearchData()

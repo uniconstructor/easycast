@@ -149,10 +149,11 @@ class MemberActions extends CWidget
                 $this->messageClass .= 'alert-danger';
             break;
         }
+        
         $item = StatusHistory::model()->forObject('project_member', $this->member->id)->getLastItem();
         if ( ($this->customerInvite OR Yii::app()->user->checkAccess('Admin')) AND $item AND $item->getSourceName() )
         {// если есть информация о смене статуса - то отображаем кто ее изменил
-            $this->message .= '['.$item->getSourceName().']';
+            $this->message .= '['.$item->getSourceName().'] '.date('Y-m-d H:i', $item->timecreated);
         }
         if ( $this->message )
         {

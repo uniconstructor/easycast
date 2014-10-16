@@ -1,20 +1,236 @@
 <?php
 
 /**
- * This is the model class for table "{{config}}".
- *
- * The followings are the available columns in table '{{config}}':
- * @property integer $id
- * @property string $name
- * @property string $title
- * @property string $description
- * @property string $type
- * @property string $maxvalues
- * @property string $timecreated
- * @property string $timemodified
+ * Модель для работы с настройками приложения.
+ * Настройки могут быть прикреплены к любой модели в системе. 
+ * Значения настроек хранятся отдельно, в таблице config_values.
+ * 
+ * Чтобы работать с настройками нужно хорошо различать три разных понятия:
+ * 1) Текущее значение настройки: это поле в AR-модели привязанное к текущей настройке при помощи
+ *    комбинации полей valutype/valuefield/valueid
+ *    (или список моделей, если в настройке допустим множественный выбор)
+ *    Как правило текущее значение хранится в моделях класса EasyListItem
+ * 2) Значение по умолчанию: это поле в AR-модели привязанное к родительской модели настройки при помощи
+ *    комбинации полей valutype/valuefield/valueid
+ *    (или список значений по умолчанию, если в настройке допустим множественный выбор)
+ *    Таким образом у корневых настроек значений по умолчанию быть не может:
+ *    они задаются в коде руками и попадают в базу через миграцию в момент добавления новой настройки
+ * 3) Список стандартных значений: это список (EasyList) хранящий элементы (EasyListItem)
+ *    названия значения которых используются как предлагаемые варианты выбора при указании
+ *    значения настройки
+ *    Называется "списком возможных значений" если в настройке разрешено указание своих вариантов
+ *    помимо стандартных и "списком допустимых значений" если в значении настройки свои варианты
+ *    указывать запрещено :)
+ * 4) Список нестандартных (пользовательских) значений: это список всех значений для настройки
+ *    которые когда-либо были введены пользователем для этой настройки и не содержатся
+ *    в списке стандартных. Любое однажды введенное пользователем значение сохраняется здесь, даже если
+ *    оно не выбрано в настройке в данный момент (в этом его отличие от списка выбранных значений)
+ *    (только для настроек, в которых разрешен ввод собственных значенй)
+ * 5) Список выбранных значений (только для настроек с множественным выбором):
+ * 
+ * Обратите внимание: список стандартных значений настройки и список значений по умолчанию это разные вещи
+ * 
+ * Настройка может быть привязана к модели, поэтому важно понимать чем отличается запрос 
+ * "список настроек со указанным значением" от запроса
+ * "список моделей имеющих настройку с указанным значением"
+ * 
+ * 
+ * Таблица '{{config}}':
+ * @property int    $id
+ * @property int    $easylistid   - id списка со стандартными значениями этой настройки 
+ *                                  (для select-списков)
+ *                                  Содержит 0 если стандартных значений не предусмотрено
+ * @property int    $userlistid   - id списка со дополнительными значениями для этой настройки
+ *                                  Содержит 0 если ввод новых значений пользователем не предусмотрен
+ * @property int    $parentid     - id базовой настройки. Базовой считается настройка, которая
+ *                                  была использована как шаблон чтобы создать эту модель.
+ *                                  Значения, заданные в родительской настройке считаются стандартными
+ *                                  значениями для дочерних настроек
+ *                                  Самым верхнем уровнем являются системные настройки: 
+ *                                  они не привязываются к какому-либо объекту в системе, а служат
+ *                                  образцом для создания настроек такого же типа.
+ * @property string $name         - служебное имя настройки, маленькие латинские буквы и точки
+ *                                  две системные настройки не могут иметь одинаковых названий
+ *                                  две корневые настройки одной модели не могут иметь одинаковых названий
+ * @property string $title        - название настройки для отображения
+ * @property string $description  - пояснение для настройки
+ * @property string $type         - тип настройки (чаще всего совпадает с названием input-типа для
+ *                                  элемента формы или названием класса виджета, который будет использован
+ *                                  для вывода этой настройки)
+ * @property int    $minvalues    - минимальное количество значений которые нужно выбрать в этой настройке
+ *                                  0   : заполнение необязательно
+ *                                  1   : заполнение обязательно
+ *                                  n>1 : все что больше единицы: требуется выбрать как минимум n
+ *                                        значений, иначе настройка не будет считаться заполненой.
+ *                                        Заполнение такой настройки может быть обязательно,
+ *                                        но если она не заполнена - мы подставляем значения по 
+ *                                        умолчанию из родительской настройки
+ * @property int    $maxvalues    - максимальное количество выбранных значений для этой настройки
+ *                                  0   : неограничено
+ *                                  1   : только одно значение: используется для текстовых строк,  
+ *                                        JSON-значений а также для обычных элементов radio или select
+ *                                  n>1 : все что больше единицы: ограничение максимального количества
+ *                                        одновременно выбранных вариантов
+ * @property string $objecttype   - тип объекта к которому привязана настройка: чаще всего здесь
+ *                                  указан класс модели к которой привязана эта настройка
+ *                                  Для системных настроек это поле всегда содержит значение 'system'
+ * @property int    $objectid     - id объекта к которому привязана настройка
+ *                                  Содержит 0 если настройка системная или корневая
+ * @property int    $timecreated  - дата создания объекта настройки
+ *                                  (для настроек, привязанных к моделям как правило совпадает с
+ *                                  временем создания модели)
+ * @property int    $timemodified - последнее изменение настройки: изменением настройки
+ *                                  считается как редактирование свойств самой модели Config так и
+ *                                  редактирование поля значения (valuefield) в связанной модели
+ *                                  Для настроек с множественным выбором изменением настройки
+ *                                  также считается изменение состава элементов списка значений,
+ *                                  изменение самих элементов в списке значений
+ *                                  а также изменение порядка элементов в списке значений
+ *                                  При обновлении связанной модели это поле не изменяется
+ * @property string $valuetype    - класс AR-модели, которая содержит значение настройки
+ *                                  Если в настройке допустим множественный выбор, то это поле 
+ *                                  обязательно должно иметь значение 'EasyList'
+ * @property string $valuefield   - поле AR-модели, которое хранит значение настройки
+ * @property int    $valueid      - id AR-модели, которая содержит значение настройки
+ * @property string|array $value  - псевдо-поле (геттер) для получения значения настройки
+ *                                  Если настройка предусматривает максимум одно значение - то 
+ *                                  это поле будет содержать строку или число
+ *                                  Если в настройке разрешен множественный выбор - то это поле
+ *                                  будет содержать массив выбранных значений
+ *                                  Если значение настройки не задано - то в этом поле будет null 
+ * 
+ * Relations:
+ * @property Config          $parentConfig     - родительская настройка, из которой была создана эта
+ * @property EasyList        $defaultList      - список, содержащий стандартные значения для этой настройки
+ * @property EasyListItem[]  $defaultListItems - 
+ * @property EasyList        $userList - список, содержащий введенные пользователем значения для
+ *                           этой настройки. Используется если ни один из стандартных вариантов 
+ *                           не подошел пользователю и если в настройке разрешено добавление 
+ *                           собственных значений
+ * @property EasyListItem[]  $userListItems  - 
+ * @property CActiveRecord   $selectedValue  - модель, содержащая значение настройки 
+ *                           (если настройка предусматривает максимум одно значение)
+ *                           Если выбранных значений настройки может быть несколько - то эта связь содержит 
+ *                           объект-список (EasyListItem) в котором хранятся все выбранные значения
+ * @property CActiveRecord[] $selectedValues - все значения этой настройки: массив моделей которые
+ *                           считаются выбранными значениями этой настройки
+ *                           (только если в настройке разрешен множественный выбор)
+ *                           Как правило это элементы списка (EasyListItem)
+ *                           Если настройка предусматривает максимум одно значение - то в этом массиве 
+ *                           будет только одна модель
+ * @property EasyListItem[]  $selectedListItems - 
+ * 
+ * 
+ * Методы класса OmniRelationBehavior:
+ * @method CActiveRecord forModel(CActiveRecord $model)
+ * @method CActiveRecord forAnyObject(string $objectType, array|int $objectId, string $operation='AND')
+ * @method CActiveRecord forObject(string $objectType, array|int $objectId, string $operation='AND')
+ * @method CActiveRecord forEveryObject(string $objectType, array|int $objectId, string $operation='AND')
+ * @method CActiveRecord exceptLinkedWithAny(string $objectType, array|int $objectId, string $operation='AND')
+ * @method CActiveRecord exceptLinkedWith(string $objectType, array|int $objectId, string $operation='AND')
+ * @method CActiveRecord exceptLinkedWithEvery(array $objects, string $operation='AND')
+ * @method CActiveRecord withAnyObjectType(array|string $objectTypes, string $operation='AND')
+ * @method CActiveRecord withObjectType(array|string $objectTypes, string $operation='AND')
+ * @method CActiveRecord withAnyObjectId(array|int $objectIds, string $operation='AND')
+ * @method CActiveRecord withObjectId(array|int $objectIds, string $operation='AND')
+ * @method CActiveRecord exceptLinkedWithAnyObjectType(array|string $objectTypes, string $operation='AND')
+ * @method CActiveRecord exceptLinkedWithEveryObjectType(array|string $objectTypes, string $operation='AND')
+ * @method CActiveRecord exceptLinkedWithAnyObjectId(array|int $objectIds, string $operation='AND')
+ * @method CActiveRecord exceptLinkedWithEveryObjectId(array|int $objectIds, string $operation='AND')
+ * @method CActiveRecord hasCustomValue(string $field, array|string $values, string $operation='AND')
+ * @method CActiveRecord exceptCustomValue(string $field, array|string $values, string $operation='AND')
+ * @method bool          isUniqueForObject(string $objectType, int $objectId=0, int $extraKeyId=0)
+ * 
+ * 
+ * Методы класса EcTimestampBehavior:
+ * @method CActiveRecord createdBefore(int $time, string $operation='AND')
+ * @method CActiveRecord createdAfter(int $time, string $operation='AND')
+ * @method CActiveRecord updatedBefore(int $time, string $operation='AND')
+ * @method CActiveRecord updatedAfter(int $time, string $operation='AND')
+ * @method CActiveRecord modifiedOnly()
+ * @method CActiveRecord neverModified()
+ * @method CActiveRecord lastCreated()
+ * @method CActiveRecord firstCreated()
+ * @method CActiveRecord lastModified()
+ * @method CActiveRecord firstModified()
+ * 
+ * 
+ * @todo связь selectedListItems которая всегда содержит только элементы easyListItem
+ * @todo проверка для максимального/минимального количества значений
+ * @todo проверка правильности указания служебного имени
+ * @todo прописать все scope-условия в комментариях как "method" чтобы работал codeAssist
+ * @todo проверка: две системные настройки не могут иметь одинаковых названий
+ * @todo проверка: две корневые настройки одной модели не могут иметь одинаковых названий
+ * @todo настроить кэширование значений настроек: к ним часто обращаются и редко изменяют
+ * @todo переименовать поле easylistid в defaultlistid
+ * @todo проверка при сохранении модели: если в настройке допустим множественный выбор - то
+ *       поле valuetype обязательно должно иметь значение 'EasyList'
+ * @todo если целевая модель (из которой берется значение) была удалена, то значение настройки
+ *       должно быть сброшено на корневое или родительское. Если же ни того ни другого нет - 
+ *       то значение valutype/valuefield/valueid сбрасывается на ''/''/'0'
+ * @todo решить, нужно ли добавить отдельное поле (value) для хранения значения настройки.
+ *       Это упростит поиск по настройкам с одним значением, но добавит необходимость синхронизации
+ *       сохраненного значения при каждом изменении связанной модели
  */
 class Config extends CActiveRecord
 {
+    /**
+     * @var string - тип настройки:
+     */
+    const TYPE_TEXT         = 'text';
+    /**
+     * @var string - тип настройки:
+     */
+    const TYPE_TOGGLE       = 'toggle';
+    /**
+     * @var string - тип настройки:
+     */
+    const TYPE_RADIO        = 'radio';
+    /**
+     * @var string - тип настройки:
+     */
+    const TYPE_CHECKBOX     = 'checkbox';
+    /**
+     * @var string - тип настройки:
+     */
+    const TYPE_CHECKBOXLIST = 'checkboxlist';
+    /**
+     * @var string - тип настройки: список
+     */
+    const TYPE_SELECT       = 'select';
+    /**
+     * @var string - тип настройки: список с множественным выбором
+     */
+    const TYPE_MULTISELECT  = 'multiselect';
+    
+    /**
+     * @see CActiveRecord::init()
+     */
+    /*public function init()
+    {
+        parent::init();
+        
+        $this->refreshMetaData();
+        $this->getMetaData();
+        $this->refresh();
+        
+        CVarDumper::dump($this->attributes, 10, true);
+        CVarDumper::dump($this->getMetaData()->relations, 10, true);die;
+    }*/
+    
+    /**
+     * @see CActiveRecord::afterFind()
+     */
+    /*public function afterFind()
+    {
+        parent::afterFind();
+        
+        $this->refreshMetaData();
+        
+        CVarDumper::dump($this->attributes, 10, true);
+        CVarDumper::dump($this->getMetaData()->relations, 10, true);die;
+    }*/
+    
 	/**
 	 * @return string the associated database table name
 	 */
@@ -28,28 +244,148 @@ class Config extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
 			array('name, title', 'required'),
-			array('name, title', 'length', 'max'=>255),
-			array('description', 'length', 'max'=>4095),
-			array('type', 'length', 'max'=>20),
-			array('maxvalues, timecreated, timemodified', 'length', 'max'=>11),
-			// The following rule is used by search().
-			// @todo Please remove those attributes that should not be searched.
-			array('id, name, title, description, type, maxvalues, timecreated, timemodified', 'safe', 'on'=>'search'),
+			array('name, title', 'length', 'max' => 255),
+			array('description', 'length', 'max' => 4095),
+			array('type', 'length', 'max' => 20),
+			array('objecttype, valuetype, valuefield', 'length', 'max' => 50),
+			array('userlistid, easylistid, parentid, minvalues, maxvalues, objectid, valueid, 
+			    timecreated, timemodified', 'length', 'max' => 11,
+            ),
 		);
 	}
-
+	
+	/**
+	 * @see CActiveRecord::beforeSave()
+	 * @todo проверять существование привязанного объекта значения если тип значения это клас модели
+	 */
+	public function beforeSave()
+	{
+	    if ( $this->isNewRecord )
+	    {// создание новой настройки
+	        $listTypes = array(self::TYPE_CHECKBOXLIST, self::TYPE_SELECT, self::TYPE_RADIO);
+	        if ( in_array($this->type, $listTypes) )
+	        {// для новой настройки создаем список стандартных значений (если требуется)
+                $easyList       = new EasyList();
+                $easyList->name = 'Список значений для настройки "'.$this->title.'"';
+                $easyList->save();
+                // привязываем созданный пустой список к этой настройке
+                $this->easylistid = $easyList->id;
+	        }
+	        if ( ! $this->parentid )
+	        {// создается корневая настройка
+        	    if ( $this->objectid != 0 )
+        	    {// наждая настройка должна от чего-то наследоваться
+        	        throw new CException('Новые корневые настройки могут быть созданы только для 
+        	            моделей или системных настроек с objectid=0');
+        	    }
+    	    }
+    	    if ( $this->forObject($this->objecttype, $this->objectid)->withName($this->name)->exists() )
+    	    {// имя настройки должно быть уникальным
+    	        if ( $this->objectid == 0 AND $this->objecttype != 'system' )
+    	        {
+    	            throw new CException('Невозможно создать настройку: 
+    	                сочетание objecttype + objectid + name должно быть уникальным для каждой записи.
+    	                Только настройка уровня system может иметь более одного objectid=0');
+    	        }
+    	    }
+	    }
+	    if ( $this->easylistid AND ! EasyList::model()->findByPk($this->easylistid) )
+	    {// задан id списка значений - нужно проверить что он не пустой
+	        throw new CException('Невозможно сохранить настройку: указанный в ней список стандартных
+	            значений (id='.$this->easylistid.') не существует');
+	    }
+	    if ( $this->parentid AND ! Config::model()->findByPk($this->parentid) )
+	    {// задан id списка значений - нужно проверить что он не пустой
+	        throw new CException('Невозможно сохранить настройку: указанная родительская настройка
+	            (id='.$this->easylistid.') не существует');
+	    }
+	    if ( $this->objecttype === 'system' AND $this->objectid != 0 )
+	    {// все системные настройки должны придерживаться определенного формата
+	        throw new CException('Невозможно сохранить настройку: настройка с типом system
+	            может иметь только objectid=0');
+	    }
+	    return parent::beforeSave();
+	}
+	
+	/**
+	 * @see CActiveRecord::beforeDelete()
+	 */
+	public function beforeDelete()
+	{
+	    if ( $this->objecttype == 'system' OR ! $this->parentid OR ! $this->objectid )
+	    {// Корневые или системные настройки удаляются только миграцией
+	        throw new CException('Корневые или системные настройки удаляются только миграцией');
+	    }
+	    
+	    foreach ( $this->withParentId($this->id)->findAll() as $config )
+	    {// обновляем все настройки, наследуемые от этой: убираем ссылку на удаляемую запись
+	        // и заменяем ее ссылкой на элемент уровнем выше
+	        $config->parentid = $this->parentid;
+	        $config->save();
+	    }
+	    
+	    if ( $this->forUserList($this->userList) )
+	    {// удаляем введенные пользовательские варианты для настройки при удалении настройки:
+	        // список введенных пользователем дополнительных значений
+	        // с гораздо меньшей вероятностью где-то используется, поэтому будем искать
+	        // ссылки на него только в настройках
+	        // @todo каждый раз при привязке списка создавать EasyListInstance чтобы 
+	        //       запоминать какие модели нужно проверить перед удалением списка
+	        $this->userList->delete();
+	    }
+	    
+	    // @todo удаляем привязаный список стандартных значений (если он больше нигде не используется)
+	    return parent::beforeDelete();
+	}
+	
 	/**
 	 * @return array relational rules.
 	 */
 	public function relations()
 	{
-		return array(
-		    
+		$relations = array(
+		    // родительская настройка (из которой создана эта)
+		    'parentConfig' => array(self::BELONGS_TO, 'Config', 'parentid'),
+		    // Список (EasyList) содержащий стандартные значения этой настройки
+		    'defaultList' => array(self::BELONGS_TO, 'EasyList', 'easylistid'),
+		    // Все стандартные значения этой настройки (EasyListItem) из списка "defaultList"
+		    // Эта связь всегда содержит только объекты класса EasyListItem либо пустой массив
+		    'defaultListItems' => array(self::HAS_MANY, 'EasyListItem', array('easylistid' => 'easylistid')),
+		    // список нестандартных, введенных пользователем значений (если список разрешено дополнять)
+		    'userList'     => array(self::BELONGS_TO, 'EasyList', 'userlistid'),
+		    // Все введенные пользователем нестандартные значения настройки
+		    // Эта связь всегда содержит только объекты класса EasyListItem либо пустой массив
+		    'userListItems' => array(self::HAS_MANY, 'EasyListItem', array('userlistid' => 'easylistid')),
+		    // объект-список (EasyList) содержащий значения для выбранной настройки 
+		    // (частный случай связи selectedValue, только для настроек с множественным выбором)
+		    'selectedList' => array(self::BELONGS_TO, 'EasyList', 'valueid'),
+		    // список всех выбранных вариантов значений этой настройки (как стандартных так пользовательских) 
+		    // Используется только для настроек с множественным выбором. Эта связь всегда содержит
+		    // только объекты класса EasyListItem либо пустой массив
+		    'selectedListItems' => array(self::HAS_MANY, 'EasyListItem', array('easylistid' => 'valueid')),
+		    // Текущее выбранное значение настройки (для настроек содержащих только одно значение)
+		    'selectedListItem' => array(self::BELONGS_TO, 'EasyListItem', 'valueid'),
+		    //'selectedValue' => array(self::BELONGS_TO, $this->getAttribute('valuefield'), 'valueid'),
+		    //'selectedValues' => array(self::HAS_MANY, 'EasyListItem', 'valueid'),
 		);
+		/*if ( $this->getAttribute('valuetype') )
+		{
+		    // модель в которой хранится значение настройки
+		    // (если значение настройки задано как ссылка на поле в другой модели)
+		    // @todo не добавлять эту связь если тип значения (valuetype) не является классом модели
+		    $relations['selectedValue'] = array(self::BELONGS_TO, $this->getAttribute('valuetype'), 'valueid');
+		}*/
+		/*if ( $this->getAttribute('valuefield') )
+		{
+		    // список текущих выбранных значений этой настройки (только для настроек с множественным выбором)
+		    // @todo создать связь с использованием through
+		    // @todo сразу возвращать готовый список моделей нужных классов если элементы списка
+		    //       ссылаются на другие модели в качестве значений
+		    $relations['selectedValues'] = array(self::HAS_MANY, 'EasyListItem', 'valueid');
+		}*/
+		return $relations;
 	}
 	
 	/**
@@ -59,10 +395,33 @@ class Config extends CActiveRecord
 	{
 	    return array(
 	        // автоматическое заполнение дат создания и изменения
-	        'CTimestampBehavior' => array(
-	            'class'           => 'zii.behaviors.CTimestampBehavior',
+	        'EcTimestampBehavior' => array(
+	            'class'           => 'application.behaviors.EcTimestampBehavior',
 	            'createAttribute' => 'timecreated',
+	            // изменением настройки считается не только изменение значения модели (Config): 
+	            // каждое удаление, изменение или добавление моделей-значений на которые ссылается эта 
+	            // настройка должно также обновлять ее timemodified
+	            // Этим занимается контроллер виджета редактирования настроек, так как
+	            // отслеживать редактирование элементов связанного списка (EasyList)
+	            // должен или сам список или связанный с ним контроллер
+	            // Отслеживание событий списков из модели настройки - дорогая операция 
+	            // да и сама идея не очень вдохновляет
+	            // Отслеживание связанных значений в других моделях производится или самими моделями 
+	            // (если к ним прикреплено поведение настроек) либо через cron
 	            'updateAttribute' => 'timemodified',
+	        ),
+	        // это поведение позволяет изменять набор связей модели в процессе выборки
+	        'CustomRelationsBehavior' => array(
+	            'class' => 'application.behaviors.CustomRelationsBehavior',
+	        ),
+	        // это поведение добавляет группы условий поиска (scopes)
+	        'OmniRelationBehavior' => array(
+	            'class' => 'application.behaviors.OmniRelationBehavior',
+	            'targetRelationName'  => 'configTarget',
+	            'objectTypeField'     => 'objecttype',
+	            'objectIdField'       => 'objectid',
+	            'customObjectTypes'   => array('system'),
+	            'enableEmptyObjectId' => true,
 	        ),
 	    );
 	}
@@ -74,56 +433,542 @@ class Config extends CActiveRecord
 	{
 		return array(
 			'id' => 'ID',
-			'name' => 'Name',
-			'title' => 'Title',
-			'description' => 'Description',
-			'type' => 'Type',
-			'maxvalues' => 'Maxvalues',
-			'timecreated' => 'Timecreated',
-			'timemodified' => 'Timemodified',
+			'easylistid' => 'Список стандартных вариантов значений для этой настройки',
+		    'userlistid' => 'Список дополнительных вариантов значений для этой настройки (если разрешено добавление своих вариантов помимо стандартных)',
+			'parentid' => 'Шаблон для этой настройки',
+			'name' => Yii::t('coreMessages', 'name'),
+			'title' => Yii::t('coreMessages', 'title'),
+			'description' => Yii::t('coreMessages', 'description'),
+			'type' => 'Тип настройки',
+			'minvalues' => 'Минимальное количество выбранных значений',
+			'maxvalues' => 'Максимальное количество выбранных значений (включительно)',
+			'valuetype' => 'Тип значения или название класса модели в котором оно хранится',
+			'valuefield' => 'Поле, в котором хранится значение',
+			'valueid' => 'id модели в которой хранится значение настройки',
 		);
 	}
-
+	
 	/**
-	 * Retrieves a list of models based on the current search/filter conditions.
-	 *
-	 * Typical usecase:
-	 * - Initialize the model fields with values from filter form.
-	 * - Execute this method to get CActiveDataProvider instance which will filter
-	 * models according to data in model fields.
-	 * - Pass data provider to CGridView, CListView or any similar widget.
-	 *
-	 * @return CActiveDataProvider the data provider that can return the models
-	 * based on the search/filter conditions.
+	 * @see CActiveRecord::scopes()
 	 */
-	public function search()
+	public function scopes()
 	{
-		// @todo Please modify the following code to remove attributes that should not be searched.
-
-		$criteria=new CDbCriteria;
-
-		$criteria->compare('id',$this->id);
-		$criteria->compare('name',$this->name,true);
-		$criteria->compare('title',$this->title,true);
-		$criteria->compare('description',$this->description,true);
-		$criteria->compare('type',$this->type,true);
-		$criteria->compare('maxvalues',$this->maxvalues,true);
-		$criteria->compare('timecreated',$this->timecreated,true);
-		$criteria->compare('timemodified',$this->timemodified,true);
-
-		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
-		));
+	    return array(
+	        // все настройки, содержащие несколько значений (множественный выбор)
+	        'multipleOnly' => array(
+	            'condition' => $this->getTableAlias(true).".`maxvalues` <> 1",
+	        ),
+	        // все настройки, содержащие только одно значение (текст, число или select с одним варианом)
+	        'singleOnly' => array(
+	            'condition' => $this->getTableAlias(true).".`maxvalues` = 0",
+	        ),
+	        // обязательные настройки (должны быть заполнены)
+	        'requiredOnly' => array(
+	            'condition' => $this->getTableAlias(true).".`minvalues` > 0",
+	        ),
+	        // необязательные настройки
+	        'optionalOnly' => array(
+	            'condition' => $this->getTableAlias(true).".`minvalues` = 0",
+	        ),
+	        // системные настройки (не привязаны к моделям, управляют поведением сайта в целом)
+	        'systemOnly' => array(
+	            'scopes' => array(
+	                'forObject' => array('system', 0),
+	            ),
+	        ),
+	        // настройки не накследуемые от родительских
+	        'withoutParent' => array(
+	            'condition' => $this->getTableAlias(true).".`parentid` = 0",
+	        ),
+	        // настройки у которых предусмотрен набор вариантов для выбора значения
+	        // (при этом не важно, пуст этот список или нет)
+	        'hasDefaultList' => array(
+	            'condition' => $this->getTableAlias(true).".`easylistid` <> 0",
+	        ),
+	        // настройки у которых предусмотрен ввод дополнительных значений настроек
+	        // пользователем (помимо списка стандартных)
+	        'hasUserList' => array(
+	            'condition' => $this->getTableAlias(true).".`userlistid` <> 0",
+	        ),
+	        // @todo настройки у которых есть значения по умолчанию
+	        /*'hasDefaultValues' => array(
+	            'scopes' => array(
+	                '' => array('', 0),
+	            ),
+	        ),*/
+	        // @todo hasUserOptions
+	    );
 	}
 
 	/**
 	 * Returns the static model of the specified AR class.
-	 * Please note that you should have this exact method in all your CActiveRecord descendants!
-	 * @param string $className active record class name.
+	 * 
+	 * @param  string $className active record class name.
 	 * @return Config the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
 	}
+	
+	/**
+	 * Определить, является ли эта настройка системной (не относящейся ни к одной модели)
+	 * 
+	 * @return bool
+	 */
+	public function isSystem()
+	{
+	    return $this->withId($this->id)->systemOnly()->exists();
+	}
+	
+	/**
+	 * Определить, может ли настройка содержать несколько выбранных значений
+	 * 
+	 * @return bool
+	 */
+	public function isMultiple()
+	{
+	    return $this->withId($this->id)->multipleOnly()->exists();
+	}
+	
+	/**
+	 * Определить, должна ли настройка содержать только одно выбранное значение
+	 * 
+	 * @return bool
+	 */
+	public function isSingle()
+	{
+	    return ! $this->isMultiple();
+	}
+	
+	/**
+	 * Получить готовое значение текущей модели настройки ($this)
+	 * Должно применяться только для уже созданных записей (isNewRecord=false)
+	 * 
+	 * @param bool $forNewRecord - разрешить получать значение этой функцией для моделей
+	 *                               в которые уже установлены данные но которые пока не сохранены
+	 * @return string|array - текущее значение настройки
+	 *                        * (string|int) строка или число 
+	 *                          (для настроек содержащих максимум одно выбранное значение)
+	 *                        * (array) массив строк
+	 *                          (для настроек которые могут содержать несколько выбранных значений)
+	 * 
+	 * @todo проверка: в objecttype всегда должен быть корректный класс модели или пустота
+	 * @todo решить что возвращать в случае когда значение настройки - объект с неуказанным полем
+	 *       (пока что возвращаем весь объект целиком)
+	 * @todo кеширование после извлечения
+	 */
+	public function getValue($forNewRecord=false)
+	{
+	    if ( $this->isNewRecord AND ! $forNewRecord )
+	    {// эта функция должна работать только с реально существующими моделями
+	        throw new CException('Невозможно получить значение из не сохраненной настройки');
+	    }
+	    if ( $this->isSingle() )
+	    {// получаем одно значение
+	        if ( ! $modelClass = $this->valuetype OR ! $this->selectedListItem )
+	        {// значение настройки пусто
+	            return null;
+	        }
+	        if ( $field = $this->valuefield AND $id = $this->valueid )
+	        {// указано поле модели: значение из него будет считаться значением настройки
+	            if ( $model = $modelClass::model()->findByPk($id) )
+	            {
+	                return $model->$field;
+	            }else
+	            {
+	                return null;
+	            }
+	        }else
+	        {// поле модели неизвестно: возвращаем весь объект целиком
+	            return $modelClass::model()->findByPk($id);
+	        }
+	    }else
+	    {// получаем список выбранных вариантов (это всегда EasyListItem) и извлекаем данные из каждого
+	        $result = array();
+	        foreach ( $this->selectedListItems as $item )
+	        {/* @var $item EasyListItem */
+	            $result[$item->id] = $item->data;
+	        }
+	        return $result;
+	    }
+	}
+	
+	/**
+	 * Получить готовое значение текущей модели настройки ($this)
+	 * 
+	 * @return string|array - значение по умолчанию для этой настройки
+	 *                        * (string|int) строка или число 
+	 *                          (для настроек содержащих максимум одно выбранное значение)
+	 *                        * (array) массив строк
+	 *                          (для настроек которые могут содержать несколько выбранных значений)
+	 */
+	public function getDefaultValue()
+	{
+	    if ( $this->parentConfig AND $defaultValue = $this->parentConfig->value )
+	    {// значением по умолчанию считается значение родительской настройки (если оно есть)
+	        return $defaultValue;
+	    }elseif ( $rootValue = $this->getRootValue() )
+	    {// или значение корневой настройки (если родительской настройки нет)
+	        return $rootValue;
+	    }else
+	    {// у не наследуемых системных настроек не может быть значений по умолчанию: у них
+	        // такими значениями всегда считаются их собственные
+	        return $this->value;
+	    }
+	}
+	
+	/**
+	 * Получить корневое значение для этой настройки
+	 * 
+	 * @return string|array - корневое значение для этой настройки
+	 *                        * (string|int) строка или число 
+	 *                          (для настроек содержащих максимум одно выбранное значение)
+	 *                        * (array) массив строк
+	 *                          (для настроек которые могут содержать несколько выбранных значений)
+	 */
+	public function getRootValue()
+	{
+	    if ( ! $rootConfig = $this->forObject($this->objecttype, 0)->withName($this->name)->find() )
+	    {// не существует корневой настройки такого типа
+	        return null;
+	    }
+	    return $rootConfig->value;
+	}
+	
+	/**
+	 * Получить значения из элементов списка стандартных значений (EasyListItem)
+	 * допустимых в этой настройке
+	 * Эта функция получает только значения
+	 * Если вам нужны модели целиком используйте $this->defaultListItems
+	 * 
+	 * @param bool $removeSelected - что делать с теми элементами, которые уже выбраны? 
+	 *                               * true   - ничего не делать
+	 *                               * false  - убрать из списка
+	 * @return array
+	 */
+	public function getDefaultOptions($removeSelected=true)
+	{
+	    $result = array();
+	    foreach ( $this->defaultListItems as $item )
+	    {
+	        $result[$item->id] = $item->data;
+	    }
+	    return $result;
+	}
+	
+	/**
+	 * Получить значения из элементов списка пользовательских значений (EasyListItem)
+	 * добавленых для этой настройки
+	 * Эта функция получает только значения
+	 * Если вам нужны модели целиком используйте $this->userListItems
+	 *
+	 * @param bool $removeSelected - что делать с теми элементами, которые уже выбраны?
+	 *                               * true   - ничего не делать
+	 *                               * false  - убрать из списка
+	 * @return array
+	 */
+	public function getUserOptions($includeSelected=true)
+	{
+	    $result = array();
+	    foreach ( $this->userListItems as $item )
+	    {
+	        $result[$item->id] = $item->data;
+	    }
+	    return $result;
+	}
+	
+	/**
+	 * Получить выбранные значения настройки из элементов списка (EasyListItem)
+	 * Эта функция получает только значения
+	 * Если вам нужны модели целиком используйте $this->selectedListItems
+	 *
+	 * @return array
+	 */
+	public function getSelectedOptions()
+	{
+	     $result = array();
+	     foreach ( $this->selectedListItems as $item )
+	     {
+	         $result[$item->id] = $item->data;
+	     }
+	     return $result;
+	}
+	
+	/**
+	 * Именованая группа условий: все настройки, использующие этот список вариантов значений
+	 *
+	 * @param  int|array|EasyList $defaultList - id списка стандартных значений настройки, сама модель
+	 *                                           такого списка (EasyList), или массив id таких списков
+	 * @return Config
+	 */
+	public function forDefaultList($defaultList, $operation='AND')
+	{
+	    if ( is_object($defaultList) )
+	    {// передан объект целиком но нам нужен из него только id
+	        $id = $defaultList->id;
+	    }else
+	    {
+	        $id = $defaultList;
+	    }
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->getTableAlias(true).'.`easylistid`', $id);
+	
+	    $this->getDbCriteria()->mergeWith($criteria, $operation);
+	
+	    return $this;
+	}
+	
+	/**
+	 * Именованая группа условий: все настройки, использующие список дополнительных значений настройки
+	 *
+	 * @param  int|array|EasyList $userList - id списка пользовательских значений настройки, сама модель
+	 *                                        такого списка (EasyList), или массив id таких списков
+	 * @return Config
+	 */
+	public function forUserList($userList, $operation='AND')
+	{
+	    if ( is_object($userList) )
+	    {// передан объект целиком но нам нужен из него только id
+	        $id = $userList->id;
+	    }else
+	    {
+	        $id = $userList;
+	    }
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->getTableAlias(true).'.`userlistid`', $id);
+	
+	    $this->getDbCriteria()->mergeWith($criteria, $operation);
+	
+	    return $this;
+	}
+	
+	/**
+	 * Именованая группа условий: все настройки c указанным служебным названием или все настройки
+	 * с указанными названиями, если $name передан как массив
+	 * 
+	 * @param  string|array $name - служебное название настройки (или список названий)
+	 * @return Config
+	 */
+	public function withName($name, $operation='AND')
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->getTableAlias(true).'.`name`', $name);
+	
+	    $this->getDbCriteria()->mergeWith($criteria, $operation);
+	
+	    return $this;
+	}
+	
+	/**
+	 * Именованая группа условий: все дочерние настройки относящиеся к указанной родительской или
+	 * к любой из указанных родительских настроек если передан массив
+	 * 
+	 * @param  int|array $parentId - id родительской настройки или массив таких id
+	 * @return Config
+	 */
+	public function withParentId($parentId, $operation='AND')
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->getTableAlias(true).'.`parentid`', $parentId);
+	
+	    $this->getDbCriteria()->mergeWith($criteria, $operation);
+	
+	    return $this;
+	}
+	
+	/**
+	 * Именованая группа условий: все настройки с выбранным значением
+	 * 
+	 * @param  array|string $value - требуемое значение в поле value для связанной модели
+	 * @return Config
+	 * 
+	 * @todo функция withOptionId все multiple-настройки с указанным EasyListItem.id 
+	 *       в привязаном объекте значения (получаем одно или несколько EasyListItem.id 
+	 *       из стандартного (или пользовательского) списка занчений и ищем в своем 
+	 *       списке ссылки на них)
+	 */
+	public function withSelectedValue($value, $operation='AND')
+	{
+	    if ( ! $value )
+	    {// условие не используется
+	        return $this;
+	    }
+	    if ( $this->isMultiple() )
+	    {// настройка с множественным выбором всегда ссылается на список значений (EasyList)
+	        $with = array(
+	            'selectedListItems' => array(
+	                'select'   => false,
+	                'joinType' => 'INNER JOIN',
+    	            'scopes' => array(
+        	            'withValue' => array($value),
+                    ),
+                ),
+	        );
+	    }else
+	    {// настройка с одиночным выбором всегда ссылается на значение в поле другой модели
+	        /* @var $model CActiveRecord */
+	        $model = $this->valuetype;
+	        $alias = $model::model()->getTableAlias(true);
+	        // используем методы CDbCriteria для обработки случая с несколькими $value
+	        $condition = new CDbCriteria();
+            $condition->compare("{$alias}.`{$this->valuefield}`", $value);
+	        // создаем условие поиска по значению связанного поля
+	        $with = array(
+	            'selectedListItem' => array(
+	                'select'    => false,
+	                'joinType'  => 'INNER JOIN',
+                    'condition' => $condition,
+    	        ),
+    	    );
+	    }
+	    $criteria = new CDbCriteria();
+	    $criteria->with     = $with;
+	    $criteria->together = true;
+	    
+	    $this->getDbCriteria()->mergeWith($criteria, $operation);
+	    
+	    return $this;
+	}
+	
+	/**
+	 * (alias) Получить все настройки в которых используется (выбран) переданый вариант стандартного 
+	 * значения настройки (как из стандартного списка вариантов так и из пользовательского)
+	 * 
+	 * @param  int|array|EasyListItem $option
+	 * @return Config
+	 */
+	public function withSelectedOption($option, $operation='AND')
+	{
+	    return $this->withAnySelectedOption($option, $operation);
+	}
+	
+	/**
+	 * Получить все настройки в которых используется (выбран) переданый вариант стандартного
+	 * значения настройки (как из стандартного списка вариантов так и из пользовательского)
+	 *
+	 * @param  int|array|EasyListItem $option
+	 * @return Config
+	 */
+	public function withAnySelectedOption($options, $operation='AND')
+	{
+	    if ( ! $option )
+	    {// условие не используется
+	       return $this;
+	    }
+	    if ( is_object($option) )
+	    {// передана одна модель с вариантом значения
+	       $optionId = $option->id;
+	    }elseif ( is_array($option) )
+	    {// передано несколько вариантов, будем искать любое совпедение
+    	    $optionList = $option;
+    	    $optionId   = array();
+    	    foreach ( $optionList as $optionItem )
+    	    {// проверим что за массив нам передали: масив id или массив элементов списка (EasyListItem)
+        	    if ( is_object($optionItem) )
+        	    {
+        	        $optionId[] = $optionItem->id;
+        	    }elseif ( is_numeric($option) )
+        	    {
+        	        $optionId[] = $optionItem;
+        	    }else
+        	    {
+        	        throw new CException('Неправильно указан параметр $option (поиск по элементу списка)');
+        	    }
+    	    }
+	    }elseif ( is_numeric($option) )
+	    {// передан id модели
+            $optionId = $option;
+	    }else
+	    {
+	        throw new CException('Неправильно указан параметр $option (поиск по элементу списка)');
+	    }
+	    $criteria = new CDbCriteria();
+	    $criteria->with = array(
+	        'selectedListItems' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes' => array(
+	                'withId' => array($optionId),
+	            ),
+	        ),
+	    );
+	    $criteria->together = true;
+	     
+	    $this->getDbCriteria()->mergeWith($criteria, $operation);
+	    
+	    return $this;
+	}
+	
+	/**
+	 * Получить все настройки в которых используется (выбран) переданый вариант стандартного
+	 * значения настройки (как из стандартного списка вариантов так и из пользовательского)
+	 *
+	 * @param  int|array|EasyListItem $option
+	 * @return Config
+	 */
+	public function withEverySelectedOption($options, $operation='AND')
+	{
+        
+	}
+	
+	/**
+	 * Функция подготовки первого изменения значения или списка значений
+	 * для этой настройки (ConfigValue): мы храним только те значения настроек которые
+	 * отличаются от значений по умолчанию, поэтому при первом изменении значения любой настройки
+	 * мы должны ее инициализировать
+	 * Эта функция вызывается из модели ConfigValue перед сохранением редактированием или обновлением
+	 *
+	 * @param  string      $operation - действие производимое с настройкой (ConfigValue):
+	 *                                  insert/update/delete
+	 * @param  ConfigValue $configValue - создаваемое, обновляемое или удаляемое значение настройки
+	 * @return bool
+	 *
+	 * @deprecated переместить в контроллер для настроек
+	 */
+	/*public function beforeFirstEdit($operation, $configValue)
+	{
+	    if ( $this->timemodified OR ! $this->parentid OR $this->isSystem() )
+	    {// это не первое редактирование настройки или настройка корневая/системная:
+	        // не требуется никаких дополнительных операций подготовки при изменении ее записей
+	        return true;
+	    }
+	    if ( ! $this->parentConfig )
+	    {// проверяем целостность иерархии настроек
+	        throw new CException('Невозможно изменить настройку: она ссылается на несуществующую
+	            родительскую запись');
+	    }
+	    $this->timemodified = time();
+	     
+	    // определим какая операция выполняется
+	    switch ( $operation )
+	    {
+	        // добавляется новое значение настройки
+	        case 'insert':
+	            if ( $this->isMultiple() )
+	            {// у настройки может быть несколько значений
+	                 
+	            }else
+	            {// у настройки может быть только одно значение
+	                 
+	            }
+	            if ( ! $this->parentConfig->configValues )
+	            {// в родительской настройке нет значений по умолчанию: она или не обязательна
+	                // к заполнению или не имеет значений по умолчанию
+	                // создаем и сохраняем новую запись из переданных значений
+	
+	            }
+	            break;
+	            // обновляется текущее значение настройки
+	        case 'update':
+	
+	        break;
+	        // удаляется одно из добавленых значений настройки
+	        case 'delete':
+	
+	        break;
+	        default: throw new CException('Неизвестный тип операции с настройкой:'.$operation);
+	    }
+	    return $this->save();
+    }*/
 }

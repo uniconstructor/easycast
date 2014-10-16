@@ -120,4 +120,21 @@ class CatalogFilterInstance extends CActiveRecord
 			'criteria' => $criteria,
 		));
 	}
+	
+    /**
+	 * Именованая группа условий: 
+	 * @param string $objectType
+	 * @param string $objectId
+	 * @return CatalogFilterInstance
+	 */
+	public function forObject($objectType, $objectId)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->getTableAlias(true).'.`linktype`', $objectType);
+	    $criteria->compare($this->getTableAlias(true).'.`linkid`', $objectId);
+	     
+	    $this->getDbCriteria()->mergeWith($criteria);
+	     
+	    return $this;
+	}
 }

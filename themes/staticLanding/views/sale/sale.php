@@ -37,6 +37,7 @@ $serviceLinks['media_actors'] = Yii::app()->createAbsoluteUrl('//catalog/', arra
 // выводим скрытую форму срочного заказа: она появляется как modal-окно
 $this->widget('ext.ECMarkup.ECFastOrder.ECFastOrder');
 // modal-окно с гарантиями
+// @todo разобраться с лишним вызовом endWinget()
 $this->widget('ext.ECMarkup.ECIGuaranteeIt.ECIGuaranteeIt');
 ?>
 <div class="section_1" id="section1">
@@ -145,7 +146,7 @@ $this->widget('ext.ECMarkup.ECIGuaranteeIt.ECIGuaranteeIt');
 		<a name="reviews-section"></a>
 		<div class="row-fluid">
 		    <div class="quality">
-                <a href="#IGuaranteeItModal" style="font-size: 28px;" data-toggle="modal">Почему именно мы&nbsp;?</a>
+                <a href="#IGuaranteeItModal" style="font-size:28px;" data-toggle="modal">Почему именно мы&nbsp;?</a>
             </div>
 		</div>
 		<!-- отзывы -->

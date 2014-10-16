@@ -1,9 +1,9 @@
 <?php
 
 /**
- * This is the model class for table "{{video}}".
+ * Модель для работы сзагруженными видеофайлами и ссылками на видео
  *
- * The followings are the available columns in table '{{video}}':
+ * Таблица '{{video}}':
  * @property integer $id
  * @property string $objecttype
  * @property string $objectid
@@ -17,13 +17,14 @@
  * @property string $md5
  * @property string $size
  * @property string $externalid - id видео на внешнем портале
- * @property string $status - статус видеоролика
- *                         swVideo/pending - видео загружено участником и ждет проверки
+ * @property string $status - статус видеоролика:
+ *                         swVideo/pending  - видео загружено участником и ждет проверки
  *                         swVideo/approved - видео проверено администратором и одобрено (или загружено администратором)
  *                         swVideo/rejected - видео отклонено администратором (нельзя такое публиковать)
  * @property int $visible
  * 
- * @todo прописать константы для всех типов
+ * @todo прописать константы для всех типов видео
+ * @todo добавить статус "идет оцифровка" (для загруженных файлов)
  */
 class Video extends SWActiveRecord
 {
@@ -113,14 +114,12 @@ class Video extends SWActiveRecord
 	{
 	    return array(
 	        // автоматическое заполнение дат создания и изменения
-	        'CTimestampBehavior' => array(
-	            'class'           => 'zii.behaviors.CTimestampBehavior',
-	            'createAttribute' => 'timecreated',
-	            'updateAttribute' => 'timemodified',
+	        'EcTimestampBehavior' => array(
+	            'class' => 'application.behaviors.EcTimestampBehavior',
 	        ),
 	        // подключаем расширение для работы со статусами
 	        'swBehavior' => array(
-	            'class' => 'application.extensions.simpleWorkflow.SWActiveRecordBehavior',
+	            'class' => 'ext.simpleWorkflow.SWActiveRecordBehavior',
 	        ),
         );
 	}

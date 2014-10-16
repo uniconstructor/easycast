@@ -48,6 +48,8 @@
  * @todo созданные и приркрепленные группы полей и заявок при запуске проекта
  *       если они не использовались (в категории разделов нет разделов + в категории полей нет полей)
  * @todo запоминать в настройках созданную для этого проекта категорию заявок
+ * @todo константы типов проекта больше не используются - их следует удалить из класса,
+ *       и вычистить все упоминания о них из остального кода 
  */
 class Project extends SWActiveRecord
 {
@@ -82,90 +84,112 @@ class Project extends SWActiveRecord
      *               Создан "про запас", чтобы не было дыр в множестве типов. 
      *               Используется только в случае, когда тип проекта определить невозможно 
      *               (пока что таких ситуаций нет)
+     * @deprecated тип проекта теперь задается не в константах а настройкой в таблице config
      */
     const TYPE_PROJECT     = 'project';
     /**
      * @var string - тип проекта: фотореклама
+     * @deprecated тип проекта теперь задается не в константах а настройкой в таблице config
      */
     const TYPE_AD          = 'ad';
     /**
      * @var string - тип проекта: видеореклама
+     * @deprecated тип проекта теперь задается не в константах а настройкой в таблице config
      */
     const TYPE_VIDEOAD     = 'videoad';
     /**
      * @var string - тип проекта: полнометражный фильм
+     * @deprecated тип проекта теперь задается не в константах а настройкой в таблице config
      */
     const TYPE_FILM        = 'film';
     /**
      * @var string - тип проекта: документальный фильм
+     * @deprecated тип проекта теперь задается не в константах а настройкой в таблице config
      */
     const TYPE_DOCUMENTARY = 'documentary';
     /**
      * @var string - тип проекта: сериал
+     * @deprecated тип проекта теперь задается не в константах а настройкой в таблице config
      */
     const TYPE_SERIES      = 'series';
     /**
      * @var string - тип проекта: телешоу
+     * @deprecated тип проекта теперь задается не в константах а настройкой в таблице config
      */
     const TYPE_TVSHOW      = 'tvshow';
     /**
      * @var string - тип проекта: показ
+     * @deprecated тип проекта теперь задается не в константах а настройкой в таблице config
      */
     const TYPE_EXPO        = 'expo';
     /**
      * @var string - тип проекта: промо-акция
+     * @deprecated тип проекта теперь задается не в константах а настройкой в таблице config
      */
     const TYPE_PROMO       = 'promo';
     /**
      * @var string - тип проекта: флешмоб
+     * @deprecated тип проекта теперь задается не в константах а настройкой в таблице config
      */
     const TYPE_FLASHMOB    = 'flashmob';
     /**
      * @var string - тип проекта: видеоролик (например для канала youtube)
+     * @deprecated тип проекта теперь задается не в константах а настройкой в таблице config
      */
     const TYPE_VIDEO       = 'video';
     /**
      * @var string - тип проекта: видеоклип
+     * @deprecated тип проекта теперь задается не в константах а настройкой в таблице config
      */
     const TYPE_VIDEOCLIP   = 'videoclip';
     /**
      * @var string - реалити-шоу
+     * @deprecated тип проекта теперь задается не в константах а настройкой в таблице config
      */
     const TYPE_REALITYSHOW = 'realityshow';
     /**
      * @var string - докуреалити
+     * @deprecated тип проекта теперь задается не в константах а настройкой в таблице config
      */
     const TYPE_DOCUREALITY = 'docureality';
     /**
      * @var string - короткометражный фильм
+     * @deprecated тип проекта теперь задается не в константах а настройкой в таблице config
      */
     const TYPE_SHORTFILM   = 'shortfilm';
     /**
      * @var string - конференция
+     * @deprecated тип проекта теперь задается не в константах а настройкой в таблице config
      */
     const TYPE_CONFERENCE  = 'conference';
     /**
      * @var string - концерт
+     * @deprecated тип проекта теперь задается не в константах а настройкой в таблице config
      */
     const TYPE_CONCERT     = 'concert';
     /**
      * @var string - театральная постановка
+     * @deprecated тип проекта теперь задается не в константах а настройкой в таблице config
      */
     const TYPE_THEATREPERFOMANCE = 'theatreperfomance';
     /**
      * @var string - мюзикл
+     * @deprecated тип проекта теперь задается не в константах а настройкой в таблице config
      */
     const TYPE_MUSICAL   = 'musical';
     /**
      * @var string - корпоратив
+     * @deprecated тип проекта теперь задается не в константах а настройкой в таблице config
      */
     const TYPE_CORPORATE = 'corporate';
     /**
      * @var string - фестиваль
+     * @deprecated тип проекта теперь задается не в константах а настройкой в таблице config
      */
     const TYPE_FESTIVAL  = 'festival';
     /**
      * @var string - онлайн-кастинг
+     * @deprecated тип проекта теперь задается не в константах а настройкой в таблице config
      */
     const TYPE_ONLINECASTING = 'onlinecasting';
     

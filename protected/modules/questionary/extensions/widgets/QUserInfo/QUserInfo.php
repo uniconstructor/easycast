@@ -35,6 +35,13 @@ class QUserInfo extends CWidget
      * @var bool
      */
     public $nameAsLink;
+    /**
+     * @var bool - отображать ли контакты участника если нет админского доступа
+     *             (иногда используется при предоставлении одноразовой ссылки заказчику)
+     * @todo заменить RBAC-проверкой после создания и настройки роли доступа "заказчик" 
+     *       и отказа от одноразовых ссылок
+     */
+    public $displayContacts = false;
     
     /**
      * @var string - путь к папке со стилями и скриптами для виджета
@@ -115,9 +122,13 @@ class QUserInfo extends CWidget
             'projects',
             'awards', 
         );
-        if ( Yii::app()->user->checkAccess('Admin') )
-        {// контакты и условия съемок может видеть только админ
+        
+        if ( Yii::app()->user->checkAccess('Admin') OR $this->displayContacts )
+        {
             $tabs[] = 'personal';
+        }
+        if ( Yii::app()->user->checkAccess('Admin') )
+        {// условия съемок может видеть только админ
             $tabs[] = 'conditions';
         }
         if ( $this->isMyQuestionary() OR Yii::app()->user->checkAccess('Admin') )
@@ -1225,17 +1236,16 @@ class QUserInfo extends CWidget
      */
     public function getPersonalTabContent()
     {
-        if ( ! Yii::app()->user->checkAccess('Admin') )
-        {// контакты видны только админам
+        if ( ! Yii::app()->user->checkAccess('Admin') AND ! $this->displayContacts )
+        {// контакты видны только админам или мы явно разрешили их отображать
             return false;
         }
-        
         $content = '';
         $questionary = $this->questionary;
         $user        = $this->questionary->user;
         
         $attributes  = array();
-        $data = array();
+        $data        = array();
         
         // Заголовок
         $content .= '<h3>'.QuestionaryModule::t('contact_information').'</h3>';
@@ -1243,57 +1253,78 @@ class QUserInfo extends CWidget
         // Email
         if ( isset($user->email) AND $user->email )
         {
-            $attributes[] = array('name'=>'email', 'label'=>QuestionaryModule::t('email_label'));
+            $attributes[] = array(
+                'name'  => 'email',
+                'label' => QuestionaryModule::t('email_label'),
+            );
             $data['email'] = $user->email;
         }
         
         // Мобильный телефон
         if ( isset($questionary->mobilephone) AND $questionary->mobilephone )
         {
-            $attributes[] = array('name'=>'mobilephone', 'label'=>QuestionaryModule::t('mobilephone_label'));
+            $attributes[] = array(
+                'name'  => 'mobilephone',
+                'label' => QuestionaryModule::t('mobilephone_label'),
+            );
             $data['mobilephone'] = $questionary->mobilephone;
         }
         
         // Домашний
         if ( isset($questionary->homephone) AND $questionary->homephone )
         {
-            $attributes[] = array('name'=>'homephone', 'label'=>QuestionaryModule::t('homephone_label'));
+            $attributes[] = array(
+                'name'  => 'homephone',
+                'label' => QuestionaryModule::t('homephone_label'),
+            );
             $data['homephone'] = $questionary->homephone;
         }
         
         // Дополнительный
         if ( isset($questionary->addphone) AND $questionary->addphone )
         {
-            $attributes[] = array('name'=>'addphone', 'label'=>QuestionaryModule::t('addphone_label'));
+            $attributes[] = array(
+                'name'  => 'addphone',
+                'label' => QuestionaryModule::t('addphone_label'),
+            );
             $data['addphone'] = $questionary->addphone;
         }
         
         // профиль в контакте
         if ( isset($questionary->vkprofile) AND $questionary->vkprofile )
         {
-            $attributes[] = array('name'=>'vkprofile', 'label'=>QuestionaryModule::t('vkprofile_label'));
+            $attributes[] = array(
+                'name'  => 'vkprofile',
+                'label' => QuestionaryModule::t('vkprofile_label'),
+            );
             $data['vkprofile'] = $questionary->vkprofile;
         }
         
         // Профиль facebook
         if ( isset($questionary->fbprofile) AND $questionary->fbprofile )
         {
-            $attributes[] = array('name'=>'fbprofile', 'label'=>QuestionaryModule::t('fbprofile_label'));
+            $attributes[] = array(
+                'name'  => 'fbprofile',
+                'label' => QuestionaryModule::t('fbprofile_label'),
+            );
             $data['fbprofile'] = $questionary->fbprofile;
         }
         
         // Профиль в одноклассниках
         if ( isset($questionary->okprofile) AND $questionary->okprofile )
         {
-            $attributes[] = array('name'=>'okprofile', 'label'=>QuestionaryModule::t('okprofile_label'));
+            $attributes[] = array(
+                'name'  => 'okprofile',
+                'label' => QuestionaryModule::t('okprofile_label'),
+            );
             $data['okprofile'] = $questionary->okprofile;
         }
         
         $content .= $this->widget('bootstrap.widgets.TbDetailView', array(
             'data'       => $data,
-            'attributes' => $attributes), true);
-        
-        // запрещаем случайную индексацию персональных данных
+            'attributes' => $attributes,
+        ), true);
+        // запрещаем случайную индексацию персональных данных (в дополнении к мета-тегам и robots.txt)
         return '<noindex>'.$content.'</noindex>';
     }
     

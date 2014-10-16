@@ -42,10 +42,9 @@ class ProjectMember extends CActiveRecord
      */
     const STATUS_INCOMPLETE = 'incomplete';
     /**
-     * @var string - 
-     *
+     * @var string - статус анкеты: дополнена участником, ждет проверки администратором
      */
-    const STATUS_UNCHECKED  = 'unchecked';
+    const STATUS_FINALIZED  = 'finalized';
     /**
      * @var string - статус заявки: предварительно одобрена. Заявка рассмотрена нами и предварительно отобрана.
      *               Этот статус используется в случае, когда актеров на мероприятие отбираем не мы, а другой
@@ -678,36 +677,54 @@ class ProjectMember extends CActiveRecord
 	                self::STATUS_REJECTED,
 	                self::STATUS_CANCELED,
 	            );
-            break;
             // предварительно одобрена
             case self::STATUS_PENDING:
                 return array(
                     self::STATUS_ACTIVE,
                     self::STATUS_REJECTED,
                 );
-            break;
             // одобрена
 	        case self::STATUS_ACTIVE:
 	            return array(
 	                self::STATUS_FINISHED,
 	                self::STATUS_REJECTED,
 	            );
-            break;
+	        // требуются дополнительные данные от участника
+	        case self::STATUS_INCOMPLETE:
+	            return array(
+                    self::STATUS_FINALIZED,
+                    self::STATUS_DRAFT,
+	                self::STATUS_PENDING,
+	                self::STATUS_FINISHED,
+	                self::STATUS_REJECTED,
+	                self::STATUS_ACTIVE,
+	            );
+	        // дополнительные данные внесены участником и ждут проверки администратора
+	        case self::STATUS_FINALIZED:
+	            return array(
+	                self::STATUS_INCOMPLETE,
+	                self::STATUS_DRAFT,
+	                self::STATUS_PENDING,
+	                self::STATUS_FINISHED,
+	                self::STATUS_REJECTED,
+	                self::STATUS_ACTIVE,
+	            );
             // отклонена
             case self::STATUS_REJECTED:
-                return array(self::STATUS_ACTIVE);
-            break;
+                return array(
+                    self::STATUS_ACTIVE,
+                );
             // отменена
             case self::STATUS_CANCELED:
-                return array(self::STATUS_DRAFT);
-            break;
+                return array(
+                    self::STATUS_DRAFT,
+                );
             // завершена
             case self::STATUS_FINISHED:
                 return array(
                     self::STATUS_SUCCEED,
                     self::STATUS_FAILED,
                 );
-            break;
 	    }
         // переход из этого статуса недоступен
 	    return array();
