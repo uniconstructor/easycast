@@ -10,7 +10,6 @@ class ECReferalFilter extends CFilter
      * @see CFilter::preFilter()
      *
      * @param CFilterChain $filterChain the filter chain that the filter is on.
-     *
      * @return boolean
      */
     protected function preFilter($filterChain)
@@ -23,7 +22,6 @@ class ECReferalFilter extends CFilter
         $this->processUserToken();
         // @todo приглашение на съемку
         // @todo приглашение на отбор актеров
-        
         return parent::preFilter($filterChain);
     }
 
@@ -31,7 +29,6 @@ class ECReferalFilter extends CFilter
      * Performs the post-action filtering.
      *
      * @param CFilterChain $filterChain the filter chain that the filter is on.
-     *
      * @return void
      */
     protected function postFilter($filterChain)
@@ -64,6 +61,7 @@ class ECReferalFilter extends CFilter
     /**
      * Автоматически пустить на сайт пользователя без ввода логина и пароля 
      * (при переходе по ссылке с токеном из писем с приглашениями)
+     * 
      * @return boolean
      */
     protected function processUserToken()
