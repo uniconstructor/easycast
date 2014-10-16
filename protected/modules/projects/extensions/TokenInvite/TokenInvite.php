@@ -73,8 +73,8 @@ class TokenInvite extends CWidget
     
     /**
      * Отобразить информацию по одному мероприятию
+     * 
      * @param ProjectEvent $event
-     *
      * @return null
      * 
      * @todo определить, когда писать "вакансии", а когда "роли"
@@ -91,18 +91,21 @@ class TokenInvite extends CWidget
     
     /**
      * Отобразить список доступных участнику вакансий
-     * @param ProjectEvent $event
      * 
+     * @param ProjectEvent $event
      * @return null
      * 
      * @todo выбрать вакансии по таблице {{invite_vacancies}} через relations
+     * @todo давать ссылку на другие роли если набор завершен
      */
     protected function displayVacancies($event)
     {
         $vacancies = array();
         if ( ! $availableVacancies = $this->event->getAllowedVacancies($this->invite->questionaryid) )
         {// нет доступных вакансий для отображения
-            return '';
+            echo $this->getInfoMessage('Необходимое количество участников уже набрано', 
+                'Прием заявок завершен', 'alert alert-info');
+            return;
         }
         
         if ( $event->type === ProjectEvent::TYPE_GROUP )
@@ -138,6 +141,7 @@ class TokenInvite extends CWidget
     
     /**
      * Получить HTML-код кнопок подписки и отписки
+     * 
      * @param EventVacancy $vacancy - вакансия для которой создается кнопка
      * @return string - html-код кнопок
      */
@@ -161,8 +165,7 @@ class TokenInvite extends CWidget
      */
     protected function getInfoMessage($message, $header='', $class='alert alert-block')
     {
-        $result = '';
-    
+        $result  = '';
         $result .= '<div class="'.$class.'" style="text-align:center;">';
         if ( $header )
         {
