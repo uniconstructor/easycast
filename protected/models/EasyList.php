@@ -193,6 +193,10 @@ class EasyList extends CActiveRecord
 	        'EcTimestampBehavior' => array(
 	            'class' => 'application.behaviors.EcTimestampBehavior',
 	        ),
+	        // это поведение позволяет изменять набор связей модели в процессе выборки
+	        'CustomRelationsBehavior' => array(
+	            'class' => 'application.behaviors.CustomRelationsBehavior',
+	        ),
 	    );
 	}
 
