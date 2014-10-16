@@ -10,4 +10,4 @@ export EASYCAST_PROTECTED=/home/frost/server/sites/bglance/protected
 sh $EASYCAST_PROTECTED/migrations_list.sh
 
 # trader
-php $EASYCAST_PROTECTED/yiic migrate --migrationPath=application.modules.trader.migrations
+#php $EASYCAST_PROTECTED/yiic migrate --migrationPath=application.modules.trader.migrations
