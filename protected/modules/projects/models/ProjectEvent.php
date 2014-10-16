@@ -1103,22 +1103,20 @@ class ProjectEvent extends CActiveRecord
 	    {
 	        return array();
 	    }
-	    
 	    // @todo решить, каким образом лучше всего проверять доступность вакансий группы
 	    /*if ( $this->group )
 	    {// если это мероприятие входит в состав группы, то проверим и вакансии группы
     	    // @todo убрать эту проверку, когда все вакансии будут прописаны через relations
     	    $activeVacancies = $this->group->getAllowedVacancies($questionaryId);
 	    }*/
-	    
 	    foreach ( $this->activevacancies as $vacancy )
 	    {// проверяем каждую вакансию мероприятия, и определяем, подходит ли для нее участник 
+	        /* @var $vacancy EventVacancy */
 	        if ( $vacancy->isAvailableForUser($questionaryId) )
 	        {
 	            $vacancies[$vacancy->id] = $vacancy;
 	        }
 	    }
-	    
 	    return $vacancies;
 	}
 	
