@@ -9,7 +9,7 @@ class ECReferalFilter extends CFilter
      * Performs the pre-action filtering.
      * @see CFilter::preFilter()
      *
-     * @param CFilterChain $filterChain the filter chain that the filter is on.
+     * @param  CFilterChain $filterChain the filter chain that the filter is on.
      * @return boolean
      */
     protected function preFilter($filterChain)
@@ -28,7 +28,7 @@ class ECReferalFilter extends CFilter
     /**
      * Performs the post-action filtering.
      *
-     * @param CFilterChain $filterChain the filter chain that the filter is on.
+     * @param  CFilterChain $filterChain the filter chain that the filter is on.
      * @return void
      */
     protected function postFilter($filterChain)
@@ -38,8 +38,8 @@ class ECReferalFilter extends CFilter
     }
     
     /**
-     * Пометить отправленное коммерческое предложение как использованное и запомнить данные заказчика в сессию
-     * для подстановки в форму
+     * Пометить отправленное коммерческое предложение как использованное 
+     * и запомнить данные заказчика в сессию для подстановки в форму
      * 
      * @return void
      */
