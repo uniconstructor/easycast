@@ -1,9 +1,12 @@
 <?php
 
+// @todo подключить phpunit другим способом
+//require __DIR__ . '/phpunit.phar';
+
 /**
  * Базовый класс для всех функциональных тестов системы
  */
-class WebTestCase extends CWebTestCase
+class EcTestCase extends CWebTestCase
 {
     /**
      * Метод выполняется перед запуском теста.

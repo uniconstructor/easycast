@@ -5,7 +5,7 @@
 $yii    = dirname(__FILE__).'/framework/yii.php';
 $config = dirname(__FILE__).'/protected/config/dev.php';
 
-define('TEST_BASE_URL', 'http://bglance-test/');
+define('TEST_BASE_URL', 'http://bglance/');
 define('YII_EASYCAST_CONFIG_DB_CONNECTION_STRING', 'mysql:host=localhost;dbname=easycast');
 define('YII_EASYCAST_CONFIG_DB_LOGIN', 'root');
 define('YII_EASYCAST_CONFIG_DB_PASSWORD', 'root');

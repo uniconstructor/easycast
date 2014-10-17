@@ -12,7 +12,7 @@
 	<!-- Папка с промежуточными результатами сборки -->
     <property name="test_output.dir" value="/home/frost/tmp/release/easycast/TEST/"/>
 	<!-- Папка веб-сервера -->
-    <property name="webserver.dir" value="/home/frost/server/sites/bglance-test/"/>
+    <property name="webserver.dir" value="/home/frost/server/sites/bglance/"/>
     
 	<target name="clear-webserver-directory">
         <echo>Очищаем папку веб-сервера</echo>
@@ -34,7 +34,7 @@
     </target>
 
     <target name="copy-yii" depends="clear-output-directory">
-        <echo>Копируем файлы Yii (вариант для разработчика)</echo>      
+        <echo>Копируем файлы Yii</echo>      
         <copy todir="${test_output.dir}" overwrite="true" includeemptydirs="true">
             <fileset dir="${yii.dir}">
                 <include name="framework/**"/>
