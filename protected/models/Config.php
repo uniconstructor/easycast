@@ -118,10 +118,11 @@
  *                           Как правило это элементы списка (EasyListItem)
  *                           Если настройка предусматривает максимум одно значение - то в этом массиве 
  *                           будет только одна модель
- * @property EasyListItem[]  $selectedListItems - 
+ * @property EasyListItem[]  $selectedListItems -  элементы списка, выбранные в качестве значений 
+ *                           этой настройки (только для настроек с множественным выбором) 
  * 
  * 
- * Методы класса OmniRelationBehavior:
+ * Методы класса CustomRelationSourceBehavior:
  * @method CActiveRecord forModel(CActiveRecord $model)
  * @method CActiveRecord forAnyObject(string $objectType, array|int $objectId, string $operation='AND')
  * @method CActiveRecord forObject(string $objectType, array|int $objectId, string $operation='AND')
@@ -171,6 +172,9 @@
  * @todo решить, нужно ли добавить отдельное поле (value) для хранения значения настройки.
  *       Это упростит поиск по настройкам с одним значением, но добавит необходимость синхронизации
  *       сохраненного значения при каждом изменении связанной модели
+ * @todo разрешить не хранить настройки, во всем совпадающие с корневыми (objectid=0)
+ *       при попытке получить настроку искать сначала настройку объекта, а если ее нет
+ *       то корневую настройку модели (если при этом возможно сохранить работу всех scopes)
  */
 class Config extends CActiveRecord
 {
@@ -361,10 +365,12 @@ class Config extends CActiveRecord
 		    // объект-список (EasyList) содержащий значения для выбранной настройки 
 		    // (частный случай связи selectedValue, только для настроек с множественным выбором)
 		    'selectedList' => array(self::BELONGS_TO, 'EasyList', 'valueid'),
-		    // список всех выбранных вариантов значений этой настройки (как стандартных так пользовательских) 
-		    // Используется только для настроек с множественным выбором. Эта связь всегда содержит
-		    // только объекты класса EasyListItem либо пустой массив
+		    // список всех выбранных вариантов значений этой настройки 
+		    // (как стандартных так пользовательских) 
+		    // Используется только для настроек с множественным выбором
+		    // Эта связь всегда содержит только объекты класса EasyListItem либо пустой массив
 		    'selectedListItems' => array(self::HAS_MANY, 'EasyListItem', array('easylistid' => 'valueid')),
+		    //'selectedListItems' => array(self::HAS_MANY, 'EasyListItem', array('id' => 'easylistid'), 'through' => 'selectedList'),
 		    // Текущее выбранное значение настройки (для настроек содержащих только одно значение)
 		    'selectedListItem' => array(self::BELONGS_TO, 'EasyListItem', 'valueid'),
 		    //'selectedValue' => array(self::BELONGS_TO, $this->getAttribute('valuefield'), 'valueid'),
@@ -415,8 +421,8 @@ class Config extends CActiveRecord
 	            'class' => 'application.behaviors.CustomRelationsBehavior',
 	        ),
 	        // это поведение добавляет группы условий поиска (scopes)
-	        'OmniRelationBehavior' => array(
-	            'class' => 'application.behaviors.OmniRelationBehavior',
+	        'CustomRelationSourceBehavior' => array(
+	            'class' => 'application.behaviors.CustomRelationSourceBehavior',
 	            'targetRelationName'  => 'configTarget',
 	            'objectTypeField'     => 'objecttype',
 	            'objectIdField'       => 'objectid',
@@ -518,7 +524,23 @@ class Config extends CActiveRecord
 	 */
 	public function isSystem()
 	{
-	    return $this->withId($this->id)->systemOnly()->exists();
+	    if ( $this->objecttype === 'system' )
+	    {
+	        return true;
+	    }
+	    return false;
+	    //return $this->withId($this->id)->systemOnly()->exists();
+	}
+	
+	/**
+	 * Определить, является ли эта настройка корневой (относящейся ко всем моделям одновременно)
+	 * 
+	 * @return bool
+	 */
+	public function isRoot()
+	{
+	    return ! (bool)$this->objectid;
+	    //return $this->withId($this->id)->withParentId(0)->exists();
 	}
 	
 	/**
@@ -545,8 +567,8 @@ class Config extends CActiveRecord
 	 * Получить готовое значение текущей модели настройки ($this)
 	 * Должно применяться только для уже созданных записей (isNewRecord=false)
 	 * 
-	 * @param bool $forNewRecord - разрешить получать значение этой функцией для моделей
-	 *                               в которые уже установлены данные но которые пока не сохранены
+	 * @param bool $defaultOnEmpty - подставить значение по умолчанию если сама настройка
+	 *                               значения не содержит
 	 * @return string|array - текущее значение настройки
 	 *                        * (string|int) строка или число 
 	 *                          (для настроек содержащих максимум одно выбранное значение)
@@ -558,7 +580,7 @@ class Config extends CActiveRecord
 	 *       (пока что возвращаем весь объект целиком)
 	 * @todo кеширование после извлечения
 	 */
-	public function getValue($forNewRecord=false)
+	public function getValue($defaultOnEmpty=true, $forNewRecord=false)
 	{
 	    if ( $this->isNewRecord AND ! $forNewRecord )
 	    {// эта функция должна работать только с реально существующими моделями
@@ -566,32 +588,35 @@ class Config extends CActiveRecord
 	    }
 	    if ( $this->isSingle() )
 	    {// получаем одно значение
+	        $result = null;
 	        if ( ! $modelClass = $this->valuetype OR ! $this->selectedListItem )
-	        {// значение настройки пусто
-	            return null;
+	        {// значение настройки пусто - пробуем взять стандартное
+	            $result = $this->getDefaultValue();
 	        }
 	        if ( $field = $this->valuefield AND $id = $this->valueid )
 	        {// указано поле модели: значение из него будет считаться значением настройки
 	            if ( $model = $modelClass::model()->findByPk($id) )
-	            {
-	                return $model->$field;
+	            {// модель найдена
+	                $result = $model->$field;
 	            }else
-	            {
-	                return null;
+	            {// модель, из которой нужно взять значение не найдена
+	                //
+	                // @todo записать ошибку в лог, очистить ссылку на удаленную модель: 
+	                //       системные настройки могут иметь только нулевой valueid
 	            }
 	        }else
 	        {// поле модели неизвестно: возвращаем весь объект целиком
-	            return $modelClass::model()->findByPk($id);
+	            $result = $modelClass::model()->findByPk($id);
 	        }
 	    }else
 	    {// получаем список выбранных вариантов (это всегда EasyListItem) и извлекаем данные из каждого
 	        $result = array();
 	        foreach ( $this->selectedListItems as $item )
 	        {/* @var $item EasyListItem */
-	            $result[$item->id] = $item->data;
+	            $result[$item->id] = $item->name;
 	        }
-	        return $result;
 	    }
+	    return $result;
 	}
 	
 	/**
@@ -602,19 +627,22 @@ class Config extends CActiveRecord
 	 *                          (для настроек содержащих максимум одно выбранное значение)
 	 *                        * (array) массив строк
 	 *                          (для настроек которые могут содержать несколько выбранных значений)
+	 * 
+	 * @todo решить нужно ли искать корневую настройку модели если в родительской нет значения
 	 */
 	public function getDefaultValue()
 	{
-	    if ( $this->parentConfig AND $defaultValue = $this->parentConfig->value )
+	    if ( $this->parentConfig )
 	    {// значением по умолчанию считается значение родительской настройки (если оно есть)
-	        return $defaultValue;
-	    }elseif ( $rootValue = $this->getRootValue() )
-	    {// или значение корневой настройки (если родительской настройки нет)
-	        return $rootValue;
-	    }else
-	    {// у не наследуемых системных настроек не может быть значений по умолчанию: у них
-	        // такими значениями всегда считаются их собственные
-	        return $this->value;
+	        // корневые настройки всегда являются родительскими для обычных настроек
+	        return $this->parentConfig->value;
+	    }elseif ( $this->isSystem() OR $this->isRoot() )
+	    {// у не наследуемых системных настроек не может быть значений по умолчанию 
+	        // @todo у них такими значениями всегда считаются их собственные
+	        if ( $this->isMultiple() )
+	        {
+	            return array();
+	        }
 	    }
 	}
 	

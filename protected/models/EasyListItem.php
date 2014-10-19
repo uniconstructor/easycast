@@ -69,7 +69,7 @@
  *                                        модель целиком
  * 
  * Relations:
- * @property EasyList      $easyList - список которому принадлежит значение
+ * @property EasyList      $easyList    - список которому принадлежит значение
  * @property CActiveRecord $valueObject - модель на которую ссылается этот элемент списка
  * 
  * Методы класса EcTimestampBehavior:
@@ -85,6 +85,7 @@
  * @method CActiveRecord firstModified()
  * 
  * @todo внедрить workflow-патерн (плагин SimpleWorkflow): это сильно упростит работу по синхронизации
+ * @todo фальшивое поле data (read-only, labels)
  */
 class EasyListItem extends CActiveRecord
 {
@@ -235,8 +236,8 @@ class EasyListItem extends CActiveRecord
 	            'class' => 'application.behaviors.CustomRelationsBehavior',
 	        ),
 	        // поведение для связи с другими моделями
-	        'OmniRelationBehavior' => array(
-	            'class' => 'application.behaviors.OmniRelationBehavior',
+	        'CustomRelationSourceBehavior' => array(
+	            'class' => 'application.behaviors.CustomRelationSourceBehavior',
 	            'targetRelationName'  => 'valueObject',
 	            'customObjectTypes'   => array('system'),
 	            'enableEmptyObjectId' => true,
@@ -299,10 +300,10 @@ class EasyListItem extends CActiveRecord
 	}*/
 	
 	/**
-	 * Returns the static model of the specified AR class.
-	 * Please note that you should have this exact method in all your CActiveRecord descendants!
-	 * @param string $className active record class name.
-	 * @return UserListItem the static model class
+	 * @see parent::model()
+	 * 
+	 * @param  string $className active record class name.
+	 * @return EasyListItem|CustomRelationSourceBehavior|CustomRelationSourceBehavior|CustomScopesBehavior
 	 */
 	public static function model($className=__CLASS__)
 	{
@@ -680,19 +681,16 @@ class EasyListItem extends CActiveRecord
 	
 	/**
 	 * Обновить привязанный к элементу списка объект
-	 * @param string $field
-	 * @param string $value
+	 * 
+	 * @param  string $field
+	 * @param  string $value
 	 * @return bool
+	 * 
+	 * @todo добавлять возникшие при сохранении ошибки к ошибкам этой модели, в поле value
 	 */
 	public function updateProxy($field, $value)
 	{
-	    if ( ! $proxy = $this->valueObject )
-	    {
-	        return false;
-	    }
-	    $proxy->$field = $value;
-	    
-	    return $proxy->save();
+	    return $this->updateTargetObject($field, $value);
 	}
 	
 	/**
@@ -708,10 +706,16 @@ class EasyListItem extends CActiveRecord
 	    }
 	    if ( $fieldName = $this->objectfield )
 	    {// ссылка на поле в другой модели
-	        return $this->valueObject->$fieldName;
+	        if ( $target = $this->getTargetObject() AND isset($target->$fieldName) )
+	        {// проверяем что модель есть в базе и в ней есть нужное поле
+	            return $target->$fieldName;
+	        }else
+	        {// модели с таким id нет в базе или в модели нет нужного поля
+	            // @todo обработать эту ошибку
+	        }
 	    }else
 	    {// ссылка на объект целиком
-	        return $this->valueObject;
+	        return $this->getTargetObject();
 	    }
 	}
 	
@@ -728,7 +732,7 @@ class EasyListItem extends CActiveRecord
 	        return true;
 	    }
 	    if ( $this->id == $this->objectid AND $this->objecttype === 'EasyListItem' )
-	    {
+	    {// ссылка на себя же
 	        return true;
 	    }
 	    return false;
@@ -758,11 +762,11 @@ class EasyListItem extends CActiveRecord
 	 * Получить привязанный к этому элементу списка объект
 	 * @return CActiveRecord
 	 * 
-	 * @deprecated использовать $this->valueObject, удалить при рефакторингге
+	 * @deprecated использовать $this->getTargetObject(), удалить при рефакторингге
 	 */
 	public function getProxy()
 	{
-	    return $this->valueObject;
+	    return $this->getTargetObject();
 	}
 	
 	/**
@@ -771,18 +775,20 @@ class EasyListItem extends CActiveRecord
 	 */
 	public function updateCachedValue()
 	{
+	    // определяем из какого поля модели брать значение
 	    $fieldName = $this->objectfield;
 	    
 	    if ( $this->isOriginalItem() )
 	    {// не обновляем те элементы которые ни на что не ссылаются
-	        return false;
+	        return true;
 	    }
 	    if ( ! $this->valueObject )
 	    {// связанное значение было удалено - удаляем запись из списка 
-	        // (мягкое удаление сменой статуса, чтобы сохранить историю + последнее значение поля
-	        // перед удалением записи)
+	        // используем "мягкое удаление" (смену статуса), чтобы сохранить целостность связей БД 
+	        // + сохраняем последнее значение поля перед удалением записи
 	        // @todo применить workflow
 	        // @todo переписать beforeDelete()
+	        // @todo обработать возможные ошибки при смене статуса
 	        $this->status = self::STATUS_DELETED;
 	        return $this->save();
 	    }

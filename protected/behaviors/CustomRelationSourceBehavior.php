@@ -3,7 +3,7 @@
  * Заготовка phpdoc чтобы нормально работал code assist по методам owner-класса при обращении к модели
  * Скопируйте ее в комментарий к AR-классу модели к которому прикрепляется это поведение
  * 
- * Методы класса OmniRelationBehavior:
+ * Методы класса CustomRelationSourceBehavior:
  * @method CActiveRecord forModel(CActiveRecord $model)
  * @method CActiveRecord forAnyObject(string $objectType, array|int $objectId, string $operation='AND')
  * @method CActiveRecord forObject(string $objectType, array|int $objectId, string $operation='AND')
@@ -43,7 +43,7 @@
  * 
  * @property CActiveRecord $owner
  * 
- * @see OmniRelationTargetBehavior
+ * @see CustomRelationTargetBehavior
  * @see http://www.yiiframework.com/doc/guide/1.1/en/database.ar#named-scopes
  * 
  * @todo проверка наличия нужных полей при присоединении к модели
@@ -51,11 +51,12 @@
  * @todo документировать методы
  * @todo scopes()
  * @todo тесты для всех методов этого класса
- * @todo переименовать в CustomRelationBehavior
+ * @todo переименовать в CustomRelationSourceBehavior
  * @todo придумать каким образом можно автоматически подключать CustomScopesBehavior 
  *       при подключении этого поведения (пока используем наследование)
+ * @todo $this->updateTargetObject($field, $value)
  */
-class OmniRelationBehavior extends CustomScopesBehavior
+class CustomRelationSourceBehavior extends CustomScopesBehavior
 {
     /**
      * @var string
@@ -68,7 +69,7 @@ class OmniRelationBehavior extends CustomScopesBehavior
     /**
      * @var string
      */
-    public $targetRelationName = 'targetObject';
+    public $targetRelationName = 'customRelationTarget';
     /**
      * @var string - класс модели, используемый в связи по умолчанию в том случае когда 
      *               $this->owner->objecttype не задан
@@ -257,17 +258,23 @@ class OmniRelationBehavior extends CustomScopesBehavior
     
     /**
      * Именованая группа условий: получить все настройки прикрепленные к переданной модели
-     * Эта функция нужна для обращения к настройкам модели в общем виде
+     * Эта функция используется для обращения к настройкам модели в общем виде
+     * Если передана несохраненная модель или модель не содержащая id - то поведение функции
+     * будет зависеть от параметра {@see self::enableEmptyObjectId} 
+     * - если разрешен нулевой objectid то будет получена модель с objectid=0 
+     *   (относящаяся ко всем моделям класса одновременно)
+     * - если нулевой objectid запрещен - то будет создано исключение
      *
-     * @param CActiveRecord $model - модель к которой прикреплены настройки
-     *                               или название класса такой модели если мо хотим получить
-     *                               базовые настройки для всех моделей этого класса
-     * @param string $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+     * @param  CActiveRecord $model - модель к которой прикреплены настройки
+     *                                или название класса такой модели если мо хотим получить
+     *                                базовые настройки для всех моделей этого класса
+     * @param  string $operation    - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
+     * @throws CException
      */
-    public function forModel($model, $operator='AND')
+    public function forModel($model, $operation='AND')
     {
-        if ( ! is_object($model) )
+        if ( ! is_object($model) OR ! isset($model->id) )
         {// передана модель целиком
             throw new CException('Не передана модель для составления условия');
         }
@@ -275,7 +282,16 @@ class OmniRelationBehavior extends CustomScopesBehavior
         $objectType = get_class($model);
         $objectId   = $model->id;
         
-        return $this->forObject($objectType, $objectId, $operator);
+        if ( ! $this->isModel($objectType) )
+        {// проверяем что переданный объект является AR-моделью
+            throw new CException('Переданный объект не является записью Active Record');
+        }
+        if ( ! $model->id AND ! $this->enableEmptyObjectId AND YII_DEBUG )
+        {// выбрасываем исключение только в режиме отладки
+            throw new CException('К модели '.$objectType.' запрещено привязывать записи '.
+                get_class($this->owner).' без указания objectid. Проверьте вызов условия поиска.');
+        }
+        return $this->forObject($objectType, $objectId, $operation);
     }
     
     /**
@@ -670,11 +686,51 @@ class OmniRelationBehavior extends CustomScopesBehavior
         $modelClass = $this->getDefaultTargetType();
         $id         = $this->getDefaultTargetId();
         
-        if ( ! $modelClass )
-        {
+        if ( ! $modelClass OR ! $this->isModel($modelClass) )
+        {// класс модели не указан или тип объекта не является классом модели
             return null;
         }
         return $modelClass::model()->findByPk($id);
+    }
+    
+    /**
+     * Обновить привязанный к элементу списка объект
+     *
+     * @param  string $field
+     * @param  string $value
+     * @return bool
+     *
+     * @todo добавлять возникшие при сохранении ошибки к ошибкам этой модели, в поле, 
+     *       указанное в настройках поведения
+     */
+    public function updateTargetObject($field, $value)
+    {
+        if ( ! $target = $this->getTargetObject() )
+        {
+            return false;
+        }
+        $target->$field = $value;
+         
+        return $target->save();
+    }
+    
+    /**
+     * Проверить содержит ли поле модели objectType
+     *
+     * @param  string|Object $objectType - тип объекта к которому привязана модель
+     * @return bool
+     */
+    protected function isModel($objectType)
+    {
+        if ( ! class_exists($objectType, false) OR ! is_subclass_of($objectType, 'CActiveRecord') )
+        {// такой класс не существует или не является классом модели
+            return false;
+        }
+        if ( in_array($objectType, $this->customObjectTypes) )
+        {// тип объекта в специальном списке
+            return false;
+        }
+        return true;
     }
     
     /**

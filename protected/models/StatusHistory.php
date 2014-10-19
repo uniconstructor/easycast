@@ -14,7 +14,7 @@
  * @property string $sourcetype
  * @property string $sourceid
  * 
- * @todo подключить OmniRelationBehavior
+ * @todo подключить CustomRelationSourceBehavior
  * @todo дописать недостающие условия поиска
  */
 class StatusHistory extends CActiveRecord

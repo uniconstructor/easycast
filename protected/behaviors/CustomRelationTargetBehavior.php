@@ -11,16 +11,16 @@
  * раз для одной и той же дочерней модели (для разных сязей сделаных через одну таблицу)
  * 
  * Названия функций поиска по дочерним объектам должны отличаться от названий функций поиска 
- * по objecttype/objectid в классе OmniRelationBehavior потому что две модели могут одновременно 
+ * по objecttype/objectid в классе CustomRelationSourceBehavior потому что две модели могут одновременно 
  * ссылаться друг на друга, а значит использовать оба класса поведения
  * Для того чтобы избежать конфликта имен методов в такой ситуации используем правило:
  * все функции поиска по связанным (дочерним) объектам содержат в названии слова link или linked
  * 
  * Пример:
- * OmniRelationBehavior::forObject() 
+ * CustomRelationSourceBehavior::forObject() 
  *     найти все записи которые ссылаются на указанный объект
  *     (например всех участников события)
- * OmniRelationTargetBehavior::withLinkFromObject() 
+ * CustomRelationTargetBehavior::withLinkFromObject() 
  *     найти все записи на которые ссылается указанный объект
  *     (обратная операция: например все события участника)
  * 
@@ -31,21 +31,21 @@
  * 
  * 
  * TL;DR: (пример) 
- *        OmniRelationBehavior связывает пользователей с событиями а 
- *        OmniRelationTargetBehavior крепится к событиям чтобы ссылаться на пользователей 
+ *        CustomRelationSourceBehavior связывает пользователей с событиями а 
+ *        CustomRelationTargetBehavior крепится к событиям чтобы ссылаться на пользователей 
  *        "с другой стороны". Два эти поведения позволяют искать пользователей по событиям и 
  *        события по пользователям.
  * 
  * @property CActiveRecord $owner
  * 
- * @see OmniRelationBehavior
+ * @see CustomRelationSourceBehavior
  * @see http://www.yiiframework.com/doc/guide/1.1/en/database.ar#named-scopes
  * 
  * @todo автопроверки существования relation-связей при присоединении к классу owner-модели
  * @todo тесты для всех методов этого класса
  * @todo переименовать в CustomRelationTargetBehavior
  */
-class OmniRelationTargetBehavior extends CustomScopesBehavior
+class CustomRelationTargetBehavior extends CustomScopesBehavior
 {
     /**
      * @var string - поле в связанных записях содержащее класс owner-модели

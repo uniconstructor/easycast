@@ -5,9 +5,9 @@
  * Почти все модели в приложении могут быть включены в списки - эти методы используются очень часто 
  * 
  * @todo решить нужно ли заводить отдельный behavior для одной функции: если больше функций не добавится
- *       то удалить этот класс. Если класс остается - то убрать inList() из OmniRelationTargetBehavior
+ *       то удалить этот класс. Если класс остается - то убрать inList() из CustomRelationTargetBehavior
  */
-class ListItemBehavior extends OmniRelationTargetBehavior
+class ListItemBehavior extends CustomRelationTargetBehavior
 {
     /**
      * Условие поиска: все модели, присутствующие в указанном списке

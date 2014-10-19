@@ -106,7 +106,7 @@ class CustomRelationsBehavior extends CActiveRecordBehavior
             $this->addCustomRelation($name, $data, false, $replace);
         }
         if ( $refresh )
-        {
+        {// обновляем метаданные таблицы чтобы заработали новые связи
             $this->owner->refreshMetaData();
         }
     }

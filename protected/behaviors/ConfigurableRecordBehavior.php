@@ -552,13 +552,35 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      * Получить модель привязанной к owner настройки с указанным именем
      * 
      * @param  string|array $name - служебное имя настройки (поле name в модели Config)
+     * @param  bool    $checkRoot - искать ли корневую настройку с таким же названием
+     *                              если для owner-модели настройки с таким именем нет? 
      * @return Config
      * 
      * @todo проверить что при указании $name находится не более 1 записи
      */
-    public function getConfigObject($name)
+    public function getConfigObject($name, $checkRoot=false)
     {
-        return Config::model()->forModel($this)->withName($name)->find();
+        $config = Config::model()->forModel($this->owner)->withName($name)->find();
+        if ( ! $config AND $checkRoot )
+        {// ищем родительскую настройку с таким же названием если ее нет для owner-модели
+            $config = $this->getRootConfig($name);
+        }
+        return $config;
+    }
+    
+    /**
+     * Получить модель настройки привязанной ко всем объектам класса owner-модели
+     * (возвращает родительскую настройку модели с указанным мсенем)
+     *
+     * @param  string|array $name - служебное имя настройки (поле name в модели Config)
+     * @return Config
+     *
+     * @todo проверить что при указании $name находится не более 1 записи
+     */
+    public function getRootConfig($name)
+    {
+        $objectType = get_class($this->owner);
+        return Config::model()->forObject($objectType, 0)->withName($name)->find();
     }
     
     /**
@@ -572,6 +594,7 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      */
     public function getConfigValue($name)
     {
+        /* @var $config Config */
         if ( ! $config = $this->getConfigObject($name) )
         {// настройки с таким названием нет в списке настроек этой модели -
             throw new CException('Для модели "'.get_class($this->owner).
