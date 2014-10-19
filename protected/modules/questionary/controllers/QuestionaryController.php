@@ -97,10 +97,8 @@ class QuestionaryController extends Controller
 	    {// id анкеты не передано - считаем, что пользователь
 	        // хочет просмотреть свою страницу и пробуем определить id самостоятельно
 	        if ( Yii::app()->user->isGuest )
-	        {// У гостя не может быть своей страницы
-	            // @todo сделать redirect на вход/регистрацию здесь
-	            $errorMessage = QuestionaryModule::t('questionary_not_found');
-	            throw new CHttpException(404, $errorMessage);
+	        {// У гостя не может быть своей страницы: redirect на вход/регистрацию
+	            Yii::app()->user->loginRequired();
 	        }
 	        $id = Yii::app()->getModule('user')->user()->questionary->id;
 	    }
