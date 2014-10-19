@@ -29,9 +29,9 @@ class m141019_162400_installFileStorage extends EcMigration
             'updateaction' => "VARCHAR(10) NOT NULL DEFAULT 'update'",
             'deleteaction' => "VARCHAR(10) NOT NULL DEFAULT 'erase'",
             'deleteafter'  => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
-            'status'       => "VARCHAR(10) NOT NULL DEFAULT 'draft'",
+            'status'       => "VARCHAR(50) NOT NULL DEFAULT 'swExternalFile/draft'",
         );
-        $this->createTable($table, $columns, $tableOptions);
-        $this->ecCreateIndexes($table, $fields);
+        $this->createTable($table, $columns);
+        $this->ecCreateIndexes($table, $columns);
     }
 }
