@@ -445,7 +445,7 @@ class m140908_030900_attachConfigData extends CDbMigration
             // задаем список значений как ссылку на связь (relation) в модели
             'valuetype'    => 'EasyList',
             'valuefield'   => 'listItems',
-            'valueid'      => $itemId,
+            'valueid'      => $listId,
         );
         $this->insert("{{config}}", $preferredProjectTypesConfig);
         $preferredProjectTypesConfigId = $this->dbConnection->lastInsertID;
@@ -473,7 +473,7 @@ class m140908_030900_attachConfigData extends CDbMigration
             // список временных интервалов
             'easylistid'   => $timeList15Id,
             // по умолчанию c 10:00
-            'valuetype'    => 'EasyList',
+            'valuetype'    => 'EasyListItem',
             'valuefield'   => 'value',
             'valueid'      => $timeList15Ids['10:00'],
         );
@@ -500,7 +500,7 @@ class m140908_030900_attachConfigData extends CDbMigration
             // список временных интервалов
             'easylistid'   => $timeList15Id,
             // по умолчанию до 23:00
-            'valuetype'    => 'EasyList',
+            'valuetype'    => 'EasyListItem',
             'valuefield'   => 'value',
             'valueid'      => $timeList15Ids['23:00'],
         );
@@ -523,7 +523,7 @@ class m140908_030900_attachConfigData extends CDbMigration
             // список вариантов условий при которых участник будет оповещен
             'easylistid'   => $smsNotificationListId,
             // по умолчанию: не оповещать
-            'valuetype'    => 'EasyList',
+            'valuetype'    => 'EasyListItem',
             'valuefield'   => 'value',
             'valueid'      => $smsNotificationItemIds['no'],
         );
@@ -546,7 +546,7 @@ class m140908_030900_attachConfigData extends CDbMigration
             'timemodified' => time(),
             // список вариантов (скрыть/показать)
             'easylistid'   => $qVisibleOptionsListId,
-            'valuetype'    => 'EasyList',
+            'valuetype'    => 'EasyListItem',
             'valuefield'   => 'value',
             // по умолчанию: показать
             'valueid'      => $qVisibleOptionTypeIds['show'],
@@ -564,21 +564,29 @@ class m140908_030900_attachConfigData extends CDbMigration
             );
             
             // типы проектов, для которых я получаю приглашения
-            $configData['parentid'] = $preferredProjectTypesConfigId;
+            $configData['parentid']  = $preferredProjectTypesConfigId;
             $projectSetting = CMap::mergeArray($preferredProjectTypesConfig, $configData);
             $this->insert("{{config}}", $projectSetting);
+            unset($projectSetting);
+            
             // Присылать SMS не ранее
             $configData['parentid'] = $smsMinTimeConfigId;
             $minTimeSetting = CMap::mergeArray($smsMinTimeConfig, $configData);
             $this->insert("{{config}}", $minTimeSetting);
+            unset($minTimeSetting);
+            
             // Присылать SMS не позднее
             $configData['parentid'] = $smsMaxTimeConfigId;
             $maxTimeSetting = CMap::mergeArray($smsMaxTimeConfig, $configData);
             $this->insert("{{config}}", $maxTimeSetting);
+            unset($maxTimeSetting);
+            
             // Присылать SMS при отмене или переносе события если...
             $configData['parentid'] = $smsNotificationTypesConfigId;
             $notifiationSetting = CMap::mergeArray($smsNotificationTypesConfig, $configData);
             $this->insert("{{config}}", $notifiationSetting);
+            unset($notifiationSetting);
+            
             // Скрыть/показать мою анкету
             $configData['parentid'] = $qVisibleConfigId;
             if ( ! $questionary['visible'] OR in_array($questionary['status'], array('unconfirmed', 'delayed')) )
@@ -587,6 +595,7 @@ class m140908_030900_attachConfigData extends CDbMigration
             }
             $qVisibleSetting = CMap::mergeArray($qVisibleConfig, $configData);
             $this->insert("{{config}}", $qVisibleSetting);
+            unset($qVisibleSetting);
         }
     }
 }
