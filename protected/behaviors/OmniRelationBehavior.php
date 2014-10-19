@@ -267,13 +267,13 @@ class OmniRelationBehavior extends CustomScopesBehavior
      */
     public function forModel($model, $operator='AND')
     {
-        if ( ! is_object($object) )
+        if ( ! is_object($model) )
         {// передана модель целиком
             throw new CException('Не передана модель для составления условия');
         }
         // достаем из модели тип и id
-        $objectType = get_class($object);
-        $objectId   = $object->id;
+        $objectType = get_class($model);
+        $objectId   = $model->id;
         
         return $this->forObject($objectType, $objectId, $operator);
     }
