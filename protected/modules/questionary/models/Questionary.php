@@ -2,7 +2,6 @@
 
 /**
  * Модель анкеты участника
- * Таблица "{{questionaries}}"
  * 
  * Все данные об участнике хранятся здесь, или в связанных таблицах
  * Модель User используется только для хранения служебных данных (логин, email и так далее)
@@ -17,7 +16,7 @@
  *   таблицы, в первую очередь все данные для документов и все комментарии, кроме privatecomment
  *   которое нужно для наших пометок, не видно пользователям и скорее всего мы захотим по нему искать)
  *
- * Поля:
+ * Таблица "{{questionaries}}":
  * @property integer $id
  * @property string $userid
  * @property string $mainpictureid
@@ -101,17 +100,15 @@
  * @property integer $visible
  * 
  * Relations: 
- * @see http://www.yiiframework.com/wiki/280/1-n-relations-sometimes-require-cdbcriteria-together/
- * @property User $user 
- * @property Address $address
+ * @property User                 $user 
+ * @property Address              $address
  * @property QRecordingConditions $recordingconditions
- * @property ProjectMember[] $pendingrequests
- * @property Video[] $video
- * @property QCreationHistory[] $creationHistory
+ * @property ProjectMember[]      $pendingrequests
+ * @property Video[]              $video
+ * @property QCreationHistory[]   $creationHistory
+ * @property array                $config
  * 
  * Поля для подсчета статистики:
- * @todo уже недостаточно гибкие для новой системы, нужно будет переписать их с применением именованных
- *       групп условий с параметрами (проще говоря прописать и использовать scopes() в связанных моделях)
  * @property int $invitesCount - количество непрочитанных приглашений
  * @property int $requestsCount - количество поданых заявок
  * @property int $pendingRequestsCount
@@ -130,7 +127,11 @@
  * @todo удалить все модели и таблицы "instances" для сложных значений: вместо них сделать одну таблицу
  *       q_instances в которой хранятся все связи по qid + objecttype + objectid
  * @todo для всех сложных значений добавить типизированные коллекции: 
- * @see  http://yiiframework.ru/doc/cookbook/ru/model.dao
+ *       ({@see http://yiiframework.ru/doc/cookbook/ru/model.dao})
+ * @todo заменить модель истории создания анкет на более общую модель истории объектов в системе
+ * @todo Поля для подсчета статистики уже недостаточно гибкие для новой системы, 
+ *       нужно переписать их с применением именованных групп условий (scopes)
+ * @todo убрать поле city после перехода на GeoNames
  */
 class Questionary extends CActiveRecord
 {
@@ -507,6 +508,15 @@ class Questionary extends CActiveRecord
                     'data' => array('displayType' => 'searchResults'),
                 ),
             ),
+            // это поведение позволяет изменять набор связей модели в процессе выборки
+            'CustomRelationsBehavior' => array(
+                'class' => 'application.behaviors.CustomRelationsBehavior',
+            ),
+            // поведение для поиска по связанным моделям
+            'CustomRelationTargetBehavior' => array(
+                'class' => 'application.behaviors.CustomRelationTargetBehavior',
+                //'customRelations' => array(),
+            ),
             // настройки анкеты
             'ConfigurableRecordBehavior' => array(
                 'class' => 'application.behaviors.ConfigurableRecordBehavior',
@@ -546,7 +556,6 @@ class Questionary extends CActiveRecord
            // Отправляем участнику сообщение о том, что его анкета заполнена (если нужно)
            $this->sendAdminFillingNotification();
         }
-        
         return parent::beforeSave();
     }
     
@@ -579,7 +588,6 @@ class Questionary extends CActiveRecord
             $event = new CModelEvent($this, $params);
             $this->onNewUserCreatedByAdmin($event);
         }
-        
         parent::afterSave();
     }
     
@@ -686,18 +694,18 @@ class Questionary extends CActiveRecord
         $fields['admin'] = array(
             'rating', 'status', 'ismediaactor', 'privatecomment', 
         );
+        
         if ( ! isset($fields[$section]) )
         {
             throw new CException('Неизвестный раздел анкеты: '.$section);
         }
-        
         return $fields[$section];
     }
     
     /**
      * Определить, загружена ли хотя бы одна фотография
      * 
-     * @param int $galleryId
+     * @param  int $galleryId
      * @return boolean
      * 
      * @todo эта функция должна быть вынесена в Gallery либо в behavior 
@@ -830,9 +838,7 @@ class Questionary extends CActiveRecord
             'skill' => QuestionaryModule::t('skill_label'),
             'vocaltype' => QuestionaryModule::t('vocaltype_label'),
             'photos' => QuestionaryModule::t('photos_label'),
-            
         );
-        
         return $defaultLabels;
     }
     
@@ -1133,7 +1139,6 @@ class Questionary extends CActiveRecord
                 return true;
             }
         }
-        
         return false;
     }
     
