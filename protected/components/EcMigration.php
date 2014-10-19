@@ -49,7 +49,7 @@ class EcMigration extends CDbMigration
     /**
      * @see CDbMigration::createTable()
      */
-    public function createTable($table, $columns, $options=EC_MYSQL_OPTIONS)
+    public function createTable($table, $columns, $options=self::EC_MYSQL_OPTIONS)
     {
         return parent::createTable($table, $columns, $options);
     }
