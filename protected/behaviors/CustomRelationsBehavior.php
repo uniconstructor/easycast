@@ -8,6 +8,10 @@
  * Если связь уже добавлена в модель - она больше не подгружается
  * Добавление каждой новой связи в класс модели требует обновления ее метаданных
  * 
+ * Большинство JOIN-запросов в именованных группах условий требуют параметра together
+ * при выполнении, более подробно об этом можно прочитать здесь:
+ * @see http://www.yiiframework.com/wiki/280/1-n-relations-sometimes-require-cdbcriteria-together/
+ * 
  * @property CActiveRecord $owner
  */
 class CustomRelationsBehavior extends CActiveRecordBehavior
@@ -90,7 +94,7 @@ class CustomRelationsBehavior extends CActiveRecordBehavior
     /**
      * Добавить список связей к модели
      * 
-     * @param  array $relations
+     * @param  array  $relations
      * @param  string $refresh
      * @param  string $replace
      * @return void
@@ -133,6 +137,4 @@ class CustomRelationsBehavior extends CActiveRecordBehavior
             }
         }
     }
-    
-    
 }
