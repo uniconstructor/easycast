@@ -17,7 +17,7 @@ class EcMigration extends CDbMigration
     /**
      * @var string - Настройки для всех создаваемых этой миграцией таблиц
      */
-    const EC_MYSQL_OPTIONS = 'ENGINE=InnoDB CHARSET=utf8';
+    const EC_MYSQL_OPTIONS = 'ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci';
         
     /**
      * Create indexes for all fields in the table
@@ -31,7 +31,7 @@ class EcMigration extends CDbMigration
      *
      * @return null
      */
-    protected function createIndexes($table, $fields, $excluded = array(), $idxPrefix = "idx_")
+    protected function ecCreateIndexes($table, $fields, $excluded = array(), $idxPrefix = "idx_")
     {
         // gather all field names
         $fieldNames = array_keys($fields);
