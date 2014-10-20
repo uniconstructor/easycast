@@ -6,24 +6,33 @@
 class ECPurifier extends CHtmlPurifier
 {
     /**
+     * @var string
+     */
+    public static $encoding = 'UTF-8';
+    
+    /**
      * Обрезать все кавычки из названия
+     * 
      * @param unknown $string
      * @return string
-     * @return void
      */
     public static function trimQuotes($string)
     {
-        $string = trim($string);
+        $string = mb_trim($string);
+        // стандартная кодировка для всех регулярных выражений
+        mb_regex_encoding(self::$encoding);
+        
         if ( mb_eregi("^['\"«»„“]{1-2}.{1+}['\"«»„“]{1-2}$", $string) )
         {// проверим, что строка начинается и заканчивается кавычками, чтобы не отрезать лишнееы
             // в случаях типа: БАЛЕТ "ЛЕБЕДИНОЕ ОЗЕРО"
-            $string = trim($string, " \t\n\r\0\x0B'\"«»„“");
+            $string = mb_trim($string, " \t\n\r\0\x0B'\"«»„“");
         }
         return $string;
     }
     
     /**
      * Получить массив значений для использования в элементе select2
+     * 
      * @param array $data - значения для select-списка 
      *                      формат массива соответствует возвращаемому из CHtml::listData()
      * @return array
@@ -65,12 +74,15 @@ class ECPurifier extends CHtmlPurifier
     
     /**
      * Translit text from cyrillic to latin letters.
-     * @static
+     * 
      * @param string $text the text being translit.
      * @return string
      */
     public static function translit($text, $toLowCase=false)
     {
+        // стандартная кодировка для всех регулярных выражений
+        mb_regex_encoding(self::$encoding);
+        
         $matrix = array(
             "й"=>"i","ц"=>"c","у"=>"u","к"=>"k","е"=>"e","н"=>"n",
             "г"=>"g","ш"=>"sh","щ"=>"shch","з"=>"z","х"=>"h","ъ"=>"",
@@ -91,21 +103,48 @@ class ECPurifier extends CHtmlPurifier
     
             /*'#' => '', */'№' => '#',/*' - '=>'-', '/'=>'-', ' '=>' ',*/
         );
-    
         // Enforce the maximum component length
         $maxlength = 255;
-        $text = implode(array_slice(explode('<br>', wordwrap(trim(strip_tags(html_entity_decode($text))), $maxlength, '<br>', false)), 0, 1));
+        $decodedText = html_entity_decode($text, ENT_NOQUOTES, self::$encoding);
+        $noBrText    = explode('<br>', wordwrap(mb_trim(strip_tags($decodedText)), $maxlength, '<br>', false));
+        $text        = implode(array_slice($noBrText, 0, 1));
     
         foreach ( $matrix as $from => $to )
         {
             $text = mb_eregi_replace($from, $to, $text);
         }
-        // Optionally convert to lower case.
         if ( $toLowCase )
-        {
-            $text = mb_strtolower($text);
+        {// Optionally convert to lower case.
+            $text = mb_strtolower($text, self::$encoding);
         }
         return $text;
+    }
+    
+    /**
+     * Создать случайную строку заданной длины из указанных символов
+     * @see http://stackoverflow.com/questions/4356289/php-random-string-generator
+     *
+     * @param  int    $length - длина строки
+     * @param  string $characters - набор символов
+     * @return string
+     */
+    public static function getRandomString($length=10, $characters=null)
+    {
+        $randomString = '';
+    
+        if ( ! $characters )
+        {
+            $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        }
+        if ( $length < 0 )
+        {
+            $length = 0;
+        }
+        for ( $i = 0; $i < $length; $i++ )
+        {
+            $randomString .= $characters[rand(0, mb_strlen($characters, self::$encoding) - 1)];
+        }
+        return $randomString;
     }
     
     /**
@@ -113,10 +152,11 @@ class ECPurifier extends CHtmlPurifier
      * (одноименная функция PHP, к сожалению не работает с русским языком)
      * 
      * @return string - исправленная строка
+     * @todo настроить работу с utf-8
      */
     public static function ucfirst($str)
     {
-        $fc = mb_strtoupper(mb_substr($str, 0, 1));
-        return $fc.mb_substr($str, 1);
+        $fc = mb_strtoupper(mb_substr($str, 0, 1, self::$encoding));
+        return $fc.mb_substr($str, 1, self::$encoding);
     }
 }
