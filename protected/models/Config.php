@@ -206,6 +206,10 @@ class Config extends CActiveRecord
      * @var string - тип настройки: список с множественным выбором
      */
     const TYPE_MULTISELECT  = 'multiselect';
+    /**
+     * @var string - тип настройки: адрес ссылки
+     */
+    const TYPE_URL          = 'url';
     
     /**
      * @see CActiveRecord::init()
@@ -589,11 +593,14 @@ class Config extends CActiveRecord
 	    if ( $this->isSingle() )
 	    {// получаем одно значение
 	        $result = null;
+	        $field  = $this->valuefield;
+	        $id     = $this->valueid;
+	        
 	        if ( ! $modelClass = $this->valuetype OR ! $this->selectedListItem )
 	        {// значение настройки пусто - пробуем взять стандартное
 	            $result = $this->getDefaultValue();
 	        }
-	        if ( $field = $this->valuefield AND $id = $this->valueid )
+	        if ( $field AND $id )
 	        {// указано поле модели: значение из него будет считаться значением настройки
 	            if ( $model = $modelClass::model()->findByPk($id) )
 	            {// модель найдена
@@ -617,6 +624,19 @@ class Config extends CActiveRecord
 	        }
 	    }
 	    return $result;
+	}
+	
+	/**
+	 * 
+	 * @return CActiveRecord
+	 */
+	public function getValueObject()
+	{
+	    if ( ! is_subclass_of($this->valuetype, 'CActiveRecord') OR ! $this->valueid )
+	    {
+	        return null;
+	    } 
+	    return CActiveRecord::model($this->valuetype)->findByPk($this->valueid);
 	}
 	
 	/**
