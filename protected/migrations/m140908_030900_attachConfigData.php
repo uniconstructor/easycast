@@ -12,6 +12,7 @@ class m140908_030900_attachConfigData extends CDbMigration
             'name'          => 'Все типы проекта',
             'description'   => 'Все проекты на сайте используют этот список для своего типа',
             'triggerupdate' => 'manual',
+            'unique'        => 1,
         ));
         // запоминаем id списка с типами - он дальше везде понадобится
         $listId = $this->dbConnection->lastInsertID;

@@ -22,6 +22,7 @@ class m141020_060000_installVacancyBanner extends EcMigration
             'valuefield'   => 'url',
             'valueid'      => 0,
         );
-        $this->createConfig($config);
+        // привязываем настройку к каждой модели проекта
+        $this->createRootConfig($config, "{{projects}}");
     }
 }

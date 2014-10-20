@@ -21,7 +21,7 @@ class m141019_162400_installFileStorage extends EcMigration
             'timecreated'  => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
             'timemodified' => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
             'lastupload'   => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
-            'lastupsync'   => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
+            'lastsync'     => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
             'bucket'       => "VARCHAR(128) NOT NULL DEFAULT 'img.easycast.ru'",
             'path'         => "VARCHAR(255) NOT NULL DEFAULT '_tmp'",
             'mimetype'     => "VARCHAR(255) NOT NULL DEFAULT 'text/plain'",
