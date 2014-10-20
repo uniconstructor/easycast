@@ -377,8 +377,6 @@ class Config extends CActiveRecord
 		    //'selectedListItems' => array(self::HAS_MANY, 'EasyListItem', array('id' => 'easylistid'), 'through' => 'selectedList'),
 		    // Текущее выбранное значение настройки (для настроек содержащих только одно значение)
 		    'selectedListItem' => array(self::BELONGS_TO, 'EasyListItem', 'valueid'),
-		    //'selectedValue' => array(self::BELONGS_TO, $this->getAttribute('valuefield'), 'valueid'),
-		    //'selectedValues' => array(self::HAS_MANY, 'EasyListItem', 'valueid'),
 		);
 		/*if ( $this->getAttribute('valuetype') )
 		{
@@ -470,7 +468,7 @@ class Config extends CActiveRecord
 	        ),
 	        // все настройки, содержащие только одно значение (текст, число или select с одним варианом)
 	        'singleOnly' => array(
-	            'condition' => $this->getTableAlias(true).".`maxvalues` = 0",
+	            'condition' => $this->getTableAlias(true).".`maxvalues` = 1",
 	        ),
 	        // обязательные настройки (должны быть заполнены)
 	        'requiredOnly' => array(
@@ -617,10 +615,10 @@ class Config extends CActiveRecord
 	        }
 	    }else
 	    {// получаем список выбранных вариантов (это всегда EasyListItem) и извлекаем данные из каждого
-	        $result = array();
-	        foreach ( $this->selectedListItems as $item )
-	        {/* @var $item EasyListItem */
-	            $result[$item->id] = $item->name;
+	        $result = $this->getSelectedOptions();
+	        if ( ! $result AND $defaultOnEmpty )
+	        {// если выбраных значений не нашлось - то берем значения по умолчанию
+	            $result = $this->getDefaultValue();
 	        }
 	    }
 	    return $result;
@@ -633,7 +631,7 @@ class Config extends CActiveRecord
 	public function getValueObject()
 	{
 	    if ( ! is_subclass_of($this->valuetype, 'CActiveRecord') OR ! $this->valueid )
-	    {
+	    {// значение настройки не связано с каким-либо объектом
 	        return null;
 	    } 
 	    return CActiveRecord::model($this->valuetype)->findByPk($this->valueid);
@@ -737,7 +735,7 @@ class Config extends CActiveRecord
 	{
 	     $result = array();
 	     foreach ( $this->selectedListItems as $item )
-	     {
+	     {/* @var $item EasyListItem */
 	         $result[$item->id] = $item->data;
 	     }
 	     return $result;
