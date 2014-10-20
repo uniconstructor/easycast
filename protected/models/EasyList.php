@@ -176,7 +176,7 @@ class EasyList extends CActiveRecord
 		    // связи этого списка с другими объектами
 		    // (если он прикреплен к ним через пару objecttype/objectid)
 		    'instances' => array(self::HAS_MANY, 'EasyListInstance', 'easylistid'),
-		    // все элементы входящие вэтот спискок
+		    // все элементы входящие в этот спискок
 		    'listItems' => array(self::HAS_MANY, 'EasyListItem', 'easylistid'),
 		    // условия выборки для элементов списка
 		    'searchData' => array(self::BELONGS_TO, 'SearchData', 'searchdataid')
@@ -196,6 +196,16 @@ class EasyList extends CActiveRecord
 	        // это поведение позволяет изменять набор связей модели в процессе выборки
 	        'CustomRelationsBehavior' => array(
 	            'class' => 'application.behaviors.CustomRelationsBehavior',
+	        ),
+	        // группы условий для поиска по данным моделей, которые ссылаются
+	        // на эту запись по составному ключу objecttype/objectid
+	        'CustomRelationTargetBehavior' => array(
+	            'class' => 'application.behaviors.CustomRelationTargetBehavior',
+	            'customRelations' => array(),
+	        ),
+	        // настройки для модели и методы для поиска по этим настройкам
+	        'ConfigurableRecordBehavior' => array(
+	            'class' => 'application.behaviors.ConfigurableRecordBehavior',
 	        ),
 	    );
 	}
