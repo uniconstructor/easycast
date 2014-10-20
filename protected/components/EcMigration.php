@@ -65,7 +65,7 @@ class EcMigration extends CDbMigration
      * Создать настройку
      * Кэширует значения корневых и системных настроек
      * 
-     * @param  array $config - изначальные значения записи
+     * @param  array $configData - изначальные значения записи
      * @return int - id вставленной записи
      * 
      * @todo проверки перед вставкой
@@ -105,6 +105,34 @@ class EcMigration extends CDbMigration
             $this->_modelsConfigCache[$config['objecttype']][$config['name']]["0"] = $config;
         }
         return $this->dbConnection->lastInsertID;
+    }
+    
+    /**
+     * Создать корневую настройку для модели и прикрепить ее к каждой модели в таблице
+     * 
+     * @param  array  $configData - изначальные значения записи
+     * @param  string $table
+     * @return bool
+     */
+    public function createRootConfig($configData, $modelTable)
+    {
+        $rootConfigId   = $this->createConfig($configData);
+        $rootConfigData = $this->loadConfigDataById($rootConfigId);
+        unset($rootConfigData['id']);
+        
+        // созданную настройку прикрепляем к каждой записи
+        $records = $this->dbConnection->createCommand()->select('id')->
+            from($modelTable)->queryAll();
+        foreach ( $records as $record )
+        {
+            $recordConfig = array(
+                'objectid' => $record['id'],
+                'parentid' => $rootConfigId,
+            );
+            $recordConfig = CMap::mergeArray($rootConfigData, $recordConfig);
+            $this->createConfig($recordConfig);
+        }
+        return true;
     }
     
     /**
