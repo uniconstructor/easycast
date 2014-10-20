@@ -64,7 +64,7 @@ return array(
         // @todo с подключением YiiBooster виджет устарел: заменить все обращения к нему на новые элементы
         //       а затем удалить из сборки при рефакторинге 
 	    'application.extensions.jtogglecolumn.*',
-	    // simpleWorkflow (для работы со статусами)
+	    // модуль simpleWorkflow (для работы со статусами модели)
 	    'application.extensions.simpleWorkflow.*',
 	    // sweekit: библиотека для удобной работы с JS, включающая плагин shadowbox
 	    'ext.sweekit.Sweeml',
@@ -445,20 +445,18 @@ return array(
 	    'hashSalt'      => '68xc7mtux0',
 	    // список администраторов, от имени которых система может отправлять письма
 	    // как правило это руководители проектов
-	    // список разрешенных email-адресов можно посмотреть и отредактировать в админской панели Amazon SES:
+	    // список разрешенных email-адресов можно посмотреть и отредактировать 
+	    // в админской панели Amazon SES:
 	    // @see https://console.aws.amazon.com/ses/home?region=us-east-1#verified-senders-email:
 	    // @todo вынести этот список в настройку
 	    'verifiedSenders' => array(
-	       //@todo убрать из verified senders 'ad@easycast.ru',
 	       'admin@easycast.ru',
-	       //@todo убрать из verified senders 'alena@easycast.ru',
 	       'anton@easycast.ru',
 	       'ceo@easycast.ru',
 	       'irina@easycast.ru',
 	       'liza@easycast.ru',
 	       'max@easycast.ru',
 	       'mr@easycast.ru',
-	       //@todo убрать из verified senders 'ron@easycast.ru',
         ),
 	    
 	    ////////////////////////////////////////////////////////////////////
