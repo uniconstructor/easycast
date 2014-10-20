@@ -40,7 +40,7 @@ class EcMigration extends CDbMigration
     /**
      * @var array - элементы списков
      */
-    protected $_itemsCache = array();
+    //protected $_itemsCache = array();
         
     /**
      * @see CDbMigration::createTable()
@@ -167,9 +167,8 @@ class EcMigration extends CDbMigration
         {
             $this->_listsCache[$cacheName] = $list;
         }
-        
         if ( ! $items )
-        {
+        {// список пустой, элементы создавать не надо
             return $list['id'];
         }
         
@@ -202,13 +201,11 @@ class EcMigration extends CDbMigration
             $this->insert("{{easy_list_items}}", $item);
             // получаем id созданного элемента
             $item['id']       = $this->dbConnection->lastInsertID;
-            $item['objectid'] = $item['id'];
-            
-            // стандартные элементы ссылаются на себя за значением - обновим созданную запись
-            $this->update("{{easy_list_items}}", array('objectid' => $item['id']), 'id='.$item['id']);
-            // кешируем созданное значение
-            $this->_itemsCache['name'][$list['id']][$item['name']]   = $item;
-            $this->_itemsCache['value'][$list['id']][$item['value']] = $item;
+            if ( $item['objecttype'] != 'EasyListItem' OR (! $item['objectid'] AND $item['objectfield']) )
+            {// стандартные элементы ссылаются на себя за значением - обновим созданную запись
+                $item['objectid'] = $item['id'];
+                $this->update("{{easy_list_items}}", array('objectid' => $item['id']), 'id='.$item['id']);
+            }
         }
         return $list['id'];
     }
@@ -311,14 +308,14 @@ class EcMigration extends CDbMigration
      * 
      * @todo подгрузка элементов
      */
-    protected function loadItemByName($listId, $cacheName)
+    /*protected function loadItemByName($listId, $name)
     {
-        if ( isset($this->_listsCache['name'][$cacheName]) )
+        if ( isset($this->_listsCache['name'][$name]) )
         {
-            return $this->_listsCache['name'][$cacheName];
+            return $this->_listsCache['name'][$name];
         }
         return null;
-    }
+    }*/
     
     /**
      * 
@@ -327,14 +324,28 @@ class EcMigration extends CDbMigration
      * 
      * @todo подгрузка элементов
      */
-    protected function loadItemByValue($listId, $name)
+    /*protected function loadItemByValue($listId, $value)
     {
-        if ( isset($this->_listsCache['value'][$cacheName]) )
+        if ( isset($this->_listsCache['value'][$value]) )
         {
-            return $this->_listsCache['value'][$cacheName];
+            return $this->_listsCache['value'][$value];
         }
         return null;
-    }
+    }*/
+    
+    /**
+     * 
+     * @param int $listId
+     * @return array
+     * 
+     * @todo функция копирующая элементы одного списка в другой, 
+     *       и при этом преобразующая элементы во втором списке в ссылки
+     */
+    protected function loadListItems($listId)
+    {
+        return $this->dbConnection->createCommand()->select('*')->
+            from('{{easy_list_items}}')->where("easylistid=".$listId)->queryAll();
+    } 
     
     /**
      * Create indexes for all fields in the table
