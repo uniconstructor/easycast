@@ -16,7 +16,8 @@
  * @property string $storage
  * @property string $timecreated
  * @property string $timemodified
- * @property string $timeuploaded
+ * @property string $lastupload
+ * @property string $lastsync
  * @property string $bucket
  * @property string $path
  * @property string $mimetype
@@ -27,9 +28,15 @@
  * @property string $deleteafter
  * @property string $status
  * 
+ * Relations:
+ * @property string $originalFile - оригинал файла из которого был создан этот файл 
+ *                                  (только для уменьшеных/перекодированых версий файлов)
+ * 
  * @todo документировать все поля
  * @todo прописать связи
  * @todo подключить настройки
+ * @todo доработать rules()
+ * @todo системная настройка "макс/мин количество попыток для операций с файловым хранилищем"
  */
 class ExternalFile extends SWActiveRecord
 {
@@ -48,7 +55,7 @@ class ExternalFile extends SWActiveRecord
 	{
 		return array(
 			array('name', 'required'),
-			array('originalid, previousid, timecreated, timemodified, timeuploaded, deleteafter', 'length', 'max'=>11),
+			array('originalid, previousid, timecreated, timemodified, lastupload, lastsync, deleteafter', 'length', 'max'=>11),
 			array('name, title, oldname, newname, path', 'length', 'max' => 255),
 			array('description', 'length', 'max' => 4095),
 			array('storage, mimetype, updateaction, deleteaction', 'length', 'max' => 10),
@@ -57,7 +64,7 @@ class ExternalFile extends SWActiveRecord
 			array('status', 'length', 'max' => 50),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			//array('id, originalid, previousid, name, title, description, oldname, newname, storage, timecreated, timemodified, timeuploaded, bucket, path, mimetype, size, md5, updateaction, deleteaction, deleteafter, status', 'safe', 'on'=>'search'),
+			//array('id, originalid, previousid, name, title, description, oldname, newname, storage, timecreated, timemodified, lastupload, bucket, path, mimetype, size, md5, updateaction, deleteaction, deleteafter, status', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -67,7 +74,7 @@ class ExternalFile extends SWActiveRecord
 	public function relations()
 	{
 		return array(
-		    
+		    'originalFile' => array(self::BELONGS_TO, 'ExternalFile', 'originalid'),
 		);
 	}
 	
@@ -81,7 +88,7 @@ class ExternalFile extends SWActiveRecord
 	        'EcTimestampBehavior' => array(
 	            'class' => 'application.behaviors.EcTimestampBehavior',
 	        ),
-	        // подключаем расширение для работы со статусами
+	        // расширение для работы с workflow-паттернами
 	        'swBehavior' => array(
 	            'class' => 'ext.simpleWorkflow.SWActiveRecordBehavior',
 	        ),
@@ -89,12 +96,53 @@ class ExternalFile extends SWActiveRecord
 	        'CustomRelationsBehavior' => array(
 	            'class' => 'application.behaviors.CustomRelationsBehavior',
 	        ),
-	        // это поведение позволяет задать поиск по любому полю модели в виде scopes()
-	        'CustomScopesBehavior' => array(
-	            'class' => 'application.behaviors.CustomScopesBehavior',
+	        // поведение для поиска по связанным моделям
+            'CustomRelationTargetBehavior' => array(
+                'class' => 'application.behaviors.CustomRelationTargetBehavior',
+                'customRelations' => array(),
+            ),
+	        // настройки для модели и методы для поиска по этим настройкам
+	        'ConfigurableRecordBehavior' => array(
+	            'class' => 'application.behaviors.ConfigurableRecordBehavior',
+	            'defaultOwnerClass' => get_class($this),
 	        ),
 	    );
 	}
+	
+	/**
+	 * @see CActiveRecord::beforeSave()
+	 */
+	public function beforeSave()
+	{
+	    return parent::beforeSave();
+	}
+	
+	/**
+	 * @see CActiveRecord::beforeDelete()
+	 */
+	public function beforeDelete()
+	{
+	    return parent::beforeDelete();
+	}
+	
+	/**
+	 * @see CActiveRecord::scopes()
+	 */
+	public function scopes()
+	{
+	    $alias = $this->owner->getTableAlias(true);
+	    // условие для извлечения файлов которые нужно загрузить либо обновить содержимое
+	    $notUploadedCondition = new CDbCriteria();
+	    $notUploadedCondition->addCondition("{$alias}.`lastupload` < {$alias}.`lastsync` ");
+	    $notUploadedCondition->addCondition("{$alias}.`lastupload` > 0 AND {$alias}.`lastsync` = 0 ", 'OR');
+	    
+	    return array(
+	        // файлы, которые ждут загрузки на сервер
+	        'notUploaded' => array(
+	            'condition' => $notUploadedCondition->condition,
+	        ),
+        );
+	} 
 
 	/**
 	 * @return array customized attribute labels (name=>label)
@@ -108,10 +156,11 @@ class ExternalFile extends SWActiveRecord
 			'name' => 'Name',
 			'title' => 'Title',
 			'description' => 'Description',
+		    'lastupload' => '',
+		    'lastsync' => '',
 			'oldname' => 'Oldname',
 			'newname' => 'Newname',
 			'storage' => 'Storage',
-			'timecreated' => 'Timecreated',
 			'bucket' => 'Bucket',
 			'path' => 'Path',
 			'mimetype' => 'Mimetype',
@@ -153,7 +202,8 @@ class ExternalFile extends SWActiveRecord
 		$criteria->compare('storage',$this->storage,true);
 		$criteria->compare('timecreated',$this->timecreated,true);
 		$criteria->compare('timemodified',$this->timemodified,true);
-		$criteria->compare('timeuploaded',$this->timeuploaded,true);
+		$criteria->compare('lastupload',$this->lastupload,true);
+		$criteria->compare('lastsync',$this->lastsync,true);
 		$criteria->compare('bucket',$this->bucket,true);
 		$criteria->compare('path',$this->path,true);
 		$criteria->compare('mimetype',$this->mimetype,true);
@@ -178,5 +228,195 @@ class ExternalFile extends SWActiveRecord
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @param int $num - количество попыток если операция не удалась
+	 * @return void
+	 * 
+	 * @todo
+	 */
+	public function setMaxAttempts($num)
+	{
+	    
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @return int
+	 * 
+	 * @todo
+	 */
+	public function getMaxAttempts()
+	{
+	    return 2;
+	}
+	
+	/**
+	 * Подготовиться к загрузке файла во внешнее хранилище
+	 * Создает запись в статусе "черновик", заполняет ее данными и возвращает созданную запись 
+	 * Эта функция нужна для того чтобы можно было узнать id и привязку файла еще до того
+	 * как начнется загрузка файла, и использовать эти данные, например, для имени файла
+	 * 
+	 * @param  array $attributes - изначальные значения для модели файла, они задаются
+	 *                             до начала загрузки
+	 * @return ExternalFile
+	 */
+	public function prepareSync($attributes=array())
+	{
+	    $file       = new ExternalFile;
+	    $file->name = ECPurifier::getRandomString(10);
+	    if ( $attributes AND is_array($attributes) )
+	    {
+	        $file->setAttributes($attributes);
+	    }
+	    $file->save();
+	    
+	    return $file;
+	}
+	
+	/**
+	 * Сохранить загруженный файл, выполнив все проверки (mime, размер, успешна ли загрузка, и т. д.)
+	 * Изо всех сил старается загрузить файл во внешнее хранилище, но если это не
+	 * удается - то временно сохраняет файл на веб-сервере, чтобы потом 
+	 * перенести его при следующей синхронизации
+	 * 
+	 * Если загрузка во внешнее хранилище прошла успешно - удаляет временный файл,
+	 * меняет статус записи, заполняет запись данными о файле и сохраняет ее
+	 * 
+	 * @param  CUploadedFile $tmpFile - загруженный файл во временной директории
+	 * @return bool
+	 */
+	public function saveFile($tmpFile)
+	{
+	    
+	}
+	
+	/**
+	 * Загрузить файл во внешнее хранилище с веб-сервера
+	 * Определяет местоположение текущего файла по содержимому записи
+	 *
+	 * Возвращает true если загрузка удалась или не требуется и false в случае ошибки
+	 * или неудавшейся синхронизации
+	 *
+	 * @return bool
+	 */
+	public function syncFile()
+	{
+        
+	}
+	
+	/**
+	 * Удалить файл из внешнего хранилища
+	 * 
+	 * @return bool
+	 */
+	public function deleteFile()
+	{
+	    
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @return string
+	 */
+	public function getPath()
+	{
+	    
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @return string
+	 */
+	public function getUrl()
+	{
+	    
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @return bool
+	 */
+	public function saveLocalFile()
+	{
+	    
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @return bool
+	 */
+	public function saveExternalFile()
+	{
+	    
+	}
+	
+	/**
+	 * Удалить промежуточную локальную копию файла, которая лежит на веб-сервере
+	 * 
+	 * @return bool
+	 */
+	public function deleteLocalFile()
+	{
+	     
+	}
+	
+	/**
+	 * Удалить файл из внешнего хранилища
+	 * 
+	 * @return bool
+	 */
+	public function deleteExternalFile()
+	{
+	     
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @return string
+	 */
+	public function getLocalPath()
+	{
+	     
+	}
+	
+	/**
+	 *
+	 *
+	 * @return string
+	 */
+	public function getExternalPath()
+	{
+	
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @return string
+	 */
+	public function getLocalUrl()
+	{
+	     
+	}
+	
+	/**
+	 * 
+	 * @param  int  $expire - до какого времени действует ссылка (unixtime)
+	 * @param  bool $forceDownload - 
+	 * @return string
+	 */
+	public function getExternalUrl($expire=0, $forceDownload=false)
+	{
+	     
 	}
 }
