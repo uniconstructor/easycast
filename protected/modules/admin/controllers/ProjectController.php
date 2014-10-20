@@ -37,7 +37,7 @@ class ProjectController extends Controller
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete','setStatus'),
+				'actions'=>array('admin', 'delete', 'setStatus', 'uploadBanner'),
 				'users'=>array('@'),
 			),
 			array('deny',  // deny all users
@@ -245,5 +245,47 @@ class ProjectController extends Controller
 	     
 	    $url = Yii::app()->createUrl('/admin/project/view', array('id' => $id));
 	    $this->redirect($url);
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @return void
+	 * 
+	 * @todo временная функция, заменить action-классом
+	 */
+	public function actionUploadBanner()
+	{
+	    $pk        = Yii::app()->request->getParam('pk');
+	    $projectId = Yii::app()->request->getParam('projectId', '0');
+	    
+	    // извлекаем настройку и старый баннер если он был
+	    $config    = Config::model()->findByPk($pk);
+	    $oldBanner = $config->getValueObject();
+	    
+	    // создаем модель файла во внешнем хранилище
+	    $newBanner = new ExternalFile;
+	    $newBannerData = array(
+	        'bucket' => Yii::app()->params['AWSBucket'],
+	        'path'   => 'projects/'.$projectId.'/banner',
+	    );
+	    // загружаем файл на S3
+	    $newBanner->prepareSync($newBannerData);
+	    $newBanner->saveFile();
+	    
+	    if ( $newBanner->save() )
+	    {// обновляем значение настройки
+	        $config->valueid = $newBanner->id;
+	    }
+	    if ( $oldBanner )
+	    {// удаляем старую запись
+	        $oldBanner->delete();
+	    }
+	    $config->save();
+	    
+	    //CVarDumper::dump($config, 5, true);
+	    //CVarDumper::dump($newBanner, 5, true);
+	    
+	    $this->redirect(array('update', 'id' => $projectId));
 	}
 }
