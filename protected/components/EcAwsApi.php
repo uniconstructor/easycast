@@ -121,7 +121,7 @@ class EcAwsApi extends CApplicationComponent
     /**
      * Создать и настроить объект для работы с сервисом Amazon SQS (очередь сообщений)
      *
-     * @return null
+     * @return SqsClient
      */
     public function getSqs()
     {
@@ -135,7 +135,7 @@ class EcAwsApi extends CApplicationComponent
     /**
      * Создать и настроить объект для работы с сервисом Amazon S3 (хранилище данных)
      *
-     * @return null
+     * @return S3Client
      */
     public function getS3()
     {
