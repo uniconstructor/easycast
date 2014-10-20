@@ -534,6 +534,68 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
     }
     
     /**
+     * Получить модель привязанной к owner настройки с указанным именем
+     *
+     * @param  string|array $name - служебное имя настройки (поле name в модели Config)
+     * @param  bool    $checkRoot - искать ли корневую настройку с таким же названием
+     *                              если для owner-модели настройки с таким именем нет?
+     * @return Config
+     *
+     * @todo проверить что при указании $name находится не более 1 записи
+     */
+    public function getConfigObject($name, $checkRoot=false)
+    {
+        $config = Config::model()->forModel($this->owner)->withName($name)->find();
+        if ( ! $config AND $checkRoot )
+        {// ищем родительскую настройку с таким же названием если ее нет для owner-модели
+            $config = $this->getRootConfig($name);
+        }
+        return $config;
+    }
+    
+    /**
+     * Получить значение настройки по ее имени
+     *
+     * @param  string $name - служебное имя настройки (поле name в модели Config)
+     * @return string|array - значение настройки:
+     *                        * строка или число (для одиночных настроек)
+     *                        * массив значений настройки (для настроек с множественным выбором)
+     * @throws CException
+     */
+    public function getConfigValue($name)
+    {
+        /* @var $config Config */
+        if ( ! $config = $this->getConfigObject($name) )
+        {// настройки с таким названием нет в списке настроек этой модели -
+            throw new CException('Для модели "'.get_class($this->owner).
+                '" не найдена настройка с именем "'.$name.'"');
+        }
+        // настройку нашли - возвращаем значение
+        return $config->value;
+    }
+    
+    /**
+     * Получить объект содержащий значение настройки по имени настройки
+     *
+     * @param  string $name - служебное имя настройки (поле name в модели Config)
+     * @return string|array - значение настройки:
+     *                        * строка или число (для одиночных настроек)
+     *                        * массив значений настройки (для настроек с множественным выбором)
+     * @throws CException
+     */
+    public function getConfigValueObject($name)
+    {
+        /* @var $config Config */
+        if ( ! $config = $this->getConfigObject($name) )
+        {// настройки с таким названием нет в списке настроек этой модели -
+            throw new CException('Для модели "'.get_class($this->owner).
+                '" не найдена настройка с именем "'.$name.'"');
+        }
+        // настройку нашли - возвращаем значение
+        return $config->getValueObject();
+    }
+    
+    /**
      * Получить изначальное значение настройки по ее названию
      *
      * @param  string $name - служебное имя настройки (поле name в модели Config)
@@ -554,26 +616,6 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
     }
     
     /**
-     * Получить модель привязанной к owner настройки с указанным именем
-     * 
-     * @param  string|array $name - служебное имя настройки (поле name в модели Config)
-     * @param  bool    $checkRoot - искать ли корневую настройку с таким же названием
-     *                              если для owner-модели настройки с таким именем нет? 
-     * @return Config
-     * 
-     * @todo проверить что при указании $name находится не более 1 записи
-     */
-    public function getConfigObject($name, $checkRoot=false)
-    {
-        $config = Config::model()->forModel($this->owner)->withName($name)->find();
-        if ( ! $config AND $checkRoot )
-        {// ищем родительскую настройку с таким же названием если ее нет для owner-модели
-            $config = $this->getRootConfig($name);
-        }
-        return $config;
-    }
-    
-    /**
      * Получить модель настройки привязанной ко всем объектам класса owner-модели
      * (возвращает родительскую настройку модели с указанным мсенем)
      *
@@ -586,27 +628,6 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
     {
         $objectType = get_class($this->owner);
         return Config::model()->forObject($objectType, 0)->withName($name)->find();
-    }
-    
-    /**
-     * Получить значение настройки по ее имени
-     * 
-     * @param  string $name - служебное имя настройки (поле name в модели Config)
-     * @return string|array - значение настройки:
-     *                        * строка или число (для одиночных настроек) 
-     *                        * массив значений настройки (для настроек с множественным выбором)
-     * @throws CException
-     */
-    public function getConfigValue($name)
-    {
-        /* @var $config Config */
-        if ( ! $config = $this->getConfigObject($name) )
-        {// настройки с таким названием нет в списке настроек этой модели -
-            throw new CException('Для модели "'.get_class($this->owner).
-                '" не найдена настройка с именем "'.$name.'"');
-        }
-        // настройку нашли - возвращаем значение
-        return $config->value;
     }
     
     /**
