@@ -113,7 +113,7 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      *              Часто используемые настройки модели можно выносить сюда, чтобы 
      *              к ним было удобнее обращаться
      */
-    public $customRelations = array();
+    public $customRelations    = array();
     /**
      * @var string - название связи которая хранит все настройки модели
      */
@@ -179,6 +179,11 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
     {
         parent::afterDelete($event);
         
+        if ( ! $this->owner->hasRelated($this->configRelationName) )
+        {
+            return;
+        }
+        $configRelationName = $this->configRelationName;
         foreach ( $this->owner->$configRelationName as $configParam )
         {// после удаления модели удяляем все связанные с ней настройки
             if ( ! $configParam->delete() )
@@ -517,7 +522,7 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      * 
      * @todo кеширование
      */
-    public function getConfig($name=null)
+    public function getConfig($name=null, $asObect=false)
     {
         if ( ! $name )
         {// название не указано - выводим все настройки
