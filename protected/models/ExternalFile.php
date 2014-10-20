@@ -28,6 +28,8 @@
  * @property string $deleteafter
  * @property string $status
  * 
+ * @property string $extension - расширение файла (геттер, read-only)
+ * 
  * Relations:
  * @property string $originalFile - оригинал файла из которого был создан этот файл 
  *                                  (только для уменьшеных/перекодированых версий файлов)
@@ -40,6 +42,11 @@
  */
 class ExternalFile extends SWActiveRecord
 {
+    /**
+     * @var unknown
+     */
+    public $file;
+    
 	/**
 	 * @return string the associated database table name
 	 */
@@ -62,6 +69,10 @@ class ExternalFile extends SWActiveRecord
 			array('bucket, md5', 'length', 'max' => 128),
 			array('size', 'length', 'max' => 21),
 			array('status', 'length', 'max' => 50),
+		    array('file', 'file', 'types' => 'jpg,gif,png,jpeg',
+		        'allowEmpty' => true, 
+		        'on'         => 'insert,update',
+            ),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			//array('id, originalid, previousid, name, title, description, oldname, newname, storage, timecreated, timemodified, lastupload, bucket, path, mimetype, size, md5, updateaction, deleteaction, deleteafter, status', 'safe', 'on'=>'search'),
@@ -112,18 +123,18 @@ class ExternalFile extends SWActiveRecord
 	/**
 	 * @see CActiveRecord::beforeSave()
 	 */
-	public function beforeSave()
+	/*public function beforeSave()
 	{
 	    return parent::beforeSave();
-	}
+	}*/
 	
 	/**
 	 * @see CActiveRecord::beforeDelete()
 	 */
-	public function beforeDelete()
+	/*public function beforeDelete()
 	{
 	    return parent::beforeDelete();
-	}
+	}*/
 	
 	/**
 	 * @see CActiveRecord::scopes()
@@ -232,6 +243,15 @@ class ExternalFile extends SWActiveRecord
 	
 	/**
 	 * 
+	 * @return Aws\S3\S3Client
+	 */
+	protected function getS3()
+	{
+	    return Yii::app()->getComponent('ecawsapi')->getS3();
+	}
+	
+	/**
+	 * 
 	 * 
 	 * @param int $num - количество попыток если операция не удалась
 	 * @return void
@@ -290,9 +310,32 @@ class ExternalFile extends SWActiveRecord
 	 * @param  CUploadedFile $tmpFile - загруженный файл во временной директории
 	 * @return bool
 	 */
-	public function saveFile($tmpFile)
+	public function saveFile()
 	{
+	    // загружаем файл и извлекаем метаданные
+	    $this->saveLocal();
 	    
+	    $source = $this->getLocalPath();
+	    $target = $this->getExternalPath();
+	    
+        try
+        {// загружаем файл во внешнее хранилище
+            if ( ! $this->saveExternal($source, $target) )
+            {
+                return false;
+            }
+            // если сохранение удалось - помечаем файл загруженным и готовым к использованию
+            $this->swSetStatus('swExternalFile/uploaded');
+            $this->swSetStatus('swExternalFile/active');
+            // запоминаем время загрузки файла
+            $this->lastsync = time();
+            $this->save();
+        }catch ( Exception $e )
+        {// upload failed - no problem: skip it and try later by cron
+            Yii::log('Image not uploaded: '.$target, CLogger::LEVEL_ERROR);
+            return false;
+        }
+        return true;
 	}
 	
 	/**
@@ -304,10 +347,10 @@ class ExternalFile extends SWActiveRecord
 	 *
 	 * @return bool
 	 */
-	public function syncFile()
+	/*public function syncFile()
 	{
         
-	}
+	}*/
 	
 	/**
 	 * Удалить файл из внешнего хранилища
@@ -336,7 +379,28 @@ class ExternalFile extends SWActiveRecord
 	 */
 	public function getUrl()
 	{
-	    
+	    if ( $this->lastsync )
+	    {
+	        return $this->getS3()->getObjectUrl($this->bucket, $this->path);
+	    }else
+	    {
+	        $route = $this->path.DIRECTORY_SEPARATOR.$this->name.'.'.$this->extension;
+	        return Yii::app()->createAbsoluteUrl($route);
+	    }
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @return string
+	 */
+	public function getExtension()
+	{
+	    if ( $ext = pathinfo($this->oldname, PATHINFO_EXTENSION) )
+	    {
+	        return $ext;
+	    }
+	    return 'jpg';
 	}
 	
 	/**
@@ -344,9 +408,30 @@ class ExternalFile extends SWActiveRecord
 	 * 
 	 * @return bool
 	 */
-	public function saveLocalFile()
+	public function saveLocal()
 	{
-	    
+	    if ( $file = CUploadedFile::getInstance($this, 'file') )
+	    {
+	        // старый файл удалим, потому что загружаем новый
+	        $this->deleteFile();
+	        // запоминаем файл в поле модели
+	        $this->file       = $file;
+	        // извлекаем метаданные
+	        $this->oldname    = $file->getName();
+	        $this->lastupload = time();
+	        $this->mimetype   = $file->getType();
+	        $this->size       = $file->getSize();
+	        // сохраняем из временной директории в публичную
+	        if ( ! $this->file->saveAs($this->getLocalPath()) )
+	        {
+	            return false;
+	        }
+	        // загрузка прошла успешно - изменим статус
+	        $this->swSetStatus('swExternalFile/saved');
+	        
+	        return $this->save();
+	    }
+	    return true;
 	}
 	
 	/**
@@ -354,9 +439,22 @@ class ExternalFile extends SWActiveRecord
 	 * 
 	 * @return bool
 	 */
-	public function saveExternalFile()
+	public function saveExternal($source, $target)
 	{
-	    
+	    if ( ! file_exists($source) )
+	    {// no source file
+            return false;
+	    }
+	    $request = array();
+        $request['Bucket']     = $this->bucket;
+        $request['ACL']        = 'public-read';
+        $request['Key']        = $target;
+        $request['SourceFile'] = $source;
+        // put image into bucket
+        // @todo check image upload result
+        $result = $this->getS3()->putObject($request);
+        
+        return true;
 	}
 	
 	/**
@@ -364,7 +462,7 @@ class ExternalFile extends SWActiveRecord
 	 * 
 	 * @return bool
 	 */
-	public function deleteLocalFile()
+	public function deleteLocal()
 	{
 	     
 	}
@@ -374,7 +472,7 @@ class ExternalFile extends SWActiveRecord
 	 * 
 	 * @return bool
 	 */
-	public function deleteExternalFile()
+	public function deleteExternal()
 	{
 	     
 	}
@@ -386,7 +484,8 @@ class ExternalFile extends SWActiveRecord
 	 */
 	public function getLocalPath()
 	{
-	     
+        return Yii::getPathOfAlias('webroot').DIRECTORY_SEPARATOR.$this->path.
+            DIRECTORY_SEPARATOR.$this->name.'.'.$this->extension;
 	}
 	
 	/**
@@ -396,7 +495,7 @@ class ExternalFile extends SWActiveRecord
 	 */
 	public function getExternalPath()
 	{
-	
+	    return $this->path.DIRECTORY_SEPARATOR.$this->name.'.'.$this->extension;
 	}
 	
 	/**
