@@ -46,7 +46,6 @@ class S3UploadAction extends XUploadAction
         {
             $this->objectType = $objectType;
         }
-        
         $model = $this->formModel;
         $model->{$this->fileAttribute} = CUploadedFile::getInstance($model, $this->fileAttribute);
         
