@@ -8,6 +8,7 @@
 class swExternalFile
 {
     const WORKFLOW_ID = 'swExternalFile';
+    
     const DRAFT       = 'swExternalFile/draft';
     const SAVED       = 'swExternalFile/saved';
     const UPLOADED    = 'swExternalFile/uploaded';
@@ -30,6 +31,7 @@ class swExternalFile
                     'constraint' => '',
                     'transition' => array(
                         self::SAVED,
+                        self::UPLOADED,
                     ),
                 ),
                 array(
@@ -47,6 +49,7 @@ class swExternalFile
                     'transition' => array(
                         self::PROCESSING,
                         self::ACTIVE,
+                        self::SAVED,
                     ),
                 ),
                 array(
