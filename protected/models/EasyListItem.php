@@ -728,7 +728,7 @@ class EasyListItem extends CActiveRecord
 	public function isOriginalItem()
 	{
 	    if ( $this->isNewRecord AND $this->objecttype === 'item' AND ! $this->objectid )
-	    {
+	    {// не сохраненные элементы всегда считаются уникальными
 	        return true;
 	    }
 	    if ( $this->id == $this->objectid AND $this->objecttype === 'EasyListItem' )
