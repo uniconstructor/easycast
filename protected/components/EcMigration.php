@@ -168,12 +168,18 @@ class EcMigration extends CDbMigration
             $this->_listsCache[$cacheName] = $list;
         }
         
+        if ( ! $items )
+        {
+            return $list['id'];
+        }
+        
         // шаблон для элементов этого списка
         $itemTemplate = array(
             'easylistid'  => $list['id'],
             'timecreated' => time(),
             'objecttype'  => 'EasyListItem',
             'objectfield' => 'value',
+            'objectid'    => 0,
         );
         $sortOrder = 1;
         foreach ( $items as $value => $data )
