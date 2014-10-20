@@ -41,17 +41,6 @@ class EcMigration extends CDbMigration
      * @var array - элементы списков
      */
     protected $_itemsCache = array();
-    /**
-     * @var array
-     */
-    /*protected $_configDefaults = array(
-        'type'         => 'text',
-        'minvalues'    => 0,
-        'maxvalues'    => 1,
-        'objecttype'   => 'system',
-        'objectid'     => 0,
-        'easylistid'   => 0,
-    );*/
         
     /**
      * @see CDbMigration::createTable()
@@ -132,7 +121,7 @@ class EcMigration extends CDbMigration
             $recordConfig = CMap::mergeArray($rootConfigData, $recordConfig);
             $this->createConfig($recordConfig);
         }
-        return true;
+        return $rootConfigId;
     }
     
     /**
@@ -202,7 +191,7 @@ class EcMigration extends CDbMigration
             $itemData['sortorder'] = $sortOrder++;
             
             // создаем элемент списка из шаблона и переданных данных
-            $item = CMap::mergeArray($template, $listData);
+            $item = CMap::mergeArray($itemTemplate, $itemData);
             // сохраняем элемент списка
             $this->insert("{{easy_list_items}}", $item);
             // получаем id созданного элемента
@@ -212,10 +201,21 @@ class EcMigration extends CDbMigration
             // стандартные элементы ссылаются на себя за значением - обновим созданную запись
             $this->update("{{easy_list_items}}", array('objectid' => $item['id']), 'id='.$item['id']);
             // кешируем созданное значение
-            $this->_itemsCache['name'][$list['id']][$item['name']] = $item;
+            $this->_itemsCache['name'][$list['id']][$item['name']]   = $item;
             $this->_itemsCache['value'][$list['id']][$item['value']] = $item;
         }
+        return $list['id'];
     }
+    
+    /**
+     * 
+     * @param array $itemData
+     * @return int
+     */
+    public function createListItem($itemData)
+    {
+        
+    } 
     
     /**
      * Получить данные шаблона настройки (как правило это корневая или стстемная настройка)
@@ -305,7 +305,7 @@ class EcMigration extends CDbMigration
      * 
      * @todo подгрузка элементов
      */
-    protected function loadItemByName($listId, $name)
+    protected function loadItemByName($listId, $cacheName)
     {
         if ( isset($this->_listsCache['name'][$cacheName]) )
         {
@@ -382,4 +382,6 @@ $list = array(
     'triggerupdate' => 'manual',
     'unique'        => 1,
 );
+
+
  */
