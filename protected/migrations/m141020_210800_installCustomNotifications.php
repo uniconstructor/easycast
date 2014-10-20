@@ -56,27 +56,23 @@ class m141020_210800_installCustomNotifications extends EcMigration
             'triggerupdate' => 'manual',
             'unique'        => 0,
         );
-        unset($mailBlocks);
-        
         // извлекаем сохраненные элементы списка чтобы обратиться к ним еще раз для создания ссылок
-        $mailBlocks = $this->dbConnection->createCommand()->select('*')->
-            from('{{config}}')->where("easylistid={$mailBlocksList['id']}")->queryAll();
+        $mailBlockRecords = $this->loadListItems($mailBlocksList['id']);
         // выбранные элементы хранятся как ссылки на элементы первого списка
         $selectedMailBlocks = array();
-        foreach ( $mailBlocks as $mailBlock )
+        foreach ( $mailBlockRecords as $mailBlock )
         {
-            $mailBlockData = $this->loadItemByName($mailBlocksList['id'], $mailBlock['name']);
             $selectedMailBlocks[] = array(
-                'name'        => $mailBlockData['name'],
-                'description' => $mailBlockData['description'],
+                'name'        => $mailBlock['name'],
+                'description' => $mailBlock['description'],
                 'objecttype'  => 'EasyListItem',
-                'objectid'    => $mailBlockData['id'],
+                'objectid'    => $mailBlock['id'],
                 'objectfield' => 'value',
             );
         }
         // сохраняем список блоков и заполняем его значениями
-        $selectedInviteBlocks['id'] = $this->createList($selectedInviteBlocksList, 
-            'selectedInviteBlocksList', $selectedMailBlocks);
+        $selectedInviteBlocksList['id'] = $this->createList($selectedInviteBlocksList, 
+            'inviteBlocksList', $selectedMailBlocks);
         
         // создаем список для введенных участником значений
         $userInviteBlocksList = array(
@@ -86,7 +82,7 @@ class m141020_210800_installCustomNotifications extends EcMigration
             'triggerupdate' => 'manual',
             'unique'        => 0,
         );
-        $userInviteBlocksList['id'] = $this->createList($userInviteBlocksList);
+        $userInviteBlocksList['id'] = $this->createList($userInviteBlocksList, 'userBlocks');
         
         // оповещение о приглашении на съемку
         $configNotifications = array(
@@ -95,7 +91,7 @@ class m141020_210800_installCustomNotifications extends EcMigration
             'description'  => 'Список блоков из которых состоит письмо, отправляемое всем подходящим '.
                 'участникам при запуске проекта',
             'type'         => 'multiselect',
-            'minvalues'    => 3,
+            'minvalues'    => 1,
             'maxvalues'    => 0,
             'objecttype'   => 'EventVacancy',
             'objectid'     => 0,
@@ -103,12 +99,13 @@ class m141020_210800_installCustomNotifications extends EcMigration
             'easylistid'   => $mailBlocksList['id'],
             'valuetype'    => 'EasyList',
             // выбранные по умолчанию блоки
-            'valueid'      => $selectedInviteBlocks['id'],
+            'valueid'      => $selectedInviteBlocksList['id'],
             'userlistid'   => $userInviteBlocksList['id'],
         );
+        // привязываем настройку к каждой модели класса
         $this->createRootConfig($configNotifications, "{{event_vacancies}}");
         
-        // добавляем настройку "баннер" к проекту
+        // добавляем настройку "баннер проекта для письма" к роли
         $configBanner = array(
             'name'         => 'inviteBannerUrl',
             'title'        => 'Баннер меньшего размера для вставки в письмо с приглашением',
@@ -123,7 +120,7 @@ class m141020_210800_installCustomNotifications extends EcMigration
             'valuefield'   => 'url',
             'valueid'      => 0,
         );
-        // привязываем настройку к каждой модели проекта
+        // привязываем настройку к каждой модели класса
         $this->createRootConfig($configBanner, "{{event_vacancies}}");
     }
 }
