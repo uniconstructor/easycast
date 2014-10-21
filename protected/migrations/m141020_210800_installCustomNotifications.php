@@ -42,7 +42,7 @@ class m141020_210800_installCustomNotifications extends EcMigration
             ),
             array(
                 'name'        => 'Кнопка подачи заявки',
-                'value'       => '{$eventDescription}',
+                'value'       => '{$button}',
                 'description' => 'Отдельный блок с кнопкой во всю ширину письма',
             ),
         );
