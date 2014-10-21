@@ -13,16 +13,20 @@ $this->pageTitle = "Регистрация для участия в проект
 Yii::app()->clientScript->registerMetaTag(strip_tags($model->vacancy->event->project->shortdescription), 'description', null, array('lang' => 'ru'));
 ?>
 <div class="container">
-    <div class="row">
+    <div class="row-fluid">
         <?php 
         // информация о событии на которое подается заявка
-        // @todo заменить hardcoded-значение настройкой
-        if ( $model->vacancy->id != 749 )
+        if ( ! $bannerUrl = $model->vacancy->event->project->getConfig('banner') )
         {
             $this->widget('projects.extensions.ProjectInfo.ProjectInfo', array(
                 'eventId'     => $model->vacancy->event->id,
                 'displayTabs' => array('main'),
             ));
+        }else
+        {// выводим баннер 
+            echo CHtml::image($bannerUrl, '', array('style' => 'max-width:100%;'));
+            // и собственное описание перед формой
+            $model->vacancy->getConfig();
         }
         ?>
     </div>
