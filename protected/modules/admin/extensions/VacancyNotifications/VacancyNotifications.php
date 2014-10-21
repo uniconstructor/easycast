@@ -29,10 +29,6 @@ class VacancyNotifications extends CWidget
      * @var string
      */
     public $deleteUrl;
-    /**
-     * @var string
-     */
-    public $insertBlockUrl;
     
     /**
      * @var Config
@@ -81,6 +77,25 @@ class VacancyNotifications extends CWidget
         }
         echo '</div>';
         echo '</div>';
+        
+        // ссылка чтобы сделать все как было
+        $restoreUrl = Yii::app()->createUrl('admin/eventVacancy/restoreDefault', array(
+            'id' => $this->config->objectid,
+            'restoreNotificationConfig' => 1,
+        ));
+        echo CHtml::link('Восстановить стандартное оповещение', $restoreUrl, array(
+            'class'   => 'btn btn-warning btn-large',
+            'confirm' => 'Восстановить стандартный вид оповещения?',
+        ));
+        // ссылка на предпросмотр
+        $previewUrl = Yii::app()->createUrl('admin/eventVacancy/restoreDefault', array(
+            'id' => $this->config->objectid,
+            'restoreNotificationConfig' => 1,
+        ));
+        echo CHtml::link('Предварительный просмотр', $previewUrl, array(
+            'class'  => 'btn btn-success btn-large pull-right',
+            'target' => '_blank',
+        ));
     }
     
     /**
@@ -105,17 +120,19 @@ class VacancyNotifications extends CWidget
         if ( $empty )
         {// пустые формы должны ссылаться на страницу добавления записи
             $idPrefix = 'after_';
-            $url      = Yii::app()->createUrl($this->createUrl, array('afterItemId' => $blockItem->id));
+            $url = Yii::app()->createUrl($this->createUrl, array('afterId' => $item->id));
         }else
         {
             $idPrefix = '';
-            $url      = $this->updateUrl;
+            $url = Yii::app()->createUrl($this->updateUrl, array(
+                'id' => $item->id,
+            ));
         }
         return array(
             'id'     => $idPrefix.'notify-config-block-form-'.$item->id.'-'.$this->id,
             'method' => 'post',
             'action' => $url,
-            'enableAjaxValidation' => false,
+            'enableAjaxValidation' => true,
         );
     }
     
@@ -131,10 +148,12 @@ class VacancyNotifications extends CWidget
         {
             $idPrefix = 'after_';
             $model    = new EasyListItem;
+            $saveUrl  = $this->createUrl;
         }else
         {
             $idPrefix = '';
             $model    = $blockItem;
+            $saveUrl  = $this->updateUrl;
         }
         $formOptions     = $this->getFormOptions($blockItem, $empty);
         $nameHtmlOptions = array('id' => $idPrefix.'EasyListItem_name_'.$blockItem->id);
@@ -149,12 +168,15 @@ class VacancyNotifications extends CWidget
         $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', $formOptions);
         if ( $empty )
         {// для формы вставки записи: запоминаем между какими блоками вставить новый
-            echo CHtml::hiddenField('afterItemId', $blockItem->id);
+            echo CHtml::hiddenField('afterId', $blockItem->id);
+        }else
+        {// для формы редактирования записи будем передавать id
+            echo CHtml::hiddenField('id', $model->id);
         }
         // заголовок блока
         echo $form->textFieldRow($model, 'name', $nameHtmlOptions);
         // текст блока
-        echo $form->redactorRow($model, 'data', array(
+        echo $form->redactorRow($model, 'value', array(
             'editorOptions' => array(
                 'class'     => 'span6',
                 'rows'      => 5,
@@ -164,11 +186,22 @@ class VacancyNotifications extends CWidget
         ), array(
             'hint' => $model->description,
         ));
-        // кнопка сохранения текста
+        
+        $saveId = $idPrefix.'save_notify_block_'.$model->id;
         $this->widget('bootstrap.widgets.TbButton', array(
-            'buttonType' => 'submit',
+            'url'        => $saveUrl,
+            'buttonType' => 'ajaxSubmit',
             'type'       => 'primary',
             'label'      => 'Сохранить',
+            'ajaxOptions' => array(
+                'method' => 'post',
+                'data'       => new CJavaScriptExpression("$('#{$formOptions['id']}').serialize()"),
+                'beforeSend' => "function (data, status) { $('#{$saveId}').addClass('btn-disabled'); }",
+                'complete'   => "function (data, status) { $('#{$saveId}').removeClass('btn-disabled'); }",
+            ),
+            'htmlOptions' => array(
+                'id' => $saveId,
+            ),
         ));
         if ( ! $empty )
         {// кнопка удаления блока
@@ -179,7 +212,10 @@ class VacancyNotifications extends CWidget
                 'label'       => 'Удалить',
                 'ajaxOptions' => array(
                     'method'     => 'post',
-                    'data'       => array('id' => $model->id),
+                    'data'       => array(
+                        'id' => $model->id,
+                        Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
+                    ),
                     'beforeSend' => "function (data, status) { $('#config_notify_block_{$model->id}').remove(); }",
                 ),
                 'htmlOptions' => array(
