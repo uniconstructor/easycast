@@ -122,8 +122,8 @@ class EasyListItem extends CActiveRecord
 		return array(
 			array('easylistid, objectid, sortorder, timecreated, timemodified', 'length', 'max' => 11),
 			array('status, objecttype, objectfield', 'length', 'max' => 50),
-			array('name, value', 'length', 'max' => 255),
-			array('description', 'length', 'max' => 4095),
+			array('name', 'length', 'max' => 255),
+			array('description, value, data', 'length', 'max' => 4095),
 			// The following rule is used by search().
 			//array('id, easylistid, objecttype, objectid, name, sortorder, timecreated, timemodified, status', 'safe', 'on'=>'search'),
 		);
@@ -160,15 +160,14 @@ class EasyListItem extends CActiveRecord
 	        // для ссылок на поле в другой модели: при создании новой записи копируем значение
 	        // из связанного поля, чтобы ускорить поиск по нему  и уменьшить количество JOIN
 	        // при выборке, особенно при поиске разнородных объектов
-	        if ( ! $this->isOriginalItem() AND $this->valueObject AND $this->objectfield )
+	        if ( ! $this->isOriginalItem() AND $this->getTargetObject() AND $this->objectfield )
 	        {
-	            if ( ! $this->valueObject->hasRelated($this->objectfield) )
+	            if ( ! $this->getTargetObject()->hasRelated($this->objectfield) )
 	            {// поля-связи мы не кешируем
 	                $objectField = $this->objectfield;
 	                $this->value = $this->valueObject->$objectField;
 	            }
 	        }
-	        
 	        // @todo пока в эту модель не добавлен workflow-плагин то будем ставить активный статус руками
 	        $this->status = 'active';
 	    }
@@ -232,7 +231,7 @@ class EasyListItem extends CActiveRecord
 	            'class' => 'application.behaviors.EcTimestampBehavior',
 	        ),
 	        // это поведение позволяет изменять набор связей модели в процессе выборки
-	        'CustomRelationsBehavior' => array(
+	        'CustomScopesBehavior' => array(
 	            'class' => 'application.behaviors.CustomRelationsBehavior',
 	        ),
 	        // поведение для связи с другими моделями
@@ -241,6 +240,12 @@ class EasyListItem extends CActiveRecord
 	            'targetRelationName'  => 'valueObject',
 	            'customObjectTypes'   => array('system'),
 	            'enableEmptyObjectId' => true,
+	        ),
+	        // группы условий для поиска по данным моделей, которые ссылаются
+	        // на эту запись по составному ключу objecttype/objectid
+	        'CustomRelationTargetBehavior' => array(
+	            'class' => 'application.behaviors.CustomRelationTargetBehavior',
+	            'customRelations' => array(),
 	        ),
 	    );
 	}
@@ -349,10 +354,10 @@ class EasyListItem extends CActiveRecord
 	 * @param  int|array $listId - id списка (EasyListItem)
 	 * @return EasyListItem
 	 */
-	/*public function forList($listId)
+	public function forList($listId)
 	{
 	    return $this->withListId($listId);
-	}*/
+	}
 	
 	/**
 	 * Именованная группа условий: получить все элементы из указанного списка
@@ -815,7 +820,7 @@ class EasyListItem extends CActiveRecord
 	        return false;
 	    }
 	    if ( ! $fieldName )
-	    {// для элемнтов, которые не ссылаются на конкретное поле: если целевой объект был изменен
+	    {// для элемунтов, которые не ссылаются на конкретное поле: если целевой объект был изменен
 	        // то достаточно взять из него время последнего изменения - остальное нас не интересует
 	        $this->timemodified = $this->valueObject->timemodified;
 	        return $this->save();
@@ -826,5 +831,41 @@ class EasyListItem extends CActiveRecord
 	        return $this->save();
 	    }
 	    return false;
+	}
+	
+	/**
+	 * Вставить новую запись после указанной, пересчитав нумерацию
+	 *
+	 * @param  int $targetId
+	 * @return bool
+	 * 
+	 * @todo вынести в поведение
+	 */
+	public function insertAfter($targetId)
+	{
+	    if ( ! $this->isNewRecord )
+	    {
+	        throw new CException('Not new record');
+	    }
+        if ( ! $targetModel = EasyListItem::model()->findByPk($targetId) )
+        {
+            throw new CException('Target id not found');
+        }else
+        {// добавляем значение в тот список в котором находится указанная модель
+            $this->easylistid = $targetModel->easylistid;
+        }
+        
+        // запоминаем освободившийся sortorder
+        $this->sortorder = $targetModel->sortorder + 1;
+        // сдвигаем все записи на 1 вперед 
+	    $shiftedRecords = $this->forList($this->easylistid)->
+            findAll($this->getTableAlias(true).".`sortorder` > {$targetModel->sortorder}");
+	    
+	    foreach ( $shiftedRecords as $record )
+	    {
+	        $record->sortorder += 1;
+	        $record->save(false, array('sortorder'));
+	    }
+	    return $this->dbConnection->createCommand()->insert($this->tableName(), $this->attributes);
 	}
 }
