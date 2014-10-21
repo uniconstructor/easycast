@@ -50,6 +50,7 @@
  * @todo запоминать в настройках созданную для этого проекта категорию заявок
  * @todo константы типов проекта больше не используются - их следует удалить из класса,
  *       и вычистить все упоминания о них из остального кода 
+ * @todo сделать лого отдельным полем или настройкой, но не галереей
  */
 class Project extends SWActiveRecord
 {
@@ -276,6 +277,54 @@ class Project extends SWActiveRecord
 	}
 	
 	/**
+	 * @return array relational rules.
+	 */
+	public function relations()
+	{
+	    return array(
+	        // Руководитель проекта
+	        'leader' => array(self::BELONGS_TO, 'User', 'leaderid'),
+	        // Помошник руководителя
+	        'support' => array(self::BELONGS_TO, 'User', 'supportid'),
+	
+	        // Все группы проекта
+	        'groups' => array(self::HAS_MANY, 'ProjectEvent', 'projectid',
+	            'condition' => "`groups`.`type` = 'group'"),
+	        // Открытые группы событий (те в которые можно добавить мероприятия)
+	        'opengroups' => array(self::HAS_MANY, 'ProjectEvent', 'projectid',
+	            'condition' => "(`opengroups`.`type` = 'group') AND (`opengroups`.`status` IN ('draft', 'active'))"),
+	        // Активные группы проекта
+	        'activegroups' => array(self::HAS_MANY, 'ProjectEvent', 'projectid',
+	            'condition' => "(`activegroups`.`type` = 'group') AND (`activegroups`.`status` = 'active')"),
+	
+	        // Все мероприятия проекта
+	        'events' => array(self::HAS_MANY, 'ProjectEvent', 'projectid',
+	            'condition' => "`events`.`type` != 'group'"),
+	        // Все видимые пользователю мероприятия
+	        'userevents' => array(self::HAS_MANY, 'ProjectEvent', 'projectid',
+	            'condition' => "(`userevents`.`status` IN ('active', 'finished')) AND (`userevents`.`type` != 'group')",
+	            'order' => "`userevents`.`status` ASC, `userevents`.`timestart` DESC"),
+	        // Все активные предстоящие мероприятия
+	        'activeevents' => array(self::HAS_MANY, 'ProjectEvent', 'projectid',
+	            'condition' => "(`activeevents`.`status` = 'active') AND (`activeevents`.`type` != 'group')",
+	            'order' => "`activeevents`.`timestart` DESC"),
+	        // Все завершенные мероприятия
+	        'finishedevents' => array(self::HAS_MANY, 'ProjectEvent', 'projectid',
+	            'condition' => "`finishedevents`.`status` = 'finished' AND (`finishedevents`.`type` != 'group')",
+	            'order' => "`finishedevents`.`timeend` DESC"),
+	
+	        // участники проекта
+	        // @todo изучить и применить связь типа "мост"
+	        // 'members' =>
+	         
+	        // Видео проекта
+	        'videos' => array(self::HAS_MANY, 'Video', 'objectid',
+	            'condition' => "`videos`.`objecttype`='project'",
+	        ),
+	    );
+	}
+	
+	/**
 	 * @see parent::behaviors
 	 * 
 	 * @todo возможно стоит сделать все версии изображения квадратными
@@ -324,11 +373,9 @@ class Project extends SWActiveRecord
 	    );
 	    return array(
 	        // автоматическое заполнение дат создания и изменения
-	        'CTimestampBehavior' => array(
-	            'class'           => 'zii.behaviors.CTimestampBehavior',
-	            'createAttribute' => 'timecreated',
-	            'updateAttribute' => 'timemodified',
-	        ),
+            'EcTimestampBehavior' => array(
+                'class' => 'application.behaviors.EcTimestampBehavior',
+            ),
 	        // логотип
 	        'galleryBehavior'      => $logoSettings,
 	        // фотогалерея
@@ -343,6 +390,28 @@ class Project extends SWActiveRecord
 	        // подключаем расширение для работы со статусами
 	        'swBehavior' => array(
 	            'class' => 'application.extensions.simpleWorkflow.SWActiveRecordBehavior',
+	        ),
+	        // это поведение позволяет изменять набор связей модели в зависимости от того какие данные в ней находятся
+	        'CustomRelationsBehavior' => array(
+	            'class' => 'application.behaviors.CustomRelationsBehavior',
+	        ),
+	        // группы условий для поиска по данным моделей, которые ссылаются
+	        // на эту запись по составному ключу objecttype/objectid
+	        'CustomRelationTargetBehavior' => array(
+	            'class' => 'application.behaviors.CustomRelationTargetBehavior',
+	            // @todo
+	            /*'customRelations' => array(
+	                'videos' => array(
+                        'model'     => 'Video',
+                        'typeField' => 'objecttype',
+                        'idField'   => 'objectid',
+                    ),
+    	        ),
+	            'searchRelation' => 'videos',*/
+	        ),
+	        // настройки для модели и методы для поиска по этим настройкам
+	        'ConfigurableRecordBehavior' => array(
+	            'class' => 'application.behaviors.ConfigurableRecordBehavior',
 	        ),
 	    );
 	}
@@ -399,13 +468,13 @@ class Project extends SWActiveRecord
 	{
 	    return array(
 	        // последние созданные записи
-	        'lastCreated' => array(
+	        /*'lastCreated' => array(
 	            'order' => $this->getTableAlias(true).'.`timecreated` DESC'
-	        ),
+	        ),*/
 	        // последние измененные записи
-	        'lastModified' => array(
+	        /*'lastModified' => array(
 	            'order' => $this->getTableAlias(true).'.`timemodified` DESC'
-	        ),
+	        ),*/
 	        // лучшие по рейтингу
 	        'bestRated' => array(
 	            'order' => $this->getTableAlias(true).'.`rating` DESC'
@@ -474,53 +543,6 @@ class Project extends SWActiveRecord
 	    
 	    $this->getDbCriteria()->mergeWith($criteria);
 	    return $this;
-	}
-
-	/**
-	 * @return array relational rules.
-	 */
-	public function relations()
-	{
-		return array(
-		    // Руководитель проекта
-		    'leader' => array(self::BELONGS_TO, 'User', 'leaderid'),
-		    // Помошник руководителя
-		    'support' => array(self::BELONGS_TO, 'User', 'supportid'),
-		    
-		    // Все группы проекта
-		    'groups' => array(self::HAS_MANY, 'ProjectEvent', 'projectid', 
-		        'condition' => "`groups`.`type` = 'group'"),
-		    // Открытые группы событий (те в которые можно добавить мероприятия)
-		    'opengroups' => array(self::HAS_MANY, 'ProjectEvent', 'projectid', 
-		        'condition' => "(`opengroups`.`type` = 'group') AND (`opengroups`.`status` IN ('draft', 'active'))"),
-		    // Активные группы проекта
-		    'activegroups' => array(self::HAS_MANY, 'ProjectEvent', 'projectid',
-		        'condition' => "(`activegroups`.`type` = 'group') AND (`activegroups`.`status` = 'active')"),
-		    
-		    // Все мероприятия проекта
-		    'events' => array(self::HAS_MANY, 'ProjectEvent', 'projectid', 
-		        'condition' => "`events`.`type` != 'group'"),
-		    // Все видимые пользователю мероприятия
-		    'userevents' => array(self::HAS_MANY, 'ProjectEvent', 'projectid', 
-		        'condition' => "(`userevents`.`status` IN ('active', 'finished')) AND (`userevents`.`type` != 'group')",
-		        'order' => "`userevents`.`status` ASC, `userevents`.`timestart` DESC"),
-		    // Все активные предстоящие мероприятия
-		    'activeevents' => array(self::HAS_MANY, 'ProjectEvent', 'projectid',
-		        'condition' => "(`activeevents`.`status` = 'active') AND (`activeevents`.`type` != 'group')",
-		        'order' => "`activeevents`.`timestart` DESC"),
-		    // Все завершенные мероприятия
-		    'finishedevents' => array(self::HAS_MANY, 'ProjectEvent', 'projectid',
-		        'condition' => "`finishedevents`.`status` = 'finished' AND (`finishedevents`.`type` != 'group')",
-		        'order' => "`finishedevents`.`timeend` DESC"),
-		    
-		    // участники проекта
-		    // @todo изучить и применить связь типа "мост"
-		    // 'members' =>
-		     
-		    // Видео проекта
-		    'videos' => array(self::HAS_MANY, 'Video', 'objectid', 
-		        'condition' => "`videos`.`objecttype`='project'"),
-		);
 	}
 
 	/**
