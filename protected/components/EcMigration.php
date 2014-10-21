@@ -20,10 +20,6 @@ class EcMigration extends CDbMigration
      * @var string - Настройки для всех создаваемых этой миграцией таблиц
      */
     const EC_MYSQL_OPTIONS = 'ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci';
-    /**
-     * @var string - название настройки, которая содержит id списка для значений настроек модели
-     */
-    const DEFAULT_LIST_CONFIG_NAME = 'defaultListId';
     
     /**
      * @var array - системные и корневые настройки, кэшируются здесь чтобы служить
@@ -394,7 +390,7 @@ class EcMigration extends CDbMigration
     protected function getDefaultListId($objectType=null)
     {
         $condition = "objecttype='{$objectType}' AND objectid=0 AND 
-            name='".self::DEFAULT_LIST_CONFIG_NAME."'"; 
+            name='".Yii::app()->params['defaultListConfig']."'"; 
         
         $config = $this->dbConnection->createCommand()->select('*')->
             from('{{config}}')->where($condition)->queryRow();
