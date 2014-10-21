@@ -210,6 +210,14 @@ class Config extends CActiveRecord
      * @var string - тип настройки: адрес ссылки
      */
     const TYPE_URL          = 'url';
+    /**
+     * @var string - тип настройки: текстовое поле с redactor-виджетом
+     */
+    const TYPE_REDACTOR     = 'redactor';
+    /**
+     * @var unknown
+     */
+    const TYPE_DATETIME     = 'datetime';
     
     /**
      * @see CActiveRecord::init()
@@ -365,7 +373,7 @@ class Config extends CActiveRecord
 		    'userList'     => array(self::BELONGS_TO, 'EasyList', 'userlistid'),
 		    // Все введенные пользователем нестандартные значения настройки
 		    // Эта связь всегда содержит только объекты класса EasyListItem либо пустой массив
-		    'userListItems' => array(self::HAS_MANY, 'EasyListItem', array('userlistid' => 'easylistid')),
+		    'userListItems' => array(self::HAS_MANY, 'EasyListItem', array('easylistid' => 'userlistid')),
 		    // объект-список (EasyList) содержащий значения для выбранной настройки 
 		    // (частный случай связи selectedValue, только для настроек с множественным выбором)
 		    'selectedList' => array(self::BELONGS_TO, 'EasyList', 'valueid'),
@@ -956,6 +964,39 @@ class Config extends CActiveRecord
 	public function withEverySelectedOption($options, $operation='AND')
 	{
         
+	}
+	
+	/**
+	 * Определить является ли переданный вариант значения настройки стандартным значением
+	 * или ссылкой на такое значение
+	 *
+	 * @param  EasyListItem $option
+	 * @return bool
+	 */
+	public function isDefaultOption($option)
+	{
+        if ( $option->easylistid == $this->easylistid  )
+        {// значение содержится в списке стандартных
+            return true;
+        }
+        $defaults = $this->getDefaultOptions();
+        if ( isset($defaults[$option->id]) OR 
+           ( isset($defaults[$option->objectid]) AND $option->objecttype == $this->defaultList->itemtype ) )
+        {// значение является ссылкой на стандартное
+            return true;
+        }
+        return false;
+	}
+	
+	/**
+	 * Определить является ли переданный вариант значения настройки пользовательским
+	 *
+	 * @param  EasyListItem $option
+	 * @return bool
+	 */
+	public function isUserOption($option)
+	{
+	    return ! $this->isDefaultOption($option);
 	}
 	
 	/**
