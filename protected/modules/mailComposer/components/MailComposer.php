@@ -146,6 +146,7 @@ class MailComposer extends CApplicationComponent
     
     /**
      * Получить массив для создания текстового блока письма 
+     * 
      * @param  string     $text - текст в блоке
      * @param  string     $header - заголовок блока (необязательно)
      * @param  array|null $editBlock - блок, который нужно дополнить
