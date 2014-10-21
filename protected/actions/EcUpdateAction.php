@@ -44,18 +44,26 @@ class EcUpdateAction extends CAction
     public function run()
     {
         // id модели
-        $id         = Yii::app()->request->getParam('id');
+        $id        = Yii::app()->request->getParam('id');
         // поле модели
         $attribute = Yii::app()->request->getParam('attribute');
-        // значение модели
+        // обновляемое значение
         $value     = Yii::app()->request->getParam('value');
+        // массив с обновляемыми значениями (если есть)
+        $modelData = Yii::app()->request->getPost($this->modelName);
         
         if ( Yii::app()->getRequest()->isPostRequest )
         {
             $model = $this->loadModel($id);
-            $model->$attribute = $value;
-            
-            $success = $model->save(false, array($attribute));
+            if ( is_array($modelData) AND ! empty($modelData) )
+            {
+                $model->attributes = $modelData;
+                $success = $model->save();
+            }else
+            {
+                $model->$attribute = $value;
+                $success = $model->save(false, array($attribute));
+            }
         
             if ( Yii::app()->getRequest()->isAjaxRequest )
             {
@@ -113,7 +121,7 @@ class EcUpdateAction extends CAction
      */
     protected function performAjaxValidation($model)
     {
-        if ( ! Yii::app()->request->getPost($this->modelClass) )
+        if ( ! Yii::app()->request->getPost($this->modelName) )
         {
             Yii::app()->end();
         }

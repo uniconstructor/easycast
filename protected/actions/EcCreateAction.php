@@ -17,14 +17,20 @@ class EcCreateAction extends EcUpdateAction
      */
     public function run()
     {
-        if ( $modelData = Yii::app()->request->getPost($this->modelClass) )
+        if ( $modelData = Yii::app()->request->getPost($this->modelName) )
         {
             $model = new $this->modelName;
             $model->attributes = $modelData;
             
             $this->performAjaxValidation($model);
-            
-            $success = $model->save();
+            $afterId = Yii::app()->request->getPost('afterId', 0);
+            if ( ! $afterId )
+            {
+                $success = $model->save();
+            }else
+            {
+                $success = $model->insertAfter($afterId);
+            }
         
             if ( Yii::app()->getRequest()->isAjaxRequest )
             {
