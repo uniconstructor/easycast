@@ -2,10 +2,13 @@
 /**
  * Форма редактирования проекта
  */
-/* @var $model Project */
-/* @var $form  TbActiveForm */
+/* @var $model      Project */
+/* @var $form       TbActiveForm */
 /* @var $bannerForm CActiveForm */
-/* @var $this ProjectController */
+/* @var $this       ProjectController */
+
+//$params = $model->getConfig();
+//CVarDumper::dump($params, 10, true);
 
 // баннер
 // @todo заменить стандартным виджетом настроек
@@ -15,39 +18,18 @@ if ( $model->isNewRecord )
     echo '<p>Нужно сохранить проект перед загрузкой баннера</p>';
 }else
 {
-    $currentFile = null;
     $bannerConfig = $model->getConfigObject('banner');
-    /* @var $bannerFile ExternalFile */
-    if ( ! $bannerFile = $bannerConfig->getValueObject() )
-    {
-        echo '<div class="alert alert-info">Баннер не загружен</div>';
-    }else
-    {
-        $currentFile = $bannerFile->name;
-        $img = CHtml::link(CHtml::image($bannerFile->url, $bannerFile->oldname), $bannerFile->url);
-        echo '<div class="well">'.$img.'</div>';
-    }
-    
-    $bannerForm = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
-        'id'      => 'project-banner-form',
-        'method'  => 'post',
-        'action'  => array('uploadBanner', 'projectId' => $model->id),
-        'enableAjaxValidation' => false,
-        'htmlOptions' => array('enctype' => 'multipart/form-data' ),
+    $this->widget('ext.ECMarkup.ECConfigImageField.ECConfigImageField', array(
+        'config'      => $bannerConfig,
+        'formOptions' => array(
+            'id'     => 'project-banner-form',
+            'action' => array('uploadBanner', 'projectId' => $model->id),
+        ),
+        'hiddenFields' => array(
+            'projectId' => $model->id,
+            'pk'        => $bannerConfig->id,
+        ),
     ));
-     
-    echo CHtml::hiddenField('projectId', $model->id);
-    echo CHtml::hiddenField('pk', $bannerConfig->id);
-    // форма загрузки файла
-    echo CHtml::fileField('file', $currentFile);
-    //echo $bannerForm->fileFieldRow($bannerFile, 'file');
-    // кнопка загрузки файла
-    $this->widget('bootstrap.widgets.TbButton', array(
-        'buttonType' => 'submit',
-        'type'       => 'primary',
-        'label'      => 'Загрузить баннер',
-    ));
-    $this->endWidget();
 }
 
 // форма редактирования проекта
