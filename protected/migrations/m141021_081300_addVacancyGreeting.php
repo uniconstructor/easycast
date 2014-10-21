@@ -18,7 +18,7 @@ class m141021_081300_addVacancyGreeting extends EcMigration
         
         // особое описание для страницы динамической формы с баннером
         $defaultVacancyListId = array(
-            'name'         => self::DEFAULT_LIST_CONFIG_NAME,
+            'name'         => Yii::app()->params['defaultListConfig'],
             'title'        => 'Список по умолчанию для одиночных значений настроек этой модели',
             'description'  => 'Эта настройка нужна чтобы не плодить списки для тех настроек, 
                 которые не имеют стандартных значений. Не изменяйте ее.',
