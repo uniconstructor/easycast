@@ -12,7 +12,7 @@ class QSearchHandlerGender extends QSearchHandlerBase
      */
     protected function createCriteria()
     {
-        $data = $this->getFilterData();
+        $data   = $this->getFilterData();
         $gender = $data['gender'];
         
         $criteria = new CDbCriteria();
