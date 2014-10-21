@@ -9,30 +9,6 @@ class ProjectController extends Controller
 	public $layout = '//layouts/column2';
 	
 	/**
-	 * @see CController::actions()
-	 */
-	public function actions()
-	{
-	    return array(
-	        // создать элемент оповещения
-	        'createBlockItem' => array(
-	            'class'      => 'application.actions.EcCreateAction',
-	            'modelName'  => 'EasyListItem',
-	        ),
-	        // редактировать элемент оповещения
-	        'updateBlockItem' => array(
-	            'class'      => 'application.actions.EcUpdateAction',
-	            'modelName'  => 'EasyListItem',
-	        ),
-	        // удалить элемент оповещения
-	        'deleteBlockItem' => array(
-	            'class'      => 'application.actions.EcDeleteAction',
-	            'modelName'  => 'EasyListItem',
-	        ),
-	    );
-	}
-
-	/**
 	 * @return array action filters
 	 */
 	public function filters()
@@ -61,9 +37,7 @@ class ProjectController extends Controller
 				'users'   => array('@'),
 			),
 			array('allow',
-				'actions' => array('admin', 'delete', 'setStatus', 'uploadBanner', 
-				    'createBlockItem', 'updateBlockItem', 'deleteBlockItem',
-				),
+				'actions' => array('admin', 'delete', 'setStatus', 'uploadBanner'),
 				'users' => array('@'),
 			),
 			array('deny',
