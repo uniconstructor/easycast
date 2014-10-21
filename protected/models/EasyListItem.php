@@ -256,7 +256,9 @@ class EasyListItem extends CActiveRecord
 			'objecttype'   => 'Тип объекта',
 			'objectfield'  => 'Поле объекта',
 			'objectid'     => 'id объекта',
-		    'name'         => 'Название элемента или связанного объекта внутри этого списка ',
+		    //'name'         => 'Название элемента или связанного объекта внутри этого списка ',
+		    'name'         => 'Заголовок',
+		    'data'         => 'Содержимое',
 		    'value'        => 'Значение элемента списка',
 		    'description'  => 'Описание для элемента списка или связанного объекта',
 			'timecreated'  => Yii::t('coreMessages', 'timecreated'),
@@ -717,6 +719,21 @@ class EasyListItem extends CActiveRecord
 	    {// ссылка на объект целиком
 	        return $this->getTargetObject();
 	    }
+	}
+	
+	/**
+	 * Сохранить значение элемента списка
+	 * 
+	 * @param string $newData
+	 * @param bool   $updateExternal - изменять ли связанное значение если этот элемент списка
+	 *                                 ссылается на другую модель?
+	 * @return void
+	 * 
+	 * @todo предусмотреть вариант с передачей модели
+	 */
+	public function setData($newData, $updateExternal=false)
+	{
+	    $this->value = $newData;
 	}
 	
 	/**
