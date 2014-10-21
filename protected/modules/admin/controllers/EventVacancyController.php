@@ -10,6 +10,30 @@ class EventVacancyController extends Controller
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
 	 */
 	public $layout = '//layouts/column2';
+	
+	/**
+	 * @see CController::actions()
+	 */
+	public function actions()
+	{
+	    return array(
+	        // создать элемент оповещения
+	        'createBlockItem' => array(
+	            'class'      => 'application.actions.EcCreateAction',
+	            'modelName'  => 'EasyListItem',
+	        ),
+	        // редактировать элемент оповещения
+	        'updateBlockItem' => array(
+	            'class'      => 'application.actions.EcUpdateAction',
+	            'modelName'  => 'EasyListItem',
+	        ),
+	        // удалить элемент оповещения
+	        'deleteBlockItem' => array(
+	            'class'      => 'application.actions.EcDeleteAction',
+	            'modelName'  => 'EasyListItem',
+	        ),
+	    );
+	}
 
 	/**
 	 * @return array action filters
@@ -68,6 +92,8 @@ class EventVacancyController extends Controller
 			    'actions' => array(
                     'view', 'create', 'update', 'delete', 'wizard',
 			        'setStatus', 'setSearchData', 'ClearFilterSearchData',
+			        'createBlockItem', 'updateBlockItem', 'deleteBlockItem',
+			        'restoreDefault'
 			    ),
 				'users'   => array('@'),
 			),
@@ -316,8 +342,7 @@ class EventVacancyController extends Controller
 
 		// Uncomment the following line if AJAX validation is needed
 		$this->performAjaxValidation($model);
-        
-		//CVarDumper::dump(Yii::app()->request->isAjaxRequest);die;
+		
 		if ( isset($_POST['EventVacancy']) )
 		{
 			$model->attributes = $_POST['EventVacancy'];
@@ -454,7 +479,29 @@ class EventVacancyController extends Controller
 	    echo 'OK';
 	    Yii::app()->end();
 	}
-
+	
+	/**
+	 * 
+	 * 
+	 * @return void
+	 * 
+	 * @todo
+	 */
+	public function actionRestoreDefault()
+	{
+	    $restore = Yii::app()->request->getParam('restoreNotificationConfig', 0);
+	    $id      = Yii::app()->request->getParam('id', 0);
+	    
+	    if ( $restore AND $id )
+	    {
+	        $model  = $this->loadModel($id);
+	        $config = $model->getConfigObject('inviteNotificationList');
+	        $config->restoreDefault();
+	        
+	        $this->redirect(array('update', 'id' => $id));
+	    }
+	}
+	
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.
