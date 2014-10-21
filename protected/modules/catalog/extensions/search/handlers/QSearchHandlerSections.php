@@ -32,7 +32,6 @@ class QSearchHandlerSections extends QSearchHandlerBase
                 $criteria = $section->scope->getCombinedCriteria($criteria, 'OR');
             }
         }
-    
         return $criteria;
     }
     
