@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Виджет для настройки оповещений роли
+ * Виджет для настройки email-оповещений
  * 
  * @todo проверка параметров в init()
  * @todo проверка того нарушены ли фигурные скобки
  */
-class VacancyNotifications extends CWidget
+class EditMailNotifications extends CWidget
 {
     /**
      * @var string - 
@@ -14,9 +14,9 @@ class VacancyNotifications extends CWidget
     const CONFIG_NAME = 'inviteNotificationList';
     
     /**
-     * @var EventVacancy
+     * @var CActiveRecord - модель по данным которой будут создаваться оповещения
      */
-    public $vacancy;
+    public $model;
     /**
      * @var string
      */
@@ -54,7 +54,7 @@ class VacancyNotifications extends CWidget
     {
         parent::init();
         // получаем настройку с текстом оповещения
-        $this->config        = $this->vacancy->getConfigObject(self::CONFIG_NAME);
+        $this->config        = $this->model->getConfigObject(self::CONFIG_NAME);
         // вытаскиваем из настройки все блоки письма чтобы было удобнее
         $this->defaultBlocks = $this->config->defaultListItems;
         $this->activeBlocks  = $this->config->selectedListItems;
