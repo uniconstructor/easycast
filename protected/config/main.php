@@ -39,6 +39,7 @@ return array(
 	// автозагрузка для основных классов приложения
     'import' => array(
         // основные компоненты приложения
+		'application.actions.*',
 		'application.behaviors.*',
 		'application.models.*',
 		'application.filters.*',
