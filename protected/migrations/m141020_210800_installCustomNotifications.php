@@ -21,7 +21,7 @@ class m141020_210800_installCustomNotifications extends EcMigration
         $mailBlocks = array(
             array(
                 'name'        => 'Приветствие',
-                'value'       => '{$userGreeting} Предлагаем вам принять участие в проекте "{$projectName}"',
+                'value'       => '{$userGreeting}',
                 'description' => 'Стандартное приветствие. Если имя участника неизвестно - текст будет заменен на безличное обращение',
             ),
             array(
