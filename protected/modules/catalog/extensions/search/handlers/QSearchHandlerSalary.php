@@ -30,16 +30,12 @@ class QSearchHandlerSalary extends QSearchHandlerBase
         
         if ( isset($data['minsalary']) )
         {
-            $criteria->addCondition('`recordingconditions`.`salary` >= :minsalary OR 
-                `recordingconditions`.`salary` = 0 OR `recordingconditions`.`salary` IS NULL');
-            $criteria->params[':minsalary'] = $data['minsalary'];
+            $criteria->scopes['withSalaryMoreThen'] = array($data['minsalary']);
         }
         if ( isset($data['maxsalary']) )
         {
-            $criteria->addCondition('`recordingconditions`.`salary` <= :maxsalary');
-            $criteria->params[':maxsalary'] = $data['maxsalary'];
+            $criteria->scopes['withSalaryLessThen'] = array($data['maxsalary']);
         }
-        
         return $criteria;
     }
 }
