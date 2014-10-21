@@ -1000,6 +1000,42 @@ class Config extends CActiveRecord
 	}
 	
 	/**
+	 * Восстановить изначальное значение настройки
+	 * 
+	 * @return bool
+	 * 
+	 * @todo доработать с учетом одинарных/множественных настроек
+	 */
+	public function restoreDefault()
+	{
+	    if ( $this->objecttype == 'EasyList' AND $this->valueid == $this->easylistid )
+	    {// список настроек совпадает со стандартным
+	        return true;
+	    }
+	    foreach ( $this->selectedListItems as $item )
+	    {// удаляем выбранные значения
+	        $item->delete();
+	    }
+	    foreach ( $this->defaultListItems as $defaultItem )
+	    {// копируем список значений из настройки с данными по умолчанию
+	        $attributes = $defaultItem->attributes;
+	        // устанавливаем в новых моделях id списка с выбранными элементами
+	        $attributes['easylistid'] = $this->valueid;
+	        // удаляем лишние данные из модели перед копированием
+	        unset($attributes['id']);
+	        unset($attributes['timecreated']);
+	        unset($attributes['timemodified']);
+	        unset($attributes['sortorder']);
+	        unset($attributes['status']);
+	        
+	        $itemCopy = new EasyListItem;
+	        $itemCopy->setAttributes($attributes);
+	        $itemCopy->save();
+	    }
+	    return true;
+	}
+	
+	/**
 	 * Функция подготовки первого изменения значения или списка значений
 	 * для этой настройки (ConfigValue): мы храним только те значения настроек которые
 	 * отличаются от значений по умолчанию, поэтому при первом изменении значения любой настройки
