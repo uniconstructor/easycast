@@ -19,14 +19,12 @@ class QSearchHandlerAge extends QSearchHandlerBase
         if ( isset($data['minage']) AND $minAge = intval($data['minage']) )
         {// минимальный возраст
             $minTimestamp = time() - ( $minAge * 365 * 24 * 3600 );
-            $riteria = new CDbCriteria();
             $criteria->compare($alias.'.`birthdate`', '<='.$minTimestamp);
         }
         if ( isset($data['maxage']) AND $maxAge = intval($data['maxage']) )
         {// максимальный возраст: прибавляем единицу к указанному в форме,
             // чтобы найти всех участников до указанного возраста включительно
             $maxTimestamp = time() - ( (1 + $maxAge) * 365 * 24 * 3600 );
-            $criteria = new CDbCriteria();
             $criteria->compare($alias.'.`birthdate`', '>='.$maxTimestamp);
         }
         return $criteria;
