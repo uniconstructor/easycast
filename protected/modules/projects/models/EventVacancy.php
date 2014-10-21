@@ -205,22 +205,148 @@ class EventVacancy extends CActiveRecord
 	}
 	
 	/**
+	 * @return array validation rules for model attributes.
+	 */
+	public function rules()
+	{
+	    return array(
+	        array('name, limit', 'required'),
+	        // @todo исправлять название на заглавную букву
+	        // array('name', 'filter', 'filter' => array('ECPurifier', 'ucfirst')),
+	        array('salary, autoconfirm, eventid, scopeid, timecreated, timemodified, timestart, timeend', 'length', 'max' => 11),
+	        array('name', 'length', 'max' => 255),
+	        array('description', 'length', 'max' => 4095),
+	        array('limit', 'length', 'max' => 6),
+	        array('status, regtype', 'length', 'max' => 50),
+	        // @todo придумать более безопасный фильтр для условий поиска людей на вакансию
+	        array('searchdata', 'safe'),
+	    );
+	}
+	
+	/**
+	 * @return array relational rules.
+	 */
+	public function relations()
+	{
+	    return array(
+	        // мероприятие на которое создана вакансия
+	        'event' => array(self::BELONGS_TO, 'ProjectEvent', 'eventid'),
+	        // критерий поиска, по которому выбираются подходящие на вакансию участники
+	        // @deprecated
+	        'scope' => array(self::BELONGS_TO, 'SearchScope', 'scopeid'),
+	
+	
+	        // дополнительные поля, необходимые для подачи заявки на эту роль
+	        'extraFields' => array(self::MANY_MANY, 'ExtraField', "{{extra_field_instances}}(objectid, fieldid)",
+	            'condition' => "`objecttype` = 'vacancy'",
+	        ),
+	        // обязательные поля анкеты, необходимые для подачи заявки на эту роль
+	        'userFields' => array(self::MANY_MANY, 'QUserField', "{{q_field_instances}}(objectid, fieldid)",
+	            'condition' => "`objecttype` = 'vacancy'",
+	        ),
+	        // доступные фильтры поиска для этой вакансии
+	        'searchFilters' => array(self::MANY_MANY, 'CatalogFilter', "{{catalog_filter_instances}}(linkid, filterid)",
+	            'condition' => "`linktype` = 'vacancy'",
+	        ),
+	        // разделы для отбора заявок
+	        'catalogSections' => array(self::MANY_MANY, 'CatalogSection', "{{catalog_section_instances}}(objectid, sectionid)",
+	            'condition' => "`objecttype` = 'vacancy'",
+	        ),
+	        // разделы для отбора заявок
+	        'catalogSectionInstances' => array(self::HAS_MANY, 'CatalogSectionInstance', "objectid",
+	            'index'     => 'id',
+	            'condition' => "`objecttype` = 'vacancy'",
+	        ),
+	
+	
+	        // Группы дополнительных полей, используемых в этой роли
+	        // @todo искоренить антипаттерн "magic numbers": убрать из условий конкретный parentid
+	        //       есть два возможных решения:
+	        //       - включить условие по scopes и убрать parentid
+	        //       - вынести parentid, содержащие списки разделов и наборы полей в настройку
+	        'extraFieldCategories' => array(self::MANY_MANY, 'Category', "{{category_instances}}(objectid, categoryid)",
+	            'condition' => "`objecttype` = 'vacancy' AND `parentid` = 5",
+	        ),
+	        // Разделы вкладок для заявок участников, используемых в этой роли
+	        // @todo искоренить антипаттерн "magic numbers": убрать из условий конкретный parentid
+	        //       есть два возможных решения:
+	        //       - включить условие по scopes и убрать parentid
+	        //       - вынести parentid, содержащие списки разделов и наборы полей в настройку
+	        'sectionCategories' => array(self::MANY_MANY, 'Category', "{{category_instances}}(objectid, categoryid)",
+	            'condition' => "`objecttype` = 'vacancy' AND `parentid` = 4",
+	        ),
+	
+	        // все претенденты на роль независимо от статуса поданной заявки
+	        // (это новая связь создана взамен старых: во всех запросах следует использовать только ее)
+	        'applicants' => array(self::HAS_MANY, 'ProjectMember', 'vacancyid'),
+	
+	
+	        // только заявки на участие
+	        // @todo удалить при рефакторинге
+	        // @deprecated переписано
+	        'requests' => array(self::HAS_MANY, 'MemberRequest', 'vacancyid'),
+	        // одобренные заявки на вакансию
+	        // @todo удалить при рефакторинге
+	        // @deprecated - переписано: используется функция members(), связь оставлена для совместимости
+	        //               со старым кодом, удалить ее при рефакторинге
+	        'members' => array(self::HAS_MANY, 'ProjectMember', 'vacancyid',
+	            'condition' => "`members`.`status` = 'active' OR `members`.`status` = 'finished'",
+	        ),
+	        // отклоненные заявки на вакансию
+	        // @todo удалить при рефакторинге
+	        // @deprecated - переписано: используется функция members(), связь оставлена для совместимости
+	        //               со старым кодом, удалить ее при рефакторинге
+	        'rejectedmembers' => array(self::HAS_MANY, 'ProjectMember', 'vacancyid',
+	            'condition' => "`status` = 'rejected'",
+	        ),
+	        // ссылки на доступные фильтры поиска для этой вакансии
+	        // @deprecated - использовалось пока я не умел писать связи типа "мост"
+	        // @todo удалить при рефакторинге, вместо нее использовать связь searchFilters
+	        'filterinstances' => array(self::HAS_MANY, 'CatalogFilterInstance', 'linkid',
+	            'condition' => "`linktype` = 'vacancy'",
+	        ),
+	        // Статистика
+	        // Количество поданых заявок
+	        // @todo переписать через именованные группы условий
+	        'requestsCount' => array(self::STAT, 'MemberRequest', 'vacancyid'),
+	        // Количество подтвержденных заявок
+	        // @todo переписать через именованные группы условий
+	        'membersCount' => array(self::STAT, 'ProjectMember', 'vacancyid',
+	            'condition' => "`status` = 'active' OR `status` = 'finished'",
+	        ),
+	    );
+	}
+	
+	/**
 	 * @see parent::behaviors
 	 */
 	public function behaviors()
 	{
 	    return array(
 	        // автоматическое заполнение дат создания и изменения
-	        'CTimestampBehavior' => array(
-	            'class' => 'zii.behaviors.CTimestampBehavior',
-	            'createAttribute' => 'timecreated',
-	            'updateAttribute' => 'timemodified',
-	        ),
+            'EcTimestampBehavior' => array(
+                'class' => 'application.behaviors.EcTimestampBehavior',
+            ),
 	        // работа с сохраненными критериями поиска
+	        // @deprecated - отключить и удалить из системы после разделения критериев поиска и роли
 	        'ESearchScopeBehavior' => array(
                 'class' => 'ext.ESearchScopes.behaviors.ESearchScopeBehavior',
 	            'idAttribute' => 'scopeid',
             ),
+	        // это поведение позволяет изменять набор связей модели в зависимости от того какие данные в ней находятся
+	        'CustomRelationsBehavior' => array(
+	            'class' => 'application.behaviors.CustomRelationsBehavior',
+	        ),
+	        // группы условий для поиска по данным моделей, которые ссылаются
+	        // на эту запись по составному ключу objecttype/objectid
+	        'CustomRelationTargetBehavior' => array(
+	            'class' => 'application.behaviors.CustomRelationTargetBehavior',
+	            'customRelations' => array(),
+	        ),
+	        // настройки для модели и методы для поиска по этим настройкам
+	        'ConfigurableRecordBehavior' => array(
+	            'class' => 'application.behaviors.ConfigurableRecordBehavior',
+	        ),
 	    );
 	}
 	
@@ -264,13 +390,36 @@ class EventVacancy extends CActiveRecord
 	{
 	    return array(
 	        // последние созданные записи
-	        'lastCreated' => array(
+	        /*'lastCreated' => array(
 	            'order' => $this->getTableAlias(true).'.`timecreated` DESC'
 	        ),
 	        // последние измененные записи
 	        'lastModified' => array(
 	            'order' => $this->getTableAlias(true).'.`timemodified` DESC'
-	        ),
+	        ),*/
+	    );
+	}
+	
+	/**
+	 * @return array customized attribute labels (name=>label)
+	 */
+	public function attributeLabels()
+	{
+	    return array(
+	        'id' => 'ID',
+	        'eventid' => ProjectsModule::t('еvent'),
+	        'name' => ProjectsModule::t('name'),
+	        'description' => ProjectsModule::t('description'),
+	        'scopeid' => ProjectsModule::t('vacancy_scopeid'),
+	        'limit' => ProjectsModule::t('vacancy_limit'),
+	        'timecreated' => 'Timecreated',
+	        'timemodified' => 'Timemodified',
+	        'status' => ProjectsModule::t('status'),
+	        'autoconfirm' => 'Автоматически одобрять все заявки',
+	        'salary' => 'Размер оплаты за съемочный день',
+	        'timestart' => 'Время начала',
+	        'timeend' => 'Время окончания',
+	        'regtype' => 'Тип регистрации',
 	    );
 	}
 	
@@ -338,144 +487,9 @@ class EventVacancy extends CActiveRecord
     }
 	
 	/**
-	 * @return array validation rules for model attributes.
-	 */
-	public function rules()
-	{
-		return array(
-			array('name, limit', 'required'),
-			// @todo исправлять название на заглавную букву
-			// array('name', 'filter', 'filter' => array('ECPurifier', 'ucfirst')),
-			array('salary, autoconfirm, eventid, scopeid, timecreated, timemodified, timestart, timeend', 'length', 'max' => 11),
-			array('name', 'length', 'max' => 255),
-			array('description', 'length', 'max' => 4095),
-			array('limit', 'length', 'max' => 6),
-			array('status, regtype', 'length', 'max' => 50),
-		    // @todo придумать более безопасный фильтр для условий поиска людей на вакансию 
-		    array('searchdata', 'safe'),
-		);
-	}
-
-	/**
-	 * @return array relational rules.
-	 */
-	public function relations()
-	{
-		return array(
-		    // мероприятие на которое создана вакансия
-		    'event' => array(self::BELONGS_TO, 'ProjectEvent', 'eventid'),
-		    // критерий поиска, по которому выбираются подходящие на вакансию участники 
-		    // @deprecated
-		    'scope' => array(self::BELONGS_TO, 'SearchScope', 'scopeid'),
-		    
-		    
-		    // дополнительные поля, необходимые для подачи заявки на эту роль
-		    'extraFields' => array(self::MANY_MANY, 'ExtraField', "{{extra_field_instances}}(objectid, fieldid)",
-		        'condition' => "`objecttype` = 'vacancy'",
-		    ),
-		    // обязательные поля анкеты, необходимые для подачи заявки на эту роль
-		    'userFields' => array(self::MANY_MANY, 'QUserField', "{{q_field_instances}}(objectid, fieldid)",
-		        'condition' => "`objecttype` = 'vacancy'",
-		    ),
-		    // доступные фильтры поиска для этой вакансии
-		    'searchFilters' => array(self::MANY_MANY, 'CatalogFilter', "{{catalog_filter_instances}}(linkid, filterid)",
-		        'condition' => "`linktype` = 'vacancy'",
-		    ),
-		    // разделы для отбора заявок
-		    'catalogSections' => array(self::MANY_MANY, 'CatalogSection', "{{catalog_section_instances}}(objectid, sectionid)",
-		        'condition' => "`objecttype` = 'vacancy'",
-		    ),
-		    // разделы для отбора заявок
-		    'catalogSectionInstances' => array(self::HAS_MANY, 'CatalogSectionInstance', "objectid",
-		        'index'     => 'id',
-		        'condition' => "`objecttype` = 'vacancy'",
-		    ),
-		    
-		    
-		    // Группы дополнительных полей, используемых в этой роли
-		    // @todo искоренить антипаттерн "magic numbers": убрать из условий конкретный parentid
-		    //       есть два возможных решения:
-		    //       - включить условие по scopes и убрать parentid
-		    //       - вынести parentid, содержащие списки разделов и наборы полей в настройку
-		    'extraFieldCategories' => array(self::MANY_MANY, 'Category', "{{category_instances}}(objectid, categoryid)", 
-                'condition' => "`objecttype` = 'vacancy' AND `parentid` = 5",
-		    ),
-		    // Разделы вкладок для заявок участников, используемых в этой роли
-		    // @todo искоренить антипаттерн "magic numbers": убрать из условий конкретный parentid
-		    //       есть два возможных решения:
-		    //       - включить условие по scopes и убрать parentid
-		    //       - вынести parentid, содержащие списки разделов и наборы полей в настройку
-		    'sectionCategories' => array(self::MANY_MANY, 'Category', "{{category_instances}}(objectid, categoryid)",
-                'condition' => "`objecttype` = 'vacancy' AND `parentid` = 4",
-		    ),
-		    
-		    // все претенденты на роль независимо от статуса поданной заявки
-		    // (это новая связь создана взамен старых: во всех запросах следует использовать только ее)
-		    'applicants' => array(self::HAS_MANY, 'ProjectMember', 'vacancyid'),
-		    
-		    
-		    // только заявки на участие
-		    // @todo удалить при рефакторинге
-		    // @deprecated переписано
-		    'requests' => array(self::HAS_MANY, 'MemberRequest', 'vacancyid'),
-		    // одобренные заявки на вакансию
-		    // @todo удалить при рефакторинге
-		    // @deprecated - переписано: используется функция members(), связь оставлена для совместимости
-		    //               со старым кодом, удалить ее при рефакторинге
-		    'members' => array(self::HAS_MANY, 'ProjectMember', 'vacancyid',
-		        'condition' => "`members`.`status` = 'active' OR `members`.`status` = 'finished'",
-		    ),
-		    // отклоненные заявки на вакансию
-		    // @todo удалить при рефакторинге
-		    // @deprecated - переписано: используется функция members(), связь оставлена для совместимости
-		    //               со старым кодом, удалить ее при рефакторинге
-		    'rejectedmembers' => array(self::HAS_MANY, 'ProjectMember', 'vacancyid',
-		        'condition' => "`status` = 'rejected'",
-		    ),
-	        // ссылки на доступные фильтры поиска для этой вакансии
-		    // @deprecated - использовалось пока я не умел писать связи типа "мост"
-		    // @todo удалить при рефакторинге, вместо нее использовать связь searchFilters
-		    'filterinstances' => array(self::HAS_MANY, 'CatalogFilterInstance', 'linkid',
-		        'condition' => "`linktype` = 'vacancy'",
-		    ),
-		    // Статистика
-		    // Количество поданых заявок
-		    // @todo переписать через именованные группы условий
-		    'requestsCount' => array(self::STAT, 'MemberRequest', 'vacancyid'),
-		    // Количество подтвержденных заявок
-		    // @todo переписать через именованные группы условий
-		    'membersCount' => array(self::STAT, 'ProjectMember', 'vacancyid',
-		        'condition' => "`status` = 'active' OR `status` = 'finished'",
-		    ),
-		);
-	}
-
-	/**
-	 * @return array customized attribute labels (name=>label)
-	 */
-	public function attributeLabels()
-	{
-		return array(
-			'id' => 'ID',
-			'eventid' => ProjectsModule::t('еvent'),
-			'name' => ProjectsModule::t('name'),
-			'description' => ProjectsModule::t('description'),
-			'scopeid' => ProjectsModule::t('vacancy_scopeid'),
-			'limit' => ProjectsModule::t('vacancy_limit'),
-			'timecreated' => 'Timecreated',
-			'timemodified' => 'Timemodified',
-			'status' => ProjectsModule::t('status'),
-			'autoconfirm' => 'Автоматически одобрять все заявки',
-			'salary' => 'Размер оплаты за съемочный день',
-			'timestart' => 'Время начала',
-			'timeend' => 'Время окончания',
-			'regtype' => 'Тип регистрации',
-		);
-	}
-	
-	/**
 	 * 
 	 * @return array
+	 * @deprecated
 	 */
 	public function getWizardStepInstanceIds()
 	{
