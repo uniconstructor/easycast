@@ -23,7 +23,6 @@ class QSearchHandlerCountry extends QSearchHandlerBase
         {
             $criteria->addInCondition($this->countryField, $data[$this->countryField]);
         }
-    
         return $criteria;
     }
     
