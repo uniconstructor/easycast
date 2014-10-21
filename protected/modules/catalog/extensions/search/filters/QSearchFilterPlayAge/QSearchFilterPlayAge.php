@@ -11,6 +11,22 @@ class QSearchFilterPlayAge extends QSearchFilterBaseSlider
     protected $elements = array('playage');
     
     /**
+     * 
+     * @see QSearchFilterBase::enabled()
+     */
+    public function enabled()
+    {
+        return true;
+    }
+    /**
+     * @see QSearchFilterBase::visible()
+     */
+    public function visible()
+    {
+        return false;
+    }
+    
+    /**
      * Получить минимальное значение слайдера
      * @return int
      */
