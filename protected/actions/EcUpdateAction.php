@@ -104,4 +104,31 @@ class EcUpdateAction extends CAction
         }
         return $model;
     }
+    
+    /**
+     * Performs the AJAX validation.
+     * @param CActiveRecord $model the model to be validated
+     *
+     * @todo придумать более цивилизованный способ сообщать об ошибках
+     */
+    protected function performAjaxValidation($model)
+    {
+        if ( ! Yii::app()->request->getPost($this->modelClass) )
+        {
+            Yii::app()->end();
+        }
+        $result = CActiveForm::validate($model);
+    
+        if ( $result != '[]' )
+        {// при сохранении обнаружены ошибки
+            $errors = array();
+            $result = CJSON::decode($result);
+            foreach ( $result as $element )
+            {
+                $errors[] = current($element);
+            }
+            $message = "\n".implode("\n", $errors);
+            throw new CHttpException(400, $message);
+        }
+    }
 }
