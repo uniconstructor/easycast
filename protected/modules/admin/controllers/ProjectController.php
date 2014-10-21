@@ -6,7 +6,31 @@ class ProjectController extends Controller
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
 	 */
-	public $layout='//layouts/column2';
+	public $layout = '//layouts/column2';
+	
+	/**
+	 * @see CController::actions()
+	 */
+	public function actions()
+	{
+	    return array(
+	        // создать элемент оповещения
+	        'createBlockItem' => array(
+	            'class'      => 'application.actions.EcCreateAction',
+	            'modelName'  => 'EasyListItem',
+	        ),
+	        // редактировать элемент оповещения
+	        'updateBlockItem' => array(
+	            'class'      => 'application.actions.EcUpdateAction',
+	            'modelName'  => 'EasyListItem',
+	        ),
+	        // удалить элемент оповещения
+	        'deleteBlockItem' => array(
+	            'class'      => 'application.actions.EcDeleteAction',
+	            'modelName'  => 'EasyListItem',
+	        ),
+	    );
+	}
 
 	/**
 	 * @return array action filters
@@ -28,20 +52,22 @@ class ProjectController extends Controller
 	public function accessRules()
 	{
 		return array(
-			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view'),
-				'users'=>array('@'),
+			array('allow',
+				'actions' => array('index','view'),
+				'users'   => array('@'),
 			),
-			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update'),
-				'users'=>array('@'),
+			array('allow',
+				'actions' => array('create','update'),
+				'users'   => array('@'),
 			),
-			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin', 'delete', 'setStatus', 'uploadBanner'),
-				'users'=>array('@'),
+			array('allow',
+				'actions' => array('admin', 'delete', 'setStatus', 'uploadBanner', 
+				    'createBlockItem', 'updateBlockItem', 'deleteBlockItem',
+				),
+				'users' => array('@'),
 			),
-			array('deny',  // deny all users
-				'users'=>array('*'),
+			array('deny',
+				'users' => array('*'),
 			),
 		);
 	}
