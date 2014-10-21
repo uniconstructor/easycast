@@ -20,6 +20,10 @@ class EcMigration extends CDbMigration
      * @var string - Настройки для всех создаваемых этой миграцией таблиц
      */
     const EC_MYSQL_OPTIONS = 'ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci';
+    /**
+     * @var string - название настройки, которая содержит id списка для значений настроек модели
+     */
+    const DEFAULT_LIST_CONFIG_NAME = 'defaultListId';
     
     /**
      * @var array - системные и корневые настройки, кэшируются здесь чтобы служить
@@ -200,7 +204,7 @@ class EcMigration extends CDbMigration
             // сохраняем элемент списка
             $this->insert("{{easy_list_items}}", $item);
             // получаем id созданного элемента
-            $item['id']       = $this->dbConnection->lastInsertID;
+            $item['id'] = $this->dbConnection->lastInsertID;
             if ( $item['objecttype'] != 'EasyListItem' OR (! $item['objectid'] AND $item['objectfield']) )
             {// стандартные элементы ссылаются на себя за значением - обновим созданную запись
                 $item['objectid'] = $item['id'];
@@ -217,8 +221,47 @@ class EcMigration extends CDbMigration
      */
     public function createListItem($itemData)
     {
+        // шаблон для элементов этого списка
+        $itemTemplate = array(
+            'timecreated' => time(),
+            'objecttype'  => 'EasyListItem',
+            'objectfield' => 'value',
+            'objectid'    => 0,
+        );
+        $item = CMap::mergeArray($itemTemplate, $itemData);
         
-    } 
+        if ( ! isset($item['easylistid']) OR ! $item['easylistid'] )
+        {// лучше список по умолчанию чем вообще без списка
+            $item['easylistid'] = $this->getDefaultListId();
+        }
+        // сохраняем элемент списка
+        $this->insert("{{easy_list_items}}", $item);
+        // получаем id созданного элемента
+        return $this->dbConnection->lastInsertID;
+    }
+    
+    /**
+     * Создать элемент списка, который хранит данные настройки
+     * 
+     * @return int
+     * 
+     * @todo автоматически создавать настройку self::DEFAULT_LIST_CONFIG_NAME
+     */
+    public function createDataItem($model, $value=null, $name=null, $listId=null, $description=null)
+    {
+        if ( ! $listId )
+        {
+            $listId = $this->getDefaultListId($model);
+        }
+        // создаем и сохраняем элемент
+        $itemData = array(
+            'easylistid'  => $listId,
+            'name'        => $name,
+            'value'       => $value,
+            'description' => $description,
+        );
+        return $this->createListItem($itemData);
+    }
     
     /**
      * Получить данные шаблона настройки (как правило это корневая или стстемная настройка)
@@ -306,38 +349,6 @@ class EcMigration extends CDbMigration
      * @param int $listId
      * @return array
      * 
-     * @todo подгрузка элементов
-     */
-    /*protected function loadItemByName($listId, $name)
-    {
-        if ( isset($this->_listsCache['name'][$name]) )
-        {
-            return $this->_listsCache['name'][$name];
-        }
-        return null;
-    }*/
-    
-    /**
-     * 
-     * @param int $listId
-     * @return array
-     * 
-     * @todo подгрузка элементов
-     */
-    /*protected function loadItemByValue($listId, $value)
-    {
-        if ( isset($this->_listsCache['value'][$value]) )
-        {
-            return $this->_listsCache['value'][$value];
-        }
-        return null;
-    }*/
-    
-    /**
-     * 
-     * @param int $listId
-     * @return array
-     * 
      * @todo функция копирующая элементы одного списка в другой, 
      *       и при этом преобразующая элементы во втором списке в ссылки
      */
@@ -372,6 +383,33 @@ class EcMigration extends CDbMigration
         {
             $this->createIndex($idxPrefix.$field, $table, $field);
         }
+    }
+    
+    /**
+     * Получить список по умолчанию используемый для дополнительных значений настроек модели
+     * 
+     * @param string $objectType - класс модели
+     * @return int
+     */
+    protected function getDefaultListId($objectType=null)
+    {
+        $condition = "objecttype='{$objectType}' AND objectid=0 AND 
+            name='".self::DEFAULT_LIST_CONFIG_NAME."'"; 
+        
+        $config = $this->dbConnection->createCommand()->select('*')->
+            from('{{config}}')->where($condition)->queryRow();
+        if ( ! $config )
+        {// для этой модели такой список не задан
+            return;
+        }
+        // получаем список из настройки
+        $list = $this->dbConnection->createCommand()->select('id')->
+            from('{{easy_lists}}')->where("id=".$config['valueid'])->queryRow();
+        if ( ! isset($list['id']) )
+        {// списка указанного в настройке нет
+            return;
+        }
+        return $list['id'];
     }
 }
 
