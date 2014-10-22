@@ -14,8 +14,9 @@ class MailComposerModule extends CWebModule
     
     /**
      * Получить тему письма, в зависимости от действия
-     * @param string $action - совершаемое действие (регистрация, приглашение, и т. п.)
-     * @param array $params - параметры для выполнения операции
+     * 
+     * @param  string $action - совершаемое действие (регистрация, приглашение, и т. п.)
+     * @param  array $params - параметры для выполнения операции
      * @return string - тема письма
      */
     public static function getSubject($action, $params=null)
@@ -41,7 +42,7 @@ class MailComposerModule extends CWebModule
                 $customerInvite = $params['customerInvite'];
                 return $mailComposer->createCustomerInviteMailSubject($customerInvite);
             break;
-            // Регистрация через форму подачи заявки для топ-моделей
+            // @deprecated Регистрация через форму подачи заявки для топ-моделей
             case 'TMRegistration': 
                 return 'Ваша заявка на участие в проекте "Топ-модель по-русски" направлена на рассмотрение';
             break;
@@ -50,22 +51,27 @@ class MailComposerModule extends CWebModule
     
     /**
      * Получить html-код письма, в зависимости от действия
-     * @param string $action - совершаемое действие (регистрация, приглашение, и т. п.)
-     * @param array $params - параметры для выполнения операции
+     * 
+     * @param  string $action - совершаемое действие (регистрация, приглашение, и т. п.)
+     * @param  array  $params - параметры для выполнения операции
      * @return string - html-код тела письма
      */
     public static function getMessage($action, $params=null)
     {
+        $mailOptions = array();
+        if ( isset($params['mailOptions']) )
+        {
+            $mailOptions = $params['mailOptions'];
+        }
+        /* @var $mailComposer MailComposer */
         $mailComposer = self::getMailComposerComponent();
+        
         switch ( $action )
         {
+            // @todo письмо, собранное из стандартных блоков
+            // case 'customEmail': break;
             // письмо с приглашением на съемки
             case 'newInvite': 
-                $mailOptions = array();
-                if ( isset($params['mailOptions']) )
-                {
-                    $mailOptions = $params['mailOptions'];
-                }
                 if ( ! isset($params['invite']) )
                 {
                     throw new CException('Invite for mail is not set');
@@ -75,11 +81,6 @@ class MailComposerModule extends CWebModule
             break;
             // письмо с подтверждением заявки
             case 'approveMember':
-                $mailOptions = array();
-                if ( isset($params['mailOptions']) )
-                {
-                    $mailOptions = $params['mailOptions'];
-                }
                 if ( ! isset($params['projectMember']) )
                 {
                     throw new CException('projectMember for mail is not set');
@@ -89,11 +90,6 @@ class MailComposerModule extends CWebModule
             break;
             // письмо с отклонением заявки
             case 'rejectMember':
-                $mailOptions = array();
-                if ( isset($params['mailOptions']) )
-                {
-                    $mailOptions = $params['mailOptions'];
-                }
                 if ( ! isset($params['projectMember']) )
                 {
                     throw new CException('projectMember for mail is not set');
@@ -103,11 +99,6 @@ class MailComposerModule extends CWebModule
             break;
             // письмо с предварительным одобрением заявки
             case 'pendingMember':
-                $mailOptions = array();
-                if ( isset($params['mailOptions']) )
-                {
-                    $mailOptions = $params['mailOptions'];
-                }
                 if ( ! isset($params['projectMember']) )
                 {
                     throw new CException('projectMember for mail is not set');
@@ -117,11 +108,6 @@ class MailComposerModule extends CWebModule
             break;
             // приглашение на отбор актеров (для заказчика)
             case 'customerInvite':
-                $mailOptions = array();
-                if ( isset($params['mailOptions']) )
-                {
-                    $mailOptions = $params['mailOptions'];
-                }
                 if ( ! isset($params['customerInvite']) )
                 {
                     throw new CException('customerInvite for mail is not set');
@@ -129,7 +115,7 @@ class MailComposerModule extends CWebModule
                 $customerInvite = $params['customerInvite'];
                 return $mailComposer->createCustomerInviteMailText($customerInvite, $mailOptions);
             break;
-            // приглашение активировать анкету для участников из базы Светланы Строиловой
+            // @deprecated приглашение активировать анкету для участников из базы Светланы Строиловой
             case 'SSInvite':
                 if ( ! isset($params['questionary']) )
                 {
@@ -196,7 +182,7 @@ class MailComposerModule extends CWebModule
                 } 
                 return $mailComposer->createOrderMailText($params['order'], $params['target']);
             break;
-            // подтверждение регистрации через подачу заявки на проект "топ-модель по-русски"
+            // @deprecated подтверждение регистрации через подачу заявки на проект "топ-модель по-русски"
             case 'TMRegistration':
                 if ( ! isset($params['questionary']) )
                 {
@@ -212,7 +198,7 @@ class MailComposerModule extends CWebModule
                 }
                 return $mailComposer->createVacancyRegistrationMailText($params['questionary']);
             break;*/
-            // подтверждение регистрации через подачу заявки на проект "МастерШеф"
+            // @deprecated подтверждение регистрации через подачу заявки на проект "МастерШеф"
             case 'MCRegistration':
                 if ( ! isset($params['questionary']) )
                 {
@@ -225,6 +211,7 @@ class MailComposerModule extends CWebModule
     
     /**
      * Получить компонент, составляющий письма
+     * 
      * @return MailComposer
      */
     protected static function getMailComposerComponent()
@@ -247,6 +234,7 @@ class MailComposerModule extends CWebModule
     
     /**
      * Создать письмо с самой простой структурой: заголовок и текст
+     * 
      * @param string $header
      * @param string $text
      * @param array $options
@@ -259,6 +247,8 @@ class MailComposerModule extends CWebModule
     }
     
     /**
+     * 
+     * 
      * @param $str
      * @param $params
      * @param $dic
