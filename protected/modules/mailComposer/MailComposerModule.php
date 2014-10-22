@@ -64,20 +64,53 @@ class MailComposerModule extends CWebModule
             $mailOptions = $params['mailOptions'];
         }
         /* @var $mailComposer MailComposer */
-        $mailComposer = self::getMailComposerComponent();
+        $mailComposer   = self::getMailComposerComponent();
+        $moduleInstance = Yii::app()->getModule('mailComposer');
         
         switch ( $action )
         {
-            // @todo письмо, собранное из стандартных блоков
-            // case 'customEmail': break;
-            // письмо с приглашением на съемки
-            case 'newInvite': 
-                if ( ! isset($params['invite']) )
-                {
-                    throw new CException('Invite for mail is not set');
+            // письмо с заданным вручную содержанием
+            case 'customEmail':
+                if ( ! isset($params['sourceModel']) OR ! $sourceModel = $params['sourceModel'] )
+                {// не передан обязательный параметр для составления сообщения
+                    throw new CException('Не передана модель с текстом письма');
                 }
-                $invite = $params['invite'];
-                return $mailComposer->createNewInviteMailText($invite, $mailOptions); 
+                if ( $configValue = $sourceModel->getConfig('customEmailText') )
+                {// настройка в содержит текст письма
+                    return $moduleInstance->createSimpleMessage(null, $configValue->value);
+                }
+            break;
+            // письмо с приглашением на съемки
+            // @todo проверить что поведение config подключено прежде чем обращаться к его методам
+            case 'newInvite':
+                if ( ! isset($params['invite']) )
+                {// не передан обязательный параметр для составления 
+                    throw new CException('Invite for mail is not set');
+                }else
+                {/* @var $invite EventInvite */
+                    $invite = $params['invite'];
+                }
+                // если в настройках мероприятия указан другой текст оповещения 
+                $configValue = $invite->event->getConfig('newInviteMailText');
+                if (  $configValue->value )
+                {// настройка в мероприятии содержит другой текст оповещения -
+                    // в этом случае составляем другое письмо
+                    $block  = array();
+                    $button = array();
+                    // ссылка на подачу заявки по токену
+                    $button['caption'] = 'Подать заявку';
+                    $button['link']    = Yii::app()->createAbsoluteUrl('/projects/invite/subscribe',
+                        array('id' => $invite->id, 'key' => $invite->subscribekey));;
+                    // кнопка попадает в блок
+                    $block['button']   = $button;
+                    // добавляем кнопку как сегмент письма 
+                    $options = array('segments' => array($block));
+                    // добавляем кнопку подачи заявки в конец письма
+                    return $moduleInstance->createSimpleMessage(null, $configValue->value, $options);
+                }else
+                {// используем оригинальный текст приглашения
+                    return $mailComposer->createNewInviteMailText($invite, $mailOptions);
+                }
             break;
             // письмо с подтверждением заявки
             case 'approveMember':
@@ -210,31 +243,8 @@ class MailComposerModule extends CWebModule
     }
     
     /**
-     * Получить компонент, составляющий письма
-     * 
-     * @return MailComposer
-     */
-    protected static function getMailComposerComponent()
-    {
-        $config = array(
-            'class' => 'application.modules.mailComposer.components.MailComposer',
-            /*'behaviors' => array(
-                // функции создания писем для модуля "проекты"
-                'ProjectMailsBehavior' => array('class' => 'application.modules.mailComposer.behaviors.ProjectMailsBehavior'),
-            ),*/
-        );
-        
-        $component = Yii::createComponent($config);
-        if ( ! $component->getIsInitialized() )
-        {
-            $component->init();
-        }
-        return $component;
-    }
-    
-    /**
      * Создать письмо с самой простой структурой: заголовок и текст
-     * 
+     *
      * @param string $header
      * @param string $text
      * @param array $options
@@ -244,6 +254,24 @@ class MailComposerModule extends CWebModule
     {
         $mailComposer = self::getMailComposerComponent();
         return $mailComposer->createSimpleMail($header, $text, $options);
+    }
+    
+    /**
+     * Получить компонент, составляющий письма
+     * 
+     * @return MailComposer
+     */
+    protected static function getMailComposerComponent()
+    {
+        $config = array(
+            'class' => 'application.modules.mailComposer.components.MailComposer',
+        );
+        $component = Yii::createComponent($config);
+        if ( ! $component->getIsInitialized() )
+        {
+            $component->init();
+        }
+        return $component;
     }
     
     /**
