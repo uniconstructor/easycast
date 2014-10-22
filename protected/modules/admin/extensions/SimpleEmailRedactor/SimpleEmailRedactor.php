@@ -32,6 +32,10 @@ class SimpleEmailRedactor extends CWidget
      * @var Config
      */
     protected $config;
+    /**
+     * @var Config
+     */
+    protected $configValue;
     
     /**
      * @see CWidget::init()
@@ -41,13 +45,27 @@ class SimpleEmailRedactor extends CWidget
         parent::init();
         // получаем настройку с текстом оповещения
         $this->config = $this->model->getConfigObject($this->configName);
+        if ( ! $this->config->valueid )
+        {
+            $item = new EasyListItem();
+            $item->easylistid  = 0;
+            $item->objecttype  = 'EasyListItem';
+            $item->objectid    = 0;
+            $item->objectfield = 'value';
+            $item->save();
+            
+            $this->config->valueid = $item->id;
+            $this->config->save();
+        }
+        $this->configValue = $this->config->getValueObject();
     }
+    
     /**
      * @see CWidget::run()
      */
     public function run()
     {
-        $this->render('redactor');
+        $this->render('redactor', array('model' => $this->model));
     }
     
     /**
@@ -56,13 +74,11 @@ class SimpleEmailRedactor extends CWidget
      * @param  EasyListItem $item
      * @return array
      */
-    protected function getFormOptions($item)
+    protected function getFormOptions()
     {
-        $url = Yii::app()->createUrl($this->updateUrl, array(
-            'id' => $item->id,
-        ));
+        $url = Yii::app()->createUrl($this->updateUrl, array('id' => $this->model->id));
         return array(
-            'id'     => $idPrefix.'notify-config-form-'.$item->id.'-'.$this->id,
+            'id'     => 'notify-config-form-'.$this->id,
             'method' => 'post',
             'action' => $url,
             'enableAjaxValidation' => true,

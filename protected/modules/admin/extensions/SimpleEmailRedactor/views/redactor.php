@@ -12,11 +12,17 @@
             <div class="span12">
                 <h2 class="text-center">Изменить текст оповещения</h2>
                 <?php 
+                $url = Yii::app()->createUrl($this->updateUrl, array('id' => $this->config->valueid));
+                $FormOptions = array(
+                    'id'     => 'notify-config-form-'.$this->id,
+                    'method' => 'post',
+                    'action' => $url,
+                    'enableAjaxValidation' => true,
+                );
                 // форма редактирования письма
-                $formOptions = $this->getFormOptions($item);
-                $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', $formOptions);
+                $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', $FormOptions);
                 // @todo редактор по умолчанию будет содержать текст стандартного оповещения
-                echo $form->html5EditorRow($model, 'wysihtml5', array(
+                echo $form->html5EditorRow($this->configValue, 'value', array(
                     'editorOptions' => array(
                         'class'   => 'span4',
                         'rows'    => 5,
@@ -51,9 +57,8 @@
             <div class="span6">
                 <?php 
                 // ссылка на предпросмотр
-                $previewUrl = Yii::app()->createUrl('admin/eventVacancy/restoreDefault', array(
-                    'id' => $this->config->objectid,
-                    'restoreNotificationConfig' => 1,
+                $previewUrl = Yii::app()->createUrl('admin/admin/restoreDefault', array(
+                    'id' => $this->config->valueid,
                 ));
                 echo CHtml::link('Предварительный просмотр', $previewUrl, array(
                     'class'  => 'btn btn-success btn-large pull-right',
