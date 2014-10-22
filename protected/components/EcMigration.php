@@ -172,6 +172,7 @@ class EcMigration extends CDbMigration
             return $list['id'];
         }
         
+        $sortOrder = 1;
         // шаблон для элементов этого списка
         $itemTemplate = array(
             'easylistid'  => $list['id'],
@@ -180,28 +181,23 @@ class EcMigration extends CDbMigration
             'objectfield' => 'value',
             'objectid'    => 0,
         );
-        $sortOrder = 1;
         foreach ( $items as $value => $data )
         {// заполняем список значениями
-            if ( is_array($data) )
+            if ( ! is_array($data) )
             {
-                $itemData = $data;
-            }else
-            {
-                $itemData = array(
+                $data = array(
                     'name'  => $data,
                     'value' => $value,
                 );
             }
-            $itemData['sortorder'] = $sortOrder++;
+            $data['sortorder'] = $sortOrder++;
             
             // создаем элемент списка из шаблона и переданных данных
-            $item = CMap::mergeArray($itemTemplate, $itemData);
-            // сохраняем элемент списка
-            $this->insert("{{easy_list_items}}", $item);
-            // получаем id созданного элемента
-            $item['id'] = $this->dbConnection->lastInsertID;
-            if ( $item['objecttype'] != 'EasyListItem' OR (! $item['objectid'] AND $item['objectfield']) )
+            $item = CMap::mergeArray($itemTemplate, $data);
+            // сохраняем элемент списка / получаем id созданного элемента
+            $item['id'] = $this->createListItem($item);
+            
+            if ( $item['objecttype'] == 'EasyListItem' AND $item['objectfield'] == 'value' AND ! $item['objectid'] )
             {// стандартные элементы ссылаются на себя за значением - обновим созданную запись
                 $item['objectid'] = $item['id'];
                 $this->update("{{easy_list_items}}", array('objectid' => $item['id']), 'id='.$item['id']);
@@ -423,8 +419,9 @@ $config = array(
     'timemodified' => time(),
     'easylistid'   => 0,
     'valuetype'    => '',
-    'valuefield'   => '',
+    'valuefield'   => null,
     'valueid'      => 0,
+    'parentid'     => 0,
 );
 
 $list = array(
