@@ -33,7 +33,7 @@ class SimpleEmailRedactor extends CWidget
      */
     protected $config;
     /**
-     * @var Config
+     * @var EasyListItem
      */
     protected $configValue;
     
