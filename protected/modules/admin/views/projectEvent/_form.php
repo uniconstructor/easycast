@@ -9,8 +9,8 @@
 /* @var $model ProjectEvent */
 /* @var $form  TbActiveForm */
 
-$form          = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
-    'id'                   => 'project-event-form',
+$form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
+    'id' => 'project-event-form',
     'enableAjaxValidation' => false,
 ));
 // данные формы нужны для корректной работы элемента выбора даты
@@ -129,11 +129,9 @@ $this->widget('ext.ETinyTimePicker.ETinyTimePicker',
 echo $form->error($model, 'eta');
 
 // Описание места встречи
-echo $form->redactorRow($model, 'meetingplace', array(),
-    array(
+echo $form->redactorRow($model, 'meetingplace', array(), array(
     'hint' => 'Отображается только подтвержденным участникам',
 ));
-//echo '<div class="alert">Отображается только подтвержденным участникам</div>';
 // показывать ли время начала съемок?
 $showTimeStartOptions = array();
 if ( $model->isNewRecord )
@@ -142,7 +140,7 @@ if ( $model->isNewRecord )
 }
 echo $form->checkBoxRow($model, 'showtimestart');
 echo '<div class="alert">Если галочка поставлена - участникам покажется и время встречи, и время съемок.
-                Если снята - только время сбора.</div>';
+    Если снята - только время сбора.</div>';
 
 // Фотографии
 echo '<div>Фотогалерея</div>';
@@ -151,20 +149,26 @@ if ( $model->photoGalleryBehavior->getGallery() === null )
     echo '<div class="alert">Нужно сохранить мероприятие перед загрузкой фотографий</div>';
 }else
 {
-    $this->widget('GalleryManager',
-        array(
+    $this->widget('GalleryManager', array(
         'gallery'         => $model->photoGalleryBehavior->getGallery(),
         'controllerRoute' => '/admin/gallery'
     ));
 }
-
-// кнопка сохранения данных
-$this->widget('bootstrap.widgets.TbButton',
-    array(
+// кнопка сохранения
+$this->widget('bootstrap.widgets.TbButton', array(
     'buttonType' => 'submit',
     'type'       => 'primary',
     'label'      => $model->isNewRecord ? 'Создать' : 'Сохранить',
 ));
-?>
+$this->endWidget();
 
-<?php $this->endWidget(); ?>
+
+if ( ! $model->isNewRecord )
+{// виджет редактирования оповещений
+    $this->widget('admin.extensions.SimpleEmailRedactor.SimpleEmailRedactor', array(
+        'model'     => $model,
+        'createUrl' => Yii::app()->createUrl('admin/eventVacancy/createBlockItem'),
+        'updateUrl' => Yii::app()->createUrl('admin/eventVacancy/updateBlockItem'),
+        'deleteUrl' => Yii::app()->createUrl('admin/eventVacancy/deleteBlockItem'),
+    ));
+}
