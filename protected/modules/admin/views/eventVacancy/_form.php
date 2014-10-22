@@ -42,17 +42,6 @@
         	'label'      => $model->isNewRecord ? 'Создать' : 'Сохранить',
         )); 
         $this->endWidget();
-        
-        if ( ! $model->isNewRecord )
-        {
-            // виджет редактирования оповещений
-            $this->widget('admin.extensions.VacancyNotifications.VacancyNotifications', array(
-                'vacancy'   => $model,
-                'createUrl' => Yii::app()->createUrl('admin/eventVacancy/createBlockItem'),
-                'updateUrl' => Yii::app()->createUrl('admin/eventVacancy/updateBlockItem'),
-                'deleteUrl' => Yii::app()->createUrl('admin/eventVacancy/deleteBlockItem'),
-            ));
-        }
         ?>
     </div>
 </div>
