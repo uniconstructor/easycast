@@ -495,14 +495,24 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
     
     /**
      * Узнать существует ли (и подключена ли) настройка с таким именем для текущей owner-модели
+     * Если название настройки не указано - то функция проверит есть ли хотя бы одна настройка
+     * у этой модели вообще
      *
      * @param  string $name - служебное имя настройки (поле name в модели Config)
      * @param  string $model - класс модели (по умолчанию используется класс owner-модели)
      * @return bool
+     * 
+     * @todo $model не используется. Проверить зависимости и удалить параметр
      */
-    public function hasConfig($name, $model=null)
+    public function hasConfig($name=null, $model=null)
     {
-        return Config::model()->forModel($this)->withName($name)->exists();
+        if ( $name )
+        {// проверяем есть ли у модели именно такая настройка
+            return Config::model()->forModel($this)->withName($name)->exists();
+        }else
+        {// проверяем есть ли модели настройки вообще
+            return Config::model()->forModel($this)->exists();
+        }
     }
     
     /**
