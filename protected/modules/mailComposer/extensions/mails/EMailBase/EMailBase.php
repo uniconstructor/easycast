@@ -9,6 +9,7 @@ class EMailBase extends CWidget
 {
     /**
      * @var array - настройки по умолчанию для составления письма
+     * @see self::getMailDefaults()
      */
     public $mailOptions = array();
     
@@ -28,8 +29,8 @@ class EMailBase extends CWidget
      */
     public function run()
     {
-        $this->widget('application.modules.mailComposer.extensions.widgets.EMailAssembler.EMailAssembler',
-            $this->mailOptions);
+        $path = 'application.modules.mailComposer.extensions.widgets.EMailAssembler.EMailAssembler';
+        $this->widget($path, $this->mailOptions);
     }
     
     /**
@@ -42,19 +43,21 @@ class EMailBase extends CWidget
     public function getMailDefaults()
     {
         return array(
-            'showTopServiceLinks'    => false,
-            'showBottomServiceLinks' => false,
-            'showSocialButtons'      => false,
-            'showContactPhone'       => true,
-            'showContactEmail'       => true,
-            'contactPhone'           => Yii::app()->params['userPhone'],
-            'contactEmail'           => Yii::app()->params['adminEmail'],
+            'showTopServiceLinks'      => false,
+            'showBottomServiceLinks'   => false,
+            'showSocialButtons'        => false,
+            'showContactPhone'         => true,
+            'showContactEmail'         => true,
+            'contactPhone'             => Yii::app()->params['userPhone'],
+            'contactEmail'             => Yii::app()->params['adminEmail'],
+            // тип основного заголовка (изображание/текст)
+            'mainHeaderType'           => 'image',
             // текст большого главного заголовка в письме
-            'mainHeader'             => '',
+            'mainHeader'               => '',
             // фрагменты письма (стандартные блоки)
-            'segments'               => array(),
+            'segments'                 => array(),
             // дополнительный текст внизу письма
-            'signature'              => '',
+            'signature'                => '',
             // напоминание внизу письма (о том как с нами связаться)
             'showFeedbackNotification' => true,
             // напоминание о том, как восстановить пароль (внизу письма)
@@ -66,6 +69,7 @@ class EMailBase extends CWidget
     
     /**
      * Добавить новый фрагмент к текущему письму
+     * 
      * @param array $segment - фрагмент письма
      * @return null
      */
@@ -76,6 +80,7 @@ class EMailBase extends CWidget
     
     /**
      * Получить массив для создания текстового блока письма
+     * 
      * @param string $text - текст в блоке
      * @param string $header - заголовок блока (необязательно)
      * @param array|nill $editBlock - блок, который нужно дополнить
@@ -102,13 +107,14 @@ class EMailBase extends CWidget
     
     /**
      * Получить строку с приветствием для участника
+     * 
      * @param Questionary $questionary
      * @return string
      */
-    protected function createUserGreeting($questionary)
+    protected function createUserGreeting($questionary=null)
     {
         $name = '';
-        if ( is_object($questionary) AND trim($questionary->firstname) )
+        if ( is_object($questionary) AND isset($questionary->firstname) AND trim($questionary->firstname) )
         {
             $name = $questionary->firstname;
         }
@@ -117,6 +123,7 @@ class EMailBase extends CWidget
     
     /**
      * Получить строку с приветствием для заказчика
+     * 
      * @param CustomerInvite $customerInvite - приглашение заказчика
      * @return string
      *
@@ -134,6 +141,7 @@ class EMailBase extends CWidget
     
     /**
      * Получить строку с приветствием
+     * 
      * @param string $name - имя того с кем здороваемся :)
      * @return string
      */
