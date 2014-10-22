@@ -14,11 +14,11 @@ class EMailButton extends CWidget
      *             main - синяя
      *             error - красная
      */
-    public $type = 'success';
+    public $type    = 'success';
     /**
      * @var string - надпись на кнопке
      */
-    public $caption;
+    public $caption = 'Подать заявку';
     /**
      * @var string - ссылка, которая открывается при клике на кнопку
      */
@@ -33,7 +33,6 @@ class EMailButton extends CWidget
     protected $color;
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
      */
     public function init()
@@ -46,7 +45,6 @@ class EMailButton extends CWidget
     }
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::run()
      */
     public function run()
