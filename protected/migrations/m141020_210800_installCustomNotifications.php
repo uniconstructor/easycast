@@ -15,7 +15,7 @@ class m141020_210800_installCustomNotifications extends EcMigration
             'triggerupdate' => 'manual',
             'unique'        => 1,
         );
-        $messageList['id'] = $this->createListItem($messageList);
+        $messageList['id'] = $this->createList($messageList);
         // сохраняем полный список оповещений системы
         $this->createNotificationsList($messageList);
         
@@ -31,28 +31,10 @@ class m141020_210800_installCustomNotifications extends EcMigration
             'objectid'     => 0,
             'easylistid'   => $messageList['id'],
             'valuetype'    => 'EasyList',
-            'valuefield'   => null,
+            'valuefield'   => 'listItems',
             'valueid'      => $messageList['id'],
         );
         $configMessagesList['id'] = $this->createConfig($configMessagesList);
-        
-        // текст оповещениея о приглашении на съемку
-        $configInviteText = array(
-            'name'         => 'newInviteMailText',
-            'title'        => 'Текст письма с приглашением',
-            'description'  => 'Текст который будет отправлен участникам при запуске проекта',
-            'type'         => 'redactor',
-            'minvalues'    => 1,
-            'maxvalues'    => 1,
-            'objecttype'   => 'ProjectEvent',
-            'objectid'     => 0,
-            'easylistid'   => 0,
-            'valuetype'    => 'EasyListItem',
-            'valueid'      => $this->createDataItem('EventVacancy'),
-            'userlistid'   => 0,
-        );
-        // привязываем настройку к каждой модели класса
-        $this->createRootConfig($$configInviteText, "{{project_events}}");
         
         // добавляем настройку "баннер проекта для письма" к роли
         $configBanner = array(
