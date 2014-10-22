@@ -229,10 +229,22 @@ class ProjectEvent extends CActiveRecord
 	    );
 	    return array(
 	        // автоматическое заполнение дат создания и изменения
-	        'CTimestampBehavior' => array(
-	            'class' => 'zii.behaviors.CTimestampBehavior',
-	            'createAttribute' => 'timecreated',
-	            'updateAttribute' => 'timemodified',
+            'EcTimestampBehavior' => array(
+                'class' => 'application.behaviors.EcTimestampBehavior',
+            ),
+	        // это поведение позволяет изменять набор связей модели в зависимости от того какие данные в ней находятся
+	        'CustomRelationsBehavior' => array(
+	            'class' => 'application.behaviors.CustomRelationsBehavior',
+	        ),
+	        // группы условий для поиска по данным моделей, которые ссылаются
+	        // на эту запись по составному ключу objecttype/objectid
+	        'CustomRelationTargetBehavior' => array(
+	            'class' => 'application.behaviors.CustomRelationTargetBehavior',
+	            'customRelations' => array(),
+	        ),
+	        // настройки для модели и методы для поиска по этим настройкам
+	        'ConfigurableRecordBehavior' => array(
+	            'class' => 'application.behaviors.ConfigurableRecordBehavior',
 	        ),
 	        // фотогалерея
 	        'photoGalleryBehavior' => $photoGallerySettings,
