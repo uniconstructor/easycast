@@ -7,7 +7,9 @@
  * @todo перенести все стандартные функции (приветствие, и т. д.) 
  *       отсюда в базовый класс виджета письма (EMailBase)
  * @todo рефакторинг: изменить принцип формирования писем - вместо функций использовать виджеты.
- *       Один виджет - одно письмо. Все виджеты должны находиться в папке modules.mailComposer.extensions.mails
+ *       Один виджет - одно письмо. Все виджеты должны находиться в папке 
+ *       modules.mailComposer.extensions.mails
+ * @deprecated использовать шаблоны mailChimp
  */
 class ProjectMailsBehavior extends CBehavior
 {
@@ -72,10 +74,10 @@ class ProjectMailsBehavior extends CBehavior
         $middleBlock = array();
         if ( $invite->event->type == 'group' )
         {
-            $middleBlock['text'] = 'Информация о предстоящем мероприятии:';
+            $middleBlock['text'] = 'Мероприятия будут проходить в следующие дни:';
         }else
         {
-            $middleBlock['text'] = 'Мероприятия будут проходить в следующие дни:';
+            $middleBlock['text'] = 'Информация о предстоящем мероприятии:';
         }
         $segments->add(null, $middleBlock);
         
