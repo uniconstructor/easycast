@@ -187,13 +187,13 @@ class EditableGridController extends Controller
         {
             Yii::app()->end();
         }
-
         $result = CActiveForm::validate($model);
+        
         if ( $result != '[]' )
         {// при сохранении обнаружены ошибки
             $errors = array();
             $result = CJSON::decode($result);
-            foreach ($result as $element )
+            foreach ( $result as $element )
             {
                 $errors[] = current($element);
             }
