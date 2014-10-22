@@ -126,6 +126,36 @@ class QRecordingConditions extends CActiveRecord
 	}
 	
 	/**
+	 * 
+	 * @param  int $salary
+	 * @return QRecordingConditions
+	 */
+	public function withSalaryLessThen($salary, $operation='AND')
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->getTableAlias(true).'.`salary`', '<='.$salary);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
+	}
+	
+	/**
+	 *
+	 * @param  int $salary
+	 * @return QRecordingConditions
+	 */
+	public function withSalaryMoreThen($salary, $operation='AND')
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->getTableAlias(true).'.`salary`', '>='.$salary);
+	     
+	    $this->getDbCriteria()->mergeWith($criteria);
+	     
+	    return $this;
+	}
+	
+	/**
 	 * Получить срок истечения загранпаспорта
 	 */
 	public function getPassportexpires($value)
