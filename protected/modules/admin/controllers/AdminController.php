@@ -12,6 +12,30 @@ class AdminController extends Controller
     public $layout = '//layouts/column2';
     
     /**
+     * @see CController::actions()
+     */
+    public function actions()
+    {
+        return array(
+            // создать элемент оповещения
+            'createListItem' => array(
+                'class'      => 'application.actions.EcCreateAction',
+                'modelName'  => 'EasyListItem',
+            ),
+            // редактировать элемент оповещения
+            'updateListItem' => array(
+                'class'      => 'application.actions.EcUpdateAction',
+                'modelName'  => 'EasyListItem',
+            ),
+            // удалить элемент оповещения
+            'deleteListItem' => array(
+                'class'      => 'application.actions.EcDeleteAction',
+                'modelName'  => 'EasyListItem',
+            ),
+        );
+    }
+    
+    /**
      * Отображение главного меню администратора
      */
 	public function actionIndex()
@@ -128,8 +152,17 @@ class AdminController extends Controller
 	    $action = Yii::app()->request->getParam('action');
 	    // параметры для составления оповещения
 	    $params = Yii::app()->request->getParam('params');
+	    
+	    if ( $action == 'newInvite' )
+	    {
+	        $questionary = Yii::app()->getModule('user')->user()->questionary;
+	        // для демонстрации подойдет любое приглашение
+	        $invite      = current(EventInvite::model()->forQuestionary($questionary)->findAll(' LIMIT 1'));
+	        $params['invite'] = $invite;
+	    }
 	    // выводим письмо
-	    echo MailComposerModule::getMessage($action, $params);
+	    $mailComposer = Yii::app()->getModule('mailComposer');
+	    echo $mailComposer::getMessage($action, $params);
 	}
 	
 	/**
