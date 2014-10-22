@@ -1362,6 +1362,7 @@ class Questionary extends CActiveRecord
     
     /**
      * Группа условий: анкеты, из выбранных регионов России
+     * 
      * @param  array $regions - список id регионов 
      * @return Questionary
      */
@@ -1381,6 +1382,56 @@ class Questionary extends CActiveRecord
         
         $this->getDbCriteria()->mergeWith($criteria);
         
+        return $this;
+    }
+    
+    /**
+     * Группа условий: поиск по размеру оплаты
+     * 
+     * @param  array $salary
+     * @return Questionary
+     */
+    public function withSalaryLessThen($salary)
+    {
+        $criteria = new CDbCriteria();
+        $criteria->with = array(
+            'recordingconditions' => array(
+                'select'   => false,
+                'joinType' => 'INNER JOIN',
+                'scopes'   => array(
+                    'withSalaryLessThen' => array($salary),
+                ),
+            ),
+        );
+        $criteria->together = true;
+    
+        $this->getDbCriteria()->mergeWith($criteria);
+    
+        return $this;
+    }
+    
+    /**
+     * Группа условий: поиск по размеру оплаты
+     * 
+     * @param  array $salary
+     * @return Questionary
+     */
+    public function withSalaryMoreThen($salary)
+    {
+        $criteria = new CDbCriteria();
+        $criteria->with = array(
+            'recordingconditions' => array(
+                'select'   => false,
+                'joinType' => 'INNER JOIN',
+                'scopes'   => array(
+                    'withSalaryMoreThen' => array($salary),
+                ),
+            ),
+        );
+        $criteria->together = true;
+    
+        $this->getDbCriteria()->mergeWith($criteria);
+    
         return $this;
     }
     
