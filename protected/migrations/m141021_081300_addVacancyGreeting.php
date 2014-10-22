@@ -8,7 +8,7 @@ class m141021_081300_addVacancyGreeting extends EcMigration
     public function safeUp()
     {
         $defaultListData = array(
-            'name'          => 'Список модели по умолчанию',
+            'name'          => 'Список для значений модели по умолчанию',
             'description'   => 'Нужнен чтобы не плодить списки для тех настроек, которые 
                 не имеют стандартных значений, но данные все равно хранят в EasyListItem',
             'triggerupdate' => 'manual',
@@ -16,7 +16,6 @@ class m141021_081300_addVacancyGreeting extends EcMigration
         );
         $defaultList['id'] = $this->createList($defaultListData);
         
-        // особое описание для страницы динамической формы с баннером
         $defaultVacancyListId = array(
             'name'         => Yii::app()->params['defaultListConfig'],
             'title'        => 'Список по умолчанию для одиночных значений настроек этой модели',
@@ -53,10 +52,11 @@ class m141021_081300_addVacancyGreeting extends EcMigration
         // привязываем настройку к каждой модели класса
         $this->createRootConfig($configGreeting, "{{event_vacancies}}");
         
+        // обратный отсчет до окончания приема заявок
         $configCountdown = array(
             'name'         => 'countdownTime',
-            'title'        => 'Собственное пояснение перед формой регистрации',
-            'description'  => 'Отображается вместо описания роли',
+            'title'        => 'Ообратный отсчет до окончания приема заявок',
+            'description'  => 'Отображается на странице динамической формы',
             'type'         => 'datetime',
             'minvalues'    => 0,
             'maxvalues'    => 1,
