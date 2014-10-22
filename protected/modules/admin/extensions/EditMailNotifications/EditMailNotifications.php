@@ -3,8 +3,9 @@
 /**
  * Виджет для настройки email-оповещений
  * 
- * @todo проверка параметров в init()
- * @todo проверка того нарушены ли фигурные скобки
+ * @TODO Работа над этим виджетом отложена - скорее всего настолько сложный функционал в оповещениях
+ *       нам не понадобится
+ * @deprecated удалить при рефакторинге если так и не понадобится
  */
 class EditMailNotifications extends CWidget
 {
@@ -156,15 +157,17 @@ class EditMailNotifications extends CWidget
             $saveUrl  = $this->updateUrl;
         }
         $formOptions     = $this->getFormOptions($blockItem, $empty);
-        $nameHtmlOptions = array('id' => $idPrefix.'EasyListItem_name_'.$blockItem->id);
+        //$nameHtmlOptions = array('id' => $idPrefix.'EasyListItem_name_'.$blockItem->id);
         $dataHtmlOptions = array('id' => $idPrefix.'EasyListItem_data_'.$blockItem->id);
         
         if ( ! $empty AND $this->isDefault($model) )
         {// @todo возможно что запрещать редактировать эти блоки нет никакой необходимости
-            $nameHtmlOptions['disabled'] = 'disabled';
+            //$nameHtmlOptions['disabled'] = 'disabled';
             $dataHtmlOptions['disabled'] = 'disabled';
         }
+        
         // форма редактирования блока письма
+        /* @var $form TbActiveForm */
         $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', $formOptions);
         if ( $empty )
         {// для формы вставки записи: запоминаем между какими блоками вставить новый
@@ -174,18 +177,17 @@ class EditMailNotifications extends CWidget
             echo CHtml::hiddenField('id', $model->id);
         }
         // заголовок блока
-        echo $form->textFieldRow($model, 'name', $nameHtmlOptions);
+        //echo $form->textFieldRow($model, 'name', $nameHtmlOptions);
         // текст блока
-        echo $form->redactorRow($model, 'value', array(
+        echo $form->textAreaRow($model, 'value', array(
+            'htmlOptions' => $dataHtmlOptions,
             'editorOptions' => array(
                 'class'     => 'span6',
                 'rows'      => 5,
                 'options'   => array('plugins' => array('clips', 'fontfamily'), 'lang' => 'ru')
             ),
-            'htmlOptions' => $dataHtmlOptions,
-        ), array(
-            'hint' => $model->description,
-        ));
+        ), array('hint' => $model->description));
+        
         
         $saveId = $idPrefix.'save_notify_block_'.$model->id;
         $this->widget('bootstrap.widgets.TbButton', array(
