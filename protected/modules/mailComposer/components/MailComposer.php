@@ -92,12 +92,12 @@ class MailComposer extends CApplicationComponent
             'header' => $header,
             'text'   => $text,
         );
-        
         // добавляем все блоки с информацией в массив настроек для виджета EMailAssembler
-        $options['segments'] = array($block);
+        $options['segments'] = CMap::mergeArray(array($block), $options['segments']);
+        
         // создаем виджет и получаем из него полный HTML-код письма
-        return $this->widget('application.modules.mailComposer.extensions.widgets.EMailAssembler.EMailAssembler',
-            $options, true);
+        $widgetPath = 'application.modules.mailComposer.extensions.widgets.EMailAssembler.EMailAssembler';
+        return $this->widget($widgetPath, $options, true);
     }
     
     /**
