@@ -62,7 +62,7 @@ class ECConfigImageField extends CWidget
         $this->widget('bootstrap.widgets.TbButton', array(
             'buttonType' => 'submit',
             'type'       => 'primary',
-            'label'      => 'Загрузить файл',
+            'label'      => 'Сохранить',
         ));
         $this->endWidget();
     }
