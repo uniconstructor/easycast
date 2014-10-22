@@ -79,7 +79,6 @@ class AdminController extends Controller
 	            $this->redirect(array('view', 'id' => $model->id));
 	        }
 	    }
-	    
 	    $this->render('create',array(
 	        'model' => $model,
 	    ));
@@ -116,6 +115,21 @@ class AdminController extends Controller
 	        'gallery'         => $gallery,
 	        'controllerRoute' => '/admin/gallery'
 	    ));
+	}
+	
+	/**
+	 * Предварительный просмотр email-сообщений перед отправкой
+	 * 
+	 * @return void
+	 */
+	public function actionMailPreview()
+	{
+	    // служебное название для оповещения
+	    $action = Yii::app()->request->getParam('action');
+	    // параметры для составления оповещения
+	    $params = Yii::app()->request->getParam('params');
+	    // выводим письмо
+	    echo MailComposerModule::getMessage($action, $params);
 	}
 	
 	/**
