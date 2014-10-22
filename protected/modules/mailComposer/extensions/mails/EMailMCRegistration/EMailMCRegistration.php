@@ -40,8 +40,6 @@ class EMailMCRegistration extends EMailBase
         // приветствие, представляемся (если анкету заводит руководитель проектов)
         // и упоминание рекомендации
         $this->addSegment($this->createGreetingBlock());
-        // персональные данные
-        //$this->addSegment($this->createPersonalDataBlock());
         // @todo подробнее о нас (пока не готово)
         if ( $this->password )
         {// на всякий случай: напоминание про логин и пароль добавляем только 
@@ -61,6 +59,7 @@ class EMailMCRegistration extends EMailBase
     
     /**
      * Получить текст с приветствием
+     * 
      * @return array
      */
     protected function createGreetingBlock()
@@ -75,22 +74,8 @@ class EMailMCRegistration extends EMailBase
     }
         
     /**
-     * Получить текст с информацией о персональных данных
-     * @return array
-     */
-    /*protected function createPersonalDataBlock()
-    {
-        $text  = 'Мы с большим уважением относимся к личным данным участников нашего ресурса и актеров, ';
-        $text .= 'чьи интересы мы представляем - поэтому ваши контакты, сумма вашего гонорара, ';
-        $text .= 'а также некоторые другие условия съемок ';
-        $text .= '<b>никогда не будут видны другим посетителям или участникам ресурса</b>. ';
-        $text .= '(Связаться с вами можно только после вашего согласия)';
-        
-        return $this->textBlock($text);
-    }*/
-    
-    /**
      * Получить текст с кнопкой активации анкеты
+     * 
      * @return array
      */
     protected function createInviteBlock()
@@ -104,6 +89,7 @@ class EMailMCRegistration extends EMailBase
     
     /**
      * Получить текст со ссылкой на более подробную информацию о компании
+     * 
      * @return array
      */
     protected function createMoreInfoBlock()
@@ -116,23 +102,8 @@ class EMailMCRegistration extends EMailBase
     }
     
     /**
-     * Получить текст с заключительными словами и инструкцией по удалению анкеты
-     * @return string
-     */
-    /*protected function createConclusionBlock()
-    {
-        $text  = 'Спасибо, что уделили нам время. Мы будем ждать вашего решения.<br>';
-        $text .= 'До этого момента ваша анкета будет видна только вам, не будет отображаться в каталоге ';
-        $text .= 'или выводиться в поиске. <br>';
-        $text .= 'Если вы хотите отказаться от нашего предложения и удалить свою страницу - то можете просто ответить ';
-        $text .= 'на это письмо или позвонить по телефону '.Yii::app()->params['userPhone'].'. ';
-        $text .= 'Мы удалим ваши данные по первому требованию.';
-        
-        return $this->textBlock($text);
-    }*/
-    
-    /**
      * Определить, нужно ли отображать информацию о том, кто ввел анкету
+     * 
      * @param User $user
      * @return bool
      */
