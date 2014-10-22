@@ -561,7 +561,7 @@ class ProjectMailsBehavior extends CBehavior
         {
             $block['text'] .= $this->getEvendAddInfo($event);
         }
-        return $message;
+        return $block;
     }
     
     /**
@@ -653,7 +653,7 @@ class ProjectMailsBehavior extends CBehavior
         $button['caption'] = 'Подать заявку';
         $button['link']    = $subscribeUrl;
         // добавляем кнопку в блок
-        $block['button'] = $button;
+        $block['button']   = $button;
         
         return $block;
     }
