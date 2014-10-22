@@ -144,7 +144,7 @@ class EasyListItem extends CActiveRecord
 	        $this->sortorder = $lastItemCount;
 	        
 	        // проверяем уникальность нового элемента в списке (если этого требует)
-	        if ( $this->easyList->unique AND ! $this->isOriginalItem() )
+	        if ( $this->easyList AND $this->easyList->unique AND ! $this->isOriginalItem() )
 	        {// разрешены только уникальные элементы внутри списка
 	            // (в этот список нельзя добавить один и тот же элемент элемент 2 раза)
 	            // исключение составляют только элементы с типом 'item' и objectid=0: 
