@@ -13,6 +13,10 @@
  * Используемое сравнение (collation) для всех таблиц базы: utf8_inicode_ci 
  * 
  * @todo не разрешать создание 2 настроек с одинаковым именем для одной модели
+ * 
+ * Часто используемые настройки: 
+ * systemNotificationsList - список стандартных оповещений системы
+ * 
  */
 class EcMigration extends CDbMigration
 {
@@ -37,11 +41,7 @@ class EcMigration extends CDbMigration
      * @var array - списки
      */
     protected $_listsCache = array();
-    /**
-     * @var array - элементы списков
-     */
-    //protected $_itemsCache = array();
-        
+    
     /**
      * @see CDbMigration::createTable()
      */
@@ -256,6 +256,39 @@ class EcMigration extends CDbMigration
     }
     
     /**
+     * Скопировать элементы из одного списка в другой
+     * 
+     * @param int    $fromListId
+     * @param int    $toListId
+     * @param array  $excludeIds - исключить из копирования указанные элементы
+     * @param string $asLink - скопировать элементы как "ссылки" - каждый скопированный элемент
+     *                         будет помнить о своем оригинале
+     * @return void
+     * 
+     * @todo проверять существование второго списка, и если его нет - выдавать ошибку
+     */
+    public function copyListItems($fromListId, $toListId, $excludeIds=array(), $asLink=true)
+    {
+        $table = "{{easy_list_items}}";
+        $items = $this->dbConnection->createCommand()->select('*')->
+            from($table)->where('easylistid='.$fromListId)->queryAll();
+        
+        $sortOrder = 1;
+        foreach ( $items as $item )
+        {// копируем каждый элемент списка
+            $item['easylistid']   = $toListId;
+            $item['valueid']      = $item['id'];
+            $item['timecreated']  = time();
+            $item['timemodified'] = time();
+            $item['sortorder']    = $sortOrder++;;
+            unset($item['id']);
+            
+            $this->insert($table, $item);
+        }
+        return true;
+    }
+    
+    /**
      * Получить данные шаблона настройки (как правило это корневая или стстемная настройка)
      * 
      * @param  int $configId - id настройке в таблице {{config}}
@@ -425,10 +458,11 @@ $config = array(
 );
 
 $list = array(
-    'name'          => '',
-    'description'   => '',
-    'triggerupdate' => 'manual',
-    'unique'        => 1,
+    'name'           => '',
+    'description'    => '',
+    'triggerupdate'  => 'manual',
+    'triggercleanup' => 'manual',
+    'unique'         => 1,
 );
 
 

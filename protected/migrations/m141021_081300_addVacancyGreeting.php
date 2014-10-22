@@ -85,7 +85,7 @@ class m141021_081300_addVacancyGreeting extends EcMigration
         // Настройка с id списка моделей роли
         $defaultEventListId = array(
             'name'         => Yii::app()->params['defaultListConfig'],
-            'title'        => 'Список по умолчанию для одиночных значений настроек этой модели',
+            'title'        => 'Список по умолчанию этой модели',
             'description'  => 'Эта настройка нужна чтобы не плодить списки для тех настроек,
                 которые не имеют стандартных значений. Не изменяйте ее.',
             'type'         => 'text',

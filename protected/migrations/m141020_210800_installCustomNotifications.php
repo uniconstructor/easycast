@@ -20,7 +20,7 @@ class m141020_210800_installCustomNotifications extends EcMigration
         $this->createNotificationsList($messageList);
         
         $configMessagesList = array(
-            'name'         => 'defaultSystemMessages',
+            'name'         => 'systemNotificationsList',
             'title'        => 'Полный список стандартных оповещений системы',
             'description'  => 'Содержит все стандартные оповещения. На элементы из этого списка ссылаются
                 все настройки системы, связанные со стандартными оповещениями',
