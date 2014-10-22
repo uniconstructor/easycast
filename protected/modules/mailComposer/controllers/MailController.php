@@ -44,6 +44,10 @@ class MailController extends Controller
                 'users'   => array('*'),
             ),
             array('allow',
+                'actions' => array('emailPreview'),
+                'users'   => array('@'),
+            ),
+            array('allow',
                 'actions' => array('test'),
                 'users'   => array('admin'),
             ),
@@ -55,7 +59,10 @@ class MailController extends Controller
     
     /**
      * TEST ACTION
+     * 
      * @return null
+     * 
+     * @deprecated
      */
     public function actionTest()
     {
@@ -143,6 +150,22 @@ class MailController extends Controller
             }
             echo MailComposerModule::getMessage('castingList', array('castingList' => $castingList));
         }
+    }
+    
+    /**
+     * Это действие используется для предварительного просмотра отправляемых оповещений
+     * А также для тестирования отправляемых писем
+     * 
+     * @return void
+     */
+    public function actionEmailPreview()
+    {
+        // служебное название для оповещения
+        $action = Yii::app()->request->getParam('action');
+        // параметры для составления оповещения
+        $params = Yii::app()->request->getParam('params');
+        // выводим письмо
+        echo MailComposerModule::getMessage($action, $params);
     }
     
     /**
