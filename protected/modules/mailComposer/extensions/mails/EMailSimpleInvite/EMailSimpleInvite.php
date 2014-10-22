@@ -1,17 +1,23 @@
 <?php
 
 /**
- * Письмо, составляемое из блоков вручную
+ * Письмо, составляемое вручную
  * 
  * @todo проверки входных данных при запуске
+ * @todo сейчас быстрее использовать Yii::app()->getModule('mailComposer')->createSimpleMessage()
+ *       работа над виджетом временно приостановлена
  */
 class EMailSimpleInvite extends EMailBase
 {
     /**
      * @var CActiveRecord - модель, настройки которой будут использоваться для составления письма 
-     *                      Обязательно должна иметь настройку 'inviteNotificationList'
+     *                      Обязательно должна иметь настройку 'newInviteMailText'
      */
     public $sourceModel;
+    /**
+     * @var EventInvite - приглашение на мероприятие
+     */
+    public $invite;
     /**
      * @var string - имя пользователя для обращения в письме
      */
@@ -63,8 +69,18 @@ class EMailSimpleInvite extends EMailBase
     public function init()
     {
         parent::init();
-        // получаем структуру письма из настроек модели
+        // получаем текст письма из настроек модели
         $this->config = $this->sourceModel->getConfigObject('newInviteMailText');
+        // ссылка на подачу заявки
+        if ( $this->invite )
+        {// через токен
+            $this->subscribeUrl = Yii::app()->createAbsoluteUrl('/projects/invite/subscribe',
+                array('id' => $this->invite->id, 'key' => $this->invite->subscribekey));
+        }else
+        {// на динамическую форму
+            $this->subscribeUrl = Yii::app()->createAbsoluteUrl('/projects/vacancy/registration',
+                array('vid' => $this->model->objectid));
+        }
     }
 
     /**
@@ -73,7 +89,7 @@ class EMailSimpleInvite extends EMailBase
     public function run()
     {
         // приветствие
-        $this->textBlock($this->createGreeting($name));
+        $this->textBlock($this->createGreeting());
         // получаем текст письма из настройки
         $this->textBlock($this->config->value);
         // добавляем в конце кнопке подачи заявки
