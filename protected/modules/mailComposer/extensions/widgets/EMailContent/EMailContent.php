@@ -26,7 +26,6 @@ class EMailContent extends CWidget
     public $padding = 30;
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
      */
     public function init()
@@ -38,7 +37,6 @@ class EMailContent extends CWidget
     }
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::run()
      */
     public function run()
