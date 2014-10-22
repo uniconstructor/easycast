@@ -185,6 +185,30 @@ class Config extends CActiveRecord
     /**
      * @var string - тип настройки:
      */
+    const TYPE_TEXTAREA     = 'textarea';
+    /**
+     * @var string - тип настройки: список
+     */
+    const TYPE_SELECT       = 'select';
+    /**
+     * @var unknown
+     */
+    const TYPE_DATETIME     = 'datetime';
+    /**
+     * @var unknown
+     */
+    const TYPE_DATE         = 'date';
+    /**
+     * @var unknown
+     */
+    const TYPE_COMBODATE    = 'combodate';
+    /**
+     * @var string - тип настройки:
+     */
+    const TYPE_CHECKLIST    = 'checklist';
+    /**
+     * @var string - тип настройки:
+     */
     const TYPE_TOGGLE       = 'toggle';
     /**
      * @var string - тип настройки:
@@ -197,11 +221,7 @@ class Config extends CActiveRecord
     /**
      * @var string - тип настройки:
      */
-    const TYPE_CHECKBOXLIST = 'checkboxlist';
-    /**
-     * @var string - тип настройки: список
-     */
-    const TYPE_SELECT       = 'select';
+    const TYPE_SELECT2      = 'select2';
     /**
      * @var string - тип настройки: список с множественным выбором
      */
@@ -214,10 +234,7 @@ class Config extends CActiveRecord
      * @var string - тип настройки: текстовое поле с redactor-виджетом
      */
     const TYPE_REDACTOR     = 'redactor';
-    /**
-     * @var unknown
-     */
-    const TYPE_DATETIME     = 'datetime';
+    
     
     /**
      * @see CActiveRecord::init()
