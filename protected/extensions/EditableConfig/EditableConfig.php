@@ -136,6 +136,10 @@ class EditableConfig extends CWidget
         
         switch ( $config->type )
         {// определяем тип виджета
+            case 'textarea':
+            case 'redactor':
+                $widgetClass = $prefix.'TextAreaConfigData';
+            break;
             default: $widgetClass = $prefix.'DefaultConfigData'; break;
         }
         return $this->widget($widgetClass, $widgetOptions, $return);

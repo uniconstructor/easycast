@@ -27,7 +27,8 @@ class DefaultConfigData extends CWidget
      */
     public function run()
     {
-        $this->render('configData');
+        $content = $this->getEditableContent();
+        $this->render('configData', array('content' => $content));
     }
     
     /**
@@ -47,5 +48,15 @@ class DefaultConfigData extends CWidget
         {
             return 'Настройка класса моделей';
         }
+    }
+    
+    /**
+     * Получить редактируемое содержимое этой настройки
+     * 
+     * @return string
+     */
+    protected function getEditableContent()
+    {
+        
     }
 }

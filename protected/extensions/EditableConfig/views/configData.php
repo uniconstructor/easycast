@@ -12,11 +12,8 @@
 <div class="well">
     <div class="row-fluid">
         <div class="span9">
-            <blockquote>
-                <p><?= $this->config->title; ?></p>
-                <small>[<?= $this->config->name; ?>]</small>
-            </blockquote>
-            
+            <h3><?= $this->config->title; ?></h3>
+            <?= $content; ?>
         </div>
         <div class="span3">
             <div>
