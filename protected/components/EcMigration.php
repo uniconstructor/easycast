@@ -224,7 +224,7 @@ class EcMigration extends CDbMigration
         
         if ( ! isset($item['easylistid']) OR ! $item['easylistid'] )
         {// лучше список по умолчанию чем вообще без списка
-            $item['easylistid'] = $this->getDefaultListId();
+            $item['easylistid'] = (int)$this->getDefaultListId();
         }
         // сохраняем элемент списка
         $this->insert("{{easy_list_items}}", $item);
@@ -239,11 +239,11 @@ class EcMigration extends CDbMigration
      * 
      * @todo автоматически создавать настройку self::DEFAULT_LIST_CONFIG_NAME
      */
-    public function createDataItem($model, $value=null, $name=null, $listId=null, $description=null)
+    public function createDataItem($model, $value=null, $name=null, $listId=0, $description=null)
     {
         if ( ! $listId )
         {
-            $listId = $this->getDefaultListId($model);
+            $listId = (int)$this->getDefaultListId($model);
         }
         // создаем и сохраняем элемент
         $itemData = array(
@@ -392,7 +392,7 @@ class EcMigration extends CDbMigration
             from('{{config}}')->where($condition)->queryRow();
         if ( ! $config )
         {// для этой модели такой список не задан
-            return;
+            return ;
         }
         // получаем список из настройки
         $list = $this->dbConnection->createCommand()->select('id')->
