@@ -169,7 +169,8 @@ class QDynamicForm extends CWidget
             ), true);
         }else
         {
-            throw new CException('Неизвестный тип поля: "'.$field->type.'"');
+            return '';
+            //throw new CException('Неизвестный тип поля: "'.$field->type.'"');
         }
     }
     
@@ -236,7 +237,7 @@ class QDynamicForm extends CWidget
             case 'text':     return $form->textFieldRow($model, $fieldName, $htmlOptions, $rowOptions);
             case 'textarea': return $form->textAreaRow($model, $fieldName, $htmlOptions, $rowOptions);
             case 'checkbox': return $form->checkBoxRow($model, $fieldName, $htmlOptions, $rowOptions);
-            default: throw new CException('Неизвестный тип дополнительного поля');
+            default: return ''; //throw new CException('Неизвестный тип дополнительного поля');
         }
     }
     
