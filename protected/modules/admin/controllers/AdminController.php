@@ -153,12 +153,20 @@ class AdminController extends Controller
 	    // параметры для составления оповещения
 	    $params = Yii::app()->request->getParam('params');
 	    
-	    if ( $action == 'newInvite' )
+	    if ( $action === 'newInvite' )
 	    {
 	        $questionary = Yii::app()->getModule('user')->user()->questionary;
 	        // для демонстрации подойдет любое приглашение
-	        $invite      = current(EventInvite::model()->forQuestionary($questionary)->findAll(' LIMIT 1'));
+	        if ( $invite = EventInvite::model()->withStatus('pending')->find(array('limit' => 1)) )
+	        {
+	            $invite->delete();
+	        }
+	        $invite = new EventInvite();
+	        $invite->questionaryid = $questionary->id;
+	        $invite->eventid = 484;
+	        $invite->save();
 	        $params['invite'] = $invite;
+	        // FIXME придумать более нормальный выход
 	    }
 	    // выводим письмо
 	    $mailComposer = Yii::app()->getModule('mailComposer');
