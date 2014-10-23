@@ -105,5 +105,15 @@ if ( Yii::app()->user->checkAccess('Admin') )
     //$params = $questionary->getConfig();
     //CVarDumper::dump($params, 10, true);
     //CVarDumper::dump(Config::model()->findByPk(20), 10, true);
+    
+    //$paramObjs = Config::model()->forModel($questionary)->findAll();
+    //CVarDumper::dump($paramObjs, 10, true);
+    
+    //$obj = current($paramObjs);
+    //$obj = Config::model()->findByPk(211);
+    //CVarDumper::dump($obj, 10, true);
+    //CVarDumper::dump($obj->getDefaultValue(), 10, true);
+    //CVarDumper::dump($obj->value, 10, true);
+    
     ?>
 </div>
