@@ -65,9 +65,7 @@ class ObjectLock extends CActiveRecord
 	    return array(
 	        // автоматическое заполнение дат создания
 	        'EcTimestampBehavior' => array(
-	            'class'           => 'application.behaviors.EcTimestampBehavior',
-	            //'createAttribute' => 'timecreated',
-	            //'updateAttribute' => 'timemodified',
+	            'class' => 'application.behaviors.EcTimestampBehavior',
 	        ),
 	    );
 	}
