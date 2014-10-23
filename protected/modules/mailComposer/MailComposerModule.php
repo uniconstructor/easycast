@@ -90,10 +90,14 @@ class MailComposerModule extends CWebModule
                 {/* @var $invite EventInvite */
                     $invite = $params['invite'];
                 }
-                // если в настройках мероприятия указан другой текст оповещения 
-                $configValue = $invite->event->getConfig('newInviteMailText');
-                if (  $configValue->value )
-                {// настройка в мероприятии содержит другой текст оповещения -
+                
+                // если в настройках мероприятия указан другой текст оповещения
+                $config = Config::model()->forModel($invite->event)->
+                    withName('newInviteMailText')->find();
+                if ( $config AND isset($config->value) AND $config->value )
+                {
+                    $configValue = $invite->event->getConfig('newInviteMailText');
+                    // настройка в мероприятии содержит другой текст оповещения -
                     // в этом случае составляем другое письмо
                     $block  = array();
                     $button = array();
