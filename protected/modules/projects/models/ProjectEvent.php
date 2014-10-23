@@ -291,13 +291,13 @@ class ProjectEvent extends CActiveRecord
 		    // группа мероприятия (если это мероприятие входит в группу)
 		    'group' => array(self::BELONGS_TO, 'ProjectEvent', 'parentid'),
 		    // Вакансии (роли) мероприятия
-		    'vacancies' => array(self::HAS_MANY, 'EventVacancy', 'eventid',
-		        'order' => "`vacancies`.`name` ASC",
-		    ),
+		    'vacancies' => array(self::HAS_MANY, 'EventVacancy', 'eventid'),
 		    // активные вакансии мероприятия
+		    // @deprecated
 		    'activevacancies' => array(self::HAS_MANY, 'EventVacancy', 'eventid',
-		        'condition' => "`activevacancies`.`status`='active'",
-		        'order'     => "`activevacancies`.`name` ASC",
+                'scopes' => array(
+                    'withStatus' => array(EventVacancy::STATUS_ACTIVE),
+    		    ),
 		    ),
 		    // Приглашения на мероприятие
 		    'invites' => array(self::HAS_MANY, 'EventInvite', 'eventid'),
@@ -586,6 +586,7 @@ class ProjectEvent extends CActiveRecord
 
 	/**
 	 * Получить список событий для календаря
+	 * 
 	 * @param string $timestart - начало периода
 	 * @param string $timeend - конец периода
 	 * @param string $projectid - id проекта, (если нужно просмотреть только события проекта)
@@ -649,7 +650,6 @@ class ProjectEvent extends CActiveRecord
 	        {// разрешаем смотреть календарь пользователя только самому пользователю или админу
 	            return CJSON::encode(array());
 	        }
-	        
 	        // оставляем только те события, в которых участвует пользователь
 	        $recordset = $this->model()->findAll($criteria);
 	        $records   = array();
@@ -664,7 +664,6 @@ class ProjectEvent extends CActiveRecord
         {
             $records = $this->model()->findAll($criteria);
         }
-        
         // Конвертируем события в формат календаря
         $events = $this->convertEventsToCalendar($records);
         
@@ -940,8 +939,16 @@ class ProjectEvent extends CActiveRecord
 	 */
 	public function isExpired()
 	{
-	    if ( ( $this->timeend < time() AND ! $this->nodates ) OR $this->status === ProjectEvent::STATUS_FINISHED )
-	    {
+	    if ( $this->nodates )
+	    {// события без даты не могут быть просроченными
+	        return false;
+	    }
+	    if ( $this->status === ProjectEvent::STATUS_FINISHED )
+	    {// событие завершено
+	        return true;
+	    }
+	    if ( $this->timeend < time() )
+	    {// событие прошло
 	        return true;
 	    }
 	    return false;
@@ -1110,20 +1117,18 @@ class ProjectEvent extends CActiveRecord
 	 */
 	public function getAllowedVacancies($questionaryId, $showGroup=false)
 	{
-	    $vacancies = array();
-	    if ( ! $this->activevacancies )
-	    {
-	        return array();
-	    }
 	    // @todo решить, каким образом лучше всего проверять доступность вакансий группы
 	    /*if ( $this->group )
 	    {// если это мероприятие входит в состав группы, то проверим и вакансии группы
     	    // @todo убрать эту проверку, когда все вакансии будут прописаны через relations
     	    $activeVacancies = $this->group->getAllowedVacancies($questionaryId);
 	    }*/
-	    foreach ( $this->activevacancies as $vacancy )
-	    {// проверяем каждую вакансию мероприятия, и определяем, подходит ли для нее участник 
-	        /* @var $vacancy EventVacancy */
+	    //CVarDumper::dump($this->vacancies, 10, true);die;
+	    
+	    $vacancies = array();
+	    // проверяем каждую вакансию мероприятия, и определяем, подходит ли для нее участник
+	    foreach ( $this->vacancies as $vacancy )
+	    {/* @var $vacancy EventVacancy */
 	        if ( $vacancy->isAvailableForUser($questionaryId) )
 	        {
 	            $vacancies[$vacancy->id] = $vacancy;
