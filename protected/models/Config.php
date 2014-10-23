@@ -209,6 +209,10 @@ class Config extends CActiveRecord
     /**
      * @var string - тип настройки:
      */
+    const TYPE_CHECKBOXLIST = 'checklist';
+    /**
+     * @var string - тип настройки:
+     */
     const TYPE_TOGGLE       = 'toggle';
     /**
      * @var string - тип настройки:
@@ -234,7 +238,6 @@ class Config extends CActiveRecord
      * @var string - тип настройки: текстовое поле с redactor-виджетом
      */
     const TYPE_REDACTOR     = 'redactor';
-    
     
     /**
      * @see CActiveRecord::init()
