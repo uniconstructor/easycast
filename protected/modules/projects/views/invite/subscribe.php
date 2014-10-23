@@ -2,7 +2,9 @@
 /**
  * Страница подписки по одноразовому ключу
  */
-$this->breadcrumbs=array();
+/* @var $this InviteController */
+
+//$this->breadcrumbs = array();
 
 if ( $this->createMemberRequest($invite->questionary, $invite->event) )
 {
