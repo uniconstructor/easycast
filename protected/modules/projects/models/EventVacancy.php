@@ -466,21 +466,19 @@ class EventVacancy extends CActiveRecord
     
     /**
      * Именованная группа условий поиска - выбрать записи по статусам
-     * @param array|string $statuses - массив статусов или строка если статус один
+     * 
+     * @param  array|string $statuses - массив статусов или строка если статус один
      * @return EventVacancy
      */
     public function withStatus($statuses=array())
     {
-        $criteria = new CDbCriteria();
-        if ( ! is_array($statuses) )
-        {// нужен только один статус, и он передан строкой - сделаем из нее массив
-            $statuses = array($statuses);
-        }
-        if ( empty($statuses) )
+        if ( ! $statuses )
         {// Если статус не указан - выборка по этому параметру не требуется
             return $this;
         }
-        $criteria->addInCondition($this->getTableAlias(true).'.`status`', $statuses);
+        $criteria = new CDbCriteria();
+        $criteria->compare($this->getTableAlias(true).'.`status`', $statuses);
+        
         $this->getDbCriteria()->mergeWith($criteria);
     
         return $this;
@@ -591,8 +589,7 @@ class EventVacancy extends CActiveRecord
 	        $questionaryId = $this->getCurrentUserQuestionaryId();
 	    }
         if ( $this->event->isExpired() )
-        {// мероприятие для этой роли уже прошло - нельзя подавать заявки
-            // на завершенные мероприятия
+        {// мероприятие для этой роли уже прошло - нельзя подавать заявки на завершенные мероприятия
             return false;
         }
 	    if ( $this->hasApplication($questionaryId) AND ! $ignoreApplication )
