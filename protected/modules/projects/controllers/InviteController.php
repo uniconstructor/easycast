@@ -90,21 +90,20 @@ class InviteController extends Controller
      */
     public function actionSubscribe()
     {
+        $inviteId = Yii::app()->request->getParam('id', 0);
+        $invite   = $this->loadModel($inviteId);
         if ( ! $key = Yii::app()->request->getParam('key', '') )
         {
             throw new CHttpException(404, 'Страница не найдена');
         }
-        
-        $inviteId = Yii::app()->request->getParam('id', 0);
-        $invite = $this->loadModel($inviteId);
-        
         if ( $key != $invite->subscribekey )
         {
             throw new CHttpException(404, 'Страница не найдена');
         }
         // ключ подошел - значит участник зашел по ссылке. попробуем его залогинить.
-        $this->quickLogin($invite->questionary);
+        Yii::app()->getModule('user')->forceLogin($invite->questionary->user);
         // @todo убрать if/else, и отображать оба случая одним виджетом, без ветвления
+        
         if ( $invite->event->type == ProjectEvent::TYPE_GROUP )
         {// отобразить мероприятия и вакансии группы событый
             $this->render('subscribe', array('invite' => $invite));
@@ -289,23 +288,7 @@ class InviteController extends Controller
      */
     protected function quickLogin($questionary)
     {
-        if ( ! Yii::app()->user->isGuest )
-        {
-            return true;
-        }
-        if ( ! $questionary->user )
-        {
-            return false;
-        }
-                
-        $identity = new UserIdentity($questionary->user->username, null);
-        // хак с Identity для того чтобы залогинить пользователя по токену, не зная его пароля
-        $identity->setState('inviteLogin', true);
-        $identity->authenticate();
-        $identity->clearState('inviteLogin');
-        Yii::app()->user->login($identity, 0);
-        
-        return true;
+        Yii::app()->getModule('user')->forceLogin($questionary->user);
     }
     
     /**
