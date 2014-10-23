@@ -113,8 +113,9 @@ class ProjectEventController extends Controller
 	 */
 	public function actionUpdate($id)
 	{
+	    $this->layout = '//layouts/column1';
+	    
 		$model = $this->loadModel($id);
-
 		// Uncomment the following line if AJAX validation is needed
 		$this->performAjaxValidation($model);
 
