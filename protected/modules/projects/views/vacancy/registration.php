@@ -11,6 +11,14 @@ $this->pageTitle = "Регистрация для участия в проект
 // Описание страницы для поисковиков
 // @todo брать описание из настроек роли
 Yii::app()->clientScript->registerMetaTag(strip_tags($model->vacancy->event->project->shortdescription), 'description', null, array('lang' => 'ru'));
+
+// FIXME временно вставленный баннер
+if ( $model->vacancy->id == 968 )
+{// только для проекта "холостяк"
+    $countUrl = Yii::app()->createAbsoluteUrl('//flipcountdown');
+    Yii::app()->clientScript->registerScriptFile($countUrl.'/jquery.flipcountdown.js');
+    Yii::app()->clientScript->registerCssFile($countUrl.'/jquery.flipcountdown.css');
+}
 ?>
 <div class="container">
     <div class="row-fluid">
@@ -26,9 +34,26 @@ Yii::app()->clientScript->registerMetaTag(strip_tags($model->vacancy->event->pro
         {// выводим баннер 
             echo CHtml::image($bannerUrl, '', array('style' => 'max-width:100%;'));
             // и собственное описание перед формой
-            $model->vacancy->getConfig();
+            if ( $greeting = $model->vacancy->getConfig('customGreeting') )
+            {
+                echo $greeting;
+            }
         }
         ?>
+        <div class="row-fluid text-center">
+            До окончания приема заявок осталось (дней/часов/минут/секунд)
+            <div id="retroclockbox2"></div>
+        </div>
+        <script type="text/javascript">
+        $('#retroclockbox2').flipcountdown({
+            showDay        : true,
+            showHour       : true,
+            showMinute     : true,
+            showSecond     : true,
+            beforeDateTime : '10/26/2014 00:00:01',
+            size : 'lg'
+        });   
+        </script>
     </div>
     <div class="row-fluid">
         <?php 
@@ -39,19 +64,6 @@ Yii::app()->clientScript->registerMetaTag(strip_tags($model->vacancy->event->pro
         ?>
     </div>
     <div class="row text-center">
-        <!-- ShareThis widget -->
-        <!--script type="text/javascript">var switchTo5x=true;</script>
-        <script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script>
-        <script type="text/javascript">stLight.options({publisher: "9144efb6-c5a7-4360-9b70-24e468be66c3", doNotHash: false, doNotCopy: false, hashAddressBar: false});</script>
-        <span class='st__large' displayText=''></span>
-        <span class='st_vkontakte_large' displayText='Vkontakte'></span>
-        <span class='st_twitter_large' displayText='Tweet'></span>
-        <span class='st_mail_ru_large' displayText='mail.ru'></span>
-        <span class='st_tumblr_large' displayText='Tumblr'></span>
-        <span class='st_googleplus_large' displayText='Google +'></span>
-        <span class='st_livejournal_large' displayText='LiveJournal'></span>
-        <span class='st_sharethis_large' displayText='ShareThis'></span>
-        <span class='st_whatsapp_large' displayText='WhatsApp'></span-->
         <?php
         // @todo другие возможные роли (включить после тестирования)
         /*$this->widget('questionary.extensions.widgets.QUserInvites.QUserInvites', array(
@@ -59,4 +71,11 @@ Yii::app()->clientScript->registerMetaTag(strip_tags($model->vacancy->event->pro
         ));*/
         ?>
     </div>
+</div>
+<div class="container text-center">
+    <span class='st_vkontakte_large' displayText='Vkontakte'></span>
+    <span class='st_facebook_large' displayText='Facebook'></span>
+    <span class='st_twitter_large' displayText='Tweet'></span>
+    <span class='st_googleplus_large' displayText='Google +'></span>
+    <span class='st_whatsapp_large' displayText='WhatsApp'></span>
 </div>
