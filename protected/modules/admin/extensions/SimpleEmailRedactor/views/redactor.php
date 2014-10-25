@@ -10,17 +10,16 @@
     <div class="span12">
         <div class="row-fluid">
             <div class="span12">
-                <h2 class="text-center">Изменить текст оповещения</h2>
                 <?php 
-                $url = Yii::app()->createUrl($this->updateUrl, array('id' => $this->config->valueid));
-                $FormOptions = array(
+                $saveUrl = Yii::app()->createUrl($this->updateUrl, array('id' => $this->config->valueid));
+                $formOptions = array(
                     'id'     => 'notify-config-form-'.$this->id,
                     'method' => 'post',
-                    'action' => $url,
+                    'action' => $saveUrl,
                     'enableAjaxValidation' => true,
                 );
                 // форма редактирования письма
-                $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', $FormOptions);
+                $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', $formOptions);
                 // @todo редактор по умолчанию будет содержать текст стандартного оповещения
                 echo $form->html5EditorRow($this->configValue, 'value', array(
                     'editorOptions' => array(
@@ -30,10 +29,18 @@
                         'options' => array('color' => false),
                     )
                 ));
+                echo CHtml::hiddenField('id', $this->config->valueid);
+                echo CHtml::hiddenField('attribute', 'value');
+                
                 $this->widget('bootstrap.widgets.TbButton', array(
-                    'buttonType' => 'submit',
+                    'buttonType' => 'ajaxSubmit',
                     'type'       => 'primary',
                     'label'      => 'Сохранить',
+                    'url'        => $saveUrl,
+                    'ajaxOptions' => array(
+                      'method' => 'post',
+                      'data'   => new CJavaScriptExpression("$('#{$formOptions['id']}').serialize()"),
+                    ),
                 ));
                 $this->endWidget();
                 ?>
@@ -57,8 +64,8 @@
             <div class="span6">
                 <?php 
                 // ссылка на предпросмотр
-                $previewUrl = Yii::app()->createUrl('admin/admin/restoreDefault', array(
-                    'id' => $this->config->valueid,
+                $previewUrl = Yii::app()->createUrl('admin/admin/mailPreview', array(
+                    'action' => 'newInvite',
                 ));
                 echo CHtml::link('Предварительный просмотр', $previewUrl, array(
                     'class'  => 'btn btn-success btn-large pull-right',
