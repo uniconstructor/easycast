@@ -372,8 +372,8 @@ class ProjectMailsBehavior extends CBehavior
     
     /**
      * Создать письмо с фотовызывным
-     * @param RCallList $callList
-     * @param bool $addContacts
+     * @param RCallList $callList - сохраненные данные фотовызывного
+     * @param bool $addContacts - добавлять ли контактную информацию в вызывной лист?
      * @return string
      */
     public function createCallListMailText($callList, $addContacts=false)
