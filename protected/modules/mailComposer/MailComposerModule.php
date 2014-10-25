@@ -90,9 +90,11 @@ class MailComposerModule extends CWebModule
                 {/* @var $invite EventInvite */
                     $invite = $params['invite'];
                 }
+                return $mailComposer->createNewInviteMailText($invite, $mailOptions);
                 
+                // FIXME собственные тексты оповещений временно отключены
                 // если в настройках мероприятия указан другой текст оповещения
-                $config = Config::model()->forModel($invite->event)->
+                /*$config = Config::model()->forModel($invite->event)->
                     withName('newInviteMailText')->find();
                 if ( $config AND isset($config->value) AND $config->value )
                 {
@@ -114,7 +116,7 @@ class MailComposerModule extends CWebModule
                 }else
                 {// используем оригинальный текст приглашения
                     return $mailComposer->createNewInviteMailText($invite, $mailOptions);
-                }
+                }*/
             break;
             // письмо с подтверждением заявки
             case 'approveMember':
