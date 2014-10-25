@@ -40,8 +40,12 @@ class MailController extends Controller
     {
         return array(
             array('allow',
-                'actions' => array('display', 'webVersion'),
-                'users'   => array('*'),
+                'actions' => array('display'),
+                'roles'   => array('*'),
+            ),
+            array('allow',
+                'actions' => array('webVersion'),
+                'roles'   => array('admin'),
             ),
             array('allow',
                 'actions' => array('emailPreview'),
