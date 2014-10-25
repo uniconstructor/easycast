@@ -127,6 +127,14 @@ class VacancyInfo extends CWidget
         {// определяем режим просмотра сайта (участник/заказчик) если он не задан
             $this->userMode = Yii::app()->getModule('user')->getViewMode();
         }
+        if ( ! $this->invite AND $this->questionary AND $this->vacancy )
+        {// получаем приглашение по id участника и роли если оно не передано
+            $attributes = array(
+                'questionaryid' => $this->questionary->id,
+                'eventid' => $this->vacancy->event->id,
+            );
+            $this->invite = EventInvite::model()->findByAttributes($attributes);
+        }
         // определяем роль пользователя
         $this->defineDisplayMode();
         
@@ -236,5 +244,29 @@ class VacancyInfo extends CWidget
             'invite'        => $this->invite,
             'key'           => $this->key,
         ), true);
+    }
+    
+    /**
+     * Получить кнопку для просмотра отправленного участнику письма
+     * (для админов и для тестирования)
+     * 
+     * @return string
+     * 
+     * @todo кнопка повторной отправки приглашения
+     */
+    protected function createPreviewButton()
+    {
+        if ( ! Yii::app()->user->checkAccess('Admin') )
+        {
+            return '';
+        }
+        $previewUrl = Yii::app()->createAbsoluteUrl('/mailComposer/mail/webVersion', array(
+            'action' => 'newInvite',
+            'id'     => $this->invite->id,
+        ));
+        return CHtml::link('Посмотреть приглашение', $previewUrl, array(
+            'class'  => 'btn btn-default btn-small',
+            'target' => '_blank',
+        ));
     }
 }

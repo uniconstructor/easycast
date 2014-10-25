@@ -156,6 +156,7 @@ class VacancyActions extends CWidget
     
     /**
      * Определить, доступна ли кнопка пользователю
+     * 
      * @param string $type - тип кнопки
      * @return bool
      */
@@ -209,6 +210,7 @@ class VacancyActions extends CWidget
     
     /**
      * Получить HTML-код кнопки
+     * 
      * @param string $type - тип кнопки
      * @return string
      */
@@ -237,6 +239,7 @@ class VacancyActions extends CWidget
     
     /**
      * Получить скрипты, выполняющиеся при нажатии на кнопку (нужно если виджет передается через AJAX)
+     * 
      * @param string $type - тип кнопки
      * @return string
      */
