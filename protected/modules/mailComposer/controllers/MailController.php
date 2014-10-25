@@ -40,7 +40,7 @@ class MailController extends Controller
     {
         return array(
             array('allow',
-                'actions' => array('display'),
+                'actions' => array('display', 'webVersion'),
                 'users'   => array('*'),
             ),
             array('allow',
@@ -62,7 +62,7 @@ class MailController extends Controller
      * 
      * @return null
      * 
-     * @deprecated
+     * @deprecated использовать actionWebVersion()
      */
     public function actionTest()
     {
@@ -114,7 +114,8 @@ class MailController extends Controller
      * Отобразить веб-версию письма, пришедшего на почту
      * 
      * @return null
-     * @todo переписать
+     * 
+     * @deprecated использовать actionWebVersion() 
      */
     public function actionDisplay()
     {
@@ -125,7 +126,6 @@ class MailController extends Controller
         if ( $type == 'callList' )
         {
             Yii::import('reports.models.*');
-            
             if ( ! $callList = RCallList::model()->findByPk($id) )
             {
                 throw new CHttpException('404', 'Страница не найдена');
@@ -139,7 +139,6 @@ class MailController extends Controller
         if ( $type == 'castingList' )
         {
             Yii::import('reports.models.*');
-            
             if ( ! $castingList = RCallList::model()->findByPk($id) )
             {
                 throw new CHttpException('404', 'Страница не найдена');
@@ -153,17 +152,21 @@ class MailController extends Controller
     }
     
     /**
-     * Это действие используется для предварительного просмотра отправляемых оповещений
-     * А также для тестирования отправляемых писем
+     * Отобразить веб-версию письма, пришедшего на почту
+     * Это действие используется для предварительного просмотра 
+     * отправляемых оповещений, а также для тестирования отправляемых писем
+     * Используется для всех стандартных оповещений системы
      * 
      * @return void
+     * 
+     * @todo проверить action по списку допустимых значений
      */
-    public function actionEmailPreview()
+    public function actionWebVersion()
     {
-        // служебное название для оповещения
+        // тип стандартного оповещения
         $action = Yii::app()->request->getParam('action');
-        // параметры для составления оповещения
-        $params = Yii::app()->request->getParam('params');
+        // параметры для создания оповещения (в зависимости от типа)
+        $params = $this->getMessageParams($action);
         // выводим письмо
         echo MailComposerModule::getMessage($action, $params);
     }
@@ -175,8 +178,9 @@ class MailController extends Controller
      * At the end it calls {@link CWidget::init} to initialize the widget.
      * Starting from version 1.1, if a {@link CWidgetFactory widget factory} is enabled,
      * this method will use the factory to create the widget, instead.
-     * @param string $className class name (can be in path alias format)
-     * @param array $properties initial property values
+     * 
+     * @param  string $className class name (can be in path alias format)
+     * @param  array $properties initial property values
      * @return CWidget the fully initialized widget instance.
      */
     public function createWidget($className, $properties=array())
@@ -185,7 +189,6 @@ class MailController extends Controller
         {
             return parent::createWidget($className, $properties);
         }
-        
         // приложение запущено из консоли - имитируем widgetFactory
         $className=Yii::import($className,true);
         $widget=new $className($this);
@@ -196,16 +199,78 @@ class MailController extends Controller
     }
     
     /**
-     * Получить параметры для отображения письма
-     * @param string $type
-     * @param int $id
+     * Получить параметры составления письма со стандартным оповещением
+     * Используется для того чтобы посмотреть в админке любое письмо 
+     * по любому поводу перед отправкой
+     * 
+     * @param  string $type
+     * @param  int $id
      * @return array
      * 
-     * @todo [отложено] Будет использоваться для того чтобы посмотреть в админке любое письмо
-     *       по любому поводу перед отправкой
+     * @todo брать список стандартных оповещений из настройки
+     * @todo документировать все варианты
+     * @todo добавить проверку ключей
      */
-    protected function getMailOptions($type, $id)
+    protected function getMessageParams($action)
     {
-        
+        // параметры для составления письма
+        $params = array();
+        // id модели на основании которой составлялось оповещение
+        $id  = Yii::app()->request->getParam('id');
+        // токен доступа (если требуется)
+        $key = Yii::app()->request->getParam('key');
+        switch ( $action )
+        {
+            case 'customEmail':
+                // @todo отправка писем с произвольным содержанием без привязке к системным событиям
+                //       пока еще не реализована
+                //$params['sourceModel'] = ???;
+            break;
+            case 'newInvite':
+                $params['invite'] = EventInvite::model()->findByPk($id);
+            break;
+            case 'approveMember':
+                $params['projectMember'] = ProjectMember::model()->findByPk($id);
+            break;
+            case 'rejectMember':
+                $params['projectMember'] = ProjectMember::model()->findByPk($id);
+            break;
+            case 'pendingMember':
+                $params['projectMember'] = ProjectMember::model()->findByPk($id);
+            break;
+            case 'customerInvite':
+                $params['customerInvite'] = CustomerInvite::model()->findByPk($id);
+            break;
+            case 'SSInvite':
+                $params['questionary'] = Questionary::model()->findByPk($id);
+            break;
+            case 'ECRegistration':
+                $params['questionary'] = Questionary::model()->findByPk($id);
+            break;
+            case 'callList':
+                $params['addContacts'] = Yii::app()->request->getParam('addContacts');
+                $params['callList']    = RCallList::model()->findByPk($id);
+            break;
+            case 'castingList':
+                $params['addContacts'] = Yii::app()->request->getParam('addContacts');
+                $params['castingList'] = RCallList::model()->findByPk($id);
+            break;
+            case 'offer':
+                $params['offer']   = CustomerOffer::model()->findByPk($id);
+                $params['manager'] = User::model()->findByPk($id);
+            break;
+            case 'newOrder':
+                $params['order']  = FastOrder::model()->findByPk($id);
+                $params['target'] = Yii::app()->request->getParam('target');
+            break;
+            // @deprecated
+            //case 'TMRegistration': break;
+            case 'MCRegistration':
+                $params['questionary'] = Questionary::model()->findByPk($id);
+                $params['vacancy']     = EventVacancy::model()->findByPk($id);
+                $params['password']    = Yii::app()->request->getParam('password');
+            break;
+        }
+        return $params;
     }
 }
