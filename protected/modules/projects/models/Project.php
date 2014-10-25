@@ -476,7 +476,7 @@ class Project extends SWActiveRecord
 	        ),
 	        // худшие по рейтингу
 	        'worstRated' => array(
-	            'order' => $this->getTableAlias(true).'.`rating` DESC'
+	            'order' => $this->getTableAlias(true).'.`rating` ASC'
 	        ),
 	    );
 	    return CMap::mergeArray($timestampScopes, $modelScopes);
