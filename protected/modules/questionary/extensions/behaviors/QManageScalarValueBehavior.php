@@ -528,7 +528,9 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
     
     /**
      * Получить игровой возраст 
+     * 
      * @return string|NULL
+     * @deprecated больше не используется
      */
     public function getPlayage()
     {
@@ -548,7 +550,6 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
         {
             return $this->owner->playagemax;
         }
-        
         return null;
     }
     
@@ -571,7 +572,7 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
         {
             if ( Yii::app()->language === 'ru' )
             {
-                return $value;//'[['.$value.']](translation not found)';
+                return $value;
             }else
             {
                 switch ( $field )
@@ -587,6 +588,12 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
                     case 'titsize': 
                         return $value;
                     break;
+                    case 'salary':
+                    case 'age':
+                    case 'countryName':
+                    case 'regionName':
+                    case 'cityName':
+                        return $this->$value;
                 }
                 if ( $value )
                 {// если значение указано - выведем его перевод
@@ -609,5 +616,150 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
     {
         // @todo Сейчас стоит Москва - возможно потом это следует сделать настройкой
         return 4400;
+    }
+    
+    /**
+     * Получить данные анкеты для вывода и сравнения их с данными фильтра поиска
+     * 
+     * @param string $filterName
+     * @return string
+     */
+    public function getFilterFieldData($filterName)
+    {
+        $result = '';
+        switch ( $filterName )
+        {
+            case 'body':
+                $result .= $this->getPropertyData('chestsize').' / ';
+                $result .= $this->getPropertyData('waistsize').' / ';
+                $result .= $this->getPropertyData('hipsize');
+                return $result;
+            case 'city': 
+            case 'region': $fieldName = $filterName.'id'; break;
+            default: $fieldName = $filterName;
+        }
+        return $this->getPropertyData('chestsize');
+    }
+    
+    /**
+     * Получить блок с описанием одного поля анкеты
+     * 
+     * @param string $field - поле в анкете (как оно называется в базе)
+     * @return string
+     *
+     * @todo убрать дублирование кода с классом QUserInfo
+     */
+    protected function getPropertyData($field)
+    {
+        $questionary = $this->owner;
+    
+        $label       = $questionary->getAttributeLabel($field);
+        $value       = '';
+        $placeholder = '[нет данных]';
+        $affix       = '';
+        $hint        = '';
+    
+        switch ( $field )
+        {
+            case 'age':
+                $placeholder = '[не указан]';
+                if ( $value = $questionary->age )
+                {
+                    $info = explode(' ', $value);
+                    $value = $info[0];
+                    $affix = $info[1];
+                }
+                break;
+            case 'playage':
+                $placeholder = '[не указан]';
+                $value = $questionary->playage;
+                break;
+            case 'looktype':
+                if ( $questionary->nativecountry )
+                {
+                    $hint = $questionary->getAttributeLabel('nativecountryid').': '.$questionary->nativecountry->name;
+                }
+                $placeholder = '[не указан]';
+                $value = $questionary->getScalarFieldDisplayValue($field, $questionary->$field);
+                break;
+            case 'height':
+            case 'chestsize':
+            case 'waistsize':
+            case 'hipsize':
+                $affix = 'см';
+                $value = $questionary->getScalarFieldDisplayValue($field, $questionary->$field);
+                break;
+            case 'weight':
+                $affix = 'кг';
+                $value = $questionary->getScalarFieldDisplayValue($field, $questionary->$field);
+                break;
+            case 'addchar':
+                if ( ! $value = $this->getAddCharPropertyBlock() )
+                {// не выводим поле с дополнительными хакактеристиками если оно не заполнено
+                    return;
+                }
+                break;
+            case 'titsize':
+                if ( $questionary->gender === 'female' AND $questionary->Titsize )
+                {// не выводим поле с дополнительными хакактеристиками если оно не заполнено
+                    $value = $questionary->getScalarFieldDisplayValue($field, $questionary->$field);
+                }
+                break;
+            case 'cityid':
+                if ( $questionary->cityid )
+                {
+                    $value = $questionary->cityobj->name;
+                }elseif ( $questionary->city )
+                {
+                    $value = $questionary->city;
+                }else
+                {
+                    return;
+                }
+                break;
+            default: $value = $questionary->getScalarFieldDisplayValue($field, $questionary->$field); break;
+        }
+        if ( ! $value )
+        {// значение не указано - выведем заглушку
+            return $placeholder;
+            // @todo если пользователь - админ то показывать что поле не заполнено
+            // $muted = true;
+        }
+    
+        // получаем параметры для виджета с информацией об анкете
+        // $options = $this->getPropertyOptions($label, $value, $placeholder, $affix, $hint);
+    
+        return array($label, $value.' '.$affix);
+    }
+    
+    /**
+     * Получить блок с информацией о дополнительных ракактеристиках внешности
+     * @return string
+     */
+    protected function getAddCharPropertyBlock()
+    {
+        $questionary = $this->owner;
+        $misc = '';
+        if ( $addchars = $questionary->addchars )
+        {
+            foreach ( $addchars as $addchar )
+            {
+                $addchar->setScenario('view');
+                if ( trim($addchar->name) )
+                {
+                    $misc .= $addchar->name.'<br>';
+                }
+            }
+        }
+        if ( $questionary->isathlete )
+        {// атлет
+            $misc .= $questionary->getAttributeLabel('isathlete').'<br>';
+        }
+        if ( $questionary->hastatoo )
+        {// татуировки
+            $misc .= QuestionaryModule::t('hastatoo_enabled').'<br>';
+        }
+    
+        return $misc;
     }
 }

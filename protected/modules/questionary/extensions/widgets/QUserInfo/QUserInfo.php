@@ -234,6 +234,8 @@ class QUserInfo extends CWidget
      * Получить блок с описанием одного поля анкеты
      * @param string $field - поле в анкете (как оно называется в базе)
      * @return string
+     * 
+     * @todo сделать из этого метода более общий
      */
     protected function getPropertyData($field)
     {
