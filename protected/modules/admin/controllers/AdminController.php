@@ -145,30 +145,30 @@ class AdminController extends Controller
 	 * Предварительный просмотр email-сообщений перед отправкой
 	 * 
 	 * @return void
+	 * 
+	 * @todo создавать временный объект для каждого оповещения (в зависимости от типа)
 	 */
 	public function actionMailPreview()
 	{
 	    // служебное название для оповещения
 	    $action = Yii::app()->request->getParam('action');
-	    // параметры для составления оповещения
-	    $params = Yii::app()->request->getParam('params');
 	    
 	    if ( $action === 'newInvite' )
 	    {
 	        $questionary = Yii::app()->getModule('user')->user()->questionary;
-	        // для демонстрации подойдет любое приглашение
-	        if ( $invite = EventInvite::model()->withStatus('pending')->find(array('limit' => 1)) )
-	        {
-	            $invite->delete();
+	        // для демонстрации письма нам понадобится приглашение
+	        $invite = EventInvite::model()->forModel($questionary)->
+                withStatus('pending')->find(array('limit' => 1));
+	        if ( ! $invite )
+	        {// создаем просматривающему админу приглашение на роль
+	            $invite = new EventInvite();
+    	        $invite->questionaryid = $questionary->id;
+    	        $invite->eventid = 484;
+    	        $invite->save();
 	        }
-	        $invite = new EventInvite();
-	        $invite->questionaryid = $questionary->id;
-	        $invite->eventid = 484;
-	        $invite->save();
 	        $params['invite'] = $invite;
-	        // FIXME придумать более нормальный выход
 	    }
-	    // выводим письмо
+	    // выводим содержимое письма
 	    $mailComposer = Yii::app()->getModule('mailComposer');
 	    echo $mailComposer::getMessage($action, $params);
 	}
