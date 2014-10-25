@@ -13,19 +13,30 @@ $this->pageTitle = "Регистрация для участия в проект
 Yii::app()->clientScript->registerMetaTag(strip_tags($model->vacancy->event->project->shortdescription), 'description', null, array('lang' => 'ru'));
 
 // FIXME временно вставленный баннер
+$countdownScript = '';
 if ( $model->vacancy->id == 968 )
 {// только для проекта "холостяк"
     $countUrl = Yii::app()->createAbsoluteUrl('//flipcountdown');
     Yii::app()->clientScript->registerScriptFile($countUrl.'/jquery.flipcountdown.js');
     Yii::app()->clientScript->registerCssFile($countUrl.'/jquery.flipcountdown.css');
+    $countdownScript = "<div class='row-fluid text-center'>
+                До окончания приема заявок осталось (дней/часов/минут/секунд)
+                <div id='retroclockbox2'></div>
+            </div><script type='text/javascript'>$('#retroclockbox2').flipcountdown({
+        showDay        : true,
+        showHour       : true,
+        showMinute     : true,
+        showSecond     : true,
+        beforeDateTime : '10/28/2014 00:00:01',
+        size : 'lg'
+    });</script>";
 }
 ?>
 <div class="container">
     <div class="row-fluid">
         <?php 
-        // информация о событии на которое подается заявка
         if ( ! $bannerUrl = $model->vacancy->event->project->getConfig('banner') )
-        {
+        {// информация о событии на которое подается заявка
             $this->widget('projects.extensions.ProjectInfo.ProjectInfo', array(
                 'eventId'     => $model->vacancy->event->id,
                 'displayTabs' => array('main'),
@@ -34,26 +45,13 @@ if ( $model->vacancy->id == 968 )
         {// выводим баннер 
             echo CHtml::image($bannerUrl, '', array('style' => 'max-width:100%;'));
             // и собственное описание перед формой
-            if ( $greeting = $model->vacancy->getConfig('customGreeting') )
+            /*if ( $greeting = $model->vacancy->getConfig('customGreeting') )
             {
                 echo $greeting;
-            }
+            }*/
+            echo $countdownScript;
         }
         ?>
-        <div class="row-fluid text-center">
-            До окончания приема заявок осталось (дней/часов/минут/секунд)
-            <div id="retroclockbox2"></div>
-        </div>
-        <script type="text/javascript">
-        $('#retroclockbox2').flipcountdown({
-            showDay        : true,
-            showHour       : true,
-            showMinute     : true,
-            showSecond     : true,
-            beforeDateTime : '10/26/2014 00:00:01',
-            size : 'lg'
-        });   
-        </script>
     </div>
     <div class="row-fluid">
         <?php 
