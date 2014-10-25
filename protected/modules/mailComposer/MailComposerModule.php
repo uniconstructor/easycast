@@ -55,6 +55,8 @@ class MailComposerModule extends CWebModule
      * @param  string $action - совершаемое действие (регистрация, приглашение, и т. п.)
      * @param  array  $params - параметры для выполнения операции
      * @return string - html-код тела письма
+     * 
+     * @todo брать список стандартных оповещений из настройки
      */
     public static function getMessage($action, $params=null)
     {
