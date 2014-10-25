@@ -162,13 +162,21 @@ $this->widget('bootstrap.widgets.TbButton', array(
 ));
 $this->endWidget();
 
-
 if ( ! $model->isNewRecord )
 {// виджет редактирования оповещений
-    $this->widget('admin.extensions.SimpleEmailRedactor.SimpleEmailRedactor', array(
+    /*$this->widget('admin.extensions.SimpleEmailRedactor.SimpleEmailRedactor', array(
         'model'     => $model,
         'createUrl' => Yii::app()->createUrl('admin/admin/createListItem'),
         'updateUrl' => Yii::app()->createUrl('admin/admin/updateListItem'),
         'deleteUrl' => Yii::app()->createUrl('admin/admin/deleteListItem'),
+    ));*/
+
+    // все настройки
+    $this->widget('ext.EditableConfig.EditableConfig', array(
+        'objectType' => get_class($model),
+        'objectId'   => $model->id,
+        'createUrl'  => Yii::app()->createUrl('admin/admin/createListItem'),
+        'updateUrl'  => Yii::app()->createUrl('admin/admin/updateListItem'),
+        'deleteUrl'  => Yii::app()->createUrl('admin/admin/deleteListItem'),
     ));
 }
