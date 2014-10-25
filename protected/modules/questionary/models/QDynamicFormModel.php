@@ -704,6 +704,11 @@ class QDynamicFormModel extends CFormModel
         {
             $rules['email'][] = array('email', 'unique', 'className' => 'User');
         }
+        if ( ! isset($rules[$field->name]) )
+        {// нет проверок для этого типа поля: возвращяем заглушку и пишем ошибку в лог
+            Yii::log('QDynamicFormModel: no rules for unknown field '.$field->name, CLogger::LEVEL_ERROR);
+            return array(array($field->name, 'safe'));
+        }
         return $rules[$field->name];
     }
     
