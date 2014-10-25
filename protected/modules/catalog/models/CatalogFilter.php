@@ -21,6 +21,42 @@ class CatalogFilter extends CActiveRecord
 	{
 		return parent::model($className);
 	}
+	
+	/**
+	 * Получить список всех служебных фильтров поиска
+	 */
+	public static function systemFiltersList()
+	{
+	    return array(
+	        'isactor' => 'Профессиональный актер',
+	        'hasfilms' => 'Есть опыт съемок',
+	        'isemcee' => 'Ведущий мероприятий',
+	        'isparodist' => 'Умеет пародировать',
+	        'istwin' => 'Двойник',
+	        'ismodel' => 'Модель',
+	        'isphotomodel' => 'Фотомодель',
+	        'ispromomodel' => 'Промо-модель',
+	        'isdancer' => 'Умеет танцевать',
+	        'hasawards' => 'Есть звания или награды',
+	        'isstripper' => 'Танцует стриптиз',
+	        'issinger' => 'Занимается вокалом',
+	        'ismusician' => 'Музыкант',
+	        'issportsman' => 'Спортсмен',
+	        'isextremal' => 'Экстремал',
+	        'isathlete' => 'Атлетическое телосложение',
+	        'hasskills' => 'Указаны дополнительные навыки',
+	        'hastricks' => 'Каскадер',
+	        'haslanuages' => 'Владеет иностранным языком',
+	        'hasinshurancecard' => 'Есть медицинская страховка',
+	        'hastatoo' => 'Есть татуировки',
+	        'isamateuractor' => 'Непрофессиональный актер',
+	        'istvshowmen' => 'Телеведущий',
+	        'isstatist' => 'Статист/типаж',
+	        'ismassactor' => 'Артист массовых сцен',
+	        'istheatreactor' => 'Актер театра',
+	        'ismediaactor' => 'Медийный актер',
+	    );
+	}
 
 	/**
 	 * @return string the associated database table name
