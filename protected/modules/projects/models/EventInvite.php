@@ -22,6 +22,18 @@
  * @todo переписать delete() на мягкое удаление
  * @todo изучить возможно ли объединение с таблицей customer_invites для того чтобы сделать 
  *       общую модель приглашений для всего приложения
+ * 
+ * Методы класса EcTimestampBehavior:
+ * @method CActiveRecord createdBefore(int $time, string $operation='AND')
+ * @method CActiveRecord createdAfter(int $time, string $operation='AND')
+ * @method CActiveRecord updatedBefore(int $time, string $operation='AND')
+ * @method CActiveRecord updatedAfter(int $time, string $operation='AND')
+ * @method CActiveRecord modifiedOnly()
+ * @method CActiveRecord neverModified()
+ * @method CActiveRecord lastCreated()
+ * @method CActiveRecord firstCreated()
+ * @method CActiveRecord lastModified()
+ * @method CActiveRecord firstModified()
  */
 class EventInvite extends CActiveRecord
 {
@@ -100,12 +112,24 @@ class EventInvite extends CActiveRecord
 	public function behaviors()
 	{
 	    return array(
-	        // автоматическое заполнение дат создания и изменения
-	        'CTimestampBehavior' => array(
-	            'class' => 'zii.behaviors.CTimestampBehavior',
-	            'createAttribute' => 'timecreated',
-	            'updateAttribute' => 'timemodified',
-	        )
+            // автоматическое заполнение дат создания и изменения
+            'EcTimestampBehavior' => array(
+                'class' => 'application.behaviors.EcTimestampBehavior',
+            ),
+	        // это поведение позволяет изменять набор связей модели в зависимости от того какие данные в ней находятся
+	        'CustomRelationsBehavior' => array(
+	            'class' => 'application.behaviors.CustomRelationsBehavior',
+	        ),
+	        // группы условий для поиска по данным моделей, которые ссылаются
+	        // на эту запись по составному ключу objecttype/objectid
+	        'CustomRelationTargetBehavior' => array(
+	            'class' => 'application.behaviors.CustomRelationTargetBehavior',
+	            'customRelations' => array(),
+	        ),
+	        // настройки для модели и методы для поиска по этим настройкам
+	        'ConfigurableRecordBehavior' => array(
+	            'class' => 'application.behaviors.ConfigurableRecordBehavior',
+	        ),
 	    );
 	}
 	
@@ -135,7 +159,6 @@ class EventInvite extends CActiveRecord
 	        $event = new CModelEvent($this);
 	        $this->onNewInvite($event);
 	    }
-	    
 	    parent::afterSave();
 	}
 	
@@ -344,7 +367,6 @@ class EventInvite extends CActiveRecord
 	    {
 	        return false;
 	    }
-        
 	    $this->status = $newStatus;
 	    $this->save();
 	    
