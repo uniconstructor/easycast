@@ -1232,6 +1232,233 @@ class EventVacancy extends CActiveRecord
 	}
 	
 	/**
+	 * Получить данные фильтра поиска для отображения пользователю
+	 * 
+	 * @param string $filterName - название фильтра в таблице catalog_filters 
+	 * @return array
+	 */
+	public function getFilterDataOutput($filterName)
+	{
+	    $namePrefix = self::defaultPrefix().$this->namePrefix;
+	    if ( ! $data = $this->getFilterSearchData($namePrefix) )
+	    {// фильтр не используется
+	        return '';
+	    }
+	    $qModule = Yii::app()->getModule('questionary');
+	    $items = array();
+	    $range = '';
+	    switch ( $filterName )
+	    {
+	        case 'sections': 
+	            // @todo после списков
+            break;
+	        case 'region': 
+	            if ( ! isset($data['regionid']) )
+	            {
+	                return '';
+	            }
+	            $elements = $data['regionid'];
+	            foreach ( $elements as $id )
+	            {
+	                $items[] = CSGeoRegion::model()->findByPk($id);
+	            }
+            break;
+	        case 'city': 
+	            if ( ! isset($data['cityid']) )
+	            {
+	                return '';
+	            }
+	            $elements = $data['cityid'];
+	            foreach ( $elements as $id )
+	            {
+	                $items[] = CSGeoCity::model()->findByPk($id);
+	            }
+            break;
+	        case 'status': 
+	            if ( ! isset($data['status']) )
+	            {
+	                return '';
+	            }
+	            $elements = $data['status'];
+	            foreach ( $elements as $status )
+	            {
+	                $items[] = $module::t('status_'.$status);
+	            }
+            break;
+	        case 'gender': 
+	            if ( ! isset($data['gender']) )
+	            {
+	                return '';
+	            }
+	            $items[] = $module::t($data['gender']);
+            break;
+	        case 'age': 
+	            if ( isset($data['minage']) )
+	            {
+	                $range .= 'От '.$data['minage'];
+	            }
+	            if ( isset($data['maxage']) )
+	            {
+	                $range .= ' до '.$data['maxage'];
+	            }
+            break;
+	        case 'salary': 
+	            if ( isset($data['minsalary']) )
+	            {
+	                $range .= 'От '.$data['minsalary'];
+	            }
+	            if ( isset($data['maxsalary']) )
+	            {
+	                $range .= ' до '.$data['maxsalary'];
+	            }
+            break;
+	        case 'height': 
+	            if ( isset($data['minheight']) )
+	            {
+	                $range .= 'От '.$data['minheight'];
+	            }
+	            if ( isset($data['maxheight']) )
+	            {
+	                $range .= ' до '.$data['maxheight'];
+	            }
+            break;
+	        case 'weight': 
+	            if ( isset($data['minweight']) )
+	            {
+	                $range .= 'От '.$data['minweight'];
+	            }
+	            if ( isset($data['maxweight']) )
+	            {
+	                $range .= ' до '.$data['maxweight'];
+	            }
+            break;
+	        case 'body': 
+	            if ( isset($data['minchestsize']) )
+	            {
+	                $range .= 'От '.$data['minchestsize'];
+	            }
+	            if ( isset($data['maxchestsize']) )
+	            {
+	                $range .= ' до '.$data['maxchestsize'];
+	            }
+	            $range .= '<br>';
+	            if ( isset($data['minwaistsize']) )
+	            {
+	                $range .= 'От '.$data['minwaistsize'];
+	            }
+	            if ( isset($data['maxwaistsize']) )
+	            {
+	                $range .= ' до '.$data['maxwaistsize'];
+	            }
+	            $range .= '<br>';
+	            if ( isset($data['minhipsize']) )
+	            {
+	                $range .= 'От '.$data['minhipsize'];
+	            }
+	            if ( isset($data['maxhipsize']) )
+	            {
+	                $range .= ' до '.$data['maxhipsize'];
+	            }
+            break;
+	        case 'system': 
+	            $systemFilters = CatalogFilter::systemFiltersList();
+	            if ( ! isset($data['system']) )
+	            {
+	                return '';
+	            }
+	            foreach ( $data['system'] as $filter )
+	            {
+	                $items[] = $systemFilters[$filter];
+	            }
+            break;
+	        case 'name': 
+	            // @todo
+            break;
+	        case 'looktype': 
+                $items = $this->getActivityLabels($data, 'looktype');
+            break;
+	        case 'physiquetype': 
+	            $items = $this->getActivityLabels($data, 'physiquetype');
+            break;
+	        case 'haircolor': 
+	            $items = $this->getActivityLabels($data, 'haircolor');
+            break;
+	        case 'hairlength': 
+	            $items = $this->getActivityLabels($data, 'airlength');
+            break;
+	        case 'eyecolor': 
+	            $items = $this->getActivityLabels($data, 'eyecolor');
+            break;
+	        case 'shoessize': 
+	            $items = $this->getActivityLabels($data, 'shoessize');
+            break;
+	        case 'wearsize': 
+	            $items = $this->getActivityLabels($data, 'wearsize');
+            break;
+	        case 'titsize': 
+	            $items = $this->getActivityLabels($data, 'titsize');
+            break;
+	        case 'dancer': 
+	            $items = $this->getActivityLabels($data, 'dancer');
+            break;
+	        case 'voicetimbre': 
+	            $items = $this->getActivityLabels($data, 'voicetimbre');
+            break;
+	        case 'instrument': 
+	            $items = $this->getActivityLabels($data, 'instrument');
+            break;
+	        case 'sporttype': 
+	            $items = $this->getActivityLabels($data, 'sporttype');
+            break;
+	        case 'extremaltype': 
+	            $items = $this->getActivityLabels($data, 'extremaltype');
+            break;
+	        case 'language': 
+	            $items = $this->getActivityLabels($data, 'language');
+            break;
+	        case 'driver': 
+	            $items = $this->getActivityLabels($data, 'driver');
+            break;
+	        case 'striptease': 
+	            $items = $this->getActivityLabels($data, 'striptype');
+            break;
+	        default: return '[[Неизвестный тип фильтра]]';
+	    }
+	    if ( $items )
+	    {
+	        return implode(', ', $items);
+	    }
+	    if ( $range )
+	    {
+	        return $range;
+	    }
+	}
+	
+	private function getActivityLabels($data, $name)
+	{
+	    if ( isset($data[$name]) )
+	    {
+	        return '';
+	    }
+	    $elements = $data[$bame];
+	    $items    = array();
+	    $types    = QActivityType::model()->activityVariants($name);
+	    
+	    if ( ! $elements )
+	    {
+	        return '';
+	    }
+	    foreach ( $elements as $element )
+	    {
+	        if ( isset($types[$element]) )
+	        {
+	            $items[] = $types[$element];
+	        }
+	    }
+	    return $items;
+	}
+	
+	/**
 	 * Получить все сохраненные данные из формы поиска людей для вакансии
 	 * @return array
 	 */
