@@ -466,28 +466,25 @@ class Project extends SWActiveRecord
 	 */
 	public function scopes()
 	{
-	    return array(
-	        // последние созданные записи
-	        /*'lastCreated' => array(
-	            'order' => $this->getTableAlias(true).'.`timecreated` DESC'
-	        ),*/
-	        // последние измененные записи
-	        /*'lastModified' => array(
-	            'order' => $this->getTableAlias(true).'.`timemodified` DESC'
-	        ),*/
+	    // условия поиска по датам создания и изменения 
+	    $timestampScopes = $this->asa('EcTimestampBehavior')->getDefaultTimestampScopes();
+	    // условия поиска для проекта
+	    $modelScopes = array(
 	        // лучшие по рейтингу
 	        'bestRated' => array(
 	            'order' => $this->getTableAlias(true).'.`rating` DESC'
 	        ),
-	        // хучшие по рейтингу
+	        // худшие по рейтингу
 	        'worstRated' => array(
 	            'order' => $this->getTableAlias(true).'.`rating` DESC'
 	        ),
 	    );
+	    return CMap::mergeArray($timestampScopes, $modelScopes);
 	}
 	
 	/**
 	 * Именованная группа условий поиска - выбрать записи по статусам
+	 * 
 	 * @param array|string $statuses - массив статусов или строка если статус один
 	 * @return Project
 	 */
@@ -511,6 +508,7 @@ class Project extends SWActiveRecord
 	
 	/**
 	 * Именованная группа условий поиска - выбрать проекты по типу
+	 * 
 	 * @param array $types
 	 * @return Project
 	 */
@@ -533,6 +531,7 @@ class Project extends SWActiveRecord
 	
 	/**
 	 * Именованная группа условий: получить все проекты руководителя
+	 * 
 	 * @param int $userId - id руководителя проекта в таблице Users
 	 * @return Project
 	 */
@@ -612,7 +611,8 @@ class Project extends SWActiveRecord
 	/**
 	 * Получить описание проекта (для участника или заказчика)
 	 * Если нужное описание отсутствует - подставляется то которое есть
-	 * @param string - режим просмотра сайта: для участника или для заказчика
+	 * 
+	 * @param  string - режим просмотра сайта: для участника или для заказчика
 	 * @return string
 	 */
 	public function getFullDescription($userMode='')

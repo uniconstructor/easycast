@@ -27,6 +27,12 @@ Yii::import('zii.behaviors.CTimestampBehavior');
  * @todo дополнительные именованые группы условий: 
  *       - созданные за день/неделю/месяц, 
  *       - отредактированые за тот же период
+ * @todo переписать все подключения scopes: вызывать список именованых групп условий поиска
+ *       из класса, к которому подключается поведение, а не из самого поведения
+ *       Проблема вот в чем: если вызвать функцию lastModified() при обычном извлечении записей
+ *       то все работает, но если попытаться использовать то же условие при создании CActiveDataProvider
+ *       то они не будут найдены: видимо при поиске записей через CActiveDataProvider к классу модели
+ *       не подключаются поведения
  */
 class EcTimestampBehavior extends CTimestampBehavior
 {
@@ -42,10 +48,22 @@ class EcTimestampBehavior extends CTimestampBehavior
     /**
      * @see CActiveRecord::scopes()
      */
-    public function scopes()
+    public function timestampScopes()
     {
         $modelScopes     = $this->owner->scopes();
-        $timestampScopes = array(
+        $timestampScopes = $this->getTimestampScopes();
+        
+        return CMap::mergeArray($timestampScopes, $modelScopes);
+    }
+    
+    /**
+     * Список стандартных приглашений 
+     * 
+     * @return array
+     */
+    public function getDefaultTimestampScopes()
+    {
+        return array(
             // отредактированые записи
             'modifiedOnly' => array(
                 'condition' => $this->owner->getTableAlias(true).".`{$this->updateAttribute}` > 0",
@@ -71,7 +89,6 @@ class EcTimestampBehavior extends CTimestampBehavior
                 'order' => $this->owner->getTableAlias(true).".`{$this->updateAttribute}` ASC",
             ),
 	    );
-        return CMap::mergeArray($timestampScopes, $modelScopes);
     }
     
     /**

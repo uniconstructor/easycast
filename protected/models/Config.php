@@ -489,7 +489,10 @@ class Config extends CActiveRecord
 	 */
 	public function scopes()
 	{
-	    return array(
+	    // условия поиска по датам создания и изменения
+	    $timestampScopes = $this->asa('EcTimestampBehavior')->getDefaultTimestampScopes();
+	    // собственные условия поиска для модели
+	    $modelScopes = array(
 	        // все настройки, содержащие несколько значений (множественный выбор)
 	        'multipleOnly' => array(
 	            'condition' => $this->getTableAlias(true).".`maxvalues` <> 1",
@@ -534,6 +537,7 @@ class Config extends CActiveRecord
 	        ),*/
 	        // @todo hasUserOptions
 	    );
+	    return CMap::mergeArray($timestampScopes, $modelScopes);
 	}
 
 	/**
@@ -629,11 +633,10 @@ class Config extends CActiveRecord
 	        if ( $field AND $id )
 	        {// указано поле модели: значение из него будет считаться значением настройки
 	            if ( $model = $modelClass::model()->findByPk($id) )
-	            {// модель найдена
+	            {// модель-источник значения найдена
 	                $result = $model->$field;
 	            }else
 	            {// модель, из которой нужно взять значение не найдена
-	                //
 	                // @todo записать ошибку в лог, очистить ссылку на удаленную модель: 
 	                //       системные настройки могут иметь только нулевой valueid
 	            }
@@ -1099,7 +1102,6 @@ class Config extends CActiveRecord
 	            {// в родительской настройке нет значений по умолчанию: она или не обязательна
 	                // к заполнению или не имеет значений по умолчанию
 	                // создаем и сохраняем новую запись из переданных значений
-	
 	            }
 	            break;
 	            // обновляется текущее значение настройки
