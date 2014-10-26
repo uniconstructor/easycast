@@ -100,10 +100,12 @@ class EcMigration extends CDbMigration
      * Создать корневую настройку для модели и прикрепить ее к каждой модели в таблице
      * 
      * @param  array  $configData - изначальные значения записи
-     * @param  string $table
+     * @param  string $modelTable
+     * @param  bool   $copyValues - копировать ли ссылку на значение корневой настройки 
+     *                              во все дочерние в качестве изначального значения?
      * @return bool
      */
-    public function createRootConfig($configData, $modelTable)
+    public function createRootConfig($configData, $modelTable, $copyValues=false)
     {
         $rootConfigId   = $this->createConfig($configData);
         $rootConfigData = $this->loadConfigDataById($rootConfigId);
@@ -118,6 +120,12 @@ class EcMigration extends CDbMigration
                 'objectid' => $record['id'],
                 'parentid' => $rootConfigId,
             );
+            if ( ! $copyValues )
+            {// изначально создаем все новые настройки пустыми (незаполненными)
+                unset($recordConfig['valuetype']);
+                unset($recordConfig['valuefield']);
+                unset($recordConfig['valueid']);
+            }
             $recordConfig = CMap::mergeArray($rootConfigData, $recordConfig);
             $this->createConfig($recordConfig);
         }
