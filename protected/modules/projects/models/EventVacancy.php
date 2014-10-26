@@ -1239,7 +1239,7 @@ class EventVacancy extends CActiveRecord
 	 */
 	public function getFilterDataOutput($filterName)
 	{
-	    $namePrefix = self::defaultPrefix().$this->namePrefix;
+	    $namePrefix = CatalogModule::SEARCH_FIELDS_PREFIX.$filterName;
 	    if ( ! $data = $this->getFilterSearchData($namePrefix) )
 	    {// фильтр не используется
 	        return '';
@@ -1247,6 +1247,7 @@ class EventVacancy extends CActiveRecord
 	    $qModule = Yii::app()->getModule('questionary');
 	    $items = array();
 	    $range = '';
+	    
 	    switch ( $filterName )
 	    {
 	        case 'sections': 
@@ -1260,7 +1261,7 @@ class EventVacancy extends CActiveRecord
 	            $elements = $data['regionid'];
 	            foreach ( $elements as $id )
 	            {
-	                $items[] = CSGeoRegion::model()->findByPk($id);
+	                $items[] = CSGeoRegion::model()->findByPk($id)->name;
 	            }
             break;
 	        case 'city': 
@@ -1271,7 +1272,7 @@ class EventVacancy extends CActiveRecord
 	            $elements = $data['cityid'];
 	            foreach ( $elements as $id )
 	            {
-	                $items[] = CSGeoCity::model()->findByPk($id);
+	                $items[] = CSGeoCity::model()->findByPk($id)->name;
 	            }
             break;
 	        case 'status': 
@@ -1282,7 +1283,7 @@ class EventVacancy extends CActiveRecord
 	            $elements = $data['status'];
 	            foreach ( $elements as $status )
 	            {
-	                $items[] = $module::t('status_'.$status);
+	                $items[] = $qModule::t('status_'.$status);
 	            }
             break;
 	        case 'gender': 
@@ -1290,7 +1291,7 @@ class EventVacancy extends CActiveRecord
 	            {
 	                return '';
 	            }
-	            $items[] = $module::t($data['gender']);
+	            $items[] = $qModule::t($data['gender']);
             break;
 	        case 'age': 
 	            if ( isset($data['minage']) )
@@ -1384,7 +1385,7 @@ class EventVacancy extends CActiveRecord
 	            $items = $this->getActivityLabels($data, 'haircolor');
             break;
 	        case 'hairlength': 
-	            $items = $this->getActivityLabels($data, 'airlength');
+	            $items = $this->getActivityLabels($data, 'hairlength');
             break;
 	        case 'eyecolor': 
 	            $items = $this->getActivityLabels($data, 'eyecolor');
@@ -1399,7 +1400,7 @@ class EventVacancy extends CActiveRecord
 	            $items = $this->getActivityLabels($data, 'titsize');
             break;
 	        case 'dancer': 
-	            $items = $this->getActivityLabels($data, 'dancer');
+	            $items = $this->getActivityLabels($data, 'dancetype');
             break;
 	        case 'voicetimbre': 
 	            $items = $this->getActivityLabels($data, 'voicetimbre');
@@ -1440,7 +1441,7 @@ class EventVacancy extends CActiveRecord
 	    {
 	        return '';
 	    }
-	    $elements = $data[$bame];
+	    $elements = $data[$name];
 	    $items    = array();
 	    $types    = QActivityType::model()->activityVariants($name);
 	    
