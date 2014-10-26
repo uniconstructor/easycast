@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Действие контроллера для создания модели
+ * 
+ * @todo запретить выполнение insertAfter вне своих списков
+ */
 class EcCreateAction extends EcUpdateAction
 {
     /**
