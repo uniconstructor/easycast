@@ -152,6 +152,15 @@ $this->widget('bootstrap.widgets.TbAlert');
     ));
     ?>
 </div>
+<div class="row-fluid">
+    <?php
+    // @todo виджет проверки анкет на соответствие критериям поиска
+    /*$this->widget('admin.extensions.SearchFilterHelper.SearchFilterHelper', array(
+        'questionaryId' => 9,
+        'vacancyId'     => $model->id,
+    ));*/
+    ?>
+</div>
 <hr>
 <div class="row-fluid">
     <?php 
