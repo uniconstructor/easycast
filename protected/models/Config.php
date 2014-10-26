@@ -598,6 +598,64 @@ class Config extends CActiveRecord
 	}
 	
 	/**
+	 * Определить, отличается ли значение настройки от значения по умолчанию
+	 * 
+	 * @return bool
+	 */
+	public function isDefaultCopy()
+	{
+	    if ( $this->isParentCopy() OR $this->isRootCopy() )
+	    {
+	        return true;
+	    }
+	    return false;
+	}
+	
+	/**
+	 * Определить, отличается ли значение настройки от родительского
+	 * 
+	 * @return bool
+	 */
+	public function isParentCopy()
+	{
+	    if ( ! $this->parentConfig )
+	    {// родительской настройки нет - сравнивать не с чем
+	        return false;
+	    }
+	    if ( $this->valuefield == $this->parentConfig->valuefield AND
+    	     $this->valueid    == $this->parentConfig->valueid AND
+    	     $this->valuetype  == $this->parentConfig->valuetype )
+	    {
+	        return true;
+	    }
+	    return false;
+	}
+	
+	/**
+	 * Определить, отличается ли значение настройки этой модели от общей настройки для всех моделей
+	 * 
+	 * @return bool
+	 */
+	public function isRootCopy()
+	{
+	    if ( $this->isRoot() )
+	    {// настройка сама является корневой
+	        return false;
+	    }
+	    if ( ! $rootConfig = $this->forObject($this->objecttype, 0)->withName($this->name)->find() )
+	    {// не существует корневой настройки такого типа
+	       return false;
+	    }
+	    if ( $this->valuefield == $rootConfig->valuefield AND 
+	         $this->valueid    == $rootConfig->valueid AND
+	         $this->valuetype  == $rootConfig->valuetype )
+	    {
+	        return true;
+	    }
+	    return false;
+	}
+	
+	/**
 	 * Получить готовое значение текущей модели настройки ($this)
 	 * Должно применяться только для уже созданных записей (isNewRecord=false)
 	 * 
