@@ -642,7 +642,7 @@ class Config extends CActiveRecord
 	    {// настройка сама является корневой
 	        return false;
 	    }
-	    if ( ! $rootConfig = $this->forObject($this->objecttype, 0)->withName($this->name)->find() )
+	    if ( ! $rootConfig = $this->getRootConfig() )
 	    {// не существует корневой настройки такого типа
 	       return false;
 	    }
@@ -654,6 +654,85 @@ class Config extends CActiveRecord
 	    }
 	    return false;
 	}
+	
+	/**
+	 * Подготовить настройку к добавлению нового значения: эта функция вызывается после всех
+	 * проверок: она проверяет текущее значение настройки и следит за тем чтобы при правке
+	 * обычных настроек не были изменены стандартные или системные 
+	 * 
+	 * @param unknown $listActions
+	 * @param unknown $valueAction
+	 * @param unknown $newData
+	 * @return bool
+	 * 
+	 * @todo решить как поступать в ситуации когда настройка содержит списки но не содержит значений
+	 */
+	public function prepareCreateValue($valueAction='clear', $listActions=array(), $newData=array())
+	{
+	    if ( ! $this->getValueObject() )
+	    {// настройка не содержит значений - подготовка не требуется
+	        return true;
+	    }
+	    if ( $this->getValueObject() AND $this->isDefaultCopy() )
+	    {// настройка ссылается на родительское/корневое значение: его нельзя править
+	        // при редактировании обычной настройки: создадим копию для изменения
+	        return $this->createDataFromDefault($listActions, $valueAction, $newData);
+	    }
+	    return true;
+	}
+	
+	/**
+	 * Подготовить настройку к редактированию значения
+	 * 
+	 * @param unknown $listActions
+	 * @param unknown $valueAction
+	 * @param unknown $newData
+	 * @return bool
+	 */
+	public function prepareUpdateValue($valueAction='copy', $listActions=array(), $newData=array())
+	{
+	    if ( ! $this->getValueObject() )
+	    {// настройка не содержит значений - нужно создать хотя бы одно
+	        return $this->createDataFromDefault($listActions, $valueAction, $newData);
+	    }
+	    if ( $this->isDefaultCopy() )
+	    {
+	        return $this->createDataFromDefault($listActions, $valueAction, $newData);
+	    }
+	    return true;
+	}
+	
+	/**
+	 * Подготовить настройку к редактированию значения
+	 * 
+	 * @param unknown $listActions
+	 * @param unknown $valueAction
+	 * @param unknown $newData
+	 * @return bool
+	 */
+	public function prepareDeleteValue($valueAction='copy', $listActions=array(), $newData=array())
+	{
+	    if ( ! $this->getValueObject() )
+	    {// настройка не содержит значений - нужно создать хотя бы одно
+	        return $this->createDataFromDefault($listActions, $valueAction, $newData);
+	    }
+	    if ( $this->isDefaultCopy() )
+	    {
+	        return $this->createDataFromDefault($listActions, $valueAction, $newData);
+	    }
+	    return true;
+	}
+	
+	/**
+	 * Определить, есть ли у этой настройки связанный объект значения
+	 *
+	 * @return bool
+	 * @todo название слишком напоминает условие поиска - нужно другое
+	 */
+	/*public function hasValueObject()
+	{
+	    return (bool)$this->getValueObject();
+	}*/
 	
 	/**
 	 * Получить готовое значение текущей модели настройки ($this)
@@ -727,6 +806,36 @@ class Config extends CActiveRecord
 	}
 	
 	/**
+	 * Получить корневую настройку по умолчанию (берется или из родительской или из корневой)
+	 * 
+	 * @return Config
+	 */
+	public function getDefaultConfig()
+	{
+	    if ( $this->parentConfig )
+	    {// родительская настройка имеет больший приоритет при обращении для того чтобы
+	        // можно было задавать свою иерархию наследования
+	        return $this->parentConfig;
+	    }
+	    if ( $rootConfig = $this->getRootConfig() )
+	    {
+	        return $rootConfig;
+	    }
+	    return null;
+	}
+	
+	/**
+	 * Получить корневую настройку модели (настройку по умолчанию из которой 
+	 * создаются все новые объекты настроек)
+	 * 
+	 * @return Config
+	 */
+	public function getRootConfig()
+	{
+	    return $this->forObject($this->objecttype, 0)->withName($this->name)->find();
+	}
+	
+	/**
 	 * Получить готовое значение текущей модели настройки ($this)
 	 * 
 	 * @return string|array - значение по умолчанию для этой настройки
@@ -739,18 +848,20 @@ class Config extends CActiveRecord
 	 */
 	public function getDefaultValue()
 	{
-	    if ( $this->parentConfig )
-	    {// значением по умолчанию считается значение родительской настройки (если оно есть)
-	        // корневые настройки всегда являются родительскими для обычных настроек
-	        return $this->parentConfig->value;
-	    }elseif ( $this->isSystem() OR $this->isRoot() )
+	    if ( $defaultConfig = $this->getDefaultConfig() )
+	    {
+	        return $defaultConfig->value;
+	    }
+	    if ( $this->isSystem() OR $this->isRoot() )
 	    {// у не наследуемых системных настроек не может быть значений по умолчанию 
 	        // @todo у них такими значениями всегда считаются их собственные
-	        if ( $this->isMultiple() )
-	        {
-	            return array();
-	        }
+	        return $this->value;
 	    }
+	    if ( $this->isMultiple() )
+	    {
+	        return array();
+	    }
+	    return null;
 	}
 	
 	/**
@@ -764,7 +875,7 @@ class Config extends CActiveRecord
 	 */
 	public function getRootValue()
 	{
-	    if ( ! $rootConfig = $this->forObject($this->objecttype, 0)->withName($this->name)->find() )
+	    if ( ! $rootConfig = $this->getRootConfig() )
 	    {// не существует корневой настройки такого типа
 	        return null;
 	    }
@@ -1114,6 +1225,107 @@ class Config extends CActiveRecord
 	        $itemCopy->save();
 	    }
 	    return true;
+	}
+	
+	/**
+	 * Скопировать значения настройки из стандартного объекта в текущий перед изменением
+	 * чтобы не задеть настройки по умолчанию 
+	 * 
+	 * @return void
+	 */
+	protected function createDataFromDefault($valueAction='clear', $listActions=array(), $newData=array())
+	{
+	    if ( empty($listActions) )
+	    {
+	        $listActions = array(
+	            'userlistid' => 'new',
+	        );
+	    }
+	    $default = $this->getDefaultConfig();
+	    $this->attributes = $newData;
+	    
+	    foreach ( $listActions as $idField => $action )
+	    {
+	        $this->$idField = $this->createListFromDefault($default, $idField, $action);
+	    }
+	    if ( $valueAction === 'clear' )
+	    {// очистить значение
+	        $this->valuetype  = null;
+	        $this->valuefield = null;
+	        $this->valueid    = null;
+	    }
+	    if ( $valueAction === 'copy' )
+	    {
+	        if ( $this->isMultiple() )
+	        {
+	            $this->valueid = $this->createListFromDefault($default, 'valueid', 'copy');
+	        }else
+	        {
+	            $item = new EasyListItem();
+	            $item->easylistid  = $this->userlistid;
+	            $item->objecttype  = 'EasyListItem';
+	            $item->objectfield = 'value';
+	            $item->objectid    = 0;
+	            $item->save();
+	            $item->objectid = $item->id;
+	            $item->save();
+	            
+	            $this->objecttype = 'EasyListItem';
+	            $this->objectid   = $item->id;
+	            $this->valuefield = 'value';
+	        }
+	    }
+	    return $this->save();
+	}
+	
+	/**
+	 * Создать новый список из настройки
+	 * 
+	 * @param  Config $config
+	 * @return void
+	 */
+	protected function createListFromDefault($config, $type='easylistid', $action='copy')
+	{
+	    if ( $action = 'clear' OR ! $config->$type )
+	    {
+	        return 0;
+	    }
+	    switch ( $type )
+	    {
+	        case 'easylistid': $relation = 'defaultList'; break;
+	        case 'userlistid': $relation = 'userList'; break;
+	        case 'valueid':    $relation = 'selectedList'; break;
+	    }
+	    $defaultList = $default->$relation;
+	    $attributes  = $default->$relation->attributes;
+	    
+        unset($attributes['id']);
+        unset($attributes['timecreated']);
+        unset($attributes['timemodified']);
+        unset($attributes['lastupdate']);
+        unset($attributes['lastcleanup']);
+        
+        $newList = new EasyList();
+        $newList->attributes = $attributes;
+        $newList->save();
+        if ( $action === 'copy' )
+        {
+            foreach ( $defaultList->listItems as $item )
+            {
+                $itemAttributes = $item->attributes;
+                unset($itemAttributes['id']);
+                unset($itemAttributes['timecreated']);
+                unset($itemAttributes['timemodified']);
+                unset($itemAttributes['easylistid']);
+                unset($itemAttributes['sortorder']);
+                
+                $itemCopy = new EasyListItem();
+                $itemCopy->attributes = $itemAttributes;
+                $itemCopy->easylistid = $newList->id;
+                $itemCopy->save();
+            }
+        }
+        return $newList->id;
 	}
 	
 	/**
