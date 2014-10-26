@@ -18,6 +18,7 @@ Yii::import('zii.behaviors.CTimestampBehavior');
  * @method CActiveRecord firstCreated()
  * @method CActiveRecord lastModified()
  * @method CActiveRecord firstModified()
+ * @method bool          markModified(bool $saveNow=true)
  */
 
 /**
@@ -186,5 +187,22 @@ class EcTimestampBehavior extends CTimestampBehavior
         $this->owner->getDbCriteria()->mergeWith($criteria, $operation);
         
         return $this->owner;
+    }
+    
+    /**
+     * Пометить запись измененной
+     * 
+     * @param  bool $saveNow - сразу же сохранить запись
+     * @return bool
+     */
+    public function markModified($saveNow=true)
+    {
+        $updateAttribute = $this->updateAttribute;
+        $this->owner->$updateAttribute = time();
+        if ( $saveNow )
+        {
+            return $this->owner->save(false, array($updateAttribute));
+        }
+        return true;
     }
 }
