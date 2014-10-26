@@ -17,14 +17,14 @@ class EcUpdateConfigValue extends EcUpdateAction
             throw new CHttpException(Yii::t('zii', 'Invalid request'));
         }
         // id настройки
-        $id         = Yii::app()->request->getParam('id');
+        $id      = Yii::app()->request->getParam('id');
         // загружаем модель настройки
-        $config     = $this->loadConfigModel($id);
+        $config  = $this->loadConfigModel($id);
         // id значения внутри настройки (для редактирования элементов в настройках со списком значений)
         // настройки, которые хранят одно значение не используют этот параметр
-        $optonId    = Yii::app()->request->getParam('optonId', 0);
+        $optonId = Yii::app()->request->getParam('optonId', 0);
         // обновляемое значение настройки
-        $value      = Yii::app()->request->getParam('value');
+        $value   = Yii::app()->request->getParam('value');
         
         // модель значения зависит от настройки: 
         // (настройка может ссылаться на на модели разных классов для хранения значений)
@@ -34,6 +34,9 @@ class EcUpdateConfigValue extends EcUpdateAction
         // определяем обновляемое поле в объекте значения настройки
         // (используется редко - как правило оно задано в модели)
         $valueField = Yii::app()->request->getParam('valueField', $config->valuefield);
+        
+        // готовим настройку к редактированию, защищая системные настройки от случайных правок
+        $config->prepareUpdateValue();
         
         if ( $config->isSingle() )
         {// настройка с одним значением - проcто обновляем поле связанной записи

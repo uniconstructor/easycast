@@ -45,7 +45,7 @@ class EcCreateConfigValue extends EcUpdateConfigValue
                 {// не продолжаем обновление
                     throw new CHttpException('Для этой настройки уже создано значение');
                 }else
-                {// в настройках указано игнорировать старое значение - обновим текущую запись значения
+                {// в настройках указано игнорировать старое значение - обновим старую запись
                     $this->modelName = get_class($currentValue);
                     $model = $currentValue;
                 }
@@ -71,6 +71,9 @@ class EcCreateConfigValue extends EcUpdateConfigValue
         {// модель данных мы определили, но из формы ничего подобного не пришло
             throw new CHttpException(Yii::t('zii', 'Invalid request'));
         }
+        
+        // готовим настройку к редактированию, защищая системные настройки от случайных правок
+        $config->prepareDeleteValue();
         
         // переносим данные из формы в модель
         $model->attributes = $modelData;

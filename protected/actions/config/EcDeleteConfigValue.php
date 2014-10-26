@@ -35,6 +35,9 @@ class EcDeleteConfigValue extends EcUpdateConfigValue
         // загружаем модель значения настройки
         $valueModel = $this->loadModel($config->valueid);
         
+        // готовим настройку к редактированию, защищая системные настройки от случайных правок
+        $config->prepareDeleteValue();
+        
         if ( $config->isSingle() )
         {// настройка с одним значением - проcто обновляем поле связанной записи
             if ( $success = $valueModel->delete() )

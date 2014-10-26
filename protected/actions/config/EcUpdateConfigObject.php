@@ -25,6 +25,10 @@ class EcUpdateConfigObject extends EcUpdateConfigValue
         {
             // загружаем модель настройки
             $config  = $this->loadConfigModel($id);
+            
+            // готовим настройку к редактированию, защищая системные настройки от случайных правок
+            $config->prepareUpdateValue();
+            
             if ( is_array($modelData) AND ! empty($modelData) )
             {
                 $model->attributes = $modelData;
