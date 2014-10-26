@@ -636,9 +636,16 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
                 return $result;
             case 'city': 
             case 'region': $fieldName = $filterName.'id'; break;
+            case 'tatoo':  $fieldName = 'hastatoo'; break;
+            case 'dancer':  $fieldName = 'is'.$filterName; break;
+            // @todo
+            case "musicuniversities":  
+            case 'actoruniversities':  
+                return 'n/a'; 
+            break;
             default: $fieldName = $filterName;
         }
-        return $this->getPropertyData('chestsize');
+        return $this->getPropertyData($fieldName);
     }
     
     /**
@@ -716,8 +723,16 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
                 {
                     return;
                 }
-                break;
-            default: $value = $questionary->getScalarFieldDisplayValue($field, $questionary->$field); break;
+            break;
+            default:
+                if ( isset($questionary->$field) )
+                {
+                    $value = $questionary->getScalarFieldDisplayValue($field, $questionary->$field);
+                }else
+                {
+                    $value = 'n/a';
+                }
+            break;
         }
         if ( ! $value )
         {// значение не указано - выведем заглушку
@@ -725,11 +740,7 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
             // @todo если пользователь - админ то показывать что поле не заполнено
             // $muted = true;
         }
-    
-        // получаем параметры для виджета с информацией об анкете
-        // $options = $this->getPropertyOptions($label, $value, $placeholder, $affix, $hint);
-    
-        return array($label, $value.' '.$affix);
+        return $value.' '.$affix;
     }
     
     /**
