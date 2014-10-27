@@ -127,6 +127,8 @@ class QUserField extends CActiveRecord
 	 * @param string $objectType
 	 * @param string $objectId
 	 * @return QUserField
+	 * 
+	 * @deprecated использовать CustomRelationSourceBehavior
 	 */
 	public function forObject($objectType, $objectId)
 	{
@@ -151,6 +153,8 @@ class QUserField extends CActiveRecord
 	 * @param string $objectType
 	 * @param array  $objectIds
 	 * @return QUserField
+	 * 
+	 * @deprecated использовать CustomRelationSourceBehavior
 	 */
 	public function forObjects($objectType, $objectIds)
 	{
@@ -232,6 +236,7 @@ class QUserField extends CActiveRecord
 	
 	/**
 	 * Именованая группа условий:
+	 * 
 	 * @param EventVacancy $vacancy
 	 * @return QUserField
 	 */
@@ -255,7 +260,8 @@ class QUserField extends CActiveRecord
 	
 	/**
 	 * 
-	 * @param EventVacancy $vacancy
+	 * 
+	 * @param  EventVacancy $vacancy
 	 * @return bool
 	 */
 	public function isRequiredForVacancy($vacancy)
@@ -294,7 +300,7 @@ class QUserField extends CActiveRecord
 	
 	/**
 	 * 
-	 * @param EventVacancy $vacancy
+	 * @param  EventVacancy $vacancy
 	 * @return QUserField
 	 */
 	public function isForcedForVacancy($vacancy)
