@@ -388,16 +388,13 @@ class EventVacancy extends CActiveRecord
 	 */
 	public function scopes()
 	{
-	    return array(
-	        // последние созданные записи
-	        /*'lastCreated' => array(
-	            'order' => $this->getTableAlias(true).'.`timecreated` DESC'
-	        ),
-	        // последние измененные записи
-	        'lastModified' => array(
-	            'order' => $this->getTableAlias(true).'.`timemodified` DESC'
-	        ),*/
+	    // условия поиска по датам создания и изменения
+	    $timestampScopes = $this->asa('EcTimestampBehavior')->getDefaultTimestampScopes();
+	    // собственные условия поиска модели
+        $modelScopes = array(
+	        
 	    );
+	    return CMap::mergeArray($timestampScopes, $modelScopes);
 	}
 	
 	/**

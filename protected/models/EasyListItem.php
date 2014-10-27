@@ -333,7 +333,10 @@ class EasyListItem extends CActiveRecord
 	 */
 	public function scopes()
 	{
-	    return array(
+	    // условия поиска по датам создания и изменения
+	    $timestampScopes = $this->asa('EcTimestampBehavior')->getDefaultTimestampScopes();
+	    // собственные условия поиска модели
+        $modelScopes = array(
 	        // все элементы привязанные к какой-либо модели
 	        'linkedToObject' => array(
 	           'condition' => $this->getTableAlias(true).'.`objectfield` IS NULL AND '.
@@ -346,6 +349,7 @@ class EasyListItem extends CActiveRecord
 	               $this->getTableAlias(true).'.`objectid` > 0',
             ),
 	    );
+        return CMap::mergeArray($timestampScopes, $modelScopes);
 	}
 	
 	/**

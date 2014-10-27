@@ -167,22 +167,18 @@ class EventInvite extends CActiveRecord
 	 */
 	public function scopes()
 	{
-	    return array(
+	    // условия поиска по датам создания и изменения
+	    $timestampScopes = $this->asa('EcTimestampBehavior')->getDefaultTimestampScopes();
+	    // собственные условия поиска модели
+        $modelScopes = array(
 	        // истекшие приглашения: все приглашения привязанные к прошедшим событиям
 	        // (кроме приглашений на события без конкретной даты)
 	        'outdated' => array(
     	        'condition' => $this->getTableAlias(true).'.`event`.`timeend` < '.time().' AND '.
                                $this->getTableAlias(true).'.`event`.`nodates` = 0',
     	    ),
-	        // последние созданные записи
-	        'lastCreated' => array(
-	            'order' => $this->getTableAlias(true).'.`timecreated` DESC'
-	        ),
-	        // последние измененные записи
-	        'lastModified' => array(
-	            'order' => $this->getTableAlias(true).'.`timemodified` DESC'
-	        ),
 	    );
+        return CMap::mergeArray($timestampScopes, $modelScopes);
 	}
 	
 	/**

@@ -303,7 +303,10 @@ class Questionary extends CActiveRecord
      */
     public function scopes()
     {
-        return array(
+        // условия поиска по датам создания и изменения
+        $timestampScopes = $this->asa('EcTimestampBehavior')->getDefaultTimestampScopes();
+        // собственные условия поиска модели
+        $modelScopes = array(
             // только подтвержденные (одобренные модератором) анкеты
             // @todo - не используется, удалить при рефакторинге
             'active' => array(
@@ -315,6 +318,7 @@ class Questionary extends CActiveRecord
                 'condition' => $this->getTableAlias(true).".`status` IN ('".self::STATUS_ACTIVE."','".self::STATUS_PENDING."','".self::STATUS_REJECTED."')",
             ),
         );
+        return CMap::mergeArray($timestampScopes, $modelScopes);
     }
 
     /**

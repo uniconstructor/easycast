@@ -1,19 +1,22 @@
 <?php
 
 /**
- * This is the model class for table "{{extra_field_instances}}".
+ * Модель для работы с экземплярами дополнительных полей
  *
- * The followings are the available columns in table '{{extra_field_instances}}':
+ * Таблица '{{extra_field_instances}}':
  * @property integer $id
  * @property string $fieldid
  * @property string $objecttype
  * @property string $objectid
- * @property string $filling
+ * @property string $filling - обязательность заполнения поля перед подачей заявки
+ *                             'recommended'
+ *                             'required' - нельзя подать заявку если поле не заполнено
+ *                             'forced' - принудительно заполнить значением из default при подаче заявки
  * @property string $condition
  * @property string $data
  * @property string $timecreated
  * @property string $timemodified
- * @property string $default
+ * @property string $default - значение по умолчанию
  * @property string $sortorder
  * 
  * Relations:
@@ -166,30 +169,28 @@ class ExtraFieldInstance extends CActiveRecord
 	}
 	
 	/**
-	 * Именованая группа условий: получить все записи о доп. полях, привязанных к определенному объекту
-	 * (например к роли)
+	 * Именованая группа условий: получить все записи о доп. полях, привязанных 
+	 * к определенному объекту (например к роли)
 	 * alias для метода forObject()
-	 * @param string $objectType - тип объекта к которому привязано поле
-	 * @param int $objectId - id объекта к которому привязано поле
+	 * 
+	 * @param  string $objectType - тип объекта к которому привязано поле
+	 * @param  int $objectId      - id объекта к которому привязано поле
 	 * @return ExtraFieldInstance
 	 */
 	public function attachedTo($objectType, $objectId)
 	{
-	    if ( is_array($objectId) )
-	    {
-	        return $this->forObjects($objectType, $objectId);
-	    }else
-	    {
-	        return $this->forObject($objectType, $objectId);
-	    }
+	    return $this->forObject($objectType, $objectId);
 	}
 	
 	/**
-	 * Именованая группа условий: получить все записи о доп. полях, привязанных к определенному объекту
-	 * (например к роли)
+	 * Именованая группа условий: получить все записи о доп. полях, 
+	 * привязанных к определенному объекту (например к роли)
+	 * 
 	 * @param string $objectType - тип объекта к которому привязано поле
 	 * @param int $objectId - id объекта к которому привязано поле
 	 * @return ExtraFieldInstance
+	 * 
+	 * @deprecated использовать CustomRelationSourceBehavior
 	 */
 	public function forObject($objectType, $objectId)
 	{
@@ -204,7 +205,8 @@ class ExtraFieldInstance extends CActiveRecord
 	
 	/**
 	 * Именованная группа условий поиска - получить записи принадлежащие определенной роли
-	 * @param EventVacancy $vacancy - id роли, на которую подана заявка
+	 * 
+	 * @param  EventVacancy $vacancy - id роли, на которую подана заявка
 	 * @return ExtraFieldInstance
 	 */
 	public function forVacancy($vacancy)
@@ -226,6 +228,7 @@ class ExtraFieldInstance extends CActiveRecord
 	/**
 	 * Именованная группа условий поиска - получить записи (ссылки) на доп. поле,
 	 * или другими словами - посмотреть к каким объектам оно когда-либо прикреплялось
+	 * 
 	 * @param int $fieldId - id дополнительного поля
 	 * @return ExtraFieldInstance
 	 */
@@ -241,7 +244,8 @@ class ExtraFieldInstance extends CActiveRecord
 	
 	/**
 	 * Именованная группа условий поиска 
-	 * @param int $objectType - id дополнительного поля
+	 * 
+	 * @param string $objectType - тип дополнительного поля
 	 * @return ExtraFieldInstance
 	 */
 	public function forType($objectType)
@@ -256,8 +260,11 @@ class ExtraFieldInstance extends CActiveRecord
 	
 	/**
 	 * Именованная группа условий поиска 
+	 * 
 	 * @param array $ids 
 	 * @return ExtraFieldInstance
+	 * 
+	 * @deprecated использовать CustomRelationSourceBehavior
 	 */
 	public function forObjects($objectType, $ids)
 	{
@@ -336,6 +343,7 @@ class ExtraFieldInstance extends CActiveRecord
 	
 	/**
 	 * Получить название фильтра поиска
+	 * 
 	 * @return string
 	 */
 	public function getName()
@@ -354,6 +362,7 @@ class ExtraFieldInstance extends CActiveRecord
 	
 	/**
 	 * Получить описание фильтра поиска
+	 * 
 	 * @return string
 	 */
 	public function getDescription()
@@ -399,6 +408,10 @@ class ExtraFieldInstance extends CActiveRecord
 	/**
 	 * 
 	 * @return string
+	 * 
+	 * @deprecated больше не используется - шаги регистрации теперь хранятся в списках
+	 *             список полей формы должен быть свойством шага регистрации а не 
+	 *             свойством экземпляра поля
 	 */
 	public function getStepName()
 	{
@@ -414,6 +427,8 @@ class ExtraFieldInstance extends CActiveRecord
 	 *
 	 * @param int $id
 	 * @return WizardStepInstance
+	 * 
+	 * @deprecated больше не используется - шаги регистрации теперь хранятся в списках
 	 */
 	public function getLinkedStepInstance()
 	{

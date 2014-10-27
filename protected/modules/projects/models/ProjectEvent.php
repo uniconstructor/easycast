@@ -345,7 +345,10 @@ class ProjectEvent extends CActiveRecord
 	 */
 	public function scopes()
 	{
-	    return array(
+	    // условия поиска по датам создания и изменения
+	    $timestampScopes = $this->asa('EcTimestampBehavior')->getDefaultTimestampScopes();
+	    // собственные условия поиска модели
+        $modelScopes = array(
 	        // первые начавшиеся
 	        'firstStarted' => array(
 	            'order' => $this->getTableAlias(true).'.`timestart` ASC'
@@ -399,6 +402,7 @@ class ProjectEvent extends CActiveRecord
 	            'condition' => $this->getTableAlias(true).'.`parentid` = 0'
 	        ),
 	    );
+        return CMap::mergeArray($timestampScopes, $modelScopes);
     }
     
     /**

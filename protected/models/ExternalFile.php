@@ -142,18 +142,23 @@ class ExternalFile extends SWActiveRecord
 	 */
 	public function scopes()
 	{
+	    // условия поиска по датам создания и изменения
+	    $timestampScopes = $this->asa('EcTimestampBehavior')->getDefaultTimestampScopes();
+	    
 	    $alias = $this->owner->getTableAlias(true);
 	    // условие для извлечения файлов которые нужно загрузить либо обновить содержимое
 	    $notUploadedCondition = new CDbCriteria();
 	    $notUploadedCondition->addCondition("{$alias}.`lastupload` < {$alias}.`lastsync` ");
 	    $notUploadedCondition->addCondition("{$alias}.`lastupload` > 0 AND {$alias}.`lastsync` = 0 ", 'OR');
 	    
-	    return array(
+	    // собственные условия поиска модели
+        $modelScopes = array(
 	        // файлы, которые ждут загрузки на сервер
 	        'notUploaded' => array(
 	            'condition' => $notUploadedCondition->condition,
 	        ),
         );
+	    return CMap::mergeArray($timestampScopes, $modelScopes);
 	} 
 
 	/**

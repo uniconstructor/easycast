@@ -62,6 +62,14 @@ class StatusHistory extends CActiveRecord
 	        ),
 	    );
 	}
+	
+	/**
+	 * @see CActiveRecord::scopes()
+	 */
+	public function scopes()
+	{
+	    return $this->asa('EcTimestampBehavior')->getDefaultTimestampScopes();
+	}
 
 	/**
 	 * @return array customized attribute labels (name=>label)

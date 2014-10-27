@@ -1,9 +1,10 @@
 <?php
 
 /**
- * This is the model class for table "{{extra_fields}}".
+ * Модель для работы с дополнительными полями анкеты участника, которые возможно потребуются 
+ * только один раз и только для заявки на конкретную роль 
  *
- * The followings are the available columns in table '{{extra_fields}}':
+ * Таблица '{{extra_fields}}':
  * @property integer $id
  * @property string $name
  * @property string $type
@@ -184,9 +185,12 @@ class ExtraField extends CActiveRecord
 	
 	/**
 	 * Именованая группа условий: получить все поля, привязаные к определенному объекту
+	 * 
 	 * @param string $objectType
 	 * @param int $objectId
 	 * @return ExtraField
+	 * 
+	 * @deprecated использовать CustomRelationSourceBehavior
 	 */
 	public function forObject($objectType, $objectId)
 	{
@@ -208,9 +212,12 @@ class ExtraField extends CActiveRecord
 	
 	/**
 	 * Именованая группа условий: получить все поля, привязаные к определенному объекту
+	 * 
 	 * @param string $objectType
 	 * @param array $objectIds
 	 * @return ExtraField
+	 * 
+	 * @deprecated использовать CustomRelationSourceBehavior
 	 */
 	public function forObjects($objectType, $objectIds)
 	{
@@ -278,8 +285,11 @@ class ExtraField extends CActiveRecord
 	
 	/**
 	 * Именованая группа условий: получить все поля, привязаные к указанным этапам регистрации
+	 * 
 	 * @param array $ids
 	 * @return ExtraField
+	 * 
+	 * @deprecated больше не используется - шаги регистрации теперь хранятся в списках
 	 */
 	public function forStepInstances($ids)
 	{
@@ -296,6 +306,7 @@ class ExtraField extends CActiveRecord
 	    $criteria->together = true;
 	     
 	    $this->getDbCriteria()->mergeWith($criteria);
+	    
 	    return $this;
 	}
 	

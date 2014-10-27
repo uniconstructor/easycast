@@ -239,34 +239,6 @@ class Config extends CActiveRecord
      */
     const TYPE_REDACTOR     = 'redactor';
     
-    /**
-     * @see CActiveRecord::init()
-     */
-    /*public function init()
-    {
-        parent::init();
-        
-        $this->refreshMetaData();
-        $this->getMetaData();
-        $this->refresh();
-        
-        CVarDumper::dump($this->attributes, 10, true);
-        CVarDumper::dump($this->getMetaData()->relations, 10, true);die;
-    }*/
-    
-    /**
-     * @see CActiveRecord::afterFind()
-     */
-    /*public function afterFind()
-    {
-        parent::afterFind();
-        
-        $this->refreshMetaData();
-        
-        CVarDumper::dump($this->attributes, 10, true);
-        CVarDumper::dump($this->getMetaData()->relations, 10, true);die;
-    }*/
-    
 	/**
 	 * @return string the associated database table name
 	 */
@@ -491,7 +463,7 @@ class Config extends CActiveRecord
 	{
 	    // условия поиска по датам создания и изменения
 	    $timestampScopes = $this->asa('EcTimestampBehavior')->getDefaultTimestampScopes();
-	    // собственные условия поиска для модели
+	    // собственные условия поиска модели
 	    $modelScopes = array(
 	        // все настройки, содержащие несколько значений (множественный выбор)
 	        'multipleOnly' => array(

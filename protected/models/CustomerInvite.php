@@ -157,6 +157,14 @@ class CustomerInvite extends CActiveRecord
     }
     
     /**
+     * @see CActiveRecord::scopes()
+     */
+    public function scopes()
+    {
+        return $this->asa('EcTimestampBehavior')->getDefaultTimestampScopes();
+    }
+    
+    /**
      * @see CActiveRecord::beforeSave()
      */
     protected function beforeSave()
