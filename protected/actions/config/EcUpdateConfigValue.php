@@ -82,9 +82,14 @@ class EcUpdateConfigValue extends EcUpdateAction
     protected function loadConfigModel($id)
     {
         $finder = CActiveRecord::model('Config');
+        /* @var $model Config */
         if ( ! $model = $finder->findByPk($id) )
         {
             throw new CHttpException(404, 'Unable to find the requested object.');
+        }
+        if ( ( $model->isRoot() OR $model->isSystem() ) AND ! Yii::app()->user->checkAccess('Admin') )
+        {
+            throw new CHttpException(404, 'Системные настройки можно править только администраторам.');
         }
         return $model;
     }
