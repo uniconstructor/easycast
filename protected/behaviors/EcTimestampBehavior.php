@@ -34,6 +34,7 @@ Yii::import('zii.behaviors.CTimestampBehavior');
  *       то все работает, но если попытаться использовать то же условие при создании CActiveDataProvider
  *       то они не будут найдены: видимо при поиске записей через CActiveDataProvider к классу модели
  *       не подключаются поведения
+ * @todo переписать подключение attributeLabels()
  */
 class EcTimestampBehavior extends CTimestampBehavior
 {
