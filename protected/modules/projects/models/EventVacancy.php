@@ -786,8 +786,9 @@ class EventVacancy extends CActiveRecord
 	
 	/**
 	 * Определить, нужно ли пользователю указать доп. данные прежде чем подать заявку на эту роль
-	 * @param Questionary $questionary
-	 * @return void
+	 * 
+	 * @param  Questionary $questionary
+	 * @return bool
 	 */
 	public function needMoreDataFromUser($questionary)
 	{
