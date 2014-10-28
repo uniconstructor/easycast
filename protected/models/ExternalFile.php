@@ -28,7 +28,10 @@
  * @property string $deleteafter
  * @property string $status
  * 
- * @property string $extension - расширение файла (геттер, read-only)
+ * Дополнительные поля:
+ * @property string $extension - (геттер, read-only) расширение файла
+ * 
+ * @method ExternalFile notUploaded()
  * 
  * Relations:
  * @property string $originalFile - оригинал файла из которого был создан этот файл 
@@ -39,6 +42,7 @@
  * @todo подключить настройки
  * @todo доработать rules()
  * @todo системная настройка "макс/мин количество попыток для операций с файловым хранилищем"
+ * @todo удаление файлов
  */
 class ExternalFile extends SWActiveRecord
 {
@@ -139,6 +143,8 @@ class ExternalFile extends SWActiveRecord
 	
 	/**
 	 * @see CActiveRecord::scopes()
+	 * 
+	 * @todo добавить условие по статусу для файлов которые нужно загрузить
 	 */
 	public function scopes()
 	{
@@ -455,12 +461,20 @@ class ExternalFile extends SWActiveRecord
 	}
 	
 	/**
-	 * 
+	 * Загрузить файл во внешнее хранилище
 	 * 
 	 * @return bool
 	 */
-	public function saveExternal($source, $target)
+	public function saveExternal($source=null, $target=null)
 	{
+	    if ( $source === null )
+	    {
+	        $source = $this->getLocalPath();
+	    }
+	    if ( $target === null )
+	    {
+	        $target = $this->getExternalPath();
+	    }
 	    if ( ! file_exists($source) )
 	    {// no source file
             throw new CException('No source file: upload aborted');
@@ -539,19 +553,22 @@ class ExternalFile extends SWActiveRecord
 	    return $this->getS3()->getObjectUrl($this->bucket, $this->getExternalPath());
 	}
 	
+	/**
+	 * 
+	 * @return string
+	 */
 	protected function getLocalPathPrefix()
 	{
 	    return Yii::getPathOfAlias('webroot').DIRECTORY_SEPARATOR.
 	       'gallery'.DIRECTORY_SEPARATOR.$this->path.DIRECTORY_SEPARATOR;
 	}
 	
+	/**
+	 * 
+	 * @return string
+	 */
 	protected function getNewFileName()
 	{
 	    return $this->name.'.'.$this->extension;
-	}
-	
-	protected function getUploadedInstance($name='file')
-	{
-	    
 	}
 }
