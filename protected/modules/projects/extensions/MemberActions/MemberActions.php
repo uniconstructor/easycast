@@ -94,6 +94,12 @@ class MemberActions extends CWidget
             return '';
         }
         $this->render($this->displayMode);
+        if ( Yii::app()->user->checkAccess('Admin') AND ! $this->customerInvite )
+        {
+            $this->widget('admin.extensions.ChangeMemberVacancy.ChangeMemberVacancy', array(
+                'member' => $this->member,
+            ));
+        }
     }
     
     /**
