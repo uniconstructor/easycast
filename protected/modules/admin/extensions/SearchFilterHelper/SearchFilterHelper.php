@@ -78,7 +78,7 @@ class SearchFilterHelper extends CWidget
     {
         $beforeSendJs = "$('#{$this->getButtonId($type)}').prop('disabled', true);";
         $successJs    = "$('#{$this->getResultId($type)}').html(data);";
-        $completeJs   = "$('#{$this->getButtonId($type)}').prop('disabled', true);";
+        $completeJs   = "$('#{$this->getButtonId($type)}').prop('disabled', false);";
         
         switch ( $type )
         {
