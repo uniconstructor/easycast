@@ -94,6 +94,8 @@ class AdminModule extends CWebModule
 	        $this->cronTaskSendMail();
 	        // загрузка на S3 изображений, которые не получилось выгрузить с первого раза
 	        $this->cronTaskUploadImages();
+	        // загрузка на S3 остальных файлов
+	        $this->cronTaskUploadFiles();
 	    }
 	    // очистка устаревших блокировок
 	    ObjectLock::model()->clearLocks();
@@ -166,7 +168,37 @@ class AdminModule extends CWebModule
 	}
 	
 	/**
+	 * Загрузка других файлов на Amazon S3
+	 * 
+	 * @param  number $limit - максимальное количество файлов, которое будет загружено за один раз
+	 * @return void
+	 */
+	public function cronTaskUploadFiles($limit=3)
+	{
+	    ignore_user_abort(true);
+	    set_time_limit(0);
+	    
+	    // находим все не загруженные файлы
+	    if ( ! $files = ExternalFile::model()->notUploaded()->findAll('LIMIT '.$limit) )
+	    {
+	        echo 'Все файлы перенесены во внешнее хранилище ';
+	        return;
+	    }
+	    // делаем по 1 попытке загрузки каждого файла
+	    foreach ( $files as $file )
+	    {
+	        try {
+	            $file->saveExternal();
+	        }catch ( Exception $e )
+	        {
+	            echo $e->getMessage();
+	        }
+	    }
+	}
+	
+	/**
 	 * Отправляет часть накопившейся почты, учитывая ограничения хостинга Amazon
+	 * 
 	 * @param int $count - сколько раз вызвать рассылку (за один раз из очереди отправляется несколько писем)
 	 * @return void
 	 */
