@@ -381,9 +381,13 @@ class ProjectEvent extends CActiveRecord
 	        'withoutDate' => array(
 	            'condition' => $this->getTableAlias(true).'.`nodates` = 1'
 	        ),
-	        // только без конкретной даты
+	        // начинаются до текущего момента (прошедшие)
 	        'startsBeforeNow' => array(
-	            'condition' => $this->getTableAlias(true).'.`startdate` < '.time(),
+	            'condition' => $this->getTableAlias(true).'.`timestart` < '.time(),
+	        ),
+	        // начинаются после текущего момента (актуальные)
+	        'startsAfterNow' => array(
+	            'condition' => $this->getTableAlias(true).'.`timestart` > '.time(),
 	        ),
 	        // только события-группы
 	        'groupsOnly' => array(
