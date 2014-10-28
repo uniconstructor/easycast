@@ -31,19 +31,19 @@ class ProjectMemberController extends Controller
 	public function accessRules()
 	{
 		return array(
-			array('allow',  // allow all users to perform 'index' and 'view' actions
+			array('allow',
 				'actions'=>array('index', 'view'),
 				'users'=>array('@'),
 			),
-			array('allow', // allow authenticated user to perform 'create' and 'update' actions
+			array('allow',
 				'actions'=>array('create', 'update'),
 				'users'=>array('@'),
 			),
-			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin', 'delete', 'setStatus'),
+			array('allow',
+				'actions'=>array('admin', 'delete', 'setStatus', 'changeVacancy'),
 				'users'=>array('@'),
 			),
-			array('deny',  // deny all users
+			array('deny',
 				'users'=>array('*'),
 			),
 		);
@@ -171,15 +171,67 @@ class ProjectMemberController extends Controller
 			'model' => $model,
 		));
 	}
+	
+	/**
+	 * 
+	 * @return void
+	 */
+	public function actionChangeVacancy()
+	{
+	    $pk        = Yii::app()->request->getParam('pk');
+	    $vacancyId = Yii::app()->request->getParam('value');
+	    
+	    $member  = $this->loadModel($pk);
+	    $vacancy = $this->loadVacancyModel($vacancyId);
+	    
+	    if ( $vacancy->needMoreDataFromUser($member->questionary) )
+	    {// нужно добавить доп. данные перед перемещением заявки
+	        $instances = ExtraFieldInstance::model()->forVacancy($vacancy);
+	        foreach ( $instances as $instance )
+	        {
+	            $valueExists = ExtraFieldValue::model()->forField($instance->field)->
+                    forQuestionary($member->questionary)->forVacancy($vacancy)->exists();
+	            if ( ! $fieldExists )
+	            {
+	                $value = new ExtraFieldValue;
+	                $value->instanceid    = $instance->id;
+	                $value->questionaryid = $member->questionary->id;
+	                $value->value         = '';
+	                $value->save();
+	            }
+	        }
+	    }
+	    $member->vacancyid = $vacancy->id;
+	    $member->save();
+	} 
 
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.
+	 * 
 	 * @param integer the ID of the model to be loaded
+	 * @return ProjectMember
 	 */
 	public function loadModel($id)
 	{
 		$model = ProjectMember::model()->findByPk($id);
+		if( $model === null )
+		{
+		    throw new CHttpException(404, 'The requested page does not exist.');
+		}
+		return $model;
+	}
+	
+	/**
+	 * Returns the data model based on the primary key given in the GET variable.
+	 * If the data model is not found, an HTTP exception will be raised.
+	 * 
+	 * @param integer the ID of the model to be loaded
+	 * @return EventVacancy
+	 */
+	public function loadVacancyModel($id)
+	{
+		$model = EventVacancy::model()->findByPk($id);
 		if( $model === null )
 		{
 		    throw new CHttpException(404, 'The requested page does not exist.');
