@@ -32,6 +32,9 @@ class m141028_025700_installFilterTables extends EcMigration
             'maxvalues'     => "int(11) UNSIGNED NOT NULL DEFAULT 0",
             'defaultlistid' => "int(11) UNSIGNED NOT NULL DEFAULT 0",
             'combine'       => "VARCHAR(20) NOT NULL DEFAULT 'OR'",
+            'minvalue'      => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
+            'maxvalue'      => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
+            'stepvalue'     => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
             'timecreated'   => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
             'timemodified'  => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
         );
