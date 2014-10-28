@@ -477,6 +477,7 @@ class ExtraField extends CActiveRecord
 	
 	/**
 	 * Определить, прикреплено ли дополнительное поле к объекту
+	 * 
 	 * @param string $objectType
 	 * @param int $objectId
 	 * @return bool
@@ -484,7 +485,7 @@ class ExtraField extends CActiveRecord
 	public function isAttachedTo($objectType, $objectId)
 	{
 	    return ExtraFieldInstance::model()->forField($this->id)->
-	       attachedTo($objectType, $objectId)->exists();
+            attachedTo($objectType, $objectId)->exists();
 	}
 	
 	/**
