@@ -12,13 +12,17 @@ $this->breadcrumbs = array(
 
 // общий список настроек
 $this->widget('bootstrap.widgets.TbNavbar', array(
-    'brand'    => 'Системные настройки',
+    'brand'    => 'Настройки',
     'fixed'    => false,
     'brandUrl' => array('/admin/config'),
     'items' => array(
         array(
             'class' => 'bootstrap.widgets.TbMenu',
             'items' => array(
+                array(
+                    'label' => 'Система',
+                    'url'   => array('/admin/config'),
+                ),
                 array(
                     'label' => 'Анкета',
                     'url'   => array('/admin/config/view', 'type' => 'Questionary'),
@@ -40,6 +44,7 @@ $this->widget('bootstrap.widgets.TbNavbar', array(
     )
 ));
 
+// все настройки модели
 $this->widget('ext.EditableConfig.EditableConfig', array(
     'objectType'      => $type,
     'objectId'        => $id,
@@ -48,4 +53,4 @@ $this->widget('ext.EditableConfig.EditableConfig', array(
     'deleteUrl'       => Yii::app()->createUrl('admin/config/deleteValue'),
     'updateObjectUrl' => Yii::app()->createUrl('admin/config/updateConfig'),
 ));
-?>
+

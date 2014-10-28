@@ -12,13 +12,17 @@ $this->breadcrumbs = array(
 
 // общий список настроек
 $this->widget('bootstrap.widgets.TbNavbar', array(
-    'brand'    => 'Системные настройки',
+    'brand'    => 'Настройки',
     'fixed'    => false,
     'brandUrl' => array('/admin/config'),
     'items' => array(
         array(
             'class' => 'bootstrap.widgets.TbMenu',
             'items' => array(
+                array(
+                    'label' => 'Система',
+                    'url'   => array('/admin/config'),
+                ),
                 array(
                     'label' => 'Анкета',
                     'url'   => array('/admin/config/view', 'type' => 'Questionary'),
