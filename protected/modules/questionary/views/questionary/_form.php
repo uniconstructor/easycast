@@ -156,6 +156,11 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR .
             'period' => 45,
         )
     );*/
+    
+    // предупреждение о том что нужно дополнить данные заявки (если надо)
+    $this->widget('questionary.extensions.widgets.QUserNotifications.QUserNotifications', array(
+        'questionary' => $questionary,
+    ));
     ?>
 	<p class="note">
         <?= Yii::t('coreMessages', 'form_required_fields', array('{mark}' => '<span class="required">*</span>')); ?>
@@ -1166,7 +1171,7 @@ Dropzone.options.myAwesomeDropzone = {
 }
 </script-->
 <?php
-if ( Yii::app()->user->checkAccess('Admin') OR Yii::app()->user->checkAccess('User') )
+if ( Yii::app()->user->checkAccess('Admin') )
 {// @todo загрузка файлов видео пока что только для админов
     Yii::import("xupload.models.XUploadForm");
     $xUploadForm = new XUploadForm;

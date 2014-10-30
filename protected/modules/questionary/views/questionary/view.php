@@ -23,6 +23,12 @@ if ( $canEdit )
 $this->widget('bootstrap.widgets.TbAlert');
 ?>
 <div class="row-fluid">
+    <?php 
+    // предупреждение о том что нужно дополнить данные заявки (если надо)
+    $this->widget('questionary.extensions.widgets.QUserNotifications.QUserNotifications', array(
+        'questionary' => $questionary,
+    ));
+    ?>
     <div id="order_message" class="<?= $orderMessageClass; ?>" style="margin-top:20px;<?= $orderMessageStyle; ?>">
         <?php 
         // сообщение о том что участник приглашен на съемки
