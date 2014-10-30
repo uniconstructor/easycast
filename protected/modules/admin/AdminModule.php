@@ -177,9 +177,8 @@ class AdminModule extends CWebModule
 	{
 	    ignore_user_abort(true);
 	    set_time_limit(0);
-	    
 	    // находим все не загруженные файлы
-	    if ( ! $files = ExternalFile::model()->notUploaded()->findAll('LIMIT '.$limit) )
+	    if ( ! $files = ExternalFile::model()->notUploaded($limit)->findAll() )
 	    {
 	        echo 'Все файлы перенесены во внешнее хранилище ';
 	        return;
@@ -187,7 +186,8 @@ class AdminModule extends CWebModule
 	    // делаем по 1 попытке загрузки каждого файла
 	    foreach ( $files as $file )
 	    {
-	        try {
+	        try
+	        {
 	            $file->saveExternal();
 	        }catch ( Exception $e )
 	        {

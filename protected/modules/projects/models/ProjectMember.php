@@ -27,6 +27,7 @@
  * 
  * @todo внедрить workflow-модель: увеличить поле "статус" до 50 символов, обновить все старые записи
  *       переименовав статусы, наследовать от SWActiveRecord подключить swBehavior
+ * @todo добавить условие поиска: все заявки требующие указания доп. данных
  */
 class ProjectMember extends CActiveRecord
 {
@@ -320,30 +321,46 @@ class ProjectMember extends CActiveRecord
 	
 	/**
 	 * Именованная группа условий поиска - получить заявки принадлежащие определенной роли
-	 * @param int $vacancyId - id роли, на которую подана заявка
+	 * 
+	 * @param  EventVacancy|int $vacancy - id роли, на которую подана заявка
 	 * @return ProjectMember
 	 */
-	public function forVacancy($vacancyId)
+	public function forVacancy($vacancy, $operation='AND')
 	{
+	    if ( $vacancy instanceof EventVacancy )
+	    {
+	        $vacancyId = $vacancy->id;
+	    }else
+	    {
+	        $vacancyId = (int)$vacancy;
+	    }
 	    $criteria = new CDbCriteria();
 	    $criteria->compare($this->getTableAlias(true).'.`vacancyid`', $vacancyId);
 	    
-	    $this->getDbCriteria()->mergeWith($criteria);
+	    $this->getDbCriteria()->mergeWith($criteria, $operation);
 	    
 	    return $this;
 	}
 	
 	/**
 	 * Именованная группа условий поиска - получить заявки принадлежащие одной анкете
-	 * @param int $questionaryId - id роли, на которую подана заявка
+	 * 
+	 * @param  Questionary|int $questionary - id роли, на которую подана заявка
 	 * @return ProjectMember
 	 */
-	public function forQuestionary($questionaryId)
+	public function forQuestionary($questionary, $operation='AND')
 	{
+	    if ( $questionary instanceof Questionary )
+	    {
+	        $questionaryId = $questionary->id;
+	    }else
+	    {
+	        $questionaryId = (int)$questionary;
+	    }
 	    $criteria = new CDbCriteria();
 	    $criteria->compare($this->getTableAlias(true).'.`memberid`', $questionaryId);
 	    
-	    $this->getDbCriteria()->mergeWith($criteria);
+	    $this->getDbCriteria()->mergeWith($criteria, $operation);
 	    
 	    return $this;
 	}
