@@ -142,9 +142,11 @@ class ProjectMemberController extends Controller
 	    $type      = Yii::app()->request->getParam('type');
 	    $projectid = Yii::app()->request->getParam('projectid');
 	    $eventid   = Yii::app()->request->getParam('eventid');
-	    $vacancyid = Yii::app()->request->getParam('vacancyid');
-	    $vacancyid = Yii::app()->request->getParam('vid', $vacancyid);
 	    
+	    if ( ! $vacancyid = Yii::app()->request->getParam('vacancyid') )
+	    {
+	        $vacancyid = Yii::app()->request->getParam('vid', $vacancyid);
+	    }
 	    
 		$this->render('index',array(
 			'projectid' => $projectid,
@@ -186,12 +188,12 @@ class ProjectMemberController extends Controller
 	    
 	    if ( $vacancy->needMoreDataFromUser($member->questionary) )
 	    {// нужно добавить доп. данные перед перемещением заявки
-	        $instances = ExtraFieldInstance::model()->forVacancy($vacancy);
+	        $instances = ExtraFieldInstance::model()->forVacancy($vacancy)->findAll();
 	        foreach ( $instances as $instance )
 	        {
-	            $valueExists = ExtraFieldValue::model()->forField($instance->field)->
+	            $valueExists = ExtraFieldValue::model()->forField($instance->fieldObject->id)->
                     forQuestionary($member->questionary)->forVacancy($vacancy)->exists();
-	            if ( ! $fieldExists )
+	            if ( ! $valueExists )
 	            {
 	                $value = new ExtraFieldValue;
 	                $value->instanceid    = $instance->id;
