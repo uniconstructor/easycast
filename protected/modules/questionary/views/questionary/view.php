@@ -53,9 +53,10 @@ $this->widget('bootstrap.widgets.TbAlert');
         ));
         if ( ! $questionary->visible )
         {// Сообщение о том что анкета скрыта
-            $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
+            // @todo включить после добавления настроек
+            /*$this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
                 'message' => QuestionaryModule::t('your_profile_is_hidden'),
-            ));
+            ));*/
         }
         ?>
     </div>
