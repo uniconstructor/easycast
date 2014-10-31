@@ -118,6 +118,7 @@
  *                           Как правило это элементы списка (EasyListItem)
  *                           Если настройка предусматривает максимум одно значение - то в этом массиве 
  *                           будет только одна модель
+ * @property EasyList        $selectedList - список, содержащий выбранные значения
  * @property EasyListItem[]  $selectedListItems -  элементы списка, выбранные в качестве значений 
  *                           этой настройки (только для настроек с множественным выбором) 
  * 
@@ -235,9 +236,13 @@ class Config extends CActiveRecord
      */
     const TYPE_URL          = 'url';
     /**
-     * @var string - тип настройки: текстовое поле с redactor-виджетом
+     * @var string - тип настройки: текстовое поле с виджетом "redactor"
      */
     const TYPE_REDACTOR     = 'redactor';
+    /**
+     * @var string - тип настройки: текстовое поле с виджетом html5-редактора
+     */
+    const TYPE_WYSIHTML5    = 'wysihtml5';
     
 	/**
 	 * @return string the associated database table name
@@ -628,6 +633,17 @@ class Config extends CActiveRecord
 	}
 	
 	/**
+	 * Определить, заполнена ли эта настройка
+	 * (есть ли у нее связанный объект значения)
+	 *
+	 * @return bool
+	 */
+	public function isFilled()
+	{
+	    return (bool)$this->getValueObject();
+	}
+	
+	/**
 	 * Подготовить настройку к добавлению нового значения: эта функция вызывается после всех
 	 * проверок: она проверяет текущее значение настройки и следит за тем чтобы при правке
 	 * обычных настроек не были изменены стандартные или системные 
@@ -694,17 +710,6 @@ class Config extends CActiveRecord
 	    }
 	    return true;
 	}
-	
-	/**
-	 * Определить, есть ли у этой настройки связанный объект значения
-	 *
-	 * @return bool
-	 * @todo название слишком напоминает условие поиска - нужно другое
-	 */
-	/*public function hasValueObject()
-	{
-	    return (bool)$this->getValueObject();
-	}*/
 	
 	/**
 	 * Получить готовое значение текущей модели настройки ($this)
