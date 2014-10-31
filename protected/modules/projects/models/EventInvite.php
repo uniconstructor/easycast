@@ -20,6 +20,7 @@
  * @todo заменить во всем коде модели текст статусов константами
  * @todo внедрить simpleWorkflow
  * @todo переписать delete() на мягкое удаление
+ * @todo отказаться от поля delete
  * @todo изучить возможно ли объединение с таблицей customer_invites для того чтобы сделать 
  *       общую модель приглашений для всего приложения
  * 
@@ -177,6 +178,14 @@ class EventInvite extends CActiveRecord
     	        'condition' => $this->getTableAlias(true).'.`event`.`timeend` < '.time().' AND '.
                                $this->getTableAlias(true).'.`event`.`nodates` = 0',
     	    ),
+            // удаленные
+            'deleted' => array(
+    	        'condition' => $this->getTableAlias(true).'.`deleted` = 0',
+            ),
+            // не удаленные
+            'notDeleted' => array(
+    	        'condition' => $this->getTableAlias(true).'.`deleted` <> 0',
+            ),
 	    );
         return CMap::mergeArray($timestampScopes, $modelScopes);
 	}
