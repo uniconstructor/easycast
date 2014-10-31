@@ -1,9 +1,12 @@
 <?php
 /**
  * Вся информация из анкеты участника, разбитая по вкладкам
+ * @todo использовать списки
  */
 /* @var $this SmartMemberInfo */
 
+
+/**
 $tabs          = array();
 $stepInstances = WizardStep::model()->forVacancy($this->vacancy->id)->findAll();
 
@@ -20,3 +23,8 @@ $this->widget('bootstrap.widgets.TbTabs', array(
     'placement' => 'top',
     'tabs'      => $tabs,
 ));
+*/
+// полный список вопросов анкеты
+$answers = ExtraField::model()->forVacancy($this->vacancy)->findAll();
+
+echo $this->getQuestionsSet($answers, $this->projectMember);

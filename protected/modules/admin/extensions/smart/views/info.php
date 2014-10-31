@@ -137,7 +137,7 @@
                             <div class="padding-10">
                                 <?php
                                 // анкета участника
-                                $this->render('_wizardData');
+                                $this->render('_answersData');
                                 ?>
                             </div>
                         </div>

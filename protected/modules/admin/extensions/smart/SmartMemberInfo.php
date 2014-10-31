@@ -59,10 +59,10 @@ class SmartMemberInfo extends CWidget
             $included = MemberInstance::model()->forObject('section_instance', $instance->id)->
                 forMember($projectMember->id)->exists();
             if ( $included )
-            {// участник 
+            {// участник присутствует в списке
                 $options[$instance->id]['checked'] = true;
             }else
-            {
+            {// участника нет в списке
                 $options[$instance->id]['checked'] = false;
             }
         }
@@ -72,24 +72,24 @@ class SmartMemberInfo extends CWidget
     /**
      * Получить ответы из заявки участника внутри одного шага регистрации
      * 
-     * @param WizardStepInstance $tabInstance - шаг регистрации из которого берется список полей
-     * @param ProjectMember $projectMember - заявка на роль
+     * @param  ExtraField[]  $extraFields   - шаг регистрации из которого берется список полей
+     * @param  ProjectMember $projectMember - заявка на роль
      * @return string
      */
-    protected function getTabQuestions($tabInstance, $projectMember)
+    protected function getQuestionsSet($extraFields, $projectMember)
     {
         $result      = '';
         $fields      = array();
         $questionary = $projectMember->questionary;
-        foreach ( $tabInstance->getFields() as $instance )
+        
+        foreach ( $extraFields as $fieldObject )
         {// убираем из списка полей то что все равно не хотим или не можем отображать
-            $fieldObject = $instance->fieldObject;
             if ( (isset($fieldObject->multiply) AND $fieldObject->multiply) OR 
                  in_array($fieldObject->name, $this->skipFields) )
             {// @todo пока не выводим списки полей
                 continue;
             }
-            $fields[] = $instance;
+            $fields[] = $fieldObject;
         }
         // считаем сколько полей осталось
         $fieldCount  = count($fields);
@@ -132,16 +132,15 @@ class SmartMemberInfo extends CWidget
     
     /**
      * Получить блок с ответом участника на один вопрос анкеты
-     * @param QUserFieldInstance|ExtraFieldInstance $fieldInstance
+     * @param ExtraField $fieldInstance
      * @param ProjectMember $projectMember
      * @return string
      */
-    protected function getQuestionBlock($fieldInstance, $projectMember)
+    protected function getQuestionBlock($field, $projectMember)
     {
         // функция getName общая у разных экземпляров классов, поэтому получаем название
         // поле от instance а не от самого объекта
-        $question = $fieldInstance->getName();
-        $field    = $fieldInstance->fieldObject;
+        $question = $field->label;
         $answer   = '';
         
         $projectMember->questionary->setScenario('view');
@@ -163,7 +162,7 @@ class SmartMemberInfo extends CWidget
             {// @todo записать в лог, потому что вообще это не очень
                 // нормальная ситуация: у нас может не быть значения
                 // в объекте но не может не быть объекта значения для поля
-                $answer = '';
+                $answer = '[не указано]';
             }else
             {
                 $answer = $valueObject->value;
