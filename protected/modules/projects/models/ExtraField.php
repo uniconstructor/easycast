@@ -207,6 +207,7 @@ class ExtraField extends CActiveRecord
 	    $criteria->together = true;
 	    
 	    $this->getDbCriteria()->mergeWith($criteria);
+	    
 	    return $this;
 	}
 	
@@ -239,7 +240,8 @@ class ExtraField extends CActiveRecord
 	
 	/**
 	 * Именованная группа условий поиска - получить записи принадлежащие определенной роли
-	 * @param EventVacancy $vacancy
+	 * 
+	 * @param  EventVacancy $vacancy
 	 * @return ExtraField
 	 */
 	public function forVacancy($vacancy)
@@ -257,8 +259,38 @@ class ExtraField extends CActiveRecord
 	    $criteria->together = true;
 	     
 	    $this->getDbCriteria()->mergeWith($criteria);
+	    
 	    return $this;
 	}
+	
+	/**
+	 * Именованная группа условий поиска - получить записи принадлежащие определенной роли
+	 * 
+	 * @param  Questionary $questionary
+	 * @return ExtraField
+	 * 
+	 * @todo решить нужен ли этот метод здесь
+	 */
+	public function forQuestionary($questionary)
+	{
+	    throw new CException('NOT IMPLEMENTED');
+	    /*$criteria = new CDbCriteria();
+	    $criteria->with = array(
+	        'instances' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes'   => array(
+	                'forQuestionary' => array($questionary),
+	            ),
+	        ),
+	    );
+	    $criteria->together = true;
+	     
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;*/
+	}
+	
 	
 	/**
 	 * Именованая группа условий: получить все поля, привязаные к указанным категориям
@@ -280,6 +312,7 @@ class ExtraField extends CActiveRecord
 	    $criteria->together = true;
 	    
 	    $this->getDbCriteria()->mergeWith($criteria);
+	    
 	    return $this;
 	}
 	
@@ -371,8 +404,9 @@ class ExtraField extends CActiveRecord
 	{
 	    $instance = ExtraFieldInstance::model()->forVacancy($vacancy)->find();
 	    if ( ! $instance )
-	    {// дополнительное поле вообще не прикреплено к этому объекту - значит оно не может быть обязательным
-	       return false;
+	    {// дополнительное поле вообще не прикреплено к этому объекту - 
+            // значит оно не может быть обязательным
+            return false;
 	    }
 	    if ( $instance->filling === 'required' )
 	    {
