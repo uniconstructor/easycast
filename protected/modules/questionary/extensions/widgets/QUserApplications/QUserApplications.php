@@ -60,7 +60,16 @@ class QUserApplications extends CWidget
             case 'draft': break;
             case 'pending': break;
             case 'rejected': break;
-            case 'new': $this->items = $this->questionary->requests; break;
+            case 'new': 
+                $statuses = array(
+                    ProjectMember::STATUS_DRAFT,
+                    ProjectMember::STATUS_INCOMPLETE,
+                    ProjectMember::STATUS_FINALIZED,
+                    ProjectMember::STATUS_PENDING,
+                );
+                $this->items = ProjectMember::model()->forQuestionary($this->questionary->id)->
+                    withStatus($statuses)->findAll(); 
+            break;
         }
     }
     
@@ -73,13 +82,11 @@ class QUserApplications extends CWidget
         {
             echo '<h3>'.$this->getHeader().'</h3>';
         }
-        
         if ( ! $this->items )
         {// нет ни одной заявки 
             $this->displayEmptyMessage();
             return;
         }
-        
         foreach ( $this->items as $item )
         {// отображаем все заявки участника
             $options = $this->getItemDisplayOptions($item);

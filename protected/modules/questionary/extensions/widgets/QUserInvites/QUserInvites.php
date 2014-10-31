@@ -65,7 +65,9 @@ class QUserInvites extends CWidget
         }
         if ( $this->mode == 'new' )
         {
-            if ( ! $invites = $this->questionary->invites )
+            $invites = EventInvite::model()->forQuestionary($this->questionary)->
+                withStatus(EventInvite::STATUS_PENDING)->notDeleted()->findAll();
+            if ( ! $invites )
             {
                 echo '<div class="alert alert-block">Нет новых приглашений</div>';
                 return;
@@ -78,7 +80,6 @@ class QUserInvites extends CWidget
                 return;
             }
         }
-        
         foreach ( $invites as $invite )
         {// выводим приглашения по очереди
             if ( ! $invite->event->hasVacanciesFor($this->questionary->id) )

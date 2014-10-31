@@ -225,7 +225,10 @@ class QUserInfo extends CWidget
         {
             case 'invites':  return $this->questionary->invitesCount; break;
             case 'requests': return $this->questionary->requestsCount; break;
-            case 'events':   return $this->questionary->upcomingEventsCount; break;
+            /*case 'events':   
+                return ProjectMember::model()->withStatus(ProjectMember::STATUS_ACTIVE)->
+                    forQuestionary($this->questionary->id)->count();
+            break;*/
         }
         return false;
     }
@@ -1377,8 +1380,13 @@ class QUserInfo extends CWidget
      */
     protected function getEventsTabContent()
     {
-        if ( ! $this->isMyQuestionary() AND ! Yii::app()->user->checkAccess('Admin') OR ! $this->questionary->upcomingEventsCount )
+        if ( ! $this->isMyQuestionary() AND ! Yii::app()->user->checkAccess('Admin') )
         {// съемки показываются только в своей анкете
+            return false;
+        }
+        if ( ! ProjectMember::model()->withStatus(ProjectMember::STATUS_ACTIVE)->
+                forQuestionary($this->questionary->id)->count() )
+        {
             return false;
         }
         return $this->widget('questionary.extensions.widgets.QUserEvents.QUserEvents', array(

@@ -22,7 +22,9 @@ class QUserEvents extends QUserApplications
     protected function initItems()
     {
         $this->items = array();
-        foreach ( $this->questionary->activememberinstances as $key => $instance )
+        $instances = ProjectMember::model()->forQuestionary($this->questionary->id)->
+            withStatus(ProjectMember::STATUS_ACTIVE)->findAll();
+        foreach ( $instances as $key => $instance )
         {// Убираем из предстоящих съемок прошедшие события
             // @todo переписать при рефакторинге, после того как будет введено изменение статуса по крону 
             if ( (time() < $instance->vacancy->event->timeend) OR ($instance->vacancy->event->nodates) )
