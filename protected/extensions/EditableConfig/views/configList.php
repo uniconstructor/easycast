@@ -1,6 +1,6 @@
 <?php
 /**
- * Верстка общего списка всех настроек
+ * Верстка общего списка всех настроек (обертка)
  */
 /* @var $this EditableConfig */
 ?>
@@ -9,17 +9,6 @@
 </div>
 <div class="row-fluid">
     <div class="span12">
-        <?php
-        foreach ( $this->configItems as $config )
-        {// выводим все настройки в виде виджетов
-            $options = array(
-                'config'    => $config,
-                'deleteUrl' => $this->deleteUrl,
-                'updateUrl' => $this->updateUrl,
-                'createUrl' => $this->createUrl,
-            );
-            $this->getConfigWidget($config, $options);
-        }
-        ?>
+        <?= $content; ?>
     </div>
 </div>

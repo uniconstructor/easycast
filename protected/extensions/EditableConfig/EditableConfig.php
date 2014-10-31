@@ -12,13 +12,13 @@
 class EditableConfig extends CWidget
 {
     /**
-     * @var string - 
+     * @var string - тип объекта для которого отображаются настройки
      */
     public $objectType = 'system';
     /**
-     * @var int - 
+     * @var int - id объекта для которого отображаются настройки
      */
-    public $objectId = 0;
+    public $objectId   = 0;
     /**
      * @var array - массив определяющий какие настройки какими виджетами редактировать
      *              Используется когда нужны особые виджеты для особых настроек
@@ -28,17 +28,21 @@ class EditableConfig extends CWidget
      */
     public $widgetMap = array();
     /**
-     * @var string - url по которому происходит удаление записей
+     * @var string - url по которому происходит удаление значений настройки
      */
     public $deleteUrl;
     /**
-     * @var string - url по которому происходит создание записей
+     * @var string - url по которому происходит создание значений настройки
      */
     public $createUrl;
     /**
-     * @var string - url по которому происходит обновление записей
+     * @var string - url по которому происходит обновление значений настройки
      */
     public $updateUrl;
+    /**
+     * @var string - url по которому происходит обновление модели самой настройки
+     */
+    public $updateObjectUrl;
     /**
      * @var CDbCriteria - дополнительные условия выборки настроек внутри набора ограниченного
      *                    парой objecttype/objectid
@@ -46,6 +50,20 @@ class EditableConfig extends CWidget
      * @todo пока не используется
      */
     public $extraCriteria;
+    /**
+     * @var string - заголовок списка настроек
+     */
+    public $title  = 'Настройки';
+    /**
+     * @var string - тип отображения списка настроек
+     *               'full'
+     *               'short'
+     */
+    public $display = 'full';
+    /**
+     * @var array - список настроек, которые не отобразятся в списке
+     */
+    public $hiddenItems = array();
     
     /**
      * @var array - полный список настроек
@@ -69,15 +87,14 @@ class EditableConfig extends CWidget
     public function init()
     {
         parent::init();
-        // определим есть ли в наборе хотя бы одна настройка
-        $this->hasConfig   = Config::model()->forObject($this->objectType, $this->objectId)->exists();
+        // получаем все настройки объекта
+        $this->configItems = Config::model()->forObject($this->objectType, $this->objectId)->findAll();
         
-        if ( $this->configItems )
+        if ( ! $this->configItems )
         {// в наборе нет ни одной настройки
             return;
         }
-        // получаем все настройки
-        $this->configItems = Config::model()->forObject($this->objectType, $this->objectId)->findAll();
+        $this->hasConfig = true;
         // @todo загружаем классы виджетов отдельных настроек
     }
     
@@ -91,9 +108,29 @@ class EditableConfig extends CWidget
             $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
                 'message' => 'Пока что тут не предусмотрено ни одной настройки',
             ));
+            return;
         }
-        // отображаем все настройки из набора
-        $this->render('configList');
+        //CVarDumper::dump($this->configItems, 5, true);
+        // отображаем все настройки
+        $content = '';
+        switch ( $this->display )
+        {
+            // выводим каждую настройку отдельным блоком
+            case 'full': 
+                foreach ( $this->configItems as $config )
+                {
+                    $content .= $this->getDataWidget($config);
+                }
+            break;
+            // выводим все настройки общим списком
+            case 'short': 
+                $content .= $this->widget('bootstrap.widgets.TbDetailView', array(
+                    'data'       => $this->getConfigListData(),
+                    'attributes' => $this->getConfigListAttributes(),
+                ), true);
+            break;
+        }
+        $this->render('configList', array('content' => $content));
     }
     
     /**
@@ -105,53 +142,207 @@ class EditableConfig extends CWidget
      * @param  bool    $return - вывести виджет лил вернуть его html
      * @return string
      */
-    protected function getConfigWidget($config, $widgetOptions=array(), $return=false)
+    protected function getDataWidget($config, $widgetOptions=array())
     {
-        if ( isset($this->widgetMap[$config->name]) )
-        {// 
-            $class   = $this->widgetMap[$config->name]['class'];
-            $options = $this->widgetMap[$config->name]['options'];
-            $options = CMap::mergeArray($options, $widgetOptions);
-            // отображаем или выводим виджет
-            return $this->widget($class, $options, $return);
-        }
-        return $this->getDefaultWidget($config, $widgetOptions, $return);
+        /*$options = array(
+            'config'          => $config,
+            'deleteUrl'       => $this->deleteUrl,
+            'updateUrl'       => $this->updateUrl,
+            'createUrl'       => $this->createUrl,
+            'updateObjectUrl' => $this->updateObjectUrl,
+            'configContent'   => $this->getValueEditWidget($config),
+            'optionsContent'  => $config->value,
+        );
+        $options = CMap::mergeArray($options, $widgetOptions);*/
+        $options = array(
+            'content' => $this->getValueEditWidget($config),
+            'config'  => $config,
+        );
+      
+        //return $this->widget('ext.EditableConfig.ConfigData', $options, true);
+        return $this->render('configData', $options, true);
     }
     
     /**
      * Получить и вывести стандартный виджет для редактирования одной настройки
-     * 
+     *
      * @param  Config $config - редактируемая настройка
-     * @param  array  $widgetOptions - список параметров для виджета настройки 
+     * @param  array  $widgetOptions - список параметров для виджета настройки
      *                                 (или для настройки виджета: русский язык, ну что ты творишь!)
-     * @param  bool    $return - вывести виджет лил вернуть его html
+     * @param  bool    $return - вывести виджет или вернуть его html
      * @return string
-     * 
+     *
      * @todo предусмотреть все типы настроек - пока что только текст
      */
-    protected function getDefaultWidget($config, $widgetOptions=array(), $return=false)
+    protected function getValueEditWidget($config, $widgetOptions=array())
     {
-        $prefix      = 'ext.EditableConfig.';
-        $widgetClass = 'ext.EditableConfig.DefaultConfigData';
+        if ( isset($this->widgetMap[$config->name]) )
+        {// задан собственный виджет для отображения настройки
+            $class   = $this->widgetMap[$config->name]['class'];
+            $options = $this->widgetMap[$config->name]['options'];
+            // отображаем или выводим виджет
+            return $this->widget($class, $options, true);
+        }
         
+        if ( $config->isMultiple() )
+        {// для списков с множественным выбором выводим виджет редактирования списка
+            // @todo предусмотреть случай при котором список не найден
+            //$selectedList = $config->selectedList;
+            return $this->widget('ext.EasyListManager.ListItemsGrid', array(
+                'easyList'    => $config->selectedList,
+                //'model'       => $config->getTargetObject(),
+                'modalHeader' => 'Добавить шаблон',
+            ), true);
+        }
         switch ( $config->type )
-        {// определяем тип виджета
+        {// стандартный тип editable-виджета
             case 'textarea':
             case 'redactor':
-                $widgetClass = $prefix.'TextAreaConfigData';
+            case 'wysihtml5':
+                return $this->getLargeEditableText($config);
             break;
-            default: $widgetClass = $prefix.'DefaultConfigData'; break;
         }
-        return $this->widget($widgetClass, $widgetOptions, $return);
+        return $this->getEditableField($config);
     }
     
     /**
-     * Получить модель к которой привязаны все настройки
      * 
-     * @return CActiveRecord|null
+     * @param  Config $config
+     * @return void
      */
-    protected function getModel()
+    protected function getConfigEditWidget($config)
     {
         
+    }
+    
+    /**
+     * Получить стандартный editable-виджет для редактирования значения настройки
+     *
+     * @param Config $config
+     * @param CActiveRecord|EasyListItem $value
+     * @return string
+     */
+    protected function getEditableField($config)
+    {
+        $action = 'update';
+        if ( ! $config->isFilled() )
+        {// если настройка не заполнена
+            $action = 'create';
+        }
+        if ( $config->isMultiple() )
+        {
+            $modelClass = $config->selectedList->itemtype;
+            $model      = new $modelClass;
+        }else
+        {
+            $model = $config->getValueObject();
+        }
+        return $this->widget('bootstrap.widgets.TbEditableField', array(
+            'type'      => $config->type,
+            'model'     => $model,
+            'attribute' => $config->valuefield,
+            'url'       => $this->createConfigUrl($action, $config),
+        ), true);
+    }
+    
+    /**
+     *
+     * @return string
+     */
+    protected function getLargeEditableText($config)
+    {
+        return $this->widget('admin.extensions.SimpleEmailRedactor.SimpleEmailRedactor', array(
+            'model'     => $config->getTargetObject(),
+            'createUrl' => $this->createConfigUrl('create', $config),
+            'updateUrl' => $this->createConfigUrl('update', $config),
+            'deleteUrl' => $this->createConfigUrl('delete', $config),
+        ), true);
+    }
+    
+    /**
+     *
+     *
+     * @return array
+     */
+    protected function getConfigListAttributes()
+    {
+        $attributes = array();
+        foreach ( $this->configItems as $config )
+        {
+            $attributes = $this->getAttributeForConfigItem($config);
+        }
+        return $attributes;
+    }
+    
+    /**
+     *
+     * @param Config $config
+     * @return array
+     */
+    protected function getAttributeForConfigItem($config)
+    {
+        return array(
+            'type'  => 'raw',
+            'name'  => $config->name,
+            'label' => $config->title
+        );
+    }
+    
+    /**
+     *
+     *
+     * @return array
+     */
+    protected function getConfigListData()
+    {
+        if ( ! $id = $this->objectId )
+        {
+            $id = 1;
+        }
+        $data = array('id' => $id);
+        foreach ( $this->configItems as $config )
+        {
+            $data[$config->name] = $this->getDataForConfigItem($config);
+        }
+        return $data;
+    }
+    
+    /**
+     *
+     * @param Config $config
+     * @return array
+     */
+    protected function getDataForConfigItem($config)
+    {
+        $options = array();
+        if ( isset($this->widgetMap[$config->name]['options']) )
+        {
+            $options = $this->widgetMap[$config->name]['options'];
+        }
+        return array(
+            $config->name => $this->getValueEditWidget($config),
+        );
+    }
+    
+    /**
+     *
+     *
+     * @param string $action
+     * @param Config $config
+     * @return string
+     */
+    protected function createConfigUrl($action, $config)
+    {
+        switch ( $action )
+        {
+            case 'create':
+                return Yii::app()->createUrl($this->createUrl, array('id' => $config->id));
+            case 'update':
+                return Yii::app()->createUrl($this->updateUrl, array('id' => $config->id));
+            case 'delete':
+                return Yii::app()->createUrl($this->deleteUrl, array('id' => $config->id));
+            case 'updateObject':
+                return Yii::app()->createUrl($this->updateObjectUrl, array('id' => $config->id));
+        }
     }
 }

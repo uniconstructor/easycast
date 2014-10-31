@@ -16,7 +16,7 @@ class TextAreaConfigData extends DefaultConfigData
     
     /**
      *
-     * @return void
+     * @return string
      */
     protected function getEditableContent()
     {
