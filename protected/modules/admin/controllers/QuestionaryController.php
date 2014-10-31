@@ -58,11 +58,13 @@ class QuestionaryController extends Controller
      * If the data model is not found, an HTTP exception will be raised.
      * @param integer the ID of the model to be loaded
      */
-    public function loadModel($id)
+    public function loadModel($id, $modelClass='Questionary')
     {
-        $model=Questionary::model()->findByPk($id);
-        if($model===null)
+        $model = $modelClass::model()->findByPk($id);
+        if ( $model === null )
+        {
             throw new CHttpException(404,'The requested page does not exist.');
+        }
         return $model;
     }
     
@@ -98,8 +100,96 @@ class QuestionaryController extends Controller
             // Сообщаем пользователю по почте о том, что его анкета отправлена на доработку
             $this->sendRejectNotification($model, $message);
         }
-        
 	    echo 'OK';
+    }
+    
+    /**
+     *
+     *
+     * @return void
+     */
+    public function actionForceCheck()
+    {
+        $vacancyId     = Yii::app()->request->getParam('vacancyId', 0);
+        $questionaryId = Yii::app()->request->getParam('questionaryId', 0);
+        
+        $vacancy     = $this->loadModel($vacancyId, 'EventVacancy');
+        $questionary = $this->loadModel($questionaryId, 'Questionary');
+        
+        echo $this->widget('admin.extensions.SearchFilterCompare.SearchFilterCompare', array(
+            'questionary' => $questionary,
+            'vacancy'     => $vacancy,
+        ), true);
+        if ( $vacancy->isAvailableForUser($questionaryId) )
+        {
+            echo $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
+                'type'    => 'success',
+                'message' => 'Участник подходит по критериям',
+            ), true);
+        }else
+        {
+            echo $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
+                'type'    => 'danger',
+                'message' => 'Участник не подходит по критериям роли',
+            ), true);
+        }
+        //Yii::app()->end();
+    }
+    
+    /**
+     *
+     *
+     * @return void
+     */
+    public function actionForceInvite()
+    {
+        $vacancyId     = Yii::app()->request->getParam('vacancyId', 0);
+        $questionaryId = Yii::app()->request->getParam('questionaryId', 0);
+        
+        $vacancy     = $this->loadModel($vacancyId, 'EventVacancy');
+        $questionary = $this->loadModel($questionaryId, 'Questionary');
+        
+        $invite = EventInvite::model()->forEvent($vacancy->event)->forQuestionary($questionary);
+        if ( ! $invite )
+        {
+            $invite = new EventInvite();
+            $invite->questionaryid = $questionaryId;
+            $invite->eventid       = $invite->eventid;
+            $invite->save();
+        }else
+        {
+            // составляем текст письма с приглашением
+            $mailComposer = Yii::app()->getModule('mailComposer');
+            $email   = $questionary->user->email;
+            $subject = $mailComposer->getSubject('newInvite', array('invite' => $invite));
+            $message = $mailComposer->getMessage('newInvite', array('invite' => $invite));
+            
+            // добавляем письмо с приглашениями в очередь
+            Yii::app()->getComponent('ecawsapi')->sendMail($email, $subject, $message);
+        }
+    }
+    
+    /**
+     * 
+     * 
+     * @return void
+     */
+    public function actionForceSubscribe()
+    {
+        $vacancyId     = Yii::app()->request->getParam('vacancyId', 0);
+        $questionaryId = Yii::app()->request->getParam('questionaryId', 0);
+        
+        $vacancy     = $this->loadModel($vacancyId, 'EventVacancy');
+        $questionary = $this->loadModel($questionaryId, 'Questionary');
+        
+        if ( ! $member = ProjectMember::model()->forQuestionary($questionary)->forVacancy($vacancy)->find() )
+        {
+            $member = new ProjectMember();
+            $member->vacancyid = $vacancyId;
+            $member->memberid  = $questionaryId;
+            $member->managerid = Yii::app()->getModule('Questionary')->getCurrentQuestionaryId();
+            $member->save();
+        }
     }
     
     /**

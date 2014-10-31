@@ -23,20 +23,20 @@ class SearchFilterHelper extends CWidget
     /**
      * @var int
      */
-    public $vacancyId = 0;
+    public $vacancyId     = 0;
     /**
      * @var string - адрес по которому происходит запрос проверки условий
      */
-    public $checkUrl;
+    public $checkUrl = '/admin/questionary/forceCheck';
     /**
      * @var string - адрес по которому происходит приглашение участника вручную 
      *               (без учета критериев поиска)
      */
-    public $forceInviteUrl;
+    public $forceInviteUrl = '/admin/questionary/forceInvite';
     /**
      * @var string - адрес по которому происходит подача заявки от имени участника
      */
-    public $forceSubscribeUrl;
+    public $forceSubscribeUrl = '/admin/questionary/forceSubscribe';
     
     /**
      * @var Questionary
@@ -61,6 +61,7 @@ class SearchFilterHelper extends CWidget
             $this->questionary = Questionary::model()->findByPk($this->questionaryId);
         }
     }
+    
     /**
      * @see CWidget::run()
      */
@@ -76,9 +77,13 @@ class SearchFilterHelper extends CWidget
      */
     protected function getAjaxButton($type)
     {
-        $beforeSendJs = "$('#{$this->getButtonId($type)}').prop('disabled', true);";
-        $successJs    = "$('#{$this->getResultId($type)}').html(data);";
-        $completeJs   = "$('#{$this->getButtonId($type)}').prop('disabled', false);";
+        $beforeSendJs  = "$('#{$this->getButtonId($type)}').prop('disabled', true); ";
+        //$beforeSendJs .= "$('#{$this->getButtonId($type)}').addClass('btn-danger');";
+        
+        $successJs     = "$('#{$this->getResultId($type)}').html(data);";
+        
+        $completeJs    = "$('#{$this->getButtonId($type)}').prop('disabled', false); ";
+        //$completeJs   .= "$('#{$this->getButtonId($type)}').removeClass('btn-danger');";
         
         switch ( $type )
         {
@@ -87,7 +92,8 @@ class SearchFilterHelper extends CWidget
                 $type  = 'primary';
                 $label = 'Вычислить соответствие критериям';
                 $buttonOptions = array(
-                    'id' => $this->getButtonId($type),
+                    'id'    => $this->getButtonId($type),
+                    'class' => 'btn',
                 );
                 //$successJs .= "$('#search-helper-vacancy-name-{$this->id}').html(data);";
             break;
@@ -97,6 +103,7 @@ class SearchFilterHelper extends CWidget
                 $label = 'Выслать приглашение этому участнику';
                 $buttonOptions = array(
                     'id'      => $this->getButtonId($type),
+                    'class'   => 'btn btn-warning',
                     'confirm' => 'Выслать приглашение этому участнику? 
                         Приглашенный вручную участник сможет подать заявку на роль 
                         независимо от критериев поиска.',
@@ -108,6 +115,7 @@ class SearchFilterHelper extends CWidget
                 $label = 'Подать заявку от этого участника';
                 $buttonOptions = array(
                     'id'      => $this->getButtonId($type),
+                    'class'   => 'btn btn-success',
                     'confirm' => 'Подать заявку от имени этого участника? Заявка от этого участника
                     будет принята даже если он не подходит по критериям роли. Если в анкете участника
                     недостаточно данных для подачи заявки - заявка все равно будет создана, но участнику
@@ -119,7 +127,6 @@ class SearchFilterHelper extends CWidget
         
         $this->widget('bootstrap.widgets.TbButton', array(
             'buttonType' => 'ajaxSubmit',
-            'type'       => $type,
             'size'       => 'large',
             'label'      => $label,
             'url'        => $url,
@@ -148,10 +155,31 @@ class SearchFilterHelper extends CWidget
         {
             return '';
         }
+        
         $this->widget('admin.extensions.SearchFilterCompare.SearchFilterCompare', array(
             'questionary' => $this->questionary,
             'vacancy'     => $this->vacancy,
         ));
+        if ( $this->vacancy->hasApplication($this->questionary->id) )
+        {
+            $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
+                'type'    => 'info',
+                'message' => 'Участник уже подал заявку на эту роль',
+            ), true);
+        }
+        if ( $this->vacancy->isAvailableForUser($this->questionary->id, true) )
+        {
+            $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
+                'type'    => 'success',
+                'message' => 'Все поля анкеты участника соответствуют критериям роли',
+            ), true);
+        }else
+        {
+            $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
+                'type'    => 'danger',
+                'message' => 'Участник не подходит подходит по критериям роли',
+            ), true);
+        }
     }
     /**
      * 

@@ -68,13 +68,17 @@ class SearchFilterCompare extends CWidget
             $filterPassed = $this->filterIsPassed($filter);
             $userValue    = $this->questionary->getFilterFieldData($filter->shortname);
             // помечаем значение анкеты нужным цветом в зависимости от результата проверки
-            if ( $filterPassed )
+            if ( $userValue === 'n/a' )
+            {
+                $userValue = '<span class="badge badge-default">'.$userValue.'</span>';
+            }elseif ( $filterPassed )
             {
                 $userValue = '<span class="badge badge-success">'.$userValue.'</span>';
             }else
             {
                 $userValue = '<span class="badge badge-important">'.$userValue.'</span>';
             }
+            
             $row = array(
                 'id'          => $filter->id,
                 'filterName'  => '<b>'.$filter->name.'</b>',
@@ -84,6 +88,11 @@ class SearchFilterCompare extends CWidget
             $rows[] = $row;
         }
         $gridDataProvider = new CArrayDataProvider($rows);
+        
+        // ссылка на анкету участника
+        $qUrl     = Yii::app()->createUrl(Yii::app()->getModule('questionary')->profileUrl, array('id' => $this->questionary->id));
+        $fullName = CHtml::link($this->questionary->fullname, $qUrl);
+        echo '<div class="well">'.$fullName.'</div>';
         
         $this->widget('bootstrap.widgets.TbGridView', array(
             'dataProvider' => $gridDataProvider,
