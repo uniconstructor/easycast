@@ -20,7 +20,7 @@
  * @property string $sortorder
  * 
  * Relations:
- * @property ExtraField $fieldObject
+ * @property ExtraField        $fieldObject
  * @property ExtraFieldValue[] $instanceValues - введенные значения пользователей
  * 
  * @todo документировать код
@@ -215,14 +215,7 @@ class ExtraFieldInstance extends CActiveRecord
 	    {
 	        $vacancy = EventVacancy::model()->findByPk($vacancy);
 	    }
-	    if ( $vacancy->regtype == 'form' )
-	    {
-	        return $this->forObject('vacancy', $vacancy->id);
-	    }else
-	    {
-	        $ids = $vacancy->getWizardStepInstanceIds();
-	        return $this->forObjects('wizardstepinstance', $ids);
-	    }
+	    return $this->forObject('vacancy', $vacancy->id);
 	}
 	
 	/**
