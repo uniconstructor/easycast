@@ -184,7 +184,7 @@ class EasyListItem extends CActiveRecord
 	        $this->objecttype  = 'EasyListItem';
 	        $this->objectfield = 'value';
 	        $this->objectid    = $this->id;
-	        $this->save();
+	        $this->save(false, array('objecttype', 'objectfield', 'objectid'));
 	    }
 	    parent::afterSave();
 	}
@@ -358,9 +358,9 @@ class EasyListItem extends CActiveRecord
 	 * @param  int|array $listId - id списка (EasyListItem)
 	 * @return EasyListItem
 	 */
-	public function forList($listId)
+	public function forList($listId, $operation='AND')
 	{
-	    return $this->withListId($listId);
+	    return $this->withListId($listId, $operation);
 	}
 	
 	/**

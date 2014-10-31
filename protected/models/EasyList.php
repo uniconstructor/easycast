@@ -309,4 +309,20 @@ class EasyList extends CActiveRecord
 	    
 	    return $this;
 	}
+	
+	/**
+	 * 
+	 * 
+	 * @return array
+	 * @todo перенести в системные настройки
+	 */
+	public function getTriggerOptionsList()
+	{
+	    return array(
+	        self::TRIGGER_NEVER  => 'Никогда',
+	        self::TRIGGER_MANUAL => 'Только вручную',
+	        self::TRIGGER_AUTO   => 'Только автоматически',
+	        self::TRIGGER_ALL    => 'Любым способом',
+	    );
+	}
 }
