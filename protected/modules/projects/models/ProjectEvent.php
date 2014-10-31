@@ -51,7 +51,7 @@
 class ProjectEvent extends CActiveRecord
 {
     /**
-     * @var int - максимальное количество фотогрфвий в галерее мероприятия
+     * @var int - максимальное количество фотографий в галерее мероприятия
      */
     const MAX_GALLERY_PHOTOS = 10;
     
