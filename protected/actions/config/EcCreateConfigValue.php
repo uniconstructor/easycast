@@ -73,7 +73,7 @@ class EcCreateConfigValue extends EcUpdateConfigValue
         }
         
         // готовим настройку к редактированию, защищая системные настройки от случайных правок
-        $config->prepareDeleteValue();
+        $config->prepareCreateValue();
         
         // переносим данные из формы в модель
         $model->attributes = $modelData;
