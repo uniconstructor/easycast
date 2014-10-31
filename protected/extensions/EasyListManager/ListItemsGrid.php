@@ -25,7 +25,7 @@ class ListItemsGrid extends EditableGrid
      *              array('name', 'value', 'description');
      *              array('name', 'objecttype', 'objectfield', 'objectid', 'description');
      */
-    public $fields = array('value', 'name'/*, 'description'*/);
+    public $fields = array('value', 'name', 'description');
     /**
      * @var string - заголовок всплывающего окна с формой добавления новой записи
      */
@@ -75,8 +75,16 @@ class ListItemsGrid extends EditableGrid
         );
         // получаем модель для создания элементов списка
         $this->modelClass = $this->easyList->itemtype;
-        
         parent::init();
+    }
+    
+    /**
+     * @see EditableGrid::initModel()
+     */
+    protected function initModel()
+    {
+        parent::initModel();
+        $this->model->easylistid = $this->easyList->id;
     }
     
     /**
@@ -108,5 +116,35 @@ class ListItemsGrid extends EditableGrid
             $columns[] = $this->getTextAreaColumnOptions('description');
         }
         return $columns;
+    }
+    
+    /**
+     * Получить колонку действий с записями
+     * 
+     * @return array
+     */
+    protected function getActionsColumn()
+    {
+        return array(
+            'header'      => '<i class="icon icon-list"></i>&nbsp;',
+            'htmlOptions' => array(
+                'nowrap' => 'nowrap',
+                'style'  => 'text-align:center;',
+            ),
+            'class'       => 'bootstrap.widgets.TbButtonColumn',
+            'template'    => '{view}{delete}',
+            'deleteConfirmation' => $this->deleteConfirmation,
+            'afterDelete' => $this->createAfterDeleteJs(),
+            'buttons' => array(
+                'delete' => array(
+                    'label' => $this->deleteButtonLabel,
+                    'url'   => 'Yii::app()->createUrl("'.$this->deleteUrl.'", array("id" => $data->id))',
+                ),
+                'view' => array(
+                    'label' => $this->viewButtonLabel,
+                    'url'   => 'Yii::app()->createUrl("'.$this->viewUrl.'", array("id" => $data->id))',
+                ),
+            ),
+        );
     }
 }

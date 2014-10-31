@@ -19,7 +19,8 @@ $grid = $this->widget('bootstrap.widgets.TbExtendedGridView', array(
     'columns'           => $this->getTableColumns(),
     // @todo в виджете TbExtendedGridView невозможно задать id
     //       Изменить селектор после того как проблема будет решена
-    //       UPD: проблема вроде как была решена обновлением Yii (ошибка оригинального GridView) нужно проверить
+    //       UPD: проблема вроде как была решена обновлением Yii 
+    //       (в 1.14 была исправлена ошибка оригинального GridView) нужно проверить нужен ли еще этот код
     'htmlOptions'       => array(
         'class' => $this->rowIdPrefix.'table grid-view',
     ),

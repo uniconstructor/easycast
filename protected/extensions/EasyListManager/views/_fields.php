@@ -10,6 +10,8 @@
 // ошибки формы
 echo $form->errorSummary(array($model), null, null, array('id' => $this->formId.'_errors'));
 
+// id элемента списка
+echo $form->hiddenField($model, 'easylistid');
 // значение элемента списка
 echo $form->textFieldRow($model, 'value', array(), array(
     'hint' => '',

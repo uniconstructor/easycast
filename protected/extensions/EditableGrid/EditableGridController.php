@@ -2,7 +2,7 @@
 
 /**
  * Контроллер для редактирования списка элементов виджетом EditableGrid
-*/
+ */
 class EditableGridController extends Controller
 {
     /**
@@ -17,8 +17,8 @@ class EditableGridController extends Controller
     {
         return array(
             'sortable' => array(
-                'class'      => 'bootstrap.actions.TbSortableAction',
-                'modelName'  => $this->modelClass,
+                'class'     => 'bootstrap.actions.TbSortableAction',
+                'modelName' => $this->modelClass,
             ),
             'toggle' => array(
                 'class'     => 'bootstrap.actions.TbToggleAction',
@@ -60,7 +60,7 @@ class EditableGridController extends Controller
     {
         return array(
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'delete', 'toggle', 'sortable'),
+                'actions' => array('create', 'update', 'delete', 'view', 'toggle', 'sortable'),
                 'users'   => array('@'),
             ),
             array('deny',  // deny all users

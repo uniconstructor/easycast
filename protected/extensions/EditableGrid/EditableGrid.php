@@ -19,7 +19,11 @@ class EditableGrid extends CWidget
     /**
      * @var string - всплывающая подсказка над иконкой удаления записи
      */
-    public $deleteButtonLabel  = 'Удалить';
+    public $deleteButtonLabel = 'Удалить';
+    /**
+     * @var string - всплывающая подсказка над иконкой просмотра записи
+     */
+    public $viewButtonLabel   = 'Просмотр';
     /**
      * @var string - если для всех трех действий (create, update, delete) используется один контроллер
      *               то здесь можно указать относительный путь к нему: в этом случае не нужно 
@@ -39,6 +43,10 @@ class EditableGrid extends CWidget
      * @var string - url по которому происходит обновление записей
      */
     public $updateUrl;
+    /**
+     * @var string - url просмотра записей
+     */
+    public $viewUrl;
     /**
      * @var string - главный префикс для всех id использующихся в виджете
      *               Обеспечивает уникальность id всех элементов виджета
@@ -120,6 +128,10 @@ class EditableGrid extends CWidget
      * @var string - путь к обработчику сортировки строк
      */
     public $sortableAction;
+    /**
+     * @var CDbCriteria|array - условия выборки записей для таблицы значений
+     */
+    public $criteria;
     
     /**
      * @var CActiveRecord
@@ -148,6 +160,10 @@ class EditableGrid extends CWidget
         if ( ! $this->deleteUrl )
         {
             $this->deleteUrl = $this->gridControllerPath.'delete';
+        }
+        if ( ! $this->viewUrl )
+        {
+            $this->viewUrl   = $this->gridControllerPath.'view';
         }
         // url для изменения порядка строк в таблице
         if ( ! $this->sortableAction )
@@ -604,10 +620,15 @@ class EditableGrid extends CWidget
     
     /**
      * Получить критерий выборки записей для списка редактирования
+     * 
      * @return array
      */
     protected function getGridCriteria()
     {
-        throw new CException('Эта функция должна быть переопределена');
+        if ( $this->criteria AND (is_array($this->criteria) OR ( $this->criteria instanceof CDbCriteria )) )
+        {
+            return $this->criteria;
+        }
+        throw new CException('Не заданы условия выборки для записей в таблице');
     }
 }
