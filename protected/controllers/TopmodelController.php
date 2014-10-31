@@ -5,6 +5,8 @@
  * 
  * @todo удалить после завершения проекта
  * @todo решить задачу в общем виде: сделать конструктор таких страниц для люого проекта и любой роли
+ * 
+ * @deprecated
  */
 class TopModelController extends Controller
 {
