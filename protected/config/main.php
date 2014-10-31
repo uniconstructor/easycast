@@ -224,6 +224,11 @@ return array(
             // адрес страницы с формой входа
             'loginUrl'       => array('/user/login'),
 		),
+		
+		'curl' => array(
+		    'class'   => 'ext.curl.Curl',
+		    'options' => array(/* additional curl options */),
+		),
 	    
 		// настройки преобразования url-адресов
 		// @todo найти способ настраивать сокращенные адреса из базы а не вручную через этот файл
@@ -235,11 +240,18 @@ return array(
 				'<controller:\w+>/<action:\w+>/<id:\d+>' => '<controller>/<action>',
 				'<controller:\w+>/<action:\w+>'          => '<controller>/<action>',
 				// сокращенные ссылки на специальные страницы
-				// Проект "МастерШеф"
+				// @todo перенести в контроллер
+				// проект "МастерШеф"
 				'chief'       => 'projects/vacancy/registration/vid/749',
 				'masterchief' => 'projects/vacancy/registration/vid/749',
+				// проект "выбери меня"
+				'vm'          => 'projects/vacancy/registration/vid/1017',
+				'vm1'         => 'projects/vacancy/registration/vid/1018',
+				'vybor_man'   => 'projects/vacancy/registration/vid/1017',
+				'vybor_woman' => 'projects/vacancy/registration/vid/1018',
+				//'domashniy'   => 'projects/event',
 			),
-		    'showScriptName' => false
+		    'showScriptName' => false,
 		),
 		
 		// настройки MySQL (только общие для всех сборок)
