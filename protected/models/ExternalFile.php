@@ -135,38 +135,13 @@ class ExternalFile extends SWActiveRecord
 	
 	/**
 	 * @see CActiveRecord::beforeDelete()
+	 * @todo удаление связанных файлов
 	 */
 	/*public function beforeDelete()
 	{
 	    return parent::beforeDelete();
 	}*/
 	
-	/**
-	 * @see CActiveRecord::scopes()
-	 * 
-	 * @todo добавить условие по статусу для файлов которые нужно загрузить
-	 */
-	public function scopes()
-	{
-	    // условия поиска по датам создания и изменения
-	    $timestampScopes = $this->asa('EcTimestampBehavior')->getDefaultTimestampScopes();
-	    
-	    $alias = $this->owner->getTableAlias(true);
-	    // условие для извлечения файлов которые нужно загрузить либо обновить содержимое
-	    $notUploadedCondition = new CDbCriteria();
-	    $notUploadedCondition->addCondition("{$alias}.`lastupload` < {$alias}.`lastsync` ");
-	    $notUploadedCondition->addCondition("{$alias}.`lastupload` > 0 AND {$alias}.`lastsync` = 0 ", 'OR');
-	    
-	    // собственные условия поиска модели
-        $modelScopes = array(
-	        // файлы, которые ждут загрузки на сервер
-	        'notUploaded' => array(
-	            'condition' => $notUploadedCondition->condition,
-	        ),
-        );
-	    return CMap::mergeArray($timestampScopes, $modelScopes);
-	} 
-
 	/**
 	 * @return array customized attribute labels (name=>label)
 	 */
@@ -196,64 +171,59 @@ class ExternalFile extends SWActiveRecord
 			//'file' => 'Изображение',
 		);
 	}
-
-	/**
-	 * Retrieves a list of models based on the current search/filter conditions.
-	 *
-	 * Typical usecase:
-	 * - Initialize the model fields with values from filter form.
-	 * - Execute this method to get CActiveDataProvider instance which will filter
-	 * models according to data in model fields.
-	 * - Pass data provider to CGridView, CListView or any similar widget.
-	 *
-	 * @return CActiveDataProvider the data provider that can return the models
-	 * based on the search/filter conditions.
-	 */
-	/*public function search()
-	{
-		// @todo Please modify the following code to remove attributes that should not be searched.
-
-		$criteria=new CDbCriteria;
-
-		$criteria->compare('id',$this->id);
-		$criteria->compare('originalid',$this->originalid,true);
-		$criteria->compare('previousid',$this->previousid,true);
-		$criteria->compare('name',$this->name,true);
-		$criteria->compare('title',$this->title,true);
-		$criteria->compare('description',$this->description,true);
-		$criteria->compare('oldname',$this->oldname,true);
-		$criteria->compare('newname',$this->newname,true);
-		$criteria->compare('storage',$this->storage,true);
-		$criteria->compare('timecreated',$this->timecreated,true);
-		$criteria->compare('timemodified',$this->timemodified,true);
-		$criteria->compare('lastupload',$this->lastupload,true);
-		$criteria->compare('lastsync',$this->lastsync,true);
-		$criteria->compare('bucket',$this->bucket,true);
-		$criteria->compare('path',$this->path,true);
-		$criteria->compare('mimetype',$this->mimetype,true);
-		$criteria->compare('size',$this->size,true);
-		$criteria->compare('md5',$this->md5,true);
-		$criteria->compare('updateaction',$this->updateaction,true);
-		$criteria->compare('deleteaction',$this->deleteaction,true);
-		$criteria->compare('deleteafter',$this->deleteafter,true);
-		$criteria->compare('status',$this->status,true);
-
-		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
-		));
-	}*/
-
+	
 	/**
 	 * Returns the static model of the specified AR class.
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!
+	 * 
 	 * @param string $className active record class name.
 	 * @return ExternalFile the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
-		return parent::model($className);
+	    return parent::model($className);
 	}
 	
+	/**
+	 * @see CActiveRecord::scopes()
+	 *
+	 * @todo добавить условие по статусу для файлов которые нужно загрузить
+	 */
+	public function scopes()
+	{
+	    $alias = $this->owner->getTableAlias(true);
+	    // условия поиска по датам создания и изменения
+	    $timestampScopes = $this->asa('EcTimestampBehavior')->getDefaultTimestampScopes();
+	     
+	    // собственные условия поиска модели
+	    $modelScopes = array(
+	        
+	    );
+	    return CMap::mergeArray($timestampScopes, $modelScopes);
+	}
+	
+	/**
+	 * 
+	 * @param  int $limit
+	 * @return ExternalFile
+	 */
+	public function notUploaded($limit=3)
+	{
+	    $alias = $this->owner->getTableAlias(true);
+	    // условие для извлечения файлов которые нужно загрузить либо обновить содержимое
+	    $criteria = new CDbCriteria();
+	    $criteria->addCondition("{$alias}.`lastupload` < {$alias}.`lastsync` ");
+	    $criteria->addCondition("{$alias}.`lastupload` > 0 AND {$alias}.`lastsync` = 0 ", 'OR');
+	    if ( (int)$limit )
+	    {
+	        $criteria->limit = $limit;
+	    }
+	    
+	    $this->getDbCriteria()->mergeWith($criteria, 'AND');
+	    
+	    return $this;
+	}
+
 	/**
 	 * 
 	 * @return Aws\S3\S3Client
