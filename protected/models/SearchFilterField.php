@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Модель для работы с полями фильтра поиска
+ * Модель для работы с полем поискового фильтра
  *
  * Таблица '{{search_filter_fields}}':
  * @property integer $id
@@ -12,6 +12,9 @@
  * @property string $maxvalues
  * @property string $defaultlistid
  * @property string $combine
+ * @property string $minvalue
+ * @property string $maxvalue
+ * @property string $stepvalue
  * @property string $timecreated
  * @property string $timemodified
  */
@@ -30,16 +33,11 @@ class SearchFilterField extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
 			array('name, fieldtype', 'required'),
-			array('filterid, maxvalues, defaultlistid, timecreated, timemodified', 'length', 'max'=>11),
+			array('filterid, maxvalues, defaultlistid, minvalue, maxvalue, stepvalue, timecreated, timemodified', 'length', 'max'=>11),
 			array('name, title, fieldtype', 'length', 'max'=>255),
 			array('combine', 'length', 'max'=>20),
-			// The following rule is used by search().
-			// @todo Please remove those attributes that should not be searched.
-			array('id, filterid, name, title, fieldtype, maxvalues, defaultlistid, combine, timecreated, timemodified', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -48,9 +46,8 @@ class SearchFilterField extends CActiveRecord
 	 */
 	public function relations()
 	{
-		// NOTE: you may need to adjust the relation name and the related
-		// class name for the relations automatically generated below.
 		return array(
+		    
 		);
 	}
 
@@ -68,43 +65,12 @@ class SearchFilterField extends CActiveRecord
 			'maxvalues' => 'Maxvalues',
 			'defaultlistid' => 'Defaultlistid',
 			'combine' => 'Combine',
+			'minvalue' => 'Minvalue',
+			'maxvalue' => 'Maxvalue',
+			'stepvalue' => 'Stepvalue',
 			'timecreated' => 'Timecreated',
 			'timemodified' => 'Timemodified',
 		);
-	}
-
-	/**
-	 * Retrieves a list of models based on the current search/filter conditions.
-	 *
-	 * Typical usecase:
-	 * - Initialize the model fields with values from filter form.
-	 * - Execute this method to get CActiveDataProvider instance which will filter
-	 * models according to data in model fields.
-	 * - Pass data provider to CGridView, CListView or any similar widget.
-	 *
-	 * @return CActiveDataProvider the data provider that can return the models
-	 * based on the search/filter conditions.
-	 */
-	public function search()
-	{
-		// @todo Please modify the following code to remove attributes that should not be searched.
-
-		$criteria=new CDbCriteria;
-
-		$criteria->compare('id',$this->id);
-		$criteria->compare('filterid',$this->filterid,true);
-		$criteria->compare('name',$this->name,true);
-		$criteria->compare('title',$this->title,true);
-		$criteria->compare('fieldtype',$this->fieldtype,true);
-		$criteria->compare('maxvalues',$this->maxvalues,true);
-		$criteria->compare('defaultlistid',$this->defaultlistid,true);
-		$criteria->compare('combine',$this->combine,true);
-		$criteria->compare('timecreated',$this->timecreated,true);
-		$criteria->compare('timemodified',$this->timemodified,true);
-
-		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
-		));
 	}
 
 	/**
