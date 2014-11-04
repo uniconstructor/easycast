@@ -114,7 +114,6 @@ class VacancyController extends Controller
             // пользователей через эту форму
             $qid = 0;
         }
-        
         if ( $questionary = Questionary::model()->findByPk($qid) )
         {// заявку подает существующий участник:
             $statuses = array(
@@ -126,6 +125,7 @@ class VacancyController extends Controller
                 ProjectMember::STATUS_FINALIZED,
                 ProjectMember::STATUS_INCOMPLETE,
             );
+            
             if ( $vacancy->hasMember($qid, $statuses) )
             {// происходит дополение существующих данных
                 $scenario = 'finalization';
