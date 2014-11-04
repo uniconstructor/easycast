@@ -90,10 +90,17 @@ $newSectionsUrl = Yii::app()->createUrl('/admin/category/index/', array('parentI
 <div class="page-alternate row-fluid">
     <div class="span6">
         <div class="title-page">
-            <h2 class="muted">Наборы полей анкеты [в разработке]</h2>
+            <h2 class="muted">Подать заявку вручную</h2>
             <h4 class="title-description muted">
-                [Пока что ничего выбирать не нужно, раздел находится в разработке]
+                Введите id роли и id анкеты участника
             </h4>
+            <?php
+            // виджет проверки соответствия критериям поиска
+            $this->widget('admin.extensions.SearchFilterHelper.SearchFilterHelper', array(
+                'questionaryId' => Yii::app()->getModule('user')->user()->questionary->id,
+                'vacancyId'     => $this->vacancy->id,
+            ));
+            ?>
         </div>
     </div>
     <div class="span6">
