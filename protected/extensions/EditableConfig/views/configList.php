@@ -9,6 +9,24 @@
 </div>
 <div class="row-fluid">
     <div class="span12">
-        <?= $content; ?>
+        <?php
+        switch ( $this->display )
+        {
+            // выводим каждую настройку отдельным блоком
+            case 'full': 
+                foreach ( $this->configItems as $config )
+                {
+                    $this->getDataWidget($config);
+                }
+            break;
+            // выводим все настройки общим списком
+            case 'short': 
+                $this->widget('bootstrap.widgets.TbDetailView', array(
+                    'data'       => $this->getConfigListData(),
+                    'attributes' => $this->getConfigListAttributes(),
+                ));
+            break;
+        }
+        ?>
     </div>
 </div>

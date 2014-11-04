@@ -89,13 +89,12 @@ class EditableConfig extends CWidget
         parent::init();
         // получаем все настройки объекта
         $this->configItems = Config::model()->forObject($this->objectType, $this->objectId)->findAll();
-        
+        // @todo загружаем классы виджетов отдельных настроек
         if ( ! $this->configItems )
         {// в наборе нет ни одной настройки
             return;
         }
         $this->hasConfig = true;
-        // @todo загружаем классы виджетов отдельных настроек
     }
     
     /**
@@ -110,27 +109,8 @@ class EditableConfig extends CWidget
             ));
             return;
         }
-        //CVarDumper::dump($this->configItems, 5, true);
         // отображаем все настройки
-        $content = '';
-        switch ( $this->display )
-        {
-            // выводим каждую настройку отдельным блоком
-            case 'full': 
-                foreach ( $this->configItems as $config )
-                {
-                    $content .= $this->getDataWidget($config);
-                }
-            break;
-            // выводим все настройки общим списком
-            case 'short': 
-                $content .= $this->widget('bootstrap.widgets.TbDetailView', array(
-                    'data'       => $this->getConfigListData(),
-                    'attributes' => $this->getConfigListAttributes(),
-                ), true);
-            break;
-        }
-        $this->render('configList', array('content' => $content));
+        $this->render('configList');
     }
     
     /**
@@ -160,7 +140,7 @@ class EditableConfig extends CWidget
         );
       
         //return $this->widget('ext.EditableConfig.ConfigData', $options, true);
-        return $this->render('configData', $options, true);
+        return $this->render('configData', $options);
     }
     
     /**
@@ -187,10 +167,8 @@ class EditableConfig extends CWidget
         if ( $config->isMultiple() )
         {// для списков с множественным выбором выводим виджет редактирования списка
             // @todo предусмотреть случай при котором список не найден
-            //$selectedList = $config->selectedList;
             return $this->widget('ext.EasyListManager.ListItemsGrid', array(
                 'easyList'    => $config->selectedList,
-                //'model'       => $config->getTargetObject(),
                 'modalHeader' => 'Добавить шаблон',
             ), true);
         }
@@ -289,7 +267,7 @@ class EditableConfig extends CWidget
     }
     
     /**
-     *
+     * 
      *
      * @return array
      */
@@ -308,7 +286,7 @@ class EditableConfig extends CWidget
     }
     
     /**
-     *
+     * 
      * @param Config $config
      * @return array
      */
@@ -325,10 +303,10 @@ class EditableConfig extends CWidget
     }
     
     /**
+     * Получить URL для действия с настройкой
      *
-     *
-     * @param string $action
-     * @param Config $config
+     * @param  string $action - краткое название действия
+     * @param  Config $config - изменяемая настройка
      * @return string
      */
     protected function createConfigUrl($action, $config)
