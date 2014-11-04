@@ -30,6 +30,19 @@ if ( $model->isNewRecord )
             'pk'        => $bannerConfig->id,
         ),
     ));
+    // @todo текст под баннером (отображается вместо описания роли)
+    $greetingConfig = $model->getConfigObject('customGreeting');
+    /*
+     *     $this->widget(
+    'bootstrap.widgets.TbEditableField',
+    array(
+    'type' => 'text',
+    'model' => $model,
+    'attribute' => 'name', // $model->name will be editable
+    'url' => $endpoint, //url for submit data
+    )
+    );
+     */
 }
 
 // форма редактирования проекта
@@ -193,7 +206,6 @@ $this->endWidget();
     // список видео
     if ( ! $model->isNewRecord )
     {// не показываем добавление видео при создании проекта - его не к чему прикреплять пока проект не создан
-        // список видео
         $this->widget('ext.ECEditVideo.ECEditVideo', array(
             'objectType'  => 'project',
             'objectId'    => $model->id,
