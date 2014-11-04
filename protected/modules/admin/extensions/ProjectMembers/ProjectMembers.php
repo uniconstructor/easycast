@@ -168,7 +168,6 @@ class ProjectMembers extends CWidget
         {// выводим краткую таблицу
             $result .= $this->getShortMembersList($members);
         }
-
         return $result;
     }
     
@@ -206,7 +205,7 @@ class ProjectMembers extends CWidget
      */
     protected function getFullMembersList($members)
     {
-        return $this->widget('application.modules.admin.extensions.QAdminFullDataList.QAdminFullDataList', array(
+        return $this->widget('admin.extensions.QAdminFullDataList.QAdminFullDataList', array(
             'members' => $members,
         ), true);
     }
