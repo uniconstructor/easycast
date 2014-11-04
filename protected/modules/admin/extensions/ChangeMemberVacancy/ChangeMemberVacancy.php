@@ -10,7 +10,11 @@ class ChangeMemberVacancy extends CWidget
     /**
      * @var array
      */
-    public $vacancyStatuses = array();
+    public $vacancyStatuses = array(
+        EventVacancy::STATUS_DRAFT,
+        EventVacancy::STATUS_ACTIVE,
+        EventVacancy::STATUS_FINISHED,
+    );
     /**
      * @var ProjectMember
      */
