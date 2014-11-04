@@ -48,6 +48,23 @@ class ECPurifier extends CHtmlPurifier
     }
     
     /**
+     * Получить массив значений для использования в элементе select/checklist для TbEditableField
+     *
+     * @param array $data - значения для select-списка
+     *                      формат массива соответствует возвращаемому из CHtml::listData()
+     * @return array
+     */
+    public static function getEditableSelectOptions($data)
+    {
+        $options = array();
+        foreach ( $data as $id => $text )
+        {
+            $options[] = array('value' => $id, 'text' => CHtml::encode($text));
+        }
+        return $options;
+    }
+    
+    /**
      * Получить URL для отображения изображений через прокси-сервера google
      * Используется для того чтобы получать ссылки на картинки, которые сразу же отображаются в письмах,
      * отправляемых сайтом
