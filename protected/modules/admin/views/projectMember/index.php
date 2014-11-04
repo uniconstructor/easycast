@@ -12,9 +12,8 @@ if ( $type == 'applications' )
     $titleString = 'Участники';
 }
 $viewMode = 'event';
-if ( $projectid )
+if ( $projectid AND $project = Project::model()->findByPk($projectid) )
 {
-    $project     = Project::model()->findByPk($projectid);
     $breadcrumbs = array(
         'Администрирование' => array('/admin'),
         'Проекты'           => array('/admin/project'),
@@ -23,9 +22,8 @@ if ( $projectid )
     $viewMode = 'project';
     $objectid = $projectid;
 }
-if ( $eventid )
+if ( $eventid AND $event = ProjectEvent::model()->findByPk($eventid) )
 {
-    $event       = ProjectEvent::model()->findByPk($eventid);
     $breadcrumbs = array(
         'Администрирование'   => array('/admin'),
         'Проекты'             => array('/admin/project'),
@@ -35,15 +33,14 @@ if ( $eventid )
     $viewMode = 'event';
     $objectid = $eventid;
 }
-if ( $vacancyid )
+if ( $vacancyid AND $vacancy = EventVacancy::model()->findByPk($vacancyid) )
 {
-    $vacancy     = EventVacancy::model()->findByPk($vacancyid);
     $breadcrumbs = array(
         'Администрирование'            => array('/admin'),
         'Проекты'                      => array('/admin/project'),
         $vacancy->event->project->name => array('/admin/project/view', 'id' => $vacancy->event->project->id),
-        $vacancy->event->name => array('/admin/projectEvent/view','id' => $vacancy->event->id),
-        $vacancy->name => array('/admin/eventVacancy/view', 'id' => $vacancy->id),
+        $vacancy->event->name          => array('/admin/projectEvent/view','id' => $vacancy->event->id),
+        $vacancy->name                 => array('/admin/eventVacancy/view', 'id' => $vacancy->id),
     );
     $viewMode = 'vacancy';
     $objectid = $vacancyid;
