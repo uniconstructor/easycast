@@ -108,8 +108,19 @@ class MpMemberSections extends EditableGrid
      */
     protected function getDataColumns()
     {
+        $params = array(
+            Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
+        );
+        if ( $this->customerInvite )
+        {
+            $params['id'] = $this->customerInvite->id;
+            $params['k1'] = $this->customerInvite->key;
+            $params['k2'] = $this->customerInvite->key2;
+        }
+        
         // настройки для типа связи
         $oldTypeOptions = $this->getSelectColumnOptions('linktype',  $this->model->getLinkTypeOptions(), 'getLinkTypeOption()');
+        $oldTypeOptions['params'] = $params;
         $newTypeOptions = array(
             //'value'    => '$data->getLinkTypeOption();',
             'type'     => 'raw',
@@ -124,6 +135,7 @@ class MpMemberSections extends EditableGrid
         
         // настраиваем поле комментария
         $oldCommentOptions = $this->getTextAreaColumnOptions('comment');
+        $oldCommentOptions['params'] = $params;
         $newCommentOptions = array(
             'type'     => 'raw',
             'editable' => array(
