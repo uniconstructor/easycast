@@ -73,6 +73,15 @@ class MpMemberSectionList extends CWidget
                 );
             }
             
+            $params = array(
+                Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
+            );
+            if ( $this->customerInvite )
+            {
+                $params['ciid'] = $this->customerInvite->id;
+                $params['k1'] = $this->customerInvite->key;
+                $params['k2'] = $this->customerInvite->key2;
+            }
             //if ( Yii::app()->user->checkAccess('Admin') )
             //{// админам разрешаем редактировать ответы участников
             $data[$sectionInstance->section->id] = $this->widget('bootstrap.widgets.TbEditableField', array(
@@ -80,9 +89,7 @@ class MpMemberSectionList extends CWidget
                 'model'     => $memberInstance,
                 'attribute' => 'linktype',
                 'url'       => $this->updateUrl,
-                'params'    => array(
-                    Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
-                ),
+                'params'    => $params,
                 // отображаем форму редактирования внутри ячейки чтобы не глючило наложение
                 'mode'    => 'inline',
                 'options' => array(
