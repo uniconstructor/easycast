@@ -10,18 +10,20 @@ class EHiddenKeepAlive extends CWidget
      * @var string url for ajax request 
      */
     public $url;
-    
     /**
      * @var int refresh period (in seconds)
      */
-    public $period = 60;
-    
+    public $period = 900;
+    /**
+     * @var string
+     */
     public $scriptId = 'EHiddenKeepAlive';
-    
-    public $divId = 'EHiddenKeepAlive';
+    /**
+     * @var string
+     */
+    public $divId    = 'EHiddenKeepAlive';
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::init()
      */
     public function init()
@@ -29,12 +31,10 @@ class EHiddenKeepAlive extends CWidget
         $period = $this->period * 1000;
         $script = 'jQuery(function($){
             var keepAliveElement = $("#'.$this->divId.'");
-            
             function eHiddenKeepAliveUpdate()
             {
                 $.ajax("'.$this->url.'");
             }
-            
             eHiddenKeepAliveUpdate();
             setInterval(function(){eHiddenKeepAliveUpdate();}, '.$period.');
         });';
@@ -42,7 +42,6 @@ class EHiddenKeepAlive extends CWidget
     }
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::run()
      */
     public function run()
