@@ -13,12 +13,12 @@ class ECResponsiveFooter extends CWidget
         $this->render('footer');
         if ( ! Yii::app()->user->checkAccess('Admin') AND ! YII_DEBUG )
         {// Выводим счетчик Яндекса
-            $this->render('yandexCounter');
+            //$this->render('yandexCounter');
         }
         // выводим скрипт онлайн-консультанта
         if ( ! Yii::app()->user->checkAccess('Admin') AND ! YII_DEBUG )
         {// (для всех кроме админов)
-            $this->render('zopim');
+            //$this->render('zopim');
         }
     }
     
