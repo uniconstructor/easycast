@@ -360,20 +360,20 @@ class Config extends CActiveRecord
 	{
 		$relations = array(
 		    // родительская настройка (из которой создана эта)
-		    'parentConfig' => array(self::BELONGS_TO, 'Config', 'parentid'),
+		    'parentConfig'      => array(self::BELONGS_TO, 'Config', 'parentid'),
 		    // Список (EasyList) содержащий стандартные значения этой настройки
-		    'defaultList' => array(self::BELONGS_TO, 'EasyList', 'easylistid'),
+		    'defaultList'       => array(self::BELONGS_TO, 'EasyList', 'easylistid'),
 		    // Все стандартные значения этой настройки (EasyListItem) из списка "defaultList"
 		    // Эта связь всегда содержит только объекты класса EasyListItem либо пустой массив
-		    'defaultListItems' => array(self::HAS_MANY, 'EasyListItem', array('easylistid' => 'easylistid')),
+		    'defaultListItems'  => array(self::HAS_MANY, 'EasyListItem', array('easylistid' => 'easylistid')),
 		    // список нестандартных, введенных пользователем значений (если список разрешено дополнять)
-		    'userList'     => array(self::BELONGS_TO, 'EasyList', 'userlistid'),
+		    'userList'          => array(self::BELONGS_TO, 'EasyList', 'userlistid'),
 		    // Все введенные пользователем нестандартные значения настройки
 		    // Эта связь всегда содержит только объекты класса EasyListItem либо пустой массив
-		    'userListItems' => array(self::HAS_MANY, 'EasyListItem', array('easylistid' => 'userlistid')),
+		    'userListItems'     => array(self::HAS_MANY, 'EasyListItem', array('easylistid' => 'userlistid')),
 		    // объект-список (EasyList) содержащий значения для выбранной настройки 
 		    // (частный случай связи selectedValue, только для настроек с множественным выбором)
-		    'selectedList' => array(self::BELONGS_TO, 'EasyList', 'valueid'),
+		    'selectedList'      => array(self::BELONGS_TO, 'EasyList', 'valueid'),
 		    // список всех выбранных вариантов значений этой настройки 
 		    // (как стандартных так пользовательских) 
 		    // Используется только для настроек с множественным выбором
@@ -381,7 +381,7 @@ class Config extends CActiveRecord
 		    'selectedListItems' => array(self::HAS_MANY, 'EasyListItem', array('easylistid' => 'valueid')),
 		    //'selectedListItems' => array(self::HAS_MANY, 'EasyListItem', array('id' => 'easylistid'), 'through' => 'selectedList'),
 		    // Текущее выбранное значение настройки (для настроек содержащих только одно значение)
-		    'selectedListItem' => array(self::BELONGS_TO, 'EasyListItem', 'valueid'),
+		    'selectedListItem'  => array(self::BELONGS_TO, 'EasyListItem', 'valueid'),
 		);
 		/*if ( $this->getAttribute('valuetype') )
 		{
@@ -492,6 +492,16 @@ class Config extends CActiveRecord
 	                'forObject' => array('system', 0),
 	            ),
 	        ),
+	        // только корневые настройки: они действуют для всех моделей класса 
+	        // как настройки по умолчанию, их значения используются если модель 
+	        // не имеет собственного значения для настройки с указанным именем
+	        'rootOnly' => array(
+	            'condition' => $this->getTableAlias(true).".`valuetype` IS NOT NULL",
+	            'scopes' => array(
+	                'withValueType' => array('<>system'),
+	                'withValueId'   => array('0'),
+	            ),
+	        ),
 	        // настройки не накследуемые от родительских
 	        'withoutParent' => array(
 	            'condition' => $this->getTableAlias(true).".`parentid` = 0",
@@ -540,7 +550,6 @@ class Config extends CActiveRecord
 	        return true;
 	    }
 	    return false;
-	    //return $this->withId($this->id)->systemOnly()->exists();
 	}
 	
 	/**
@@ -551,7 +560,6 @@ class Config extends CActiveRecord
 	public function isRoot()
 	{
 	    return ! (bool)$this->objectid;
-	    //return $this->withId($this->id)->withParentId(0)->exists();
 	}
 	
 	/**
@@ -734,13 +742,15 @@ class Config extends CActiveRecord
 	    {// эта функция должна работать только с реально существующими моделями
 	        throw new CException('Невозможно получить значение из не сохраненной настройки');
 	    }
+	    $result     = null;
+	    $modelClass = $this->valuetype;
+	    
 	    if ( $this->isSingle() )
 	    {// получаем одно значение
-	        $result = null;
 	        $field  = $this->valuefield;
 	        $id     = $this->valueid;
 	        
-	        if ( ! $modelClass = $this->valuetype OR ! $this->selectedListItem )
+	        if ( ! $modelClass OR ! $id )
 	        {// значение настройки пусто - пробуем взять стандартное
 	            $result = $this->getDefaultValue();
 	        }
@@ -750,9 +760,10 @@ class Config extends CActiveRecord
 	            {// модель-источник значения найдена
 	                $result = $model->$field;
 	            }else
-	            {// модель, из которой нужно взять значение не найдена
+	            {// модель, из которой нужно взять значение не найдена, хотя настройка
+	                // содержала ненулевой id модели значения
 	                // @todo записать ошибку в лог, очистить ссылку на удаленную модель: 
-	                //       системные настройки могут иметь только нулевой valueid
+	                //       только системные настройки могут иметь нулевой valueid
 	            }
 	        }else
 	        {// поле модели неизвестно: возвращаем весь объект целиком
@@ -789,13 +800,17 @@ class Config extends CActiveRecord
 	 */
 	public function getDefaultConfig()
 	{
+	    if ( $this->isSystem() OR $this->isRoot() AND ! $this->parentConfig )
+	    {// у не наследуемых системных настроек не может быть значений по умолчанию 
+	        return $this;
+	    }
 	    if ( $this->parentConfig )
 	    {// родительская настройка имеет больший приоритет при обращении для того чтобы
 	        // можно было задавать свою иерархию наследования
 	        return $this->parentConfig;
 	    }
 	    if ( $rootConfig = $this->getRootConfig() )
-	    {
+	    {// корневая настройка - это настройка с objecttype='класс модели' и objectid
 	        return $rootConfig;
 	    }
 	    return null;
@@ -825,14 +840,14 @@ class Config extends CActiveRecord
 	 */
 	public function getDefaultValue()
 	{
-	    if ( $defaultConfig = $this->getDefaultConfig() )
-	    {
-	        return $defaultConfig->value;
-	    }
 	    if ( $this->isSystem() OR $this->isRoot() )
 	    {// у не наследуемых системных настроек не может быть значений по умолчанию 
 	        // @todo у них такими значениями всегда считаются их собственные
 	        return $this->value;
+	    }
+	    if ( $defaultConfig = $this->getDefaultConfig() )
+	    {
+	        return $defaultConfig->value;
 	    }
 	    if ( $this->isMultiple() )
 	    {
@@ -994,6 +1009,42 @@ class Config extends CActiveRecord
 	{
 	    $criteria = new CDbCriteria();
 	    $criteria->compare($this->getTableAlias(true).'.`parentid`', $parentId);
+	
+	    $this->getDbCriteria()->mergeWith($criteria, $operation);
+	
+	    return $this;
+	}
+	
+	/**
+	 * Именованая группа условий: все настройки c указанным значением valuetype
+	 * 
+	 * @param  int|array $valueId - значение в поле valuetype или массив таких значений
+	 * @return Config
+	 */
+	public function withValueType($valueType, $operation='AND')
+	{
+	    if ( ! $valueType )
+	    {// условие не используется
+	       return $this;
+	    }
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->getTableAlias(true).'.`valuetype`', $valueType);
+	
+	    $this->getDbCriteria()->mergeWith($criteria, $operation);
+	
+	    return $this;
+	}
+	
+	/**
+	 * Именованая группа условий: все настройки c указанным значением valueid
+	 * 
+	 * @param  int|array $valueId - id значения в поле valueid или массив таких id
+	 * @return Config
+	 */
+	public function withValueId($valueId, $operation='AND')
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->getTableAlias(true).'.`valueid`', $valueId);
 	
 	    $this->getDbCriteria()->mergeWith($criteria, $operation);
 	
