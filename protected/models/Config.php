@@ -750,9 +750,15 @@ class Config extends CActiveRecord
 	        $field  = $this->valuefield;
 	        $id     = $this->valueid;
 	        
-	        if ( ! $modelClass OR ! $id )
+	        if ( ! $modelClass OR ! $id  )
 	        {// значение настройки пусто - пробуем взять стандартное
-	            $result = $this->getDefaultValue();
+	            if ( $defaultOnEmpty )
+	            {
+	                $result = $this->getDefaultValue();
+	            }else
+	            {
+	                return $result;
+	            }
 	        }
 	        if ( $field AND $id )
 	        {// указано поле модели: значение из него будет считаться значением настройки
@@ -843,7 +849,7 @@ class Config extends CActiveRecord
 	    if ( $this->isSystem() OR $this->isRoot() )
 	    {// у не наследуемых системных настроек не может быть значений по умолчанию 
 	        // @todo у них такими значениями всегда считаются их собственные
-	        return $this->value;
+	        return $this->getValue(false);
 	    }
 	    if ( $defaultConfig = $this->getDefaultConfig() )
 	    {
