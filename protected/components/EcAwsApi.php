@@ -161,10 +161,6 @@ class EcAwsApi extends CApplicationComponent
     public function sendMail($email, $subject, $message, $from=null)
     {
         $result = true;
-        if ( ! $from )
-        {
-            $from = Yii::app()->params['adminEmail'];
-        }
         if ( ! Yii::app()->params['useAmazonSES'] )
         {// это тестовый стенд или машина разработчика - не отправляем письма на реальные адреса
             if ( ! Yii::app()->params['AWSSendMessages'] )
@@ -175,6 +171,14 @@ class EcAwsApi extends CApplicationComponent
             }
             $email   = 'frost@easycast.ru';
             $subject = $subject.' [TEST]';
+        }
+        if ( ! $from )
+        {
+            $from = Yii::app()->params['adminEmail'];
+        }
+        if ( strstr('@example.com', $email) )
+        {// не отправляем письма на несуществующие адреса
+            return $result;
         }
         // создаем параметры запроса по всем правилам
         $args = $this->createSESEmail($email, $subject, $message, $from);
@@ -204,7 +208,6 @@ class EcAwsApi extends CApplicationComponent
         {
             $this->log('FAILED: Mail to '.$email.' not sent. Better luck next time! :)');
         }
-        
         return $result;
     }
     
@@ -230,6 +233,10 @@ class EcAwsApi extends CApplicationComponent
         if ( ! Yii::app()->params['useAmazonSQS'] )
         {// это тестовый стенд или машина разработчика - не отправляем письма на реальные адреса
             $email   = 'frost@easycast.ru';
+        }
+        if ( strstr('@example.com', $email) )
+        {// не отправляем письма на несуществующие адреса
+            return $result;
         }
         if ( ! $from )
         {
