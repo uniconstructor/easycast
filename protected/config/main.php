@@ -224,10 +224,11 @@ return array(
             // адрес страницы с формой входа
             'loginUrl'       => array('/user/login'),
 		),
-		
+		// библиотека CURL
+		// @todo перейти на Guzzle: https://github.com/guzzle/guzzle
 		'curl' => array(
 		    'class'   => 'ext.curl.Curl',
-		    'options' => array(/* additional curl options */),
+		    //'options' => array(),
 		),
 	    
 		// настройки преобразования url-адресов
