@@ -7,7 +7,7 @@
 /* @var $this EditableGrid */
 
 // виджет с редактируемой и дополняемой таблицей
-$grid = $this->widget('bootstrap.widgets.TbExtendedGridView', array(
+$this->widget('bootstrap.widgets.TbExtendedGridView', array(
     // таблица должна подстраиваться поэ экран при просмотре с мобильного телефона
     'responsiveTable'   => true,
     'type'              => 'striped bordered',

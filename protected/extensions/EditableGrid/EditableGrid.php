@@ -103,6 +103,21 @@ class EditableGrid extends CWidget
      */
     public $emptyText;
     /**
+     * @var bool - выводить ли форму добавления отдельно от виджета таблицы?
+     *             Используется в тех случаях когда этот виджет нужно вставить в середину 
+     *             другого виджета формы
+     *             Дело в том, что стандарт HTML не позволяет создавать одну форму внутри другой,
+     *             поэтому если этот виджет вставляется в середину формы редактирования, то
+     *             вывод происходит следующим образом: 
+     *             <форма редактирования>
+     *             <EditableGrid>
+     *             <окончание формы редактирования>
+     *             <форма ввода нового элемента в editable-таблицу>
+     *             true  - использовать раздельное отображение формы добавления нового элемента
+     *             false - выводитьт форму ввода нового элемента сразу после таблицы
+     */
+    public $useClip = true;
+    /**
      * @var string - id клипа (фрагмента html-кода который генерируется в одном месте а выводится в другом)
      *               Здесь используется для modal-окон с формами (их нельзя размещать внутри других форм)
      *               Если этот параметр задан - то в модуль questionary будет записан id фрагмента кода с формой
@@ -195,6 +210,10 @@ class EditableGrid extends CWidget
         {
             $this->modalId = 'add-'.$this->mainIdPrefix.'-modal';
         }
+        if ( ! $this->clipId )
+        {
+            $this->clipId = $this->formId.'-clip';
+        }
         // создаем пустую модель для формы
         $this->initModel();
         // настраиваем кнопку добавления новой записи
@@ -219,8 +238,10 @@ class EditableGrid extends CWidget
      */
     protected function registerFormClip()
     {
-        $this->clipId = $this->formId.'-clip';
-        Yii::app()->getModule($this->clipModule)->formClips[] = $this->clipId;
+        if ( $this->useClip )
+        {
+            Yii::app()->getModule($this->clipModule)->formClips[] = $this->clipId;
+        }
     }
     
     /**
@@ -230,13 +251,17 @@ class EditableGrid extends CWidget
     {
         // рисуем таблицу со списком добавленных элементов и кнопкой "добавить"
         $this->render($this->viewsPrefix.'grid');
-        
         // отображаем скрытую форму добавления новой записи (она будет возникать в modal-окне)
-        // записываем ее в clip и выводим позже, в самом низу страницы иначе она конфликтует с формой
-        // внутри которой находится текущий виджет
-        $this->owner->beginClip($this->clipId);
-        $this->render($this->viewsPrefix.'_form', array('model' => $this->model));
-        $this->owner->endClip();
+        if ( $this->useClip )
+        {//записываем ее в clip и выводим позже, в самом низу страницы если она конфликтует с формой
+            // внутри которой находится текущий виджет
+            $this->owner->beginClip($this->clipId);
+            $this->render($this->viewsPrefix.'_form', array('model' => $this->model));
+            $this->owner->endClip();
+        }else
+        {// выводим форму сразу как есть если она не конфликтует с другими элементами
+            $this->render($this->viewsPrefix.'_form', array('model' => $this->model));
+        }
     }
     
     /**
@@ -275,6 +300,7 @@ class EditableGrid extends CWidget
     
     /**
      * Получить JS-код, выполняющийся после удаления строки
+     * 
      * @return string
      */
     protected function createAfterDeleteJs()
@@ -293,6 +319,7 @@ class EditableGrid extends CWidget
     
     /**
      * Получить JS-код, выполняющийся после добавления новой записи
+     * 
      * @return string
      *
      * @todo создать нормальный ряд таблицы с возможностью редактирования и удаления
@@ -310,6 +337,7 @@ class EditableGrid extends CWidget
     
     /**
      * Получить JS для обновления содержимого таблицы по AJAX
+     * 
      * @return string
      */
     protected function createGridRefreshJs()
@@ -318,7 +346,8 @@ class EditableGrid extends CWidget
     }
     
     /**
-     * js для очистки полей формы после добавления новой записи
+     * JS для очистки полей формы после добавления новой записи
+     * 
      * @return string
      */
     protected function createClearFormJs()
@@ -346,6 +375,7 @@ class EditableGrid extends CWidget
     
     /**
      * Получить настройки для создания редактируемых колонок таблицы
+     * 
      * @return array
      */
     protected function getDataColumns()
@@ -355,6 +385,7 @@ class EditableGrid extends CWidget
     
     /**
      * Получить колонку действий с записями
+     * 
      * @return array
      */
     protected function getActionsColumn()
@@ -377,6 +408,7 @@ class EditableGrid extends CWidget
     
     /**
      * Получить стандартные настройки для виджета выбора даты
+     * 
      * @return array
      */
     protected function getYearPickerOptions()
@@ -409,6 +441,9 @@ class EditableGrid extends CWidget
                 'params' => array(
                     Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
                 ),
+                'options' => array(
+                    'mode' => 'inline',
+                ),
             ),
         );
         if ( $value )
@@ -437,13 +472,15 @@ class EditableGrid extends CWidget
                 'params' => array(
                     Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
                 ),
+                'options' => array(
+                    'mode' => 'inline',
+                ),
             ),
         );
         if ( $value )
         {// подставляем значение по умолчанию (если есть)
             $options['value'] = $value;
         }
-    
         return $options;
     }
     
@@ -474,6 +511,9 @@ class EditableGrid extends CWidget
                 'params' => array(
                     Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
                 ),
+                'options' => array(
+                    'mode' => 'inline',
+                ),
             ),
         );
         return $options;
@@ -483,7 +523,7 @@ class EditableGrid extends CWidget
      * Получить параметры для создания editable-колонки в таблице (select2 без подгрузки элементов по AJAX)
      *
      * @param string $field - поле модели для которого создается редактируемая колонка таблицы
-     * @param array $variants - список вариантов для выбора
+     * @param array  $variants - список вариантов для выбора
      * @param string $valueField - поле из которого берется отображаемое значание
      * @return array
      * 
