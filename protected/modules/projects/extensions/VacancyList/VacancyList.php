@@ -79,13 +79,17 @@ class VacancyList extends CWidget
     
     /**
      * Получить список ролей для отображения
+     * 
      * @return EventVacancy[]
      */
     protected function getVacancies()
     {
         switch ( $this->objectType )
         {
-            case 'event': return $this->event->activevacancies; break;
+            case 'event': 
+                return EventVacancy::model()->withStatus(EventVacancy::STATUS_ACTIVE)->
+                    forEvent($this->event->id)->lastCreated()->findAll();
+            break;
         }
     }
 }
