@@ -637,13 +637,14 @@ class EventVacancy extends CActiveRecord
 	            return false;
 	        }
 	    }
+	    $alias    = ProjectMember::model()->getTableAlias(true);
 	    $criteria = new CDbCriteria();
-	    $criteria->compare('memberid', $questionaryId);
-	    $criteria->compare('vacancyid', $this->id);
+	    $criteria->compare($alias.'.`memberid`', $questionaryId);
+	    $criteria->compare($alias.'.`vacancyid`', $this->id);
 	    
 	    if ( is_array($statuses) AND ! empty($statuses) )
 	    {
-	        $criteria->addInCondition('status', $statuses);
+	        $criteria->compare($alias.'.`status`', $statuses);
 	    }
 	    return ProjectMember::model()->exists($criteria);
 	}
