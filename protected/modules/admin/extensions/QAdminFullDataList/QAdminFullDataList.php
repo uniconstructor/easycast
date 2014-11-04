@@ -44,9 +44,8 @@ class QAdminFullDataList extends CWidget
         }
         
         // Создаем источник данных для вывода краткой информации
-        $dataProvider = new CArrayDataProvider($elements, 
-            array(
-                'pagination' => array('pageSize' => 25),
+        $dataProvider = new CArrayDataProvider($elements, array(
+                'pagination' => false,
             )
         );
         
