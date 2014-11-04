@@ -10,32 +10,16 @@
 $this->pageTitle = "Регистрация для участия в проекте ".$model->vacancy->event->project->name;
 // Описание страницы для поисковиков
 // @todo брать описание из настроек роли
-Yii::app()->clientScript->registerMetaTag(strip_tags($model->vacancy->event->project->shortdescription), 'description', null, array('lang' => 'ru'));
+$vacancyDescription = strip_tags($model->vacancy->event->project->shortdescription);
+Yii::app()->clientScript->registerMetaTag($vacancyDescription, 'description', null, array('lang' => 'ru'));
 
-// FIXME временно вставленный баннер
-$countdownScript = '';
-if ( $model->vacancy->id == 968 )
-{// только для проекта "холостяк"
-    $countUrl = Yii::app()->createAbsoluteUrl('//flipcountdown');
-    Yii::app()->clientScript->registerScriptFile($countUrl.'/jquery.flipcountdown.js');
-    Yii::app()->clientScript->registerCssFile($countUrl.'/jquery.flipcountdown.css');
-    $countdownScript = "<div class='row-fluid text-center'>
-                До окончания приема заявок осталось (дней/часов/минут/секунд)
-                <div id='retroclockbox2'></div>
-            </div><script type='text/javascript'>$('#retroclockbox2').flipcountdown({
-        showDay        : true,
-        showHour       : true,
-        showMinute     : true,
-        showSecond     : true,
-        beforeDateTime : '10/28/2014 00:00:01',
-        size : 'lg'
-    });</script>";
-}
 ?>
 <div class="container">
     <div class="row-fluid">
         <?php 
-        if ( ! $bannerUrl = $model->vacancy->event->project->getConfig('banner') )
+        // @todo исправить подгрузку баннера
+        //if ( ! $bannerUrl = $model->vacancy->event->project->getConfig('banner') )
+        if ( ! $bannerUrl = '' )
         {// информация о событии на которое подается заявка
             $this->widget('projects.extensions.ProjectInfo.ProjectInfo', array(
                 'eventId'     => $model->vacancy->event->id,
@@ -49,8 +33,12 @@ if ( $model->vacancy->id == 968 )
             {
                 echo $greeting;
             }*/
-            echo $countdownScript;
+            /*$this->widget('ext.FlipCountDown.FlipCountDown', array(
+                'beforeUnixTime' => $model->vacancy->getConfig(''),
+                'settings'       => array('size' => 'lg'),
+            ));*/
         }
+        
         ?>
     </div>
     <div class="row-fluid">
