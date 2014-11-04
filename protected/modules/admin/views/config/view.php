@@ -54,3 +54,8 @@ $this->widget('ext.EditableConfig.EditableConfig', array(
     'updateObjectUrl' => Yii::app()->createUrl('admin/config/updateConfig'),
 ));
 
+$clips = Yii::app()->getModule('admin')->formClips;
+foreach ( $clips as $clip )
+{
+    echo $this->clips[$clip];
+}
