@@ -29,7 +29,7 @@ class ListItemsGrid extends EditableGrid
     /**
      * @var string - заголовок всплывающего окна с формой добавления новой записи
      */
-    public $modalHeader       = 'Добавить элемент списка';
+    public $modalHeader = 'Добавить элемент списка';
     /**
      * @var bool - разрешить ли изменять порядок строк перетаскиванием?
      */
@@ -51,9 +51,10 @@ class ListItemsGrid extends EditableGrid
      */
     public $newItemStatus = EasyListItem::STATUS_ACTIVE;
     /**
-     * @var string - id модуля, который хранит клипы с modal-формами
+     * @var bool - форму редактирования элементов настройки всегда можно 
+     *             выводить рядом с editable-таблицей 
      */
-    public $clipModule = 'admin';
+    public $useClip = false;
     /**
      * @var EasyList - список для которого редактируются значения
      */
@@ -132,7 +133,7 @@ class ListItemsGrid extends EditableGrid
                 'style'  => 'text-align:center;',
             ),
             'class'       => 'bootstrap.widgets.TbButtonColumn',
-            'template'    => '{view}{delete}',
+            'template'    => '{view}&nbsp;{delete}',
             'deleteConfirmation' => $this->deleteConfirmation,
             'afterDelete' => $this->createAfterDeleteJs(),
             'buttons' => array(
