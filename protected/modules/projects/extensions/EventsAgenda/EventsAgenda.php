@@ -112,6 +112,7 @@ class EventsAgenda extends CWidget
     
     /**
      * Получить список отображаемых событий
+     * 
      * @return ProjectEvent
      */
     protected function loadEvents()
@@ -136,12 +137,14 @@ class EventsAgenda extends CWidget
         {
             $criteria->compare('virtual', 0);
         }
-        
+        // отображаем только события с определенным статусом
         $criteria->addInCondition('status', $statuses);
         // не отображаем в списке события без конкретной даты
         $criteria->compare('nodates', 0);
-        $criteria->order = "`timestart` DESC";
-        
+        $criteria->scopes = array(
+            'startsAfterNow',
+            'lastStarted'
+        );
         
         if ( $this->displayMode === 'thumbnails' )
         {
@@ -157,6 +160,7 @@ class EventsAgenda extends CWidget
     
     /**
      * Получить массив событий для использования в элементе CdVerticalTimeLine
+     * 
      * @param CDbCriteria $criteria
      * @return array
      */
@@ -175,6 +179,7 @@ class EventsAgenda extends CWidget
     
     /**
      * Получить массив с данными одного события для использования в элементе CdVerticalTimeLine
+     * 
      * @param ProjectEvent $event
      * @return array
      * 
