@@ -40,11 +40,12 @@ $this->menu = array(
 	    'visible' => ! $showNewGroupEvent,
 	    'url'     => array('/admin/projectEvent/create', 'projectid' => $model->project->id),
     ),
-	array(
+    // @todo группы событий временно сотключены: от них пока проблем быльше чем пользы
+	/*array(
 	    'label'   => 'Новое событие в этой группе', 
 	    'visible' => $showNewGroupEvent,
 	    'url'     => array('/admin/projectEvent/create', 'projectid' => $model->project->id, 'parentid' => $groupId),
-    ),
+    ),*/
 	array(
 	    'label' => 'Редактировать',
 	    'url'   => array('update', 'id' => $model->id),

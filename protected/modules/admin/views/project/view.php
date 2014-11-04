@@ -14,7 +14,8 @@ $this->menu = array(
 	array('label' => 'Создать проект', 'url' => array('/admin/project/create')),
 	array('label' => 'Редактировать проект', 'url' => array('/admin/project/update','id' => $model->id)),
     array('label' => 'Добавить мероприятие', 'url' => array('/admin/projectEvent/create', 'projectid' => $model->id)),
-    array('label' => 'Создать группу мероприятий', 'url' => array('/admin/projectEvent/create', 'projectid' => $model->id, 'type' => 'group')),
+    // @todo группы событий временно сотключены: от них пока проблем быльше чем пользы
+    //array('label' => 'Создать группу мероприятий', 'url' => array('/admin/projectEvent/create', 'projectid' => $model->id, 'type' => 'group')),
     array('label' => 'Заявки', 'url' => array('/admin/projectMember/index', 'projectid' => $model->id, 'type' => 'applications')),
     array('label' => 'Подтвержденные участники', 'url' => array('/admin/projectMember/index', 'projectid' => $model->id, 'type' => 'members')),
 );
