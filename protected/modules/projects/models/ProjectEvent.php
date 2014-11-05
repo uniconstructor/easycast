@@ -47,6 +47,8 @@
  * @todo решить, что делать при удалении группы: удалять все дочерние мероприятия или просто убирать их из группы
  * @todo вместо строк везде использовать константы статусов 
  * @todo перенести defaultTimeStart и defaultTimeEnd, а также функцию получения событий для календаря в модуль календаря
+ * @todo добавить статус "suspended"
+ * @todo добавить статусы "внесена информация" и "открыта запись"
  */
 class ProjectEvent extends CActiveRecord
 {
@@ -95,7 +97,6 @@ class ProjectEvent extends CActiveRecord
     const TYPE_SHOW       = 'show';
     
     // статусы мероприятия
-    // @todo добавить статусы "внесена информация" и "открыта запись"
     /**
      * @var string - статус: черновик
      *               Мероприятие только что создано, в него пока еще вносится информация и добавляются роли
@@ -351,35 +352,35 @@ class ProjectEvent extends CActiveRecord
         $modelScopes = array(
 	        // первые начавшиеся
 	        'firstStarted' => array(
-	            'order' => $this->getTableAlias(true).'.`timestart` ASC'
+	            'order' => $this->getTableAlias(true).'.`timestart` ASC',
 	        ),
 	        // последние начавшиеся
 	        'lastStarted' => array(
-	            'order' => $this->getTableAlias(true).'.`timestart` DESC'
+	            'order' => $this->getTableAlias(true).'.`timestart` DESC',
 	        ),
 	        // первые закончившиеся
 	        'firstEnded' => array(
-	            'order' => $this->getTableAlias(true).'.`timeend` ASC'
+	            'order' => $this->getTableAlias(true).'.`timeend` ASC',
 	        ),
 	        // последние закончившиеся
 	        'lastEnded' => array(
-	            'order' => $this->getTableAlias(true).'.`timeend` DESC'
+	            'order' => $this->getTableAlias(true).'.`timeend` DESC',
 	        ),
 	        // последние созданные записи
 	        'lastCreated' => array(
-	            'order' => $this->getTableAlias(true).'.`timecreated` DESC'
+	            'order' => $this->getTableAlias(true).'.`timecreated` DESC',
 	        ),
 	        // последние измененные записи
 	        'lastModified' => array(
-	            'order' => $this->getTableAlias(true).'.`timemodified` DESC'
+	            'order' => $this->getTableAlias(true).'.`timemodified` DESC',
 	        ),
 	        // только с конкретной датой
 	        'withDate' => array(
-	            'condition' => $this->getTableAlias(true).'.`nodates` = 0'
+	            'condition' => $this->getTableAlias(true).'.`nodates` = 0',
 	        ),
 	        // только без конкретной даты
 	        'withoutDate' => array(
-	            'condition' => $this->getTableAlias(true).'.`nodates` = 1'
+	            'condition' => $this->getTableAlias(true).'.`nodates` = 1',
 	        ),
 	        // начинаются до текущего момента (прошедшие)
 	        'startsBeforeNow' => array(
@@ -398,71 +399,75 @@ class ProjectEvent extends CActiveRecord
 	            'condition' => $this->getTableAlias(true).".`type` <> '".self::TYPE_GROUP."'",
 	        ),
 	        // только события которые находятся внутри какой-либо группы
+	        // @todo переименовать в inGroup
 	        'hasGroup' => array(
-	            'condition' => $this->getTableAlias(true).'.`parentid` > 0'
+	            'condition' => $this->getTableAlias(true).'.`parentid` > 0',
 	        ),
 	        // только отдельные события не входящие ни в одну группу
+	        /** @deprecated устаревшее название, удалить при рефакторинге */
 	        'hasNoGroup' => array(
-	            'condition' => $this->getTableAlias(true).'.`parentid` = 0'
+	            'scopes' => array('withoutGroup'),
+	        ),
+	        // только отдельные события не входящие ни в одну группу
+	        'withoutGroup' => array(
+	            'condition' => $this->getTableAlias(true).'.`parentid` = 0',
+	        ),
+	        // только события у которых есть активные роли
+	        'hasActiveVacancies' => array(
+	            'scopes' => array(
+	               'withVacancies' => array(self::STATUS_ACTIVE),
+    	        ),
 	        ),
 	    );
         return CMap::mergeArray($timestampScopes, $modelScopes);
     }
     
     /**
-     * Именованная группа условий поиска - выбрать только "не пустые" события - то есть события
-     * хотя бы с одной ролью внутри
-     * @param array|string $statuses - массив статусов ролей или строка если статус один
+     * Именованная группа условий поиска - выбрать только "не пустые" события - 
+     * то есть события хотя бы с одной ролью внутри
+     * 
+     * @param  array|string $statuses - массив статусов ролей или строка если статус один
      *                                 (чтобы можно было найти только события с активными ролями)
      * @return ProjectEvent
      */
-    public function withVacancies($statuses=array())
+    public function withVacancies($statuses=array(), $operator='AND')
     {
-        $scopes = array();
-        if ( ! empty($statuses) )
-        {// нужны мероприятия с ролями в указанном статусе
-            $scopes['withStatus'] = array($statuses);
-        }else
-        {// нужны мероприятия с ролями в любом статусе
-            $statuses = array(
-                EventVacancy::STATUS_DRAFT,
-                EventVacancy::STATUS_ACTIVE,
-                EventVacancy::STATUS_FINISHED,
-            );
-            $scopes['withStatus'] = array($statuses);
+        if ( ! $statuses )
+        {// условие не используется
+            return $this;
         }
-        $criteria = new CDbCriteria();
+        $criteria       = new CDbCriteria();
         $criteria->with = array(
             'vacancies' => array(
                 'select'   => false,
                 'joinType' => 'INNER JOIN',
-                'scopes'   => $scopes,
+                'scopes'   => array(
+                    'withStatus' => array($statuses),
+                ),
             ),
         );
         $criteria->together = true;
+        
         $this->getDbCriteria()->mergeWith($criteria);
-         
+        
         return $this;
     }
     
     /**
      * Именованная группа условий поиска - выбрать записи по статусам
-     * @param array|string $statuses - массив статусов или строка если статус один
+     * 
+     * @param  array|string $statuses - массив статусов или строка если статус один
      * @return ProjectEvent
      */
-    public function withStatus($statuses=array())
+    public function withStatus($statuses=array(), $operator='AND')
     {
-        $criteria = new CDbCriteria();
-        if ( ! is_array($statuses) )
-        {// нужен только один статус, и он передан строкой - сделаем из нее массив
-            $statuses = array($statuses);
-        }
-        if ( empty($statuses) )
-        {// Если статус не указан - выборка по этому параметру не требуется
+        if ( ! $statuses )
+        {// условие не используется
             return $this;
         }
-         
-        $criteria->addInCondition($this->getTableAlias(true).'.`status`', $statuses);
+        $criteria = new CDbCriteria();
+        $criteria->compare($this->getTableAlias(true).'.`status`', $statuses);
+        
         $this->getDbCriteria()->mergeWith($criteria);
     
         return $this;
@@ -470,22 +475,19 @@ class ProjectEvent extends CActiveRecord
     
     /**
      * Именованная группа условий поиска - выбрать мероприятия по типу
-     * @param array $types
+     * 
+     * @param  array $types
      * @return ProjectEvent
      */
-    public function withType($types=array())
+    public function withType($types=array(), $operator='AND')
     {
-        $criteria = new CDbCriteria();
-        if ( ! is_array($types) )
-        {
-            $types = array($types);
-        }
-        if ( empty($types) )
+        if ( ! $types )
         {// тип не указан - выборка по этому параметру не требуется
             return $this;
         }
-    
-        $criteria->addInCondition($this->getTableAlias(true).'.`type`', $types);
+        $criteria = new CDbCriteria();
+        $criteria->compare($this->getTableAlias(true).'.`type`', $types);
+        
         $this->getDbCriteria()->mergeWith($criteria);
          
         return $this;
@@ -493,13 +495,13 @@ class ProjectEvent extends CActiveRecord
     
     /**
      * Именованная группа условий поиска - выбрать мероприятия по типу проекта
+     * 
      * @param array $types - типы проектов к которым принадлежат извлекаемые мероприятия
      * @return ProjectEvent
      */
     public function withProjectType($projectTypes=array())
     {
         $criteria = new CDbCriteria();
-        $criteria->together = true;
         $criteria->with = array(
             'project' => array(
                 'select'   => false,
@@ -508,6 +510,8 @@ class ProjectEvent extends CActiveRecord
                 ),
             ),
         );
+        $criteria->together = true;
+        
         $this->getDbCriteria()->mergeWith($criteria);
          
         return $this;
@@ -515,6 +519,7 @@ class ProjectEvent extends CActiveRecord
     
     /**
      * Именованная группа условий поиска - получить все мероприятия проекта
+     * 
      * @param int $projectId
      * @return ProjectEvent
      */
@@ -541,7 +546,6 @@ class ProjectEvent extends CActiveRecord
     public function containingQuestionary($questionaryId, $statuses=array())
     {
         $criteria = new CDbCriteria();
-	    $criteria->together = true;
 	    $criteria->with = array(
 	        'vacancies' => array(
 	            'select'   => false,
@@ -551,6 +555,8 @@ class ProjectEvent extends CActiveRecord
 	            ),
 	        ),
 	    );
+	    $criteria->together = true;
+	    
         $this->getDbCriteria()->mergeWith($criteria);
         
         return $this;
@@ -558,17 +564,19 @@ class ProjectEvent extends CActiveRecord
     
     /**
      * Именованая группа условий: все события начинающиеся до определенного времени
+     * 
      * @param int $time - unix timestamp
      * @return ProjectEvent
      */
     public function startsBefore($time=null)
     {
-        $criteria = new CDbCriteria();
         if ( null === $time )
         {
             $time = time();
         }
+        $criteria = new CDbCriteria();
         $criteria->compare($this->getTableAlias(true).'.`timestart`', '<='.$time);
+        
         $this->getDbCriteria()->mergeWith($criteria);
          
         return $this;
@@ -576,17 +584,19 @@ class ProjectEvent extends CActiveRecord
     
     /**
      * Именованая группа условий: все события начинающиеся после определенного времени
+     * 
      * @param int $time - unix timestamp
      * @return ProjectEvent
      */
     public function startsAfter($time=null)
     {
-        $criteria = new CDbCriteria();
         if ( null === $time )
         {
             $time = time();
         }
+        $criteria = new CDbCriteria();
         $criteria->compare($this->getTableAlias(true).'.`timestart`', '>='.$time);
+        
         $this->getDbCriteria()->mergeWith($criteria);
          
         return $this;
@@ -680,6 +690,7 @@ class ProjectEvent extends CActiveRecord
 	
 	/**
 	 * Преобразовать события в формат, пригодный для использования в календаре
+	 * 
 	 * @param array $events
 	 * @return string
 	 * 
@@ -707,6 +718,7 @@ class ProjectEvent extends CActiveRecord
 	
 	/**
 	 * Определить, является ли переданный участник участником этого события
+	 * 
 	 * @param int $questionaryId - id анкеты участника в таблице questionary
 	 * @return bool
 	 */
@@ -728,6 +740,7 @@ class ProjectEvent extends CActiveRecord
 	
     /**
 	 * Разослать приглашения всем подходящим участникам в базе
+	 * 
 	 * @return bool
 	 */
 	public function sendInvites()
@@ -740,12 +753,13 @@ class ProjectEvent extends CActiveRecord
 	    {
 	        $vacancy->sendInvites();
 	    }
-	    
 	    return true;
 	}
 	
 	/**
 	 * Удалить все приглашения на мероприятие
+	 * 
+	 * @return int
 	 */
 	public function deleteInvites()
 	{
@@ -754,7 +768,7 @@ class ProjectEvent extends CActiveRecord
 	
 	/**
 	 * Получить список статусов, в которые может перейти объект
-	 * @todo добавить статус "suspended"
+	 * 
 	 * @return array
 	 */
 	public function getAllowedStatuses()
@@ -771,12 +785,12 @@ class ProjectEvent extends CActiveRecord
 	            return array('finished');
             break;
 	    }
-	     
 	    return array();
 	}
 	
 	/**
 	 * Получить статус объекта для отображения пользователю
+	 * 
 	 * @param string $status
 	 */
 	public function getStatustext($status=null)
@@ -790,7 +804,8 @@ class ProjectEvent extends CActiveRecord
 	
 	/**
 	 * Перевести объект из одного статуса в другой, выполнив все необходимые действия
-	 * @param string $newStatus
+	 * 
+	 * @param  string $newStatus
 	 * @return bool
 	 * 
 	 * @todo отдельные статусы разнести по разным функциям
@@ -886,7 +901,8 @@ class ProjectEvent extends CActiveRecord
 	
 	/**
 	 * Получить метку времени, начиная с которой запрашивать события для календаря
-	 * @param string $neededTimeStart
+	 * 
+	 * @param  string $neededTimeStart
 	 * @return int
 	 */
 	public function getDefaultTimeStart($neededTimeStart=null)
@@ -906,7 +922,8 @@ class ProjectEvent extends CActiveRecord
 	
 	/**
 	 * Получить метку времени, после которой события из календаря запрашивать уже не нужно
-	 * @param string $neededTimeEnd - запрошенное пользователем время окончания мероприятия
+	 * 
+	 * @param  string $neededTimeEnd - запрошенное пользователем время окончания мероприятия
 	 * @return int
 	 * 
 	 * @todo сделать интервал запроса настройкой
@@ -928,12 +945,12 @@ class ProjectEvent extends CActiveRecord
 	    {// запрашиваются мероприятия за период больше разрешенного - непорядок
 	        $timeEnd   = $defaultTimeEnd;
 	    }
-	    
 	    return $timeEnd;
 	}
 	
 	/**
 	 * Определить, закончилось ли мероприятие
+	 * 
 	 * @return boolean
 	 */
 	public function getExpired()
@@ -943,6 +960,7 @@ class ProjectEvent extends CActiveRecord
 	
 	/**
 	 * Определить, закончилось ли мероприятие
+	 * 
 	 * @return boolean
 	 */
 	public function isExpired()
@@ -981,7 +999,6 @@ class ProjectEvent extends CActiveRecord
 	    {// дата не задана - ничего не выводим
 	        return '';
 	    }
-	    
 	    return Yii::app()->getDateFormatter()->format('d MMMM HH:mm', $this->timestart);
 	}
 	
@@ -1004,7 +1021,6 @@ class ProjectEvent extends CActiveRecord
 	    {// дата не задана - ничего не выводим
 	        return '';
 	    }
-	    
 	    return Yii::app()->getDateFormatter()->format('d MMMM HH:mm', $this->timeend);
 	}
 	
@@ -1019,12 +1035,12 @@ class ProjectEvent extends CActiveRecord
 	    {// мероприятие без конкретной даты - так и скажем
 	        return $this->getFormattedTimeStart();
 	    }
-	    
 	    return $this->getFormattedTimeStart().' - '.Yii::app()->getDateFormatter()->format('HH:mm', $this->timeend);
 	}
 	
 	/**
 	 * Получить дату события в стандартном формате
+	 * 
 	 * @return string
 	 */
     public function getFormattedDate()
@@ -1034,7 +1050,8 @@ class ProjectEvent extends CActiveRecord
     
     /**
      * Получить ссылку на просмотр этого события
-     * @param array $params - дополнительные параметры для ссылки (если нужно)
+     * 
+     * @param  array $params - дополнительные параметры для ссылки (если нужно)
      * @return string
      */
     public function getUrl($params=array())
@@ -1044,6 +1061,7 @@ class ProjectEvent extends CActiveRecord
 	
 	/**
 	 * Получить список всех возможных типов мероприятия (для select-списков)
+	 * 
 	 * @return array
 	 */
 	public function getTypes($ignoreRestrictions=false)
@@ -1066,7 +1084,8 @@ class ProjectEvent extends CActiveRecord
 	
 	/**
 	 * Получить перевод типа события для пользователя
-	 * @param string $type[optional]
+	 * 
+	 * @param  string $type[optional]
 	 * @return string
 	 */
 	public function getTypeLabel($type=null)
@@ -1076,12 +1095,14 @@ class ProjectEvent extends CActiveRecord
 	        $type = $this->type;
 	    }
 	    $types = $this->getTypes(true);
+	    
 	    return $types[$type];
 	}
 	
 	/**
 	 * Получить список тех групп, в которые может быть добавлено это мероприятие
 	 * (для формирования выпадающего списка групп)
+	 * 
 	 * @return array
 	 * 
 	 * @todo запретить добавлять активные события в запланированные группы
@@ -1109,7 +1130,6 @@ class ProjectEvent extends CActiveRecord
 	    {// группу нельзя запихнуть в саму себя :)
 	        unset($result[$this->id]);
 	    }
-	    
 	    return $result;
 	}
 	
@@ -1147,7 +1167,8 @@ class ProjectEvent extends CActiveRecord
 	
 	/**
 	 * Подсчитать количество доступных ролей для выбраного пользователя в текущем мероприятии
-	 * @param int $questionaryId - id анкеты для которой считается количество доступных ролей
+	 * 
+	 * @param  int $questionaryId - id анкеты для которой считается количество доступных ролей
 	 * @return int
 	 */
 	public function countVacanciesFor($questionaryId)
@@ -1157,7 +1178,8 @@ class ProjectEvent extends CActiveRecord
 	
 	/**
 	 * Определить, есть ли хоть одна доступная роль для выбранного пользователя в текущем событии
-	 * @param int $questionaryId - id анкеты для которой определяются доступные роли
+	 * 
+	 * @param  int $questionaryId - id анкеты для которой определяются доступные роли
 	 * @return boolean
 	 * 
 	 * @todo оптимизировать алгоритм: не проверять все активные роли, а останавливаться как только нашли первую
