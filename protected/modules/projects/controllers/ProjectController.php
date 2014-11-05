@@ -28,7 +28,7 @@ class ProjectController extends Controller
     {
         return array(
             array('allow',
-                'actions' => array('view', 'ajaxInfo'),
+                'actions' => array('view', 'ajaxInfo', 'banner'),
                 'users'   => array('*'),
             ),
             array('deny',  // запрещаем всё что явно не разрешено
@@ -63,6 +63,26 @@ class ProjectController extends Controller
         $this->widget('projects.extensions.AjaxProjectInfo.AjaxProjectInfo', array(
             'project' => $project,
         ));
+    }
+    
+    /**
+     * Вывести баннер проекта с Amazon используя easyCast как прокси
+     * 
+     * @return void
+     */
+    public function actionBanner()
+    {
+        $id      = Yii::app()->request->getParam('id', 0);
+        $project = $this->loadModel($id);
+        
+        $bannerUrl = $project->getConfig('banner');
+        $banner    = $project->getConfigValueObject('banner');
+        
+        if ( is_object($banner) AND $bannerUrl )
+        {
+            header('Content-Type: '.$banner->mimetype);
+            echo Yii::app()->curl->get($bannerUrl);
+        }
     }
     
     /**
