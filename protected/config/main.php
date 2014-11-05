@@ -160,19 +160,19 @@ return array(
         ),
         
         // фотогалерея
-        'photos' => array(
+        /*'photos' => array(
             'class' => 'application.modules.photos.PhotosModule',
-        ),
+        ),*/
         
         // Новости
-        'news' => array(
+        /*'news' => array(
             'class' => 'application.modules.news.NewsModule',
-        ),
+        ),*/
         
         // Статьи
-        'articles' => array(
+        /*'articles' => array(
             'class' => 'application.modules.articles.ArticlesModule',
-        ),
+        ),*/
         
         // Письма (этот модуль отвечает за правильную верстку писем)
         'mailComposer' => array(
@@ -375,7 +375,7 @@ return array(
         // любого объекта в базе
         // @todo подключение не закончено: требуется рефакторинг почти всех моделей приложения
         'swSource' => array(
-            'class' => 'SWPhpWorkflowSource',
+            'class'          => 'SWPhpWorkflowSource',
             'definitionType' => 'class',
         ),
         
@@ -385,6 +385,46 @@ return array(
             'class'  => 'application.extensions.mailchimp.EMailChimp2',
             'apikey' => '43db0f030585ce1f6b6a27fa4d13de12-us7',
         ),*/
+        
+        // Google API
+        'JGoogleAPI' => array(
+            'class' => 'application.components.JGoogleAPI.JGoogleAPI',
+            // Account type Authentication data
+            /*'serviceAPI' => array(
+                'clientId'    => '28411509328-h2tdqhkf8vbi606iddpgmolvdj1559gj.apps.googleusercontent.com',
+                'clientEmail' => '28411509328-h2tdqhkf8vbi606iddpgmolvdj1559gj@developer.gserviceaccount.com',
+                'keyFilePath' => dirname(__FILE__).'/../data/JGoogleAPI/API Project-38864dd6a6bf.p12',
+            ),
+            'defaultAuthenticationType' => 'serviceAPI',
+            */
+            // Web Service Authentication data
+            'webappAPI' => array(
+                'clientId'          => '28411509328-avgcsevcbd0ths764j9925i23diqr0q2.apps.googleusercontent.com',
+                'clientEmail'       => '28411509328-avgcsevcbd0ths764j9925i23diqr0q2@developer.gserviceaccount.com',
+                'clientSecret'      => 'VwMv8zIKO9IU_xe8yc7Y4NOh',
+                // @todo заменить на https после установки сертификата
+                'redirectUri'       => 'http://easycast.ru/gapi/oauth2callback',
+                // @todo заменить на https после установки сертификата
+                'javascriptOrigins' => 'http://easycast.ru',
+            ),
+            'defaultAuthenticationType' => 'webappAPI',
+            // Scopes needed to access the API data defined by authentication type
+            'scopes' => array(
+                'serviceAPI' => array(
+                    'drive' => array(
+                        'https://www.googleapis.com/auth/drive.file',
+                    ),
+                ),
+                'webappAPI' => array(
+                    'drive' => array(
+                        'https://www.googleapis.com/auth/drive.file',
+                    ),
+                ),
+            ),
+            // You can define one of the authentication types or both 
+            // (for a Service Account or Web Application Account)
+            'simpleApiKey' => 'AIzaSyB5IsWcZfQE5otLyrXMBNMiRTktAeEbHCg',
+        ),
         
         // Настройки по умолчанию для всех виджетов Yii
         'widgetFactory' => array(
