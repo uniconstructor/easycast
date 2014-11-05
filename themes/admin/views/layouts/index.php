@@ -18,18 +18,28 @@
 /* @var $content string - основное содержимое страницы */
 ?><!DOCTYPE html>
 <html lang="ru">
-    <?php $this->renderPartial('//layouts/head_info'); ?>
+    <?php 
+    // шапка страницы
+    $this->renderPartial('//layouts/head_info');
+    ?>
     <body class="smart-style-0 fixed-navigation">
-        <?php $this->renderPartial('//layouts/header'); ?>
-        <?php $this->renderPartial('//layouts/aside_nav'); ?>
         <?php 
+        // верхняя панель с инструментами
+        $this->renderPartial('//layouts/header');
+        // главное меню
+        $this->renderPartial('//layouts/aside_nav');
         // основное содержимое страницы
         $this->renderPartial('//layouts/main', array(
             'content' => $content,
         ));
         ?>
         <div id="shortcut"></div>
-        <?php $this->renderPartial('//layouts/scripts'); ?>
-        <?php $this->renderPartial('//layouts/ajax/_pageSetup'); ?>
+        <?php
+        // полный набор скриптов для работы темы оформления
+        $this->renderPartial('//layouts/scripts');
+        // стандартный JS-код темы оформления, который должен находится на каждой странице для
+        // корректной работы AJAX-навигации
+        $this->renderPartial('//layouts/ajax/_pageSetup');
+        ?>
     </body>
 </html>
