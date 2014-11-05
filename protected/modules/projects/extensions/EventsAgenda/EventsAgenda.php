@@ -11,6 +11,7 @@
  * @todo добавить таймер с обратным отсчетом для каждого события 
  *       (с возможностью настройки: да / нет / только для n последних событий) 
  * @todo для админов добавить информацию по заполнению ролей
+ * @todo писать название месяца для событий без конкретной даты "май-июнь" 2015
  */
 class EventsAgenda extends CWidget
 {
@@ -45,6 +46,18 @@ class EventsAgenda extends CWidget
      *               timeline   - временная ось при помощи Timeline Blueprint
      */
     public $displayMode     = 'timeline';
+    /**
+     * @var CDbCriteria - дополнительные условия для поиска событий
+     */
+    public $criteria;
+    /**
+     * @var string - 
+     */
+    public $header = 'Наши события';
+    /**
+     * @var string - 
+     */
+    public $title;
     
     /**
      * @var string - режим просмотра: заказчик (customer) или участник (user)
@@ -71,8 +84,9 @@ class EventsAgenda extends CWidget
     public function init()
     {
         $this->userMode = Yii::app()->getModule('user')->getViewMode();
+        // если не отображать ни активные ни завершенные события - то список всегда будет пустым
         if ( ! $this->displayActive AND ! $this->displayFinished )
-        {// если не отображать ни активные ни завершенные события - то список всегда будет пустым
+        {
             throw new CException('Нужно выбрать хотя бы какие-то (активные или завершенные) события');
         }
         if ( ! in_array($this->displayMode, array('thumbnails', 'timeline')) )
@@ -82,6 +96,10 @@ class EventsAgenda extends CWidget
         if ( $this->userMode === 'user' AND ! Yii::app()->user->isGuest )
         {
             $this->questionary = Yii::app()->getModule('user')->user()->questionary;
+        }
+        if ( ! $this->criteria )
+        {
+            $this->criteria = new CDbCriteria();
         }
         // получаем список последних событий с сайта
         $this->loadEvents();
@@ -94,6 +112,10 @@ class EventsAgenda extends CWidget
      */
     public function run()
     {
+        if ( ! $this->events )
+        {// нет событий - отображать нечего
+            return;
+        }
         if ( $this->displayMode === 'thumbnails' )
         {
             $this->widget('bootstrap.widgets.TbThumbnails', array(
@@ -104,9 +126,7 @@ class EventsAgenda extends CWidget
             ));
         }elseif ( $this->displayMode === 'timeline' )
         {
-            $this->widget('ext.CdVerticalTimeLine.CdVerticalTimeLine', array(
-                'events' => $this->events,
-            ));
+            $this->render('agenda');
         }
     }
     
@@ -139,22 +159,21 @@ class EventsAgenda extends CWidget
         }
         // отображаем только события с определенным статусом
         $criteria->addInCondition('status', $statuses);
-        // не отображаем в списке события без конкретной даты
-        $criteria->compare('nodates', 0);
         $criteria->scopes = array(
-            'startsAfterNow',
-            'lastStarted'
+            'lastStarted',
         );
+        // совмещаем условия выборки с дополнительными
+        $this->criteria->mergeWith($criteria);
         
         if ( $this->displayMode === 'thumbnails' )
         {
             $this->dataProvider = new CActiveDataProvider('ProjectEvent', array(
-                'criteria'   => $criteria,
+                'criteria'   => $this->criteria,
                 'pagination' => $pagination,
             ));
         }else
         {
-            $this->events = $this->getTimeLineEvents($criteria);
+            $this->events = $this->getTimeLineEvents($this->criteria);
         }
     }
     
@@ -173,30 +192,32 @@ class EventsAgenda extends CWidget
         {
             $result[] = $this->getTimeLineEvent($event);
         }
-        
         return $result;
     }
     
     /**
      * Получить массив с данными одного события для использования в элементе CdVerticalTimeLine
      * 
-     * @param ProjectEvent $event
+     * @param  ProjectEvent $event
      * @return array
      * 
      * @todo для подтвержденных участников добавлять место сбора, доп. информацию и все остальное
+     * @todo вынести стили в css-классы
      */
     protected function getTimeLineEvent($event)
     {
+        // иконка события (если нужна)
         $iconImage = CHtml::image($event->project->getAvatarUrl('small'), '', array('style' => "height:75px;width:75px;margin-right:10px;float:left;"));
-        $name  = CHtml::link($iconImage, $event->url);
-        $name .= CHtml::link($event->project->name, $event->url, array('style' => 'font-weight:normal;color:#fff;text-transform:capitalize;'));
+        // название события
+        $name      = CHtml::link($iconImage, $event->url);
+        $name     .= CHtml::link($event->project->name, $event->url, array('style' => 'font-weight:normal;color:#fff;text-transform:capitalize;'));
         
         if ( $event->nodates )
         {// мероприятие без конкретной даты - пишем "дата уточняется"
             $time = '[Дата уточняется]';
             $date = '';
         }else
-        {
+        {// мероприятие с датой - выводим начало и окончание
             $time = Yii::app()->getDateFormatter()->format('HH:mm', $event->timestart).'-'.
                     Yii::app()->getDateFormatter()->format('HH:mm', $event->timeend);
             $date = '<nobr>'.$event->getFormattedDate().'</nobr>';
