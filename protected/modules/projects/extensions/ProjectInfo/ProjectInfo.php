@@ -103,7 +103,6 @@ class ProjectInfo extends CWidget
     }
     
     /**
-     * (non-PHPdoc)
      * @see CWidget::run()
      */
     public function run()
