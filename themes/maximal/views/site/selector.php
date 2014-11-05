@@ -12,21 +12,21 @@
  */
 
 
-$customerUrl  = Yii::app()->createUrl('//site/index', array('newState' => 'customer'));
+$customerUrl = Yii::app()->createUrl('//sale', array('newState' => 'customer'));
 $customerLinkOptions = array(
     //'data-toggle' => 'tooltip',
     //'data-title'  => 'Войти как заказчик',
-    'title'  => 'Войти как заказчик',
+    'title'  => 'Подробнее',
 );
 $customerLink = CHtml::link('Заказчикам', $customerUrl, $customerLinkOptions);
 
-$userUrl      = Yii::app()->createUrl('//easy/index', array('newState' => 'user'));
-$customerLinkOptions = array(
+$userUrl = Yii::app()->createUrl('//index', array('newState' => 'user'));
+$userLinkOptions = array(
     //'data-toggle' => 'tooltip',
     //'data-title'  => 'Войти как участник',
     'title'  => 'Войти как участник',
 );
-$userLink     = CHtml::link('Участникам', $userUrl);
+$userLink     = CHtml::link('Участникам', $userUrl, $userLinkOptions);
 
 ?>
 <div class="page-alternate">
@@ -134,7 +134,7 @@ $userLink     = CHtml::link('Участникам', $userUrl);
     </div>
     <div class="row-fluid text-center">
         <div class="span6" style="background: none repeat scroll 0 0 #F5F5F5;">
-            <a href="<?= $customerUrl; ?>" class="btn btn-large btn-primary">Войти как заказчик</a>
+            <a href="<?= $customerUrl; ?>" class="btn btn-large btn-primary">Подробнее</a>
         </div>
         <div class="span6">
             <a href="<?= $userUrl; ?>" class="btn btn-large btn-success">Регистрация участника</a>
