@@ -37,9 +37,19 @@
             // предлагаем посмотреть другие события
             // @todo вывести первые 5 доступных подходящих событий
             //$redirecrUrl = Yii::app()->createUrl('//agenda', array('newMode' => 'user'));
-            echo CHtml::link('Вернуться обратно', $redirectUrl, array(
+            echo CHtml::link('Продолжить', $redirectUrl, array(
                 'class' => 'btn btn-large btn-primary',
             ));
+            // FIXME значение в настройку
+            if ( in_array((int)$vacancy->id, array(1017, 1018)) )
+            {
+                $bannerUrl = 'http://ma.lifestylegroup.ru';
+                $image = CHtml::image('https://s3.amazonaws.com/temp.easycast.ru/social/banner.png', '', array(
+                    'style' => 'max-width: 100%;height: 120px;',
+                ));
+                echo '<h4 class="intro-description">Информационная поддержка</h4>';
+                echo CHtml::link($image, $bannerUrl);
+            }
             ?>
         </div>
     </div>
