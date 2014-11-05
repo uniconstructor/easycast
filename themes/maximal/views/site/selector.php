@@ -142,18 +142,33 @@ $userLink     = CHtml::link('Участникам', $userUrl);
     </div>
 </div>
 <div class="page-alternate">
-    <div class="container">
-        <div class="title-page">
-            <h1 class="title">Текущие события</h1>
-            <h4 class="intro-description">
-                На эти события в данный момент идет набор.
-            </h4>
-        </div>
-        <?php 
-        // все текущие события выводятся одним виджетом
-        $this->widget('projects.extensions.EventsAgenda.EventsAgenda', array(
-            'displayActive' => true,
-        ));
-        ?>
-    </div>
+    <?php
+    // все текущие события 
+    $dateCriteria = new CDbCriteria();
+    $dateCriteria->scopes = array(
+        'withDate',
+        'startsAfterNow',
+    );
+    $this->widget('projects.extensions.EventsAgenda.EventsAgenda', array(
+        'displayActive' => true,
+        'criteria'      => $dateCriteria,
+        'header'        => 'Наши события',
+        'title'         => 'На эти события в данный момент идет набор.',
+    ));
+    // все события без определенной даты выводятся в самом конце
+    $noDateCriteria = new CDbCriteria();
+    $noDateCriteria->scopes = array(
+        'withoutDate',
+        // если событие без конкретной даты - то для отображения в календаре 
+        // в нем должна быть хотя бы 1 роль на которую идет набор 
+        'hasActiveVacancies',
+    );
+    $this->widget('projects.extensions.EventsAgenda.EventsAgenda', array(
+        'displayActive'   => true,
+        'displayFinished' => false,
+        'criteria'        => $noDateCriteria,
+        'header'          => 'Дата уточняется',
+        'title'           => 'Набор на эти проекты уже открыт, но точная дата съемок пока неизвестна.',
+    ));
+    ?>
 </div>

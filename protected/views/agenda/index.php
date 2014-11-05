@@ -9,20 +9,36 @@ $this->breadcrumbs = array(
 );
 ?>
 <div class="page-alternate">
-    <div class="container">
-        <div class="title-page">
-            <h1>Наши события</h1>
-            <h4 class="title-description">
-                Здесь перечислены все съемки и кастинги, которые планируются в ближайшее время. 
-                Вы можете подать заявку на участие в любом событии, в котором для вас есть подходящие роли.<br>
-                Если хотите больше узнать о каком-то проекте - нажмите на его иконку.
-            </h4>
-        </div>
-        <?php 
-        // все текущие события выводятся одним виджетом
-        $this->widget('projects.extensions.EventsAgenda.EventsAgenda', array(
-            'displayActive' => true,
-        ));
-        ?>
-    </div>
+    <?php
+    // текущие события
+    $dateCriteria = new CDbCriteria();
+    $dateCriteria->scopes = array(
+        'withDate',
+        // не показываем просроченные события
+        'startsAfterNow',
+    );
+    $this->widget('projects.extensions.EventsAgenda.EventsAgenda', array(
+        'displayActive' => true,
+        'criteria'      => $dateCriteria,
+        'header'        => 'Наши события',
+        'title'         => 'Здесь перечислены все мероприятия (съемки и кастинги), которые 
+            планируются в ближайшее время. Вы можете подать заявку на участие в 
+            любом проекте в котором сейчас идет набор.',
+    ));
+    // все события без определенной даты выводятся в самом конце
+    $noDateCriteria = new CDbCriteria();
+    $noDateCriteria->scopes = array(
+        'withoutDate',
+        // если событие без конкретной даты - то для отображения в календаре 
+        // в нем должна быть хотя бы 1 роль на которую идет набор 
+        'hasActiveVacancies',
+    );
+    $this->widget('projects.extensions.EventsAgenda.EventsAgenda', array(
+        'displayActive'   => true,
+        'displayFinished' => false,
+        'criteria'        => $noDateCriteria,
+        'header'          => 'Дата уточняется',
+        'title'           => 'Набор на эти проекты уже открыт, но точная дата съемок пока неизвестна.',
+    ));
+    ?>
 </div>
