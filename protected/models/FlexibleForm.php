@@ -18,8 +18,8 @@
  * @property string  $timemodified
  * 
  * Relations:
- * @property DocumentSchema[]     $schemes
- * @property FlexibleFormFields[] $fields
+ * @property DocumentSchema[]    $schemas
+ * @property FlexibleFormField[] $fields
  */
 class FlexibleForm extends CActiveRecord
 {
@@ -53,9 +53,9 @@ class FlexibleForm extends CActiveRecord
 	{
 		return array(
 		    // схемы использующие эту форму
-            'schemes' => array(self::HAS_MANY, 'DocumentSchema', 'formid'),
+            'schemas' => array(self::HAS_MANY, 'DocumentSchema', 'formid'),
 		    // поля этой формы
-		    'fields'  =>  array(self::HAS_MANY, 'FlexibleFormFields', 'objectid', 
+		    'fields'  =>  array(self::HAS_MANY, 'FlexibleFormField', 'objectid', 
 		        'condition' => array(
                     'scopes' => array(
                         'withObjectType' => array('FlexibleForm'),

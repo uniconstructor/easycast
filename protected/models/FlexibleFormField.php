@@ -22,12 +22,13 @@
  * @property string $htmloptions
  * @property string $timecreated
  * @property string $timemodified
+ * @property string $sortorder
  * 
  * Relations:
  * @property FlexibleForm $flexibleForm
  * @property ExtraField   $extraFields
  */
-class FlexibleFormFields extends CActiveRecord
+class FlexibleFormField extends CActiveRecord
 {
 	/**
 	 * @return string the associated database table name
@@ -46,8 +47,9 @@ class FlexibleFormFields extends CActiveRecord
 			array('name, htmloptions', 'required'),
 			array('clientvalidation, ajaxvalidation', 'numerical', 'integerOnly' => true),
 			array('objecttype', 'length', 'max' => 64),
-			array('objectid, timecreated, timemodified', 'length', 'max' => 11),
-			array('widget, name, label, labeloptions, hint, hintoptions, prepend, prependoptions, append, appendoptions, htmloptions', 'length', 'max'=>255),
+			array('objectid, timecreated, timemodified, sortorder', 'length', 'max' => 11),
+			array('widget, name, label, labeloptions, hint, hintoptions, prepend, 
+			    prependoptions, append, appendoptions, htmloptions', 'length', 'max' => 255),
 		);
 	}
 
@@ -111,6 +113,7 @@ class FlexibleFormFields extends CActiveRecord
 			'htmloptions' => 'Htmloptions',
 			'timecreated' => 'Timecreated',
 			'timemodified' => 'Timemodified',
+			'sortorder' => 'sortorder',
 		);
 	}
 
@@ -119,7 +122,7 @@ class FlexibleFormFields extends CActiveRecord
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!
 	 * 
 	 * @param string $className active record class name.
-	 * @return FlexibleFormFields the static model class
+	 * @return FlexibleFormField the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
