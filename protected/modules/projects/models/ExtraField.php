@@ -21,7 +21,7 @@
  * 
  * Relations:
  * @property ExtraFieldInstance[]  $instances
- * @property ExtraField            $patent
+ * @property ExtraField            $paкent
  * @property EasyList              $optionsList
  * @property DocumentData[]        $dataItems
  * @property DocumentDataHistory[] $historyItems
@@ -57,7 +57,7 @@ class ExtraField extends CActiveRecord
 		    array('name', 'unique', 
                 'attributeName' => 'name',
 		        'className'     => 'ExtraField',
-		        'criteria'      => array('condition' => "`id` <> '$this->id'"),
+		        'criteria'      => array('condition' => "`id` <> '{$this->id}'"),
 		        'on'            => 'update',
             ),
 			array('name, type, title, description', 'filter', 'filter' => 'trim'),
@@ -77,6 +77,20 @@ class ExtraField extends CActiveRecord
 	        // автоматическое заполнение дат создания и изменения
 	        'EcTimestampBehavior' => array(
 	            'class' => 'zii.behaviors.EcTimestampBehavior',
+	        ),
+	        // это поведение позволяет изменять набор связей модели в зависимости от того какие данные в ней находятся
+	        'CustomRelationsBehavior' => array(
+	            'class' => 'application.behaviors.CustomRelationsBehavior',
+	        ),
+	        // группы условий для поиска по данным моделей, которые ссылаются
+	        // на эту запись по составному ключу objecttype/objectid
+	        'CustomRelationTargetBehavior' => array(
+	            'class' => 'application.behaviors.CustomRelationTargetBehavior',
+	            'customRelations' => array(),
+	        ),
+	        // настройки для модели и методы для поиска по этим настройкам
+	        'ConfigurableRecordBehavior' => array(
+	            'class' => 'application.behaviors.ConfigurableRecordBehavior',
 	        ),
 	    );
 	}
@@ -569,6 +583,7 @@ class ExtraField extends CActiveRecord
 	{
 	    return $this->title;
 	}
+	
 	/**
 	 * @return void
 	 *
