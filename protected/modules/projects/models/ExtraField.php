@@ -8,16 +8,22 @@
  * @property integer $id
  * @property string $name
  * @property string $type
- * @property string $label
+ * @property string $title
  * @property string $description
  * @property string $timecreated
  * @property string $timemodified
+ * @property string $valueschemaid
+ * @property string $rules
+ * @property string $freebaseproperty
+ * @property string $optionslistid
+ * @property string $parentid
  * 
  * Relations:
  * @property ExtraFieldInstance[] $instances
+ * @property ExtraField $patent
+ * @property EasyList $optionsList
  * 
  * @todo документировать код
- * @todo прописать MANY_MANY relation с ролями 
  */
 class ExtraField extends CActiveRecord
 {
@@ -50,13 +56,10 @@ class ExtraField extends CActiveRecord
 		        'criteria'      => array('condition' => "`id` <> '$this->id'"),
 		        'on'            => 'update',
             ),
-			array('name, type, label, description', 'filter', 'filter' => 'trim'),
-			array('name, type, label', 'length', 'max' => 255),
-			array('description', 'length', 'max' => 4095),
-			array('timecreated, timemodified', 'length', 'max' => 11),
-			// The following rule is used by search().
-			// @todo Please remove those attributes that should not be searched.
-			array('id, name, type, label, description, timecreated, timemodified', 'safe', 'on' => 'search'),
+			array('name, type, title, description', 'filter', 'filter' => 'trim'),
+			array('name, type, title', 'length', 'max' => 255),
+			array('description, rulesб freebaseproperty', 'length', 'max' => 4095),
+			array('timecreated, timemodified, valueschemaid, optionslistid, parentid', 'length', 'max' => 11),
 		);
 	}
 	
@@ -67,10 +70,8 @@ class ExtraField extends CActiveRecord
 	{
 	    return array(
 	        // автоматическое заполнение дат создания и изменения
-	        'CTimestampBehavior' => array(
-	            'class' => 'zii.behaviors.CTimestampBehavior',
-	            'createAttribute' => 'timecreated',
-	            'updateAttribute' => 'timemodified',
+	        'EcTimestampBehavior' => array(
+	            'class' => 'zii.behaviors.EcTimestampBehavior',
 	        ),
 	    );
 	}
@@ -83,6 +84,11 @@ class ExtraField extends CActiveRecord
 		return array(
 		    // все ссылки на это поле
             'instances' => array(self::HAS_MANY, 'ExtraFieldInstance', 'fieldid'),
+		    // шаблон-родитель для этого поля
+		    'patent' => array(self::BELONGS_TO, 'ExtraField', 'patentid'),
+		    // список возможных значений
+		    'optionsList' => array(self::BELONGS_TO, 'EasyList', 'optionslistid'),
+		    
 		    // все роли, к которым прикреплено это поле
 		    // @todo проверить правильно ли указан порядок полей в составном ключе
 		    /*'vacancies' => array(self::MANY_MANY, 'EventVacancy', "{{extra_field_instances}}(fieldid, objectid)",
@@ -123,47 +129,23 @@ class ExtraField extends CActiveRecord
 			'id' => 'ID',
 			'name' => 'Служебное название',
 			'type' => 'Тип поля',
-			'label' => 'Название (как этот текст)',
+			'title' => 'Название поля',
 			'description' => 'Дополнительное пояснение',
-			'timecreated' => 'Timecreated',
-			'timemodified' => 'Timemodified',
+			'timecreated' => 'Создание',
+			'timemodified' => 'Последнее изменение',
+			'valueschemaid' => 'Схема значения',
+		    'rules' => 'Правила для проверки поля',
+			'freebaseproperty' => 'Путь к описанию объекта на freebase',
+			'optionslistid' => 'Список содержащий возможные значения поля (для полей с выбором варианта)',
+			'parentid' => 'id поля-шаблона из значений которого было создано это поле',
 		);
-	}
-
-	/**
-	 * Retrieves a list of models based on the current search/filter conditions.
-	 *
-	 * Typical usecase:
-	 * - Initialize the model fields with values from filter form.
-	 * - Execute this method to get CActiveDataProvider instance which will filter
-	 * models according to data in model fields.
-	 * - Pass data provider to CGridView, CListView or any similar widget.
-	 *
-	 * @return CActiveDataProvider the data provider that can return the models
-	 * based on the search/filter conditions.
-	 */
-	public function search()
-	{
-		// @todo Please modify the following code to remove attributes that should not be searched.
-		$criteria = new CDbCriteria;
-
-		$criteria->compare('id', $this->id);
-		$criteria->compare('name', $this->name, true);
-		$criteria->compare('type', $this->type, true);
-		$criteria->compare('label', $this->label, true);
-		$criteria->compare('description', $this->description, true);
-		$criteria->compare('timecreated', $this->timecreated, true);
-		$criteria->compare('timemodified', $this->timemodified, true);
-
-		return new CActiveDataProvider($this, array(
-			'criteria' => $criteria,
-		));
 	}
 
 	/**
 	 * Returns the static model of the specified AR class.
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!
-	 * @param string $className active record class name.
+	 * 
+	 * @param  string $className active record class name.
 	 * @return ExtraField the static model class
 	 */
 	public static function model($className=__CLASS__)
@@ -178,7 +160,7 @@ class ExtraField extends CActiveRecord
 	{
 	    return array(
 	        'orderByLabel' => array(
-	            'order' => "`label` ASC",
+	            'order' => $this->getTableAlias(true).".`title` ASC",
 	       ),
 	    );
 	}
@@ -235,6 +217,7 @@ class ExtraField extends CActiveRecord
 	    $criteria->together = true;
 	    
 	    $this->getDbCriteria()->mergeWith($criteria);
+	    
 	    return $this;
 	}
 	
@@ -291,10 +274,10 @@ class ExtraField extends CActiveRecord
 	    return $this;*/
 	}
 	
-	
 	/**
 	 * Именованая группа условий: получить все поля, привязаные к указанным категориям
-	 * @param array $objectId
+	 * 
+	 * @param  array $objectId
 	 * @return ExtraField
 	 */
 	public function forCategories($categoryIds)
@@ -397,7 +380,7 @@ class ExtraField extends CActiveRecord
 	
 	/**
 	 * 
-	 * @param EventVacancy $vacancy
+	 * @param  EventVacancy $vacancy
 	 * @return ExtraField
 	 */
 	public function isRequiredForVacancy($vacancy)
@@ -417,6 +400,7 @@ class ExtraField extends CActiveRecord
 	
 	/**
 	 * Определить, пусто ли требующее заполнения дополнительное поле (для подачи заявки)
+	 * 
 	 * @param EventVacancy $vacancy - роль, на которую подается заявка
 	 * @param Questionary $questionary - анкета, от имени которой подается заявка
 	 * @return bool
@@ -512,8 +496,8 @@ class ExtraField extends CActiveRecord
 	/**
 	 * Определить, прикреплено ли дополнительное поле к объекту
 	 * 
-	 * @param string $objectType
-	 * @param int $objectId
+	 * @param  string $objectType
+	 * @param  int $objectId
 	 * @return bool
 	 */
 	public function isAttachedTo($objectType, $objectId)
@@ -524,7 +508,7 @@ class ExtraField extends CActiveRecord
 	
 	/**
 	 * 
-	 * @param EvantVacancy $vacancy
+	 * @param  EvantVacancy $vacancy
 	 * @return bool
 	 */
 	public function isAttachedToVacancy($vacancy)
@@ -534,6 +518,7 @@ class ExtraField extends CActiveRecord
 	
 	/**
 	 * Определить, является ли поле "потерянным" - то есть не принадлежащим ни одной категории
+	 * 
 	 * @return bool
 	 *         true - да, поле беспризорное :)
 	 *         false - поле находится хотя бы в одной категории
@@ -545,6 +530,7 @@ class ExtraField extends CActiveRecord
 	
 	/**
 	 * Получить список возможных вариантов содержимого для категории
+	 * 
 	 * @return array
 	 *
 	 * @todo перенести в список стандартных значений
@@ -560,6 +546,7 @@ class ExtraField extends CActiveRecord
 	
 	/**
 	 * Получить текущее значение для пользователя
+	 * 
 	 * @return string
 	 * 
 	 * @todo перенести в список стандартных значений
@@ -568,5 +555,24 @@ class ExtraField extends CActiveRecord
 	{
 	    $types = $this->getTypeOptions();
 	    return $types[$this->type];
+	}
+	
+	/**
+	 * @return string
+	 *
+	 * @todo оставлено после переименования поля (для работы старых функций), удалить при рефакторинге
+	 */
+	public function getLabel()
+	{
+	    return $this->title;
+	}
+	/**
+	 * @return void
+	 *
+	 * @todo оставлено после переименования поля (для работы старых функций), удалить при рефакторинге
+	 */
+	public function setLabel($title)
+	{
+	    $this->title = $title;
 	}
 }
