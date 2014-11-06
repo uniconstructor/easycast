@@ -22,6 +22,10 @@
  * @property string $htmloptions
  * @property string $timecreated
  * @property string $timemodified
+ * 
+ * Relations:
+ * @property FlexibleForm $flexibleForm
+ * @property ExtraField   $extraFields
  */
 class FlexibleFormFields extends CActiveRecord
 {
@@ -40,9 +44,9 @@ class FlexibleFormFields extends CActiveRecord
 	{
 		return array(
 			array('name, htmloptions', 'required'),
-			array('clientvalidation, ajaxvalidation', 'numerical', 'integerOnly'=>true),
-			array('objecttype', 'length', 'max'=>64),
-			array('objectid, timecreated, timemodified', 'length', 'max'=>11),
+			array('clientvalidation, ajaxvalidation', 'numerical', 'integerOnly' => true),
+			array('objecttype', 'length', 'max' => 64),
+			array('objectid, timecreated, timemodified', 'length', 'max' => 11),
 			array('widget, name, label, labeloptions, hint, hintoptions, prepend, prependoptions, append, appendoptions, htmloptions', 'length', 'max'=>255),
 		);
 	}
@@ -53,7 +57,34 @@ class FlexibleFormFields extends CActiveRecord
 	public function relations()
 	{
 		return array(
+		    // форма которой принадлежит это поле
+		    'flexibleForm' =>  array(self::BELONGS_TO, 'FlexibleForm', 'objectid'),
+		    // поля, использующие эту форму
+		    'extraFields'  => array(self::BELONGS_TO, 'ExtraField', 'formfieldid'),
 		);
+	}
+	
+	/**
+	 * @see CModel::behaviors()
+	 */
+	public function behaviors()
+	{
+	    return array(
+	        // автоматическое заполнение дат создания и изменения
+	        'EcTimestampBehavior' => array(
+	            'class' => 'application.behaviors.EcTimestampBehavior',
+	        ),
+	        // группы условий для поиска по данным моделей, которые ссылаются
+	        // на эту запись по составному ключу objecttype/objectid
+	        'CustomRelationSourceBehavior' => array(
+	            'class' => 'application.behaviors.CustomRelationTargetBehavior',
+	            'customRelations' => array(),
+	        ),
+	        // настройки для модели и методы для поиска по этим настройкам
+	        'ConfigurableRecordBehavior' => array(
+	            'class' => 'application.behaviors.ConfigurableRecordBehavior',
+	        ),
+	    );
 	}
 
 	/**
@@ -86,6 +117,7 @@ class FlexibleFormFields extends CActiveRecord
 	/**
 	 * Returns the static model of the specified AR class.
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!
+	 * 
 	 * @param string $className active record class name.
 	 * @return FlexibleFormFields the static model class
 	 */

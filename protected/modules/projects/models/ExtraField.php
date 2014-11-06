@@ -17,11 +17,15 @@
  * @property string $freebaseproperty
  * @property string $optionslistid
  * @property string $parentid
+ * @property string $formfieldid
  * 
  * Relations:
- * @property ExtraFieldInstance[] $instances
- * @property ExtraField $patent
- * @property EasyList $optionsList
+ * @property ExtraFieldInstance[]  $instances
+ * @property ExtraField            $patent
+ * @property EasyList              $optionsList
+ * @property DocumentData[]        $dataItems
+ * @property DocumentDataHistory[] $historyItems
+ * @property FlexibleFormField     $formField
  * 
  * @todo документировать код
  */
@@ -59,7 +63,8 @@ class ExtraField extends CActiveRecord
 			array('name, type, title, description', 'filter', 'filter' => 'trim'),
 			array('name, type, title', 'length', 'max' => 255),
 			array('description, rulesб freebaseproperty', 'length', 'max' => 4095),
-			array('timecreated, timemodified, valueschemaid, optionslistid, parentid', 'length', 'max' => 11),
+			array('timecreated, timemodified, valueschemaid, optionslistid, 
+			    parentid, formfieldid', 'length', 'max' => 11),
 		);
 	}
 	
@@ -83,17 +88,14 @@ class ExtraField extends CActiveRecord
 	{
 		return array(
 		    // все ссылки на это поле
+		    /** @deprecated */
             'instances' => array(self::HAS_MANY, 'ExtraFieldInstance', 'fieldid'),
 		    // шаблон-родитель для этого поля
-		    'patent' => array(self::BELONGS_TO, 'ExtraField', 'patentid'),
+		    'parent' => array(self::BELONGS_TO, 'ExtraField', 'patentid'),
 		    // список возможных значений
 		    'optionsList' => array(self::BELONGS_TO, 'EasyList', 'optionslistid'),
-		    
-		    // все роли, к которым прикреплено это поле
-		    // @todo проверить правильно ли указан порядок полей в составном ключе
-		    /*'vacancies' => array(self::MANY_MANY, 'EventVacancy', "{{extra_field_instances}}(fieldid, objectid)",
-		        'condition' => "`objecttype` = 'vacancy'",
-		    ),*/
+		    // поле формы для редактирования этого поля документа
+		    'formField' => array(self::HAS_ONE, 'FlexibleFormField', 'formfieldid'),
 		);
 	}
 	
@@ -138,6 +140,7 @@ class ExtraField extends CActiveRecord
 			'freebaseproperty' => 'Путь к описанию объекта на freebase',
 			'optionslistid' => 'Список содержащий возможные значения поля (для полей с выбором варианта)',
 			'parentid' => 'id поля-шаблона из значений которого было создано это поле',
+			'formfieldid' => 'Поле формы отвечающее за ввод значения',
 		);
 	}
 

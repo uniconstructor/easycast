@@ -9,9 +9,13 @@
  * @property string $title
  * @property string $description
  * @property string $type
+ * @property string $formid
  * @property string $freebasetype
  * @property string $timecreated
  * @property string $timemodified
+ * 
+ * Relations:
+ * @property Document[] $documents
  */
 class DocumentSchema extends CActiveRecord
 {
@@ -29,10 +33,10 @@ class DocumentSchema extends CActiveRecord
 	public function rules()
 	{
 		return array(
-			array('title, freebasetype', 'length', 'max'=>255),
-			array('description', 'length', 'max'=>4095),
-			array('type', 'length', 'max'=>127),
-			array('timecreated, timemodified', 'length', 'max'=>11),
+			array('title, freebasetype', 'length', 'max' => 255),
+			array('description', 'length', 'max' => 4095),
+			array('type', 'length', 'max' => 127),
+			array('timecreated, timemodified, formid', 'length', 'max'=>11),
 		);
 	}
 
@@ -42,7 +46,33 @@ class DocumentSchema extends CActiveRecord
 	public function relations()
 	{
 		return array(
+		    // все документы, структура которых описывается этой схемой
+		    'documents' => array(self::HAS_MANY, 'Document', 'schemaid'),
+		    // форма для создания модели по этой схеме
+		    'flexibleForm' => array(self::HAS_ONE, 'FlexibleForm', 'formid'),
+		    // @todo все поля документов хранящие в себе данные со структурой этой схемы
 		);
+	}
+	
+	/**
+	 * @see CModel::behaviors()
+	 */
+	public function behaviors()
+	{
+	    return array(
+	        // автоматическое заполнение дат создания и изменения
+	        'EcTimestampBehavior' => array(
+	            'class' => 'application.behaviors.EcTimestampBehavior',
+	        ),
+	        // это поведение позволяет изменять набор связей модели в зависимости от того какие данные в ней находятся
+	        'CustomRelationsBehavior' => array(
+	            'class' => 'application.behaviors.CustomRelationsBehavior',
+	        ),
+	        // настройки для модели и методы для поиска по этим настройкам
+	        'ConfigurableRecordBehavior' => array(
+	            'class' => 'application.behaviors.ConfigurableRecordBehavior',
+	        ),
+	    );
 	}
 
 	/**
@@ -95,6 +125,7 @@ class DocumentSchema extends CActiveRecord
 	/**
 	 * Returns the static model of the specified AR class.
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!
+	 * 
 	 * @param string $className active record class name.
 	 * @return DocumentSchema the static model class
 	 */

@@ -7,15 +7,19 @@
  *
  * Таблица '{{flexible_forms}}':
  * @property integer $id
- * @property string $title
- * @property string $description
- * @property string $action
- * @property string $activeformoptions
- * @property string $displaytype
+ * @property string  $title
+ * @property string  $description
+ * @property string  $action
+ * @property string  $activeformoptions
+ * @property string  $displaytype
  * @property integer $clientvalidation
  * @property integer $ajaxvalidation
- * @property string $timecreated
- * @property string $timemodified
+ * @property string  $timecreated
+ * @property string  $timemodified
+ * 
+ * Relations:
+ * @property DocumentSchema[]     $schemes
+ * @property FlexibleFormFields[] $fields
  */
 class FlexibleForm extends CActiveRecord
 {
@@ -33,22 +37,55 @@ class FlexibleForm extends CActiveRecord
 	public function rules()
 	{
 		return array(
-			array('clientvalidation, ajaxvalidation', 'numerical', 'integerOnly'=>true),
-			array('title', 'length', 'max'=>6),
-			array('description, activeformoptions', 'length', 'max'=>4095),
-			array('action', 'length', 'max'=>255),
-			array('displaytype', 'length', 'max'=>12),
-			array('timecreated, timemodified', 'length', 'max'=>11),
+			array('clientvalidation, ajaxvalidation', 'numerical', 'integerOnly' => true),
+			array('title', 'length', 'max' => 6),
+			array('description, activeformoptions', 'length', 'max' => 4095),
+			array('action', 'length', 'max' => 255),
+			array('displaytype', 'length', 'max' => 12),
+			array('timecreated, timemodified', 'length', 'max' => 11),
 		);
 	}
-
+	
 	/**
 	 * @return array relational rules.
 	 */
 	public function relations()
 	{
 		return array(
+		    // схемы использующие эту форму
+            'schemes' => array(self::HAS_MANY, 'DocumentSchema', 'formid'),
+		    // поля этой формы
+		    'fields'  =>  array(self::HAS_MANY, 'FlexibleFormFields', 'objectid', 
+		        'condition' => array(
+                    'scopes' => array(
+                        'withObjectType' => array('FlexibleForm'),
+                    ),
+                ),
+		    ),
 		);
+	}
+	
+	/**
+	 * @see CModel::behaviors()
+	 */
+	public function behaviors()
+	{
+	    return array(
+	        // автоматическое заполнение дат создания и изменения
+	        'EcTimestampBehavior' => array(
+	            'class' => 'application.behaviors.EcTimestampBehavior',
+	        ),
+	        // группы условий для поиска по данным моделей, которые ссылаются
+	        // на эту запись по составному ключу objecttype/objectid
+	        'CustomRelationTargetBehavior' => array(
+	            'class' => 'application.behaviors.CustomRelationTargetBehavior',
+	            'customRelations' => array(),
+	        ),
+	        // настройки для модели и методы для поиска по этим настройкам
+	        'ConfigurableRecordBehavior' => array(
+	            'class' => 'application.behaviors.ConfigurableRecordBehavior',
+	        ),
+	    );
 	}
 
 	/**
@@ -73,6 +110,7 @@ class FlexibleForm extends CActiveRecord
 	/**
 	 * Returns the static model of the specified AR class.
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!
+	 * 
 	 * @param string $className active record class name.
 	 * @return FlexibleForm the static model class
 	 */

@@ -13,6 +13,7 @@ class m141105_225000_installDocumentTables extends EcMigration
             'schemaid'     => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
             'timecreated'  => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
             'timemodified' => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
+            'workflowid'   => 'VARCHAR(50) DEFAULT NULL',
             'status'       => "VARCHAR(50) DEFAULT NULL",
         );
         $this->createTable($table, $columns);
@@ -26,6 +27,7 @@ class m141105_225000_installDocumentTables extends EcMigration
             'title'        => "VARCHAR(255) DEFAULT NULL",
             'description'  => "VARCHAR(4095) DEFAULT NULL",
             'type'         => "VARCHAR(127) DEFAULT NULL",
+            'formid'       => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
             'freebasetype' => "VARCHAR(255) DEFAULT NULL",
             'timecreated'  => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
             'timemodified' => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
@@ -51,6 +53,9 @@ class m141105_225000_installDocumentTables extends EcMigration
         
         $this->addColumn($table, 'parentid', 'int(11) UNSIGNED NOT NULL DEFAULT 0');
         $this->createIndex('idx_parentid', $table, 'parentid');
+        
+        $this->addColumn($table, 'formfieldid', 'int(11) UNSIGNED NOT NULL DEFAULT 0');
+        $this->createIndex('idx_formfieldid', $table, 'formfieldid');
         unset($table);
         
         
@@ -58,7 +63,7 @@ class m141105_225000_installDocumentTables extends EcMigration
         $columns = array(
             'id'            => 'pk',
             'documentid'    => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
-            'schemafieldid' => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
+            'extrafieldid'  => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
             'value'         => "VARCHAR(4095) DEFAULT NULL",
             'freebaseitem'  => "VARCHAR(255) DEFAULT NULL",
             'timecreated'   => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
@@ -78,6 +83,8 @@ class m141105_225000_installDocumentTables extends EcMigration
             'freebaseitem'  => "VARCHAR(255) DEFAULT NULL",
             'timecreated'   => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
             'version'       => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
+            'userid'        => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
+            'comment'       => "VARCHAR(127) DEFAULT NULL",
         );
         $this->createTable($table, $columns);
         $this->ecCreateIndexes($table, $columns);
