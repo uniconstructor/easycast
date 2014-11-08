@@ -102,8 +102,8 @@ class FlexibleForm extends CActiveRecord
 			'displaytype' => 'Displaytype',
 			'clientvalidation' => 'Clientvalidation',
 			'ajaxvalidation' => 'Ajaxvalidation',
-			'timecreated' => 'Timecreated',
-			'timemodified' => 'Timemodified',
+			'timecreated' => Yii::t('coreMessages', 'timecreated'),
+			'timemodified' => Yii::t('coreMessages', 'timemodified'),
 		);
 	}
     

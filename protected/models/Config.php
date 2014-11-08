@@ -458,6 +458,8 @@ class Config extends CActiveRecord
 			'valuetype' => 'Тип значения или название класса модели в котором оно хранится',
 			'valuefield' => 'Поле, в котором хранится значение',
 			'valueid' => 'id модели в которой хранится значение настройки',
+		    'timecreated'  => Yii::t('coreMessages', 'timecreated'),
+		    'timemodified' => Yii::t('coreMessages', 'timemodified'),
 		);
 	}
 	

@@ -91,7 +91,7 @@ class DocumentDataHistory extends CActiveRecord
 			'schemafieldid' => 'Schemafieldid',
 			'value' => 'Value',
 			'freebaseitem' => 'Freebaseitem',
-			'timecreated' => 'Timecreated',
+			'timecreated'  => Yii::t('coreMessages', 'timecreated'),
 			'version' => 'Version',
 			'userid' => 'Кем изменено',
 			'comment' => Yii::t('coreMessages', 'comment'),

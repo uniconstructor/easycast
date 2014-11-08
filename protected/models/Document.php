@@ -82,9 +82,9 @@ class Document extends CActiveRecord
 		return array(
 			'id'           => 'ID',
 			'schemaid'     => 'Схема документа',
-			'timecreated'  => 'Timecreated',
-			'timemodified' => 'Timemodified',
-			'status'       => 'Status',
+			'timecreated'  => Yii::t('coreMessages', 'timecreated'),
+			'timemodified' => Yii::t('coreMessages', 'timemodified'),
+			'status'       => Yii::t('coreMessages', 'status'),
 			'workflowid'   => 'Рабочий процесс',
 		);
 	}

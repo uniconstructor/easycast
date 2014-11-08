@@ -87,8 +87,8 @@ class DocumentData extends CActiveRecord
 			'extrafieldid' => 'Поле объекта',
 			'value' => 'Value',
 			'freebaseitem' => 'Freebaseitem',
-			'timecreated' => 'Timecreated',
-			'timemodified' => 'Timemodified',
+			'timecreated'  => Yii::t('coreMessages', 'timecreated'),
+			'timemodified' => Yii::t('coreMessages', 'timemodified'),
 		);
 	}
 
