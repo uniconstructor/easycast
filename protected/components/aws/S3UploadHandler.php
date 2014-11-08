@@ -29,10 +29,14 @@ class S3UploadHandler extends CComponent
      */
     public $bucket = "video.easycast.ru";
     
+    /**
+     * @var array
+     */
     protected $options;
-
-    // PHP File Upload error message codes:
-    // http://php.net/manual/en/features.file-upload.errors.php
+    /**
+     * @var array - PHP File Upload error message codes:
+     *              http://php.net/manual/en/features.file-upload.errors.php
+     */
     protected $error_messages = array(
         1 => 'The uploaded file exceeds the upload_max_filesize directive in php.ini',
         2 => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form',
@@ -51,11 +55,21 @@ class S3UploadHandler extends CComponent
         'max_height' => 'Image exceeds maximum height',
         'min_height' => 'Image requires a minimum height'
     );
-
+    /**
+     * @var array
+     */
     protected $image_objects = array();
-
-    function __construct($options = null, $initialize = true, $error_messages = null) {
-         
+    
+    /**
+     * 
+     * 
+     * @param string $options
+     * @param string $initialize
+     * @param string $error_messages
+     * @return void
+     */
+    function __construct($options = null, $initialize = true, $error_messages = null)
+    {
         //Initialize the s3 client and "registerStreamWrapper()" allows using PHP's native file methods such as file_put_contents()
         //http://docs.aws.amazon.com/aws-sdk-php/guide/latest/service-s3.html#amazon-s3-stream-wrapper
         $this->s3 = Yii::app()->getComponent('ecawsapi')->getS3();
@@ -177,8 +191,8 @@ class S3UploadHandler extends CComponent
                     // Uncomment the following to force the max
                     // dimensions and e.g. create square thumbnails:
                     //'crop' => true,
-                    'max_width' => 80,
-                    'max_height' => 80
+                    'max_width'  => 100,
+                    'max_height' => 100
                 )
             )  
         );
@@ -215,7 +229,8 @@ class S3UploadHandler extends CComponent
         }
     }
 
-    protected function get_full_url() {
+    protected function get_full_url()
+    {
         $https = !empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'], 'on') === 0;
         return
             ($https ? 'https://' : 'http://').
@@ -226,7 +241,8 @@ class S3UploadHandler extends CComponent
             substr($_SERVER['SCRIPT_NAME'],0, strrpos($_SERVER['SCRIPT_NAME'], '/'));
     }
 
-    protected function get_user_id() {
+    protected function get_user_id()
+    {
         if ( Yii::app()->user->isGuest )
         {
             return Yii::app()->session->sessionID;
@@ -236,20 +252,25 @@ class S3UploadHandler extends CComponent
         }
     }
 
-    protected function get_user_path() {
+    protected function get_user_path()
+    {
         if ($this->options['user_dirs']) {
             return '/'.$this->get_user_id().'/';
         }
         return '';
     }
 
-    protected function get_upload_path($file_name = null, $version = null) {
+    protected function get_upload_path($file_name = null, $version = null)
+    {
         $file_name = $file_name ? $file_name : '';
-        if (empty($version)) {
+        if ( empty($version) )
+        {
             $version_path = '';
-        } else {
+        }else
+        {
             $version_dir = @$this->options['image_versions'][$version]['upload_dir'];
-            if ($version_dir) {
+            if ( $version_dir )
+            {
                 return $version_dir.$this->get_user_path().$file_name;
             }
             $version_path = $version.'/'; //TRP 122713
@@ -259,25 +280,32 @@ class S3UploadHandler extends CComponent
             .$version_path.$file_name;
     }
 
-    protected function get_query_separator($url) {
+    protected function get_query_separator($url)
+    {
         return strpos($url, '?') === false ? '?' : '&';
     }
 
-    protected function get_download_url($file_name, $version = null, $direct = false) {
-        if (!$direct && $this->options['download_via_php']) {
+    protected function get_download_url($file_name, $version = null, $direct = false)
+    {
+        if ( ! $direct && $this->options['download_via_php'] )
+        {
             $url = $this->options['script_url']
                 .$this->get_query_separator($this->options['script_url'])
                 .'file='.rawurlencode($file_name);
-            if ($version) {
+            if ( $version )
+            {
                 $url .= '&version='.rawurlencode($version);
             }
             return $url.'&download=1';
         }
-        if (empty($version)) {
+        if ( empty($version) )
+        {
             $version_path = '';
-        } else {
+        }else
+        {
             $version_url = @$this->options['image_versions'][$version]['upload_url'];
-            if ($version_url) {
+            if ($version_url)
+            {
                 return $version_url.$this->get_user_path().rawurlencode($file_name);
             }
             $version_path = rawurlencode($version).'/';
@@ -286,59 +314,75 @@ class S3UploadHandler extends CComponent
             .$version_path.rawurlencode($file_name);
     }
 
-    protected function set_additional_file_properties($file) {
+    protected function set_additional_file_properties($file)
+    {
         $file->deleteUrl = $this->options['script_url']
             .$this->get_query_separator($this->options['script_url'])
             .$this->get_singular_param_name()
             .'='.rawurlencode($file->name);
         $file->deleteType = $this->options['delete_type'];
-        if ($file->deleteType !== 'DELETE') {
+        if ( $file->deleteType !== 'DELETE' )
+        {
             $file->deleteUrl .= '&_method=DELETE';
         }
-        if ($this->options['access_control_allow_credentials']) {
+        if ( $this->options['access_control_allow_credentials'] )
+        {
             $file->deleteWithCredentials = true;
         }
     }
 
     // Fix for overflowing signed 32 bit integers,
     // works for sizes up to 2^32-1 bytes (4 GiB - 1):
-    protected function fix_integer_overflow($size) {
-        if ($size < 0) {
+    protected function fix_integer_overflow($size)
+    {
+        if ( $size < 0 )
+        {
             $size += 2.0 * (PHP_INT_MAX + 1);
         }
         return $size;
     }
 
-    protected function get_file_size($file_path, $clear_stat_cache = false) {
-        if ($clear_stat_cache) {
-            if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
+    protected function get_file_size($file_path, $clear_stat_cache=false)
+    {
+        if ( $clear_stat_cache )
+        {
+            if (version_compare(PHP_VERSION, '5.3.0') >= 0)
+            {
                 clearstatcache(true, $file_path);
-            } else {
+            }else
+            {
                 clearstatcache();
             }
         }
         return $this->fix_integer_overflow(filesize($file_path));
     }
 
-    protected function is_valid_file_object($file_name) {
+    protected function is_valid_file_object($file_name)
+    {
         $file_path = $this->get_upload_path($file_name);
-        if (is_file($file_path) && $file_name[0] !== '.') {
+        if ( is_file($file_path) AND $file_name[0] !== '.' )
+        {
             return true;
         }
         return false;
     }
 
-    protected function get_file_object($file_name) {
-        if ($this->is_valid_file_object($file_name)) {
+    protected function get_file_object($file_name)
+    {
+        if ($this->is_valid_file_object($file_name))
+        {
             $file = new stdClass();
             $file->name = $file_name;
             $file->size = $this->get_file_size(
                 $this->get_upload_path($file_name)
             );
             $file->url = $this->get_download_url($file->name);
-            foreach($this->options['image_versions'] as $version => $options) {
-                if (!empty($version)) {
-                    if (is_file($this->get_upload_path($file_name, $version))) {
+            foreach ( $this->options['image_versions'] as $version => $options )
+            {
+                if ( ! empty($version) )
+                {
+                    if (is_file($this->get_upload_path($file_name, $version)))
+                    {
                         $file->{$version.'Url'} = $this->get_download_url(
                             $file->name,
                             $version
@@ -352,35 +396,43 @@ class S3UploadHandler extends CComponent
         return null;
     }
 
-    protected function get_file_objects($iteration_method = 'get_file_object') {
+    protected function get_file_objects($iteration_method = 'get_file_object')
+    {
         $upload_dir = $this->get_upload_path();
-        if (!is_dir($upload_dir)) {
-
+        if ( ! is_dir($upload_dir) )
+        {
             //begin TRP 12/27/13
-            try{
+            try
+            {
                 //http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.S3.S3Client.html#_listObjects
                 $result = $this->s3->listObjects(array(
                     'Bucket' => $this->bucket,
                     'Prefix' => $this->prefix
                 ));
 
-                if(isset($result['Contents']) && count($result['Contents'])>0){
-                    foreach($result['Contents'] as $obj){
-
-                        if($obj['Key']!=$this->prefix && strpos($obj['Key'], '/thumbnail/')===false){ //if Key is a full file path and not just a "directory"
+                if ( isset($result['Contents']) AND count($result['Contents']) > 0 )
+                {
+                    foreach($result['Contents'] as $obj)
+                    {
+                        if ( $obj['Key'] != $this->prefix AND 
+                             strpos($obj['Key'], '/thumbnail/') === false )
+                        {//if Key is a full file path and not just a "directory"
                             $a=pathinfo($obj['Key']);
                             $file_names_arr[]=$a['basename'];
                         }                        
                     }                        
                 }                                  
-            }
-            catch (S3Exception $e) {
-                $data['status']=0;
-                $data['message']=$e;
+            }catch (S3Exception $e)
+            {
+                $data['status']  = 0;
+                $data['message'] = $e;
                 //echo "There was an error uploading the file.\n";
             }
 
-            if(!isset($file_names_arr)) $file_names_arr=array(); 
+            if( ! isset($file_names_arr) )
+            {
+                $file_names_arr = array(); 
+            }
 
             return array_values(array_filter(array_map(
                 array($this, $iteration_method),
@@ -395,19 +447,23 @@ class S3UploadHandler extends CComponent
         )));
     }
 
-    protected function count_file_objects() {
+    protected function count_file_objects()
+    {
         return count($this->get_file_objects('is_valid_file_object'));
     }
 
-    protected function get_error_message($error) {
+    protected function get_error_message($error)
+    {
         return array_key_exists($error, $this->error_messages) ?
             $this->error_messages[$error] : $error;
     }
 
-    function get_config_bytes($val) {
-        $val = trim($val);
+    function get_config_bytes($val)
+    {
+        $val  = trim($val);
         $last = strtolower($val[strlen($val)-1]);
-        switch($last) {
+        switch ( $last )
+        {
             case 'g':
                 $val *= 1024;
             case 'm':
@@ -418,8 +474,10 @@ class S3UploadHandler extends CComponent
         return $this->fix_integer_overflow($val);
     }
 
-    protected function validate($uploaded_file, $file, $error, $index) {
-        if ($error) {
+    protected function validate($uploaded_file, $file, $error, $index)
+    {
+        if ( $error )
+        {
             $file->error = $this->get_error_message($error);
             return false;
         }
@@ -427,58 +485,72 @@ class S3UploadHandler extends CComponent
             $this->get_server_var('CONTENT_LENGTH')
         ));
         $post_max_size = $this->get_config_bytes(ini_get('post_max_size'));
-        if ($post_max_size && ($content_length > $post_max_size)) {
+        if ( $post_max_size AND ($content_length > $post_max_size) )
+        {
             $file->error = $this->get_error_message('post_max_size');
             return false;
         }
-        if (!preg_match($this->options['accept_file_types'], $file->name)) {
+        if ( ! preg_match($this->options['accept_file_types'], $file->name) )
+        {
             $file->error = $this->get_error_message('accept_file_types');
             return false;
         }
-        if ($uploaded_file && is_uploaded_file($uploaded_file)) {
+        if ( $uploaded_file && is_uploaded_file($uploaded_file) )
+        {
             $file_size = $this->get_file_size($uploaded_file);
-        } else {
+        }else
+        {
             $file_size = $content_length;
         }
         if ($this->options['max_file_size'] && (
                 $file_size > $this->options['max_file_size'] ||
                 $file->size > $this->options['max_file_size'])
-            ) {
+            )
+        {
             $file->error = $this->get_error_message('max_file_size');
             return false;
         }
         if ($this->options['min_file_size'] &&
-            $file_size < $this->options['min_file_size']) {
+            $file_size < $this->options['min_file_size'])
+        {
             $file->error = $this->get_error_message('min_file_size');
             return false;
         }
         if (is_int($this->options['max_number_of_files']) && (
                 $this->count_file_objects() >= $this->options['max_number_of_files'])
-            ) {
+            )
+        {
             $file->error = $this->get_error_message('max_number_of_files');
             return false;
         }
-        $max_width = @$this->options['max_width'];
+        $max_width  = @$this->options['max_width'];
         $max_height = @$this->options['max_height'];
-        $min_width = @$this->options['min_width'];
+        $min_width  = @$this->options['min_width'];
         $min_height = @$this->options['min_height'];
-        if (($max_width || $max_height || $min_width || $min_height)) {
+        
+        if ( ($max_width || $max_height || $min_width || $min_height) )
+        {
             list($img_width, $img_height) = $this->get_image_size($uploaded_file);
         }
-        if (!empty($img_width)) {
-            if ($max_width && $img_width > $max_width) {
+        if ( ! empty($img_width) )
+        {
+            if ($max_width && $img_width > $max_width)
+            {
                 $file->error = $this->get_error_message('max_width');
                 return false;
             }
-            if ($max_height && $img_height > $max_height) {
+            if ($max_height && $img_height > $max_height)
+            {
                 $file->error = $this->get_error_message('max_height');
                 return false;
             }
-            if ($min_width && $img_width < $min_width) {
+            if ($min_width && $img_width < $min_width)
+            {
                 $file->error = $this->get_error_message('min_width');
                 return false;
             }
-            if ($min_height && $img_height < $min_height) {
+            if ($min_height && $img_height < $min_height)
+            {
                 $file->error = $this->get_error_message('min_height');
                 return false;
             }
@@ -486,13 +558,15 @@ class S3UploadHandler extends CComponent
         return true;
     }
 
-    protected function upcount_name_callback($matches) {
+    protected function upcount_name_callback($matches)
+    {
         $index = isset($matches[1]) ? intval($matches[1]) + 1 : 1;
         $ext = isset($matches[2]) ? $matches[2] : '';
         return ' ('.$index.')'.$ext;
     }
 
-    protected function upcount_name($name) {
+    protected function upcount_name($name)
+    {
         return preg_replace_callback(
             '/(?:(?: \(([\d]+)\))?(\.[^.]+))?$/',
             array($this, 'upcount_name_callback'),
@@ -501,16 +575,19 @@ class S3UploadHandler extends CComponent
         );
     }
 
-    protected function get_unique_filename($file_path, $name, $size, $type, $error,
-            $index, $content_range) {
-        while(is_dir($this->get_upload_path($name))) {
+    protected function get_unique_filename($file_path, $name, $size, $type, $error, $index, $content_range)
+    {
+        while(is_dir($this->get_upload_path($name)))
+        {
             $name = $this->upcount_name($name);
         }
         // Keep an existing filename if this is part of a chunked upload:
         $uploaded_bytes = $this->fix_integer_overflow(intval($content_range[1]));
-        while(is_file($this->get_upload_path($name))) {
+        while ( is_file($this->get_upload_path($name)) )
+        {
             if ($uploaded_bytes === $this->get_file_size(
-                    $this->get_upload_path($name))) {
+                    $this->get_upload_path($name)))
+            {
                 break;
             }
             $name = $this->upcount_name($name);
@@ -518,23 +595,27 @@ class S3UploadHandler extends CComponent
         return $name;
     }
 
-    protected function trim_file_name($file_path, $name, $size, $type, $error,
-            $index, $content_range) {
+    protected function trim_file_name($file_path, $name, $size, $type, $error, $index, $content_range)
+    {
         // Remove path information and dots around the filename, to prevent uploading
         // into different directories or replacing hidden system files.
         // Also remove control characters and spaces (\x00..\x20) around the filename:
         $name = trim(basename(stripslashes($name)), ".\x00..\x20");
         // Use a timestamp for empty filenames:
-        if (!$name) {
+        if ( ! $name )
+        {
             $name = str_replace('.', '-', microtime(true));
         }
         // Add missing file extension for known image types:
         if (strpos($name, '.') === false &&
-                preg_match('/^image\/(gif|jpe?g|png)/', $type, $matches)) {
+                preg_match('/^image\/(gif|jpe?g|png)/', $type, $matches))
+        {
             $name .= '.'.$matches[1];
         }
-        if (function_exists('exif_imagetype')) {
-            switch(exif_imagetype($file_path)){
+        if ( function_exists('exif_imagetype') )
+        {
+            switch ( exif_imagetype($file_path) )
+            {
                 case IMAGETYPE_JPEG:
                     $extensions = array('jpg', 'jpeg');
                     break;
@@ -546,11 +627,13 @@ class S3UploadHandler extends CComponent
                     break;
             }
             // Adjust incorrect image file extensions:
-            if (!empty($extensions)) {
-                $parts = explode('.', $name);
+            if ( ! empty($extensions) )
+            {
+                $parts    = explode('.', $name);
                 $extIndex = count($parts) - 1;
-                $ext = strtolower(@$parts[$extIndex]);
-                if (!in_array($ext, $extensions)) {
+                $ext      = strtolower(@$parts[$extIndex]);
+                if ( ! in_array($ext, $extensions) )
+                {
                     $parts[$extIndex] = $extensions[0];
                     $name = implode('.', $parts);
                 }
@@ -559,12 +642,11 @@ class S3UploadHandler extends CComponent
         return $name;
     }
 
-    protected function get_file_name($file_path, $name, $size, $type, $error,
-            $index, $content_range) {
+    protected function get_file_name($file_path, $name, $size, $type, $error, $index, $content_range)
+    {
         return $this->get_unique_filename(
             $file_path,
-            $this->trim_file_name($file_path, $name, $size, $type, $error,
-                $index, $content_range),
+            $this->trim_file_name($file_path, $name, $size, $type, $error, $index, $content_range),
             $size,
             $type,
             $error,
@@ -573,47 +655,57 @@ class S3UploadHandler extends CComponent
         );
     }
 
-    protected function handle_form_data($file, $index) {
+    protected function handle_form_data($file, $index)
+    {
         // Handle form data, e.g. $_REQUEST['description'][$index]
     }
 
-    protected function get_scaled_image_file_paths($file_name, $version) {
+    protected function get_scaled_image_file_paths($file_name, $version)
+    {
         $file_path = $this->get_upload_path($file_name);
-        if (!empty($version)) {
+        if ( ! empty($version) )
+        {
             $version_dir = $this->get_upload_path(null, $version);
-            if (!is_dir($version_dir)) {
+            if (!is_dir($version_dir))
+            {
                 mkdir($version_dir, $this->options['mkdir_mode'], true);
             }
             //$new_file_path = $version_dir.'/'.$file_name; TRP 122713
             $new_file_path = $version_dir.$file_name; //TRP 122713 b/c double slash
 
-        } else {
+        }else
+        {
             $new_file_path = $file_path;
         }
-
         return array($file_path, $new_file_path);
     }
 
-    protected function gd_get_image_object($file_path, $func, $no_cache = false) {
-        if (empty($this->image_objects[$file_path]) || $no_cache) {
+    protected function gd_get_image_object($file_path, $func, $no_cache = false)
+    {
+        if ( empty($this->image_objects[$file_path]) || $no_cache )
+        {
             $this->gd_destroy_image_object($file_path);
             $this->image_objects[$file_path] = $func($file_path);
         }
         return $this->image_objects[$file_path];
     }
 
-    protected function gd_set_image_object($file_path, $image) {
+    protected function gd_set_image_object($file_path, $image)
+    {
         $this->gd_destroy_image_object($file_path);
         $this->image_objects[$file_path] = $image;
     }
 
-    protected function gd_destroy_image_object($file_path) {
+    protected function gd_destroy_image_object($file_path)
+    {
         $image = @$this->image_objects[$file_path];
         return $image && imagedestroy($image);
     }
 
-    protected function gd_imageflip($image, $mode) {
-        if (function_exists('imageflip')) {
+    protected function gd_imageflip($image, $mode)
+    {
+        if (function_exists('imageflip'))
+        {
             return imageflip($image, $mode);
         }
         $new_width = $src_width = imagesx($image);
@@ -654,19 +746,24 @@ class S3UploadHandler extends CComponent
         return $new_img;
     }
 
-    protected function gd_orient_image($file_path, $src_img) {
-        if (!function_exists('exif_read_data')) {
+    protected function gd_orient_image($file_path, $src_img)
+    {
+        if ( ! function_exists('exif_read_data') )
+        {
             return false;
         }
         $exif = @exif_read_data($file_path);
-        if ($exif === false) {
+        if ( $exif === false )
+        {
             return false;
         }
         $orientation = intval(@$exif['Orientation']);
-        if ($orientation < 2 || $orientation > 8) {
+        if ( $orientation < 2 || $orientation > 8 )
+        {
             return false;
         }
-        switch ($orientation) {
+        switch ($orientation)
+        {
             case 2:
                 $new_img = $this->gd_imageflip(
                     $src_img,
@@ -708,11 +805,14 @@ class S3UploadHandler extends CComponent
                 return false;
         }
         $this->gd_set_image_object($file_path, $new_img);
+        
         return true;
     }
 
-    protected function gd_create_scaled_image($file_name, $version, $options) {
-        if (!function_exists('imagecreatetruecolor')) {
+    protected function gd_create_scaled_image($file_name, $version, $options)
+    {
+        if ( ! function_exists('imagecreatetruecolor') )
+        {
             error_log('Function not found: imagecreatetruecolor');
             return false;
         }
@@ -721,7 +821,8 @@ class S3UploadHandler extends CComponent
             $this->get_scaled_image_file_paths($file_name, $version);
 
         $type = strtolower(substr(strrchr($file_name, '.'), 1));
-        switch ($type) {
+        switch ($type)
+        {
             case 'jpg':
             case 'jpeg':
                 $src_func = 'imagecreatefromjpeg';
@@ -746,51 +847,56 @@ class S3UploadHandler extends CComponent
         $src_img = $this->gd_get_image_object(
             $file_path,
             $src_func,
-            !empty($options['no_cache'])
+            ! empty($options['no_cache'])
         );
         $image_oriented = false;
-        if (!empty($options['auto_orient']) && $this->gd_orient_image(
-                $file_path,
-                $src_img
-            )) {
+        if ( ! empty($options['auto_orient']) && $this->gd_orient_image($file_path, $src_img) )
+        {
             $image_oriented = true;
-            $src_img = $this->gd_get_image_object(
-                $file_path,
-                $src_func
-            );
+            $src_img = $this->gd_get_image_object($file_path,$src_func);
         }
-        $max_width = $img_width = imagesx($src_img);
+        $max_width  = $img_width  = imagesx($src_img);
         $max_height = $img_height = imagesy($src_img);
-        if (!empty($options['max_width'])) {
+        
+        if ( ! empty($options['max_width']) )
+        {
             $max_width = $options['max_width'];
         }
-        if (!empty($options['max_height'])) {
+        if ( ! empty($options['max_height']) )
+        {
             $max_height = $options['max_height'];
         }
         $scale = min(
             $max_width / $img_width,
             $max_height / $img_height
         );
-        if ($scale >= 1) {
-            if ($image_oriented) {
+        if ( $scale >= 1 )
+        {
+            if ( $image_oriented )
+            {
                 return $write_func($src_img, $new_file_path, $image_quality);
             }
-            if ($file_path !== $new_file_path) {
+            if ( $file_path !== $new_file_path )
+            {
                 return copy($file_path, $new_file_path);
             }
             return true;
         }
-        if (empty($options['crop'])) {
+        if ( empty($options['crop']) )
+        {
             $new_width = $img_width * $scale;
             $new_height = $img_height * $scale;
             $dst_x = 0;
             $dst_y = 0;
             $new_img = imagecreatetruecolor($new_width, $new_height);
-        } else {
-            if (($img_width / $img_height) >= ($max_width / $max_height)) {
+        }else
+        {
+            if ( ($img_width / $img_height) >= ($max_width / $max_height) )
+            {
                 $new_width = $img_width / ($img_height / $max_height);
                 $new_height = $max_height;
-            } else {
+            }else
+            {
                 $new_width = $max_width;
                 $new_height = $img_height / ($img_width / $max_width);
             }
@@ -799,7 +905,8 @@ class S3UploadHandler extends CComponent
             $new_img = imagecreatetruecolor($max_width, $max_height);
         }
         // Handle transparency in GIF and PNG images:
-        switch ($type) {
+        switch ($type)
+        {
             case 'gif':
             case 'png':
                 imagecolortransparent($new_img, imagecolorallocate($new_img, 0, 0, 0));
@@ -821,15 +928,20 @@ class S3UploadHandler extends CComponent
             $img_height
         ) && $write_func($new_img, $new_file_path, $image_quality);
         $this->gd_set_image_object($file_path, $new_img);
+        
         return $success;
     }
 
-    protected function imagick_get_image_object($file_path, $no_cache = false) {
-        if (empty($this->image_objects[$file_path]) || $no_cache) {
+    protected function imagick_get_image_object($file_path, $no_cache=false)
+    {
+        if (empty($this->image_objects[$file_path]) || $no_cache)
+        {
             $this->imagick_destroy_image_object($file_path);
             $image = new Imagick();
-            if (!empty($this->options['imagick_resource_limits'])) {
-                foreach ($this->options['imagick_resource_limits'] as $type => $limit) {
+            if ( ! empty($this->options['imagick_resource_limits']) )
+            {
+                foreach ( $this->options['imagick_resource_limits'] as $type => $limit )
+                {
                     $image->setResourceLimit($type, $limit);
                 }
             }
@@ -839,20 +951,24 @@ class S3UploadHandler extends CComponent
         return $this->image_objects[$file_path];
     }
 
-    protected function imagick_set_image_object($file_path, $image) {
+    protected function imagick_set_image_object($file_path, $image)
+    {
         $this->imagick_destroy_image_object($file_path);
         $this->image_objects[$file_path] = $image;
     }
 
-    protected function imagick_destroy_image_object($file_path) {
+    protected function imagick_destroy_image_object($file_path)
+    {
         $image = @$this->image_objects[$file_path];
         return $image && $image->destroy();
     }
 
-    protected function imagick_orient_image($image) {
+    protected function imagick_orient_image($image)
+    {
         $orientation = $image->getImageOrientation();
-        $background = new ImagickPixel('none');
-        switch ($orientation) {
+        $background  = new ImagickPixel('none');
+        switch ( $orientation )
+        {
             case imagick::ORIENTATION_TOPRIGHT: // 2
                 $image->flopImage(); // horizontal flop around y-axis
                 break;
@@ -883,14 +999,15 @@ class S3UploadHandler extends CComponent
         return true;
     }
 
-    protected function imagick_create_scaled_image($file_name, $version, $options) {
-        list($file_path, $new_file_path) =
-            $this->get_scaled_image_file_paths($file_name, $version);
+    protected function imagick_create_scaled_image($file_name, $version, $options)
+    {
+        list($file_path, $new_file_path) = $this->get_scaled_image_file_paths($file_name, $version);
         $image = $this->imagick_get_image_object(
             $file_path,
             !empty($options['no_cache'])
         );
-        if ($image->getImageFormat() === 'GIF') {
+        if ($image->getImageFormat() === 'GIF')
+        {
             // Handle animated GIFs:
             $images = $image->coalesceImages();
             foreach ($images as $frame) {
@@ -900,31 +1017,40 @@ class S3UploadHandler extends CComponent
             }
         }
         $image_oriented = false;
-        if (!empty($options['auto_orient'])) {
+        if (!empty($options['auto_orient']))
+        {
             $image_oriented = $this->imagick_orient_image($image);
         }
         $new_width = $max_width = $img_width = $image->getImageWidth();
         $new_height = $max_height = $img_height = $image->getImageHeight();
-        if (!empty($options['max_width'])) {
+        
+        if ( ! empty($options['max_width']) )
+        {
             $new_width = $max_width = $options['max_width'];
         }
-        if (!empty($options['max_height'])) {
+        if ( ! empty($options['max_height']) )
+        {
             $new_height = $max_height = $options['max_height'];
         }
-        if (!($image_oriented || $max_width < $img_width || $max_height < $img_height)) {
-            if ($file_path !== $new_file_path) {
+        if ( ! ($image_oriented || $max_width < $img_width || $max_height < $img_height) )
+        {
+            if ( $file_path !== $new_file_path )
+            {
                 return copy($file_path, $new_file_path);
             }
             return true;
         }
-        $crop = !empty($options['crop']);
-        if ($crop) {
+        $crop = ! empty($options['crop']);
+        if ( $crop )
+        {
             $x = 0;
             $y = 0;
-            if (($img_width / $img_height) >= ($max_width / $max_height)) {
+            if ( ($img_width / $img_height) >= ($max_width / $max_height) )
+            {
                 $new_width = 0; // Enables proportional scaling based on max_height
                 $x = ($img_width / ($img_height / $max_height) - $max_width) / 2;
-            } else {
+            }else
+            {
                 $new_height = 0; // Enables proportional scaling based on max_width
                 $y = ($img_height / ($img_width / $max_width) - $max_height) / 2;
             }
@@ -936,58 +1062,70 @@ class S3UploadHandler extends CComponent
             isset($options['blur']) ? $options['blur'] : 1,
             $new_width && $new_height // fit image into constraints if not to be cropped
         );
-        if ($success && $crop) {
+        if ($success && $crop)
+        {
             $success = $image->cropImage(
                 $max_width,
                 $max_height,
                 $x,
                 $y
             );
-            if ($success) {
+            if ($success)
+            {
                 $success = $image->setImagePage($max_width, $max_height, 0, 0);
             }
         }
         $type = strtolower(substr(strrchr($file_name, '.'), 1));
-        switch ($type) {
+        switch ($type)
+        {
             case 'jpg':
             case 'jpeg':
-                if (!empty($options['jpeg_quality'])) {
+                if ( ! empty($options['jpeg_quality']) )
+                {
                     $image->setImageCompression(Imagick::COMPRESSION_JPEG);
                     $image->setImageCompressionQuality($options['jpeg_quality']);
                 }
                 break;
         }
-        if (!empty($options['strip'])) {
+        if ( ! empty($options['strip']) )
+        {
             $image->stripImage();
         }
-        return $success && $image->writeImage($new_file_path);
+        return $success AND $image->writeImage($new_file_path);
     }
 
-    protected function imagemagick_create_scaled_image($file_name, $version, $options) {
-        list($file_path, $new_file_path) =
-            $this->get_scaled_image_file_paths($file_name, $version);
+    protected function imagemagick_create_scaled_image($file_name, $version, $options)
+    {
+        list($file_path, $new_file_path) = $this->get_scaled_image_file_paths($file_name, $version);
         $resize = @$options['max_width']
             .(empty($options['max_height']) ? '' : 'x'.$options['max_height']);
-        if (!$resize && empty($options['auto_orient'])) {
-            if ($file_path !== $new_file_path) {
+        if ( ! $resize && empty($options['auto_orient']) )
+        {
+            if ( $file_path !== $new_file_path )
+            {
                 return copy($file_path, $new_file_path);
             }
             return true;
         }
         $cmd = $this->options['convert_bin'];
-        if (!empty($this->options['convert_params'])) {
+        if (!empty($this->options['convert_params']))
+        {
             $cmd .= ' '.$this->options['convert_params'];
         }
         $cmd .= ' '.escapeshellarg($file_path);
-        if (!empty($options['auto_orient'])) {
+        if ( ! empty($options['auto_orient']) )
+        {
             $cmd .= ' -auto-orient';
         }
-        if ($resize) {
+        if ( $resize )
+        {
             // Handle animated GIFs:
             $cmd .= ' -coalesce';
-            if (empty($options['crop'])) {
+            if ( empty($options['crop']) )
+            {
                 $cmd .= ' -resize '.escapeshellarg($resize.'>');
-            } else {
+            }else
+            {
                 $cmd .= ' -resize '.escapeshellarg($resize.'^');
                 $cmd .= ' -gravity center';
                 $cmd .= ' -crop '.escapeshellarg($resize.'+0+0');
@@ -995,150 +1133,172 @@ class S3UploadHandler extends CComponent
             // Make sure the page dimensions are correct (fixes offsets of animated GIFs):
             $cmd .= ' +repage';
         }
-        if (!empty($options['convert_params'])) {
+        if ( ! empty($options['convert_params']))
+        {
             $cmd .= ' '.$options['convert_params'];
         }
         $cmd .= ' '.escapeshellarg($new_file_path);
         exec($cmd, $output, $error);
-        if ($error) {
+        if ( $error )
+        {
             error_log(implode('\n', $output));
             return false;
         }
         return true;
     }
 
-    protected function get_image_size($file_path) {
-        if ($this->options['image_library']) {
-            if (extension_loaded('imagick')) {
+    protected function get_image_size($file_path)
+    {
+        if ($this->options['image_library'])
+        {
+            if (extension_loaded('imagick'))
+            {
                 $image = new Imagick();
-                try {
-                    if (@$image->pingImage($file_path)) {
+                try
+                {
+                    if ( @$image->pingImage($file_path) )
+                    {
                         $dimensions = array($image->getImageWidth(), $image->getImageHeight());
                         $image->destroy();
                         return $dimensions;
                     }
                     return false;
-                } catch (Exception $e) {
+                }catch (Exception $e)
+                {
                     error_log($e->getMessage());
                 }
             }
-            if ($this->options['image_library'] === 2) {
+            if ( $this->options['image_library'] === 2 )
+            {
                 $cmd = $this->options['identify_bin'];
                 $cmd .= ' -ping '.escapeshellarg($file_path);
                 exec($cmd, $output, $error);
-                if (!$error && !empty($output)) {
+                if ( ! $error && ! empty($output) )
+                {
                     // image.jpg JPEG 1920x1080 1920x1080+0+0 8-bit sRGB 465KB 0.000u 0:00.000
-                    $infos = preg_split('/\s+/', $output[0]);
+                    $infos      = preg_split('/\s+/', $output[0]);
                     $dimensions = preg_split('/x/', $infos[2]);
                     return $dimensions;
                 }
                 return false;
             }
         }
-        if (!function_exists('getimagesize')) {
+        if ( ! function_exists('getimagesize') )
+        {
             error_log('Function not found: getimagesize');
             return false;
         }
         return @getimagesize($file_path);
     }
 
-    protected function create_scaled_image($file_name, $version, $options) {
-        if ($this->options['image_library'] === 2) {
+    protected function create_scaled_image($file_name, $version, $options)
+    {
+        if ($this->options['image_library'] === 2)
+        {
             return $this->imagemagick_create_scaled_image($file_name, $version, $options);
         }
-        if ($this->options['image_library'] && extension_loaded('imagick')) {
+        if ( $this->options['image_library'] && extension_loaded('imagick') )
+        {
             return $this->imagick_create_scaled_image($file_name, $version, $options);
         }
         return $this->gd_create_scaled_image($file_name, $version, $options);
     }
 
-    protected function destroy_image_object($file_path) {
-        if ($this->options['image_library'] && extension_loaded('imagick')) {
+    protected function destroy_image_object($file_path)
+    {
+        if ( $this->options['image_library'] && extension_loaded('imagick') )
+        {
             return $this->imagick_destroy_image_object($file_path);
         }
     }
 
-    protected function is_valid_image_file($file_path) {
-        if (!preg_match($this->options['image_file_types'], $file_path)) {
+    protected function is_valid_image_file($file_path)
+    {
+        if ( ! preg_match($this->options['image_file_types'], $file_path) )
+        {
             return false;
         }
-        if (function_exists('exif_imagetype')) {
+        if ( function_exists('exif_imagetype') )
+        {
             return @exif_imagetype($file_path);
         }
         $image_info = $this->get_image_size($file_path);
         return $image_info && $image_info[0] && $image_info[1];
     }
 
-    protected function handle_image_file($file_path, $file) {
+    protected function handle_image_file($file_path, $file)
+    {
         $failed_versions = array();
-        foreach($this->options['image_versions'] as $version => $options) {
-
-            if ($this->create_scaled_image($file->name, $version, $options)) {
-                if (!empty($version)) {
+        foreach ( $this->options['image_versions'] as $version => $options )
+        {
+            if ($this->create_scaled_image($file->name, $version, $options))
+            {
+                if ( ! empty($version) )
+                {
                     $file->{$version.'Url'} = $this->get_download_url(
                         $file->name,
                         $version
                     );
-                } else {
+                }else
+                {
                     $file->size = $this->get_file_size($file_path, true);
                 }
-            } else {
+            }else
+            {
                 $failed_versions[] = $version;
             }
         }
-        switch (count($failed_versions)) {
+        switch ( count($failed_versions) )
+        {
             case 0:
                 break;
             case 1:
-                $file->error = 'Failed to create scaled version: '
-                    .$failed_versions[0];
+                $file->error = 'Failed to create scaled version: '.$failed_versions[0];
                 break;
             default:
-                $file->error = 'Failed to create scaled versions: '
-                    .implode($failed_versions,', ');
+                $file->error = 'Failed to create scaled versions: '.implode(', ', $failed_versions);
         }
         // Free memory:
         $this->destroy_image_object($file_path);
     }
 
     protected function handle_file_upload($uploaded_file, $name, $size, $type, $error,
-            $index = null, $content_range = null) {
+            $index = null, $content_range = null)
+    {
         $file = new stdClass();
         $file->name = $this->get_file_name($uploaded_file, $name, $size, $type, $error,
             $index, $content_range);
 
         $file->size = $this->fix_integer_overflow(intval($size));
         $file->type = $type;
-        if ($this->validate($uploaded_file, $file, $error, $index)) {
+        if ( $this->validate($uploaded_file, $file, $error, $index) )
+        {
             $this->handle_form_data($file, $index);
             $upload_dir = $this->get_upload_path();
-            if (!is_dir($upload_dir)) {
+            if ( ! is_dir($upload_dir) )
+            {
                 mkdir($upload_dir, $this->options['mkdir_mode'], true);
             }
             $file_path = $this->get_upload_path($file->name);
 
             $append_file = $content_range && is_file($file_path) &&
                 $file->size > $this->get_file_size($file_path);
-            if ($uploaded_file && is_uploaded_file($uploaded_file) || (isset($_POST['fileSourceChooser']) && $_POST['fileSourceChooser']=='dropbox')   ) {
+            if ($uploaded_file && is_uploaded_file($uploaded_file) || (isset($_POST['fileSourceChooser']) && $_POST['fileSourceChooser']=='dropbox')   )
+            {
                 // multipart/formdata uploads (POST method uploads)
-
                 //print_r($uploaded_file);
-
-                if ($append_file || (isset($_POST['fileSourceChooser']) && $_POST['fileSourceChooser']=='dropbox')  ) {
+                if ( $append_file || (isset($_POST['fileSourceChooser']) && $_POST['fileSourceChooser']=='dropbox')  ) {
                     file_put_contents(
                         $file_path,
                         fopen($uploaded_file, 'r'),
                         FILE_APPEND
                     );
-
-                } 
-
-
-                else {
+                }else
+                {
                     move_uploaded_file($uploaded_file, $file_path);
                 }
-
-            } else {
+            }else
+            {
                 $context = stream_context_create(array(
                     's3' => array('ACL' => 'public-read'),
                 ));
@@ -1151,18 +1311,21 @@ class S3UploadHandler extends CComponent
                 );
             }
             $file_size = $this->get_file_size($file_path, $append_file);
-            if ($file_size === $file->size) {
+            if ( $file_size === $file->size )
+            {
                 $file->url = $this->get_download_url($file->name);
-                if ($this->is_valid_image_file($file_path)) {
-
+                if ($this->is_valid_image_file($file_path))
+                {
                     //$file_path='/private/var/tmp';
                     //$file_path=$uploaded_file; //TRP 122713
                     $this->handle_image_file($file_path, $file);
 
                 }
-            } else {
+            }else
+            {
                 $file->size = $file_size;
-                if (!$content_range && $this->options['discard_aborted_uploads']) {
+                if ( ! $content_range && $this->options['discard_aborted_uploads'] )
+                {
                     unlink($file_path);
                     $file->error = 'abort';
                 }
@@ -1172,12 +1335,15 @@ class S3UploadHandler extends CComponent
         return $file;
     }
 
-    protected function readfile($file_path) {
+    protected function readfile($file_path)
+    {
         $file_size = $this->get_file_size($file_path);
         $chunk_size = $this->options['readfile_chunk_size'];
-        if ($chunk_size && $file_size > $chunk_size) {
+        if ($chunk_size && $file_size > $chunk_size)
+        {
             $handle = fopen($file_path, 'rb');
-            while (!feof($handle)) {
+            while ( ! feof($handle) )
+            {
                 echo fread($handle, $chunk_size);
                 ob_flush();
                 flush();
@@ -1188,32 +1354,40 @@ class S3UploadHandler extends CComponent
         return readfile($file_path);
     }
 
-    protected function body($str) {
+    protected function body($str)
+    {
         echo $str;
     }
     
-    protected function header($str) {
+    protected function header($str)
+    {
         header($str);
     }
 
-    protected function get_server_var($id) {
+    protected function get_server_var($id)
+    {
         return isset($_SERVER[$id]) ? $_SERVER[$id] : '';
     }
 
-    protected function generate_response($content, $print_response = true) {
-        if ($print_response) {
+    protected function generate_response($content, $print_response = true)
+    {
+        if ( $print_response )
+        {
             $json = json_encode($content);
             $redirect = isset($_REQUEST['redirect']) ?
                 stripslashes($_REQUEST['redirect']) : null;
-            if ($redirect) {
+            if ( $redirect )
+            {
                 $this->header('Location: '.sprintf($redirect, rawurlencode($json)));
                 return;
             }
             $this->head();
-            if ($this->get_server_var('HTTP_CONTENT_RANGE')) {
+            if ( $this->get_server_var('HTTP_CONTENT_RANGE') )
+            {
                 $files = isset($content[$this->options['param_name']]) ?
                     $content[$this->options['param_name']] : null;
-                if ($files && is_array($files) && is_object($files[0]) && $files[0]->size) {
+                if ( $files && is_array($files) && is_object($files[0]) && $files[0]->size )
+                {
                     $this->header('Range: 0-'.(
                         $this->fix_integer_overflow(intval($files[0]->size)) - 1
                     ));
@@ -1224,20 +1398,24 @@ class S3UploadHandler extends CComponent
         return $content;
     }
 
-    protected function get_version_param() {
+    protected function get_version_param()
+    {
         return isset($_GET['version']) ? basename(stripslashes($_GET['version'])) : null;
     }
 
-    protected function get_singular_param_name() {
+    protected function get_singular_param_name()
+    {
         return substr($this->options['param_name'], 0, -1);
     }
 
-    protected function get_file_name_param() {
+    protected function get_file_name_param()
+    {
         $name = $this->get_singular_param_name();
         return isset($_GET[$name]) ? basename(stripslashes($_GET[$name])) : null;
     }
 
-    protected function get_file_names_params() {
+    protected function get_file_names_params()
+    {
         $params = isset($_GET[$this->options['param_name']]) ?
             $_GET[$this->options['param_name']] : array();
         foreach ($params as $key => $value) {
@@ -1246,8 +1424,10 @@ class S3UploadHandler extends CComponent
         return $params;
     }
 
-    protected function get_file_type($file_path) {
-        switch (strtolower(pathinfo($file_path, PATHINFO_EXTENSION))) {
+    protected function get_file_type($file_path)
+    {
+        switch ( strtolower(pathinfo($file_path, PATHINFO_EXTENSION)) )
+        {
             case 'jpeg':
             case 'jpg':
                 return 'image/jpeg';
@@ -1260,8 +1440,10 @@ class S3UploadHandler extends CComponent
         }
     }
 
-    protected function download() {
-        switch ($this->options['download_via_php']) {
+    protected function download()
+    {
+        switch ($this->options['download_via_php'])
+        {
             case 1:
                 $redirect_header = null;
                 break;
@@ -1275,10 +1457,12 @@ class S3UploadHandler extends CComponent
                 return $this->header('HTTP/1.1 403 Forbidden');
         }
         $file_name = $this->get_file_name_param();
-        if (!$this->is_valid_file_object($file_name)) {
+        if ( ! $this->is_valid_file_object($file_name) )
+        {
             return $this->header('HTTP/1.1 404 Not Found');
         }
-        if ($redirect_header) {
+        if ( $redirect_header )
+        {
             return $this->header(
                 $redirect_header.': '.$this->get_download_url(
                     $file_name,
@@ -1290,10 +1474,12 @@ class S3UploadHandler extends CComponent
         $file_path = $this->get_upload_path($file_name, $this->get_version_param());
         // Prevent browsers from MIME-sniffing the content-type:
         $this->header('X-Content-Type-Options: nosniff');
-        if (!preg_match($this->options['inline_file_types'], $file_name)) {
+        if ( ! preg_match($this->options['inline_file_types'], $file_name) )
+        {
             $this->header('Content-Type: application/octet-stream');
             $this->header('Content-Disposition: attachment; filename="'.$file_name.'"');
-        } else {
+        }else
+        {
             $this->header('Content-Type: '.$this->get_file_type($file_path));
             $this->header('Content-Disposition: inline; filename="'.$file_name.'"');
         }
@@ -1302,16 +1488,20 @@ class S3UploadHandler extends CComponent
         $this->readfile($file_path);
     }
 
-    protected function send_content_type_header() {
+    protected function send_content_type_header()
+    {
         $this->header('Vary: Accept');
-        if (strpos($this->get_server_var('HTTP_ACCEPT'), 'application/json') !== false) {
+        if ( strpos($this->get_server_var('HTTP_ACCEPT'), 'application/json') !== false )
+        {
             $this->header('Content-type: application/json');
-        } else {
+        }else
+        {
             $this->header('Content-type: text/plain');
         }
     }
 
-    protected function send_access_control_headers() {
+    protected function send_access_control_headers()
+    {
         $this->header('Access-Control-Allow-Origin: '.$this->options['access_control_allow_origin']);
         $this->header('Access-Control-Allow-Credentials: '
             .($this->options['access_control_allow_credentials'] ? 'true' : 'false'));
@@ -1321,7 +1511,8 @@ class S3UploadHandler extends CComponent
             .implode(', ', $this->options['access_control_allow_headers']));
     }
 
-    public function head() {
+    public function head()
+    {
         $this->header('Pragma: no-cache');
         $this->header('Cache-Control: no-store, no-cache, must-revalidate');
         $this->header('Content-Disposition: inline; filename="files.json"');
@@ -1333,16 +1524,20 @@ class S3UploadHandler extends CComponent
         $this->send_content_type_header();
     }
 
-    public function get($print_response = true) {
-        if ($print_response && isset($_GET['download'])) {
+    public function get($print_response = true)
+    {
+        if ($print_response && isset($_GET['download']))
+        {
             return $this->download();
         }
         $file_name = $this->get_file_name_param();
-        if ($file_name) {
+        if ( $file_name )
+        {
             $response = array(
                 $this->get_singular_param_name() => $this->get_file_object($file_name)
             );
-        } else {
+        }else
+        {
             $response = array(
                 $this->options['param_name'] => $this->get_file_objects()
             );
@@ -1350,8 +1545,10 @@ class S3UploadHandler extends CComponent
         return $this->generate_response($response, $print_response);
     }
 
-    public function post($print_response = true) {
-        if (isset($_REQUEST['_method']) && $_REQUEST['_method'] === 'DELETE') {
+    public function post($print_response = true)
+    {
+        if ( isset($_REQUEST['_method']) && $_REQUEST['_method'] === 'DELETE')
+        {
             return $this->delete($print_response);
         }
         $upload = isset($_FILES[$this->options['param_name']]) ?
@@ -1369,10 +1566,12 @@ class S3UploadHandler extends CComponent
             preg_split('/[^0-9]+/', $this->get_server_var('HTTP_CONTENT_RANGE')) : null;
         $size =  $content_range ? $content_range[3] : null;
         $files = array();
-        if ($upload && is_array($upload['tmp_name'])) {
+        if ( $upload && is_array($upload['tmp_name']) )
+        {
             // param_name is an array identifier like "files[]",
             // $_FILES is a multi-dimensional array:
-            foreach ($upload['tmp_name'] as $index => $value) {
+            foreach ( $upload['tmp_name'] as $index => $value )
+            {
                 $files[] = $this->handle_file_upload(
                     $upload['tmp_name'][$index],
                     $file_name ? $file_name : $upload['name'][$index],
@@ -1383,11 +1582,10 @@ class S3UploadHandler extends CComponent
                     $content_range
                 );
             }
-        } else {
-
-
-            if( isset($_POST['fileSourceChooser']) && $_POST['fileSourceChooser']=='dropbox' ){
-                   
+        }else
+        {
+            if( isset($_POST['fileSourceChooser']) && $_POST['fileSourceChooser']=='dropbox' )
+            {
                 //http://justinvincent.com/page/1087/how-to-get-the-mime-type-of-a-remote-file-in-php-with-redirects
                 function get_url_mime_type($url){
                     $ch = curl_init($url);
@@ -1398,33 +1596,26 @@ class S3UploadHandler extends CComponent
                     curl_exec($ch);
                     return curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
                 }
-
-
-                    $upload=$_POST['files']; ////if just a regular post
-
-                    $upload['parse_url']=parse_url($upload['link']);
-                    $upload['url']='https://dl.dropboxusercontent.com'.$upload['parse_url']['path'];
-
-                        $files[] = $this->handle_file_upload(
-                            $upload['url'],
-                            $file_name ? $file_name : $upload['name'],
-                            $size ? $size : $upload['bytes'],
-                            get_url_mime_type($upload['url']), 
-                            "", 
-                            null, null,
-                            $content_range
-                        );  
-              
-
-                        file_put_contents(
-                            $this->options['upload_dir'].'thumbnail/'.$upload['name'],
-                            fopen($upload['thumbnail'], 'r'),
-                            FILE_APPEND //$append_file ? FILE_APPEND : 0
-                        );                        
-
-
-            }
-            else{
+                    $upload = $_POST['files']; ////if just a regular post
+                    $upload['parse_url'] = parse_url($upload['link']);
+                    $upload['url'] = 'https://dl.dropboxusercontent.com'.$upload['parse_url']['path'];
+                    
+                    $files[] = $this->handle_file_upload(
+                        $upload['url'],
+                        $file_name ? $file_name : $upload['name'],
+                        $size ? $size : $upload['bytes'],
+                        get_url_mime_type($upload['url']), 
+                        "", 
+                        null, null,
+                        $content_range
+                    );  
+                    file_put_contents(
+                        $this->options['upload_dir'].'thumbnail/'.$upload['name'],
+                        fopen($upload['thumbnail'], 'r'),
+                        FILE_APPEND //$append_file ? FILE_APPEND : 0
+                    );                        
+            }else
+            {
                 // param_name is a single object identifier like "file",
                 // $_FILES is a one-dimensional array:
                 $files[] = $this->handle_file_upload(
@@ -1442,29 +1633,35 @@ class S3UploadHandler extends CComponent
             }
 
         }
-
         return $this->generate_response(
             array($this->options['param_name'] => $files),
             $print_response
         );
     }
 
-    public function delete($print_response = true) {
+    public function delete($print_response = true)
+    {
         $file_names = $this->get_file_names_params();
-        if (empty($file_names)) {
+        if ( empty($file_names) )
+        {
             $file_names = array($this->get_file_name_param());
         }
         $response = array();
 
-        foreach($file_names as $file_name) {
+        foreach($file_names as $file_name)
+        {
             $file_path = $this->get_upload_path($file_name);
 
             $success = is_file($file_path) && $file_name[0] !== '.' && unlink($file_path);
-            if ($success) {
-                foreach($this->options['image_versions'] as $version => $options) {
-                    if (!empty($version)) {
+            if ( $success )
+            {
+                foreach ( $this->options['image_versions'] as $version => $options )
+                {
+                    if ( ! empty($version) )
+                    {
                         $file = $this->get_upload_path($file_name, $version);
-                        if (is_file($file)) {
+                        if (is_file($file))
+                        {
                             unlink($file);
                         }
                     }
