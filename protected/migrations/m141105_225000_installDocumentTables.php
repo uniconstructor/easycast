@@ -117,6 +117,7 @@ class m141105_225000_installDocumentTables extends EcMigration
             'objecttype'        => "VARCHAR(64) DEFAULT NULL",
             'objectid'          => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
             'widget'            => "VARCHAR(255) NOT NULL  DEFAULT 'TbFormInputElement'",
+            'type'              => "VARCHAR(255) NOT NULL",
             'name'              => "VARCHAR(255) NOT NULL",
             'label'             => "VARCHAR(255) DEFAULT NULL",
             'labeloptions'      => "VARCHAR(255) DEFAULT NULL",
@@ -133,7 +134,12 @@ class m141105_225000_installDocumentTables extends EcMigration
             'timemodified'      => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
         );
         $this->createTable($table, $columns);
-        $this->ecCreateIndexes($table, $columns, array('activeformoptions'));
+        $this->ecCreateIndexes($table, $columns, array(
+            'labeloptions',
+            'hintoptions',
+            'prependoptions',
+            'appendoptions',
+        ));
         unset($table, $columns);
     }
 }
