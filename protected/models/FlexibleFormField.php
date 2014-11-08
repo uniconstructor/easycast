@@ -8,6 +8,7 @@
  * @property string $objecttype
  * @property string $objectid
  * @property string $widget
+ * @property string $type
  * @property string $name
  * @property string $label
  * @property string $labeloptions
@@ -26,7 +27,7 @@
  * 
  * Relations:
  * @property FlexibleForm $flexibleForm
- * @property ExtraField   $extraFields
+ * @property ExtraField   $extraField
  */
 class FlexibleFormField extends CActiveRecord
 {
@@ -48,7 +49,7 @@ class FlexibleFormField extends CActiveRecord
 			array('clientvalidation, ajaxvalidation', 'numerical', 'integerOnly' => true),
 			array('objecttype', 'length', 'max' => 64),
 			array('objectid, timecreated, timemodified, sortorder', 'length', 'max' => 11),
-			array('widget, name, label, labeloptions, hint, hintoptions, prepend, 
+			array('widget, type, name, label, labeloptions, hint, hintoptions, prepend, 
 			    prependoptions, append, appendoptions, htmloptions', 'length', 'max' => 255),
 		);
 	}
@@ -60,9 +61,9 @@ class FlexibleFormField extends CActiveRecord
 	{
 		return array(
 		    // форма которой принадлежит это поле
-		    'flexibleForm' =>  array(self::BELONGS_TO, 'FlexibleForm', 'objectid'),
+		    'flexibleForm' => array(self::BELONGS_TO, 'FlexibleForm', 'objectid'),
 		    // поля, использующие эту форму
-		    'extraFields'  => array(self::BELONGS_TO, 'ExtraField', 'formfieldid'),
+		    'extraField'   => array(self::BELONGS_TO, 'ExtraField', 'formfieldid'),
 		);
 	}
 	
@@ -99,6 +100,7 @@ class FlexibleFormField extends CActiveRecord
 			'objecttype' => 'Objecttype',
 			'objectid' => 'Objectid',
 			'widget' => 'Widget',
+			'type' => 'Тип поля формы',
 			'name' => 'Name',
 			'label' => 'Label',
 			'labeloptions' => 'Labeloptions',
@@ -111,9 +113,9 @@ class FlexibleFormField extends CActiveRecord
 			'clientvalidation' => 'Clientvalidation',
 			'ajaxvalidation' => 'Ajaxvalidation',
 			'htmloptions' => 'Htmloptions',
-			'timecreated' => 'Timecreated',
-			'timemodified' => 'Timemodified',
-			'sortorder' => 'sortorder',
+			'timecreated' => Yii::t('coreMessages', 'timecreated'),
+			'timemodified' => Yii::t('coreMessages', 'timemodified'),
+			'sortorder' => Yii::t('coreMessages', 'sortorder'),
 		);
 	}
 
