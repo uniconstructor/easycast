@@ -45,7 +45,7 @@ class FlexibleFormField extends CActiveRecord
 	public function rules()
 	{
 		return array(
-			array('name, htmloptions', 'required'),
+			array('name, type', 'required'),
 			array('clientvalidation, ajaxvalidation', 'numerical', 'integerOnly' => true),
 			array('objecttype', 'length', 'max' => 64),
 			array('objectid, timecreated, timemodified, sortorder', 'length', 'max' => 11),
