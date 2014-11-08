@@ -1,13 +1,14 @@
 <?php
 
 /**
- * Модель формы с произвольным набором полей
- * Используется для редактирования модели Document и для автоматического составления 
- * формы по полям модели
+ * Модель данных для хранения структуры формы с произвольным набором полей
+ * Используется для редактирования модели Document и для 
+ * автоматического составления формы по полям модели
  *
  * Таблица '{{flexible_forms}}':
  * @property integer $id
  * @property string  $title
+ * @property string  $method
  * @property string  $description
  * @property string  $action
  * @property string  $activeformoptions
@@ -38,9 +39,9 @@ class FlexibleForm extends CActiveRecord
 	{
 		return array(
 			array('clientvalidation, ajaxvalidation', 'numerical', 'integerOnly' => true),
-			array('title', 'length', 'max' => 6),
+			array('method', 'length', 'max' => 6),
 			array('description, activeformoptions', 'length', 'max' => 4095),
-			array('action', 'length', 'max' => 255),
+			array('action, title', 'length', 'max' => 255),
 			array('displaytype', 'length', 'max' => 12),
 			array('timecreated, timemodified', 'length', 'max' => 11),
 		);
@@ -97,6 +98,7 @@ class FlexibleForm extends CActiveRecord
 			'id' => 'ID',
 			'title' => 'Title',
 			'description' => 'Description',
+			'method' => 'Метод отправки (рекомендуется post)',
 			'action' => 'Action',
 			'activeformoptions' => 'Activeformoptions',
 			'displaytype' => 'Displaytype',
