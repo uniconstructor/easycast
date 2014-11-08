@@ -69,10 +69,10 @@ class m141106_071500_installSystemLists extends EcMigration
         'timepicker' => 'Время (bootstrap)',
         'datetimepicker' => 'Дата и время',
         'select2' => 'select2 (усовершенствованый выпадающий список)',
-        'redactor' => 'Текстовый редактор',
-        'html5editor' => 'Текстовый редактор (на базе html5)',
+        'redactor' => 'Текстовый редактор (виджет Redactor)',
+        'html5editor' => 'Текстовый редактор (на базе HTML5)',
         'markdowneditor' => 'Текстовый редактор (для markdown-разметки)',
-        'ckeditor' => 'ckEditorRow',
+        'ckeditor' => 'Текстовый редактор (виджет CK-editor)',
         'typeahead' => 'Текст с автодополнением',
         'maskedtext' => 'Ввод с маской (для телефонов, номеров карт и т. д.)',
         'colorpicker' => 'Выбор цвета',
@@ -89,18 +89,11 @@ class m141106_071500_installSystemLists extends EcMigration
         'multiselect' => 'listbox',
     );
     
-    
     /**
      * @see CDbMigration::safeUp()
      */
     public function safeUp()
     {
-        // добавляем возможность произвольной сортировки полей
-        $this->addColumn("{{flexible_form_fields}}", 'sortorder', 'int(11) UNSIGNED NOT NULL DEFAULT 0');
-        $this->createIndex('idx_sortorder', "{{flexible_form_fields}}", 'sortorder');
-        $this->addColumn("{{flexible_form_fields}}", 'type', "VARCHAR(255) NOT NULL default 'text'");
-        $this->createIndex('idx_type', "{{flexible_form_fields}}", 'type');
-        
         /////////////////////////////////////////////////////////////////////
         // создаем список стандартных блоков для конструктора форм
         $inputsListItems = array();
@@ -141,7 +134,7 @@ class m141106_071500_installSystemLists extends EcMigration
             'easylistid'   => 0,
             'valuetype'    => 'EasyList',
             'valuefield'   => 'id',
-            'valueid'      => $yesNoList['id'],
+            'valueid'      => $inputsList['id'],
         );
         $inputsListIdConfig['id'] = $this->createConfig($inputsListIdConfig);
         // создаем вторую настройку, которая уже содержит список а не id
@@ -160,7 +153,7 @@ class m141106_071500_installSystemLists extends EcMigration
             'easylistid'   => $inputsList['id'],
             'valuetype'    => 'EasyList',
             'valuefield'   => 'listItems',
-            'valueid'      => $yesNoList['id'],
+            'valueid'      => $inputsList['id'],
         );
         $inputsListConfig['id'] = $this->createConfig($inputsListConfig);
         
@@ -178,7 +171,7 @@ class m141106_071500_installSystemLists extends EcMigration
         );
         // изначально список пуст
         $userExcludedTypes = array(
-            'name' => 'Выбранные типы проектов для которых отключены оповещения',
+            'name'           => 'Выбранные типы проектов для которых отключены оповещения',
             'triggerupdate'  => 'manual',
             'triggercleanup' => 'manual',
             'unique'         => 1,
@@ -198,7 +191,7 @@ class m141106_071500_installSystemLists extends EcMigration
         );
         // изначально список пуст
         $userProjectsBlackList = array(
-            'name' => 'Проекты в черном списке',
+            'name'           => 'Проекты в черном списке',
             'triggerupdate'  => 'manual',
             'triggercleanup' => 'manual',
             'unique'         => 1,
@@ -217,12 +210,12 @@ class m141106_071500_installSystemLists extends EcMigration
         );
         // изначально список пуст
         $userProjectsWhiteList = array(
-            'name' => 'Проекты в белом списке',
+            'name'           => 'Проекты в белом списке',
             'triggerupdate'  => 'manual',
             'triggercleanup' => 'manual',
             'unique'         => 1,
         );
-        // сохраняем три списка
+        // сохраняем три списка стандартных значений
         $excludedTypes['id']      = $this->createList($excludedTypes);
         $projectsBlackList['id']  = $this->createList($projectsBlackList);
         $projectsWhiteList['id']  = $this->createList($projectsWhiteList);
@@ -247,12 +240,14 @@ class m141106_071500_installSystemLists extends EcMigration
             'valueid'      => $userExcludedTypes['id'],
         );
         $projectsBlackListConfig = array(
-            'name'         => 'projectTypesBlackList',
-            'title'        => 'Список используемых строительных блоков для конструктора форм',
-            'description'  => 'Чтобы включить или отключить возможность добавления
-                стандартных блоков в конструкторе форм 
-                поставьте или снимите галочку напротив названия элемента.
-                Эту настройку можно редактировать. ',
+            'name'         => 'projectsBlackList',
+            'title'        => 'Черный список проектов',
+            'description'  => 'Вы можете выборочно отказаться от участия 
+                в проектах которые вам не интересны.
+                Пока проект находится в этом списке вы будете исключены из списка его потенциальных
+                участников, пригласить вас на такой проект будет нельзя.
+                Оповещения с такого проекта присылаться не будут.
+                Мероприятия роли и новости этого проекта не будут для вас видны.',
             'type'         => 'checkboxlist',
             'minvalues'    => 0,
             'maxvalues'    => 0,
@@ -264,12 +259,13 @@ class m141106_071500_installSystemLists extends EcMigration
             'valueid'      => $userProjectsBlackList['id'],
         );
         $projectsWhiteListConfig = array(
-            'name'         => 'projectTypesWhiteList',
-            'title'        => 'Список используемых строительных блоков для конструктора форм',
-            'description'  => 'Чтобы включить или отключить возможность добавления
-                стандартных блоков в конструкторе форм 
-                поставьте или снимите галочку напротив названия элемента.
-                Эту настройку можно редактировать. ',
+            'name'         => 'projectsWhiteList',
+            'title'        => 'Белый список проектов',
+            'description'  => 'Поместите в этот список проекты которые вам интересны.
+                Если проект в белом списке - то мы будем оповещать вас о нем даже если
+                оповещение об остальных проектах такого типа у вас отключено.<br>
+                Пример: отключить приглашения на любые проекты с типом "Реалити-шоу" кроме
+                проекта "Топ-модель".',
             'type'         => 'checkboxlist',
             'minvalues'    => 0,
             'maxvalues'    => 0,
@@ -287,7 +283,7 @@ class m141106_071500_installSystemLists extends EcMigration
         
         
         /////////////////////////////////////////////////////////////////////
-        // удаляем старую настройку оповещений
+        // удаляем старые настройки оповещений
         $condition = "name='preferedProjectTypes'";
         $oldTypesConfigItems = $this->dbConnection->createCommand()->select('id,easylistid,valuetype,valueid')->
             from('{{config}}')->where($condition)->queryAll();
@@ -333,7 +329,7 @@ class m141106_071500_installSystemLists extends EcMigration
                 continue;
             }
             $newConfigType = $this->_configTypes[$configItem['type']];
-            $this->update('{{config}}', array('type' => $newConfigType), 'id='.$configItem['type']);
+            $this->update('{{config}}', array('type' => $newConfigType), 'id='.$configItem['id']);
         }
         
         /////////////////////////////////////////////////////////////////////
@@ -345,11 +341,11 @@ class m141106_071500_installSystemLists extends EcMigration
             'triggercleanup' => 'manual',
             'unique'         => 1,
         );
-        $emailBlackList['id']  = $this->createList($emailBlackList);
+        $emailBlackList['id'] = $this->createList($emailBlackList);
         $emailBlackListConfig = array(
             'name'         => 'emailBlackList',
             'title'        => 'На адреса в этом списке не будут отправляться никакие письма',
-            'type'         => 'checkboxlist',
+            'type'         => 'listbox',
             'minvalues'    => 0,
             'maxvalues'    => 0,
             'objecttype'   => 'system',
@@ -358,6 +354,7 @@ class m141106_071500_installSystemLists extends EcMigration
             'valuetype'    => 'EasyList',
             'valuefield'   => 'listItems',
             'valueid'      => $emailBlackList['id'],
+            'userlistid'   => $emailBlackList['id'],
         );
         $emailBlackListConfig['id'] = $this->createConfig($emailBlackListConfig);
     }

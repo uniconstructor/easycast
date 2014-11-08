@@ -21,6 +21,7 @@ class m141105_225000_installDocumentTables extends EcMigration
         unset($table, $columns);
         
         
+        
         $table   = "{{document_schemas}}";
         $columns = array(
             'id'           => 'pk',
@@ -59,6 +60,7 @@ class m141105_225000_installDocumentTables extends EcMigration
         unset($table);
         
         
+        
         $table   = "{{document_data}}";
         $columns = array(
             'id'            => 'pk',
@@ -72,6 +74,7 @@ class m141105_225000_installDocumentTables extends EcMigration
         $this->createTable($table, $columns);
         $this->ecCreateIndexes($table, $columns);
         unset($table, $columns);
+        
         
         
         $table   = "{{document_data_history}}";
@@ -91,16 +94,17 @@ class m141105_225000_installDocumentTables extends EcMigration
         unset($table, $columns);
         
         
+        
         $formDefault = CJSON::encode(array('class' => 'EcFlexibleForm'));
         $table   = "{{flexible_forms}}";
         $columns = array(
             'id'                => 'pk',
             'title'             => "VARCHAR(255) DEFAULT NULL",
             'description'       => "VARCHAR(4095) DEFAULT NULL",
-            'title'             => "VARCHAR(6) NOT NULL DEFAULT 'post'",
+            'method'            => "VARCHAR(6) NOT NULL DEFAULT 'post'",
             'action'            => "VARCHAR(255) DEFAULT NULL",
             'activeformoptions' => "VARCHAR(4095) DEFAULT '{$formDefault}'",
-            'displaytype'       => "VARCHAR(12) DEFAULT NULL",
+            'displaytype'       => "VARCHAR(12) NOT NULL DEFAULT 'vertical'",
             'clientvalidation'  => 'tinyint(1) UNSIGNED NOT NULL DEFAULT 0',
             'ajaxvalidation'    => 'tinyint(1) UNSIGNED NOT NULL DEFAULT 0',
             'timecreated'       => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
@@ -111,27 +115,29 @@ class m141105_225000_installDocumentTables extends EcMigration
         unset($table, $columns);
         
         
+        
         $table   = "{{flexible_form_fields}}";
         $columns = array(
-            'id'                => 'pk',
-            'objecttype'        => "VARCHAR(64) DEFAULT NULL",
-            'objectid'          => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
-            'widget'            => "VARCHAR(255) NOT NULL  DEFAULT 'TbFormInputElement'",
-            'type'              => "VARCHAR(255) NOT NULL",
-            'name'              => "VARCHAR(255) NOT NULL",
-            'label'             => "VARCHAR(255) DEFAULT NULL",
-            'labeloptions'      => "VARCHAR(255) DEFAULT NULL",
-            'hint'              => "VARCHAR(255) DEFAULT NULL",
-            'hintoptions'       => "VARCHAR(255) DEFAULT NULL",
-            'prepend'           => "VARCHAR(255) DEFAULT NULL",
-            'prependoptions'    => "VARCHAR(255) DEFAULT NULL",
-            'append'            => "VARCHAR(255) DEFAULT NULL",
-            'appendoptions'     => "VARCHAR(255) DEFAULT NULL",
-            'clientvalidation'  => 'tinyint(1) UNSIGNED NOT NULL DEFAULT 1',
-            'ajaxvalidation'    => 'tinyint(1) UNSIGNED NOT NULL DEFAULT 1',
-            'htmloptions'       => "VARCHAR(255) NOT NULL",
-            'timecreated'       => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
-            'timemodified'      => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
+            'id'               => 'pk',
+            'objecttype'       => "VARCHAR(64) DEFAULT NULL",
+            'objectid'         => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
+            'widget'           => "VARCHAR(255) NOT NULL DEFAULT 'TbFormInputElement'",
+            'type'             => "VARCHAR(255) NOT NULL DEFAULT 'text'",
+            'name'             => "VARCHAR(255) NOT NULL",
+            'label'            => "VARCHAR(255) DEFAULT NULL",
+            'labeloptions'     => "VARCHAR(255) DEFAULT NULL",
+            'hint'             => "VARCHAR(255) DEFAULT NULL",
+            'hintoptions'      => "VARCHAR(255) DEFAULT NULL",
+            'prepend'          => "VARCHAR(255) DEFAULT NULL",
+            'prependoptions'   => "VARCHAR(255) DEFAULT NULL",
+            'append'           => "VARCHAR(255) DEFAULT NULL",
+            'appendoptions'    => "VARCHAR(255) DEFAULT NULL",
+            'clientvalidation' => 'tinyint(1) UNSIGNED NOT NULL DEFAULT 1',
+            'ajaxvalidation'   => 'tinyint(1) UNSIGNED NOT NULL DEFAULT 1',
+            'htmloptions'      => "VARCHAR(255) DEFAULT NULL",
+            'timecreated'      => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
+            'timemodified'     => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
+            'sortorder'        => 'int(11) UNSIGNED NOT NULL DEFAULT 0',
         );
         $this->createTable($table, $columns);
         $this->ecCreateIndexes($table, $columns, array(
@@ -139,6 +145,7 @@ class m141105_225000_installDocumentTables extends EcMigration
             'hintoptions',
             'prependoptions',
             'appendoptions',
+            'htmloptions',
         ));
         unset($table, $columns);
     }

@@ -4,11 +4,16 @@ class m141106_120000_installSystemSchemas extends EcMigration
 {
     /**
      * @var array
+     *           update
+     *           delete
+     *           create
      */
     private $defaultSchemaActions = array(
-        ''
+        'create' => '/admin/schema/create',
+        'update' => '/admin/schema/update',
+        'delete' => '/admin/schema/delete',
     );
-    private $defaultSchemaActions = '/admin/admin/create';
+    
     /**
      * @see CDbMigration::safeUp()
      */
@@ -16,15 +21,14 @@ class m141106_120000_installSystemSchemas extends EcMigration
     {
         /////////////////////////////////////////////////////////////////////
         // создание схемы: редактирование одного поля формы для поля схемы
-        
-        
+        $this->createSystemSchema();
     }
     
     public function createSystemSchema()
     {
         // создаем форму
         $form = array(
-            'title'            => 'Схема документа: параметры формы',
+            'title'            => 'Схема документа: параметры одного поля формы',
             'description'      => '',
             'action'           => '',
             'ajaxvalidation'   => 1,
@@ -42,34 +46,35 @@ class m141106_120000_installSystemSchemas extends EcMigration
                 штука - просто не трогайте ее. :)',
             'formid'      => $form['id'],
         );
+        // сохраняем схему, привязав к ней форму
         $schema = $this->createSchemaObject($schema);
         
         // добавляем поля для новой схемы
         $extraFields = array(
             'title' => array(
                 'name'  => 'title',
-                'type'  => 'text',
+                'type'  => 'string',
                 'title' => 'Заголовок формы',
             ),
             'description' => array(
                 'name'  => 'description',
-                'type'  => 'html5editor',
+                'type'  => 'string',
                 'title' => 'Описание формы',
             ),
             'action' => array(
                 'name'  => 'action',
-                'type'  => 'text',
-                'title' => 'Адрес для обработки данных формы',
+                'type'  => 'string',
+                'title' => 'Адрес для обработки данных формы (относительный)',
             ),
             'ajaxvalidation' => array(
                 'name'  => 'ajaxvalidation',
-                'type'  => 'BOOL',
+                'type'  => 'bool',
                 'title' => 'Включить AJAX-проверку формы',
             ),
             'clientvalidation' => array(
                 'name'  => 'clientvalidation',
-                'type'  => 'BOOL',
-                'title' => 'Заголовок формы',
+                'type'  => 'bool',
+                'title' => 'Включить проверку на стороне пользователя',
             ),
         );
         // указываем тип поля формы для каждого
@@ -95,14 +100,25 @@ class m141106_120000_installSystemSchemas extends EcMigration
                 'type' => 'toggle',
             ),
         );
+        // сохраняем поля схемы вместе со структурой формы
         $this->createSchemaFields($extraFields, $form['id'], $formFields);
         
-        
-        
-        // сохраняем схему
-        
         // создаем настройку для служебной схемы
-        
+        $schemaConfig = array(
+            'name'         => 'DocumentSchemaFieldFormStructureId',
+            'title'        => 'Системная настройка: id схемы для внутренней структуры документа',
+            'description'  => 'Это системная настройка, не изменяйте ее',
+            'type'         => 'text',
+            'minvalues'    => 0,
+            'maxvalues'    => 0,
+            'objecttype'   => 'system',
+            'objectid'     => 0,
+            'easylistid'   => 0,
+            'valuetype'    => 'DocumentSchema',
+            'valuefield'   => 'id',
+            'valueid'      => $schema['id'],
+        );
+        $schemaConfig['id'] = $this->createConfig($schemaConfig);
     }
     
     /**
@@ -154,11 +170,11 @@ class m141106_120000_installSystemSchemas extends EcMigration
         $this->insert("{{document_schemas}}", $schema);
         $schema['id'] = $this->dbConnection->lastInsertID;
         
-        if ( ! $extraFields )
-        {
-            return $schema;
+        if ( $extraFields )
+        {// сразу же создаем доп. поля если нужно
+            $this->createSchemaFields($extraFields, $template['formid'], $formFields);
         }
-        return $this->createSchemaFields($extraFields, $template['formid'], $formFields);
+        return $schema;
     }
     
     /**
@@ -178,7 +194,7 @@ class m141106_120000_installSystemSchemas extends EcMigration
         $newFormFields  = array();
         $extraFieldTemplate = array(
             'name'             => '',
-            'type'             => 'text',
+            'type'             => 'string',
             'title'            => '',
             'description'      => '',
             'rules'            => null,
