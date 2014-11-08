@@ -100,7 +100,7 @@ class EcMigration extends CDbMigration
      * Создать корневую настройку для модели и прикрепить ее к каждой модели в таблице
      * 
      * @param  array  $configData - изначальные значения записи
-     * @param  string $modelTable
+     * @param  string $modelTable - таблица для хранения моделей для которых создаются настройки
      * @param  bool   $copyValues - копировать ли ссылку на значение корневой настройки 
      *                              во все дочерние в качестве изначального значения?
      * @return bool
