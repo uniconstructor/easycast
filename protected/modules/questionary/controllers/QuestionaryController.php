@@ -53,21 +53,19 @@ class QuestionaryController extends Controller
 	public function accessRules()
 	{
 		return array(
-			array('allow',  // allow all users to perform 'index' and 'view' actions
-			    // FIXME запретить загрузку файлов для гостей
-			    'actions' => array('upload', 'index', 'view', 'catalog', 'ajaxGetUserInfo', 'invite', 'dismiss', 'userActivation'),
+			array('allow', 
+			    'actions' => array('index', 'view', 'catalog', 'ajaxGetUserInfo', 'invite', 'dismiss', 'userActivation'),
 				'users'   => array('*'),
 			),
-			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                // FIXME запретить загрузку файлов для гостей
-				'actions' => array('update', 'ajax', 'loginAs',/* 'upload'*/),
+			array('allow',
+				'actions' => array('update', 'ajax', 'upload'),
 				'users'   => array('@'),
 			),
-			array('allow', // allow admin user to perform 'admin' and 'delete' actions
+			array('allow',
 				'actions' => array('delete', 'loginAs'),
-				'users'   => array('admin'),
+				'roles'   => array('admin'),
 			),
-			array('deny',  // deny all users
+			array('deny',
 				'users' => array('*'),
 			),
 		);
