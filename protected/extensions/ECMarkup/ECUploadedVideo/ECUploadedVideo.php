@@ -43,12 +43,13 @@ class ECUploadedVideo extends CWidget
     public function run()
     {
         if ( ! $this->videos )
-        {
+        {// когда нет видео - показываем заказчикам сообщение об этом 
             $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
-                'message' => 'Видео пока не загружено участником',
+                'message' => 'Видео пока не загружено',
             ));
             return;
         }
+        // отображаем список видео
         echo CHtml::openTag('ul');
         foreach ( $this->videos as $video )
         {/* @var $video Video */
