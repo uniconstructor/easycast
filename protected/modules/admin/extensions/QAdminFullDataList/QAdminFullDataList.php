@@ -42,13 +42,11 @@ class QAdminFullDataList extends CWidget
             // необходимые для отображения краткой информации
             $elements[$member->id] = $this->getShortInfo($member);
         }
-        
         // Создаем источник данных для вывода краткой информации
         $dataProvider = new CArrayDataProvider($elements, array(
                 'pagination' => false,
             )
         );
-        
         // отображаем всех добавленных в заказ пользователей
         $this->widget('bootstrap.widgets.TbListView', array(
             'dataProvider' => $dataProvider,
