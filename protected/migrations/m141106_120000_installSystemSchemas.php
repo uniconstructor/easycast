@@ -9,9 +9,9 @@ class m141106_120000_installSystemSchemas extends EcMigration
      *           create
      */
     private $defaultSchemaActions = array(
-        'create' => '/admin/schema/create',
-        'update' => '/admin/schema/update',
-        'delete' => '/admin/schema/delete',
+        'create' => '/admin/documentSchema/create',
+        'update' => '/admin/documentSchema/update',
+        'delete' => '/admin/documentSchema/delete',
     );
     
     /**
@@ -28,8 +28,8 @@ class m141106_120000_installSystemSchemas extends EcMigration
     {
         // создаем форму
         $form = array(
-            'title'            => 'Схема документа: параметры одного поля формы',
-            'description'      => '',
+            'title'            => 'Форма служебной схемы документа: параметры одного поля формы',
+            'description'      => 'Служебная форма, не изменяйте ее структуру.',
             'action'           => '',
             'ajaxvalidation'   => 1,
             'clientvalidation' => 0,
@@ -210,7 +210,8 @@ class m141106_120000_installSystemSchemas extends EcMigration
             if ( $formId AND isset($formFields[$extraField['name']]) )
             {// поле формы может быть создано по данным модели
                 // получаем значения по умолчанию для будущего поля формы из каждого значения поля схемы
-                $formField = $this->createFormFieldFromExtraField($formFields[$extraField['name']], $formId);
+                $formFieldData = $formFields[$extraField['name']];
+                $formField     = $this->createFormFieldFromExtraField($extraField, $formId, $formFieldData);
                 $newFormFields[$key] = $formField;
                 // связываем созданное поле формы с полем схемы
                 $extraField['formfieldid'] = $formField['id'];
@@ -238,7 +239,7 @@ class m141106_120000_installSystemSchemas extends EcMigration
             'type'             => 'text',
             'name'             => '',
             'label'            => '',
-            'description'      => '',
+            'hint'             => '',
             'widget'           => 'TbFormInputElement',
             'ajaxvalidation'   => 1,
             'clientvalidation' => 1,
@@ -259,7 +260,7 @@ class m141106_120000_installSystemSchemas extends EcMigration
             $formField = CMap::mergeArray($template, $formField);
         }
         // сохраняем фрагмент новый формы в базу
-        $this->insert("{{flexible_form_items}}", $formField);
+        $this->insert("{{flexible_form_fields}}", $formField);
         $formField['id'] = $this->dbConnection->lastInsertID;
         
         return $formField;
@@ -269,23 +270,25 @@ class m141106_120000_installSystemSchemas extends EcMigration
      * Создать поле формы по полю схемы
      * 
      * @param  array $extraField - данные модели ExtraField (поле схемы) полным набором полей
-     * @param  bool  $save - сразу же сохранить в базу результат
+     * @param  int   $formId     - id формы к которой прикрепляются созданные поля
+     * @param  array $formField  - данные модели FlexibleFormField
+     * @param  bool  $save       - сразу же сохранить в базу результат
      * @return array
      */
-    protected function createFormFieldFromExtraField($extraField, $formId=0, $save=true)
+    protected function createFormFieldFromExtraField($extraField, $formId=0, $formField=array(), $save=true)
     {
         $type = 'text';
-        if ( $extraField['optionslistid'] )
+        if ( isset($extraField['optionslistid']) AND $extraField['optionslistid'] )
         {
             $type = 'select';
         }
-        $formField = array(
+        $formFieldTemplate = array(
             'objecttype'       => 'FlexibleForm',
             'objectid'         => $formId,
-            'type'             => 'text',
+            'type'             => $type,
             'name'             => $extraField['name'],
             'label'            => $extraField['title'],
-            'description'      => $extraField['description'],
+            'hint'             => $extraField['description'],
             'widget'           => 'TbFormInputElement',
             'ajaxvalidation'   => 1,
             'clientvalidation' => 1,
@@ -294,9 +297,11 @@ class m141106_120000_installSystemSchemas extends EcMigration
             'hint'             => null,
             'timecreated'      => time(),
         );
+        $formField = CMap::mergeArray($formFieldTemplate, $formField);
+        
         if ( $formId AND $save )
         {// сохраняем поле формы для редактирования одного поля схемы
-            $this->insert("{{flexible_form_items}}", $formField);
+            $this->insert("{{flexible_form_fields}}", $formField);
             $formField['id'] = $this->dbConnection->lastInsertID;
         }
         return $formField;
