@@ -283,9 +283,6 @@ class ProjectController extends Controller
 	    }
 	    $config->save();
 	    
-	    //CVarDumper::dump($config, 5, true);
-	    //CVarDumper::dump($newBanner, 5, true);
-	    
 	    $this->redirect(array('update', 'id' => $projectId));
 	}
 }
