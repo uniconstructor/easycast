@@ -78,9 +78,9 @@ class QuestionaryController extends Controller
 	{
 	    return array(
 	        'upload' => array(
-	            'class'      => 'xupload.actions.S3UploadAction',
-	            'path'       => "s3://video.easycast.ru/uploads/",
-	            'publicPath' => "https://s3.amazonaws.com/video.easycast.ru/",
+	            'class'      => 'xupload.actions.S3XUploadAction',
+	            //'path'       => "s3://video.easycast.ru/uploads/",
+	            //'publicPath' => "https://s3.amazonaws.com/video.easycast.ru/",
 	        ),
 	    );
 	}
