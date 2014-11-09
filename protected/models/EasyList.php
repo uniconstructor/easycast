@@ -285,6 +285,7 @@ class EasyList extends CActiveRecord
 	
 	/**
 	 * Получить все списки содержащие элемент с указанным id, либо ссылающиеся на него
+	 * 
 	 * @param EasyListItem|int|array $itemId - id значения (EasyListItem) или массив id
 	 * @return EasyList
 	 */
@@ -305,9 +306,47 @@ class EasyList extends CActiveRecord
 	        ),
 	    );
 	    $criteria->together = true;
+	    
 	    $this->getDbCriteria()->mergeWith($criteria);
 	    
 	    return $this;
+	}
+	
+	/**
+	 * Именованная группа условий: получить все списки содержащие элемент с указанным значением
+	 * или значением соответствующим хотя бы одному из элементов переданного массива
+	 *
+	 * @param  string|array $value - значение или список значений которые ищутся в поле value
+	 * @return EasyList
+	 */
+	public function withItemValue($value)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->with = array(
+	        'listItems' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes' => array(
+    	            'withItemValue' => array($value),
+    	        ),
+	        ),
+	    );
+	    $criteria->together = true;
+	    
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    
+	    return $this;
+	}
+	
+	/**
+	 * Определить, содержит ли список элемент с переданным значением
+	 * 
+	 * @param  string|array $value - значение или список значений которые ищутся в поле value
+	 * @return bool
+	 */
+	public function hasItemValue($value)
+	{
+	    return EasyListItem::model()->forList($this->id)->withItemValue($value)->exists();
 	}
 	
 	/**
