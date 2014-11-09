@@ -22,6 +22,21 @@ class ProjectMemberController extends Controller
 	    );
 	    return CMap::mergeArray($baseFilters, $newFilters);
 	}
+	
+	/**
+	 * @see CController::actions()
+	 */
+	public function actions()
+	{
+	    return array(
+	        'upload' => array(
+	            'class'      => 'xupload.actions.S3XUploadAction',
+	            'objectType' => 'ProjectMember',
+	            //'path'       => "s3://video.easycast.ru/uploads/",
+	            //'publicPath' => "https://s3.amazonaws.com/video.easycast.ru/",
+	        ),
+	    );
+	}
 
 	/**
 	 * Specifies the access control rules.
@@ -32,19 +47,19 @@ class ProjectMemberController extends Controller
 	{
 		return array(
 			array('allow',
-				'actions'=>array('index', 'view'),
-				'users'=>array('@'),
+				'actions' => array('index', 'view'),
+				'users'   => array('@'),
 			),
 			array('allow',
-				'actions'=>array('create', 'update'),
-				'users'=>array('@'),
+				'actions' => array('create', 'update', 'setStatus'),
+				'users'   => array('@'),
 			),
 			array('allow',
-				'actions'=>array('admin', 'delete', 'setStatus', 'changeVacancy'),
-				'users'=>array('@'),
+				'actions' => array('admin', 'delete', 'changeVacancy', 'upload', 'uploadPage'),
+			    'roles'   => array('admin'),
 			),
 			array('deny',
-				'users'=>array('*'),
+				'users' => array('*'),
 			),
 		);
 	}
@@ -205,7 +220,24 @@ class ProjectMemberController extends Controller
 	    }
 	    $member->vacancyid = $vacancy->id;
 	    $member->save();
-	} 
+	}
+
+	/**
+	 * Отдельная страница для загрузки файла 
+	 * 
+	 * @return void
+	 */
+    public function actionUploadPage()
+    {
+        $this->layout = '//layouts/column1';
+        
+        $id     = Yii::app()->request->getParam('id');
+        $member = $this->loadModel($id);
+        
+        $this->render('uploadPage', array(
+            'member' => $member,
+        ));
+    } 
 
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.
