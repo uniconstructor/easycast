@@ -6,6 +6,8 @@
 
 // ссылка на анкету участника
 $qUrl = Yii::app()->createUrl('/questionary/questionary/view/', array('id' => $this->questionary->id));
+// @todo сделать время жизни ссылки на видео равным времени жизни приглашения заказчика
+$expires = '+48 hours';
 ?>
 <div class="row-fluid">
     <div class="span6">
@@ -19,31 +21,29 @@ $qUrl = Yii::app()->createUrl('/questionary/questionary/view/', array('id' => $t
         </div>
         <div class="row-fluid">
             <?php
-            if ( Yii::app()->user->checkAccess('Admin') )
-            {// @todo кнопка загрузки файлов видео: пока что видео привязывается к анкете а не к заявке
-                /*$xUploadForm = new XUploadForm;
-                $this->widget('xupload.XUpload', array(
-                    'url'             => Yii::app()->createUrl("//questionary/questionary/upload", array('objectId' => $this->questionary->id)),
-                    'model'           => $xUploadForm,
-                    'attribute'       => 'file',
-                    'autoUpload'      => true,
-                    'previewImages'   => false,
-                    'imageProcessing' => false,
-                    'multiple'        => false,
-                ));*/
-                $expires = '+48 hours';
-            }else
-            {// @todo сделать время жизни ссылки на видео равным времени жизни приглашения заказчика
-                $expires = '+48 hours';
-            }
             // список загруженных видео
+            // @todo включить формирование подписанных ссылок
             $this->widget('ext.ECMarkup.ECUploadedVideo.ECUploadedVideo', array(
-                'objectType' => 'questionary',
-                'objectId'   => $this->questionary->id,
-                //'expires'    => $expires,
+                'objectType' => 'ProjectMember',
+                'objectId'   => $this->member->id,
             ));
             ?>
         </div>
+        <?php
+        if ( Yii::app()->user->checkAccess('Admin') )
+        {// кнопка загрузки файлов видео: пока что видео привязывается к анкете а не к заявке
+            // @todo админам показываем виджет со ссылкой на страницу загрузки видео
+            echo '<div class="row-fluid text-center">';
+            $uploadUrl = Yii::app()->createUrl('/admin/projectMember/uploadPage', array(
+                'id' =>  $this->member->id,
+            ));
+            echo CHtml::link('Загрузить', $uploadUrl, array(
+                'class'  => 'btn btn-primary',
+                'target' => '_blank',
+            ));
+            echo '</div>';
+        }
+        ?>
     </div>
     <div class="span6">
         <h2 class="text-center">
