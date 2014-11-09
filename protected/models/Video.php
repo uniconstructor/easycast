@@ -91,6 +91,7 @@ class Video extends SWActiveRecord
 			array('timemodified, objectid, timecreated, uploaderid, size, visible', 'length', 'max' => 11),
 			array('name, description, link, externalid', 'length', 'max' => 255),
 			array('md5', 'length', 'max' => 128),
+			
 			// The following rule is used by search().
 			array('id, objecttype, objectid, name, type, description, link, timecreated, 
 			    uploaderid, md5, size, status, visible', 'safe', 'on' => 'search'),
@@ -168,6 +169,7 @@ class Video extends SWActiveRecord
 	            'Key'    => $this->externalid,
 	        ));
 	    }
+	    parent::afterDelete();
 	}
 
 	/**
@@ -291,6 +293,7 @@ class Video extends SWActiveRecord
 	        case 'youtube':
                 return 'http://img.youtube.com/vi/'.$this->externalid.'/mqdefault.jpg';
             break;
+	        // @todo case 'file': break;
 	        default: return $defaultUrl; break;
 	    }
 	}
@@ -314,7 +317,7 @@ class Video extends SWActiveRecord
 	            // FIXME разобраться с предварительно подписанными URL: они внезапно перестают открываться
 	            // return $s3->getObjectUrl(Yii::app()->params['AWSVideoBucket'], $this->externalid, $expires);
 	            // return $this->link;
-	            return $s3->getObjectUrl(Yii::app()->params['AWSVideoBucket'], urlencode($this->externalid));
+	            return $s3->getObjectUrl(Yii::app()->params['AWSVideoBucket'], $this->externalid);
             break;
 	        default: return $this->link;
 	    }
