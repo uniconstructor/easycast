@@ -16,7 +16,7 @@ $customerUrl = Yii::app()->createUrl('//sale', array('newState' => 'customer'));
 $customerLinkOptions = array(
     //'data-toggle' => 'tooltip',
     //'data-title'  => 'Войти как заказчик',
-    'title'  => 'Подробнее',
+    'title'  => 'Заказчикам',
 );
 $customerLink = CHtml::link('Заказчикам', $customerUrl, $customerLinkOptions);
 
@@ -24,9 +24,9 @@ $userUrl = Yii::app()->createUrl('//index', array('newState' => 'user'));
 $userLinkOptions = array(
     //'data-toggle' => 'tooltip',
     //'data-title'  => 'Войти как участник',
-    'title'  => 'Войти как участник',
+    'title'  => 'Участникам',
 );
-$userLink     = CHtml::link('Участникам', $userUrl, $userLinkOptions);
+$userLink = CHtml::link('Участникам', $userUrl, $userLinkOptions);
 
 ?>
 <div class="page-alternate">
@@ -137,7 +137,7 @@ $userLink     = CHtml::link('Участникам', $userUrl, $userLinkOptions);
             <a href="<?= $customerUrl; ?>" class="btn btn-large btn-primary">Подробнее</a>
         </div>
         <div class="span6">
-            <a href="<?= $userUrl; ?>" class="btn btn-large btn-success">Регистрация участника</a>
+            <a href="<?= $userUrl; ?>" class="btn btn-large btn-success">К списку событий</a>
         </div>
     </div>
 </div>
