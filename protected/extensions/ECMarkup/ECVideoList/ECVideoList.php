@@ -70,7 +70,7 @@ class ECVideoList extends CWidget
         
         $dataProvider = new CActiveDataProvider('Video',  array(
             'criteria'   => $this->criteria,
-            'pagination' => array('pageSize' => $this->limit),
+            'pagination' => false,
         ));
         
         echo CHtml::openTag('div', array('class' => 'row-fluid'));
