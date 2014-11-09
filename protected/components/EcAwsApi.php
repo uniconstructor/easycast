@@ -3,10 +3,12 @@
 // загружаем библиотеку со всеми зависимостями
 require __DIR__ . '/aws/aws.phar';
 
+// подключаем только используемые сервисы
 use Aws\Common\Aws;
 use Aws\Ses\SesClient;
 use Aws\Sqs\SqsClient;
 use Aws\S3\S3Client;
+use Aws\ElasticTranscoder\ElasticTranscoderClient;
 use Aws\S3\Exception\S3Exception;
 
 /**
@@ -21,9 +23,6 @@ use Aws\S3\Exception\S3Exception;
  * @todo добавить функцию очистки очереди сообщений (работает только на тестовых серверах)
  * @todo добавить проверку в init(): на тестовом стенде никогда не должны быть включена функция
  *       отправки сообщений на реальные адреса
- * @todo использовать только родные компоненты Amazon вместо плагина yii-aws
- *       (он не оправадал оказанного ему высокого доверия)
- * @todo переименовать в ECAmazonApi
  * @todo при рассылке писем из очереди не хранить текст письма, а только данные для его составления
  */
 class EcAwsApi extends CApplicationComponent
@@ -78,6 +77,11 @@ class EcAwsApi extends CApplicationComponent
      */
     protected $s3;
     /**
+     * @var Aws\ElasticTranscoder\ElasticTranscoderClient
+     *      объект для работы с сервисом Elastic Transcoder (оцифровка видео и аудио)
+     */
+    protected $transcoder;
+    /**
      * @var string - url очереди, из которой достаются email-сообщения, ожидающие отправки
      */
     protected $queueUrl;
@@ -88,6 +92,7 @@ class EcAwsApi extends CApplicationComponent
     
     /**
      * Настройка компонента перед работой
+     * 
      * @return null
      */
     public function init()
@@ -97,7 +102,6 @@ class EcAwsApi extends CApplicationComponent
             'secret' => Yii::app()->params['AWSSecret'],
 			'region' => Yii::app()->params['AWSRegion'],
         );
-        //$this->aws = Aws::factory(__DIR__ . '/aws/config.php');
         // регистрируем обертку протоеола s3:// для того чтобы использовать стандартные
         // функции работы с файлами из PHP в Amazon
         $this->getS3()->registerStreamWrapper();
@@ -107,7 +111,8 @@ class EcAwsApi extends CApplicationComponent
     
     /**
      * Создать и настроить объект для работы с сервисом Amazon SES (отправка электронной почты)
-     * @return SesClient
+     * 
+     * @return Aws\Ses\SesClient
      */
     public function getSes()
     {
@@ -121,7 +126,7 @@ class EcAwsApi extends CApplicationComponent
     /**
      * Создать и настроить объект для работы с сервисом Amazon SQS (очередь сообщений)
      *
-     * @return SqsClient
+     * @return Aws\Sqs\SqsClient
      */
     public function getSqs()
     {
@@ -135,7 +140,7 @@ class EcAwsApi extends CApplicationComponent
     /**
      * Создать и настроить объект для работы с сервисом Amazon S3 (хранилище данных)
      *
-     * @return S3Client
+     * @return Aws\S3\S3Client
      */
     public function getS3()
     {
@@ -144,6 +149,20 @@ class EcAwsApi extends CApplicationComponent
             $this->s3 = S3Client::factory($this->defaultSettings);
         }
         return $this->s3;
+    }
+    
+    /**
+     * Создать и настроить объект для работы с сервисом Elastic Transcoder (оцифровка видео/аудио)
+     * 
+     * @return Aws\ElasticTranscoder\ElasticTranscoderClient
+     */
+    public function getTranscoder()
+    {
+        if ( null === $this->transcoder )
+        {
+            $this->transcoder = ElasticTranscoderClient::factory($this->defaultSettings);
+        }
+        return $this->transcoder;
     }
     
     /**
@@ -177,10 +196,15 @@ class EcAwsApi extends CApplicationComponent
             $from = Yii::app()->params['adminEmail'];
         }
         if ( strstr('@example.com', $email) )
-        {// не отправляем письма на несуществующие адреса
+        {// не отправляем письма на адреса-заглушки
             return $result;
         }
-        // создаем параметры запроса по всем правилам
+        if ( $this->emailInBlackList($email) )
+        {// не отправляем письма на битые и испорченные адреса
+            return $result;
+        }
+        
+        // проверки пройдены, теперь создаем параметры запроса к SES Service
         $args = $this->createSESEmail($email, $subject, $message, $from);
         
         // отправляем почту
@@ -239,7 +263,9 @@ class EcAwsApi extends CApplicationComponent
             return $result;
         }
         if ( ! $from )
-        {
+        {// при отсутствии отправителя все письма отправляем с почты администратора: 
+            // ее читает ZenDesk, создавая из каждого ответного письма тикет
+            // так что ни одно письмо с вопросом не останется без ответа 
             $from = Yii::app()->params['adminEmail'];
         }
         
@@ -271,16 +297,15 @@ class EcAwsApi extends CApplicationComponent
             $this->trace('[Done]');
         }else
         {
-            $this->log('FAILED: Mail to '.$email.' not added to queue. Data:'.$JSON, 'emailfail');
+            $this->log('FAILED: Mail to '.$email.' not added to queue. Data: '.$JSON, 'emailfail');
         }
-        
         return $result;
     }
     
     /**
      * Достать из очереди несколько ждущих отправки email-сообщений, и доставить их адресатам 
      * 
-     * @param number $count - количество сообщений из очереди, которое следует обработать за 1 раз
+     * @param  number $count - количество сообщений из очереди, которое следует обработать за 1 раз
      * @return bool
      * 
      * @todo проверить результат JSON::decode
@@ -291,7 +316,6 @@ class EcAwsApi extends CApplicationComponent
         {// сообщений в очереди нет - отлично
             return true;
         }
-        
         foreach ( $messages as $message )
         {// достаем каждое сообщение и пробуем его отправить
             // получаем все данные письма
@@ -309,15 +333,14 @@ class EcAwsApi extends CApplicationComponent
                 $this->deleteSQSMessage($message['ReceiptHandle']);
             }
         }
-        
         return true;
     }
     
     /**
      * Удалить email-сообщение из очереди отправки
      * 
-     * @param string $receiptHandle - The receipt handle associated with the message to delete
-     * @return null
+     * @param  string $receiptHandle - The receipt handle associated with the message to delete
+     * @return bool
      * 
      * @todo делать несколько попыток удаления
      */
@@ -346,14 +369,13 @@ class EcAwsApi extends CApplicationComponent
                 sleep(self::ATTEMPT_TIMEOUT);
             }
         }
-        
         return $result;
     }
     
     /**
      * Достать из очереди сообщений несколько писем, ждущих отправки
      * 
-     * @param number $count - количество писем, которые нужно достать за 1 раз (от 1 до 10)
+     * @param  number $count - количество писем, которые нужно достать за 1 раз (от 1 до 10)
      * @return array
      * 
      * @todo сделать более подробный анализ ошибок
@@ -378,14 +400,13 @@ class EcAwsApi extends CApplicationComponent
                 sleep(self::ATTEMPT_TIMEOUT);
             }
         }
-        
         return $messages;
     }
     
     /**
      * Получить информацию об очереди email-сообщений
      *
-     * @return null
+     * @return array
      */
     public function getEmailQueryInfo()
     {
@@ -424,12 +445,11 @@ class EcAwsApi extends CApplicationComponent
     /**
      * Проверить, есть ли email-сообщения, ждущие отправки в очереди
      *
-     * @return null
+     * @return bool
      */
     public function emailQueueIsEmpty()
     {
         $info = $this->getEmailQueryInfo();
-    
         if ( $info['ApproximateNumberOfMessages'] == 0 )
         {
             return true;
@@ -474,7 +494,7 @@ class EcAwsApi extends CApplicationComponent
     /**
      * Создать массив с параметрами для функции добавления сообщения в очередь
      * 
-     * @param string $message - email для отправки в формате JSON
+     * @param  string $message - email для отправки в формате JSON
      * @return array
      */
     protected function createSQSPushArgs($message)
@@ -491,7 +511,7 @@ class EcAwsApi extends CApplicationComponent
     /**
      * Создать массив с аргументами для запроса получения сообщений из очереди
      * 
-     * @param number $count - количество писем, которые нужно достать за 1 раз (от 1 до 10)
+     * @param  number $count - количество писем, которые нужно достать за 1 раз (от 1 до 10)
      * @return array
      */
     protected function createSQSPopArgs($count)
@@ -561,8 +581,33 @@ class EcAwsApi extends CApplicationComponent
     }
     
     /**
+     * Проверить перед отправкой email на присутствие в "черном списке": ошибочные,
+     * несуществующие, жалущиеся на спам, а также адреса конкурирующих кастинг-агентств
+     * которые по ошибке были вбиты операторами при заполнении базы 
+     * (они не должны видеть и изучать наши предложения) 
+     * 
+     * @param  string $email
+     * @return bool
+     */
+    protected function emailInBlackList($email)
+    {
+        /* @var $blackListConfig Config */
+        if ( ! $blackListConfig = Config::model()->withName('emailBlackList')->systemOnly()->find() )
+        {
+            return false;
+        }
+        /* @var $blackList EasyList */
+        if ( ! $blackList = $blackListConfig->getValueObject() )
+        {
+            return false;
+        }
+        return $blackList->hasItemValue($email);
+    }
+    
+    /**
      * Записать ошибку в лог
-     * @param string $message
+     * 
+     * @param  string $message
      * @return null
      */
     protected function log($message, $category='AWS')
@@ -573,7 +618,8 @@ class EcAwsApi extends CApplicationComponent
     
     /**
      * Вывести информационное сообщение (используется при работе из консоли)
-     * @param string $message
+     * 
+     * @param  string $message
      * @return null
      */
     protected function trace($message, $newLine=true)
@@ -590,3 +636,5 @@ class EcAwsApi extends CApplicationComponent
         }
     }
 }
+
+// Job ststus: Submitted, Progressing, Complete, Canceled, or Error
