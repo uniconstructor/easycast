@@ -46,7 +46,7 @@
  *                                (если потребуется хранить в списке элементы требующие подробного описания)
  * @property string $timecreated
  * @property string $timemodified
- * @property string $sortorder
+ * @property string $sortorder - поля для сортировки записей: уникально в рамках привязки к списку (easylistid)
  * @property string $status - статус присутствия записи в списке: список названий для статусов 
  *                            составлен по нашему стандарту кодирования (черновик всегда "draft",
  *                            основное рабочее состояние "active" и так далее)
@@ -373,59 +373,6 @@ class EasyListItem extends CActiveRecord
 	{
 	    return $this->withCustomValue('easylistid', $listId, $operation);
 	}
-	
-	/**
-	 * Именованая группа условий: все элементы всех списков, связанные с определенным объектом
-	 * (например, если нужно узнать в каких списках числится объект)
-	 * @param string $objectType
-	 * @param int    $objectId
-	 * @return EasyListItem
-	 */
-	/*public function forObject($objectType, $objectId)
-	{
-	    $criteria = new CDbCriteria();
-	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
-	    $criteria->compare($this->getTableAlias(true).'.`objectid`', $objectId);
-	
-	    $this->getDbCriteria()->mergeWith($criteria);
-	
-	    return $this;
-	}*/
-	
-	/**
-	 * Именованая группа условий: то же что и forObject, но с одновременным поиском по нескольким
-	 * объектом одного типа
-	 * @param string $objectType
-	 * @param array  $objectIds - массив id объектов
-	 * @return EasyListItem
-	 * 
-	 * @deprecated использовать forObject($objectType, $objectId)
-	 */
-	/*public function forObjects($objectType, $objectIds)
-	{
-	    $criteria = new CDbCriteria();
-	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
-	    $criteria->addInCondition($this->getTableAlias(true).'.`objectid`', $objectIds);
-	
-	    $this->getDbCriteria()->mergeWith($criteria);
-	
-	    return $this;
-	}*/
-	
-	/**
-	 * Именованная группа условий: получить все элементы c указаным значением в поле objecttype
-	 * @param string $objectType - значение или список значений которые ищутся в поле objectfield
-	 * @return EasyListItem
-	 */
-	/*public function withObjectType($objectType)
-	{
-	    $criteria = new CDbCriteria();
-	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
-	    
-	    $this->getDbCriteria()->mergeWith($criteria);
-	
-	    return $this;
-	}*/
 	
 	/**
 	 * Именованная группа условий: получить все элементы c указаным значением в поле objectid
