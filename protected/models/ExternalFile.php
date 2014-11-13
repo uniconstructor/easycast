@@ -36,9 +36,6 @@
  * Геттеры:
  * @property string  $extension - (геттер, read-only) расширение файла
  * 
- * Группы условий поиска (scopes):
- * @method ExternalFile notUploaded()
- * 
  * Relations:
  * @property ExternalFile   $originalFile - оригинал файла из которого был создан этот файл 
  *                                          (только для уменьшеных/перекодированых версий файлов)
