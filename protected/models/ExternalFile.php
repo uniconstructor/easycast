@@ -6,31 +6,37 @@
  *
  * Таблица '{{external_files}}':
  * @property integer $id
- * @property string $originalid
- * @property string $previousid
- * @property string $name
- * @property string $title
- * @property string $description
- * @property string $oldname
- * @property string $newname
- * @property string $storage
- * @property string $timecreated
- * @property string $timemodified
- * @property string $lastupload
- * @property string $lastsync
- * @property string $bucket
- * @property string $path
- * @property string $mimetype
- * @property string $size
- * @property string $md5
- * @property string $updateaction
- * @property string $deleteaction
- * @property string $deleteafter
- * @property string $status
+ * @property string  $originalid  - id оригинала файла
+ * @property string  $previousid  - @todo удалить при рефакторинге, не понадобилось
+ * @property string  $name        - имя файла при скачивании пользователем (если оно создано заранее)
+ * @property string  $title       - отображаемое пользователю название файла 
+ *                                  (например "Видео с танцевального конкурса")
+ * @property string  $description - описание файла
+ * @property string  $oldname - имя файла на компьютере пользователя, при загрукзке
+ * @property string  $newname - безопасное имя файла на сервере, подходящая для любых операций 
+ *                              (случайно сгенерированная строка 10 симвлолов) 
+ * @property string  $storage - тип внешнего хранилища (как правило Amazon S3 но в будущем 
+ *                              рассматривается потенциальная возможность расширитьо набор 
+ *                              используемых внешних хранилищ)
+ * @property string  $timecreated
+ * @property string  $timemodified
+ * @property string  $lastupload   - время последней загрузки файла на веб-сервер
+ * @property string  $lastsync     - время последней загрузки файла во внешнее хранилище
+ * @property string  $bucket       - Amazon S3 bucket
+ * @property string  $path         - относительный путь во внешнем файловом хранилище
+ * @property string  $mimetype     - mime-тип файла проверенный сервером
+ * @property string  $size         - размер файла в байтах
+ * @property string  $md5          - контрольная сумма файла (для поиска копий)
+ * @property string  $updateaction - действие при загрузке новой версии файла 
+ *                                   (удалить или сохранить старую версию?)
+ * @property string  $deleteaction - действие при удалении записи 
+ *                                   (удалить или сохранить старую версию?)
+ * @property string  $deleteafter  - удалить после определенного времени (для временных файлов)
+ * @property string  $status       - статус файла (см. workflow-класс swExtternalFile)
+ * Геттеры:
+ * @property string  $extension - (геттер, read-only) расширение файла
  * 
- * Дополнительные поля:
- * @property string $extension - (геттер, read-only) расширение файла
- * 
+ * Группы условий поиска (scopes):
  * @method ExternalFile notUploaded()
  * 
  * Relations:
@@ -39,8 +45,6 @@
  * @property ExternalFile[] $fileVersions - версии созданные из этого файла
  *                                          (только для уменьшеных/перекодированых версий файлов)
  * 
- * @todo документировать все поля
- * @todo подключить настройки
  * @todo доработать rules()
  * @todo системная настройка "макс/мин количество попыток для операций с файловым хранилищем"
  * @todo настройка "стандартный набор версий для файла"
@@ -48,11 +52,11 @@
 class ExternalFile extends SWActiveRecord
 {
     /**
-     * @var string
+     * @var string - название input-поля в форме, которое содержит файл
      */
     private $_inputName = 'file';
     /**
-     * @var string
+     * @var string - название модели формы, которая содержит файл (если форма файла является моделью)
      */
     private $_inputModel;
     
@@ -126,14 +130,6 @@ class ExternalFile extends SWActiveRecord
 	        ),
 	    );
 	}
-	
-	/**
-	 * @see CActiveRecord::beforeSave()
-	 */
-	/*public function beforeSave()
-	{
-	    return parent::beforeSave();
-	}*/
 	
 	/**
 	 * @see CActiveRecord::beforeDelete()
@@ -584,7 +580,7 @@ class ExternalFile extends SWActiveRecord
 	public function localCopyExists()
 	{
 	    $localFile = $this->getLocalPath();
-	    if ( is_file($localFile) )
+	    if ( file_exists($localFile) AND is_file($localFile) )
 	    {
 	        return true;
 	    }
@@ -601,7 +597,7 @@ class ExternalFile extends SWActiveRecord
 	    for ( $i = 0; $i < $this->getMaxAttempts(); $i++ )
 	    {
 	        try
-	        {
+	        {// все запросы к Amazon API оборачиваем в try-catch
 	            return $this->getS3()->doesObjectExist($this->bucket, $this->getExternalPath());
 	        }catch ( Exception $e )
     	    {
@@ -643,7 +639,7 @@ class ExternalFile extends SWActiveRecord
 	public function getIsUploaded()
 	{
 	    if ( $this->isNewRecord )
-	    {
+	    {// не сохраненные AR-записи не могут быть загруженными файлами
 	        return false;
 	    }
 	    return $this->notUploaded(1)->exists('id='.$this->id);
