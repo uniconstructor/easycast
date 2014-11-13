@@ -26,46 +26,51 @@
  * Таблица '{{easy_lists}}':
  * 
  * @property integer $id
- * @property string $name - название списка
- * @property string $description - описание списка
- * @property string $triggerupdate
- * @property string $triggercleanup
+ * @property string $name           - название списка (необязательно)
+ * @property string $description    - описание списка (необязательно)
+ * @property string $triggerupdate  - тип событий, которые запускают процесс дополнения списка
+ *                                    новыми записями (EasyListItem) в зависимости критериев поиска
+ *                                    (never/manual/auto/all - см. описания констант этого класса)
+ * @property string $triggercleanup - тип событий, которые запускают процесс очистки списка 
+ *                                    от устаревших значений
+ *                                    (never/manual/auto/all - см. описания констант этого класса)
  * @property string $timecreated
  * @property string $timemodified
- * @property string $lastupdate
- * @property string $lastcleanup
+ * @property string $lastupdate    - время последнего обновления списка (unix timestamp)
+ *                                   Содержит "0" если список еще ни разу не обновлялся
+ * @property string $lastcleanup   - время последней очистки списка (unix timestamp)
+ *                                   Содержит "0" если список еще ни разу не был очищен
  * @property string $updateperiod  - интервал (в секундах) через который содержимое списка снова будет
  *                                   считаться устаревшим и требовать проверки
  * @property string $cleanUpPeriod - интервал (в секундах) через который содержимое списка снова будет
  *                                   считаться устаревшим и требовать проверки
- * @property string $unique - должны ли элементы (EasyListItem) в этом списке быть уникальными?
- *                            (не применимо для objecttype='item' && objectid=0)
- * @property string $itemtype - тип элементов в списке (по умолчанию EasyListItem)
- *                              если список содержит разородные элементы то в этом поле будет значение mixed
- * @property string $searchdataid - id набора поисковых критериев (SearchData), по которым определяется 
- *                                  какие элементы должны быть в списке а какие нет
- *                                  Используется при обновлении и очистке списка, статические списки не
- *                                  могут иметь поисковых критериев 
+ * @property string $unique        - должны ли элементы (EasyListItem) в этом списке быть уникальными?
+ *                                   (не применимо для $this->objecttype='item' && $this->objectid=0)
+ * @property string $itemtype      - тип элементов в списке (по умолчанию EasyListItem)
+ *                                   если список содержит разородные элементы то в этом 
+ *                                   поле будет значение mixed
+ * @property string $searchdataid  - id набора поисковых критериев (SearchData), по которым определяется 
+ *                                   какие элементы должны быть в списке а какие нет
+ *                                   Используется при обновлении и очистке списка, статические списки не
+ *                                   могут иметь поисковых критериев 
  * 
  * Relations:
  * @property EasyListInstance[] $instances - все экземпляры этого списка
  *           (если он прикреплен к другим объектам через objecttype/objectid)
+ * @property EasyListItem[]     $listItems - все элементы входящие в этот спискок
+ * @property SearchData         $searchData - условия выборки для элементов списка
  *           
  * Методы класса EcTimestampBehavior:
- * @method CActiveRecord createdBefore(int $time, string $operation='AND')
- * @method CActiveRecord createdAfter(int $time, string $operation='AND')
- * @method CActiveRecord updatedBefore(int $time, string $operation='AND')
- * @method CActiveRecord updatedAfter(int $time, string $operation='AND')
- * @method CActiveRecord modifiedOnly()
- * @method CActiveRecord neverModified()
- * @method CActiveRecord lastCreated()
- * @method CActiveRecord firstCreated()
- * @method CActiveRecord lastModified()
- * @method CActiveRecord firstModified()
- * 
- * @todo после рефакторинга условий поиска добавить поле searchdataid, которое
- *       будет хранить условия по которым элементы добавляются или удаляются из списка
- *       при обновлении
+ * @method EasyList createdBefore(int $time, string $operation='AND')
+ * @method EasyList createdAfter(int $time, string $operation='AND')
+ * @method EasyList updatedBefore(int $time, string $operation='AND')
+ * @method EasyList updatedAfter(int $time, string $operation='AND')
+ * @method EasyList modifiedOnly()
+ * @method EasyList neverModified()
+ * @method EasyList lastCreated()
+ * @method EasyList firstCreated()
+ * @method EasyList lastModified()
+ * @method EasyList firstModified()
  */
 class EasyList extends CActiveRecord
 {
@@ -160,10 +165,6 @@ class EasyList extends CActiveRecord
 			array('itemtype', 'length', 'max' => 50),
 			array('timecreated, timemodified, lastupdate, lastcleanup, updateperiod, unique, searchdataid', 
 			    'length', 'max' => 11),
-			
-			// The following rule is used by search().
-			/*array('id, name, description, triggerupdate, 
-			    timecreated, timemodified, lastupdate, updateperiod, unique', 'safe', 'on' => 'search'),*/
 		);
 	}
 
@@ -242,40 +243,10 @@ class EasyList extends CActiveRecord
 	}
 
 	/**
-	 * Retrieves a list of models based on the current search/filter conditions.
-	 *
-	 * Typical usecase:
-	 * - Initialize the model fields with values from filter form.
-	 * - Execute this method to get CActiveDataProvider instance which will filter
-	 * models according to data in model fields.
-	 * - Pass data provider to CGridView, CListView or any similar widget.
-	 *
-	 * @return CActiveDataProvider the data provider that can return the models
-	 * based on the search/filter conditions.
-	 */
-	/*public function search()
-	{
-		$criteria = new CDbCriteria;
-
-		$criteria->compare('id', $this->id);
-		$criteria->compare('name', $this->name,true);
-		$criteria->compare('description', $this->description,true);
-		$criteria->compare('triggerupdate', $this->triggerupdate,true);
-		$criteria->compare('timecreated', $this->timecreated,true);
-		$criteria->compare('timemodified', $this->timemodified,true);
-		$criteria->compare('lastupdate', $this->lastupdate,true);
-		$criteria->compare('updateperiod', $this->updateperiod,true);
-		$criteria->compare('unique', $this->unique,true);
-
-		return new CActiveDataProvider($this, array(
-			'criteria' => $criteria,
-		));
-	}*/
-
-	/**
 	 * Returns the static model of the specified AR class.
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!
-	 * @param string $className active record class name.
+	 * 
+	 * @param  string $className active record class name.
 	 * @return EasyList the static model class
 	 */
 	public static function model($className=__CLASS__)
@@ -284,9 +255,10 @@ class EasyList extends CActiveRecord
 	}
 	
 	/**
-	 * Получить все списки содержащие элемент с указанным id, либо ссылающиеся на него
+	 * Именованная группа условий поиска: Получить все списки содержащие элемент 
+	 * с указанным id, либо ссылающиеся на него
 	 * 
-	 * @param EasyListItem|int|array $itemId - id значения (EasyListItem) или массив id
+	 * @param  EasyListItem|int|array $itemId - id значения (EasyListItem) или массив id
 	 * @return EasyList
 	 */
 	public function forItem($item)
@@ -353,7 +325,8 @@ class EasyList extends CActiveRecord
 	 * 
 	 * 
 	 * @return array
-	 * @todo перенести в системные настройки
+	 * 
+	 * @todo перенести в системные настройки (системные списки)
 	 */
 	public function getTriggerOptionsList()
 	{
