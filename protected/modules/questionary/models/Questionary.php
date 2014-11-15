@@ -106,6 +106,7 @@
  * @property ProjectMember[]      $pendingrequests
  * @property Video[]              $video
  * @property QCreationHistory[]   $creationHistory
+ * @property Gallery              $gallery
  * @property array                $config
  * 
  * Поля для подсчета статистики:
