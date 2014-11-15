@@ -358,7 +358,7 @@ return array(
         
         // Наша обертка вокруг Amazon Web Services API: облегчает обращение к часто используемым методам
         'ecawsapi' => array(
-            'class' => 'EcAwsApi',
+            'class' => 'application.components.EcAwsApi',
         ),
         
         // отсылка SMS (через smspilot.ru)
