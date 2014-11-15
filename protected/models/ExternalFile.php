@@ -3,6 +3,9 @@
 /**
  * Модель для работы с внешними файлами (внешними файлами считаются те которые хранятся
  * на других серверах, в основном на Amazon S3)
+ * Будьте внимательны при сохранении файлов на Amazon S3: файлы, которые содержат в имени пробелы
+ * или национальный алфавит будут иметь проблемы со скачиванием и генерацией ссылок на них.
+ * Используйте только латинские буквы, без пробелов.
  *
  * Таблица '{{external_files}}':
  * @property integer $id
@@ -45,9 +48,15 @@
  * @todo доработать rules()
  * @todo системная настройка "макс/мин количество попыток для операций с файловым хранилищем"
  * @todo настройка "стандартный набор версий для файла"
+ * @todo проверка уникальности пары path+name при вставке новой записи в s3
  */
 class ExternalFile extends SWActiveRecord
 {
+    /**
+     * @var int - длина случайного имени для нового файла по умолчанию
+     */
+    const NEW_NAME_LENGTH = 10;
+    
     /**
      * @var string - название input-поля в форме, которое содержит файл
      */
@@ -183,6 +192,31 @@ class ExternalFile extends SWActiveRecord
 	}
 	
 	/**
+	 * Получить случайное имя для нового файла
+	 *
+	 * @param  int    $length  - длина имени
+	 * @param  string $append  - строка добавляемая в конец имени
+	 * @param  string $prepend - строка добавляемая в начало имени
+	 * @return string
+	 */
+	public static function getRandomFileName($length=self::NEW_NAME_LENGTH, $append='', $prepend='')
+	{
+	    return $prepend.ECPurifier::getRandomString($length).$append;
+	}
+	
+	/**
+	 * @see CActiveRecord::defaultScope()
+	 */
+	public function defaultScope()
+	{
+	    return array(
+	        'scopes' => array(
+    	        'inStorage' => array('s3'),
+    	    ),
+	    );
+	}
+	
+	/**
 	 * @see CActiveRecord::scopes()
 	 *
 	 * @todo добавить условие по статусу для файлов которые нужно загрузить
@@ -201,13 +235,14 @@ class ExternalFile extends SWActiveRecord
 	}
 	
 	/**
+	 * Условие поиска: только не загруженные файлы
 	 * 
 	 * @param  int $limit
 	 * @return ExternalFile
 	 */
 	public function notUploaded($limit=3)
 	{
-	    $alias = $this->owner->getTableAlias(true);
+	    $alias    = $this->owner->getTableAlias(true);
 	    $criteria = new CDbCriteria();
 	    // условие для извлечения файлов которые нужно загрузить либо обновить содержимое
 	    $criteria->addCondition("{$alias}.`lastupload` < {$alias}.`lastsync` ");
@@ -221,7 +256,70 @@ class ExternalFile extends SWActiveRecord
 	    
 	    return $this;
 	}
-
+	
+	/**
+	 * Условие поиска: найти файлы по относительному пути внутри контейнера
+	 * 
+	 * @param  string $path
+	 * @param  string $operator
+	 * @return ExternalFile
+	 */
+	public function withPath($path, $operator='AND')
+	{
+	    if ( ! $path )
+	    {// условие не используется
+            return $this;
+	    }
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->owner->getTableAlias(true).'.`path`', $path);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria, $operator);
+	    
+	    return $this;
+	}
+	
+	/**
+	 * Условие поиска: файлы внутри указанного контейнера 
+	 * 
+	 * @param  string $bucket
+	 * @param  string $operator
+	 * @return ExternalFile
+	 */
+	public function inBucket($bucket, $operator='AND')
+	{
+	    if ( ! $bucket )
+	    {// условие не используется
+            return $this;
+	    }
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->owner->getTableAlias(true).'.`bucket`', $bucket);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria, $operator);
+	    
+	    return $this;
+	}
+	
+	/**
+	 * Условие поиска: файлы с указанным типом хранилища 
+	 * 
+	 * @param  string $storage
+	 * @param  string $operator
+	 * @return ExternalFile
+	 */
+	public function inStorage($storage, $operator='AND')
+	{
+	    if ( ! $storage )
+	    {// условие не используется
+            return $this;
+	    }
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->owner->getTableAlias(true).'.`storage`', $storage);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria, $operator);
+	    
+	    return $this;
+	}
+	
 	/**
 	 * Установить максимальное количество попыток загрузки файла на S3
 	 * 
@@ -232,7 +330,7 @@ class ExternalFile extends SWActiveRecord
 	 */
 	public function setMaxAttempts($num)
 	{
-	    
+	    return;
 	}
 	
 	/**
@@ -283,11 +381,14 @@ class ExternalFile extends SWActiveRecord
 	    {
 	        return false;
 	    }
-	    // сохраняем все файлы на сервер под случайно созданными именами
-	    $this->name = ECPurifier::getRandomString(10);
 	    if ( $attributes AND is_array($attributes) )
 	    {
 	        $this->setAttributes($attributes);
+	    }
+	    if ( ! $this->name )
+	    {// у амазона проблема с национальными алфавитами в именах файлов, так что по умолчанию
+	        // стремимся сохранять все файлы на S3 под случайно созданными именами
+	        $this->name = self::getRandomFileName();
 	    }
 	    return $this->save();
 	}
@@ -394,13 +495,13 @@ class ExternalFile extends SWActiveRecord
 	 * 
 	 * @return string
 	 * 
-	 * @todo пробовать определеть расширение по MIME-типу если не удалось получить его из имени файла
+	 * @todo пробовать определить расширение по MIME-типу если не удалось получить его из имени файла
 	 */
 	public function getExtension()
 	{
 	    if ( $ext = pathinfo($this->oldname, PATHINFO_EXTENSION) )
 	    {
-	        return $ext;
+	        return mb_strtolower($ext);
 	    }
 	    return 'jpg';
 	}
@@ -422,8 +523,6 @@ class ExternalFile extends SWActiveRecord
 	    {
 	        $file = CUploadedFile::getInstanceByName($this->_inputName);
 	    }
-	    //print_r($_FILES);die;
-	    //print_r($file);die;
 	    if ( $file )
 	    {
 	        // старый файл удалим, потому что загружаем новый
@@ -433,7 +532,7 @@ class ExternalFile extends SWActiveRecord
 	        $this->lastupload = time();
 	        $this->mimetype   = $file->getType();
 	        $this->size       = $file->getSize();
-	        $this->name       = ECPurifier::getRandomString(10).$this->getExtension();
+	        $this->name       = ECPurifier::getRandomString(self::NEW_NAME_LENGTH).'.'.$this->getExtension();
 	        
 	        if ( ! is_dir($this->getLocalPathPrefix()) )
 	        {// создаем локальную директорию если нужно
@@ -556,7 +655,7 @@ class ExternalFile extends SWActiveRecord
 	 */
 	public function getLocalPath()
 	{
-        return $this->getLocalPathPrefix().$this->getNewFileName();
+        return $this->getLocalPathPrefix().DIRECTORY_SEPARATOR.$this->name;
 	}
 	
 	/**
@@ -566,7 +665,7 @@ class ExternalFile extends SWActiveRecord
 	 */
 	public function getExternalPath()
 	{
-	    return $this->path.DIRECTORY_SEPARATOR.$this->getNewFileName();
+	    return $this->path.DIRECTORY_SEPARATOR.$this->name;
 	}
 	
 	/**
@@ -577,6 +676,7 @@ class ExternalFile extends SWActiveRecord
 	public function localCopyExists()
 	{
 	    $localFile = $this->getLocalPath();
+	    
 	    if ( file_exists($localFile) AND is_file($localFile) )
 	    {
 	        return true;
@@ -658,7 +758,7 @@ class ExternalFile extends SWActiveRecord
 	protected function getLocalPathPrefix()
 	{
 	    return Yii::getPathOfAlias('webroot').DIRECTORY_SEPARATOR.
-	       'gallery'.DIRECTORY_SEPARATOR.$this->path.DIRECTORY_SEPARATOR;
+	       'gallery'.DIRECTORY_SEPARATOR.$this->path;
 	}
 	
 	/**
