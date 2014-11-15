@@ -52,8 +52,28 @@ class EcAwsApi extends CApplicationComponent
     /**
      * @var int - максимальное количество сообщений в секунду, которое позволяет отправлять Amazon SES 
      */
-    const MAX_MESSAGES_PER_SECOND = 5;
+    const MAX_MESSAGES_PER_SECOND    = 5;
     
+    /**
+     * @var array - настройки всех сервисов Amazon
+     */
+    public $settings = array(
+        'ses' => array(
+            
+        ),
+        'sqs' => array(
+            
+        ),
+        's3' => array(
+            
+        ),
+        'transcoder' => array(
+            'mainPipelineId'      => '1403123938114-1k10ju',
+            'defaultPresetId'     => '1416028648728-fveyu3',
+            'defaultPresetPrefix' => 'generic-480p',
+        ),
+        
+    );
     /**
      * @var bool - выводить ли информационные сообщения во время выполения запросов
      *             (используется только при работе в консоли)
@@ -602,6 +622,65 @@ class EcAwsApi extends CApplicationComponent
             return false;
         }
         return $blackList->hasItemValue($email);
+    }
+    
+    /**
+     * Создать массив параметров для добавления задачи оцифровки видео со стандартными параметрами
+     * (минимум настроек, короткий синтаксис)
+     * 
+     * @param  string $inputKey
+     * @param  string $outputKey
+     * @param  string $albumArtKey
+     * @param  array $watermarks
+     * @return array
+     * 
+     * @todo
+     */
+    protected function createDefaultTranscoderJobArgs($inputKey, $outputKey, $albumArtKey=null, $watermarks=array())
+    {
+        return array(
+            'PipelineId' => $this->settings['transcoder']['mainPipelineId'],
+            'Input' => array(
+                'Key'         => $inputKey,
+                'FrameRate'   => 'auto',
+                'Resolution'  => 'auto',
+                'AspectRatio' => 'auto',
+                'Interlaced'  => 'auto',
+                'Container'   => 'auto',
+            ),
+            'Outputs' => array(
+                array(
+                    'Key'              => $outputKey,
+                    'ThumbnailPattern' => '',
+                    'Rotate'           => 'auto',
+                    'PresetId'         => $this->settings['transcoder']['defaultPresetId'],
+                    //'SegmentDuration'  => 'string',
+                    /*'Watermarks' => array(
+                        array(
+                            'PresetWatermarkId' => 'string',
+                            'InputKey' => 'string',
+                        ),
+                        // ... repeated
+                    ),*/
+                    /*'AlbumArt' => array(
+                        'MergePolicy' => 'string',
+                        'Artwork' => array(
+                            array(
+                                'InputKey' => 'string',
+                                'MaxWidth' => '600',
+                                'MaxHeight' => '600',
+                                'SizingPolicy' => 'ShrinkToFit',
+                                'PaddingPolicy' => 'Pad',
+                                'AlbumArtFormat' => 'jpg',
+                            ),
+                            // ... repeated
+                        ),
+                    ),*/
+                ),
+                // ... repeated
+            ),
+            'OutputKeyPrefix' => $this->settings['transcoder']['defaultPresetPrefix'],
+        );
     }
     
     /**
