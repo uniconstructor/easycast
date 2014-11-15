@@ -242,11 +242,11 @@ class S3XUploadAction extends XUploadAction
                     $video = new Video();
                     $video->objecttype = $this->objectType;
                     $video->objectid   = $this->objectId;
-                    $video->externalid = $newFile->path.'/'.$newFile->name.'.'.$newFile->extension; // $newFile->path ?
+                    $video->externalid = $newFile->path.'/'.$newFile->name; // $newFile->path ?
                     $video->type       = 'file';
                     $video->size       = $newFile->size;
                     $video->name       = $newFile->oldname;
-                    $video->link       = $s3->getObjectUrl(Yii::app()->params['AWSVideoBucket'], $newFile->path.'/'.$newFile->name.'.'.$newFile->extension);
+                    $video->link       = $s3->getObjectUrl(Yii::app()->params['AWSVideoBucket'], $newFile->path.'/'.$newFile->name);
                     $video->visible    = 0;
                     $video->save();
                 }else
