@@ -9,6 +9,7 @@
 class swVideo
 {
 	const WORKFLOW_ID = 'swVideo';
+	
 	const PENDING     = 'swVideo/pending';
 	const APPROVED    = 'swVideo/approved';
 	const REJECTED    = 'swVideo/rejected';

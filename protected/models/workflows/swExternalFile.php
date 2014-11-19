@@ -32,6 +32,9 @@ class swExternalFile
                     'transition' => array(
                         self::SAVED,
                         self::UPLOADED,
+                        // для создания моделей для файлов которые создаются серисами Amazon
+                        // а не нашим веб-сервером
+                        self::ACTIVE,
                     ),
                 ),
                 array(
