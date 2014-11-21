@@ -105,7 +105,7 @@ class S3XUploadAction extends XUploadAction
      * @var   string
      * @since 0.5
      */
-    public $stateVariable  = 'xuploadFiles';
+    public $stateVariable   = 'xuploadFiles';
     /**
      * @var string
      */
@@ -118,6 +118,10 @@ class S3XUploadAction extends XUploadAction
      * @var string - url of the default icon for the uploaded fule
      */
     public $defaultIconUrl = '/images/video_placeholder.svg';
+    /**
+     * @var string - адрес для запроса удаления видео
+     */
+    //public $deleteUrl;
     
     /**
      * @var string|int
@@ -130,7 +134,7 @@ class S3XUploadAction extends XUploadAction
      * @var   string
      * @since 0.2
      */
-    private $_subfolder = "";
+    //private $_subfolder = "";
     /**
      * The form model we'll be saving our files to
      * 
@@ -164,13 +168,13 @@ class S3XUploadAction extends XUploadAction
             chmod($this->path, 0777);
             //throw new CHttpException(500, "{$this->path} is not writable.");
         }
-        if ( $this->subfolderVar !== null AND $this->subfolderVar !== false )
+        /*if ( $this->subfolderVar !== null AND $this->subfolderVar !== false )
         {
             $this->_subfolder = Yii::app()->request->getQuery($this->subfolderVar, date("mdY"));
         }elseif ( $this->subfolderVar !== false )
         {
             $this->_subfolder = date("mdY");
-        }
+        }*/
         if( ! $this->_formModel )
         {
             $this->formModel  = Yii::createComponent(array('class' => $this->formClass));
@@ -234,20 +238,22 @@ class S3XUploadAction extends XUploadAction
                 
                 if ( $newFile->save() )
                 {// сохраняем информацию о видео
-                    $video             = new Video();
-                    $video->objecttype = $this->objectType;
-                    $video->objectid   = $this->objectId;
-                    $video->externalid = $newFile->path.'/'.$newFile->name;
-                    $video->type       = 'file';
-                    $video->size       = $newFile->size;
-                    $video->name       = $newFile->oldname;
-                    $video->link       = $api->s3->getObjectUrl(Yii::app()->params['AWSVideoBucket'], $newFile->path.'/'.$newFile->name);
-                    $video->visible    = 0;
+                    $video                 = new Video();
+                    $video->objecttype     = $this->objectType;
+                    $video->objectid       = $this->objectId;
+                    $video->externalid     = $newFile->path.'/'.$newFile->name;
+                    $video->type           = 'file';
+                    $video->size           = $newFile->size;
+                    $video->name           = $newFile->oldname;
+                    $video->link           = $api->s3->getObjectUrl(Yii::app()->params['AWSVideoBucket'], $newFile->path.'/'.$newFile->name);
+                    $video->visible        = 0;
+                    $video->externalfileid = $newFile->id;
                     if ( $video->save() )
                     {// сохраняем видео и запускаем оцифровку
                         if ( Yii::app()->user->checkAccess('Admin') )
                         {// автоматически помечаем видео как проверенное если его загрузил администратор
                             $video->setStatus(swVideo::APPROVED);
+                            $video->save();
                         }
                         if ( ! $video->transcode() )
                         {// не удалось создать задачу оцифровки
@@ -305,13 +311,15 @@ class S3XUploadAction extends XUploadAction
      */
     protected function handleDeleting()
     {
-        $method  = Yii::app()->request->getParam('_method');
-        $id      = Yii::app()->request->getParam('id', 0);
-        
+        $method = Yii::app()->request->getParam('_method');
+        $id     = Yii::app()->request->getParam('id', 0);
+        if ( ! Yii::app()->user->checkAccess('Admin') )
+        {// @todo сделать более продуманную проверку прав при удалении
+            return false;
+        }
         if ( $method === "delete" AND $video = Video::model()->findByPk($id) )
         {
-            $success = false;
-            
+            $success = $video->delete();
             echo json_encode($success);
             return true;
         }
