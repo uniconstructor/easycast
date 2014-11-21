@@ -29,11 +29,15 @@ class ProjectMemberController extends Controller
 	public function actions()
 	{
 	    return array(
+	        // загрузка видео для заявки
 	        'upload' => array(
 	            'class'      => 'xupload.actions.S3XUploadAction',
 	            'objectType' => 'ProjectMember',
-	            //'path'       => "s3://video.easycast.ru/uploads/",
-	            //'publicPath' => "https://s3.amazonaws.com/video.easycast.ru/",
+	        ),
+	        // удаление загруженного видео
+	        'deleteVideo' => array(
+	            'class'     => 'application.actions.EcDeleteAction',
+	            'modelName' => 'Video',
 	        ),
 	    );
 	}
@@ -47,15 +51,11 @@ class ProjectMemberController extends Controller
 	{
 		return array(
 			array('allow',
-				'actions' => array('index', 'view'),
+				'actions' => array('index', 'view', 'create', 'update', 'setStatus'),
 				'users'   => array('@'),
 			),
 			array('allow',
-				'actions' => array('create', 'update', 'setStatus'),
-				'users'   => array('@'),
-			),
-			array('allow',
-				'actions' => array('admin', 'delete', 'changeVacancy', 'upload', 'uploadPage'),
+				'actions' => array('admin', 'delete', 'changeVacancy', 'upload', 'uploadPage', 'deleteVideo'),
 			    'roles'   => array('admin'),
 			),
 			array('deny',
@@ -190,6 +190,7 @@ class ProjectMemberController extends Controller
 	}
 	
 	/**
+	 * Перенести заявку участника из одной роли в другую
 	 * 
 	 * @return void
 	 */
