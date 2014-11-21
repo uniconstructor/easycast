@@ -57,6 +57,7 @@ class swProject
 					'transition' => array(
 					    self::READY,
 						self::ACTIVE => array($this, 'toActive'),
+					    self::FINISHED,
 					),
 				),
 				array(

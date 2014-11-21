@@ -43,6 +43,7 @@ class swExternalFile
                     'constraint' => '',
                     'transition' => array(
                         self::UPLOADED,
+                        self::ACTIVE,
                     ),
                 ),
                 array(
