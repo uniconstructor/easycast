@@ -178,7 +178,6 @@ class ExternalFile extends SWActiveRecord
 			'deleteaction' => 'Deleteaction',
 			'deleteafter' => 'Deleteafter',
 			'status' => 'Status',
-			//'file' => 'Изображение',
 		);
 	}
 	
@@ -593,7 +592,7 @@ class ExternalFile extends SWActiveRecord
 	            return false;
 	        }
 	        // загрузка прошла успешно - изменим статус
-	        $this->swSetStatus('swExternalFile/saved');
+	        $this->setStatus(swExternalFile::SAVED);
 	        // сохраняем модель
 	        return $this->save();
 	    }else
@@ -726,7 +725,6 @@ class ExternalFile extends SWActiveRecord
 	public function localCopyExists()
 	{
 	    $localFile = $this->getLocalPath();
-	    
 	    if ( file_exists($localFile) AND is_file($localFile) )
 	    {
 	        return true;
@@ -741,7 +739,7 @@ class ExternalFile extends SWActiveRecord
 	 */
 	public function externalCopyExists()
 	{
-	    return $this->getS3()->bucketContainsFile($this->bucket, $this->getExternalPath());
+	    return Yii::app()->getComponent('ecawsapi')->bucketContainsFile($this->bucket, $this->getExternalPath());
 	}
 	
 	/**
