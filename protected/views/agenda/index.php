@@ -11,7 +11,7 @@ $this->breadcrumbs = array(
 <div class="page-alternate">
     <?php
     // текущие события
-    $dateCriteria = new CDbCriteria();
+    $dateCriteria         = new CDbCriteria();
     $dateCriteria->scopes = array(
         'withDate',
         // не показываем просроченные события
@@ -25,8 +25,9 @@ $this->breadcrumbs = array(
             планируются в ближайшее время. Вы можете подать заявку на участие в 
             любом проекте в котором сейчас идет набор.',
     ));
+    
     // все события без определенной даты выводятся в самом конце
-    $noDateCriteria = new CDbCriteria();
+    $noDateCriteria         = new CDbCriteria();
     $noDateCriteria->scopes = array(
         'withoutDate',
         // если событие без конкретной даты - то для отображения в календаре 
