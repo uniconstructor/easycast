@@ -35,7 +35,7 @@ class ProjectsController extends Controller
 	    }
 	    $dataProvider = new CActiveDataProvider('Project', array(
             'criteria'   => $criteria,
-            'pagination' => array('pageSize' => self::MAX_SECTION_ITEMS),
+            'pagination' => false,
         ));
 	     
 	    $this->render('index', array('dataProvider' => $dataProvider));
