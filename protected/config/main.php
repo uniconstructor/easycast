@@ -1,11 +1,5 @@
 <?php
 
-// Twitter bootstrap path alias
-Yii::setPathOfAlias('bootstrap', dirname(__FILE__).'/../extensions/bootstrap');
-// путь к google-библиотеке для обработки телефонных номеров
-Yii::setPathOfAlias('libphonenumber', dirname(__FILE__).'/../components/libphonenumber');
-
-
 // Главный файл конфигурации приложения.
 // Здесь задаются все общие параметры, одинаковые для "production"(релиза), "test"(тестового сервера) 
 // и "dev"(версии разработчика).
@@ -26,16 +20,20 @@ return array(
     // язык исходников (установлен английский потому что он основной для большинства сторонних модулей)
     'sourceLanguage' => 'en_us',
     // предварительно загружаемые компоненты
-    'preload' => array('log', 'messages', 'bootstrap'),
+    'preload'        => array('log', 'messages', 'bootstrap'),
     // Название проекта 
-    'name'    => 'easyCast',
+    'name'           => 'easyCast',
     // Короткие имена для вызова популярных библиотек
     'aliases' => array(
-        'xupload' => 'ext.xupload'
+        // виджет для асинхронной загрузки больших файлов
+        'xupload'        => 'ext.xupload',
+        // YiiBooster (версия 3 для bootstrap 2.3.2)
+        'bootstrap'      => 'ext.bootstrap',
+        // библиотека google для обработки телефонных номеров
+        'libphonenumber' => 'application.components.libphonenumber',
     ),
     // Используем собственную тему оформления для сайта
-    'theme' => 'maximal',
-    
+    'theme'  => 'maximal',
 	// автозагрузка для основных классов приложения
     'import' => array(
         // основные компоненты приложения
@@ -76,7 +74,7 @@ return array(
         //       к нему на новые элементы а затем удалить из сборки при рефакторинге
         'application.extensions.jtogglecolumn.*',
 	),
-
+    // все модули проекта
 	'modules' => array(
 	    // Пользователи
         'user' => array(
@@ -127,10 +125,11 @@ return array(
             ),
         ),
         // Календарь событий
+        // @todo весь модуль теперь можно заменить отдельным виджетом
         'calendar' => array(
             'class' => 'application.modules.calendar.CalendarModule',
         ),
-        // админка
+        // Админка
         'admin' => array(
             'class' => 'application.modules.admin.AdminModule',
             'controllerMap' => array(
@@ -146,11 +145,11 @@ return array(
                 ),
             ),
         ),
-        // проекты
+        // Проекты
         'projects' => array(
             'class' => 'application.modules.projects.ProjectsModule',
         ),
-        // каталог
+        // Каталог
         'catalog' => array(
             'class' => 'application.modules.catalog.CatalogModule',
         ),
