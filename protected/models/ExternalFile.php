@@ -10,7 +10,6 @@
  * Таблица '{{external_files}}':
  * @property integer $id
  * @property string  $originalid  - id оригинала файла
- * @property string  $previousid  - @todo удалить при рефакторинге, не понадобилось
  * @property string  $name        - имя файла при скачивании пользователем (если оно создано заранее)
  * @property string  $title       - отображаемое пользователю название файла 
  *                                  (например "Видео с танцевального конкурса")
@@ -49,6 +48,8 @@
  * @todo системная настройка "макс/мин количество попыток для операций с файловым хранилищем"
  * @todo настройка "стандартный набор версий для файла"
  * @todo проверка уникальности пары path+name при вставке новой записи в s3
+ * @todo миграция, которая находит все файлы с пустым mimetype 
+ *       и определяет его по метаданным файла с S3
  */
 class ExternalFile extends SWActiveRecord
 {
@@ -81,7 +82,7 @@ class ExternalFile extends SWActiveRecord
 	{
 		return array(
 			array('name', 'required'),
-			array('originalid, previousid, timecreated, timemodified, lastupload, lastsync, deleteafter', 'length', 'max'=>11),
+			array('originalid, timecreated, timemodified, lastupload, lastsync, deleteafter', 'length', 'max'=>11),
 			array('name, title, oldname, newname, mimetype, path', 'length', 'max' => 255),
 			array('description', 'length', 'max' => 4095),
 			array('storage, updateaction, deleteaction', 'length', 'max' => 10),
@@ -160,12 +161,11 @@ class ExternalFile extends SWActiveRecord
 		return array(
 			'id' => 'ID',
 			'originalid' => 'Оригинал файла',
-			'previousid' => 'Предыдущая версия файла',
 			'name' => 'Name',
 			'title' => 'Title',
 			'description' => 'Description',
-		    'lastupload' => '',
-		    'lastsync' => '',
+		    'lastupload' => 'lastupload',
+		    'lastsync' => 'lastsync',
 			'oldname' => 'Oldname',
 			'newname' => 'Newname',
 			'storage' => 'Storage',

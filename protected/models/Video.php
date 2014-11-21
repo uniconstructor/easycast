@@ -22,6 +22,10 @@
  *                         swVideo/approved - видео проверено администратором и одобрено (или загружено администратором)
  *                         swVideo/rejected - видео отклонено администратором (нельзя такое публиковать)
  * @property int $visible
+ * @property int $externalfileid - id файла видео в таблице {{external_files}}
+ * 
+ * Relations:
+ * @property ExternalFile $externalFile - модель файла видео, который находится во внешнем хранилище
  * 
  * @todo прописать константы для всех типов видео
  * @todo добавить статус "идет оцифровка" (для загруженных файлов)
@@ -60,13 +64,14 @@ class Video extends SWActiveRecord
 		    
 			array('type', 'length', 'max' => 20),
 			array('objecttype, status', 'length', 'max' => 50),
-			array('timemodified, objectid, timecreated, uploaderid, size, visible', 'length', 'max' => 11),
+			array('timemodified, objectid, timecreated, uploaderid, size, 
+			    visible, externalfileid', 'length', 'max' => 11),
 			array('name, description, link, externalid', 'length', 'max' => 255),
 			array('md5', 'length', 'max' => 128),
 			
 			// The following rule is used by search().
 			array('id, objecttype, objectid, name, type, description, link, timecreated, 
-			    uploaderid, md5, size, status, visible', 'safe', 'on' => 'search'),
+			    uploaderid, md5, size, status, visible, externalfileid', 'safe', 'on' => 'search'),
 		);
 	}
 	
@@ -76,7 +81,9 @@ class Video extends SWActiveRecord
 	public function relations()
 	{
 		return array(
-		    
+		    // файл в хранилище Amazon S3 (если видео хранится у нас или где-то на 
+		    // стороннем хостинге к которому мы имеем доступ)
+		    'externalFile' => array(self::HAS_ONE, 'ExternalFile', 'externalfileid'),
 		);
 	}
 	
@@ -143,6 +150,7 @@ class Video extends SWActiveRecord
 		    'timecreated' => Yii::t('coreMessages', 'timecreated'),
 		    'timemodified' => Yii::t('coreMessages', 'timemodified'), 
 		    'visible' => 'Отображение', 
+		    'externalfileid' => 'externalfileid', 
 		);
 	}
 	
@@ -206,6 +214,7 @@ class Video extends SWActiveRecord
 		$criteria->compare('uploaderid', $this->uploaderid, true);
 		$criteria->compare('size', $this->size, true);
 		$criteria->compare('status', $this->status, true);
+		$criteria->compare('externalfileid', $this->externalfileid, true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria' => $criteria,
@@ -262,13 +271,13 @@ class Video extends SWActiveRecord
 	    $videoBucket     = $api->settings['transcoder']['defaultVideoBucket'];
 	    $outputPrefix    = $api->settings['transcoder']['defaultOutputPrefix'];
 	    $outputExtension = $api->settings['transcoder']['defaultOutputContainer'];
+	    $outputMimeType  = $api->settings['transcoder']['ddefaultOutputMimeType'];
 	    $presetPrefix    = $api->settings['transcoder']['defaultPresetPrefix'];
 	    
 	    /* @var $file ExternalFile */
 	    // получаем оригинал видео
 	    $path = pathinfo($this->externalid, PATHINFO_DIRNAME);
-	    $file = ExternalFile::model()->inBucket($videoBucket)->withPath($path)->find();
-	    if ( ! $file )
+	    if ( ! $this->externalFile )
 	    {// не найден оригинал для перекодирования
 	        $msg = 'Error: cannot find original file for encoding. Path:'.$path."\nBucket: ".$videoBucket;
 	        Yii::log($msg, CLogger::LEVEL_ERROR, 'application.video');
@@ -277,14 +286,14 @@ class Video extends SWActiveRecord
 	    // ищем обложку для видео
 	    if ( $coverSource = $this->getDefaultVideoCoverFile($this->objecttype, $this->objectid) )
 	    {// копируем обложку в папку с исходником видео
-	        $coverTarget = $file->path.'/'.$file->fileName.'_cover'.'.'.pathinfo($coverSource, PATHINFO_EXTENSION);
+	        $coverTarget = $this->externalFile->path.'/'.$this->externalFile->fileName.'_cover'.'.'.pathinfo($coverSource, PATHINFO_EXTENSION);
 	        if ( ! $api->bucketContainsFile($videoBucket, $coverTarget) )
 	        {// если ее там еще нет
 	            $api->s3CopyFile($coverSource, $videoBucket, $coverTarget);
 	        }
 	    }
 	    // добавляем задачу оцифровки видео
-	    $job = $api->addDefaultTranscoderJob($file->path.'/'.$file->name);
+	    $job = $api->addDefaultTranscoderJob($this->externalFile->path.'/'.$this->externalFile->name);
 	    if ( ! is_array($job) OR ! isset($job['Status']) OR $job['Status'] === $api::ENC_STATUS_ERROR )
 	    {// проблема с оцифровкой видео
 	        $msg = 'Error: cannot add transcoder job. Details: '.CVarDumper::dumpAsString($job);
@@ -300,20 +309,20 @@ class Video extends SWActiveRecord
 	    $encodedFile             = new ExternalFile();
 	    $encodedFile->storage    = 's3';
 	    $encodedFile->bucket     = $videoBucket;
-	    $encodedFile->name       = $file->fileName.'_'.$presetPrefix.'.'.$outputExtension;
-	    $encodedFile->oldname    = $file->oldname;
-	    $encodedFile->title      = $file->title;
-	    $encodedFile->path       = $file->path.'/'.$outputPrefix.'/'.$presetPrefix;
+	    $encodedFile->name       = $this->externalFile->fileName.'_'.$presetPrefix.'.'.$outputExtension;
+	    $encodedFile->oldname    = $this->externalFile->oldname;
+	    $encodedFile->title      = $this->externalFile->title;
+	    $encodedFile->path       = $this->externalFile->path.'/'.$outputPrefix.'/'.$presetPrefix;
 	    // запоминаем из какого оригинала было создано это видео
-	    $encodedFile->originalid = $file->id;
+	    $encodedFile->originalid = $this->externalFile->id;
 	    // Amazon сам создаст файл после перекодировки - так что делаем вид что видео уже загружено
 	    $encodedFile->lastupload = time();
 	    $encodedFile->lastsync   = time();
 	    // все перекодированные видео по умолчанию имеют такой mime-тип
-	    $encodedFile->mimetype   = 'video/mp4';
+	    $encodedFile->mimetype   = $outputMimeType;
 	    if ( ! $encodedFile->title )
 	    {// название нового файла не должно быть пустым 
-	        $encodedFile->title = pathinfo($file->oldname, PATHINFO_FILENAME);
+	        $encodedFile->title = pathinfo($this->externalFile->oldname, PATHINFO_FILENAME);
 	    }
 	    if ( ! $encodedFile->save() )
 	    {// ошибка при создании задачи оцифровки
@@ -326,21 +335,22 @@ class Video extends SWActiveRecord
 	    }
 	    // сохраняем модель и сразу помечаем ее как существующий в хранилище файл
 	    $encodedFile->setStatus(swExternalFile::ACTIVE);
-	    if ( ! $file->fileVersions )
+	    $encodedFile->save();
+	    if ( ! $this->externalFile->fileVersions )
 	    {// помечаем исходный файл как оригинал если это еще не было сделано
-	        $file->title .= ' (оригинал)';
-	        $file->save();
+	        $this->externalFile->title .= ' (оригинал)';
+	        $this->externalFile->save();
 	    }
-	     
 	    // создаем запись для оцифрованного видео
-	    $encodedVideo             = new Video();
-	    $encodedVideo->name       = $encodedFile->title.'_480p';
-	    $encodedVideo->externalid = $encodedFile->path.'/'.$encodedFile->fileName.'.'.$outputExtension;
-	    $encodedVideo->link       = $encodedFile->getUrl();
-	    $encodedVideo->objecttype = $this->objecttype;
-	    $encodedVideo->objectid   = $this->objectid;
-	    $encodedVideo->type       = 'file';
-	    $encodedVideo->visible    = $this->visible;
+	    $encodedVideo                 = new Video();
+	    $encodedVideo->name           = $encodedFile->title.'_480p';
+	    $encodedVideo->externalid     = $encodedFile->path.'/'.$encodedFile->fileName.'.'.$outputExtension;
+	    $encodedVideo->link           = $encodedFile->getUrl();
+	    $encodedVideo->objecttype     = $this->objecttype;
+	    $encodedVideo->objectid       = $this->objectid;
+	    $encodedVideo->type           = 'file';
+	    $encodedVideo->visible        = $this->visible;
+	    $encodedVideo->externalfileid = $encodedFile->id;
 	    if ( ! $encodedVideo->save() )
 	    {// ошибка при сохранении перекодированного видео
     	    $msg = implode(', ', current($encodedVideo->getErrors()));
@@ -352,10 +362,12 @@ class Video extends SWActiveRecord
 	    }
 	    // перекодированное видео имеет такой же статус модерации как и исходное
 	    $encodedVideo->setStatus($this->status);
+	    $encodedVideo->save();
 	    
 	    // все модели сохранены успешно: можно завершить транзакцию
 	    $transaction->commit();
-	    // и сообщить об успешном результате
+	    
+	    // оцифровка видео успешно начата
 	    return true;
 	}
 	
