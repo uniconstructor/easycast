@@ -24,6 +24,10 @@ class m141106_120000_installSystemSchemas extends EcMigration
         $this->createSystemSchema();
     }
     
+    /**
+     * 
+     * @return void
+     */
     public function createSystemSchema()
     {
         // создаем форму
