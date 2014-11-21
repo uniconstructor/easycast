@@ -44,7 +44,7 @@ class AdminModule extends CWebModule
 	 */
 	public function beforeControllerAction($controller, $action)
 	{
-		if( parent::beforeControllerAction($controller, $action) )
+		if ( parent::beforeControllerAction($controller, $action) )
 		{
     		$user = Yii::app()->getUser();
             if( $user->isGuest === true )
