@@ -1,9 +1,9 @@
 <?php
 
-// загружаем библиотеку со всеми зависимостями
+// загружаем библиотеки для работы с Amazon API со всеми зависимостями
 require __DIR__ . '/aws/aws.phar';
 
-// подключаем только используемые сервисы
+// подключаем только используемые в системе сервисы
 use Aws\Common\Aws;
 use Aws\Ses\SesClient;
 use Aws\Sqs\SqsClient;
@@ -15,14 +15,39 @@ use Aws\S3\Exception\S3Exception;
  * API сайта easycast.ru для взаимодействия с сервисами Amazon
  * Реализует только те функции, которые используются на сайте
  * (отправка сообщений, управление очередью сообщений, загрузка файлов)
- * Устанавливает настройки сервисов по умолчанию
+ * Отвечает за все стандартные настройки всех сервисов Amazon
+ * (значения настроек задаются в конфигурации приложения, т. к. значения
+ * для dev и production версий сборок отличаются)
+ * 
+ * Правила и соглашения
+ * 1. Общие:
+ * 1.1) тестовые данные никогда не должны пересекатся с данными production-сервера
+ * 1.2) production и dev сборки используют собственные очереди для отправки email-сообщений
+ * 2. Видео:
+ * 2.1) перекодировка видео по умолчанию происходит в формат generic с разрешением 480p в контейнер mp4
+ * 2.2) оригиналы и перекодированные видео хранятся на S3 в хранилище video.easycast.ru
+ * 2.3) правило для именования перекодированных видео: 
+ *      <папка_оригинала_видео>/encoded/<тип_оцифровки>_<качество_видео>/<имя_оригинального_видео>_<тип_оцифровки>_<качество_видео>.<контейнер_видео>
+ *      Примеры:
+ *      - имя оригинала видео "example.mov", перекодировка generic качество 480p контейнер mp4
+ *        <папка_оригинала_видео>/encoded/generic_480p/example_generic_480p.mp4
+ *      - имя оригинала видео "example.mov", перекодировка web 720p контейнер webm
+ *        <папка_оригинала_видео>/encoded/web_720p/example_web_720p.webm
+ * 2.4) Если для видео добавляется обложка то она хранится в папке с оригиналом видео
+ *      Правило именования обложек: <имя_оригинального_видео>_cover.jpg
+ *      Допустимые типы изображений: jpg/png
+ * 3. Хранение файлов
+ * 3.1) все загружаемые на S3 файлы должны иметь или имена из латинских букв и цифр (a-Z0-9_-)
+ *      случайные или созданные по шаблонам: хранилище Amazon глючит при работе с национальными алфамитами.
+ *      С пробелами в именах файлов тоже проблема - не используйте их
+ * 
  * 
  * @todo вынести все циклы с try-catch в одну функцию
  * @todo добавить функцию пакетной отправки сообщений в очередь
  * @todo считать время, затраченное на отправку всех email, тормозить если их больше 5 в секунду
  * @todo добавить функцию очистки очереди сообщений (работает только на тестовых серверах)
- * @todo добавить проверку в init(): на тестовом стенде никогда не должны быть включена функция
- *       отправки сообщений на реальные адреса
+ * @todo добавить дополнительную проверку в init(): на тестовом стенде никогда не должны быть
+ *       включена функция отправки сообщений на реальные адреса
  * @todo при рассылке писем из очереди не хранить текст письма, а только данные для его составления
  */
 class EcAwsApi extends CApplicationComponent
@@ -32,16 +57,16 @@ class EcAwsApi extends CApplicationComponent
      *             (если указан false - то скрипт каждый раз при создании объекта будет запрашивать 
      *             точный полный адрес очереди сообщений через AmazonAPI)
      */
-    const USE_CONFIG_QUEUE_URL = true;
+    const USE_CONFIG_QUEUE_URL       = true;
     /**
      * @var int - количество попыток, которые следует предпринять, 
      *            если обращение к сервису Amazon не удалось
      */
-    const ATTEMPT_COUNT   = 6;
+    const ATTEMPT_COUNT              = 6;
     /**
      * @var int - пауза между попытками в секундах
      */
-    const ATTEMPT_TIMEOUT = 1;
+    const ATTEMPT_TIMEOUT            = 1;
     /**
      * @var int - время (в секундах), на которое полученные сообщения будут скрыты от других получателей
      *            Используется при работе с очередью сообщений.
@@ -53,13 +78,33 @@ class EcAwsApi extends CApplicationComponent
      * @var int - максимальное количество сообщений в секунду, которое позволяет отправлять Amazon SES 
      */
     const MAX_MESSAGES_PER_SECOND    = 5;
+    /**
+     * @var string - статус задачи оцифровки: в очереди
+     */
+    const ENC_STATUS_SUBMITTED   = 'Submitted';
+    /**
+     * @var string - статус задачи оцифровки: обработка
+     */
+    const ENC_STATUS_PROGRESSING = 'Progressing';
+    /**
+     * @var string - статус задачи оцифровки: выполнено
+     */
+    const ENC_STATUS_COMPLETE    = 'Complete';
+    /**
+     * @var string - статус задачи оцифровки: отменено
+     */
+    const ENC_STATUS_CANCELED    = 'Canceled';
+    /**
+     * @var string - статус задачи оцифровки: ошибка
+     */
+    const ENC_STATUS_ERROR       = 'Error';
     
     /**
      * @var array - настройки всех сервисов Amazon
      */
     public $settings = array(
         'ses' => array(
-            
+            'queueUrl' => '',
         ),
         'sqs' => array(
             
@@ -68,9 +113,12 @@ class EcAwsApi extends CApplicationComponent
             
         ),
         'transcoder' => array(
-            'mainPipelineId'      => '1403123938114-1k10ju',
-            'defaultPresetId'     => '1416028648728-fveyu3',
-            'defaultPresetPrefix' => 'generic-480p',
+            'defaultVideoBucket'     => 'video.easycast.ru',
+            'defaultPipelineId'      => '1403123938114-1k10ju',
+            'defaultPresetId'        => '1416028648728-fveyu3',
+            'defaultOutputPrefix'    => 'encoded',
+            'defaultPresetPrefix'    => 'generic_480p',
+            'defaultOutputContainer' => 'mp4',
         ),
         
     );
@@ -99,6 +147,7 @@ class EcAwsApi extends CApplicationComponent
     /**
      * @var Aws\ElasticTranscoder\ElasticTranscoderClient
      *      объект для работы с сервисом Elastic Transcoder (оцифровка видео и аудио)
+     *      Статусы оцифровки: Submitted, Progressing, Complete, Canceled, or Error
      */
     protected $transcoder;
     /**
@@ -122,8 +171,8 @@ class EcAwsApi extends CApplicationComponent
             'secret' => Yii::app()->params['AWSSecret'],
 			'region' => Yii::app()->params['AWSRegion'],
         );
-        // регистрируем обертку протоеола s3:// для того чтобы использовать стандартные
-        // функции работы с файлами из PHP в Amazon
+        // регистрируем обертку протокола s3:// для того чтобы использовать
+        // стандартные функции работы с файлами из PHP в Amazon
         $this->getS3()->registerStreamWrapper();
         
         parent::init();
@@ -188,10 +237,9 @@ class EcAwsApi extends CApplicationComponent
     /**
      * Отправить одно письмо при помощи Amazon SQS
      * 
-     * @param string $email - адрес получателя
-     * @param string $subject - тема письма
-     * @param string $message - текст сообщения
-     * 
+     * @param  string $email - адрес получателя
+     * @param  string $subject - тема письма
+     * @param  string $message - текст сообщения
      * @return bool удалось ли отправить письмо
      * 
      * @todo анализировать ответ сервера и проверять правильность выполнения отправки точнее чем по 
@@ -212,10 +260,10 @@ class EcAwsApi extends CApplicationComponent
             $subject = $subject.' [TEST]';
         }
         if ( ! $from )
-        {
+        {// все письма системы отправляются от имени admin@easycast.ru, если не указано иное
             $from = Yii::app()->params['adminEmail'];
         }
-        if ( strstr('@example.com', $email) )
+        if ( mb_stristr('@example.com', $email) )
         {// не отправляем письма на адреса-заглушки
             return $result;
         }
@@ -224,11 +272,11 @@ class EcAwsApi extends CApplicationComponent
             return $result;
         }
         
-        // проверки пройдены, теперь создаем параметры запроса к SES Service
+        // все проверки пройдены, создаем параметры для запроса к Amazon SES
         $args = $this->createSESEmail($email, $subject, $message, $from);
-        
-        // отправляем почту
+        // отправляем письмо
         $this->trace('Sending mail to '.$email.' : ', false);
+        
         for ( $count = 0; $count < self::ATTEMPT_COUNT; $count++ )
         {// делаем запрос несколько раз (если не получается) на случай неполадок с сетью
             try
@@ -238,10 +286,10 @@ class EcAwsApi extends CApplicationComponent
                 break;
             }catch ( Exception $e )
             {// ошибка при запросе - запишем в лог, ждем и пробуем еще раз
-                $this->log($e->getMessage());
-                $result = false;
                 sleep(self::ATTEMPT_TIMEOUT);
+                $this->log($e->getMessage());
                 $this->trace('Sending again...');
+                $result = false;
             }
         }
         // сообщаем в консоль о результате
@@ -261,11 +309,10 @@ class EcAwsApi extends CApplicationComponent
      * обойти ограничения Amazon на количество отправляемых писем в секунду.
      * Поставленные в очередь сообщения потом собираются кроном и постепенно отправляются людям.
      * 
-     * @param string $email - адрес получателя
-     * @param string $subject - тема письма
-     * @param string $message - текст сообщения
-     * @param string $from - адрес отправителя
-     * 
+     * @param  string $email - адрес получателя
+     * @param  string $subject - тема письма
+     * @param  string $message - текст сообщения
+     * @param  string $from - адрес отправителя
      * @return string|bool - id отправленного сообщения или false если сообщение не удалось отправить
      * 
      * @todo сделать более подробный анализ ошибок
@@ -278,7 +325,7 @@ class EcAwsApi extends CApplicationComponent
         {// это тестовый стенд или машина разработчика - не отправляем письма на реальные адреса
             $email   = 'frost@easycast.ru';
         }
-        if ( strstr('@example.com', $email) )
+        if ( mb_stristr('@example.com', $email) )
         {// не отправляем письма на несуществующие адреса
             return $result;
         }
@@ -305,10 +352,10 @@ class EcAwsApi extends CApplicationComponent
                 break;
             }catch ( Exception $e )
             {// ошибка при запросе - запишем в лог, ждем и пробуем еще раз
-                $this->log($e->getMessage());
-                $result = false;
                 sleep(self::ATTEMPT_TIMEOUT);
+                $this->log($e->getMessage());
                 $this->trace('Pushing again...');
+                $result = false;
             }
         }
         // сообщаем в консоль о результате
@@ -327,10 +374,8 @@ class EcAwsApi extends CApplicationComponent
      * 
      * @param  number $count - количество сообщений из очереди, которое следует обработать за 1 раз
      * @return bool
-     * 
-     * @todo проверить результат JSON::decode
      */
-    public function processEmailQueue($count = self::MAX_MESSAGES_PER_SECOND)
+    public function processEmailQueue($count=self::MAX_MESSAGES_PER_SECOND)
     {
         if ( ! $messages = $this->popMail($count) )
         {// сообщений в очереди нет - отлично
@@ -361,8 +406,6 @@ class EcAwsApi extends CApplicationComponent
      * 
      * @param  string $receiptHandle - The receipt handle associated with the message to delete
      * @return bool
-     * 
-     * @todo делать несколько попыток удаления
      */
     public function deleteSQSMessage($receiptHandle)
     {
@@ -385,8 +428,8 @@ class EcAwsApi extends CApplicationComponent
             }catch ( Exception $e )
             {// ошибка при запросе - запишем в лог, ждем и пробуем еще раз
                 $this->log($e->getMessage());
-                $result = false;
                 sleep(self::ATTEMPT_TIMEOUT);
+                $result = false;
             }
         }
         return $result;
@@ -395,7 +438,7 @@ class EcAwsApi extends CApplicationComponent
     /**
      * Достать из очереди сообщений несколько писем, ждущих отправки
      * 
-     * @param  number $count - количество писем, которые нужно достать за 1 раз (от 1 до 10)
+     * @param  number $count - количество писем, которые нужно достать за 1 раз
      * @return array
      * 
      * @todo сделать более подробный анализ ошибок
@@ -430,7 +473,7 @@ class EcAwsApi extends CApplicationComponent
      */
     public function getEmailQueryInfo()
     {
-        $url = $this->getEmailQueueUrl();
+        $url  = $this->getEmailQueueUrl();
         $args = array(
             'QueueUrl'       => $url,
             'AttributeNames' => array(
@@ -453,13 +496,13 @@ class EcAwsApi extends CApplicationComponent
     public function showEmailQueryInfo()
     {
         $info = $this->getEmailQueryInfo();
-    
-        $this->trace('');
+        // пустая строка в начале и в конце
+        $this->trace();
         $this->trace('[Email queue info]');
         $this->trace('Total messages: '.$info['ApproximateNumberOfMessages']);
         $this->trace('Not visible:    '.$info['ApproximateNumberOfMessagesNotVisible']);
         $this->trace('Delayed:        '.$info['ApproximateNumberOfMessagesDelayed']);
-        $this->trace('');
+        $this->trace();
     }
     
     /**
@@ -470,20 +513,146 @@ class EcAwsApi extends CApplicationComponent
     public function emailQueueIsEmpty()
     {
         $info = $this->getEmailQueryInfo();
-        if ( $info['ApproximateNumberOfMessages'] == 0 )
-        {
-            return true;
+        return (bool)$info['ApproximateNumberOfMessages'];
+    }
+    
+    /**
+     * Определить, содержит ли S3 хранилище указанный файл
+     * Безопасная функция, не выбрасывает исключений, делает несколько попыток запроса
+     * 
+     * @param  string $bucket
+     * @param  string $key
+     * @return bool
+     */
+    public function bucketContainsFile($bucket, $key)
+    {
+        for ( $count = 0; $count < self::ATTEMPT_COUNT; $count++ )
+        {// делаем это несколько раз на случай неполадок с сетью
+            try
+            {// запрос к сервису
+                return $this->getS3()->doesObjectExist($bucket, $key);
+            }catch ( Exception $e )
+            {// ошибка при запросе - запишем в лог
+                $this->log($e->getMessage());
+                sleep(self::ATTEMPT_TIMEOUT);
+            }
         }
         return false;
     }
     
     /**
-     * Получить массив с параметрами для запроса к сервису Amazon SES через Amazon PHP API 2
+     * Поставить видео в очередь для оцифровки, используя стандартные настройки перекодирования
+     * 
+     * @param  string $inputKey   - путь к оригиналу видео для перекодировки
+     * @param  array  $watermarks - текст или картинки наложенные на видео
+     * @return bool|array - данные задачи оцифровки или false если задачу не удалось создать
+     *                      $result['Id']     - id задачи
+     *                      $result['Status'] - статус задачи
+     * 
+     * @todo проверять статус после добавления задачи
+     */
+    public function addDefaultTranscoderJob($inputKey, $watermarks=array())
+    {
+        // получаем параметры для запроса
+        $args = $this->createDefaultTranscoderJobArgs($inputKey, $watermarks);
+        
+        for ( $count = 0; $count < self::ATTEMPT_COUNT; $count++ )
+        {// делаем запрос несколько раз на случай ошибки
+            try
+            {// запрос к сервису
+                $result = $this->getTranscoder()->createJob($args);
+                if ( isset($result['Job']) )
+                {
+                    return $result['Job'];
+                }
+                break;
+            }catch ( Exception $e )
+            {// ошибка при запросе - запишем в лог
+                $this->log($e->getMessage());
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * 
+     * 
+     * @param  string $id
+     * @return array|bool - массив с данными созданной задачи или false если такой задачи нет
+     */
+    public function getTranscoderJob($id)
+    {
+        for ( $count = 0; $count < self::ATTEMPT_COUNT; $count++ )
+        {// делаем запрос несколько раз на случай ошибки
+            try
+            {// запрос к сервису
+                $result = $this->getTranscoder()->readJob(array('Id' => $id));
+                if ( isset($result['Job']) )
+                {
+                    return $result['Job'];
+                }
+                break;
+            }catch ( Exception $e )
+            {// ошибка при запросе - запишем в лог
+                $this->log($e->getMessage());
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * 
+     * 
+     * @param  string $id
+     * @return string|bool - статус добавленной задачи или false если такой задачи нет
+     */
+    public function getTranscoderJobStatus($id)
+    {
+        if ( $job = $this->getTranscoderJob($id) )
+        {
+            return $job['Status'];
+        }
+        return false;
+    }
+    
+    /**
+     * 
+     * 
+     * @param  string $copySource
+     * @param  string $targetBucket
+     * @param  string $targetKey
+     * @return bool
+     */
+    public function s3CopyFile($copySource, $targetBucket, $targetKey)
+    {
+        $args = array(
+            'CopySource' => $copySource,
+            'Bucket'     => $targetBucket,
+            'Key'        => $targetKey,
+        );
+        for ( $count = 0; $count < self::ATTEMPT_COUNT; $count++ )
+        {// делаем запрос несколько раз на случай ошибки
+            try
+            {// запрос к сервису
+                $result = $this->getS3()->copyObject($args);
+                if ( isset($result['RequestId']) )
+                {
+                    return true;
+                }
+            }catch ( Exception $e )
+            {// ошибка при запросе - запишем в лог
+                $this->log($e->getMessage());
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Получить массив с параметрами для запроса к сервису Amazon SES через Amazon PHP API
      *
-     * @param string $email - адрес получателя
-     * @param string $subject - тема письма
-     * @param string $message - текст сообщения
-     *
+     * @param  string $email   - адрес получателя
+     * @param  string $subject - тема письма
+     * @param  string $message - текст сообщения
      * @return array
      *
      * @todo добавить настройку "присылать письма как текст или как HTML"
@@ -492,7 +661,7 @@ class EcAwsApi extends CApplicationComponent
     protected function createSESEmail($email, $subject, $message, $from)
     {
         return array(
-            'Source' => $from,
+            'Source'      => $from,
             'Destination' => array(
                 'ToAddresses' => array($email),
             ),
@@ -531,7 +700,7 @@ class EcAwsApi extends CApplicationComponent
     /**
      * Создать массив с аргументами для запроса получения сообщений из очереди
      * 
-     * @param  number $count - количество писем, которые нужно достать за 1 раз (от 1 до 10)
+     * @param  number $count - количество писем, которые нужно достать за 1 раз
      * @return array
      */
     protected function createSQSPopArgs($count)
@@ -542,7 +711,8 @@ class EcAwsApi extends CApplicationComponent
         return array(
             'QueueUrl'            => $url,
             'MaxNumberOfMessages' => $count,
-            // не позволяем никому видеть полученные нами сообщения еще как минимум 2 минуты (пока они не удалятся)
+            // не позволяем никому видеть полученные нами сообщения еще как минимум 2 минуты
+            // (пока они не удалятся)
             'VisibilityTimeout'   => self::HIDE_READ_MESSAGES_TIMEOUT,
         );
     }
@@ -583,10 +753,9 @@ class EcAwsApi extends CApplicationComponent
      * Сохраняет все данные письма в JSON-строку, чтобы его можно было отправить и получить
      * с помощью очереди сообщений (Amazon SQS) 
      * 
-     * @param string $email - адрес получателя
-     * @param string $subject - тема письма
-     * @param string $message - текст сообщения
-     * 
+     * @param  string $email   - адрес получателя
+     * @param  string $subject - тема письма
+     * @param  string $message - текст сообщения
      * @return string - JSON-строка с получателем, темой и телом письма
      */
     protected function convertEmailToJSON($email, $subject, $message, $from)
@@ -625,21 +794,33 @@ class EcAwsApi extends CApplicationComponent
     }
     
     /**
-     * Создать массив параметров для добавления задачи оцифровки видео со стандартными параметрами
-     * (минимум настроек, короткий синтаксис)
+     * Создать массив параметров для добавления задачи оцифровки видео (стандартныме параметры)
+     * Добавляе к видео-файлу обложку если для нее есть шаблон
      * 
-     * @param  string $inputKey
-     * @param  string $outputKey
-     * @param  string $albumArtKey
-     * @param  array $watermarks
+     * @param  string $inputKey   - путь к оригиналу видео для перекодировки
+     * @param  array  $watermarks - текст или картинки наложенные на видео
      * @return array
      * 
-     * @todo
+     * @todo проставить watermark-пометки на видео
+     * @todo перед сохранением оцифровкой проверять существует ли в outputKey 
+     *       перекодированный файл с таким же именем, и если да - то удалять его
      */
-    protected function createDefaultTranscoderJobArgs($inputKey, $outputKey, $albumArtKey=null, $watermarks=array())
+    protected function createDefaultTranscoderJobArgs($inputKey, $watermarks=array())
     {
-        return array(
-            'PipelineId' => $this->settings['transcoder']['mainPipelineId'],
+        $inputKeyInfo = pathinfo($inputKey);
+        $videoBucket  = $this->settings['transcoder']['defaultVideoBucket'];
+        // префикс для сохранения перекодированных видео
+        $outputKeyPrefix = $inputKeyInfo['dirname'].'/'.
+                           $this->settings['transcoder']['defaultOutputPrefix'].'/'.
+                           $this->settings['transcoder']['defaultPresetPrefix'].'/';
+        // создаем стандартное имя перекодированого файла по шаблону
+        $outputKey = $inputKeyInfo['filename'].'_'.
+                     $this->settings['transcoder']['defaultPresetPrefix'].'.'.
+                     $this->settings['transcoder']['defaultOutputContainer'];
+        
+        // создаем итоговый массив для запроса
+        $result = array(
+            'PipelineId' => $this->settings['transcoder']['defaultPipelineId'],
             'Input' => array(
                 'Key'         => $inputKey,
                 'FrameRate'   => 'auto',
@@ -654,33 +835,24 @@ class EcAwsApi extends CApplicationComponent
                     'ThumbnailPattern' => '',
                     'Rotate'           => 'auto',
                     'PresetId'         => $this->settings['transcoder']['defaultPresetId'],
-                    //'SegmentDuration'  => 'string',
-                    /*'Watermarks' => array(
-                        array(
-                            'PresetWatermarkId' => 'string',
-                            'InputKey' => 'string',
-                        ),
-                        // ... repeated
-                    ),*/
-                    /*'AlbumArt' => array(
-                        'MergePolicy' => 'string',
-                        'Artwork' => array(
-                            array(
-                                'InputKey' => 'string',
-                                'MaxWidth' => '600',
-                                'MaxHeight' => '600',
-                                'SizingPolicy' => 'ShrinkToFit',
-                                'PaddingPolicy' => 'Pad',
-                                'AlbumArtFormat' => 'jpg',
-                            ),
-                            // ... repeated
-                        ),
-                    ),*/
                 ),
-                // ... repeated
             ),
-            'OutputKeyPrefix' => $this->settings['transcoder']['defaultPresetPrefix'],
+            'OutputKeyPrefix' => $outputKeyPrefix,
         );
+        if ( $watermarks )
+        {// @todo добавляем надписи поверх видео
+            /*$result['Outputs'][0]['Watermarks'] = array(
+                array(
+                    'InputKey'          => 'string',
+                    'PresetWatermarkId' => 'string',
+                ),
+                array(
+                    'InputKey'          => 'string',
+                    'PresetWatermarkId' => 'string',
+                ),
+            );*/
+        }
+        return $result;
     }
     
     /**
@@ -701,7 +873,7 @@ class EcAwsApi extends CApplicationComponent
      * @param  string $message
      * @return null
      */
-    protected function trace($message, $newLine=true)
+    protected function trace($message='', $newLine=true)
     {
         if ( $this->trace OR PHP_SAPI == 'cli' )
         {
@@ -715,5 +887,3 @@ class EcAwsApi extends CApplicationComponent
         }
     }
 }
-
-// Job ststus: Submitted, Progressing, Complete, Canceled, or Error
