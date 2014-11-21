@@ -119,6 +119,7 @@ class EcAwsApi extends CApplicationComponent
             'defaultOutputPrefix'    => 'encoded',
             'defaultPresetPrefix'    => 'generic_480p',
             'defaultOutputContainer' => 'mp4',
+            'defaultOutputMimeType'  => 'video/mp4',
         ),
         
     );
