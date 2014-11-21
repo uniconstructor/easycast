@@ -443,7 +443,7 @@ return array(
                         'prefixUser' => true,
                         'logUser'    => true,
                     ),
-                    'autoCreateLogTable' => true,
+                    'autoCreateLogTable' => false,
                 ),
             ),
         ),
