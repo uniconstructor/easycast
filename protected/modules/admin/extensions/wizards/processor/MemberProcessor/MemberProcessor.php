@@ -147,7 +147,8 @@ class MemberProcessor extends CWidget
     
     /**
      * Получить параметры для сохранения состояния виджета
-     * @param array $params
+     * 
+     * @param  array $params
      * @return array
      */
     protected function getLinkOptions($params=array())
@@ -188,7 +189,8 @@ class MemberProcessor extends CWidget
     
     /**
      * Получить $url на изменение одного bool параметра 
-     * @param string $name - название параметра
+     * 
+     * @param  string $name - название параметра
      * @return string
      */
     protected function getToggleUrl($name)
@@ -199,7 +201,8 @@ class MemberProcessor extends CWidget
     /**
      * Получить код кнопки предназначеной для изменения одного bool параметра
      * (определяет нажата ли изначально кнопка, раскрашивает ее, формирует ссылку)
-     * @param string $name - название параметра
+     * 
+     * @param  string $name - название параметра
      * @return string
      */
     protected function getToggleButton($name)
@@ -223,7 +226,6 @@ class MemberProcessor extends CWidget
             break;
             case 'active':
                 $label       = 'Утверждены';
-                //$label       .= '<i style="font-size:24px;" class="icon icon-check"></i>';
                 $activeClass = 'btn-success';
             break;
             case 'rejected': 
@@ -257,6 +259,7 @@ class MemberProcessor extends CWidget
     
     /**
      * Получить все используемые для фильтрации статусы
+     * 
      * @return array
      */
     protected function getCurrentStatuses()
@@ -274,6 +277,7 @@ class MemberProcessor extends CWidget
     
     /**
      * Получить все используемые для фильтрации маркеты
+     * 
      * @return array
      */
     protected function getCurrentMarkers()
@@ -294,7 +298,8 @@ class MemberProcessor extends CWidget
      * 
      * @return ProjectMember|null
      * 
-     * @todo выставлять блокировку и снимать ее только в контроллере при помощи специального action а не здась
+     * @todo выставлять блокировку и снимать ее только в контроллере при помощи 
+     *       специального action а не здась
      */
     protected function getCurrentMember()
     {
@@ -333,8 +338,9 @@ class MemberProcessor extends CWidget
     }
     
     /**
+     * Получить количество участников в разделе
      * 
-     * @param int $sectionId
+     * @param  int $sectionInstanceId
      * @return int
      */
     protected function getMemberCount($sectionInstanceId=0)

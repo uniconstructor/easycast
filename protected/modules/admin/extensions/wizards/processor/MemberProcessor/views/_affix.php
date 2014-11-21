@@ -29,10 +29,12 @@
             <i class="icon-chevron-right"></i>'.$instance->section->name.'&nbsp;
             <span class="badge badge-info pull-right">'.$this->getMemberCount($instance->id).'</span></a></li>';
     }
-    // внизу всегда добавляем вкладку с нераробранными
-    $url = Yii::app()->createUrl($this->widgetRoute, $this->getLinkOptions(array('siid' => 0)));
-    echo '<li><a href="'.$url.'" style="text-transform:capitalize;font-weight:normal;font-size:10px;padding:10px;">
-            <i class="icon-chevron-right"></i> Без категории&nbsp;<span class="badge badge-info pull-right">'.
-            $this->getMemberCount(0).'</span></a></li>';
+    if ( Yii::app()->user->checkAccess('Admin') )
+    {// заявки без категории (видны только админам)
+        $url = Yii::app()->createUrl($this->widgetRoute, $this->getLinkOptions(array('siid' => 0)));
+        echo '<li><a href="'.$url.'" style="text-transform:capitalize;font-weight:normal;font-size:10px;padding:10px;">';
+        echo '<i class="icon-chevron-right"></i> Без категории&nbsp;<span class="badge badge-info pull-right">';
+        echo $this->getMemberCount(0).'</span></a></li>';
+    }
     ?>
 </ul>
