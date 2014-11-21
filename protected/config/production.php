@@ -45,9 +45,9 @@ return CMap::mergeArray(
             // API ID на vkontakte.ru (чтобы работал виджет "мне нравится")
             'vkontakteApiId' => '3534064',
             // Данные для доступа к кластеру Amazon
-            // @todo убрать из кода, использовать серверные переменные, как с паролем в БД
-            'AWSAccessKey' => 'AKIAISQJ47JQQ2QOGBKA',
-            'AWSSecret'    => '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',
+            // @see https://console.aws.amazon.com/elasticbeanstalk/home?region=us-east-1
+            'AWSAccessKey' => $_SERVER['AWS_ACCESS_KEY_ID'],
+            'AWSSecret'    => $_SERVER['AWS_SECRET_KEY'],
             // S3
             // Использовать хостинг amazon s3 для хранения картинок
             'useAmazonS3'    => true,
