@@ -25,12 +25,15 @@
  * 
  * @todo прописать константы для всех типов видео
  * @todo добавить статус "идет оцифровка" (для загруженных файлов)
+ * @todo менять статус модерации для дочерних (перекодированных) видео когда 
+ *       исходник видео меняет свой статус
  */
 class Video extends SWActiveRecord
 {
 	/**
-	 * Returns the static model of the specified AR class.
-	 * @param string $className active record class name.
+	 * Returns the static model of the specified AR class
+	 * 
+	 * @param string $className active record class name
 	 * @return Video the static model class
 	 */
 	public static function model($className=__CLASS__)
@@ -154,9 +157,10 @@ class Video extends SWActiveRecord
 	        {// запоминаем того кто загрузил видео
                 $this->uploaderid = Yii::app()->user->id;
 	        }
-	        // определяем тип видео
-	        $this->type = $this->defineVideoType($this->link);
-	         
+	        if ( ! $this->type )
+	        {// определяем тип видео
+	            $this->type = $this->defineVideoType($this->link);
+	        }
 	        if ( ! $this->externalid )
 	        {// определяем id видео на портале, чтобы потом генерировать правильные ссылки на него
                 $this->externalid = $this->extractExternalId();
@@ -183,6 +187,7 @@ class Video extends SWActiveRecord
 
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.
+	 * 
 	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
 	 */
 	public function search()
@@ -229,38 +234,135 @@ class Video extends SWActiveRecord
 	}
 	
 	/**
-	 * Поставить видео в очередь для оцифровки
+	 * Оцифровать видео для воспроизведения на сайте 
+	 * Добавляет одну задачу оцифровки видео в очередь сервиса Elastic Transcoder
 	 * 
-	 * @param  string $cover  - картинка-обложка отображаемая при просмотре видео в проводнике
-	 * @param  string $preset - id набора настроек для кодирования видео
+	 * @param  string $preset - id набора настроек для оцифровки видео, если не задан -
+	 *                          то используются настройки по умолчанию
 	 * @return bool
 	 * 
-	 * @todo всегда передавать ExternalFile в $cover
+	 * @todo отслеживать статус задачи оцифровки
+	 * @todo определять размер файла для модели ExternalFile 
+	 *       (когда будем отслеживать процесс перекодировки)
+	 * @todo параметр $preset пока что не задействован
+	 * @todo проверять результат смены статуса
+	 * @todo задавать title для видео в зависимости от модели к которой оно привязано
 	 */
-	public function transcode($cover=null, $preset=null)
+	public function transcode($preset=null)
 	{
-	    if ( ! $this->type === 'file' )
+	    if ( $this->type != 'file' )
 	    {// перекодировать можно только файлы в нашем хранилище (Amazon S3)
+	        $msg = 'Error: wrong video type for encoding: '.$this->type;
+	        Yii::log($msg, CLogger::LEVEL_ERROR, 'application.video');
 	        return false;
 	    }
-	    // получаем модель файла видео
-	    $file = ExternalFile::model()->inBucket('video.easycast.ru')->
-	       withPath($this->externalid)->find();
+	    /* @var $api EcAwsApi */
+	    $api             = Yii::app()->getComponent('ecawsapi');
+	    // параметры для именования файлов
+	    $videoBucket     = $api->settings['transcoder']['defaultVideoBucket'];
+	    $outputPrefix    = $api->settings['transcoder']['defaultOutputPrefix'];
+	    $outputExtension = $api->settings['transcoder']['defaultOutputContainer'];
+	    $presetPrefix    = $api->settings['transcoder']['defaultPresetPrefix'];
+	    
+	    /* @var $file ExternalFile */
+	    // получаем оригинал видео
+	    $path = pathinfo($this->externalid, PATHINFO_DIRNAME);
+	    $file = ExternalFile::model()->inBucket($videoBucket)->withPath($path)->find();
 	    if ( ! $file )
-	    {// не найден исходник для перекодирования
+	    {// не найден оригинал для перекодирования
+	        $msg = 'Error: cannot find original file for encoding. Path:'.$path."\nBucket: ".$videoBucket;
+	        Yii::log($msg, CLogger::LEVEL_ERROR, 'application.video');
 	        return false;
 	    }
-	    /* @var $tc Aws\ElasticTranscoder\ElasticTranscoderClient */
-	    $tc = Yii::app()->getComponent('ecawsapi')->getTranscoder();
-	    /* @var $s3 Aws\S3\S3Client */
-	    $s3 = Yii::app()->getComponent('ecawsapi')->getS3();
-	    // TODO
+	    // ищем обложку для видео
+	    if ( $coverSource = $this->getDefaultVideoCoverFile($this->objecttype, $this->objectid) )
+	    {// копируем обложку в папку с исходником видео
+	        $coverTarget = $file->path.'/'.$file->fileName.'_cover'.'.'.pathinfo($coverSource, PATHINFO_EXTENSION);
+	        if ( ! $api->bucketContainsFile($videoBucket, $coverTarget) )
+	        {// если ее там еще нет
+	            $api->s3CopyFile($coverSource, $videoBucket, $coverTarget);
+	        }
+	    }
+	    // добавляем задачу оцифровки видео
+	    $job = $api->addDefaultTranscoderJob($file->path.'/'.$file->name);
+	    if ( ! is_array($job) OR ! isset($job['Status']) OR $job['Status'] === $api::ENC_STATUS_ERROR )
+	    {// проблема с оцифровкой видео
+	        $msg = 'Error: cannot add transcoder job. Details: '.CVarDumper::dumpAsString($job);
+	        Yii::log($msg, CLogger::LEVEL_ERROR, 'application.video');
+	        return false;
+	    }
+	    
+	    // задача успешно добавлена - создаем в базе модели для будущих файлов
+	    // (используем транзакцию чтобы на случай проблем с сохранением моделей)
+	    $transaction = $this->getDbConnection()->beginTransaction();
+	    
+	    // создаем запись для обработанного файла
+	    $encodedFile             = new ExternalFile();
+	    $encodedFile->storage    = 's3';
+	    $encodedFile->bucket     = $videoBucket;
+	    $encodedFile->name       = $file->fileName.'_'.$presetPrefix.'.'.$outputExtension;
+	    $encodedFile->oldname    = $file->oldname;
+	    $encodedFile->title      = $file->title;
+	    $encodedFile->path       = $file->path.'/'.$outputPrefix.'/'.$presetPrefix;
+	    // запоминаем из какого оригинала было создано это видео
+	    $encodedFile->originalid = $file->id;
+	    // Amazon сам создаст файл после перекодировки - так что делаем вид что видео уже загружено
+	    $encodedFile->lastupload = time();
+	    $encodedFile->lastsync   = time();
+	    // все перекодированные видео по умолчанию имеют такой mime-тип
+	    $encodedFile->mimetype   = 'video/mp4';
+	    if ( ! $encodedFile->title )
+	    {// название нового файла не должно быть пустым 
+	        $encodedFile->title = pathinfo($file->oldname, PATHINFO_FILENAME);
+	    }
+	    if ( ! $encodedFile->save() )
+	    {// ошибка при создании задачи оцифровки
+    	    $msg = implode(', ', current($encodedFile->getErrors()));
+    	    // откат транзакции
+    	    $transaction->rollback();
+    	    // ошибку в лог (после транзакции, иначе тоже не сохранится)
+    	    Yii::log($msg, CLogger::LEVEL_ERROR, 'application.video');
+    	    return false;
+	    }
+	    // сохраняем модель и сразу помечаем ее как существующий в хранилище файл
+	    $encodedFile->setStatus(swExternalFile::ACTIVE);
+	    if ( ! $file->fileVersions )
+	    {// помечаем исходный файл как оригинал если это еще не было сделано
+	        $file->title .= ' (оригинал)';
+	        $file->save();
+	    }
+	     
+	    // создаем запись для оцифрованного видео
+	    $encodedVideo             = new Video();
+	    $encodedVideo->name       = $encodedFile->title.'_480p';
+	    $encodedVideo->externalid = $encodedFile->path.'/'.$encodedFile->fileName.'.'.$outputExtension;
+	    $encodedVideo->link       = $encodedFile->getUrl();
+	    $encodedVideo->objecttype = $this->objecttype;
+	    $encodedVideo->objectid   = $this->objectid;
+	    $encodedVideo->type       = 'file';
+	    $encodedVideo->visible    = $this->visible;
+	    if ( ! $encodedVideo->save() )
+	    {// ошибка при сохранении перекодированного видео
+    	    $msg = implode(', ', current($encodedVideo->getErrors()));
+    	    // откат транзакции
+    	    $transaction->rollback();
+    	    // ошибку в лог (после транзакции, иначе тоже не сохранится)
+    	    Yii::log($msg, CLogger::LEVEL_ERROR, 'application.video');
+    	    return false;
+	    }
+	    // перекодированное видео имеет такой же статус модерации как и исходное
+	    $encodedVideo->setStatus($this->status);
+	    
+	    // все модели сохранены успешно: можно завершить транзакцию
+	    $transaction->commit();
+	    // и сообщить об успешном результате
+	    return true;
 	}
 	
 	/**
 	 * Определить тип видео по ссылке на него
 	 * 
-	 * @param string $link - ссылка на видео
+	 * @param  string $link - ссылка на видео
 	 * @return string|bool - тип видео или false в случае ошибки
 	 */
 	public function defineVideoType($link)
@@ -279,7 +381,7 @@ class Video extends SWActiveRecord
 	    {
 	        return 'vimeo';
 	    }else
-        {// просто ссылка на сторонний ресурс
+        {// ссылка на сторонний ресурс (не можем встроить к себе)
             return 'link';
         }
 	}
@@ -295,7 +397,6 @@ class Video extends SWActiveRecord
 	public function extractExternalId()
 	{
 	    $this->externalid = '';
-	    
         switch ( $this->type )
         {
             case 'youtube':
@@ -322,16 +423,18 @@ class Video extends SWActiveRecord
 	        case 'youtube':
                 return 'http://img.youtube.com/vi/'.$this->externalid.'/mqdefault.jpg';
             break;
-	        // @todo case 'file': break;
-	        default: return $defaultUrl; break;
+	        // @todo получить превью для наших видео на S3
+	        // case 'file': break;
 	    }
+	    return $defaultUrl;
 	}
 	
 	/**
-	 * Получить url для встраивания видео на странице
-	 * (для некоторых сервисов может отличаться от ссылки на видео)
+	 * Получить url для встраивания видео в плеер на странице
+	 * (для некоторых сервисов может отличаться от основного url видео)
 	 * 
-	 * @param string|int $expires - время до которого действительна ссылка unixtime или '+22 minutes'
+	 * @param  string|int $expires - время до которого действительна ссылка 
+	 *                               Формат: метка unixtime или словами (например '+22 minutes')
 	 * @return string
 	 */
 	public function getEmbedUrl($expires='+12 hours')
@@ -349,8 +452,8 @@ class Video extends SWActiveRecord
 	            // return $this->link;
 	            return $s3->getObjectUrl(Yii::app()->params['AWSVideoBucket'], $this->externalid);
             break;
-	        default: return $this->link;
 	    }
+	    return $this->link;
 	}
 	
 	/**
@@ -367,27 +470,40 @@ class Video extends SWActiveRecord
 	 * 
 	 * @todo возвращать объект ExternalFile когда все изображения будут синхронизированы с таблицей файлов
 	 */
-	public function getDefaultVideoCoverFile($model)
+	public function getDefaultVideoCoverFile($objectType, $objectId)
 	{
-	    if ( ! is_object($model) )
-	    {
-	        return;
+	    if ( ! $objectType OR ! $objectId )
+	    {// обязательные параметры не указаны
+	        return false;
 	    }
-	    $cover     = null;
-	    $className = get_class($model);
-	    
-	    switch ( $className )
+	    switch ( $objectType )
 	    {
 	        case 'ProjectMember': 
-	            $questionary = $model->questionary;
-	            return $this->getQuestionaryCoverS3Path($questionary);
+	            if ( $model = ProjectMember::model()->findByPk($objectId) )
+	            {
+	                return $this->getQuestionaryCoverS3Path($model->questionary);
+	            }
             break;
-	        case 'Questionary': 
-	            $questionary = $model;
-	            return $this->getQuestionaryCoverS3Path($questionary);
+	        case 'Questionary':
+	            if ( $model = Questionary::model()->findByPk($objectId) )
+	            {
+	                return $this->getQuestionaryCoverS3Path($model);
+	            } 
             break;
 	    }
-	    return $cover;
+	    return false;
+	}
+	
+	/**
+	 * Сменить статус объекта
+	 * 
+	 * @param  string $newStatus
+	 * @param  array  $params
+	 * @return bool
+	 */
+	public function setStatus($newStatus, $params=null)
+	{
+	    return $this->swSetStatus($newStatus, $params);
 	}
 	
 	/**
@@ -418,43 +534,42 @@ class Video extends SWActiveRecord
 	
 	/**
 	 * Получить id youtube-видео из ссылки
+	 * @see http://stackoverflow.com/questions/3392993/php-regex-to-get-youtube-video-id
 	 * 
 	 * @param  string $url
 	 * @return string
-	 *
-	 * @see http://stackoverflow.com/questions/3392993/php-regex-to-get-youtube-video-id
 	 */
 	protected function getYoutubeId($url)
 	{
-	    $url = trim($url);
-	    preg_match("/^(?:http(?:s)?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:(?:watch)?\?(?:.*&)?v(?:i)?=|(?:embed|v|vi|user)\/))([^\?&\"'>]+)/", $url, $matches);
-	     
+	    $url     = trim($url);
+	    $pattern = "/^(?:http(?:s)?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:(?:watch)?\?(?:.*&)?v(?:i)?=|(?:embed|v|vi|user)\/))([^\?&\"'>]+)/";
+	    preg_match($pattern, $url, $matches);
 	    if ( isset($matches[1]) )
 	    {
 	        return $matches[1];
 	    }
-	    // не удалось разобрать адрес видео
-	    // @todo записать в лог
+	    // регулярные выражения не справились:
+        $message = "Не удалось извлечь адрес видео из URL:{$url}\n";
+        Yii::log($message, CLogger::LEVEL_ERROR, 'application.video'); 
 	    return '';
 	}
 	
 	/**
-	 * 
+	 * Получить путь к обложке для оцифрованного видео
 	 * 
 	 * @return string
 	 */
 	private function getQuestionaryCoverS3Path($questionary)
 	{
 	    $cover = null;
-	    if ( $gallery = $questionary->gallery AND $avatar = $questionary->getGalleryCover() )
+	    if ( $gallery = $questionary->getGallery() AND $avatar = $questionary->getGalleryCover() )
 	    {
 	        $extension = $avatar->getFileExtension();
 	        if ( ! in_array($extension, array('jpg', 'png')) )
 	        {
 	            return;
 	        }
-	        $cover = Yii::app()->params['AWSBucket'].'/gallery/'.$gallery->id.'/'.
-	            $avatar->id.'medium.'.$extension;
+	        $cover = 'img.easycast.ru'.'/gallery/'.$gallery->id.'/'.$avatar->id.'medium.'.$extension;
 	    }
 	    return $cover;
 	}

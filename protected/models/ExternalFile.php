@@ -144,8 +144,11 @@ class ExternalFile extends SWActiveRecord
 	 */
 	public function beforeDelete()
 	{
-	    // удаляем все файлы после удаления 
-	    $this->deleteFile();
+	    // удаляем файл при удалении модели
+	    if ( ! $this->deleteFile() )
+	    {// ошибка при удалении файла
+	        return false;
+	    }
 	    return parent::beforeDelete();
 	}
 	
@@ -491,7 +494,35 @@ class ExternalFile extends SWActiveRecord
 	}
 	
 	/**
-	 * Получить расширение файла
+	 * 
+	 * 
+	 * @return string
+	 */
+	public function getBaseName()
+	{
+	    if ( $baseName = pathinfo($this->name, PATHINFO_BASENAME) )
+	    {
+	        return $baseName;
+	    }
+	    return '';
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @return string
+	 */
+	public function getFileName()
+	{
+	    if ( $fileName = pathinfo($this->name, PATHINFO_FILENAME) )
+	    {
+	        return $fileName;
+	    }
+	    return '';
+	}
+	
+	/**
+	 * Получить расширение сохраненного файла
 	 * 
 	 * @return string
 	 * 
@@ -503,7 +534,26 @@ class ExternalFile extends SWActiveRecord
 	    {
 	        return mb_strtolower($ext);
 	    }
-	    return 'jpg';
+	    if ( $ext = pathinfo($this->name, PATHINFO_EXTENSION) )
+	    {
+	        return mb_strtolower($ext);
+	    }
+	    return '';
+	}
+	
+	/**
+	 * Получить расширение указанное при загрузке файла
+	 * 
+	 * @return string
+	 * @return string
+	 */
+	public function getOriginalExtension()
+	{
+	    if ( $ext = pathinfo($this->oldname, PATHINFO_EXTENSION) )
+	    {
+	        return mb_strtolower($ext);
+	    }
+	    return '';
 	}
 	
 	/**
@@ -691,17 +741,7 @@ class ExternalFile extends SWActiveRecord
 	 */
 	public function externalCopyExists()
 	{
-	    for ( $i = 0; $i < $this->getMaxAttempts(); $i++ )
-	    {
-	        try
-	        {// все запросы к Amazon API оборачиваем в try-catch
-	            return $this->getS3()->doesObjectExist($this->bucket, $this->getExternalPath());
-	        }catch ( Exception $e )
-    	    {
-    	        Yii::log('Request failed. Message: '.$e->getMessage(), CLogger::LEVEL_ERROR);
-    	    }
-	    }
-	    return false;
+	    return $this->getS3()->bucketContainsFile($this->bucket, $this->getExternalPath());
 	}
 	
 	/**
@@ -740,6 +780,19 @@ class ExternalFile extends SWActiveRecord
 	        return false;
 	    }
 	    return $this->notUploaded(1)->exists('id='.$this->id);
+	}
+	
+	/**
+	 * Сменить статус (alias для метода simpleWorkflow)
+	 * @see SWActiveRecordBehavior::swSetStatus
+	 * 
+	 * @param  string $newStatus
+	 * @param  array $params
+	 * @return bool
+	 */
+	public function setStatus($newStatus, $params=null)
+	{
+	    return $this->swSetStatus($newStatus, $params);
 	}
 	
 	/**
