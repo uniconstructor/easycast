@@ -1,5 +1,8 @@
 <?php
 
+// YiiBooster (версия 3 для bootstrap 2.3.2)
+Yii::setPathOfAlias('bootstrap', dirname(__FILE__).'/../extensions/bootstrap');
+
 // Главный файл конфигурации приложения.
 // Здесь задаются все общие параметры, одинаковые для "production"(релиза), "test"(тестового сервера) 
 // и "dev"(версии разработчика).
@@ -25,10 +28,9 @@ return array(
     'name'           => 'easyCast',
     // Короткие имена для вызова популярных библиотек
     'aliases' => array(
-        // виджет для асинхронной загрузки больших файлов
         'xupload'        => 'ext.xupload',
         // YiiBooster (версия 3 для bootstrap 2.3.2)
-        'bootstrap'      => 'ext.bootstrap',
+        //'bootstrap'      => 'ext.bootstrap',
         // библиотека google для обработки телефонных номеров
         'libphonenumber' => 'application.components.libphonenumber',
     ),
@@ -43,6 +45,9 @@ return array(
 		'application.filters.*',
 		'application.components.*',
 	    'application.extensions.*',
+	    // Виджеты Twitter Bootstrap 3.0.1
+	    // @todo совместное подключение YiiBoster 4.0.1
+	    'application.extensions.bootstrap.widgets.*',
         // @todo заменить выбор страны и города на GeoNames API
 	    'application.extensions.CountryCitySelectorRu.models.*',
 	    // Пользователи
@@ -66,9 +71,6 @@ return array(
         // @deprecated устаревшие компоненты
         // @todo (запланировано) компонент для работы с Google Maps
         // 'ext.sweekit.map.*',
-        // Виджеты Twitter Bootstrap
-        // @todo удалить после подключения YiiBoster 4.0.1
-        //'application.extensions.bootstrap.widgets.*',
         // старый виджет выбора "да/нет"
         // @todo с подключением YiiBooster виджет устарел: заменить все обращения
         //       к нему на новые элементы а затем удалить из сборки при рефакторинге
@@ -181,7 +183,6 @@ return array(
             'c2dmApplicationIdentifier' => 'my_gmail_push_app_identifier',
         ),*/
 	),
-
 	// Компоненты приложения
 	'components' => array(
 	    // пользователи (важно: здесь настройки для авторизации, а не для модели User)
@@ -221,7 +222,6 @@ return array(
 			),
 		    'showScriptName' => false,
 		),
-		
 		// настройки MySQL (только общие для всех сборок)
 		'db' => array(
 			// ВАЖНО: Логин и пароль для базы определяются ant-скриптами сборки проекта
