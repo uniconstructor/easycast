@@ -33,8 +33,14 @@ class ECUploadedVideo extends CWidget
         $criteria->compare('objecttype', $this->objectType);
         $criteria->compare('objectid', $this->objectId);
         $criteria->compare('type', 'file');
+        if ( ! Yii::app()->user->checkAccess('Admin') )
+        {// заказчику показываем только оцифрованные видео
+            $this->videos = Video::model()->findAll($criteria);
+        }else
+        {
+            // TODO
+        }
         
-        $this->videos = Video::model()->findAll($criteria);
     }
     
     /**
