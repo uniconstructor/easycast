@@ -31,7 +31,7 @@ class EcLogRoute extends CDbLogRoute
         unset($fields['message']);
         foreach ( $fields as $name => $type )
         {
-            $db->createCommand()->createIndex('idx_'.$name, $table, $name);
+            $db->createCommand()->createIndex('idx_'.$name, $this->logTableName, $name);
         }
     }
     
