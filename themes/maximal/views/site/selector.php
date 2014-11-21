@@ -12,7 +12,7 @@
  */
 
 
-$customerUrl = Yii::app()->createUrl('//sale', array('newState' => 'customer'));
+$customerUrl = Yii::app()->createUrl('/sale/index', array('newState' => 'customer'));
 $customerLinkOptions = array(
     //'data-toggle' => 'tooltip',
     //'data-title'  => 'Войти как заказчик',
@@ -20,7 +20,7 @@ $customerLinkOptions = array(
 );
 $customerLink = CHtml::link('Заказчикам', $customerUrl, $customerLinkOptions);
 
-$userUrl = Yii::app()->createUrl('//index', array('newState' => 'user'));
+$userUrl = Yii::app()->createUrl('/site/index', array('newState' => 'user'));
 $userLinkOptions = array(
     //'data-toggle' => 'tooltip',
     //'data-title'  => 'Войти как участник',
@@ -143,32 +143,35 @@ $userLink = CHtml::link('Участникам', $userUrl, $userLinkOptions);
 </div>
 <div class="page-alternate">
     <?php
-    // все текущие события 
-    $dateCriteria = new CDbCriteria();
-    $dateCriteria->scopes = array(
-        'withDate',
-        'startsAfterNow',
-    );
-    $this->widget('projects.extensions.EventsAgenda.EventsAgenda', array(
-        'displayActive' => true,
-        'criteria'      => $dateCriteria,
-        'header'        => 'Наши события',
-        'title'         => 'На эти события в данный момент идет набор.',
+    // все проекты
+    $criteria = new CDbCriteria();
+    if ( Yii::app()->getModule('user')->getViewMode() === 'customer' )
+    {// для заказчиков отображаем лучшие проекты по рейтингу
+        $criteria->scopes = array('bestRated');
+    }else
+    {// для участников отображаем последние проекты
+        $criteria->scopes = array('lastCreated');
+    }
+    $dataProvider = new CActiveDataProvider('Project', array(
+        'criteria'   => $criteria,
+        'pagination' => false,
     ));
-    // все события без определенной даты выводятся в самом конце
-    $noDateCriteria = new CDbCriteria();
-    $noDateCriteria->scopes = array(
-        'withoutDate',
-        // если событие без конкретной даты - то для отображения в календаре 
-        // в нем должна быть хотя бы 1 роль на которую идет набор 
-        'hasActiveVacancies',
-    );
-    $this->widget('projects.extensions.EventsAgenda.EventsAgenda', array(
-        'displayActive'   => true,
-        'displayFinished' => false,
-        'criteria'        => $noDateCriteria,
-        'header'          => 'Дата уточняется',
-        'title'           => 'Набор на эти проекты уже открыт, но точная дата съемок пока неизвестна.',
+    
+    // виджет вывода проектов
+    $this->widget('ext.CdGridPreview.CdGridPreview', array(
+        'dataProvider'     => $dataProvider,
+        'listViewLocation' => 'bootstrap.widgets.TbListView',
+        'listViewOptions'  => array(
+            'template' => '{items}',
+        ),
+        'previewHtmlOptions' => array(
+            'style' => 'min-height:150px;max-width:150px;min-width:150px;',
+            'class' => 'ec-shadow-3px',
+        ),
+        'options' => array(
+            'textClass'   => 'well og-details-text',
+            'headerClass' => 'og-details-header ec-details-header',
+        ),
     ));
     ?>
 </div>
