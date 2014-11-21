@@ -26,7 +26,7 @@ class EventsAgenda extends CWidget
     /**
      * @var bool - показывать ли в общем списке событий онлайн-кастинги?
      */
-    public $displayCastings = true;
+    public $displayCastings = false;
     /**
      * @var int - сколько событий отображать максимально? (0 - все что есть)
      */
@@ -83,6 +83,8 @@ class EventsAgenda extends CWidget
      */
     public function init()
     {
+        parent::init();
+        // определяем режим просмотра
         $this->userMode = Yii::app()->getModule('user')->getViewMode();
         // если не отображать ни активные ни завершенные события - то список всегда будет пустым
         if ( ! $this->displayActive AND ! $this->displayFinished )
@@ -93,7 +95,8 @@ class EventsAgenda extends CWidget
         {
             throw new CException('Не выбран режим просмотра');
         }
-        if ( $this->userMode === 'user' AND ! Yii::app()->user->isGuest )
+        if ( ! Yii::app()->user->checkAccess('Admin') AND $this->userMode === 'user' AND 
+             ! Yii::app()->user->isGuest )
         {
             $this->questionary = Yii::app()->getModule('user')->user()->questionary;
         }
@@ -103,8 +106,6 @@ class EventsAgenda extends CWidget
         }
         // получаем список последних событий с сайта
         $this->loadEvents();
-        
-        parent::init();
     }
     
     /**
@@ -114,16 +115,18 @@ class EventsAgenda extends CWidget
     {
         if ( ! $this->events )
         {// нет событий - отображать нечего
+            $this->render('nodata');
             return;
         }
         if ( $this->displayMode === 'thumbnails' )
         {
-            $this->widget('bootstrap.widgets.TbThumbnails', array(
+            /*$this->widget('bootstrap.widgets.TbThumbnails', array(
                 'dataProvider' => $this->dataProvider,
                 'itemView'     => '_thumbnailEvent',
                 'emptyText'    => 'nodata',
                 'template'     => '{items}',
-            ));
+            ));*/
+            $this->render('events');
         }elseif ( $this->displayMode === 'timeline' )
         {
             $this->render('agenda');
@@ -158,7 +161,7 @@ class EventsAgenda extends CWidget
             $criteria->compare('virtual', 0);
         }
         // отображаем только события с определенным статусом
-        $criteria->addInCondition('status', $statuses);
+        $criteria->compare('status', $statuses);
         $criteria->scopes = array(
             'lastStarted',
         );
@@ -180,14 +183,13 @@ class EventsAgenda extends CWidget
     /**
      * Получить массив событий для использования в элементе CdVerticalTimeLine
      * 
-     * @param CDbCriteria $criteria
+     * @param  CDbCriteria $criteria
      * @return array
      */
     protected function getTimeLineEvents($criteria)
     {
-        $events = ProjectEvent::model()->findAll($criteria);
         $result = array();
-        
+        $events = ProjectEvent::model()->findAll($criteria);
         foreach ( $events as $event )
         {
             $result[] = $this->getTimeLineEvent($event);
@@ -206,6 +208,10 @@ class EventsAgenda extends CWidget
      */
     protected function getTimeLineEvent($event)
     {
+        if ( ! $event->project )
+        {
+            return false;
+        }
         // иконка события (если нужна)
         $iconImage = CHtml::image($event->project->getAvatarUrl('small'), '', array('style' => "height:75px;width:75px;margin-right:10px;float:left;"));
         // название события
