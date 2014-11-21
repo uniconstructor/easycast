@@ -1,6 +1,8 @@
 <?php
 
-
+/**
+ * Универсальное действие контроллера для удаления модели
+ */
 class EcDeleteAction extends EcUpdateAction
 {
     /**
@@ -19,12 +21,10 @@ class EcDeleteAction extends EcUpdateAction
     public function run()
     {
         $id = Yii::app()->request->getParam('id');
-        
         if ( Yii::app()->getRequest()->isPostRequest )
         {
             $model   = $this->loadModel($id);
             $success = $model->delete();
-        
             if ( Yii::app()->getRequest()->isAjaxRequest )
             {
                 echo $success ? $this->ajaxResponseOnSuccess : $this->ajaxResponseOnFailed;

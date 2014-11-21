@@ -31,7 +31,7 @@ class EcUpdateAction extends CAction
     /**
      * @var mixed the response to return to an AJAX call when failed to update the attribute.
      */
-    public $ajaxResponseOnFailed = 0;
+    public $ajaxResponseOnFailed  = 0;
     
     /**
      * @see CAction::run()
