@@ -45,34 +45,36 @@ return array(
 		'application.filters.*',
 		'application.components.*',
 	    'application.extensions.*',
-        // @todo заменить выбор страны и города на GeoNames
+        // @todo заменить выбор страны и города на GeoNames API
 	    'application.extensions.CountryCitySelectorRu.models.*',
-	    // User module
+	    // Пользователи
 	    'application.modules.user.models.*',
 	    'application.modules.user.components.*',
-	    // RBAC module
+	    // Управление доступом на основе ролей (RBAC)
 	    'application.modules.rights.*',
 	    'application.modules.rights.components.*',
-	    // Questionary module
+	    // Анкетные данные участника
 	    'application.modules.questionary.*',
 	    'application.modules.questionary.components.*',
 	    'application.modules.questionary.models.*',
         // Модуль загрузки изображений
         'ext.galleryManager.models.*',
-        // Виджеты Twitter Bootstrap
-        'application.extensions.bootstrap.widgets.*',
-        // старый виджет выбора "да/нет"
-        // @todo с подключением YiiBooster виджет устарел: заменить все обращения к нему на новые элементы
-        //       а затем удалить из сборки при рефакторинге 
-	    'application.extensions.jtogglecolumn.*',
-	    // модуль simpleWorkflow (для работы со статусами модели)
+	    // Модуль simpleWorkflow (для работы со статусами модели)
 	    'application.extensions.simpleWorkflow.*',
 	    // sweekit: библиотека для удобной работы с JS, включающая плагин shadowbox
 	    'ext.sweekit.Sweeml',
-	    // @todo (запланировано) компонент для работы с Google Maps 
-	    //'ext.sweekit.map.*',
-	    // галерея изображений
+	    // галерея изображений (виджет)
         'application.extensions.galleria.*',
+        // @deprecated устаревшие компоненты
+        // @todo (запланировано) компонент для работы с Google Maps
+        // 'ext.sweekit.map.*',
+        // Виджеты Twitter Bootstrap
+        // @todo удалить после подключения YiiBoster 4.0.1
+        //'application.extensions.bootstrap.widgets.*',
+        // старый виджет выбора "да/нет"
+        // @todo с подключением YiiBooster виджет устарел: заменить все обращения
+        //       к нему на новые элементы а затем удалить из сборки при рефакторинге
+        'application.extensions.jtogglecolumn.*',
 	),
 
 	'modules' => array(
@@ -99,7 +101,6 @@ return array(
             // page after logout
             'returnLogoutUrl'     => array('//site/index'),
         ),
-	    
         // Права доступа (RBAC)
 	    'rights' => array(
 	        // установка (производится только один раз, потом всегда должна быть false)
@@ -109,7 +110,6 @@ return array(
 	        // нужно установить разметку страницы в соответствии с нашей темой
 	        'appLayout'         => '//layouts/column1',
 	    ),
-	    
 	    // анкета пользователя (реализована отдельным модулем)
 	    'questionary' => array(
             'controllerMap' => array(
@@ -126,12 +126,10 @@ return array(
                 ),
             ),
         ),
-        
         // Календарь событий
         'calendar' => array(
             'class' => 'application.modules.calendar.CalendarModule',
         ),
-        
         // админка
         'admin' => array(
             'class' => 'application.modules.admin.AdminModule',
@@ -148,42 +146,30 @@ return array(
                 ),
             ),
         ),
-        
         // проекты
         'projects' => array(
             'class' => 'application.modules.projects.ProjectsModule',
         ),
-        
         // каталог
         'catalog' => array(
             'class' => 'application.modules.catalog.CatalogModule',
         ),
-        
-        // фотогалерея
-        /*'photos' => array(
-            'class' => 'application.modules.photos.PhotosModule',
-        ),*/
-        
         // Новости
         /*'news' => array(
             'class' => 'application.modules.news.NewsModule',
         ),*/
-        
         // Статьи
         /*'articles' => array(
             'class' => 'application.modules.articles.ArticlesModule',
         ),*/
-        
         // Письма (этот модуль отвечает за правильную верстку писем)
         'mailComposer' => array(
             'class' => 'application.modules.mailComposer.MailComposerModule',
         ),
-        
         // отчеты
         'reports' => array(
             'class' => 'application.modules.reports.ReportsModule',
         ),
-        
         // @todo (запланировано) Уведомления на Android/iOS
         /*'mobileNotification' => array(
             'class' => 'ext.sweekit.actions.SwMobileNotifier',
@@ -195,22 +181,6 @@ return array(
             'c2dmPassword' => 'my_gmail_push_account_password',
             'c2dmApplicationIdentifier' => 'my_gmail_push_app_identifier',
         ),*/
-        
-        'log' => array(
-            'routes' => array(
-                array(
-                    'class'              => 'EcLogRoute',
-                    'connectionID'       => 'db',
-                    'levels'             => 'easycast',
-                    'filter'             => array(
-                        'class'      => 'CLogFilter',
-                        'prefixUser' => true,
-                        'logUser'    => true,
-                    ),
-                    'autoCreateLogTable' => true,
-                ),
-            ),
-        ),
 	),
 
 	// Компоненты приложения
@@ -230,7 +200,6 @@ return array(
 		    'class'   => 'ext.curl.Curl',
 		    //'options' => array(),
 		),
-	    
 		// настройки преобразования url-адресов
 		// @todo найти способ настраивать сокращенные адреса из базы а не вручную через этот файл
 		'urlManager' => array(
@@ -250,7 +219,6 @@ return array(
 				'vm1'         => 'projects/vacancy/registration/vid/1018',
 				'vybor_man'   => 'projects/vacancy/registration/vid/1017',
 				'vybor_woman' => 'projects/vacancy/registration/vid/1018',
-				//'domashniy'   => 'projects/event',
 			),
 		    'showScriptName' => false,
 		),
@@ -267,7 +235,6 @@ return array(
 		    'emulatePrepare' => true,
 			'charset'        => 'utf8',
 		),
-	    
 	    // работа с HTTP-запросами
 	    'request' => array(
 	        'class'     => 'CHttpRequest',
@@ -282,41 +249,29 @@ return array(
 	        // включаем защиту от подмены cookie
 	        'enableCookieValidation' => true,
 	    ),
-		
 	    // обработка ошибок
 		'errorHandler' => array(
 			// путь 'site/error' будет использован для отображения всех ошибок на сайте
             'errorAction' => 'site/error',
         ),
-	    
-        // хранение и просмотр логов
-        // @todo обновить и добавить расширение yii-debug-toolbar, (только для test и dev)
-        //       http://www.yiiframework.com/extension/yii-debug-toolbar
-        // @todo для всех сборок добавить плагин для просмотра логов
-        //       http://www.yiiframework.com/extension/yii-audit-module/
-		
-	    
 	    // Подключаем библиотеку, позволяющую разграничение доступа на основе ролей (RBAC)
 	    // Класс RDbAuthManager предоставлен модулем rights и находится в /modules/rights/components
 	    'authManager' => array(
-	        // Provides support authorization item sorting.
+	        // Provides support authorization item sorting
 	        'class'      => 'RDbAuthManager',
-	        // Роль по умолчанию. Все, кто не админы, модераторы и юзеры — гости
-	        // @todo не используется: выяснить нужно ли задавать defaultRoles для RBAC, и если нет - то удалить
-	        // 'defaultRoles' => array('guest'),
-	        // показываем ошибки авторизации только в режиме отладки: (для тестовой сборки и версии разработчика)
+	        // показываем ошибки авторизации только в режиме отладки: 
+	        // (для тестовой сборки и версии разработчика)
 	        'showErrors' => YII_DEBUG,
 	    ),
-	    
 	    // Подключаем модуль i18n чтобы можно было переводить приложение на разные языки
 	    // @todo подключить CDbMessageSource для того чтобы в модуле Questionary
-	    //       можно было руками добавлять перевод для стандартных значений или править пояснения к анкетам
+	    //       можно было руками добавлять перевод для стандартных значений 
+	    //       или править тексты пояснений к полям анкеты
+	    //       (пока что все языковые строки берутся из php-файлов)
 	    'messages' => array(
-	        // все языковые строки берутся из php-файлов
 	        'class' => 'CPhpMessageSource',
 	    ),
-        
-        // Twitter Bootstrap
+        // YiiBooster 3: обертка для Twitter Bootstrap 2.3.2 
         'bootstrap' => array(
             'class'          => 'bootstrap.components.Bootstrap',
             // подключаем набор иконок "Font Awesome"
@@ -328,12 +283,10 @@ return array(
             'bootstrapCss'   => false,
             'responsiveCss'  => false,
         ),
-
         // библиотека для работы с изображениями (требуется для плагина galleryManager)
         'image' => array(
             'class' => 'ext.image.CImageComponent',
         ),
-        
         // Настройки сессии
         // @todo хранить сессию в БД, используя расширение http://www.yiiframework.com/extension/session
         // @todo вынести время хранения сессии в настройку
@@ -345,7 +298,6 @@ return array(
             'connectionID'           => 'db',
             'autoCreateSessionTable' => false,
         ),
-        
         // Настройки js-библиотек и скриптов
         'clientScript' => array(
             // подключаем скрипты для работы js-библиотеки sweekit 
@@ -355,38 +307,32 @@ return array(
                 ),
             ),
         ),
-        
         // Наша обертка вокруг Amazon Web Services API: облегчает обращение к часто используемым методам
         'ecawsapi' => array(
             'class' => 'application.components.EcAwsApi',
         ),
-        
-        // отсылка SMS (через smspilot.ru)
-        // @todo перенести ключи доступа к SmsPilot в настройки AMAZON и в dev и test-ветки (как пароль к БД)
+        // отправка SMS (через smspilot.ru)
+        // @todo для production перенести ключи доступа к SmsPilot в настройки сервера, (как пароль к БД)   
+        //       В dev и test-ветках использовать другие ключи
         'smspilot' => array(
             'class'  => 'application.components.smspilot.SmsPilotAPI',
             'from'   => 'easyCast',
             'apikey' => 'I5F2640ER6B486245L3HCB6VTJN687RQ10V5DAVB3KG2J1B29U6PZ5MK95WHTGFB',
         ),
-        
         // Компонент "Simple Workflow" нужен для работы со статусами объектов, позволяет установить
-        // workflow-схему работы для приложения (@see http://en.wikipedia.org/wiki/Workflow)
-        // через этот компонент должны производится любые операции со статусом 
-        // любого объекта в базе
-        // @todo подключение не закончено: требуется рефакторинг почти всех моделей приложения
+        // workflow-схему работы для приложения {@see http://en.wikipedia.org/wiki/Workflow}
+        // через этот компонент должны производится любые операции со статусом любого объекта в базе
         'swSource' => array(
             'class'          => 'SWPhpWorkflowSource',
             'definitionType' => 'class',
         ),
-        
         // @todo Компонент для работы с сервисом отправки писем {@see https://mailchimp.com}
         // используем API последней (второй) версии
         /*'mailchimp' => array(
             'class'  => 'application.extensions.mailchimp.EMailChimp2',
             'apikey' => '43db0f030585ce1f6b6a27fa4d13de12-us7',
         ),*/
-        
-        // Google API
+        // Google API: компонент для работы с сервисами Google
         'JGoogleAPI' => array(
             'class' => 'application.components.JGoogleAPI.JGoogleAPI',
             // Account type Authentication data
@@ -398,6 +344,7 @@ return array(
             'defaultAuthenticationType' => 'serviceAPI',
             */
             // Web Service Authentication data
+            // @todo вынести ключи доступа в параметры сервера Amazon 
             'webappAPI' => array(
                 'clientId'          => '28411509328-avgcsevcbd0ths764j9925i23diqr0q2.apps.googleusercontent.com',
                 'clientEmail'       => '28411509328-avgcsevcbd0ths764j9925i23diqr0q2@developer.gserviceaccount.com',
@@ -480,11 +427,31 @@ return array(
                 ),
             ),
         ),
+        // трассировка и логи
+        // @todo для всех сборок добавить плагин для просмотра логов
+        // @see  http://www.yiiframework.com/extension/yii-audit-module/
+        'log' => array(
+            'class'  => 'CLogRouter',
+            'routes' => array(
+                // логи easyCast хранятся отдельно от системных: наша таблица содержит, в основном
+                // данные по активности пользователей и статистику выполняемых ими задач
+                'EcLogRoute' => array(
+                    'class'        => 'EcLogRoute',
+                    'connectionID' => 'db',
+                    'levels'       => 'easycast',
+                    'filter'       => array(
+                        'class'      => 'CLogFilter',
+                        'prefixUser' => true,
+                        'logUser'    => true,
+                    ),
+                    'autoCreateLogTable' => true,
+                ),
+            ),
+        ),
 	),
-
-	// application-level parameters that can be accessed
-	// using Yii::app()->params['paramName']
-	// @todo полностью переместить в params.php
+	
+	// другие параметры приложения, синтаксис вызова: Yii::app()->params['paramName']
+	// @todo переместить в params.php
 	'params' => array(
 	    // телефон по умолчанию, для всех вопросов по сайту (используем телефон техподдержки пользователей)
 	    'adminPhone'    => '+7(968)590-88-00',
@@ -498,25 +465,22 @@ return array(
 	    // @todo переместить в настройки сервера amazon (как логин/пароль к БД)
 	    'hashSalt'      => '68xc7mtux0',
 	    // список администраторов, от имени которых система может отправлять письма
-	    // как правило это руководители проектов
+	    // (как правило это руководители проектов)
 	    // список разрешенных email-адресов можно посмотреть и отредактировать 
 	    // в админской панели Amazon SES:
 	    // @see https://console.aws.amazon.com/ses/home?region=us-east-1#verified-senders-email:
-	    // @todo вынести этот список в настройку
+	    // @todo вынести список в настройку или брать его напрямую через Amazon API
 	    'verifiedSenders' => array(
-	       'admin@easycast.ru',
-	       'anton@easycast.ru',
-	       'ceo@easycast.ru',
-	       'irina@easycast.ru',
-	       'liza@easycast.ru',
-	       'max@easycast.ru',
-	       'mr@easycast.ru',
+            'admin@easycast.ru',
+            'ceo@easycast.ru',
+            'irina@easycast.ru',
+            'liza@easycast.ru',
+            'max@easycast.ru',
         ),
 	    
 	    ////////////////////////////////////////////////////////////////////
 	    ///////// ВАЖНО: стандарт форматирования дат во всех формах ////////
 	    ////////////////////////////////////////////////////////////////////
-	    
 	    // При работе с виджетами выбора даты и времени нужно знать важную особенность:
 	    // стандарты форматирования даты jQuery и PHP НЕСОВМЕСТИМЫ, хотя и очень похожи. 
 	    // Настройки виджетов ввода даты/времени используют один стандарт форматирования даты 
@@ -550,12 +514,12 @@ return array(
 	    
 	    // Настройки хостинга Amazon
 	    'AWSRegion' => 'us-east-1',
-	    
 	    // Использовать ли прокси сервера google для кэширования картинок в отправляемых сервером письмах?
 	    // Включение этой опции позволяет всегда отображать картинки из наших писем в большинстве
 	    // почтовых программ и во всех основных почтовых веб-интерфейсах (gmail, google, yandex, mail.ru)
 	    // Пользователю не нужно будет нажимать "показать картинки" при получении письма: он увидит их сразу.
-	    // Как это будет работать: http://www.campaignmonitor.com/resources/will-it-work/image-blocking/
+	    // Как это будет работать: 
+	    // @see http://www.campaignmonitor.com/resources/will-it-work/image-blocking/
 	    // Должно быть включено на production и выключено на машине разработчика
 	    // @todo убрать из общего конфига и вынести в dev, test и production
 	    'useGoogleImageProxy' => true,
@@ -564,7 +528,6 @@ return array(
 	    // (не все браузеры их пока поддерживают)
 	    // @deprecated использовать механизм тем для этого
 	    'useCSS3'           => true,
-	    
 	    // название настройки которая хранит список по умолчанию для новых значений настройки
 	    'defaultListConfig' => 'defaultListId',
 	),
