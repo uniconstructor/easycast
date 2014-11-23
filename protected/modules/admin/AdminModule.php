@@ -127,10 +127,10 @@ class AdminModule extends CWebModule
 	    //       дольше 15 минут
 	    $criteria = new CDbCriteria;
 	    $criteria->condition = '(`timemodified` > `timeuploaded`) OR (`timeuploaded` = 0)';
-	    $criteria->order = '`timemodified` DESC';
-	    $criteria->limit = 3;
+	    $criteria->order     = '`timemodified` DESC';
+	    $criteria->limit     = $limit;
+	    // получаем все фотографии
 	    $photos = GalleryPhoto::model()->findAll($criteria);
-	     
 	    foreach ( $photos as $photo )
 	    {
 	        ob_start ();
@@ -156,15 +156,15 @@ class AdminModule extends CWebModule
 	                echo 'Failed. Move to next photo. Image Skipped. '."<br>";
 	            }
 	        }
-	
 	        unset($photo);
 	        ob_end_flush();
 	    }
 	    echo 'Все изображения загружены. Последняя синхронизация '.date('Y-m-d H:i:s', time());
-	
 	    // Считаем сколько осталось загрузить
-	    $totalCount = GalleryPhoto::model()->count($criteria);
-	    echo '<br>Осталось загрузить '.$totalCount;
+	    if ( $totalCount = GalleryPhoto::model()->count($criteria) )
+	    {
+	        echo '<br>Осталось загрузить '.$totalCount;
+	    }
 	}
 	
 	/**
@@ -177,15 +177,15 @@ class AdminModule extends CWebModule
 	{
 	    ignore_user_abort(true);
 	    set_time_limit(0);
+	    
 	    // находим все не загруженные файлы
 	    if ( ! $files = ExternalFile::model()->notUploaded($limit)->findAll() )
 	    {
-	        echo 'Все файлы перенесены во внешнее хранилище ';
 	        return;
 	    }
 	    // делаем по 1 попытке загрузки каждого файла
 	    foreach ( $files as $file )
-	    {
+	    {/* @var $file ExternalFile */
 	        try
 	        {
 	            $file->saveExternal();
@@ -194,12 +194,13 @@ class AdminModule extends CWebModule
 	            echo $e->getMessage();
 	        }
 	    }
+	    echo "Все файлы перенесены во внешнее хранилище.\n";
 	}
 	
 	/**
 	 * Отправляет часть накопившейся почты, учитывая ограничения хостинга Amazon
 	 * 
-	 * @param int $count - сколько раз вызвать рассылку (за один раз из очереди отправляется несколько писем)
+	 * @param  int $count - сколько раз вызвать рассылку (за один раз из очереди отправляется несколько писем)
 	 * @return void
 	 */
 	public function cronTaskSendMail($count=4)
@@ -207,27 +208,27 @@ class AdminModule extends CWebModule
 	    // служебные задачи прерывать нельзя
 	    ignore_user_abort(true);
 	    set_time_limit(0);
-	    
-	    $ecawsapi = Yii::app()->getComponent('ecawsapi');
-	    $ecawsapi->trace = true;
+	    /* @var $api EcAwsApi */
+	    $api = Yii::app()->getComponent('ecawsapi');
+	    $api->trace = true;
 	
 	    echo '<pre>';
 	    echo "Sending email...\n";
-	    if ( $ecawsapi->emailQueueIsEmpty() )
+	    if ( $api->emailQueueIsEmpty() )
 	    {// очередь сообщений пуста - ничего не нужно отправлять
 	        echo "Queue empty.\n";
 	        return 0;
 	    }
 	    for ( $i = 0; $i < 4; $i++ )
 	    {// отправляем по 20 писем за 1 запуск крона
-	        $ecawsapi->processEmailQueue();
-	        if ( $ecawsapi->emailQueueIsEmpty() )
+	        $api->processEmailQueue();
+	        if ( $api->emailQueueIsEmpty() )
 	        {// все сообщения отправлены
 	            break;
 	        }
 	    }
 	    // в конце выводим статистику, сколько осталось
-	    $ecawsapi->showEmailQueryInfo();
+	    $api->showEmailQueryInfo();
 	
 	    echo "Done.\n\n";
 	    echo '</pre>';
