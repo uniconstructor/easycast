@@ -21,7 +21,7 @@
  * 
  * Relations:
  * @property ExtraFieldInstance[]  $instances
- * @property ExtraField            $paкent
+ * @property ExtraField            $parent
  * @property EasyList              $optionsList
  * @property DocumentData[]        $dataItems
  * @property DocumentDataHistory[] $historyItems
@@ -317,33 +317,6 @@ class ExtraField extends CActiveRecord
 	}
 	
 	/**
-	 * Именованая группа условий: получить все поля, привязаные к указанным этапам регистрации
-	 * 
-	 * @param array $ids
-	 * @return ExtraField
-	 * 
-	 * @deprecated больше не используется - шаги регистрации теперь хранятся в списках
-	 */
-	public function forStepInstances($ids)
-	{
-	    $criteria = new CDbCriteria();
-	    $criteria->with = array(
-	        'instances' => array(
-	            'select'   => false,
-	            'joinType' => 'INNER JOIN',
-	            'scopes'   => array(
-	                'forObjects' => array('wizardstepinstance', $ids),
-	            ),
-	        ),
-	    );
-	    $criteria->together = true;
-	     
-	    $this->getDbCriteria()->mergeWith($criteria);
-	    
-	    return $this;
-	}
-	
-	/**
 	 * Определить, пусто ли требующее заполнения дополнительное поле
 	 * 
 	 * @param string $objectType - 
@@ -546,11 +519,38 @@ class ExtraField extends CActiveRecord
 	}
 	
 	/**
-	 * Получить список возможных вариантов содержимого для категории
+	 * Именованая группа условий: получить все поля, привязаные к указанным этапам регистрации
+	 *
+	 * @param array $ids
+	 * @return ExtraField
+	 *
+	 * @deprecated больше не используется - шаги регистрации теперь хранятся в списках
+	 */
+	public function forStepInstances($ids)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->with = array(
+	        'instances' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes'   => array(
+	                'forObjects' => array('wizardstepinstance', $ids),
+	            ),
+	        ),
+	    );
+	    $criteria->together = true;
+	
+	    $this->getDbCriteria()->mergeWith($criteria);
+	     
+	    return $this;
+	}
+	
+	/**
+	 * Получить список возможных вариантов 
 	 * 
 	 * @return array
 	 *
-	 * @todo перенести в список стандартных значений
+	 * @deprecated использовать схему документа для описания структуры формы элемента списка
 	 */
 	public function getTypeOptions()
 	{
@@ -566,7 +566,7 @@ class ExtraField extends CActiveRecord
 	 * 
 	 * @return string
 	 * 
-	 * @todo перенести в список стандартных значений
+	 * @deprecated использовать схему документа для описания структуры формы элемента списка
 	 */
 	public function getTypeOption()
 	{
@@ -577,7 +577,7 @@ class ExtraField extends CActiveRecord
 	/**
 	 * @return string
 	 *
-	 * @todo оставлено после переименования поля (для работы старых функций), удалить при рефакторинге
+	 *@deprecated оставлено после переименования поля (для работы старых функций), удалить при рефакторинге
 	 */
 	public function getLabel()
 	{
@@ -587,7 +587,7 @@ class ExtraField extends CActiveRecord
 	/**
 	 * @return void
 	 *
-	 * @todo оставлено после переименования поля (для работы старых функций), удалить при рефакторинге
+	 * @deprecated оставлено после переименования поля (для работы старых функций), удалить при рефакторинге
 	 */
 	public function setLabel($title)
 	{
