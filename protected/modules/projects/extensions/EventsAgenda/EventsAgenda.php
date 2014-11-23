@@ -115,7 +115,7 @@ class EventsAgenda extends CWidget
     {
         if ( ! $this->events )
         {// нет событий - отображать нечего
-            $this->render('nodata');
+            //$this->render('nodata');
             return;
         }
         if ( $this->displayMode === 'thumbnails' )
