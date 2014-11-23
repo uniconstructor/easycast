@@ -282,15 +282,6 @@ class Config extends CActiveRecord
 	{
 	    if ( $this->isNewRecord )
 	    {// создание новой настройки
-	        $listTypes = array(self::TYPE_CHECKBOXLIST, self::TYPE_SELECT, self::TYPE_RADIO);
-	        if ( in_array($this->type, $listTypes) )
-	        {// для новой настройки создаем список стандартных значений (если требуется)
-                $easyList       = new EasyList();
-                $easyList->name = 'Список значений для настройки "'.$this->title.'"';
-                $easyList->save();
-                // привязываем созданный пустой список к этой настройке
-                $this->easylistid = $easyList->id;
-	        }
 	        if ( ! $this->parentid )
 	        {// создается корневая настройка
         	    if ( $this->objectid != 0 )
@@ -298,6 +289,29 @@ class Config extends CActiveRecord
         	        throw new CException('Новые корневые настройки могут быть созданы только для 
         	            моделей или системных настроек с objectid=0');
         	    }
+    	    }else
+    	    {// создается обычная настройка
+    	        $this->easylistid = $this->parentConfig->easylistid;
+    	        if ( $this->parentConfig->allowuservalues )
+    	        {// в настройке разрешено добавление собственных значений помимо стандартных
+    	            // создаем специальный список для них
+    	            $userList       = new EasyList();
+    	            $userList->name = 'Список дополниельных для настройки "'.$this->title.'"';
+    	            $userList->save();
+    	            // привязываем созданный пустой список к этой настройке
+    	            $this->userlistid = $userList->id;
+    	        }
+    	    }
+    	    if ( $this->maxvalues != 1 AND ! $this->easylistid )
+    	    {// для новой настройки создаем список стандартных значений 
+    	        // (если в родительской настройке такой список не задан
+    	        // и если настройка будет содержатьне одно значение -
+    	        // то для такой настройки нужно создать новый список)
+        	    $easyList       = new EasyList();
+        	    $easyList->name = 'Список значений для настройки "'.$this->title.'"';
+        	    $easyList->save();
+        	    // привязываем созданный пустой список к этой настройке
+        	    $this->easylistid = $easyList->id;
     	    }
     	    if ( $this->forObject($this->objecttype, $this->objectid)->withName($this->name)->exists() )
     	    {// имя настройки должно быть уникальным
