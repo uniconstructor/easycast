@@ -31,6 +31,7 @@
  * @todo добавить статус "идет оцифровка" (для загруженных файлов)
  * @todo менять статус модерации для дочерних (перекодированных) видео когда 
  *       исходник видео меняет свой статус
+ * @todo проверки перед удалением видео
  */
 class Video extends SWActiveRecord
 {
@@ -239,6 +240,30 @@ class Video extends SWActiveRecord
 	     
 	    $this->getDbCriteria()->mergeWith($criteria, $operation);
 	     
+	    return $this;
+	}
+	
+	/**
+	 * Условие поиска: все видео ссылающиеся на один и тот же файл в облаке
+	 * 
+	 * @param  int|array|ExternalFile $file
+	 * @param  string $operation
+	 * @return Video
+	 */
+	public function forExternalFile($file, $operation='AND')
+	{
+	    if ( $file instanceof ExternalFile )
+	    {
+	        $fileId = $file->id;
+	    }else
+	    {
+	        $fileId = $file;
+	    }
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->owner->getTableAlias(true).'.`externalfileid`', $fileId);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria, $operation);
+	    
 	    return $this;
 	}
 	
@@ -519,32 +544,6 @@ class Video extends SWActiveRecord
 	}
 	
 	/**
-	 * 
-	 * @return array
-	 * 
-	 * @deprecated использовать системные списки
-	 */
-	public function getVisibleOptions()
-	{
-	    return array(
-	        '1' => Yii::t('coreMessages', 'yes'),
-	        '0' => Yii::t('coreMessages', 'no'),
-	    );
-	}
-	
-	/**
-	 * 
-	 * @return array
-	 * 
-	 * @deprecated использовать системные списки
-	 */
-	public function getVisibleOption()
-	{
-	    $options = $this->getVisibleOptions();
-	    return $options[$this->visible]; 
-	}
-	
-	/**
 	 * Получить id youtube-видео из ссылки
 	 * @see http://stackoverflow.com/questions/3392993/php-regex-to-get-youtube-video-id
 	 * 
@@ -584,5 +583,31 @@ class Video extends SWActiveRecord
 	        $cover = 'img.easycast.ru'.'/gallery/'.$gallery->id.'/'.$avatar->id.'medium.'.$extension;
 	    }
 	    return $cover;
+	}
+	
+	/**
+	 *
+	 * @return array
+	 *
+	 * @deprecated использовать системные списки
+	 */
+	public function getVisibleOptions()
+	{
+	    return array(
+	        '1' => Yii::t('coreMessages', 'yes'),
+	        '0' => Yii::t('coreMessages', 'no'),
+	    );
+	}
+	
+	/**
+	 *
+	 * @return array
+	 *
+	 * @deprecated использовать системные списки
+	 */
+	public function getVisibleOption()
+	{
+	    $options = $this->getVisibleOptions();
+	    return $options[$this->visible];
 	}
 }
