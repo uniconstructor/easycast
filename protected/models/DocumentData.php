@@ -13,9 +13,9 @@
  * @property string $timemodified
  * 
  * Relations:
- * @property Document       $document
- * @property DocumentSchema $schema
- * @property ExtraField     $fieldObject
+ * @property Document       $document   - документ для которого храним данные
+ * @property DocumentSchema $schema     - схема поля документа: (если поле документа тоже хранит в себе документ)
+ * @property ExtraField     $extraField - поле документа которому принадлежит это значение
  */
 class DocumentData extends CActiveRecord
 {
@@ -45,12 +45,12 @@ class DocumentData extends CActiveRecord
 	public function relations()
 	{
 		return array(
-		    // документ для которого храним данные
-		    'document' => array(self::BELONGS_TO, 'Document', 'documentid'),
+		    // документ которому принадлежит это значение
+		    'document'   => array(self::BELONGS_TO, 'Document', 'documentid'),
 		    // схема поля документа: (если поле документа тоже хранит в себе документ)
-		    'schema' => array(self::BELONGS_TO, 'DocumentSchema', 'schemaid'),
-		    // схема поля документа: (если поле документа тоже хранит в себе документ)
-		    'fieldObject' => array(self::BELONGS_TO, 'ExtraField', 'extrafieldid'),
+		    'schema'     => array(self::BELONGS_TO, 'DocumentSchema', 'schemaid'),
+		    // поле документа которому принадлежит это значение
+		    'extraField' => array(self::BELONGS_TO, 'ExtraField', 'extrafieldid'),
 		);
 	}
 	
