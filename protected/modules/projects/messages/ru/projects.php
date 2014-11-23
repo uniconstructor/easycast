@@ -32,7 +32,7 @@ return array(
     'project_timestart' => 'Дата начала',
     'project_timeend' => 'Дата окончания',
     'project_leaderid' => 'Руководитель проекта',
-    'project_supportid' => 'Помошник',
+    'project_supportid' => 'Помощник',
     'project_customerid' => 'Заказчик',
     'project_orderid' => 'Заказ',
     'project_isfree' => 'Некоммерческий проект',

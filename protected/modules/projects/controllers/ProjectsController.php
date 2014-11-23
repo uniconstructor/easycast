@@ -20,12 +20,17 @@ class ProjectsController extends Controller
      */
 	public function actionIndex()
 	{
-	    $criteria = new CDbCriteria();
+	    $statuses = array(swProject::ACTIVE, swProject::SUSPENDED, swProject::FINISHED);
 	    // @todo получаем проекты по типу
 	    $type   = Yii::app()->request->getPost('type');
 	    // @todo получаем дополнительные данные для поиска (если нужен свой поиск по проектам)
 	    $search = Yii::app()->request->getPost('search');
 	    
+	    // исключаем из списка проектов черновики
+	    $criteria = new CDbCriteria();
+	    $criteria->scopes = array(
+	        'withStatus' => array($statuses),
+	    );
 	    if ( Yii::app()->getModule('user')->getViewMode() === 'customer' )
 	    {// для заказчиков отображаем лучшие проекты по рейтингу
 	        $criteria->scopes = array('bestRated');
@@ -37,7 +42,7 @@ class ProjectsController extends Controller
             'criteria'   => $criteria,
             'pagination' => false,
         ));
-	     
+	    
 	    $this->render('index', array('dataProvider' => $dataProvider));
 	}
 	

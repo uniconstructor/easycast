@@ -143,14 +143,18 @@ $userLink = CHtml::link('Участникам', $userUrl, $userLinkOptions);
 </div>
 <div class="page-alternate">
     <?php
-    // все проекты
+    // список всех проектов (кроме черновиков)
+    $statuses = array(swProject::ACTIVE, swProject::SUSPENDED, swProject::FINISHED);
     $criteria = new CDbCriteria();
+    $criteria->scopes = array(
+        'withStatus' => array($statuses),
+    );
     if ( Yii::app()->getModule('user')->getViewMode() === 'customer' )
     {// для заказчиков отображаем лучшие проекты по рейтингу
-        $criteria->scopes = array('bestRated');
+        $criteria->scopes[] = 'bestRated';
     }else
     {// для участников отображаем последние проекты
-        $criteria->scopes = array('lastCreated');
+        $criteria->scopes[] = 'lastCreated';
     }
     $dataProvider = new CActiveDataProvider('Project', array(
         'criteria'   => $criteria,
