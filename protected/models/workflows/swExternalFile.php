@@ -39,7 +39,7 @@ class swExternalFile
                 ),
                 array(
                     'id'         => self::SAVED,
-                    'label'      => 'Сохранен',
+                    'label'      => 'Сохранен локально',
                     'constraint' => '',
                     'transition' => array(
                         self::UPLOADED,
@@ -48,7 +48,7 @@ class swExternalFile
                 ),
                 array(
                     'id'         => self::UPLOADED,
-                    'label'      => 'Загружен',
+                    'label'      => 'Загружен удаленно',
                     'constraint' => '',
                     'transition' => array(
                         self::PROCESSING,
@@ -58,7 +58,7 @@ class swExternalFile
                 ),
                 array(
                     'id'         => self::PROCESSING,
-                    'label'      => 'Обработка',
+                    'label'      => 'Идет обработка',
                     'constraint' => '',
                     'transition' => array(
                         self::ACTIVE,
@@ -67,7 +67,7 @@ class swExternalFile
                 ),
                 array(
                     'id'         => self::ACTIVE,
-                    'label'      => 'Используется',
+                    'label'      => 'Готов',
                     'constraint' => '',
                     'transition' => array(
                         self::ARCHIVED,
