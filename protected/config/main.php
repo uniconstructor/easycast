@@ -42,6 +42,7 @@ return array(
 		'application.actions.*',
 		'application.behaviors.*',
 		'application.models.*',
+		'application.models.workflows.*',
 		'application.filters.*',
 		'application.components.*',
 	    'application.extensions.*',
@@ -266,9 +267,10 @@ return array(
 	    // @todo подключить CDbMessageSource для того чтобы в модуле Questionary
 	    //       можно было руками добавлять перевод для стандартных значений 
 	    //       или править тексты пояснений к полям анкеты
-	    //       (пока что все языковые строки берутся из php-файлов)
+	    //       
 	    'messages' => array(
-	        'class' => 'CPhpMessageSource',
+	        // (пока что все языковые строки берутся из php-файлов)
+            'class' => 'CPhpMessageSource',
 	    ),
         // YiiBooster 3: обертка для Twitter Bootstrap 2.3.2 
         'bootstrap' => array(
@@ -282,7 +284,7 @@ return array(
             'bootstrapCss'   => false,
             'responsiveCss'  => false,
         ),
-        // библиотека для работы с изображениями (требуется для плагина galleryManager)
+        // библиотека для работы с изображениями: требуется для плагина galleryManager
         'image' => array(
             'class' => 'ext.image.CImageComponent',
         ),
