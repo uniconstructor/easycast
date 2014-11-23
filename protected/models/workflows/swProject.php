@@ -5,6 +5,8 @@
  * 
  * @todo при возобновлении завершенного проекта помечать все его старые события как архивные
  *       для того чтобы они не перемешались с новыми
+ * @todo переименовать методы смены статуса в setFinished вместо toFinished
+ * @todo проверять каждый результат смены статуса, пропускать неудавшиеся события и запоминать их в лог
  */
 class swProject
 {
@@ -56,7 +58,7 @@ class swProject
 					'constraint' => '',
 					'transition' => array(
 					    self::READY,
-						self::ACTIVE => array($this, 'toActive'),
+						self::ACTIVE   => array($this, 'toActive'),
 					    self::FINISHED,
 					),
 				),
@@ -74,7 +76,7 @@ class swProject
 			        'constraint' => '$this->canActivate();',
 			        'transition' => array(
 			            self::SUSPENDED,
-			            self::FINISHED,
+			            self::FINISHED => array($this, 'toFinished'),
 			        ),
 			    ),
 			    array(
@@ -102,82 +104,46 @@ class swProject
 	/**
 	 * Действия, выполняемые при запуске проекта
 	 * 
-	 * @param Project $model
-	 * @param string $srcStatus
-	 * @param string $destStatus
+	 * @param  Project $model
+	 * @param  string $srcStatus
+	 * @param  string $destStatus
 	 * @return bool
 	 */
 	public function toActive($model, $srcStatus, $destStatus)
 	{
-	    // сначала активируем все группы событий
-	    $groups = ProjectEvent::model()->forProject($model->id)->
-            withStatus(ProjectEvent::STATUS_DRAFT)->groupsOnly()->findAll();
-	    foreach ( $groups as $group )
-	    {
-    	    $group->setStatus('active');
-	    }
-	    
 	    // активируем только те мероприятия на которые уже созданы роли
 	    $filledEvents = ProjectEvent::model()->forProject($model->id)->
             withStatus(ProjectEvent::STATUS_DRAFT)->withVacancies()->findAll();
 	    foreach ( $filledEvents as $event )
-	    {// или те которые находятся в группе
+	    {
 	       $event->setStatus('active');
 	    }
-	    
-	    // затем все отдельные мероприятия проекта
-	    $groupEvents = ProjectEvent::model()->forProject($model->id)->
-            withStatus(ProjectEvent::STATUS_DRAFT)->hasGroup()->findAll();
-	    foreach ( $groupEvents as $event )
-	    {// или те которые находятся в группе
-	        $event->setStatus('active');
-	    }
-	    
 	    return true;
 	}
 	
 	/**
 	 * Действия, выполняемые при завершении проекта
 	 *
-	 * @param Project $model
-	 * @param string $srcStatus
-	 * @param string $destStatus
+	 * @param  Project $model
+	 * @param  string $srcStatus
+	 * @param  string $destStatus
 	 * @return bool
 	 */
 	public function toFinished($model, $srcStatus, $destStatus)
 	{
-	    // сначала завершаем все активные группы событий
-	    $activeGroups = ProjectEvent::model()->forProject($model->id)->
-            withStatus(array(ProjectEvent::STATUS_ACTIVE))->groupsOnly()->findAll();
-	    foreach ( $activeGroups as $group )
-	    {
-	        $group->setStatus('finished');
-	    }
-	    
-	    // не начатые группы событий удаляем
-	    $draftGroups = ProjectEvent::model()->forProject($model->id)->
-            withStatus(array(ProjectEvent::STATUS_DRAFT))->groupsOnly()->findAll();
-	    foreach ( $draftGroups as $group )
-	    {
-    	    $group->delete();
-	    }
-	    
 	    // завершаем все отдельные мероприятия проекта
 	    $activeEvents = ProjectEvent::model()->forProject($model->id)->
             withStatus(array(ProjectEvent::STATUS_ACTIVE))->exceptGroups()->findAll();
-	    foreach ( $activeEvents as $event )
 	    {
 	        $event->setStatus('finished');
 	    }
-	    
 	    // удаляем все события которые так и не начались
 	    $draftEvents = ProjectEvent::model()->forProject($model->id)->
-            withStatus(array(ProjectEvent::STATUS_DRAFT))->exceptGroups()->findAll();
+            withStatus(ProjectEvent::STATUS_DRAFT)->exceptGroups()->findAll();
 	    foreach ( $draftEvents as $event )
 	    {
 	        $event->delete();
 	    }
-	    
 	    return true;
 	}
 	
