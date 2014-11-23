@@ -50,9 +50,7 @@ class User extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.CConsoleApplication
-		return ((get_class(Yii::app())=='CConsoleApplication' || (get_class(Yii::app())!='CConsoleApplication' && Yii::app()->user->isSuperuser))?array(
+		return ( (get_class(Yii::app())=='CConsoleApplication' || (get_class(Yii::app())!='CConsoleApplication' && Yii::app()->user->isSuperuser))?array(
 			array('username', 'length', 'max'=>255, 'min' => 1,'message' => UserModule::t("Incorrect username (length between 3 and 20 characters).")),
 			array('password', 'length', 'max'=>128, 'min' => 4,'message' => UserModule::t("Incorrect password (minimal length 4 symbols).")),
 			array('email', 'email'),
@@ -92,7 +90,6 @@ class User extends CActiveRecord
 	
 	/**
 	 * @todo добавить в БД пользователя поле questionaryid и прописывать его при создании
-	 * (non-PHPdoc)
 	 * @see CActiveRecord::beforeSave()
 	 */
 	protected function beforeSave()
