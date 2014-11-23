@@ -276,7 +276,12 @@ class Config extends CActiveRecord
 	
 	/**
 	 * @see CActiveRecord::beforeSave()
-	 * @todo проверять существование привязанного объекта значения если тип значения это клас модели
+	 * 
+	 * @return bool
+	 * @throws CException
+	 * 
+	 * @todo проверять существование привязанного объекта значения если тип значения это класc модели
+	 * @todo вынести проверки существования и уникальности в rules()
 	 */
 	public function beforeSave()
 	{
@@ -343,28 +348,60 @@ class Config extends CActiveRecord
 	
 	/**
 	 * @see CActiveRecord::beforeDelete()
+	 * 
+	 * @return bool
+	 * @throws CException
+	 * 
+	 * @todo проверять результат обновления дочерних настроек
 	 */
 	public function beforeDelete()
 	{
-	    if ( $this->objecttype == 'system' OR ! $this->parentid OR ! $this->objectid )
-	    {// Корневые или системные настройки удаляются только миграцией
-	        throw new CException('Корневые или системные настройки удаляются только миграцией');
-	        return false;
+	    if ( $this->objecttype == 'system' OR ! $this->objectid )
+	    {// корневые или системные настройки удаляются только миграцией
+    	    throw new CException('Корневые или системные настройки удаляются только миграцией');
+    	    return false;
 	    }
+	    // удаление связанных записей происходит только через транзакцию
+	    $transaction = $this->getDbConnection()->beginTransaction();
 	    foreach ( $this->childrenConfig as $config )
 	    {// обновляем все настройки, наследуемые от этой: убираем ссылку на удаляемую запись
 	        if ( $this->parentConfig )
-	        {// и если возможно - заменяем ее ссылкой на элемент уровнем выше
+	        {// если возможно - заменяем ее ссылкой на элемент уровнем выше
 	            $config->parentid = $this->parentid;
-	            $config->save();
-	            continue;
+	            if ( $config->save() )
+	            {// ссылка на удаляемую настройку успешно заменена
+	                continue;
+	            }
+	            $msg = '(Не удалось заменить parentid для дочерней настройки (id='.$config->id.')';
+	            Yii::log($msg, CLogger::LEVEL_ERROR, 'application.config');
 	        }
 	        if ( $rootConfig = $this->getRootConfig() )
-	        {// или корневой настройкой (если она есть)
+	        {// или корневой настройкой
 	            $config->parentid = $rootConfig->id;
-	            $config->save();
+	            if ( $config->save() )
+	            {// настройка успешно обновлена - можно переходить к следующей
+	                continue;
+	            }
+	            $msg = '(Не удалось заменить parentid для дочерней настройки (id='.$config->id.')';
+	            Yii::log($msg, CLogger::LEVEL_ERROR, 'application.config');
+	        }
+	        // если заменить удаляемую настройку нечем - удаляем ссылку на нее, 
+	        // но оставляем сами дочерние настройки
+	        $config->parentid = 0;
+	        if ( ! $config->save() )
+	        {// не удалось заменить ссылку на удаляемую настройку
+	            $transaction->rollback();
+	            // сохраняем ошибку в лог
+	            $msg = '(Не удалось заменить parentid для дочерней настройки (id='.$config->id.')';
+	            Yii::log($msg, CLogger::LEVEL_ERROR, 'application.config');
+	            // и прерываем удаление
+	            throw new CException('Невозможно обнулить parentid для дочерней настройки (id='.$config->id.')');
+	            return false;
 	        }
 	    }
+	    // завершаем транзакцию
+	    $transaction->commit();
+	    
 	    return parent::beforeDelete();
 	}
 	
@@ -673,13 +710,23 @@ class Config extends CActiveRecord
 	}
 	
 	/**
+	 * 
+	 * 
+	 * @return void
+	 */
+	public function linkChildrenToParent()
+	{
+	    
+	}
+	
+	/**
 	 * Подготовить настройку к добавлению нового значения: эта функция вызывается после всех
 	 * проверок: она проверяет текущее значение настройки и следит за тем чтобы при правке
 	 * обычных настроек не были изменены стандартные или системные 
 	 * 
 	 * @param  string $valueAction
-	 * @param  array $listActions
-	 * @param  array $newData
+	 * @param  array  $listActions
+	 * @param  array  $newData
 	 * @return bool
 	 * 
 	 * @todo решить как поступать в ситуации когда настройка содержит списки но не содержит значений
