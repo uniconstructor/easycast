@@ -249,28 +249,22 @@ class EcAwsApi extends CApplicationComponent
     public function sendMail($email, $subject, $message, $from=null)
     {
         $result = true;
+        if ( $this->isDisabledEmail($email) )
+        {// отправка писем на этот адрес отключена
+            $this->trace('[SENDING CANCELED]');
+            return true;
+        }
         if ( ! Yii::app()->params['useAmazonSES'] )
         {// это тестовый стенд или машина разработчика - не отправляем письма на реальные адреса
-            if ( ! Yii::app()->params['AWSSendMessages'] )
-            {// вообще не отправляем никаких писем даже на свой тестовый адрес
-                // (используется при автоматическом тестировании и на машине разработчика)
-                $this->trace('[SENDING CANCELED]');
-                return true;
-            }
+            $this->trace('AWS: SES service is disabled - using test address instread.');
             $email   = 'frost@easycast.ru';
             $subject = $subject.' [TEST]';
         }
         if ( ! $from )
-        {// все письма системы отправляются от имени admin@easycast.ru, если не указано иное
+        {// при отсутствии отправителя все письма отправляем с почты администратора: 
+            // ее читает ZenDesk, создавая из каждого ответного письма тикет
+            // так что ни одно письмо с вопросом не останется без ответа 
             $from = Yii::app()->params['adminEmail'];
-        }
-        if ( mb_stristr('@example.com', $email) )
-        {// не отправляем письма на адреса-заглушки
-            return $result;
-        }
-        if ( $this->emailInBlackList($email) )
-        {// не отправляем письма на битые и испорченные адреса
-            return $result;
         }
         
         // все проверки пройдены, создаем параметры для запроса к Amazon SES
@@ -322,13 +316,21 @@ class EcAwsApi extends CApplicationComponent
     public function pushMail($email, $subject, $message, $from=null)
     {
         $result = true;
-        if ( ! Yii::app()->params['useAmazonSQS'] )
-        {// это тестовый стенд или машина разработчика - не отправляем письма на реальные адреса
-            $email   = 'frost@easycast.ru';
+        if ( $this->isDisabledEmail($email) )
+        {// отправка писем на этот адрес отключена
+            $this->trace('[PUSH CANCELED]');
+            return true;
         }
-        if ( mb_stristr('@example.com', $email) )
-        {// не отправляем письма на несуществующие адреса
-            return $result;
+        if ( ! Yii::app()->params['useAmazonSQS'] )
+        {// очередь сообщений отключена
+            $this->trace('AWS: SQS service is disabled.');
+            $this->trace('[PUSH CANCELED]');
+            return true;
+        }
+        if ( ! Yii::app()->params['useAmazonSES'] )
+        {// это тестовый стенд или машина разработчика - не отправляем письма на реальные адреса
+            $this->trace('AWS: SES service is disabled - using test address instread.');
+            $email = 'frost@easycast.ru';
         }
         if ( ! $from )
         {// при отсутствии отправителя все письма отправляем с почты администратора: 
@@ -447,9 +449,8 @@ class EcAwsApi extends CApplicationComponent
     public function popMail($count=self::MAX_MESSAGES_PER_SECOND)
     {
         $messages = array();
-        // Создаем массив нужной структуры, со всеми аргументами
+        // cоздаем параметры для запроса списка сообщений из очереди
         $args = $this->createSQSPopArgs($count);
-        
         // извлекаем ждущие отправки сообщения из очереди
         for ( $count = 0; $count < self::ATTEMPT_COUNT; $count++ )
         {// делаем запрос несколько раз (если не получается) на случай неполадок с сетью
@@ -782,16 +783,44 @@ class EcAwsApi extends CApplicationComponent
     protected function emailInBlackList($email)
     {
         /* @var $blackListConfig Config */
-        if ( ! $blackListConfig = Config::model()->withName('emailBlackList')->systemOnly()->find() )
+        $blackListConfig = Config::model()->withName('emailBlackList')->systemOnly()->find();
+        if ( ! $blackListConfig )
         {
             return false;
         }
         /* @var $blackList EasyList */
-        if ( ! $blackList = $blackListConfig->getValueObject() )
+        $blackList = $blackListConfig->getValueObject();
+        if ( ! $blackList )
         {
             return false;
         }
         return $blackList->hasItemValue($email);
+    }
+    
+    /**
+     * Проверить, отключена ли отправка писем на этот адрес
+     * 
+     * @param  string $email
+     * @return bool
+     */
+    protected function isDisabledEmail($email)
+    {
+        if ( ! Yii::app()->params['AWSSendMessages'] )
+        {// сервисы отправки сообщений сообщений полностью отключены в настройках сайта
+            $this->trace('AWS: all message services are disabled.');
+            return true;
+        }
+        if ( mb_stristr('@example.com', $email) )
+        {// не отправляем письма на тестовые адреса
+            $this->trace($email.': test address - ', false);
+            return true;
+        }
+        if ( $this->emailInBlackList($email) )
+        {// не отправляем письма на битые и испорченные адреса
+            $this->trace($email.': disabled by admin (broken or complain) - ', false);
+            return true;
+        }
+        return false;
     }
     
     /**
