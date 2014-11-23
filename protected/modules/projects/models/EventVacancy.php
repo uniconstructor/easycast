@@ -231,33 +231,32 @@ class EventVacancy extends CActiveRecord
 	    return array(
 	        // мероприятие на которое создана вакансия
 	        'event' => array(self::BELONGS_TO, 'ProjectEvent', 'eventid'),
-	        // критерий поиска, по которому выбираются подходящие на вакансию участники
-	        // @deprecated
-	        'scope' => array(self::BELONGS_TO, 'SearchScope', 'scopeid'),
-	
-	
 	        // дополнительные поля, необходимые для подачи заявки на эту роль
+	        // @todo удалить после перехода на списки
 	        'extraFields' => array(self::MANY_MANY, 'ExtraField', "{{extra_field_instances}}(objectid, fieldid)",
 	            'condition' => "`objecttype` = 'vacancy'",
 	        ),
 	        // обязательные поля анкеты, необходимые для подачи заявки на эту роль
+	        // @todo удалить после перехода на списки
 	        'userFields' => array(self::MANY_MANY, 'QUserField', "{{q_field_instances}}(objectid, fieldid)",
 	            'condition' => "`objecttype` = 'vacancy'",
 	        ),
 	        // доступные фильтры поиска для этой вакансии
+	        // @todo удалить после перехода на списки
 	        'searchFilters' => array(self::MANY_MANY, 'CatalogFilter', "{{catalog_filter_instances}}(linkid, filterid)",
 	            'condition' => "`linktype` = 'vacancy'",
 	        ),
 	        // разделы для отбора заявок
+	        // @todo удалить после перехода на списки
 	        'catalogSections' => array(self::MANY_MANY, 'CatalogSection', "{{catalog_section_instances}}(objectid, sectionid)",
 	            'condition' => "`objecttype` = 'vacancy'",
 	        ),
 	        // разделы для отбора заявок
+	        // @todo удалить после перехода на списки
 	        'catalogSectionInstances' => array(self::HAS_MANY, 'CatalogSectionInstance', "objectid",
 	            'index'     => 'id',
 	            'condition' => "`objecttype` = 'vacancy'",
 	        ),
-	
 	
 	        // Группы дополнительных полей, используемых в этой роли
 	        // @todo искоренить антипаттерн "magic numbers": убрать из условий конкретный parentid
@@ -275,7 +274,6 @@ class EventVacancy extends CActiveRecord
 	        'sectionCategories' => array(self::MANY_MANY, 'Category', "{{category_instances}}(objectid, categoryid)",
 	            'condition' => "`objecttype` = 'vacancy' AND `parentid` = 4",
 	        ),
-	
 	        // все претенденты на роль независимо от статуса поданной заявки
 	        // (это новая связь создана взамен старых: во всех запросах следует использовать только ее)
 	        'applicants' => array(self::HAS_MANY, 'ProjectMember', 'vacancyid'),
@@ -314,6 +312,9 @@ class EventVacancy extends CActiveRecord
 	        'membersCount' => array(self::STAT, 'ProjectMember', 'vacancyid',
 	            'condition' => "`status` = 'active' OR `status` = 'finished'",
 	        ),
+	        // критерий поиска, по которому выбираются подходящие на вакансию участники
+	        // @todo удалить после изменения способа хранения критериев поиска
+	        'scope' => array(self::BELONGS_TO, 'SearchScope', 'scopeid'),
 	    );
 	}
 	
@@ -422,20 +423,26 @@ class EventVacancy extends CActiveRecord
 	
 	/**
 	 * Именованная группа условий поиска - получить все роли на которые подавал заявку участник
-	 * @param int $questionaryId - id анкеты участника
-	 * @param array $statuses - статусы поданых заявок от участника заявок (чтобы можно было найти только
-     *                          те роли на которые заявки этого участника были приняты или отклонены)
+	 * 
+	 * @param int|Questionary $questionary - модель или id анкеты участника
+	 * @param array|string $applicationStatus - статусы поданых заявок от участника заявок 
+	 *                          (чтобы можно было найти только те роли на которые заявки
+     *                          от участника были приняты или отклонены)
      *                          если статус не указан - он не добавляется в условие поиска
-	 * @return ProjectEvent
+     *                          Массив (если статусов несколько) или строка (если статус один)
+	 * @return EventVacancy
 	 */
-	public function containingQuestionary($questionaryId, $statuses=array())
+	public function containingQuestionary($questionary, $applicationStatus=array())
 	{
-	    $scopes = array(
-	        'forQuestionary' => array($questionaryId),
-	    );
-	    if ( ! empty($statuses) )
+	    if ( ! $questionary )
+	    {// условие не используется
+	        return $this;
+	    }
+	    // в массиве должно быть как минимум условие для анкеты
+	    $scopes = array('forQuestionary' => $questionary);
+	    if ( $applicationStatus )
 	    {
-	        $scopes['withStatus'] = array($statuses);
+	        $scopes['withStatus'] = array($applicationStatus);
 	    }
 	    $criteria = new CDbCriteria();
 	    $criteria->together = true;
@@ -452,29 +459,45 @@ class EventVacancy extends CActiveRecord
 	}
     
     /**
-     * Именованная группа условий поиска - получить все роли на которые подавал заявку участник
-     * @param int $eventId
+     * Именованная группа условий поиска - получить все роли для указанного мероприятия
+     * 
+     * @param int|array|ProjectEvent $event - модель мероприятия для которого ищутся события,
+     *                                        id мероприятия или массив id
+     * @return EventVacancy
      */
-    public function forEvent($eventId)
+    public function forEvent($event)
     {
-        $this->getDbCriteria()->compare($this->getTableAlias(true).'.`eventid`', $eventId);
+        if ( $event instanceof ProjectEvent )
+        {
+            $eventId = $event->id;
+        }else
+        {
+            $eventId = $event;
+        }
+        $criteria = new CDbCriteria();
+        $criteria->compare($this->getTableAlias(true).'.`eventid`', $eventId);
+        
+        $this->getDbCriteria()->mergeWith($criteria);
+        
         return $this;
     }
     
     /**
      * Именованная группа условий поиска - выбрать записи по статусам
      * 
-     * @param  array|string $statuses - массив статусов или строка если статус один
+     * @param  array|string $status - массив статусов или строка если статус один
      * @return EventVacancy
+     * 
+     * @todo удалить после подключения simpleWorkflow
      */
-    public function withStatus($statuses=array())
+    public function withStatus($status=null)
     {
-        if ( ! $statuses )
-        {// Если статус не указан - выборка по этому параметру не требуется
+        if ( ! $status )
+        {// условие не используется
             return $this;
         }
         $criteria = new CDbCriteria();
-        $criteria->compare($this->getTableAlias(true).'.`status`', $statuses);
+        $criteria->compare($this->getTableAlias(true).'.`status`', $status);
         
         $this->getDbCriteria()->mergeWith($criteria);
     
