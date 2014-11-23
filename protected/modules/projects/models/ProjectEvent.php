@@ -69,6 +69,7 @@ class ProjectEvent extends CActiveRecord
      *               Если для группы создается вакансия - то это означает, что участник подавая заявку 
      *               обязуется присутствовать на всех мероприятиях группы.
      *               Мероприятия группы активируются только вместе с ней (но завершаться могут отдельно).
+     * @deprecated использовать списки
      */
     const TYPE_GROUP      = 'group';
     /**
@@ -432,10 +433,6 @@ class ProjectEvent extends CActiveRecord
      */
     public function withVacancies($statuses=array(), $operator='AND')
     {
-        if ( ! $statuses )
-        {// условие не используется
-            return $this;
-        }
         $criteria       = new CDbCriteria();
         $criteria->with = array(
             'vacancies' => array(
@@ -458,6 +455,8 @@ class ProjectEvent extends CActiveRecord
      * 
      * @param  array|string $statuses - массив статусов или строка если статус один
      * @return ProjectEvent
+     * 
+     * @todo удалить после подключения simpleWorkflow
      */
     public function withStatus($statuses=array(), $operator='AND')
     {
@@ -474,19 +473,19 @@ class ProjectEvent extends CActiveRecord
     }
     
     /**
-     * Именованная группа условий поиска - выбрать мероприятия по типу
+     * Именованная группа условий поиска - выбрать мероприятия с указанным типом
      * 
-     * @param  array $types
+     * @param  array|string $type - имп мероприятия
      * @return ProjectEvent
      */
-    public function withType($types=array(), $operator='AND')
+    public function withType($type=array(), $operator='AND')
     {
-        if ( ! $types )
-        {// тип не указан - выборка по этому параметру не требуется
+        if ( ! $type )
+        {// условие не используется
             return $this;
         }
         $criteria = new CDbCriteria();
-        $criteria->compare($this->getTableAlias(true).'.`type`', $types);
+        $criteria->compare($this->getTableAlias(true).'.`type`', $type);
         
         $this->getDbCriteria()->mergeWith($criteria);
          
@@ -499,7 +498,7 @@ class ProjectEvent extends CActiveRecord
      * @param array $types - типы проектов к которым принадлежат извлекаемые мероприятия
      * @return ProjectEvent
      */
-    public function withProjectType($projectTypes=array())
+    public function withProjectType($projectTypes=array(), $operator='AND')
     {
         $criteria = new CDbCriteria();
         $criteria->with = array(
@@ -518,19 +517,45 @@ class ProjectEvent extends CActiveRecord
     }
     
     /**
-     * Именованная группа условий поиска - получить все мероприятия проекта
-     * 
-     * @param int $projectId
+     * Именованная группа условий поиска - все мероприятия проекта (поиск только по id)
+     * Если передан массив id - то будут выбраны все мероприятия, которые присутствуют 
+     * в любом из перечисленных проектов
+     *
+     * @param  array|int $projectId - id проекта (один или несколько)
      * @return ProjectEvent
      */
-    public function forProject($projectId)
+    public function withProjectId($projectId, $operator='AND')
     {
+        if ( ! is_array($projectId) )
+        {
+            $projectId = intval($projectId);
+        }
         $criteria = new CDbCriteria();
         $criteria->compare($this->getTableAlias(true).'.`projectid`', $projectId);
-        
+    
         $this->getDbCriteria()->mergeWith($criteria);
          
         return $this;
+    }
+    
+    /**
+     * Именованная группа условий поиска - все мероприятия проекта (alias)
+     * (этот метод используется когда нужно найти события по модели проекта)
+     * 
+     * @param  int|array|Project $project - id проекта для которого ищутся мероприятия, массив id,
+     *                                      или одна модель проекта
+     * @return ProjectEvent
+     */
+    public function forProject($project, $operator='AND')
+    {
+        if ( is_object($project) AND (get_class($project) === 'Project') )
+        {
+            $projectId = $project->id;
+        }else
+        {
+            $projectId = $project;
+        }
+        return $this->withProjectId($projectId, $operator);
     }
     
     /**
