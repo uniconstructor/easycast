@@ -1,6 +1,6 @@
 <?php
 /**
- * Страница редактирования проекта в админке
+ * Страница редактирования проекта
  */
 
 $this->breadcrumbs = array(
@@ -10,20 +10,17 @@ $this->breadcrumbs = array(
 	'Редактировать',
 );
 
-$this->menu=array(
+$this->menu = array(
 	array('label' => 'Список проектов', 'url' => array('/admin/project/admin')),
 	array('label' => 'Создать проект', 'url' => array('/admin/project/create')),
 	array('label' => 'Просмотр проекта', 'url' => array('/admin/project/view', 'id' => $model->id)),
 );
+
+echo '<div class="page"><div class="container">';
 ?>
-
 <h1>Редактировать проект "<?php echo $model->name; ?>"</h1>
-
 <?php 
-echo $this->renderPartial('_form',
-    array(
-        'model' => $model,
-        'video' => $video,
-        'validatedVideos' => $validatedVideos,
-    )
-);
+echo $this->renderPartial('_form', array(
+    'model' => $model,
+));
+echo '</div></div>';

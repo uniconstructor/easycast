@@ -10,6 +10,7 @@
 //$params = $model->getConfig();
 //CVarDumper::dump($params, 10, true);
 
+
 // баннер
 // @todo заменить стандартным виджетом настроек
 echo '<div><b>Баннер</b></div>';
@@ -44,20 +45,20 @@ if ( $model->isNewRecord )
     );
      */
 }
-
 // форма редактирования проекта
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 	'id' => 'project-form',
 	'enableAjaxValidation' => false,
 ));
+// модуль User
+$userModule = Yii::app()->getModule('user');
 // данные формы нужны для корректной работы элемента выбора даты
 $formData = Yii::app()->request->getParam('Project');
-
 // рейтинг проекта (задается только здесь, в админке. Нужен только для сортировки проектов 
 // при отображении для для заказчика и в коммерческом предложении)
 $ratings = array('0' => 'Нет');
 for ( $i = 0; $i <= 1000; $i++ )
-{
+{// ключи массива должны быть строковыми иначе плохо работает dropdownlist
     $ratings["$i"] = (string)$i;
 }
 
@@ -66,38 +67,29 @@ echo $form->errorSummary($model);
 // рейтинг 
 echo $form->dropDownListRow($model, 'rating', $ratings);
 // название проекта
-echo $form->textFieldRow($model, 'name', array('class' => 'span5', 'maxlength' => 255));
+echo $form->textFieldRow($model, 'name');
 // email проекта
-echo $form->textFieldRow($model, 'email', array('class' => 'span5', 'maxlength' => 255));
+echo $form->textFieldRow($model, 'email');
 // тип проекта
-echo $form->dropDownListRow($model, 'type', $model->getTypeList()); 
-
+echo $form->dropDownListRow($model, 'typeid', $model->getTypesList()); 
 // краткое описание проекта
-echo $form->labelEx($model, 'shortdescription');
-$this->widget('ext.imperavi-redactor-widget.ImperaviRedactorWidget', array(
+echo $form->widgetRow('ext.imperavi-redactor-widget.ImperaviRedactorWidget', array(
 	'model'     => $model,
 	'attribute' => 'shortdescription',
 	'options'   => array('lang' => 'ru'),
 ));
-echo $form->error($model,'shortdescription');
-
 // описание для участника
-echo $form->labelEx($model, 'description');
-$this->widget('ext.imperavi-redactor-widget.ImperaviRedactorWidget', array(
-	'model'     => $model,
-	'attribute' => 'description',
-	'options'   => array('lang' => 'ru'),
+echo $form->widgetRow('ext.imperavi-redactor-widget.ImperaviRedactorWidget', array(
+    'model'     => $model,
+    'attribute' => 'description',
+    'options'   => array('lang' => 'ru'),
 ));
-echo $form->error($model,'description');
-
 // описание для заказчика
-echo $form->labelEx($model, 'customerdescription');
-$this->widget('ext.imperavi-redactor-widget.ImperaviRedactorWidget', array(
-	'model'     => $model,
-	'attribute' => 'customerdescription',
-	'options'   => array('lang' => 'ru'),
+echo $form->widgetRow('ext.imperavi-redactor-widget.ImperaviRedactorWidget', array(
+    'model'     => $model,
+    'attribute' => 'customerdescription',
+    'options'   => array('lang' => 'ru'),
 ));
-echo $form->error($model, 'customerdescription');
 
 // логотип
 echo '<div><b>Логотип</b></div>';
@@ -106,8 +98,8 @@ if ( $model->galleryBehavior->getGallery() === null )
     echo '<p>Нужно сохранить проект перед загрузкой логотипа</p>';
 }else
 {
-    $this->widget('GalleryManager', array(
-         'gallery'         => $model->galleryBehavior->getGallery(),
+    $this->widgetRow('GalleryManager', array(
+         'gallery'         => $model->gallery,
          'controllerRoute' => '/admin/gallery'
     ));
 }
@@ -163,30 +155,30 @@ echo $form->datepickerRow($model, 'timeend', array(
         ),
     ),
     array(
-        'hint'    => 'Если планируется длительный проект - поставьте галочку "без даты окончания"',
+        'hint'    => 'Если планируется длительный проект - поставьте галочку "Дата окончания неизвестна"',
         'prepend' => '<i class="icon-calendar"></i>',                
     )
 );
-// создать "бесконечный проект" - без даты окончания
-echo $form->checkBoxRow($model, 'notimeend');
 
+// создать длительный без даты окончания
+echo $form->checkBoxRow($model, 'notimeend');
 // руководитель проекта
-echo $form->dropDownListRow($model, 'leaderid',  $model->getManagerList());
-// помошник 
-echo $form->dropDownListRow($model, 'supportid', $model->getManagerList(true)); 
-// заказчик
-// echo $form->textFieldRow($model, 'customerid', array('class'=>'span5','maxlength'=>11));
+echo $form->dropDownListRow($model, 'leaderid',  $userModule::getAdminList());
+// помощник 
+echo $form->dropDownListRow($model, 'supportid', $userModule::getAdminList(true)); 
+// @todo заказчик
+// echo $form->dropDownListRow($model, 'customerid',  $customers);
 // некоммерческий проект 
-echo $form->checkBoxRow($model, 'isfree', array('class' => 'span5'));
+echo $form->checkBoxRow($model, 'isfree');
 // фотки с проекта
 echo '<div>Фотогалерея</div>';
-if ( $model->photoGalleryBehavior->getGallery() === null )
+if ( ! $model->gallery )
 {
     echo '<div class="alert">Нужно сохранить проект перед загрузкой фотографий</div>';
 }else
 {
-    $this->widget('GalleryManager', array(
-         'gallery'         => $model->photoGalleryBehavior->getGallery(),
+    $this->widgetRow('GalleryManager', array(
+         'gallery'         => $model->gallery,
          'controllerRoute' => '/admin/gallery',
     ));
 }
@@ -218,8 +210,8 @@ $this->endWidget();
     ?>
 </fieldset>
 <?php 
-$clips = Yii::app()->getModule('admin')->formClips;
-foreach ( $clips as $clip )
+// выводим элементы формы добавления видео
+foreach ( Yii::app()->getModule('admin')->formClips as $clip )
 {
     echo $this->clips[$clip];
 }
