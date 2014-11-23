@@ -11,6 +11,9 @@
  * @property string $targettype - тип объекта по которому происходит поиск 
  *                                (само условие не хранит информацию о том какая модель нужна для поиска)
  * @property string $timecreated
+ * 
+ * Relations:
+ * @property SearchData $searchData - условие выборки
  */
 class SearchDataInstance extends CActiveRecord
 {
@@ -42,8 +45,22 @@ class SearchDataInstance extends CActiveRecord
 	public function relations()
 	{
 		return array(
-		    
+		    'searchData' => array(self::BELONGS_TO, 'SearchData', 'searchdataid'),
 		);
+	}
+	
+	/**
+	 * @see CActiveRecord::scopes()
+	 */
+	public function scopes()
+	{
+	    // стандартные условия поиска по датам создания и изменения
+	    $timestampScopes = $this->asa('EcTimestampBehavior')->getDefaultTimestampScopes();
+	    // собственные условия поиска для модели
+	    $modelScopes = array(
+	        
+	    );
+	    return CMap::mergeArray($timestampScopes, $modelScopes);
 	}
 	
 	/**
@@ -53,14 +70,13 @@ class SearchDataInstance extends CActiveRecord
 	{
 	    return array(
 	        // автоматическое заполнение дат создания и изменения
-	        'CTimestampBehavior' => array(
-	            'class'           => 'zii.behaviors.CTimestampBehavior',
-	            'createAttribute' => 'timecreated',
+	        'EcTimestampBehavior' => array(
+	            'class' => 'application.behaviors.EcTimestampBehavior',
 	            'updateAttribute' => null,
 	        ),
 	    );
 	}
-
+	
 	/**
 	 * @return array customized attribute labels (name=>label)
 	 */
@@ -71,7 +87,7 @@ class SearchDataInstance extends CActiveRecord
 			'searchdataid' => 'Searchdataid',
 			'objecttype' => 'Objecttype',
 			'objectid' => 'Objectid',
-			'targettype' => 'targettype',
+			'targettype' => 'Targettype',
 			'timecreated' => 'Timecreated',
 		);
 	}
@@ -90,8 +106,6 @@ class SearchDataInstance extends CActiveRecord
 	 */
 	public function search()
 	{
-		// @todo Please modify the following code to remove attributes that should not be searched.
-
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);

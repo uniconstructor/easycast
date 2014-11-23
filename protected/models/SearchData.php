@@ -1,7 +1,8 @@
 <?php
 
 /**
- * Условия поиска - данные из формы поиска по анкетам или условия для поиска по другим объектам
+ * Условия поиска - сохраненные критерии выборки, которые могут быть использованы
+ * и для составления запроса (CDbCriteria) и для заполнения формы фильтров поиска
  *
  * Таблица '{{search_data}}':
  * @property integer $id
@@ -10,6 +11,9 @@
  * @property string $description
  * @property string $timecreated
  * @property string $timemodified
+ * 
+ * Relations:
+ * @property SearchFilter[] $searchFilters - фильтры поиска используемые в этом условии
  */
 class SearchData extends CActiveRecord
 {
@@ -26,15 +30,13 @@ class SearchData extends CActiveRecord
 	 */
 	public function rules()
 	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
 		return array(
-			array('name', 'length', 'max'=>255),
-			array('value, description', 'length', 'max'=>4095),
-			array('timecreated, timemodified', 'length', 'max'=>11),
+			array('name', 'length', 'max' => 255),
+			array('value, description', 'length', 'max' => 4095),
+			array('timecreated, timemodified', 'length', 'max' => 11),
+			
 			// The following rule is used by search().
-			// @todo Please remove those attributes that should not be searched.
-			array('id, name, value, description, timecreated, timemodified', 'safe', 'on'=>'search'),
+			array('id, name, value, description, timecreated, timemodified', 'safe', 'on' => 'search'),
 		);
 	}
 
@@ -44,8 +46,23 @@ class SearchData extends CActiveRecord
 	public function relations()
 	{
 		return array(
-		    
+		    // фильтры поиска используемые в этом условии
+		    'searchFilters' => array(self::HAS_MANY, 'SearchFilter', 'searchdataid'),
 		);
+	}
+	
+	/**
+	 * @see CActiveRecord::scopes()
+	 */
+	public function scopes()
+	{
+	    // стандартные условия поиска по датам создания и изменения
+	    $timestampScopes = $this->asa('EcTimestampBehavior')->getDefaultTimestampScopes();
+	    // собственные условия поиска для модели
+	    $modelScopes = array(
+	        
+	    );
+	    return CMap::mergeArray($timestampScopes, $modelScopes);
 	}
 	
 	/**
@@ -55,10 +72,9 @@ class SearchData extends CActiveRecord
 	{
 	    return array(
 	        // автоматическое заполнение дат создания и изменения
-	        'CTimestampBehavior' => array(
-	            'class'           => 'zii.behaviors.CTimestampBehavior',
-	            'createAttribute' => 'timecreated',
-	            'updateAttribute' => 'timemodified',
+	        'EcTimestampBehavior' => array(
+	            'class' => 'application.behaviors.EcTimestampBehavior',
+	            'updateAttribute' => null,
 	        ),
 	    );
 	}

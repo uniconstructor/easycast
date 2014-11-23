@@ -15,6 +15,9 @@
  * @property string $operation
  * @property string $timecreated
  * @property string $timemodified
+ * 
+ * Relations:
+ * @property SearchFilterField $filterField - поле фильтра поиска которому принадлежит это значение
  */
 class SearchFilterValue extends CActiveRecord
 {
@@ -46,8 +49,23 @@ class SearchFilterValue extends CActiveRecord
 	public function relations()
 	{
 		return array(
-		    
+		    // поле фильтра поиска которому принадлежит это значение
+		    'filterField' => array(self::BELONGS_TO, 'SearchFilterField', 'filterfieldid'),
 		);
+	}
+	
+	/**
+	 * @see CActiveRecord::scopes()
+	 */
+	public function scopes()
+	{
+	    // стандартные условия поиска по датам создания и изменения
+	    $timestampScopes = $this->asa('EcTimestampBehavior')->getDefaultTimestampScopes();
+	    // собственные условия поиска для модели
+	    $modelScopes = array(
+	        
+	    );
+	    return CMap::mergeArray($timestampScopes, $modelScopes);
 	}
 
 	/**
