@@ -65,6 +65,7 @@ class ProjectController extends Controller
 	{
 		$model = new Project;
 		$this->performAjaxValidation($model);
+		
 		if ( isset($_POST['Project']) )
 		{
 			$model->attributes = $_POST['Project'];
@@ -88,6 +89,7 @@ class ProjectController extends Controller
 	{
 		$model = $this->loadModel($id);
 		$this->performAjaxValidation($model);
+		
 		if ( isset($_POST['Project']) )
 		{
 			$model->attributes = $_POST['Project'];

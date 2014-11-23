@@ -45,22 +45,27 @@ if ( $model->isNewRecord )
     );
      */
 }
+
+// модуль User
+$userModule = Yii::app()->getModule('user');
+// данные формы нужны для корректной работы элемента выбора даты
+$formData = Yii::app()->request->getParam('Project');
+// рейтинг проекта (задается только здесь, в админке. Нужен только для сортировки проектов
+// при отображении для для заказчика и в коммерческом предложении)
+$ratings = array('0' => 'Нет');
+for ( $i = 0; $i <= 1000; $i++ )
+{// и ключи и значения массива должны быть строковыми иначе не работает dropdownlist
+    $ratings["$i"] = (string)$i;
+}
+// галереи для логотипа и для загрузки изображений
+$logoGallery  = $model->galleryBehavior->getGallery();
+$photoGallery = $model->photoGalleryBehavior->getGallery();
+
 // форма редактирования проекта
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 	'id' => 'project-form',
 	'enableAjaxValidation' => false,
 ));
-// модуль User
-$userModule = Yii::app()->getModule('user');
-// данные формы нужны для корректной работы элемента выбора даты
-$formData = Yii::app()->request->getParam('Project');
-// рейтинг проекта (задается только здесь, в админке. Нужен только для сортировки проектов 
-// при отображении для для заказчика и в коммерческом предложении)
-$ratings = array('0' => 'Нет');
-for ( $i = 0; $i <= 1000; $i++ )
-{// ключи массива должны быть строковыми иначе плохо работает dropdownlist
-    $ratings["$i"] = (string)$i;
-}
 
 echo Yii::t('coreMessages', 'form_required_fields', array('{mark}' => '<span class="required">*</span>'));
 echo $form->errorSummary($model);
@@ -93,17 +98,19 @@ echo $form->widgetRow('ext.imperavi-redactor-widget.ImperaviRedactorWidget', arr
 
 // логотип
 echo '<div><b>Логотип</b></div>';
-if ( $model->galleryBehavior->getGallery() === null )
+if ( ! $logoGallery )
 {
     echo '<p>Нужно сохранить проект перед загрузкой логотипа</p>';
 }else
 {
-    $this->widgetRow('GalleryManager', array(
-         'gallery'         => $model->gallery,
-         'controllerRoute' => '/admin/gallery'
+    $form->widget('GalleryManager', array(
+        'gallery'         => $logoGallery,
+        'controllerRoute' => '/admin/gallery'
     ));
 }
 
+// создать проект без даты начала
+echo $form->checkBoxRow($model, 'notimestart');
 // дата начала проекта
 if ( isset($formData['timestart']) )
 {
@@ -116,23 +123,22 @@ if ( isset($formData['timestart']) )
     $model->timestart = null;
 }
 echo $form->datepickerRow($model, 'timestart', array(
-        'options' => array(
-            'language'       => 'ru',
-            'format'         => Yii::app()->params['inputDateFormat'],
-            'startView'      => 'month',
-            'weekStart'      => 1,
-            'autoclose'      => true,
-            'todayHighlight' => true,
-        ),
-    ),
+    'options' => array(
+        'language'       => 'ru',
+        'format'         => Yii::app()->params['inputDateFormat'],
+        'startView'      => 'month',
+        'weekStart'      => 1,
+        'autoclose'      => true,
+        'todayHighlight' => true,
+    )),
     array(
         'hint'    => 'Если дата начала точно не известна - поставьте галочку "дата начала уточняется"',
         'prepend' => '<i class="icon-calendar"></i>',
     )
 );
-// создать проект без даты начала
-echo $form->checkBoxRow($model, 'notimestart');
 
+// создать длительный без даты окончания
+echo $form->checkBoxRow($model, 'notimeend');
 // дата окончания проекта
 if ( isset($formData['timeend']) )
 {
@@ -145,23 +151,20 @@ if ( isset($formData['timeend']) )
     $model->timeend = null;
 }
 echo $form->datepickerRow($model, 'timeend', array(
-        'options' => array(
-            'language'       => 'ru',
-            'format'         => Yii::app()->params['inputDateFormat'],
-            'startView'      => 'month',
-            'weekStart'      => 1,
-            'autoclose'      => true,
-            'todayHighlight' => true,
-        ),
-    ),
+    'options' => array(
+        'language'       => 'ru',
+        'format'         => Yii::app()->params['inputDateFormat'],
+        'startView'      => 'month',
+        'weekStart'      => 1,
+        'autoclose'      => true,
+        'todayHighlight' => true,
+    )),
     array(
         'hint'    => 'Если планируется длительный проект - поставьте галочку "Дата окончания неизвестна"',
         'prepend' => '<i class="icon-calendar"></i>',                
     )
 );
 
-// создать длительный без даты окончания
-echo $form->checkBoxRow($model, 'notimeend');
 // руководитель проекта
 echo $form->dropDownListRow($model, 'leaderid',  $userModule::getAdminList());
 // помощник 
@@ -172,18 +175,18 @@ echo $form->dropDownListRow($model, 'supportid', $userModule::getAdminList(true)
 echo $form->checkBoxRow($model, 'isfree');
 // фотки с проекта
 echo '<div>Фотогалерея</div>';
-if ( ! $model->gallery )
+if ( ! $photoGallery  )
 {
     echo '<div class="alert">Нужно сохранить проект перед загрузкой фотографий</div>';
 }else
 {
-    $this->widgetRow('GalleryManager', array(
-         'gallery'         => $model->gallery,
+    $form->widget('GalleryManager', array(
+         'gallery'         => $photoGallery,
          'controllerRoute' => '/admin/gallery',
     ));
 }
 // кнопка сохранения 
-$this->widget('bootstrap.widgets.TbButton', array(
+$form->widget('bootstrap.widgets.TbButton', array(
 	'buttonType' => 'submit',
 	'type'       => 'primary',
 	'label'      => $model->isNewRecord ? Yii::t('coreMessages', 'create') : Yii::t('coreMessages', 'save'),
@@ -196,16 +199,16 @@ $this->endWidget();
     <legend>Видео</legend>
     <?php
     // список видео
-    if ( ! $model->isNewRecord )
+    if ( $model->isNewRecord )
     {// не показываем добавление видео при создании проекта - его не к чему прикреплять пока проект не создан
+        echo '<div class="alert">Нужно сохранить проект перед добавлением видео</div>';
+    }else
+    {
         $this->widget('ext.ECEditVideo.ECEditVideo', array(
             'objectType'  => 'project',
             'objectId'    => $model->id,
             'clipModule'  => 'admin',
         ));
-    }else
-    {
-        echo '<div class="alert">Нужно сохранить проект перед добавлением видео</div>';
     }
     ?>
 </fieldset>
@@ -215,3 +218,44 @@ foreach ( Yii::app()->getModule('admin')->formClips as $clip )
 {
     echo $this->clips[$clip];
 }
+
+// @todo выключать поля даты и начала окончания при изменении галочек
+/*$function = 'function setProjectTimeInput()
+{
+    var timeStartInput = $("#Project_timestart");
+    var timeEndInput   = $("#Project_timeend");
+    if ( $("#Project_notimestart").is(":checked") )
+    {
+        timeStartInput.addClass("muted");
+        timeStartInput.val("");
+        timeStartInput.prop("disabled", true);
+    }else
+    {
+        timeStartInput.removeClass("muted");
+        timeStartInput.prop("disabled", false);
+    }
+    if ( $("#Project_notimeend").is(":checked") )
+    {
+        timeEndInput.addClass("muted");
+        timeEndInput.val("");
+        timeEndInput.prop("disabled", true);
+    }else
+    {
+        timeEndInput.removeClass("muted");
+        timeEndInput.prop("disabled", false);
+    }
+    console.log("set__");
+}';
+*/
+//Sweeml::registerEvent('updateTimeInput', "function(data){setProjectTimeInput()}");
+//Sweeml::registerEvent('updateTimeInput', $function);
+?>
+<script>
+    // trigger on change
+    //$("#Project_notimestart").change(function() {<?= Sweeml::raiseEvent('updateTimeInput'); ?>});
+    //$("#Project_notimeend").change(function()   {<?= Sweeml::raiseEvent('updateTimeInput'); ?>});
+    // init fields state
+    <?php 
+    //echo Sweeml::raiseEvent('updateTimeInput');
+    ?>
+</script>

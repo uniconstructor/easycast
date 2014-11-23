@@ -16,11 +16,11 @@ $this->menu = array(
 	array('label' => 'Просмотр проекта', 'url' => array('/admin/project/view', 'id' => $model->id)),
 );
 
-echo '<div class="page"><div class="container">';
+//echo '<div class="page"><div class="container">';
 ?>
-<h1>Редактировать проект "<?php echo $model->name; ?>"</h1>
+<h1><?= $model->name; ?></h1>
 <?php 
 echo $this->renderPartial('_form', array(
     'model' => $model,
 ));
-echo '</div></div>';
+//echo '</div></div>';
