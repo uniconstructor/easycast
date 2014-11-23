@@ -6,7 +6,7 @@
  * Таблица '{{projects}}':
  * @property integer $id
  * @property string $name
- * @property string $type
+ * @property string $typeid
  * @property string $description
  * @property string $shortdescription
  * @property string $customerdescription
@@ -30,17 +30,22 @@
  *                             По смыслу идея чем-то напоминает абстрактный класс в программировании.
  * @property string $email - почта на которую будут приходить вопросы и заявки участников
  * 
+ * Геттеры:
+ * @property string $type
+ * 
  * Relations:
- * @property User $leader
- * @property User $support
- * @property array $events
- * @property array $userevents
- * @property array $activeevents
- * @property array $finishedevents
- * @property array $videos
- * @property ProjectEvent[] $groups
- * @property array $opengroups
- * @property array $activegroups
+ * @property User           $leader
+ * @property User           $support
+ * @property ProjectEvent[] $events
+ * @property Video[]        $videos
+ * @property EasyListItem   $typeItem
+ * 
+ * @property array $userevents (deprecated)
+ * @property array $activeevents (deprecated)
+ * @property array $finishedevents (deprecated)
+ * @property array $groups (deprecated)
+ * @property array $opengroups (deprecated)
+ * @property array $activegroups (deprecated)
  * 
  * @todo переписать relations через именованные группы условий
  * @todo сделать список типов проекта настраиваемым
@@ -51,6 +56,8 @@
  * @todo константы типов проекта больше не используются - их следует удалить из класса,
  *       и вычистить все упоминания о них из остального кода 
  * @todo сделать лого отдельным полем или настройкой, но не галереей
+ * @todo (при удалении проекта) удалять элементы списка, ссылающиеся на этот проект
+ * @todo (при удалении проекта) удалять настройки, ссылающиеся на этот проект
  */
 class Project extends SWActiveRecord
 {
@@ -199,8 +206,14 @@ class Project extends SWActiveRecord
      */
     const MAX_GALLERY_PHOTOS = 10;
     
+    /**
+     * @var Config - системная настройка хранящая список типов проекта
+     */
+    private $_typesListConfig;
+    
 	/**
 	 * Returns the static model of the specified AR class.
+	 * 
 	 * @param string $className active record class name.
 	 * @return Project the static model class
 	 */
@@ -233,7 +246,7 @@ class Project extends SWActiveRecord
 	    // после создания проекта автоматически создаем 
 	    // и прикрепляем к нему группы разделов заявок и группы дополнительных полей
 	    // @todo обработать ошибки
-	    // @todo убрать использование type при создании категории 
+	    // @todo убрать использование категорий - использовать списки  
 	    if ( $this->isNewRecord )
 	    {
 	        // группы заявок
@@ -267,13 +280,53 @@ class Project extends SWActiveRecord
 	/**
 	 * @see CActiveRecord::beforeDelete()
 	 */
-	protected function beforeDelete()
+	public function beforeDelete()
 	{
-	    foreach ( $this->events as $event )
-	    {// При удалении проекта удаляем все его мероприятия
-	        $event->delete();
+	    $transaction = $this->getDbConnection()->beginTransaction();
+	    // удаляем все связанные с проектом записи чтобы не оставлять битых ссылок
+	    try
+	    {
+	        // удаляем мероприятия
+	        $events = ProjectEvent::model()->forProject($this->id)->findAll();
+	        foreach ( $events as $event )
+	        {
+    	        if ( ! $event->delete() )
+    	        {// не удалось удалить событие
+    	            $transaction->rollback();
+    	            // запоминаем ошибку в логах
+    	            $msg = 'Unable to delete event (id='.CVarDumper::dumpAsString($event->id).')'.
+    	                'during project deletion (id='.CVarDumper::dumpAsString($this->id).')';
+    	            Yii::log($msg, CLogger::LEVEL_ERROR, 'projects');
+    	            // прерываем процесс удаления
+    	            return false;
+    	        }
+	        }
+	        // удаляем видео
+	        $videos = Video::model()->forObject('Project', $this->id)->findAll();
+	        foreach ( $videos as $video )
+	        {// @todo проверка результата удаления видео
+	            $video->delete();
+	        }
+	        // все операции прошли успешно - завершаем транзакцию
+	        $transaction->commit();
+	    }catch ( Exception $e )
+	    {// ошибка прир удалении проекта
+	        $transaction->rollback();
+	        // запоминаем ошибку в логах
+	        $msg = "Exception: ".$e->getMessage().' ('.$e->getFile().':'.$e->getLine().")\n".$e->getTraceAsString()."\n";
+	        Yii::log($msg, CLogger::LEVEL_ERROR, 'projects.projects');
+	        // прерываем процесс удаления
+	        return false;
 	    }
 	    return parent::beforeDelete();
+	}
+	
+	/**
+	 * @see CActiveRecord::afterDelete()
+	 */
+	public function afterDelete()
+	{
+	    parent::afterDelete();
 	}
 	
 	/**
@@ -286,41 +339,42 @@ class Project extends SWActiveRecord
 	        'leader' => array(self::BELONGS_TO, 'User', 'leaderid'),
 	        // Помошник руководителя
 	        'support' => array(self::BELONGS_TO, 'User', 'supportid'),
-	
-	        // Все группы проекта
+	        // мероприятия проекта
+	        'events' => array(self::HAS_MANY, 'ProjectEvent', 'projectid',
+	            'condition' => "`events`.`type` != 'group'",
+	        ),
+	        // элемент списка, содержащий тип проекта
+	        'typeItem' => array(self::BELONGS_TO, 'EasyListItem', 'typeid'),
+	        // видео проекта
+	        'videos' => array(self::HAS_MANY, 'Video', 'objectid',
+	            'scopes' => array(
+    	            'withObjectType' => array('project'),
+    	        ),
+	        ),
+	        // @todo участники проекта: (связь типа "мост")
+	        // 'members' =>
+	        //// устаревшие связи ////
+	        // @todo удалить устаревшую связь: использовать списки вместо групп мероприятий
 	        'groups' => array(self::HAS_MANY, 'ProjectEvent', 'projectid',
 	            'condition' => "`groups`.`type` = 'group'"),
-	        // Открытые группы событий (те в которые можно добавить мероприятия)
+            // @todo удалить устаревшую связь: Открытые группы событий
 	        'opengroups' => array(self::HAS_MANY, 'ProjectEvent', 'projectid',
 	            'condition' => "(`opengroups`.`type` = 'group') AND (`opengroups`.`status` IN ('draft', 'active'))"),
-	        // Активные группы проекта
+            // @todo удалить устаревшую связь: Активные группы проекта
 	        'activegroups' => array(self::HAS_MANY, 'ProjectEvent', 'projectid',
 	            'condition' => "(`activegroups`.`type` = 'group') AND (`activegroups`.`status` = 'active')"),
-	
-	        // Все мероприятия проекта
-	        'events' => array(self::HAS_MANY, 'ProjectEvent', 'projectid',
-	            'condition' => "`events`.`type` != 'group'"),
-	        // Все видимые пользователю мероприятия
+	        // @todo удалить устаревшую связь: Все видимые пользователю мероприятия
 	        'userevents' => array(self::HAS_MANY, 'ProjectEvent', 'projectid',
 	            'condition' => "(`userevents`.`status` IN ('active', 'finished')) AND (`userevents`.`type` != 'group')",
 	            'order' => "`userevents`.`status` ASC, `userevents`.`timestart` DESC"),
-	        // Все активные предстоящие мероприятия
+            // @todo удалить устаревшую связь: Все активные предстоящие мероприятия
 	        'activeevents' => array(self::HAS_MANY, 'ProjectEvent', 'projectid',
 	            'condition' => "(`activeevents`.`status` = 'active') AND (`activeevents`.`type` != 'group')",
 	            'order' => "`activeevents`.`timestart` DESC"),
-	        // Все завершенные мероприятия
+            // @todo удалить устаревшую связь: Все завершенные мероприятия
 	        'finishedevents' => array(self::HAS_MANY, 'ProjectEvent', 'projectid',
 	            'condition' => "`finishedevents`.`status` = 'finished' AND (`finishedevents`.`type` != 'group')",
-	            'order' => "`finishedevents`.`timeend` DESC"),
-	
-	        // участники проекта
-	        // @todo изучить и применить связь типа "мост"
-	        // 'members' =>
-	         
-	        // Видео проекта
-	        'videos' => array(self::HAS_MANY, 'Video', 'objectid',
-	            'condition' => "`videos`.`objecttype`='project'",
-	        ),
+	            'order'     => "`finishedevents`.`timeend` DESC"),
 	    );
 	}
 	
@@ -333,7 +387,6 @@ class Project extends SWActiveRecord
 	{
 	    Yii::import('ext.galleryManager.*');
 	    Yii::import('ext.galleryManager.models.*');
-	    
 	    // настройки сохранения логотипа
 	    $logoSettings = array(
             'class'       => 'GalleryBehavior',
@@ -345,7 +398,7 @@ class Project extends SWActiveRecord
                     'centeredpreview' => array(150, 150),
                 ),
                 'full' => array(
-                    'resize'          => array(530, 530),
+                    'resize' => array(530, 530),
                 ),
             ),
             'name'        => false,
@@ -362,10 +415,10 @@ class Project extends SWActiveRecord
 	                'centeredpreview' => array(150, 150),
 	            ),
 	            'medium' => array(
-	                'resize'          => array(530, 330),
+	                'resize' => array(530, 330),
 	            ),
 	            'full' => array(
-	                'resize'          => array(800, 1000),
+	                'resize' => array(800, 1000),
 	            ),
 	        ),
 	        'name'        => true,
@@ -422,18 +475,16 @@ class Project extends SWActiveRecord
 	public function rules()
 	{
 		return array(
-			array('name, type, description', 'required'),
+			array('name, typeid, description', 'required'),
 			array('isfree, virtual', 'numerical', 'integerOnly' => true),
 			array('name, email', 'length', 'max' => 255),
 			array('email', 'email'),
 			array('email', 'unique'),
-			array('type, status', 'length', 'max' => 50),
+			array('status, type', 'length', 'max' => 50),
 			array('description, shortdescription, customerdescription', 'length', 'max' => 4095),
 			array('photogalleryid, galleryid, timestart, timeend, timecreated, timemodified, 
-			    leaderid, supportid, customerid, orderid, memberscount, rating, notimestart, notimeend', 'length', 'max' => 12),
-		    
-		    /*array('timeend', 'type', 'type' => 'date', 
-		        'message' => 'Неправильный формат даты', 'dateFormat' => 'dd.MM.yyyy'),*/
+			    leaderid, supportid, customerid, orderid, memberscount, rating, notimestart, 
+			    notimeend, typeid', 'length', 'max' => 11),
 		    // делаем обязательными дату начала и окончания проекта, только если не установлены галочки
 		    // "без даты начала" или "без даты окончания"
 		    array('timestart', 'ext.YiiConditionalValidator',
@@ -456,8 +507,9 @@ class Project extends SWActiveRecord
 		    array('timeend', 'parseDateInput'),
 		    
 			// The following rule is used by search().
-			array('id, name, type, description, galleryid, timestart, timeend, timecreated, timemodified, 
-			    leaderid, customerid, orderid, isfree, virtual, memberscount, status, rating', 'safe', 'on' => 'search'),
+			array('id, name, typeid, description, galleryid, timestart, timeend, timecreated, timemodified, 
+			    leaderid, customerid, orderid, isfree, virtual, memberscount, status, rating', 
+			    'safe', 'on' => 'search'),
 		);
 	}
 	
@@ -483,56 +535,61 @@ class Project extends SWActiveRecord
 	}
 	
 	/**
-	 * Именованная группа условий поиска - выбрать записи по статусам
+	 * Именованная группа условий поиска - выбрать проекты по типу (используя сокращенное название типа)
 	 * 
-	 * @param array|string $statuses - массив статусов или строка если статус один
+	 * @param  string|array $type - тип проекта или массив таких типов 
+	 * @param  string $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
 	 * @return Project
 	 */
-	public function withStatus($statuses=array())
+	public function withType($type, $operation='AND')
 	{
-	    $criteria = new CDbCriteria();
-	    if ( ! is_array($statuses) )
-	    {// нужен только один статус, и он передан строкой - сделаем из нее массив
-	        $statuses = array($statuses);
-	    }
-	    if ( empty($statuses) )
-	    {// Если статус не указан - выборка по этому параметру не требуется
-	        return $this;
-	    }
-	    
-	    $criteria->addInCondition($this->getTableAlias(true).'.`status`', $statuses);
-	    $this->getDbCriteria()->mergeWith($criteria);
-	
-	    return $this;
-	}
-	
-	/**
-	 * Именованная группа условий поиска - выбрать проекты по типу
-	 * 
-	 * @param array $types
-	 * @return Project
-	 */
-	public function withType($types=array())
-	{
-	    $criteria = new CDbCriteria();
-	    if ( ! is_array($types) )
-	    {
-            $types = array($types);
-	    }
-	    if ( empty($types) )
-	    {// тип не указан - выборка по этому параметру не требуется
+	    if ( ! $type )
+	    {// условие не используется
             return $this;
 	    }
-	    $criteria->addInCondition($this->getTableAlias(true).'.`type`', $types);
-	    $this->getDbCriteria()->mergeWith($criteria);
+	    $criteria = new CDbCriteria();
+	    $criteria->with = array(
+	        'instances' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes'   => array(
+	                'withValue' => array($type),
+	            ),
+	        ),
+	    );
+	    $criteria->together = true;
+	    
+	    $this->getDbCriteria()->mergeWith($criteria, $operation);
 	    
 	    return $this;
 	}
 	
 	/**
-	 * Именованная группа условий: получить все проекты руководителя
+	 * Именованная группа условий поиска - выбрать проекты по типу (используя id типа)
 	 * 
-	 * @param int $userId - id руководителя проекта в таблице Users
+	 * @param  int|array $typeId - id типа проекта в таблице {{easy_list_items}} или массив таких id 
+	 * @param  string $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+	 * @return Project
+	 */
+	public function withTypeId($typeId, $operation='AND')
+	{
+	    if ( ! $typeId )
+	    {// условие не используется
+            return $this;
+	    }
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->getTableAlias(true).'.`typeid`', $typeId);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria, $operation);
+	    
+	    return $this;
+	}
+	
+	/**
+	 * Именованная группа условий: получить все проекты указанного руководителя
+	 * 
+	 * @param int $userId - id руководителя проекта в таблице Users (или массив таких id)
+	 *                      Если указан 0 - то будут найдены все проекты без руководителя
 	 * @return Project
 	 */
 	public function forLeader($userId)
@@ -541,6 +598,7 @@ class Project extends SWActiveRecord
 	    $criteria->compare($this->getTableAlias(true).'.`leaderid`', $userId);
 	    
 	    $this->getDbCriteria()->mergeWith($criteria);
+	    
 	    return $this;
 	}
 
@@ -553,6 +611,7 @@ class Project extends SWActiveRecord
 			'id' => 'ID',
 			'name' => ProjectsModule::t('name'),
 			'type' => ProjectsModule::t('type'),
+			'typeid' => ProjectsModule::t('type'),
 			'typetext' => ProjectsModule::t('type'),
 			'description' => ProjectsModule::t('project_description'),
 			'customerdescription' => ProjectsModule::t('project_customerdescription'),
@@ -572,7 +631,7 @@ class Project extends SWActiveRecord
 			'statustext' => ProjectsModule::t('status'),
 			'groups' => 'Группы',
 			'notimestart' => 'Дата начала уточняется',
-			'notimeend' => 'Без даты окончания',
+			'notimeend' => 'Дата окончания неизвестна (для длительных проектов)',
 			'rating' => 'Рейтинг',
 		);
 	}
@@ -610,7 +669,7 @@ class Project extends SWActiveRecord
 	
 	/**
 	 * Получить описание проекта (для участника или заказчика)
-	 * Если нужное описание отсутствует - подставляется то которое есть
+	 * Если специальное описание заказчика/участника отсутствует - подставляется то которое есть
 	 * 
 	 * @param  string - режим просмотра сайта: для участника или для заказчика
 	 * @return string
@@ -632,81 +691,132 @@ class Project extends SWActiveRecord
 	    {
 	        $userDescription = $this->customerdescription;
 	    }
-	    if ( $userMode == 'user' )
+	    if ( $userMode === 'user' )
 	    {
 	        return $userDescription;
-	    }else
+	    }elseif ( $userMode === 'customer' )
 	    {
 	        return $cutomerDescription;
+	    }else
+	    {
+	        return $userDescription;
 	    }
 	}
 	
 	/**
-	 * Получить список возможных менеджеров проекта для выпадающего меню
-	 * @return array
+	 * Получить тип проекта для отображения пользователю
 	 * 
-	 * @deprecated использовать метод из модуля User, оставлено для совместимости
+	 * @param  string $field
+	 * @return string
 	 */
-	public function getManagerList($emptyOption=false)
+	public function getType($field='name')
 	{
-	    $userModule = Yii::app()->getModule('user');
-	    return $userModule::getAdminList($emptyOption);
+	    if ( $this->typeItem AND isset($this->typeItem->$field) )
+	    {
+	        return $this->typeItem->$field;
+	    }
+	    return '';
+	}
+	
+	/**
+	 * Задать тип проекта (геттер)
+	 * 
+	 * @param  string|int|EasyListItem $type - id или короткое название типа проекта
+	 * @return void
+	 */
+	public function setType($type)
+	{
+	    if ( ! $type )
+	    {
+	        return;
+	    }
+	    $typesListId = $this->getProjectTypesConfig()->valueid;
+	    
+	    if ( is_object($type) AND ( get_class($type) === 'EasyListItem' ) )
+	    {// передан элемент списка
+	        if ( $type->easylistid === $typesListId )
+	        {
+	            $this->typeid = $type->id;
+	            return;
+	        }
+	    }
+	    if ( intval($type) )
+	    {// передан id элемента списка
+	        if ( $type = EasyListItem::model()->forList($typesListId)->findByPk($type) )
+	        {
+	            $this->typeid = $type->id;
+	            return;
+	        }
+	    }
+	    if ( is_string($type) )
+	    {// передано короткое название типа
+	        if ( $type = EasyListItem::model()->forList($typesListId)->withValue($type)->find() )
+	        {
+	            $this->typeid = $type->id;
+	            return;
+	        }
+	    }
+	    // попытка задать неправильный тип проекта
+	    $msg = 'Trying to set incorrect project type: '.CVarDumper::dumpAsString($type);
+	    Yii::log($msg, CLogger::LEVEL_ERROR, 'modules.projects');
+	}
+	
+	/**
+	 * Получить тип проекта для отображения пользователю (alias) 
+	 * 
+	 * @param  string $type
+	 * @return string
+	 * 
+	 * @todo убрать использование $type
+	 */
+	public function getTypeLabel($type=null)
+	{
+	    if ( $type )
+	    {
+	        $items = $this->getProjectTypesConfig()->selectedListItems;
+	        $types = CHtml::listData($items, 'value', 'name');
+	        if ( isset($types[$type]) )
+	        {
+	            return $types[$type];
+	        }
+	    }else
+	    {
+	        return $this->getType();
+	    }
 	}
 	
 	/**
 	 * Получить список возможных типов проекта
+	 *
 	 * @return array
-	 * 
-	 * @todo получать варианты из настраиваемого списка
 	 */
-	public function getTypeList()
+	public function getTypesList()
 	{
-	    $result = array('' => '--- '.Yii::t('coreMessages', 'choose').' ---');
-	    $types  = array('ad', 'videoad', 'film', 'documentary', 'series', 'tvshow', 'expo', 'promo',
-	        'flashmob', 'videoclip', 'video', 'docureality', 'realityshow', 'shortfilm', 'conference', 
-	        'concert', 'theatreperfomance', 'musical', 'corporate', 'festival');
-	    foreach ( $types as $type )
-	    {
-	        $result[$type] = ProjectsModule::t('project_type_'.$type);
-	    }
-	    asort($result);
-	    
-	    $result = CMap::mergeArray(array('' => Yii::t('coreMessages', 'choose')), $result);
-	    return $result;
+	    $items = $this->getProjectTypesConfig()->selectedListItems;
+	    return CHtml::listData($items, 'id', 'name');
 	}
 	
 	/**
-	 * Получить тип проекта для отображения пользователю
-	 * @param string $type
-	 * @return string
+	 * Получить системную настройку, отвечающую за возможные типы проекта
 	 * 
-	 * @deprecated заменить на getTypeLabel при рефакторинге
+	 * @return Config
 	 */
-	public function getTypeText($type=null)
+	public function getProjectTypesConfig()
 	{
-	    if ( ! $type )
+	    if ( $this->_typesListConfig )
 	    {
-	        $type = $this->type;
+	        return $this->_typesListConfig;
 	    }
-	    $projectsModule = Yii::app()->getModule('projects');
-	    return $projectsModule::t('project_type_'.$type);
-	}
-	
-	/**
-	 * Получить тип проекта для отображения пользователю
-	 * @param string $type
-	 * @return string
-	 * 
-	 * @todo стандартизировать имена функций получения типа: для любого объекта, обладающего типом
-	 *       эта функция должна называться getTypeLabel
-	 */
-	public function getTypeLabel($type=null)
-	{
-	    return $this->getTypeText($type);
+	    if ( $this->_typesListConfig = Config::model()->withName('projectTypesListId')->systemOnly()->find() )
+	    {
+	        return $this->_typesListConfig;
+	    }
+	    throw new CException('Не удалось найти системную настройку со списком типов проекта');
 	}
 	
 	/**
 	 * Разослать приглашения всем подходящим участникам в базе
+	 * 
 	 * @return bool
 	 */
 	public function sendInvites()
@@ -723,115 +833,16 @@ class Project extends SWActiveRecord
 	}
 	
 	/**
-	 * Получить список статусов, в которые может перейти проект
-	 * @return array
-	 * 
-	 * @deprecated
-	 */
-	public function getAllowedStatuses()
-	{
-	    switch ( $this->status )
-	    {
-	        case 'draft': 
-	            return array('active');
-            break;
-            case 'active':
-                return array('finished');
-            break;
-	    }
-	    return array();
-	}
-	
-	/**
-	 * Получить статус записи для отображения пользователю
-	 * @param string $status
-	 */
-	public function getStatusText($status=null)
-	{
-	    if ( ! $status )
-	    {
-	        $status = $this->status;
-	    }
-	    if ( ! in_array($status, array(self::STATUS_ACTIVE, self::STATUS_DRAFT, self::STATUS_FILLED, self::STATUS_FINISHED)) )
-	    {
-	        return '';
-	    }
-	    return ProjectsModule::t('project_status_'.$status);
-	}
-	
-	/**
-	 * Перевести объект из одного статуса в другой, выполнив все необходимые действия
-	 * @param string $newStatus
-	 * @return bool
-	 * 
-	 * @deprecated
-	 */
-	public function setStatus($newStatus)
-	{
-	    if ( ! in_array($newStatus, $this->getAllowedStatuses()) )
-	    {
-	        return false;
-	    }
-	    
-	    // сначала меняем статус самого проекта
-	    $this->status = $newStatus;
-	    $this->save();
-	    
-	    if ( $newStatus == 'active' )
-	    {// проект запускается
-	        foreach ( $this->groups as $group )
-	        {// сначала активируем все группы событий
-	            if ( $group->status == 'draft' )
-	            {
-	                $group->setStatus('active');
-	            }
-	        }
-	        foreach ( $this->events as $event )
-	        {// затем все отдельные мероприятия проекта
-	            if ( $event->status == 'draft' AND ( $event->vacancies OR $event->group ) )
-	            {// активируем только те мероприятия на которые уже созданы вакансии
-	                // или те которые находятся в группе
-	                $event->setStatus('active');
-	            }
-	        }
-	    }
-	    
-	    if ( $newStatus == 'finished' )
-	    {// проект завершается
-	        foreach ( $this->opengroups as $group )
-	        {// сначала завершаем все группы событий
-    	        if ( $group->status == 'active' )
-    	        {
-    	            $group->setStatus('finished');
-    	        }elseif ( $group->status == 'draft' )
-    	        {// не начатые группы событий удаляем
-    	            $group->delete();
-    	        }
-	        }
-	        foreach ( $this->events as $event )
-	        {// завершаем все отдельные мероприятия проекта
-	            if ( $event->status == 'active' )
-	            {
-	                $event->setStatus('finished');
-	            }elseif ( $event->status == 'draft' )
-	            {// если проект завершен - удаляем все события которые так и не начались
-	                $event->delete();
-	            }
-	        }
-	    }
-	    
-	    return true;
-	}
-	
-	/**
 	 * Получить все доступные для участника вакансии в проекте
-	 * @param int $questionaryId - id анкеты для которой ищутся подходящие вакансии
-	 *                              (если не указан - берется id текущего пользователя)
-	 * @param bool $withApplications - добавить ли в конец списка вакансии, на которые пользователь уже подал
-	 *                                  заявки, которые либо еще не рассмотрели либо уже утвердили
+	 * 
+	 * @param int $questionaryId     - id анкеты для которой ищутся подходящие вакансии
+	 *                                 (если не указан - берется id текущего пользователя)
+	 * @param bool $withApplications - добавить ли в конец списка роли,  
+	 *                                 на которые пользователь уже подал заявки, 
+	 *                                 которые либо еще не рассмотрели либо уже утвердили
 	 * @return array
 	 * 
-	 * @todo выбрать все вакансии в начале не по событиям, а одним запросом
+	 * @todo переписать, используя списки
 	 * @todo показать гостям вакансии, но кнопка "подать заявку" должна открывать форму регистрации
 	 */
 	public function getAvailableVacancies($questionaryId=null, $withApplications=true)
@@ -875,7 +886,6 @@ class Project extends SWActiveRecord
 	            $vacancies[$vacancy->id] = $vacancy;
 	        }
 	    }
-	    
 	    // Склеиваем вместе вакансии с заявками и без них
 	    $vacancies = CMap::mergeArray($vacancies, $applications);
 	    
@@ -883,37 +893,8 @@ class Project extends SWActiveRecord
 	}
 	
 	/**
-	 * Получить все вакансии для всех активных событий проекта
-	 * (для админа, используется при просмотре проекта)
-	 * @param bool $withGroups - получить ли вакансии групп мероприятий вместе с вакансиями для отдельных мероприятий?
-	 * 
-	 * @return array
-     * @deprecated 
-	 */
-	public function getActiveVacancies($withGroups=true)
-	{
-	    $result = array();
-	    
-	    foreach ( $this->activeevents as $event )
-	    {// получаем вакансии для отдельных мероприятий 
-	        foreach ( $event->activevacancies as $vacancy )
-	        {
-	            $result[$vacancy->id] = $vacancy;
-	        }
-	        if ( $event->group )
-	        {// если мероприятие входит в группу - то добавим вакансии группы
-	            foreach ( $event->group->activevacancies as $groupVacancy )
-	            {
-	                $result[$groupVacancy->id] = $groupVacancy;
-	            }
-	        }
-	    }
-	    
-	    return $result;
-	}
-	
-	/**
 	 * Получить ссылку на картинку с аватаром проекта
+	 * 
 	 * @return string - url картинки или заглушка, если нет аватара
 	 */
 	public function getAvatarUrl($size='small', $insertPlaceholder=false)
@@ -932,12 +913,12 @@ class Project extends SWActiveRecord
 	    {// нет версии нужного размера
 	        return $nophoto;
 	    }
-	    
 	    return $avatar;
 	}
 	
 	/**
 	 * Определить, существует ли аватар для проекта
+	 * 
 	 * @return bool
 	 */
 	public function hasAvatar()
@@ -955,13 +936,12 @@ class Project extends SWActiveRecord
 	public function getBootstrapPhotos($size="medium")
 	{
 	    $tbPhotos = array();
+	    $num      = 0;
 	    if ( ! $photos = $this->photoGalleryBehavior->getGalleryPhotos() )
 	    {
 	        return array();
 	    }
-	
-	    $num = 0;
-	    foreach ($photos as $photo)
+	    foreach ( $photos as $photo )
 	    {
 	        $element = array();
 	        $element['id']    = $photo->id;
@@ -979,33 +959,15 @@ class Project extends SWActiveRecord
 	        $tbPhotos[] = $element;
 	        $num++;
 	    }
-	
 	    return $tbPhotos;
 	}
 	
 	/**
-	 * 
-	 * @param string $attribute
-	 * @param array $attribute
-	 * @return int
-	 */
-	public function parseDateInput($attribute, $params)
-	{
-	    if ( ! $this->hasErrors() )
-	    {
-	        if ( $date = CDateTimeParser::parse($this->$attribute, Yii::app()->params['inputDateFormat']) )
-	        {
-	            $this->$attribute = $date;
-	        }
-	    }
-	}
-    
-	/**
 	 * Действия, выполняемые при запуске проекта
 	 * 
-	 * @param Project $model
-	 * @param string $srcStatus
-	 * @param string $destStatus
+	 * @param  Project $model
+	 * @param  string $srcStatus
+	 * @param  string $destStatus
 	 * @return bool
 	 */
 	public function toActive($model, $srcStatus, $destStatus)
@@ -1033,16 +995,15 @@ class Project extends SWActiveRecord
 	    {// или те которые находятся в группе
 	        $event->setStatus('active');
 	    }
-	    
 	    return true;
 	}
 	
 	/**
 	 * Действия, выполняемые при завершении проекта
 	 *
-	 * @param Project $model
-	 * @param string $srcStatus
-	 * @param string $destStatus
+	 * @param  Project $model
+	 * @param  string $srcStatus
+	 * @param  string $destStatus
 	 * @return bool
 	 */
 	public function toFinished($model, $srcStatus, $destStatus)
@@ -1054,7 +1015,6 @@ class Project extends SWActiveRecord
 	    {
 	        $group->setStatus('finished');
 	    }
-	    
 	    // не начатые группы событий удаляем
 	    $draftGroups = ProjectEvent::model()->forProject($this->id)->
             withStatus(array(ProjectEvent::STATUS_DRAFT))->groupsOnly()->findAll();
@@ -1062,7 +1022,6 @@ class Project extends SWActiveRecord
 	    {
     	    $group->delete();
 	    }
-	    
 	    // завершаем все отдельные мероприятия проекта
 	    $activeEvents = ProjectEvent::model()->forProject($this->id)->
             withStatus(array(ProjectEvent::STATUS_ACTIVE))->exceptGroups()->findAll();
@@ -1070,7 +1029,6 @@ class Project extends SWActiveRecord
 	    {
 	        $event->setStatus('finished');
 	    }
-	    
 	    // удаляем все события которые так и не начались
 	    $draftEvents = ProjectEvent::model()->forProject($this->id)->
             withStatus(array(ProjectEvent::STATUS_DRAFT))->exceptGroups()->findAll();
@@ -1078,12 +1036,12 @@ class Project extends SWActiveRecord
 	    {
 	        $event->delete();
 	    }
-	    
 	    return true;
 	}
 	
 	/**
 	 * Можно ли отметить проект как готовый к запуску?
+	 * 
 	 * @return boolean
 	 */
 	protected function isReady()
@@ -1105,6 +1063,7 @@ class Project extends SWActiveRecord
 	
 	/**
 	 * Можно ли приостановить проект?
+	 * 
 	 * @return boolean
 	 * 
 	 * @todo проверять наличие хотя бы одного активного мероприятия
@@ -1116,10 +1075,201 @@ class Project extends SWActiveRecord
 	
 	/**
 	 * Можно ли сейчас завершить проект?
+	 * 
 	 * @return boolean
 	 */
 	protected function canFinish()
 	{
 	    return true;
+	}
+	
+	//// устаревшие методы (временно сохранены для совместимости) ////
+	
+	/**
+	 *
+	 * @param  string $attribute
+	 * @param  array $attribute
+	 * @return int
+	 *
+	 * @deprecated использовать фильтр в rules()
+	 */
+	public function parseDateInput($attribute, $params)
+	{
+	    if ( ! $this->hasErrors() )
+	    {
+	        if ( $date = CDateTimeParser::parse($this->$attribute, Yii::app()->params['inputDateFormat']) )
+	        {
+	            $this->$attribute = $date;
+	        }
+	    }
+	}
+	
+	/**
+	 * Получить все вакансии для всех активных событий проекта
+	 * (для админа, используется при просмотре проекта)
+	 *
+	 * @param bool $withGroups - получить ли вакансии групп мероприятий вместе с вакансиями для отдельных мероприятий?
+	 *
+	 * @return array
+	 * @deprecated
+	 */
+	public function getActiveVacancies($withGroups=true)
+	{
+	    $result = array();
+	    foreach ( $this->activeevents as $event )
+	    {// получаем вакансии для отдельных мероприятий
+	        foreach ( $event->activevacancies as $vacancy )
+	        {
+	            $result[$vacancy->id] = $vacancy;
+	        }
+	        if ( $event->group )
+	        {// если мероприятие входит в группу - то добавим вакансии группы
+	            foreach ( $event->group->activevacancies as $groupVacancy )
+	            {
+	                $result[$groupVacancy->id] = $groupVacancy;
+	            }
+	        }
+	    }
+	    return $result;
+	}
+	
+	/**
+	 * Перевести объект из одного статуса в другой, выполнив все необходимые действия
+	 *
+	 * @param  string $newStatus
+	 * @return bool
+	 *
+	 * @deprecated
+	 */
+	public function setStatus($newStatus)
+	{
+	    if ( ! in_array($newStatus, $this->getAllowedStatuses()) )
+	    {
+	        return false;
+	    }
+	    // сначала меняем статус самого проекта
+	    $this->status = $newStatus;
+	    $this->save();
+	     
+	    if ( $newStatus == 'active' )
+	    {// проект запускается
+	        foreach ( $this->groups as $group )
+	        {// сначала активируем все группы событий
+	            if ( $group->status == 'draft' )
+	            {
+	                $group->setStatus('active');
+	            }
+	        }
+	        foreach ( $this->events as $event )
+	        {// затем все отдельные мероприятия проекта
+	            if ( $event->status == 'draft' AND ( $event->vacancies OR $event->group ) )
+	            {// активируем только те мероприятия на которые уже созданы вакансии
+	                // или те которые находятся в группе
+	                $event->setStatus('active');
+	            }
+	        }
+	    }
+	    if ( $newStatus == 'finished' )
+	    {// проект завершается
+	        foreach ( $this->opengroups as $group )
+	        {// сначала завершаем все группы событий
+	            if ( $group->status == 'active' )
+	            {
+	                $group->setStatus('finished');
+	            }elseif ( $group->status == 'draft' )
+	            {// не начатые группы событий удаляем
+	                $group->delete();
+	            }
+	        }
+	        foreach ( $this->events as $event )
+	        {// завершаем все отдельные мероприятия проекта
+	            if ( $event->status == 'active' )
+	            {
+	                $event->setStatus('finished');
+	            }elseif ( $event->status == 'draft' )
+	            {// если проект завершен - удаляем все события которые так и не начались
+	                $event->delete();
+	            }
+	        }
+	    }
+	    return true;
+	}
+	
+	/**
+	 * Получить тип проекта для отображения пользователю
+	 *
+	 * @param string $type
+	 * @return string
+	 *
+	 * @deprecated заменить на getTypeLabel при рефакторинге
+	 */
+	public function getTypeText($type=null)
+	{
+	    return $this->getTypeLabel($type);
+	}
+	
+	/**
+	 * Получить список статусов, в которые может перейти проект
+	 *
+	 * @return array
+	 *
+	 * @deprecated после внедрения simpleWorkflow больше не используется - удалить при рефакторинге
+	 */
+	public function getAllowedStatuses()
+	{
+	    switch ( $this->status )
+	    {
+	        case 'draft':
+	            return array('active');
+	            break;
+	        case 'active':
+	            return array('finished');
+	            break;
+	    }
+	    return array();
+	}
+	
+	/**
+	 * Получить статус записи для отображения пользователю
+	 *
+	 * @param string $status
+	 *
+	 * @deprecated устаревшая функция - удалить при рефакторинге, убрать все использования
+	 */
+	public function getStatusText($status=null)
+	{
+	    if ( ! $status )
+	    {
+	        $status = $this->status;
+	    }
+	    if ( ! in_array($status, array(self::STATUS_ACTIVE, self::STATUS_DRAFT, self::STATUS_FILLED, self::STATUS_FINISHED)) )
+	    {
+	        return '';
+	    }
+	    return ProjectsModule::t('project_status_'.$status);
+	}
+	
+	/**
+	 * Получить список возможных менеджеров проекта для выпадающего меню
+	 * @return array
+	 *
+	 * @deprecated использовать метод из модуля User, оставлено для совместимости
+	 */
+	public function getManagerList($emptyOption=false)
+	{
+	    $userModule = Yii::app()->getModule('user');
+	    return $userModule::getAdminList($emptyOption);
+	}
+	
+	/**
+	 * Получить список возможных типов проекта
+	 *
+	 * @return array
+	 *
+	 * @deprecated всегда использовать множественное число для функций получения списков
+	 */
+	public function getTypeList()
+	{
+	    return $this->getTypesList();
 	}
 }
