@@ -10,7 +10,6 @@ class m141121_154400_addVideoExternalFileId extends EcMigration
         $table = "{{video}}";
         $this->addColumn($table, 'externalfileid', 'int(11) UNSIGNED NOT NULL DEFAULT 0');
         $this->createIndex('idx_externalfileid', $table, 'externalfileid');
-        
         $this->refreshTableSchema("{{video}}");
         
         // ищем все видео, которые ссылаются на файлы amazon
@@ -27,7 +26,7 @@ class m141121_154400_addVideoExternalFileId extends EcMigration
                 from('{{external_files}}')->where($condition)->queryRow();
             if ( $externalFile )
             {// запись о загруженном файле есть - привяжем видео к ней
-                $this->update('{{video}}', array('extrernalfileid' => $externalFile['id']), 'id='.$video['id']);
+                $this->update('{{video}}', array('externalfileid' => $externalFile['id']), 'id='.$video['id']);
             }else
             {// записи о файле нет в базе, но сам файл есть на Amazon S3 - так что создадим
                 // для него запись в таблице {{extrernal_files}} и привяжем видео к ней
@@ -48,10 +47,10 @@ class m141121_154400_addVideoExternalFileId extends EcMigration
                 $this->insert('{{external_files}}', $newFile);
                 $externalFileId = $this->getDbConnection()->getLastInsertID();
                 // привязываем видео к созданной записи файла
-                $this->update('{{video}}', array('extrernalfileid' => $externalFileId), 'id='.$video['id']);
+                $this->update('{{video}}', array('externalfileid' => $externalFileId), 'id='.$video['id']);
             }
         }
-        
+        // удаляем неиспользуемое поле
         $this->dropColumn("{{external_files}}", 'previousid');
     }
 }
