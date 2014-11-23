@@ -330,7 +330,7 @@ class Questionary extends CActiveRecord
         return array(
             // Связи обычных значений с другими таблицами
             // ссылка на пользователя системы
-            'user'    => array(self::BELONGS_TO, Yii::app()->getModule('questionary')->userClass, 'userid'),
+            'user'    => array(self::BELONGS_TO, 'User', 'userid'),
             // город проживания
             'cityobj' => array(self::BELONGS_TO, 'CSGeoCity', 'cityid'),
             // страна (гражданство)
@@ -345,6 +345,8 @@ class Questionary extends CActiveRecord
             ),
             // условия участия в съемках
             'recordingconditions' => array(self::HAS_ONE, 'QRecordingConditions', 'questionaryid'),
+            // все заявки участника
+            'applications' => array(self::HAS_MANY, 'ProjectMember', 'memberid'),
             
             
             // Значения анкеты, хранящиеся в других таблицах
@@ -399,34 +401,32 @@ class Questionary extends CActiveRecord
             'video' => array(self::HAS_MANY, 'Video', 'objectid',
                 'condition' => "`video`.`objecttype` = 'questionary'",
             ),
-            
+            // все фотографии участника
             'photo' => array(self::HAS_MANY, 'GalleryPhoto', array('gallery_id' => 'galleryid')),
             
-            // Метаданные: (история создания, изменения, данные о доп. полях и т. д.)
+            //// Метаданные: (история создания, изменения, данные о доп. полях и т. д.) ////
             // история создания: может хранить одновременно несколько записей, то есть изначально происхождение
             // данных анкеты может иметь несколько источников: например анкета создана админом (первый источник)
             // для конкретной роли (второй источник)
             'creationHistory' => array(self::HAS_MANY, 'QCreationHistory', 'questionaryid'),
             
-            // Связи с проектами и мероприятиями
+            //// Связи с проектами и мероприятиями ////
             // Новые (еще не просмотренные) приглашения на мероприятия
             // @todo переписать с использованием именованых условий поиска
             'invites' => array(self::HAS_MANY, 'EventInvite', 'questionaryid', 
                 'condition' => "`invites`.`status` = 'pending' AND `deleted` = 0",
                 'limit'     => self::LAST_INVITES_COUNT,
             ),
-            // Старые (уже просмотренные) приглашения на мероприятия
-            // (все что не в статусе черновик)
+            // Старые (уже просмотренные) приглашения на мероприятия (все что не в статусе черновик)
             // @todo переписать с использованием именованых условий поиска
             'oldinvites' => array(self::HAS_MANY, 'EventInvite', 'questionaryid', 
                 'condition' => "`invites`.`status` != 'draft' `deleted` = 0",
                 'limit'     => self::LAST_INVITES_COUNT,
             ),
             
-            // все записи обо всех когда-либо поданых заявках
-            'applications' => array(self::HAS_MANY, 'ProjectMember', 'memberid'),
             // Все заявки на участие в мероприятиях (неподтвержденные + предварительно отобранные)
-            'requests' => array(self::HAS_MANY, 'MemberRequest', 'memberid'),
+            // @todo переписать с использованием именованых условий поиска
+            'requests'     => array(self::HAS_MANY, 'MemberRequest', 'memberid'),
             // Только предварительно подтвержденные заявки на участие
             // @todo переписать с использованием именованых условий поиска
             'pendingrequests' => array(self::HAS_MANY, 'ProjectMember', 'memberid', 
