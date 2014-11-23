@@ -62,7 +62,7 @@ class EcAwsApi extends CApplicationComponent
      * @var int - количество попыток, которые следует предпринять, 
      *            если обращение к сервису Amazon не удалось
      */
-    const ATTEMPT_COUNT              = 6;
+    const ATTEMPT_COUNT              = 5;
     /**
      * @var int - пауза между попытками в секундах
      */
@@ -104,7 +104,7 @@ class EcAwsApi extends CApplicationComponent
      */
     public $settings = array(
         'ses' => array(
-            'queueUrl' => '',
+            
         ),
         'sqs' => array(
             
@@ -453,7 +453,7 @@ class EcAwsApi extends CApplicationComponent
         $args = $this->createSQSPopArgs($count);
         // извлекаем ждущие отправки сообщения из очереди
         for ( $count = 0; $count < self::ATTEMPT_COUNT; $count++ )
-        {// делаем запрос несколько раз (если не получается) на случай неполадок с сетью
+        {// делаем несколько попыток при неудачном запросе
             try
             {// запрос к сервису
                 $result   = $this->getSqs()->receiveMessage($args);
@@ -484,10 +484,22 @@ class EcAwsApi extends CApplicationComponent
                 'ApproximateNumberOfMessagesDelayed',
             ),
         );
-        // отправляем запрос для получения информации об очереди
-        $result = $this->getSqs()->getQueueAttributes($args);
-    
-        return $result['Attributes'];
+        for ( $count = 0; $count < self::ATTEMPT_COUNT; $count++ )
+        {// делаем несколько попыток при неудачном запросе
+            try
+            {// отправляем запрос для получения информации об очереди
+                $result = $this->getSqs()->getQueueAttributes($args);
+                if ( isset($result['Attributes']) )
+                {
+                    return $result['Attributes'];
+                }
+            }catch ( Exception $e )
+            {// ошибка при запросе - запишем в лог, ждем и пробуем еще раз
+                $this->log($e->getMessage());
+                sleep(self::ATTEMPT_TIMEOUT);
+            }
+        }
+        return false;
     }
     
     /**
@@ -515,7 +527,12 @@ class EcAwsApi extends CApplicationComponent
     public function emailQueueIsEmpty()
     {
         $info = $this->getEmailQueryInfo();
-        return (bool)$info['ApproximateNumberOfMessages'];
+        if ( isset($info['ApproximateNumberOfMessages']) AND $info['ApproximateNumberOfMessages'] > 0 )
+        {// информация об очереди успешно получена и там есть хотя бы одно сообщение
+            return false;
+        }
+        // во всех остальных случаях считаем что очередь пуста
+        return true;
     }
     
     /**
