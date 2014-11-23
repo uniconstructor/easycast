@@ -144,6 +144,10 @@ class EasyList extends CActiveRecord
 	 */
 	public function beforeDelete()
 	{
+	    if ( $this->isUsedByAnyObject() )
+	    {// нельзя удалять списки на которые ссылаются другие модели системы
+	        return false;
+	    }
 	    foreach ( $this->instances as $instance )
 	    {
 	        $instance->delete();
@@ -336,5 +340,42 @@ class EasyList extends CActiveRecord
 	        self::TRIGGER_AUTO   => 'Только автоматически',
 	        self::TRIGGER_ALL    => 'Любым способом',
 	    );
+	}
+	
+	/**
+	 * Определить, используется ли этот список хотя бы одним объектом системы
+	 * 
+	 * @return bool
+	 */
+	public function isUsedByAnyObject()
+	{
+	    // использование в настройках
+	    if ( Config::model()->forDefaultList($this->id, 'OR')->forUserList($this->id)->exists() )
+	    {// в качестве списка значений
+	        return true;
+	    }
+	    if ( Config::model()->withValueType('EasyList')->withValueId($this->id)->exists() )
+	    {// в качестве самого значения
+	        return true;
+	    }
+	    // использование в фильтрах поиска
+	    if ( SearchFilterField::model()->withDefaultListId($this->id)->exists() )
+	    {
+	        return true;
+	    }
+	    // на этот список не ссылается ни одна из моделей системы
+	    return false;
+	}
+	
+	/**
+	 * @todo Определить, используется ли этот список указанным объектом системы
+	 * 
+	 * @param  string $objectType - модель, использующая это значения
+	 * @param  number $objectId - id модели: если не передан - то ищем во всех моделях указанного типа
+	 * @return bool
+	 */
+	public function isUsedBy($objectType, $objectId=0)
+	{
+	    
 	}
 }
