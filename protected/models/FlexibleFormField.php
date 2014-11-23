@@ -60,10 +60,10 @@ class FlexibleFormField extends CActiveRecord
 	public function relations()
 	{
 		return array(
-		    // форма которой принадлежит это поле
+		    // форма в которой содержится поле
 		    'flexibleForm' => array(self::BELONGS_TO, 'FlexibleForm', 'objectid'),
 		    // поля, использующие эту форму
-		    'extraField'   => array(self::BELONGS_TO, 'ExtraField', 'formfieldid'),
+		    'extraField'   => array(self::HAS_MANY, 'ExtraField', 'formfieldid'),
 		);
 	}
 	
