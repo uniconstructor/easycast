@@ -6,6 +6,12 @@
  * Будьте внимательны при сохранении файлов на Amazon S3: файлы, которые содержат в имени пробелы
  * или национальный алфавит будут иметь проблемы со скачиванием и генерацией ссылок на них.
  * Используйте только латинские буквы, без пробелов.
+ * 
+ * Файлы, созданные сервисами Amazon автоматически или те файлы у которых возникли проблемы при
+ * загрузке в облако из веб-сервера можно отличить от остальных по статусу active, ненулевому
+ * значению lastsync и нулевому значению lastupload: это означает что такие файлы ни разу
+ * не загружались на веб-сервер, но в облаке присутствуют: для автоматически созданных
+ * файлов это нормальная ситуация.
  *
  * Таблица '{{external_files}}':
  * @property integer $id
@@ -36,7 +42,7 @@
  * @property string  $deleteafter  - удалить после определенного времени (для временных файлов)
  * @property string  $status       - статус файла (см. workflow-класс swExtternalFile)
  * Геттеры:
- * @property string  $extension - (геттер, read-only) расширение файла
+ * @property string  $extension    - (геттер, read-only) расширение файла
  * 
  * Relations:
  * @property ExternalFile   $originalFile - оригинал файла из которого был создан этот файл 
@@ -48,8 +54,11 @@
  * @todo системная настройка "макс/мин количество попыток для операций с файловым хранилищем"
  * @todo настройка "стандартный набор версий для файла"
  * @todo проверка уникальности пары path+name при вставке новой записи в s3
- * @todo миграция, которая находит все файлы с пустым mimetype 
- *       и определяет его по метаданным файла с S3
+ * @todo миграция, которая находит все файлы с пустым mimetype и определяет его по метаданным файла с S3
+ * @todo cron: искать все файлы с lastupload = 0 и lastsync > 0 и проверять существуют ли они
+ *       на самом деле в s3
+ * @todo при удалении файла только менять статус записи на deleted, добавить в defaultScope 
+ *       условие которое отсекает все записи со статусом deleted
  */
 class ExternalFile extends SWActiveRecord
 {
@@ -253,10 +262,9 @@ class ExternalFile extends SWActiveRecord
 	    {
 	        $criteria->limit = $limit;
 	    }
-	    
-	    $this->getDbCriteria()->mergeWith($criteria, 'AND');
-	    
-	    return $this;
+	    $this->getDbCriteria()->mergeWith($criteria);
+	    // ищем только файлы в тех статусах, которые присваиваются до загрузки в облако
+	    return $this->withStatus(array(swExternalFile::DRAFT, swExternalFile::UPLOADED, swExternalFile::SAVED));
 	}
 	
 	/**
@@ -416,21 +424,14 @@ class ExternalFile extends SWActiveRecord
 	    // (в нашем случае это чаще всего Amazon S3)
 	    $source = $this->getLocalPath();
 	    $target = $this->getExternalPath();
-	    
         try
         {// загружаем файл во внешнее хранилище
             $this->saveExternal($source, $target);
-            // если сохранение удалось - помечаем файл загруженным и готовым к использованию
-            $this->swSetStatus('swExternalFile/uploaded');
-            $this->swSetStatus('swExternalFile/active');
-            // запоминаем время загрузки файла
-            $this->lastsync = time();
-            $this->save();
-            // удаляем локальную копию - она больше не нужна
-            $this->deleteLocal();
         }catch ( Exception $e )
-        {// upload failed - no problem: skip it and try later by cron
-            Yii::log('File not uploaded: '.$target.'. Message: '.$e->getMessage(), CLogger::LEVEL_ERROR);
+        {// ошибка при загрузке файла - запишем ее в лог
+            $msg = 'File not uploaded: '.$target.'. Message: '.$e->getMessage().
+                ' ('.$e->getFile().':'.$e->getLine().")\n";
+            Yii::log($msg, CLogger::LEVEL_ERROR);
             return false;
         }
         return true;
@@ -556,7 +557,7 @@ class ExternalFile extends SWActiveRecord
 	}
 	
 	/**
-	 * Сохранить файл локально
+	 * Сохранить файл загруженный на веб-сервер локально
 	 * 
 	 * @param  string $inputName - название поля в которое загружается файл
 	 * @return bool
@@ -565,6 +566,10 @@ class ExternalFile extends SWActiveRecord
 	 */
 	public function saveLocal()
 	{
+	    if ( ! $this->_inputModel AND ! $this->_inputName )
+	    {// загрузка файла на веб-сервер не планируется, файл можно пометить как загруженный
+	        return true;
+	    }
 	    if ( $this->_inputModel )
 	    {
 	        $file = CUploadedFile::getInstance($this->_inputModel, $this->_inputName);
@@ -572,33 +577,31 @@ class ExternalFile extends SWActiveRecord
 	    {
 	        $file = CUploadedFile::getInstanceByName($this->_inputName);
 	    }
-	    if ( $file )
-	    {
-	        // старый файл удалим, потому что загружаем новый
-	        $this->deleteLocal();
-	        // извлекаем метаданные
-	        $this->oldname    = $file->getName();
-	        $this->lastupload = time();
-	        $this->mimetype   = $file->getType();
-	        $this->size       = $file->getSize();
-	        $this->name       = ECPurifier::getRandomString(self::NEW_NAME_LENGTH).'.'.$this->getExtension();
-	        
-	        if ( ! is_dir($this->getLocalPathPrefix()) )
-	        {// создаем локальную директорию если нужно
-	            mkdir($this->getLocalPathPrefix(), 0777, true);
-	        }
-	        if ( ! $file->saveAs($this->getLocalPath()) )
-	        {// сохраняем из временной директории в публичную
-	            return false;
-	        }
-	        // загрузка прошла успешно - изменим статус
-	        $this->setStatus(swExternalFile::SAVED);
-	        // сохраняем модель
-	        return $this->save();
-	    }else
-	    {
+	    if ( ! $file )
+	    {// загруженный файл не найден на веб-сервере
 	        return false;
 	    }
+	    // если есть старый файл - удалим его, потому что загружаем новый
+	    $this->deleteLocal();
+	    // извлекаем метаданные
+	    $this->oldname    = $file->getName();
+	    $this->lastupload = time();
+	    $this->mimetype   = $file->getType();
+	    $this->size       = $file->getSize();
+	    $this->name       = ECPurifier::getRandomString(self::NEW_NAME_LENGTH).'.'.$this->getExtension();
+	    if ( ! is_dir($this->getLocalPathPrefix()) )
+	    {// создаем локальную директорию если нужно
+	        // @todo рассмотреть вариант с 644
+            mkdir($this->getLocalPathPrefix(), 0777, true);
+	    }
+	    if ( ! $file->saveAs($this->getLocalPath()) )
+	    {// сохраняем из временной директории в публичную
+	       return false;
+	    }
+	    // загрузка прошла успешно - изменим статус
+	    $this->setStatus(swExternalFile::SAVED);
+	    // сохраняем модель
+	    return $this->save();
 	}
 	
 	/**
@@ -618,16 +621,16 @@ class ExternalFile extends SWActiveRecord
 	    {
 	        $target = $this->getExternalPath();
 	    }
-	    if ( ! file_exists($source) )
+	    if ( $this->externalCopyExists() )
+	    {// файл уже загружен во внешнее хранилище - просто помечаем его загруженным
+	        $this->markActive();
+            return true;
+	    }
+	    if ( ! $this->localCopyExists() )
 	    {// исходный файл не найден
-	        if ( $this->externalCopyExists() )
-	        {// файл уже загружен во внешнее хранилище - дальнейших действий не требуется
-	            return true;
-	        }else
-	        {
-	            // @todo $this->delete();
-	            throw new CException('No source file: upload aborted');
-	        }
+            $this->markActive();
+            // @todo $this->delete();
+            throw new CException('No source file: upload aborted');
 	    }
 	    // параметры для запроса загрузки файла на сервер
 	    $request = array();
@@ -639,12 +642,20 @@ class ExternalFile extends SWActiveRecord
         for ( $i = 0; $i < $this->getMaxAttempts(); $i++ )
         {// несколько попыток загрузки файла
             try
-            {// @todo check upload result
+            {// @todo проверить результат загрузки файла
                 $result = $this->getS3()->putObject($request);
+                // если сохранение удалось - помечаем файл загруженным и готовым к использованию
+                $this->swSetStatus(swExternalFile::ACTIVE);
+                // запоминаем время загрузки файла
+                $this->lastsync = time();
+                $this->save();
+                // удаляем локальную копию файла - она больше не нужна
+                $this->deleteLocal();
                 return true;
             }catch ( Exception $e )
             {
-                Yii::log('File not uploaded: '.$target.'. Message: '.$e->getMessage(), CLogger::LEVEL_ERROR);
+                $msg = "File not uploaded: ".$e->getMessage().' ('.$e->getFile().':'.$e->getLine().")\n".$e->getTraceAsString()."\n";
+                Yii::log($msg, CLogger::LEVEL_ERROR);
             }
         }
         return false;
@@ -654,8 +665,6 @@ class ExternalFile extends SWActiveRecord
 	 * Удалить промежуточную локальную копию файла, которая лежит на веб-сервере
 	 * 
 	 * @return bool
-	 * 
-	 * @todo возможность указать удаляемый файл через параметр
 	 */
 	public function deleteLocal()
 	{
@@ -663,8 +672,19 @@ class ExternalFile extends SWActiveRecord
 	    {// файл уже удален
 	        return true;
 	    }
-	    // удаляем существующий файл если он есть
-	    return @unlink($this->getLocalPath());
+	    // удаляем файл с веб сервера
+	    if ( ! @unlink($this->getLocalPath()) )
+	    {
+	        return false;
+	    }
+	    return true;
+	    // @todo удаляем временную директорию, созданную для загруженного файла если она пуста
+	    //$dir  = $this->getLocalPathPrefix();
+	    //if ( ! file_exists($dir) )
+	    //{
+	    //    return true;
+	    //}
+	    //return @rmdir($dir);
 	}
 	
 	/**
@@ -691,7 +711,11 @@ class ExternalFile extends SWActiveRecord
                 return true;
             }catch ( Exception $e )
             {
-                Yii::log('File not deleted: '.$this->getExternalPath().'. Message: '.$e->getMessage(), CLogger::LEVEL_ERROR);
+                $msg = 'File not deleted: '.$this->getExternalPath().". Exception: ".
+                    $e->getMessage().' ('.$e->getFile().':'.$e->getLine().")\n".
+                    $e->getTraceAsString()."\n";
+                $e->getMessage().' ('.$e->getFile().':'.$e->getLine().")\n";
+                Yii::log($msg, CLogger::LEVEL_ERROR, 'AWS');
             }
 	    }
 	    return false;
@@ -785,12 +809,31 @@ class ExternalFile extends SWActiveRecord
 	 * @see SWActiveRecordBehavior::swSetStatus
 	 * 
 	 * @param  string $newStatus
-	 * @param  array $params
+	 * @param  array  $params
 	 * @return bool
+	 * @throws SWException
 	 */
 	public function setStatus($newStatus, $params=null)
 	{
 	    return $this->swSetStatus($newStatus, $params);
+	}
+	
+	/**
+	 * Пометить файл успешно загруженным во внешнее хранилище и обработанным
+	 * 
+	 * @param  bool $saveNow - сохранить модель сразу же
+	 * @return bool
+	 */
+	public function markActive($saveNow=true)
+	{
+	    $this->swSetStatus(swExternalFile::ACTIVE);
+	    // устанавливаем время загрузки файла
+	    $this->lastsync = time();
+	    if ( $saveNow )
+	    {// сразу же сохраняем данные модели в базу
+	        return $this->save();
+	    }
+	    return true;
 	}
 	
 	/**
