@@ -63,30 +63,19 @@ class ProjectController extends Controller
 	 */
 	public function actionCreate()
 	{
-		$model=new Project;
-
-		// Uncomment the following line if AJAX validation is needed
-		// $this->performAjaxValidation($model);
-		
-		// подключаем библиотеку для работы со сложными значениями формы
-		Yii::import('ext.multimodelform.MultiModelForm');
-		// Список видео
-		$video = new Video;
-		$validatedVideos = array();
-
+		$model = new Project;
+		$this->performAjaxValidation($model);
 		if ( isset($_POST['Project']) )
 		{
 			$model->attributes = $_POST['Project'];
 			if ( $model->save() )
 			{
-			    $this->redirect(array('view','id' => $model->id));
+			    $this->redirect(array('view', 'id' => $model->id));
 			}
 		}
 
 		$this->render('create',array(
 			'model' => $model,
-			'video' => $video,
-		    'validatedVideos' => $validatedVideos,
 		));
 	}
 
@@ -97,44 +86,19 @@ class ProjectController extends Controller
 	 */
 	public function actionUpdate($id)
 	{
-		$model=$this->loadModel($id);
-
-		// Uncomment the following line if AJAX validation is needed
-		// $this->performAjaxValidation($model);
-		
-		// подключаем библиотеку для работы со сложными значениями формы
-		Yii::import('ext.multimodelform.MultiModelForm');
-		// Список видео
-		$video = new Video;
-		$validatedVideos = array();
-		// для всех сложных значений устанавливаем привязку к проекту
-		$masterValues = array(
-		    'objectid' => $model->id,
-		    'objecttype' => 'project'
-		    );
-        
+		$model = $this->loadModel($id);
+		$this->performAjaxValidation($model);
 		if ( isset($_POST['Project']) )
 		{
-			$model->attributes=$_POST['Project'];
-			$mmfErrors = false;
-			// сохраняем список видео
-			if ( MultiModelForm::validate($video,$validatedVideos,$deleteVideos) )
-			{
-			    MultiModelForm::save($video, $validatedVideos, $deleteVideos, $masterValues);
-			}else
-			{
-			    $mmfErrors = true;
-			}
-			if( ! $mmfErrors AND $model->save() )
+			$model->attributes = $_POST['Project'];
+			if( $model->save() )
 			{
 				$this->redirect(array('view', 'id' => $model->id));
 			}
 		}
-
-		$this->render('update',array(
+		
+		$this->render('update', array(
 			'model' => $model,
-		    'video' => $video,
-		    'validatedVideos' => $validatedVideos,
 		));
 	}
 
@@ -164,18 +128,6 @@ class ProjectController extends Controller
 	public function actionIndex()
 	{
 	    $this->actionAdmin();
-		/*$dataProvider = new CActiveDataProvider('Project', array(
-		    'pagination' => false,
-		    )
-		);
-		// отображаем проекты начиная с самых новых
-		$criteria = new CDbCriteria();
-		$criteria->order = '`timecreated` DESC';
-		$dataProvider->setCriteria($criteria);
-		
-		$this->render('index',array(
-			'dataProvider' => $dataProvider,
-		));*/
 	}
 
 	/**
@@ -195,11 +147,76 @@ class ProjectController extends Controller
 			'model'=>$model,
 		));
 	}
+	
+	/**
+	 * Изменить статус проекта
+	 *
+	 * @param  int $id
+	 * @throws CHttpException
+	 * @return void
+	 */
+	public function actionSetStatus($id)
+	{
+	    $model = $this->loadModel($id);
+	    if ( ! $status = Yii::app()->request->getParam('status') )
+	    {
+	        throw new CHttpException(400, 'Необходимо указать статус');
+	    }
+	    $status = 'swProject/'.$status;
+	    $model->swSetStatus($status);
+	    $model->save();
+	
+	    Yii::app()->user->setFlash('success', 'Статус изменен');
+	
+	    $url = Yii::app()->createUrl('/admin/project/view', array('id' => $id));
+	    $this->redirect($url);
+	}
+	
+	/**
+	 * Загрузить баннер проекта
+	 *
+	 * @return void
+	 *
+	 * @todo временная функция, заменить action-классом
+	 */
+	public function actionUploadBanner()
+	{
+	    $pk        = Yii::app()->request->getParam('pk');
+	    $projectId = Yii::app()->request->getParam('projectId', '0');
+	     
+	    // извлекаем настройку и старый баннер если он был
+	    $config    = Config::model()->findByPk($pk);
+	    $oldBanner = $config->getValueObject();
+	     
+	    // создаем модель файла во внешнем хранилище
+	    $newBanner = new ExternalFile;
+	    $newBannerData = array(
+	        'bucket' => Yii::app()->params['AWSBucket'],
+	        'path'   => 'projects/'.$projectId.'/banner',
+	    );
+	    // загружаем файл на S3
+	    $newBanner->prepareSync($newBannerData);
+	    $newBanner->saveFile();
+	     
+	    if ( $newBanner->save() )
+	    {// обновляем значение настройки
+	        $config->valueid = $newBanner->id;
+	    }
+	    if ( $oldBanner )
+	    {// удаляем старую запись
+	        $oldBanner->delete();
+	    }
+	    $config->save();
+	     
+	    $this->redirect(array('update', 'id' => $projectId));
+	}
 
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.
-	 * @param integer the ID of the model to be loaded
+	 * 
+	 * @param  integer the ID of the model to be loaded
+	 * @return Project
 	 */
 	public function loadModel($id)
 	{
@@ -213,7 +230,9 @@ class ProjectController extends Controller
 
 	/**
 	 * Performs the AJAX validation.
-	 * @param CModel the model to be validated
+	 * 
+	 * @param  CModel the model to be validated
+	 * @return void
 	 */
 	protected function performAjaxValidation($model)
 	{
@@ -222,67 +241,5 @@ class ProjectController extends Controller
 			echo CActiveForm::validate($model);
 			Yii::app()->end();
 		}
-	}
-	
-	/**
-	 * Изменить статус проекта
-	 * @param int $id
-	 * @throws CHttpException
-	 * @return null
-	 */
-	public function actionSetStatus($id)
-	{
-	    $model = $this->loadModel($id);
-	    if ( ! $status = Yii::app()->request->getParam('status') )
-	    {
-	        throw new CHttpException(404, 'Необходимо указать статус');
-	    }
-        $status = 'swProject/'.$status;
-	    $model->swsetStatus($status);
-        $model->save();
-	     
-	    Yii::app()->user->setFlash('success', 'Статус изменен');
-	     
-	    $url = Yii::app()->createUrl('/admin/project/view', array('id' => $id));
-	    $this->redirect($url);
-	}
-	
-	/**
-	 * 
-	 * 
-	 * @return void
-	 * 
-	 * @todo временная функция, заменить action-классом
-	 */
-	public function actionUploadBanner()
-	{
-	    $pk        = Yii::app()->request->getParam('pk');
-	    $projectId = Yii::app()->request->getParam('projectId', '0');
-	    
-	    // извлекаем настройку и старый баннер если он был
-	    $config    = Config::model()->findByPk($pk);
-	    $oldBanner = $config->getValueObject();
-	    
-	    // создаем модель файла во внешнем хранилище
-	    $newBanner = new ExternalFile;
-	    $newBannerData = array(
-	        'bucket' => Yii::app()->params['AWSBucket'],
-	        'path'   => 'projects/'.$projectId.'/banner',
-	    );
-	    // загружаем файл на S3
-	    $newBanner->prepareSync($newBannerData);
-	    $newBanner->saveFile();
-	    
-	    if ( $newBanner->save() )
-	    {// обновляем значение настройки
-	        $config->valueid = $newBanner->id;
-	    }
-	    if ( $oldBanner )
-	    {// удаляем старую запись
-	        $oldBanner->delete();
-	    }
-	    $config->save();
-	    
-	    $this->redirect(array('update', 'id' => $projectId));
 	}
 }
