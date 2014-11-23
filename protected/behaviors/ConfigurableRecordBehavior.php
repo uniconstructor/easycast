@@ -197,7 +197,8 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      * Условие поиска по настройкам: все записи у которых есть хотя бы одна настройка 
      * c указанным служебным названием (или хотя бы одним названием из списка если передан массив)
      *
-     * @param  string|array $name - служебное название настройки (или список названий)
+     * @param  string|array $name  - служебное название настройки (или список названий)
+     * @param  string   $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
     public function withConfigName($name, $operation='AND')
@@ -227,7 +228,8 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      * Условие поиска по настройкам: все записи у которых есть хотя бы одна настройка 
      * c указанным parentid (или хотя бы одним parentid из списка если передан массив)
      *
-     * @param  string|array $parentId - служебное название настройки (или список названий)
+     * @param  string|array $parentId  - служебное название настройки (или список названий)
+     * @param  string       $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
     public function withConfigParentId($parentId, $operation='AND')
@@ -283,9 +285,9 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      * (alias) Условие поиска по настройкам: все записи у которых есть хотя бы одна настройка
      * в которой выбран переданный вариант значения 
      * (или хотя бы одним значением из списка если передан массив)
-     * 
      *
      * @param  int|array $optionId - id варианта значения настройки (EasyListItem)
+     * @param  string   $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
     public function withConfigOptionId($optionId, $operation='AND')
@@ -298,7 +300,8 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      * в которой выбран переданный вариант значения 
      * (или хотя бы одним значением из списка если передан массив)
      *
-     * @param  int|array $options - id варианта значения настройки (EasyListItem)
+     * @param  int|array $options   - id варианта значения настройки (EasyListItem)
+     * @param  string    $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
     public function withAnyConfigOptionId($options, $operation='AND')
@@ -328,7 +331,8 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      * Условие поиска по настройкам: все записи у которых есть настройка в которой выбран
      * каждый переданный вариант значения из списка
      *
-     * @param  array $options - массив из id вариантов значения настройки (EasyListItem)
+     * @param  array  $options   - массив из id вариантов значения настройки (EasyListItem)
+     * @param  string $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
     public function withEveryConfigOptionId($options, $operation='AND')
@@ -359,6 +363,7 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      * c указанным значением (или хотя бы одним значением из списка если передан массив)
      *
      * @param  string|array $value - значение настройки
+     * @param  string   $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
     public function withConfigValue($value, $operation='AND')
@@ -371,6 +376,7 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      * c указанным значением (или хотя бы одним значением из списка если передан массив)
      *
      * @param  string|array $values - значение настройки
+     * @param  string   $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
     public function withAnyConfigValue($values, $operation='AND')
@@ -401,6 +407,7 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      * в которой выбрано каждое из указаных значений
      *
      * @param  string|array $values - список значений настройки
+     * @param  string   $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
     public function withEveryConfigValue($values, $operation='AND')
