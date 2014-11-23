@@ -98,6 +98,9 @@
  *                                  Если в настройке разрешен множественный выбор - то это поле
  *                                  будет содержать массив выбранных значений
  *                                  Если значение настройки не задано - то в этом поле будет null 
+ * @property int $allowuservalues - разрешить/запретить пользователям вводить собственные значения 
+ *                                  настройки помимо стандартных
+ * @property int $schemaid        - id схемы документа, которая хранит форму для этой настройки
  * 
  * Relations:
  * @property Config          $parentConfig     - родительская настройка, из которой была создана эта
@@ -118,9 +121,10 @@
  *                           Как правило это элементы списка (EasyListItem)
  *                           Если настройка предусматривает максимум одно значение - то в этом массиве 
  *                           будет только одна модель
- * @property EasyList        $selectedList - список, содержащий выбранные значения
- * @property EasyListItem[]  $selectedListItems -  элементы списка, выбранные в качестве значений 
- *                           этой настройки (только для настроек с множественным выбором) 
+ * @property EasyList        $selectedList      - список, содержащий выбранные значения
+ * @property EasyListItem[]  $selectedListItems - элементы списка, выбранные в качестве значений настройки
+ *                           (только для настроек с множественным выбором)
+ * @property DocumentSchema  $formSchema - схема документа, по которой составляется форма редактирования настройки
  * 
  * 
  * Методы класса CustomRelationSourceBehavior:
@@ -157,7 +161,7 @@
  * @method CActiveRecord firstModified()
  * 
  * 
- * @todo связь selectedListItems которая всегда содержит только элементы easyListItem
+ * @todo использовать схему документа для описания формы редактирования настройки
  * @todo проверка для максимального/минимального количества значений
  * @todo проверка правильности указания служебного имени
  * @todo прописать все scope-условия в комментариях как "method" чтобы работал codeAssist
@@ -192,15 +196,15 @@ class Config extends CActiveRecord
      */
     const TYPE_SELECT       = 'select';
     /**
-     * @var unknown
+     * @var string - тип настройки:
      */
     const TYPE_DATETIME     = 'datetime';
     /**
-     * @var unknown
+     * @var string - тип настройки:
      */
     const TYPE_DATE         = 'date';
     /**
-     * @var unknown
+     * @var string - тип настройки:
      */
     const TYPE_COMBODATE    = 'combodate';
     /**
@@ -263,8 +267,9 @@ class Config extends CActiveRecord
 			array('description', 'length', 'max' => 4095),
 			array('type', 'length', 'max' => 20),
 			array('objecttype, valuetype, valuefield', 'length', 'max' => 50),
+		    array('allowuservalues', 'boolean'),
 			array('userlistid, easylistid, parentid, minvalues, maxvalues, objectid, valueid, 
-			    timecreated, timemodified', 'length', 'max' => 11,
+			    timecreated, timemodified, schemaid', 'length', 'max' => 11,
             ),
 		);
 	}
@@ -330,27 +335,36 @@ class Config extends CActiveRecord
 	    if ( $this->objecttype == 'system' OR ! $this->parentid OR ! $this->objectid )
 	    {// Корневые или системные настройки удаляются только миграцией
 	        throw new CException('Корневые или системные настройки удаляются только миграцией');
+	        return false;
 	    }
-	    
-	    foreach ( $this->withParentId($this->id)->findAll() as $config )
+	    foreach ( $this->childrenConfig as $config )
 	    {// обновляем все настройки, наследуемые от этой: убираем ссылку на удаляемую запись
-	        // и заменяем ее ссылкой на элемент уровнем выше
-	        $config->parentid = $this->parentid;
-	        $config->save();
+	        if ( $this->parentConfig )
+	        {// и если возможно - заменяем ее ссылкой на элемент уровнем выше
+	            $config->parentid = $this->parentid;
+	            $config->save();
+	            continue;
+	        }
+	        if ( $rootConfig = $this->getRootConfig() )
+	        {// или корневой настройкой (если она есть)
+	            $config->parentid = $rootConfig->id;
+	            $config->save();
+	        }
 	    }
-	    
-	    if ( $this->forUserList($this->userList) )
-	    {// удаляем введенные пользовательские варианты для настройки при удалении настройки:
-	        // список введенных пользователем дополнительных значений
-	        // с гораздо меньшей вероятностью где-то используется, поэтому будем искать
-	        // ссылки на него только в настройках
-	        // @todo каждый раз при привязке списка создавать EasyListInstance чтобы 
-	        //       запоминать какие модели нужно проверить перед удалением списка
-	        $this->userList->delete();
-	    }
-	    
-	    // @todo удаляем привязаный список стандартных значений (если он больше нигде не используется)
 	    return parent::beforeDelete();
+	}
+	
+	/**
+	 * @see CActiveRecord::afterDelete()
+	 */
+	public function afterDelete()
+	{
+	    if ( $this->userList )
+	    {// удаляем введенные пользовательские варианты для настройки при удалении настройки
+    	    // (список будет удален только если он не используется в системе)
+    	    $this->userList->delete();
+	    }
+	    parent::afterDelete();
 	}
 	
 	/**
@@ -361,6 +375,8 @@ class Config extends CActiveRecord
 		$relations = array(
 		    // родительская настройка (из которой создана эта)
 		    'parentConfig'      => array(self::BELONGS_TO, 'Config', 'parentid'),
+		    // дочерние настройки
+		    'childrenConfig'    => array(self::HAS_MANY, 'Config', 'parentid'),
 		    // Список (EasyList) содержащий стандартные значения этой настройки
 		    'defaultList'       => array(self::BELONGS_TO, 'EasyList', 'easylistid'),
 		    // Все стандартные значения этой настройки (EasyListItem) из списка "defaultList"
@@ -382,22 +398,9 @@ class Config extends CActiveRecord
 		    //'selectedListItems' => array(self::HAS_MANY, 'EasyListItem', array('id' => 'easylistid'), 'through' => 'selectedList'),
 		    // Текущее выбранное значение настройки (для настроек содержащих только одно значение)
 		    'selectedListItem'  => array(self::BELONGS_TO, 'EasyListItem', 'valueid'),
+		    // схема документа для создания форма редактирования настройки
+		    'formSchema'        => array(self::BELONGS_TO, 'DocumentSchema', 'schemaid'),
 		);
-		/*if ( $this->getAttribute('valuetype') )
-		{
-		    // модель в которой хранится значение настройки
-		    // (если значение настройки задано как ссылка на поле в другой модели)
-		    // @todo не добавлять эту связь если тип значения (valuetype) не является классом модели
-		    $relations['selectedValue'] = array(self::BELONGS_TO, $this->getAttribute('valuetype'), 'valueid');
-		}*/
-		/*if ( $this->getAttribute('valuefield') )
-		{
-		    // список текущих выбранных значений этой настройки (только для настроек с множественным выбором)
-		    // @todo создать связь с использованием through
-		    // @todo сразу возвращать готовый список моделей нужных классов если элементы списка
-		    //       ссылаются на другие модели в качестве значений
-		    $relations['selectedValues'] = array(self::HAS_MANY, 'EasyListItem', 'valueid');
-		}*/
 		return $relations;
 	}
 	
@@ -460,6 +463,8 @@ class Config extends CActiveRecord
 			'valueid' => 'id модели в которой хранится значение настройки',
 		    'timecreated'  => Yii::t('coreMessages', 'timecreated'),
 		    'timemodified' => Yii::t('coreMessages', 'timemodified'),
+		    'allowuservalues' => 'Разрешить ли пользователям вводить собственные значения помимо стандартных?',
+		    'schemaid' => 'Схема формы',
 		);
 	}
 	
@@ -609,8 +614,8 @@ class Config extends CActiveRecord
 	    {// родительской настройки нет - сравнивать не с чем
 	        return false;
 	    }
-	    if ( $this->valuefield == $this->parentConfig->valuefield AND
-    	     $this->valueid    == $this->parentConfig->valueid AND
+	    // @todo решить нужна ли проверка $this->valuefield ==  $this->parentConfig->valuefield AND ...
+	    if ( $this->valueid    == $this->parentConfig->valueid AND
     	     $this->valuetype  == $this->parentConfig->valuetype )
 	    {
 	        return true;
@@ -633,8 +638,8 @@ class Config extends CActiveRecord
 	    {// не существует корневой настройки такого типа
 	       return false;
 	    }
-	    if ( $this->valuefield == $rootConfig->valuefield AND 
-	         $this->valueid    == $rootConfig->valueid AND
+	    // @todo решить нужна ли проверка $this->valuefield == $rootConfig->valuefield AND ...
+	    if ( $this->valueid    == $rootConfig->valueid AND
 	         $this->valuetype  == $rootConfig->valuetype )
 	    {
 	        return true;
@@ -658,9 +663,9 @@ class Config extends CActiveRecord
 	 * проверок: она проверяет текущее значение настройки и следит за тем чтобы при правке
 	 * обычных настроек не были изменены стандартные или системные 
 	 * 
-	 * @param unknown $listActions
-	 * @param unknown $valueAction
-	 * @param unknown $newData
+	 * @param  string $valueAction
+	 * @param  array $listActions
+	 * @param  array $newData
 	 * @return bool
 	 * 
 	 * @todo решить как поступать в ситуации когда настройка содержит списки но не содержит значений
@@ -672,7 +677,8 @@ class Config extends CActiveRecord
 	        return true;
 	    }
 	    if ( $this->getValueObject() AND $this->isDefaultCopy() )
-	    {// настройка ссылается на родительское/корневое значение: его нельзя править
+	    {// значение настройки отличается от значения по умолчанию, и при этом
+	        // настройка ссылается на родительское/корневое значение: его нельзя править
 	        // при редактировании обычной настройки: создадим копию для изменения
 	        return $this->createDataFromDefault($listActions, $valueAction, $newData);
 	    }
@@ -682,9 +688,9 @@ class Config extends CActiveRecord
 	/**
 	 * Подготовить настройку к редактированию значения
 	 * 
-	 * @param unknown $listActions
-	 * @param unknown $valueAction
-	 * @param unknown $newData
+	 * @param  string $valueAction
+	 * @param  array $listActions
+	 * @param  array $newData
 	 * @return bool
 	 */
 	public function prepareUpdateValue($valueAction='copy', $listActions=array(), $newData=array())
@@ -694,7 +700,7 @@ class Config extends CActiveRecord
 	        return $this->createDataFromDefault($listActions, $valueAction, $newData);
 	    }
 	    if ( $this->isDefaultCopy() )
-	    {
+	    {// значение настройки отличается от значения по умолчанию
 	        return $this->createDataFromDefault($listActions, $valueAction, $newData);
 	    }
 	    return true;
@@ -703,9 +709,9 @@ class Config extends CActiveRecord
 	/**
 	 * Подготовить настройку к редактированию значения
 	 * 
-	 * @param unknown $listActions
-	 * @param unknown $valueAction
-	 * @param unknown $newData
+	 * @param  string $valueAction
+	 * @param  array $listActions
+	 * @param  array $newData
 	 * @return bool
 	 */
 	public function prepareDeleteValue($valueAction='copy', $listActions=array(), $newData=array())
@@ -715,7 +721,7 @@ class Config extends CActiveRecord
 	        return $this->createDataFromDefault($listActions, $valueAction, $newData);
 	    }
 	    if ( $this->isDefaultCopy() )
-	    {
+	    {// значение настройки отличается от значения по умолчанию
 	        return $this->createDataFromDefault($listActions, $valueAction, $newData);
 	    }
 	    return true;
@@ -789,13 +795,14 @@ class Config extends CActiveRecord
 	}
 	
 	/**
+	 * Получить объект, используемый в качестве значения настройки
 	 * 
 	 * @return CActiveRecord
 	 */
 	public function getValueObject()
 	{
 	    if ( ! is_subclass_of($this->valuetype, 'CActiveRecord') OR ! $this->valueid )
-	    {// значение настройки не связано с каким-либо объектом
+	    {// значение настройки не связано с какой-либо AR-моделью
 	        return null;
 	    } 
 	    return CActiveRecord::model($this->valuetype)->findByPk($this->valueid);
@@ -946,6 +953,7 @@ class Config extends CActiveRecord
 	 *
 	 * @param  int|array|EasyList $defaultList - id списка стандартных значений настройки, сама модель
 	 *                                           такого списка (EasyList), или массив id таких списков
+	 * @param  string $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
 	 * @return Config
 	 */
 	public function forDefaultList($defaultList, $operation='AND')
@@ -970,6 +978,7 @@ class Config extends CActiveRecord
 	 *
 	 * @param  int|array|EasyList $userList - id списка пользовательских значений настройки, сама модель
 	 *                                        такого списка (EasyList), или массив id таких списков
+	 * @param  string $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
 	 * @return Config
 	 */
 	public function forUserList($userList, $operation='AND')
@@ -994,6 +1003,7 @@ class Config extends CActiveRecord
 	 * с указанными названиями, если $name передан как массив
 	 * 
 	 * @param  string|array $name - служебное название настройки (или список названий)
+	 * @param  string $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
 	 * @return Config
 	 */
 	public function withName($name, $operation='AND')
@@ -1011,6 +1021,7 @@ class Config extends CActiveRecord
 	 * к любой из указанных родительских настроек если передан массив
 	 * 
 	 * @param  int|array $parentId - id родительской настройки или массив таких id
+	 * @param  string $operation   - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
 	 * @return Config
 	 */
 	public function withParentId($parentId, $operation='AND')
@@ -1027,6 +1038,7 @@ class Config extends CActiveRecord
 	 * Именованая группа условий: все настройки c указанным значением valuetype
 	 * 
 	 * @param  int|array $valueId - значение в поле valuetype или массив таких значений
+	 * @param  string $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
 	 * @return Config
 	 */
 	public function withValueType($valueType, $operation='AND')
@@ -1047,6 +1059,7 @@ class Config extends CActiveRecord
 	 * Именованая группа условий: все настройки c указанным значением valueid
 	 * 
 	 * @param  int|array $valueId - id значения в поле valueid или массив таких id
+	 * @param  string $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
 	 * @return Config
 	 */
 	public function withValueId($valueId, $operation='AND')
@@ -1063,6 +1076,7 @@ class Config extends CActiveRecord
 	 * Именованая группа условий: все настройки с выбранным значением
 	 * 
 	 * @param  array|string $value - требуемое значение в поле value для связанной модели
+	 * @param  string $operation   - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
 	 * @return Config
 	 * 
 	 * @todo функция withOptionId все multiple-настройки с указанным EasyListItem.id 
@@ -1118,6 +1132,7 @@ class Config extends CActiveRecord
 	 * значения настройки (как из стандартного списка вариантов так и из пользовательского)
 	 * 
 	 * @param  int|array|EasyListItem $option
+	 * @param  string $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
 	 * @return Config
 	 */
 	public function withSelectedOption($option, $operation='AND')
@@ -1130,6 +1145,7 @@ class Config extends CActiveRecord
 	 * значения настройки (как из стандартного списка вариантов так и из пользовательского)
 	 *
 	 * @param  int|array|EasyListItem $option
+	 * @param  string $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
 	 * @return Config
 	 */
 	public function withAnySelectedOption($options, $operation='AND')
@@ -1183,10 +1199,11 @@ class Config extends CActiveRecord
 	}
 	
 	/**
-	 * Получить все настройки в которых используется (выбран) переданый вариант стандартного
+	 * @todo Получить все настройки в которых используется (выбран) переданый вариант стандартного
 	 * значения настройки (как из стандартного списка вариантов так и из пользовательского)
 	 *
 	 * @param  int|array|EasyListItem $option
+	 * @param  string $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
 	 * @return Config
 	 */
 	public function withEverySelectedOption($options, $operation='AND')
@@ -1267,7 +1284,7 @@ class Config extends CActiveRecord
 	 * Скопировать значения настройки из стандартного объекта в текущий перед изменением
 	 * чтобы не задеть настройки по умолчанию 
 	 * 
-	 * @return void
+	 * @return bool
 	 */
 	protected function createDataFromDefault($valueAction='clear', $listActions=array(), $newData=array())
 	{
@@ -1318,7 +1335,7 @@ class Config extends CActiveRecord
 	 * Создать новый список из настройки
 	 * 
 	 * @param  Config $config
-	 * @return void
+	 * @return int - id созданного списка
 	 */
 	protected function createListFromDefault($config, $type='easylistid', $action='copy')
 	{
