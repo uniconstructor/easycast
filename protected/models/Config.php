@@ -105,8 +105,8 @@
  * Relations:
  * @property Config          $parentConfig     - родительская настройка, из которой была создана эта
  * @property EasyList        $defaultList      - список, содержащий стандартные значения для этой настройки
- * @property EasyListItem[]  $defaultListItems - 
- * @property EasyList        $userList - список, содержащий введенные пользователем значения для
+ * @property EasyListItem[]  $defaultListItems - все значения из списка по умолчанию
+ * @property EasyList        $userList         - список, содержащий введенные пользователем значения для
  *                           этой настройки. Используется если ни один из стандартных вариантов 
  *                           не подошел пользователю и если в настройке разрешено добавление 
  *                           собственных значений
@@ -123,7 +123,7 @@
  *                           будет только одна модель
  * @property EasyList        $selectedList      - список, содержащий выбранные значения
  * @property EasyListItem[]  $selectedListItems - элементы списка, выбранные в качестве значений настройки
- *                           (только для настроек с множественным выбором)
+ *                                                (только для настроек с множественным выбором)
  * @property DocumentSchema  $formSchema - схема документа, по которой составляется форма редактирования настройки
  * 
  * 
@@ -432,21 +432,25 @@ class Config extends CActiveRecord
 		    'defaultList'       => array(self::BELONGS_TO, 'EasyList', 'easylistid'),
 		    // Все стандартные значения этой настройки (EasyListItem) из списка "defaultList"
 		    // Эта связь всегда содержит только объекты класса EasyListItem либо пустой массив
-		    'defaultListItems'  => array(self::HAS_MANY, 'EasyListItem', array('easylistid' => 'easylistid')),
+		    'defaultListItems'  => array(self::HAS_MANY, 'EasyListItem', array('id' => 'easylistid'),
+		        'through' => 'defaultList',
+		    ),
 		    // список нестандартных, введенных пользователем значений (если список разрешено дополнять)
 		    'userList'          => array(self::BELONGS_TO, 'EasyList', 'userlistid'),
 		    // Все введенные пользователем нестандартные значения настройки
 		    // Эта связь всегда содержит только объекты класса EasyListItem либо пустой массив
-		    'userListItems'     => array(self::HAS_MANY, 'EasyListItem', array('easylistid' => 'userlistid')),
+		    'userListItems'     => array(self::HAS_MANY, 'EasyListItem', array('id' => 'easylistid'),
+		        'through' => 'userList',
+		    ),
 		    // объект-список (EasyList) содержащий значения для выбранной настройки 
 		    // (частный случай связи selectedValue, только для настроек с множественным выбором)
 		    'selectedList'      => array(self::BELONGS_TO, 'EasyList', 'valueid'),
-		    // список всех выбранных вариантов значений этой настройки 
-		    // (как стандартных так пользовательских) 
+		    // список всех выбранных вариантов значений этой настройки (как стандартных так пользовательских) 
 		    // Используется только для настроек с множественным выбором
 		    // Эта связь всегда содержит только объекты класса EasyListItem либо пустой массив
-		    'selectedListItems' => array(self::HAS_MANY, 'EasyListItem', array('easylistid' => 'valueid')),
-		    //'selectedListItems' => array(self::HAS_MANY, 'EasyListItem', array('id' => 'easylistid'), 'through' => 'selectedList'),
+		    'selectedListItems' => array(self::HAS_MANY, 'EasyListItem', array('id' => 'easylistid'),
+		        'through' => 'selectedList',
+		    ),
 		    // Текущее выбранное значение настройки (для настроек содержащих только одно значение)
 		    'selectedListItem'  => array(self::BELONGS_TO, 'EasyListItem', 'valueid'),
 		    // схема документа для создания форма редактирования настройки
@@ -690,8 +694,8 @@ class Config extends CActiveRecord
 	       return false;
 	    }
 	    // @todo решить нужна ли проверка $this->valuefield == $rootConfig->valuefield AND ...
-	    if ( $this->valueid    == $rootConfig->valueid AND
-	         $this->valuetype  == $rootConfig->valuetype )
+	    if ( $this->valueid   == $rootConfig->valueid AND
+	         $this->valuetype == $rootConfig->valuetype )
 	    {
 	        return true;
 	    }
@@ -710,13 +714,25 @@ class Config extends CActiveRecord
 	}
 	
 	/**
-	 * 
-	 * 
-	 * @return void
+	 * Определить, редактировалась ли эта настройка для указанного объекта хотя бы раз 
+	 *
+	 * @param  string $objectType
+	 * @param  string $objectId
+	 * @return bool
 	 */
-	public function linkChildrenToParent()
+	public function isModifiedFor($objectType, $objectId)
 	{
-	    
+	    if ( Config::model()->withName($this->name)->forObject($objectType, $objectId)->exists() )
+	    {// настройка привязана к указанной модели - значит она была скопирована при изменении
+	        return true;
+	    }
+        if ( Config::model()->withName($this->name)->forObject($objectType, 0)->exists() )
+        {// используется корневая настройка - значит она ни разу не редактировалась
+            return false;
+        }
+        // такая настройка вообще не предусмотрена для такого типа объектов
+        // @todo записать в лог
+        return false;
 	}
 	
 	/**
@@ -1166,10 +1182,9 @@ class Config extends CActiveRecord
 	    {// настройка с одиночным выбором всегда ссылается на значение в поле другой модели
 	        /* @var $model CActiveRecord */
 	        $model = $this->valuetype;
-	        $alias = $model::model()->getTableAlias(true);
 	        // используем методы CDbCriteria для обработки случая с несколькими $value
 	        $condition = new CDbCriteria();
-            $condition->compare("{$alias}.`{$this->valuefield}`", $value);
+            $condition->compare($model::model()->getTableAlias(true).".`{$this->valuefield}`", $value);
 	        // создаем условие поиска по значению связанного поля
 	        $with = array(
 	            'selectedListItem' => array(
@@ -1263,13 +1278,62 @@ class Config extends CActiveRecord
 	 * @todo Получить все настройки в которых используется (выбран) переданый вариант стандартного
 	 * значения настройки (как из стандартного списка вариантов так и из пользовательского)
 	 *
-	 * @param  int|array|EasyListItem $option
+	 * @param  int|array|EasyListItem $option - 
 	 * @param  string $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
 	 * @return Config
 	 */
-	public function withEverySelectedOption($options, $operation='AND')
+	public function withEverySelectedOption($option, $operation='AND')
 	{
         
+	}
+	
+	/**
+	 * (alias) Получить все настройки кроме тех, в которых используется (выбран) 
+	 * переданый вариант стандартного значения настройки
+	 * (как из стандартного списка вариантов так и из пользовательского)
+	 *
+	 * @param  int|array|EasyListItem $option - 
+	 * @param  string $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+	 * @return Config
+	 */
+	public function exceptSelectedOption($option, $operation='AND')
+	{
+	    return $this->exceptAnySelectedOption($option, $operation);
+	}
+	
+	/**
+	 * Получить все настройки кроме тех, в которых используется (выбран) 
+	 * переданый вариант стандартного значения настройки
+	 * (как из стандартного списка вариантов так и из пользовательского)
+	 *
+	 * @param  int|array|EasyListItem $option - 
+	 * @param  string $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+	 * @return Config
+	 */
+	public function exceptAnySelectedOption($option, $operation='AND')
+	{
+	    if ( $option instanceof EasyListItem )
+	    {
+	        $optionId = $option->id;
+	    }else
+	    {
+	        $optionId = $option;
+	    }
+	    $criteria = new CDbCriteria();
+	    $criteria->with = array(
+	        'selectedListItems' => array(
+	            'select'   => false,
+	            'joinType' => 'INNER JOIN',
+	            'scopes'   => array(
+	                'exceptId' => array($optionId),
+	            ),
+	        ),
+	    );
+	    $criteria->together = true;
+	    
+	    $this->getDbCriteria()->mergeWith($criteria, $operation);
+	     
+	    return $this;
 	}
 	
 	/**
