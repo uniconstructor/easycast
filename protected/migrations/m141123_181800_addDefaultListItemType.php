@@ -46,5 +46,6 @@ class m141123_181800_addDefaultListItemType extends EcMigration
         }
         
         $this->update('{{config}}', array('name' => 'emailBanner'), "name='emailBannerUrl'");
+        $this->update('{{config}}', array('easylistid' => '1'), "name='projectTypesBlackList'");
     }
 }
