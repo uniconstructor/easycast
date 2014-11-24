@@ -84,7 +84,7 @@ class Video extends SWActiveRecord
 		return array(
 		    // файл в хранилище Amazon S3 (если видео хранится у нас или где-то на 
 		    // стороннем хостинге к которому мы имеем доступ)
-		    'externalFile' => array(self::HAS_ONE, 'ExternalFile', 'externalfileid'),
+		    'externalFile' => array(self::BELONGS_TO, 'ExternalFile', 'externalfileid'),
 		);
 	}
 	
@@ -296,7 +296,7 @@ class Video extends SWActiveRecord
 	    $videoBucket     = $api->settings['transcoder']['defaultVideoBucket'];
 	    $outputPrefix    = $api->settings['transcoder']['defaultOutputPrefix'];
 	    $outputExtension = $api->settings['transcoder']['defaultOutputContainer'];
-	    $outputMimeType  = $api->settings['transcoder']['ddefaultOutputMimeType'];
+	    $outputMimeType  = $api->settings['transcoder']['defaultOutputMimeType'];
 	    $presetPrefix    = $api->settings['transcoder']['defaultPresetPrefix'];
 	    
 	    /* @var $file ExternalFile */
