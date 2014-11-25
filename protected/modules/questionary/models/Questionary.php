@@ -1321,7 +1321,7 @@ class Questionary extends CActiveRecord
     {
         $criteria = new CDbCriteria();
         $criteria->compare('questionaryid', $this->id);
-        $criteria->order = "id ASC";
+        $criteria->order = "`id` ASC";
         $criteria->limit = 1;
         
         if ( ! $creationRecord = current(QCreationHistory::model()->findAll($criteria)) )
@@ -1336,14 +1336,26 @@ class Questionary extends CActiveRecord
         return $user;
     }
     
+    /**
+     * Получить настройку которая содержит список проектов в которых пользователь
+     * выбрал не участвовать 
+     * 
+     * @return Config
+     */
+    public function getProjectTypesBlackListConfig()
+    {
+        return $this->getConfigObject('projectTypesBlackList');
+    }
+    
     /////////////////////////////////////////
     // Именованные группы условий (scopes) //
     /////////////////////////////////////////
     
     /**
-     * Группа условий: анкеты, созданные пользователем или объектом системы (именованная группа условий)
+     * Условие поиска: анкеты, созданные пользователем или объектом системы
+     * 
      * @param string $objectType - тип объекта в таблице q_creation_history (user/vacancy/...)
-     * @param int $objectId
+     * @param int    $objectId
      * @return Questionary
      */
     public function createdBy($objectType, $objectId)
@@ -1366,7 +1378,7 @@ class Questionary extends CActiveRecord
     }
     
     /**
-     * Группа условий: анкеты, из выбранных регионов России
+     * Условие поиска: анкеты, из выбранных регионов России
      * 
      * @param  array $regions - список id регионов 
      * @return Questionary
@@ -1391,9 +1403,9 @@ class Questionary extends CActiveRecord
     }
     
     /**
-     * Группа условий: поиск по размеру оплаты
+     * Условие поиска: размер оплаты
      * 
-     * @param  array $salary
+     * @param  int $salary
      * @return Questionary
      */
     public function withSalaryLessThen($salary)
@@ -1416,9 +1428,9 @@ class Questionary extends CActiveRecord
     }
     
     /**
-     * Группа условий: поиск по размеру оплаты
+     * Условие поиска: размер оплаты
      * 
-     * @param  array $salary
+     * @param  int $salary
      * @return Questionary
      */
     public function withSalaryMoreThen($salary)
@@ -1437,6 +1449,41 @@ class Questionary extends CActiveRecord
     
         $this->getDbCriteria()->mergeWith($criteria);
     
+        return $this;
+    }
+    
+    /**
+     * Условие поиска: участники, которым интересен выбраный тип проекта 
+     * (или хотя бы один из типов если передан массив)
+     * 
+     * @param  int|array|EasyListItem $type - тип проекта (модель), id типа проекта или массив из id 
+     *                                        типов проекта в котором участнику будет предложена роль 
+     * @param  string $operation
+     * @return Questionary
+     */
+    public function forProjectType($type, $operation='AND')
+    {
+        if ( $type instanceof EasyListItem )
+        {
+            $typeId = $type->id;
+        }else
+        {
+            $typeId = $type;
+        }
+        // извлекаем все записи кроме тех которые содержат переданный тип проекта в черном списке
+        $criteria = new CDbCriteria();
+        $criteria->with = array(
+            'configParams' => array(
+                'select'   => false,
+                'joinType' => 'INNER JOIN',
+                'scopes'   => array(
+                    'withName'             => array('projectTypesBlackList'),
+                    'exceptConfigOptionId' => array($typeId),
+                ),
+            ),
+        );
+        $this->getDbCriteria()->mergeWith($criteria, $operation);
+        
         return $this;
     }
     
