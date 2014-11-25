@@ -44,8 +44,22 @@ class m141123_181800_addDefaultListItemType extends EcMigration
                 $this->delete('{{event_invites}}', 'eventid='.$event['id']);
             }
         }
-        
         $this->update('{{config}}', array('name' => 'emailBanner'), "name='emailBannerUrl'");
-        $this->update('{{config}}', array('easylistid' => '1'), "name='projectTypesBlackList'");
+        $this->insert("{{easy_lists}}", array(
+            'name'           => 'Список введенных вручную адресов',
+            'description'    => '',
+            'triggerupdate'  => 'manual',
+            'triggercleanup' => 'manual',
+            'unique'         => 1,
+        ));
+        $newListId = $this->dbConnection->lastInsertID;
+        // обновляем название и описание для настройки оповещений
+        $columns = array(
+            'easylistid'  => '1',
+            'title'       => 'Настройки приглашений',
+            'description' => 'Укажите типы проектов на которые вы хотели бы получать приглашения.',
+            'userlistid'  => $newListId,
+        );
+        $this->update('{{config}}', $columns, "name='projectTypesBlackList'");
     }
 }
