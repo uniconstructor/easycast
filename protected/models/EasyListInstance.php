@@ -151,18 +151,4 @@ class EasyListInstance extends CActiveRecord
 	
 	    return $this;
 	}
-	
-	/**
-	 * Именованая группа условий:
-	 *
-	 * @param string $objectType
-	 * @param array $objectIds
-	 * @return EasyListInstance
-	 * 
-	 * @deprecated
-	 */
-	public function forObjects($objectType, $objectIds)
-	{
-	    return $this->forObject($objectType, $objectId);
-	}
 }

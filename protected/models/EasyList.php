@@ -42,7 +42,7 @@
  *                                   Содержит "0" если список еще ни разу не был очищен
  * @property string $updateperiod  - интервал (в секундах) через который содержимое списка снова будет
  *                                   считаться устаревшим и требовать проверки
- * @property string $cleanUpPeriod - интервал (в секундах) через который содержимое списка снова будет
+ * @property string $cleanupperiod - интервал (в секундах) через который содержимое списка снова будет
  *                                   считаться устаревшим и требовать проверки
  * @property string $unique        - должны ли элементы (EasyListItem) в этом списке быть уникальными?
  *                                   (не применимо для $this->objecttype='item' && $this->objectid=0)
@@ -167,8 +167,8 @@ class EasyList extends CActiveRecord
 			array('description', 'length', 'max' => 4095),
 			array('triggerupdate, triggercleanup', 'length', 'max' => 20),
 			array('itemtype', 'length', 'max' => 50),
-			array('timecreated, timemodified, lastupdate, lastcleanup, updateperiod, unique, searchdataid', 
-			    'length', 'max' => 11),
+			array('timecreated, timemodified, lastupdate, lastcleanup, updateperiod, unique, 
+			    searchdataid', 'length', 'max' => 11),
 		);
 	}
 
@@ -377,5 +377,69 @@ class EasyList extends CActiveRecord
 	public function isUsedBy($objectType, $objectId=0)
 	{
 	    
+	}
+	
+	/**
+	 * Добавить элемент в этот список: этот метод копирует данные 
+	 * переданного элемента списка, не изменяя ее значений
+	 * 
+	 * @param  EasyListItem $item - новый элемент списка
+	 * @return bool|EasyListItem
+	 * 
+	 * @проверять наличие элемента всписке перед вставкой
+	 */
+	public function addItem(EasyListItem $item)
+	{
+	    // получаем данные элемента
+	    $attributes = $item->attributes;
+	    // убираем лишние поля 
+	    unset($attributes['id']);
+	    unset($attributes['timecreated']);
+	    unset($attributes['timemodefied']);
+	    unset($attributes['sortorder']);
+	    
+	    // привязываем новый элемент к этому списку
+	    $attributes['easylistid'] = $this->id;
+	    if ( ! $attributes['parentid'] )
+	    {// запоминаем ссылку на оригинальный элемент
+	        $attributes['parentid'] = $item->id;
+	    }
+	    // создаем и сохраняем новый элемент списка
+	    $newItem = new EasyListItem();
+	    $newItem->attributes = $attributes;
+	    if ( ! $newItem->save() )
+	    {// @todo add to log
+	        return false;
+	    }
+	    return $newItem;
+	}
+	
+	/**
+	 * Создать копию этого списка и перенести в нее все элементы
+	 * 
+	 * @return EasyList
+	 */
+	public function createCopy()
+	{
+	    // получаем данные списка
+	    $fields = array('name', 'description', 'triggerupdate', 'triggercleanup', 'updateperiod',
+	       'cleanupperiod', 'unique', 'itemtype', 'searchdataid');
+	    // создаем новый список из данных старого
+	    $newList = new EasyList();
+	    $newList->attributes = $this->getAttributes($fields);
+	    if ( ! $newList->save() )
+	    {// @todo add to log
+	        return false;
+	    }
+	    foreach ( $this->listItems as $item )
+	    {// копируем все элементы в новый список 
+	        if ( ! $newList->addItem($item) )
+	        {// не удалось скопировать элементы в новый список - отменяем операцию
+	            // @todo add to log
+	            $newList->delete();
+	            return false;
+	        }
+	    }
+	    return $newList;
 	}
 }
