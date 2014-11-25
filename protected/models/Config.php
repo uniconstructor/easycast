@@ -5,7 +5,7 @@
  * Настройки могут быть прикреплены к любой модели в системе. 
  * Значения настроек хранятся отдельно, в таблице config_values.
  * 
- * Чтобы работать с настройками нужно хорошо различать три разных понятия:
+ * Чтобы работать с настройками нужно различать понятия:
  * 1) Текущее значение настройки: это поле в AR-модели привязанное к текущей настройке при помощи
  *    комбинации полей valutype/valuefield/valueid
  *    (или список моделей, если в настройке допустим множественный выбор)
@@ -27,13 +27,26 @@
  *    оно не выбрано в настройке в данный момент (в этом его отличие от списка выбранных значений)
  *    (только для настроек, в которых разрешен ввод собственных значенй)
  * 5) Список выбранных значений (только для настроек с множественным выбором):
+ *    Те значения из стандартного или пользовательского списка которые были
+ *    выбраны в качестве значения настройки
  * 
- * Обратите внимание: список стандартных значений настройки и список значений по умолчанию это разные вещи
- * 
+ * Обратите внимание: список стандартных значений настройки и список значений 
+ * по умолчанию это разные вещи
  * Настройка может быть привязана к модели, поэтому важно понимать чем отличается запрос 
  * "список настроек со указанным значением" от запроса
  * "список моделей имеющих настройку с указанным значением"
  * 
+ * Правила создания и удаления настроек:
+ * 1) Общий принцип для всех настроек: не хранить то что можно не хранить
+ * 2) До тех пор пока настройка не изменена считается что ее значение
+ *    совпадает со значением по умолчанию (взятое из корневой настройки)
+ * 3) Если дочерняя настройка уже создана - то она удаляется или вместе с моделью или 
+ *    при сбросе значения до стандартного
+ * 4) Стандартный способ сброса настройки до значения по умолчанию - это удаление настройки (Config), 
+ *    поэтому корневые и системные настройки не сбрасываются
+ * 5) Список выбранных значений настройки не может совпадать со списком стандартных значений
+ *    или со списком пользовательских значений
+ * 6) При копировании корневой настройки список стандартных значений всегда сохраняется
  * 
  * Таблица '{{config}}':
  * @property int    $id
@@ -87,11 +100,11 @@
  *                                  изменение самих элементов в списке значений
  *                                  а также изменение порядка элементов в списке значений
  *                                  При обновлении связанной модели это поле не изменяется
- * @property string $valuetype    - класс AR-модели, которая содержит значение настройки
+ * @property string  $valuetype   - класс AR-модели, которая содержит значение настройки
  *                                  Если в настройке допустим множественный выбор, то это поле 
  *                                  обязательно должно иметь значение 'EasyList'
- * @property string $valuefield   - поле AR-модели, которое хранит значение настройки
- * @property int    $valueid      - id AR-модели, которая содержит значение настройки
+ * @property string  $valuefield  - поле AR-модели, которое хранит значение настройки
+ * @property int     $valueid     - id AR-модели, которая содержит значение настройки
  * @property string|array $value  - псевдо-поле (геттер) для получения значения настройки
  *                                  Если настройка предусматривает максимум одно значение - то 
  *                                  это поле будет содержать строку или число
@@ -356,9 +369,11 @@ class Config extends CActiveRecord
 	 */
 	public function beforeDelete()
 	{
-	    if ( $this->objecttype == 'system' OR ! $this->objectid )
+	    if ( $this->isSystem() OR $this->isRoot() )
 	    {// корневые или системные настройки удаляются только миграцией
-    	    throw new CException('Корневые или системные настройки удаляются только миграцией');
+	        $msg = 'Корневые или системные настройки удаляются только миграцией (id='.$this->id.')';
+	        Yii::log($msg, CLogger::LEVEL_WARNING, 'application.config');
+    	    throw new CException($msg);
     	    return false;
 	    }
 	    // удаление связанных записей происходит только через транзакцию
@@ -631,7 +646,7 @@ class Config extends CActiveRecord
 	 */
 	public function isMultiple()
 	{
-	    return $this->withId($this->id)->multipleOnly()->exists();
+	    return ($this->maxvalues != 1);
 	}
 	
 	/**
@@ -745,7 +760,7 @@ class Config extends CActiveRecord
 	 * @param  array  $newData
 	 * @return bool
 	 * 
-	 * @todo решить как поступать в ситуации когда настройка содержит списки но не содержит значений
+	 * @deprecated
 	 */
 	public function prepareCreateValue($valueAction='clear', $listActions=array(), $newData=array())
 	{
@@ -769,6 +784,8 @@ class Config extends CActiveRecord
 	 * @param  array $listActions
 	 * @param  array $newData
 	 * @return bool
+	 * 
+	 * @deprecated
 	 */
 	public function prepareUpdateValue($valueAction='copy', $listActions=array(), $newData=array())
 	{
@@ -787,9 +804,11 @@ class Config extends CActiveRecord
 	 * Подготовить настройку к редактированию значения
 	 * 
 	 * @param  string $valueAction
-	 * @param  array $listActions
-	 * @param  array $newData
+	 * @param  array  $listActions
+	 * @param  array  $newData
 	 * @return bool
+	 * 
+	 * @deprecated
 	 */
 	public function prepareDeleteValue($valueAction='copy', $listActions=array(), $newData=array())
 	{
@@ -802,6 +821,49 @@ class Config extends CActiveRecord
 	        return $this->createDataFromDefault($listActions, $valueAction, $newData);
 	    }
 	    return true;
+	}
+	
+	/**
+	 * Получить настройку для редактирования пользователем
+	 * Любая настройка создается и привязывается к модели только после первого редактирования:
+	 * до этого момента вместо нее используется значение из корневой настройки
+	 * (как значение по умолчанию)
+	 * Этот метод должен быть вызван перед редактированием любой настройки модели
+	 * Проверяет привязана ли это настройка к указанной модели, если нет - то создает
+	 * копию настройки (которую можно редактировать пользователю в отличие от корневой) 
+	 * и привязывает ее к модели
+	 * 
+	 * @param  string $objectType - тип модели для которой редактируется настройка
+	 * @param  string $objectId   - id модели для которой редактируется настройка
+	 * @param  string $newValue   - новое значение настройки, передается при попытке редактирования
+	 *                              значения настройки, возможно несколько вариантов: 
+	 *                              1) строка или число, если для настройки не предусмотрен
+	 *                                 список стандартных значений и она не содержит список
+	 *                              2) id модели указанной в valuetype если это одиночная
+	 *                                 настройка и она содержит список стандартных значений
+	 *                              3) массив моделей из списка если настройка имеет список
+	 *                                 стандартных значений и позволяет множественый выбор
+	 *                              4) массив id моделей если настройка имеет список
+	 *                                 стандартных значений и позволяет множественый выбор
+	 *                              5) пустой массив если из изначального списка значений
+	 *                                 настройки нужно удалить все элементы
+	 *                              6) пустая строка или 0 для настроек с одним значением
+	 *                                 если нужно очистить значение настройки
+	 * @return Config
+	 * 
+	 * @todo дописать работу с параметром $newValue
+	 */
+	public function getEditableConfig($objectType, $objectId, $newValue=null)
+	{
+	    if ( $this->isModifiedFor($objectType, $objectId) )
+	    {// эта настройка для этого объекта уже как минимум раз редактировалась,
+	        // а значит уже привязана к этой модели
+	        return $this;
+	    }
+	    // это корневая настройка, подставленная по умолчанию вместо настройки модели
+	    // нужно создать ее копию и привязать ее к указанной модели:
+	    // после этого настройку можно будет редактировать
+	    return $this->createRootConfigCopy($objectType, $objectId, $newValue);
 	}
 	
 	/**
@@ -982,7 +1044,7 @@ class Config extends CActiveRecord
 	    $result = array();
 	    foreach ( $this->defaultListItems as $item )
 	    {
-	        $result[$item->id] = $item->data;
+	        $result[$item->id] = $item->title;
 	    }
 	    return $result;
 	}
@@ -1003,7 +1065,7 @@ class Config extends CActiveRecord
 	    $result = array();
 	    foreach ( $this->userListItems as $item )
 	    {
-	        $result[$item->id] = $item->data;
+	        $result[$item->id] = $item->title;
 	    }
 	    return $result;
 	}
@@ -1017,13 +1079,39 @@ class Config extends CActiveRecord
 	 */
 	public function getSelectedOptions()
 	{
-	     $result = array();
-	     foreach ( $this->selectedListItems as $item )
-	     {/* @var $item EasyListItem */
-	         $result[$item->id] = $item->data;
-	     }
-	     return $result;
+	    $result = array();
+	    foreach ( $this->selectedListItems as $item )
+	    {
+	        $result[$item->id] = $item->title;
+	    }
+	    return $result;
 	}
+	
+	/**
+	 * Получить указанный элемент из списка выбранных значений в настройке
+	 * 
+	 * @param  int|EasyListItem $item
+	 * @return bool|EasyListItem
+	 */
+	/*public function getSelectedOption($item)
+	{
+	    if ( $item instanceof EasyListItem )
+	    {
+	        $id = $item->id;
+	    }else
+	    {
+	        $id = $item;
+	    }
+	    if ( ! $options = $this->getSelectedOptions() )
+	    {
+	        return false;
+	    }
+	    if ( ! isset($options[$id]) )
+	    {
+	        return false;
+	    }
+	    return $options[$id];
+	}*/
 	
 	/**
 	 * Именованая группа условий: все настройки, использующие этот список вариантов значений
@@ -1173,7 +1261,7 @@ class Config extends CActiveRecord
 	            'selectedListItems' => array(
 	                'select'   => false,
 	                'joinType' => 'INNER JOIN',
-    	            'scopes' => array(
+    	            'scopes'   => array(
         	            'withValue' => array($value),
                     ),
                 ),
@@ -1224,46 +1312,23 @@ class Config extends CActiveRecord
 	 * @param  string $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
 	 * @return Config
 	 */
-	public function withAnySelectedOption($options, $operation='AND')
+	public function withAnySelectedOption($option, $operation='AND')
 	{
-	    if ( ! $option )
-	    {// условие не используется
-	       return $this;
-	    }
-	    if ( is_object($option) )
+	    if ( $option instanceof EasyListItem )
 	    {// передана одна модель с вариантом значения
-	       $optionId = $option->id;
-	    }elseif ( is_array($option) )
-	    {// передано несколько вариантов, будем искать любое совпедение
-    	    $optionList = $option;
-    	    $optionId   = array();
-    	    foreach ( $optionList as $optionItem )
-    	    {// проверим что за массив нам передали: масив id или массив элементов списка (EasyListItem)
-        	    if ( is_object($optionItem) )
-        	    {
-        	        $optionId[] = $optionItem->id;
-        	    }elseif ( is_numeric($option) )
-        	    {
-        	        $optionId[] = $optionItem;
-        	    }else
-        	    {
-        	        throw new CException('Неправильно указан параметр $option (поиск по элементу списка)');
-        	    }
-    	    }
-	    }elseif ( is_numeric($option) )
-	    {// передан id модели
-            $optionId = $option;
+            $optionId = $option->id;
 	    }else
 	    {
-	        throw new CException('Неправильно указан параметр $option (поиск по элементу списка)');
+	        $optionId = $option;
 	    }
 	    $criteria = new CDbCriteria();
 	    $criteria->with = array(
 	        'selectedListItems' => array(
 	            'select'   => false,
 	            'joinType' => 'INNER JOIN',
-	            'scopes' => array(
+	            'scopes'   => array(
 	                'withId' => array($optionId),
+	                'withParentId' => array($optionId, 'OR'),
 	            ),
 	        ),
 	    );
@@ -1273,6 +1338,19 @@ class Config extends CActiveRecord
 	    
 	    return $this;
 	}
+	
+	/**
+	 * Получить все настройки в которых используется (выбран) переданый вариант стандартного
+	 * значения настройки (как из стандартного списка вариантов так и из пользовательского)
+	 *
+	 * @param  int|array|EasyListItem $option
+	 * @param  string $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+	 * @return Config
+	 */
+	/*public function withSelectedDefaultOption($option, $operation='AND')
+	{
+	    
+	}*/
 	
 	/**
 	 * @todo Получить все настройки в которых используется (выбран) переданый вариант стандартного
@@ -1312,6 +1390,10 @@ class Config extends CActiveRecord
 	 */
 	public function exceptAnySelectedOption($option, $operation='AND')
 	{
+	    if ( ! $option )
+	    {// условие не используется
+            return $this;
+	    }
 	    if ( $option instanceof EasyListItem )
 	    {
 	        $optionId = $option->id;
@@ -1373,36 +1455,80 @@ class Config extends CActiveRecord
 	 * Восстановить изначальное значение настройки
 	 * 
 	 * @return bool
-	 * 
-	 * @todo доработать с учетом одинарных/множественных настроек
 	 */
 	public function restoreDefault()
 	{
-	    if ( $this->objecttype == 'EasyList' AND $this->valueid == $this->easylistid )
-	    {// список настроек совпадает со стандартным
-	        return true;
+	    if ( $this->isRoot() OR $this->isSystem() )
+	    {// корневые и системные настройки не могут быть сброшены
+	        return false;
 	    }
-	    foreach ( $this->selectedListItems as $item )
-	    {// удаляем выбранные значения
-	        $item->delete();
+        return $this->delete();
+	}
+	
+	/**
+	 * Создать новую настройку из данных корневой настройки
+	 * 
+	 * @param  string $objectType - тип модели для которой редактируется настройка
+	 * @param  string $objectId   - id модели для которой редактируется настройка
+	 * @param  string $newValue
+	 * @return Config
+	 * 
+	 * @todo принудительно создавать список для введенных значений если maxvalues != 1
+	 *       но в корневой настройке список для введенных значений отсутствует
+	 */
+	protected function createRootConfigCopy($objectType, $objectId, $newValue=null)
+	{
+	    // получаем корневую настройку и используем ее как шаблон при создании новой
+	    $rootConfig = $this->getRootConfig();
+	    // поля, которые переносятся без изменения
+	    $fields     = array('allowuservalues', 'name', 'title', 'description', 'type',
+            'minvalues', 'maxvalues', 'valuetype', 'schemaid');
+	    
+	    // создаем новую модель настройки
+	    $newConfig = new Config();
+	    if ( $rootConfig->selectedList )
+	    {// копируем список значений настройки (если это настройка с множественным выбором)
+	        $newSelectedList       = $rootConfig->selectedList->createCopy();
+	        $newConfig->valueid    = $newSelectedList->id;
+	        $newConfig->valuefield = 'listItems';
+	    }else
+	    {// переносим обычные значения простым присваиванием
+	        $fields[] = 'valuefield';
+	        $fields[] = 'valueid';
 	    }
-	    foreach ( $this->defaultListItems as $defaultItem )
-	    {// копируем список значений из настройки с данными по умолчанию
-	        $attributes = $defaultItem->attributes;
-	        // устанавливаем в новых моделях id списка с выбранными элементами
-	        $attributes['easylistid'] = $this->valueid;
-	        // удаляем лишние данные из модели перед копированием
-	        unset($attributes['id']);
-	        unset($attributes['timecreated']);
-	        unset($attributes['timemodified']);
-	        unset($attributes['sortorder']);
-	        unset($attributes['status']);
-	        
-	        $itemCopy = new EasyListItem;
-	        $itemCopy->setAttributes($attributes);
-	        $itemCopy->save();
+	    if ( $rootConfig->defaultList )
+	    {// список значений по умолчанию всегда общий для всей линии наследования настроек  
+	        $newConfig->easylistid = $rootConfig->defaultList->id;
 	    }
-	    return true;
+	    if ( $rootConfig->allowuservalues )
+	    {// для настройки разрешен ввод пользовательских значений - создадим список для них
+	        // этот список не копируется из корневой настройки чтобы не смешивать 
+	        // значения введенные для разных моделей
+	        $userList       = new EasyList();
+	        $userList->name = 'Список пользовательских значений для настройки "'.$rootConfig->title.'"';
+	        $userList->triggerupdate  = EasyList::TRIGGER_MANUAL;
+	        $userList->triggercleanup = EasyList::TRIGGER_MANUAL;
+	        $userList->unique         = 1;
+	        // сохраняем список
+	        if ( ! $userList->save() )
+	        {// @todo прописать действия при ошибке сохранения
+	            $newConfig->userlistid = 0;
+	        }
+	        $newConfig->userlistid = $userList->id;
+	    }
+	    // запоминаем из какой модели былап создана новая настройка
+	    $newConfig->parentid   = $rootConfig->id;
+	    // прикрепляем новую настройку к нужной модели
+	    $newConfig->objecttype = $objectType;
+	    $newConfig->objectid   = $objectId;
+	    // переносим остальные значения из корневой настройки
+	    $newConfig->attributes = $rootConfig->getAttributes($fields);
+	    // сохраняем настройку
+	    if ( ! $newConfig->save() )
+	    {// @todo обработать ошибку сохранения
+	        return false;
+	    }
+	    return $newConfig;
 	}
 	
 	/**
@@ -1410,6 +1536,8 @@ class Config extends CActiveRecord
 	 * чтобы не задеть настройки по умолчанию 
 	 * 
 	 * @return bool
+	 * 
+	 * @deprecated
 	 */
 	protected function createDataFromDefault($valueAction='clear', $listActions=array(), $newData=array())
 	{
@@ -1461,6 +1589,8 @@ class Config extends CActiveRecord
 	 * 
 	 * @param  Config $config
 	 * @return int - id созданного списка
+	 * 
+	 * @deprecated
 	 */
 	protected function createListFromDefault($config, $type='easylistid', $action='copy')
 	{
@@ -1505,63 +1635,4 @@ class Config extends CActiveRecord
         }
         return $newList->id;
 	}
-	
-	/**
-	 * Функция подготовки первого изменения значения или списка значений
-	 * для этой настройки (ConfigValue): мы храним только те значения настроек которые
-	 * отличаются от значений по умолчанию, поэтому при первом изменении значения любой настройки
-	 * мы должны ее инициализировать
-	 * Эта функция вызывается из модели ConfigValue перед сохранением редактированием или обновлением
-	 *
-	 * @param  string      $operation - действие производимое с настройкой (ConfigValue):
-	 *                                  insert/update/delete
-	 * @param  ConfigValue $configValue - создаваемое, обновляемое или удаляемое значение настройки
-	 * @return bool
-	 *
-	 * @deprecated переместить в контроллер для настроек
-	 */
-	/*public function beforeFirstEdit($operation, $configValue)
-	{
-	    if ( $this->timemodified OR ! $this->parentid OR $this->isSystem() )
-	    {// это не первое редактирование настройки или настройка корневая/системная:
-	        // не требуется никаких дополнительных операций подготовки при изменении ее записей
-	        return true;
-	    }
-	    if ( ! $this->parentConfig )
-	    {// проверяем целостность иерархии настроек
-	        throw new CException('Невозможно изменить настройку: она ссылается на несуществующую
-	            родительскую запись');
-	    }
-	    $this->timemodified = time();
-	     
-	    // определим какая операция выполняется
-	    switch ( $operation )
-	    {
-	        // добавляется новое значение настройки
-	        case 'insert':
-	            if ( $this->isMultiple() )
-	            {// у настройки может быть несколько значений
-	                 
-	            }else
-	            {// у настройки может быть только одно значение
-	                 
-	            }
-	            if ( ! $this->parentConfig->configValues )
-	            {// в родительской настройке нет значений по умолчанию: она или не обязательна
-	                // к заполнению или не имеет значений по умолчанию
-	                // создаем и сохраняем новую запись из переданных значений
-	            }
-	            break;
-	            // обновляется текущее значение настройки
-	        case 'update':
-	
-	        break;
-	        // удаляется одно из добавленых значений настройки
-	        case 'delete':
-	
-	        break;
-	        default: throw new CException('Неизвестный тип операции с настройкой:'.$operation);
-	    }
-	    return $this->save();
-    }*/
 }
