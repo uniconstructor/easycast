@@ -67,10 +67,15 @@
  *                                        значений или ссылки на значения полей в других таблицах
  *                                        Возвращает связанную модель для элементов хранящих ссылки на
  *                                        модель целиком
+ * @property int $parentid - id оригинального элемента:  
+ *                           используется только для ссылки на модели EasyListItem
+ *                           (этот элемент является ссылкой на другой элемент из другого списка)
  * 
  * Relations:
- * @property EasyList      $easyList    - список которому принадлежит значение
- * @property CActiveRecord $valueObject - модель на которую ссылается этот элемент списка
+ * @property EasyList       $easyList      - список которому принадлежит значение
+ * @property CActiveRecord  $valueObject   - модель на которую ссылается этот элемент списка
+ * @property EasyListItem[] $itemInstances - все элементы списка, ссылающиеся на эту модель любым способом
+ * @property EasyListItem   $parentItem    - элемент списка из которого был создан этот элемент
  * 
  * Методы класса EcTimestampBehavior:
  * @method CActiveRecord createdBefore(int $time, string $operation='AND')
@@ -87,6 +92,7 @@
  * @todo внедрить workflow-патерн (плагин SimpleWorkflow): это сильно упростит работу по синхронизации
  * @todo виртуальное поле data (getter, read-only + labels)
  * @todo добавить sortable-поведение и миграцию, исправляющую порядок сортировки для всей таблицы
+ * @todo добавить константы для остальных используемых objecttype
  */
 class EasyListItem extends CActiveRecord
 {
@@ -106,6 +112,10 @@ class EasyListItem extends CActiveRecord
      * @var string - статус элемента: удаленный элемент списка (соответствует 'cleaned' для mailChip)
      */
     const STATUS_DELETED  = 'deleted';
+    /**
+     * @var string - тип элемента списка: простое значение
+     */
+    const TYPE_ITEM       = '__item__';
     
 	/**
 	 * @return string the associated database table name
@@ -117,21 +127,25 @@ class EasyListItem extends CActiveRecord
 
 	/**
 	 * @return array validation rules for model attributes.
+	 * 
+	 * @todo проверки уникальности и существования связанных записей
 	 */
 	public function rules()
 	{
 		return array(
-			array('easylistid, objectid, sortorder, timecreated, timemodified', 'length', 'max' => 11),
-			array('status, objecttype, objectfield', 'length', 'max' => 50),
-			array('name', 'length', 'max' => 255),
-			array('description, value, data', 'length', 'max' => 4095),
+            array('easylistid, objectid, sortorder, timecreated, timemodified, parentid', 
+                'length', 'max' => 11,
+            ),
+            array('status, objecttype, objectfield', 'length', 'max' => 50),
+            array('name', 'length', 'max' => 255),
+            array('description, value, data', 'length', 'max' => 4095),
 		);
 	}
 	
 	/**
 	 * @see CActiveRecord::beforeSave()
-	 * @todo добавить возможность требовать уникальность не только по objecttype/objectid
-	 *       но и по value
+	 * 
+	 * @todo добавить возможность требовать уникальность не только по objecttype/objectid но и по value
 	 */
 	public function beforeSave()
 	{
@@ -141,34 +155,51 @@ class EasyListItem extends CActiveRecord
 	        $lastItemCount = $this->forList($this->easylistid)->count();
 	        $lastItemCount++;
 	        $this->sortorder = $lastItemCount;
-	        
 	        // проверяем уникальность нового элемента в списке (если этого требует)
-	        if ( $this->easyList AND $this->easyList->unique AND ! $this->isOriginalItem() )
+	        if ( $this->easyList AND $this->easyList->unique AND ! $this->isOriginalItem() AND 
+	             $this->parentItem->easylistid == $this->easyList->id )
 	        {// разрешены только уникальные элементы внутри списка
 	            // (в этот список нельзя добавить один и тот же элемент элемент 2 раза)
 	            // исключение составляют только элементы с типом 'item' и objectid=0: 
 	            // они не ссылаются на другие объекты в базе и мы не можем проверить их уникальность:
 	            // для этого проверяем, присутствует ли добавляемый элемент элемент в этом списке
-	            $existedItem = $this->forList($this->easylistid)->forObject($this->objecttype, $this->objectid)->exists();
-	            if ( $existedItem )
+	            if ( $this->forList($this->easylistid)->forObject($this->objecttype, $this->objectid)->exists() )
 	            {// и отменяем вставку новой записи если такой элемент уже есть
+	                $msg = "Не удалось добавить запись: такой элемент уже есть в списке (objectid=".$this->objectid.')';
+	                Yii::log($msg, CLogger::LEVEL_INFO, 'application.easylistitem');
                     return false;
 	            }
 	        }
-	        
 	        // для ссылок на поле в другой модели: при создании новой записи копируем значение
 	        // из связанного поля, чтобы ускорить поиск по нему  и уменьшить количество JOIN
 	        // при выборке, особенно при поиске разнородных объектов
 	        if ( ! $this->isOriginalItem() AND $this->getTargetObject() AND $this->objectfield )
 	        {
 	            if ( ! $this->getTargetObject()->hasRelated($this->objectfield) )
-	            {// поля-связи мы не кешируем
-	                $objectField = $this->objectfield;
-	                $this->value = $this->valueObject->$objectField;
+	            {// поля-связи могут содержать большие выборки, поэтому их мы не кешируем
+	                $this->value = $this->valueObject->{$this->objectfield};
 	            }
 	        }
-	        // @todo пока в эту модель не добавлен workflow-плагин то будем ставить активный статус руками
-	        $this->status = 'active';
+	        // @todo пока в эту модель не добавлен workflow-плагин будем ставить активный статус руками 
+	        $this->status = self::STATUS_ACTIVE;
+	    }else
+	    {// обновляется существующая запись
+	        $old = $this::model()->findByPk($this->id);
+            $new = $this;
+            foreach ( $this->itemInstances as $item )
+            {// обновим сохраненные данные в ссылках на эту запись
+                if ( $fieldName = $item->objectfield )
+                {// определем на какое поле в качестве оригинала ссылкается элемент
+                    if ( $old->$fieldName != $new->$fieldName )
+                    {
+                        $item->value = $new->$fieldName;
+                        $item->save();
+                    }
+                }elseif ( $old->$fieldName != $new->$fieldName )
+                {// если элемент ссылается на модель целиком - то только синхронизируем даты изменения
+                    $item->markModified();
+                }
+            }
 	    }
 	    return parent::beforeSave();
 	}
@@ -178,13 +209,6 @@ class EasyListItem extends CActiveRecord
 	 */
 	public function afterSave()
 	{
-	    if ( $this->objecttype === 'item' AND ! $this->objectid )
-	    {// оригинал записи после сохранения делаем ссылкой на самого себя
-	        $this->objecttype  = 'EasyListItem';
-	        $this->objectfield = 'value';
-	        $this->objectid    = $this->id;
-	        $this->save(false, array('objecttype', 'objectfield', 'objectid'));
-	    }
 	    parent::afterSave();
 	}
 	
@@ -196,6 +220,9 @@ class EasyListItem extends CActiveRecord
 	    if ( $this->isUsedByAnyObject() )
 	    {// запрещаем удалять элементы списка, которые используются другими моделями системы
 	        // (например в качестве значения настройки) чтобы не создавать битых ссылок
+	        $msg = "Не удалось удалить элемент списка: он используется 
+	            другими объектами системы (id=".$this->id.")";
+	        Yii::log($msg, CLogger::LEVEL_INFO, 'application.easylistitem');
 	        return false;
 	    }
 	    return parent::beforeDelete();
@@ -206,29 +233,19 @@ class EasyListItem extends CActiveRecord
 	 */
 	public function relations()
 	{
-	    /*$objectType = 'EasyListItem';
-        if ( isset($this->objecttype) AND $objectType = $this->objecttype )
-        {
-            $objectType = $this->objecttype;
-        }*/
 		return array(
 		    // список в которой находится значение
-		    'easyList'    => array(self::BELONGS_TO, 'EasyList', 'easylistid'),
+		    'easyList' => array(self::BELONGS_TO, 'EasyList', 'easylistid'),
 		    // модель, на которую ссылается этот элемент списка
 		    //'valueObject' => array(self::BELONGS_TO, $objectType, 'objectid'),
 		    // все элементы списка, ссылающиеся на значение поля 'value' из этой модели
-		    'itemValueInstances' => array(self::HAS_MANY, 'EasyListItem', 'objectid',
-		        'scopes' => array(
-    		        'forObjectType'   => array('EasyListItem'),
-		            'withObjectField' => array('value'),
-    		    ),
-            ),
+		    //'itemValueInstances' => array(self::HAS_MANY, 'EasyListItem', 'parentid'),
 		    // все элементы списка, ссылающиеся на эту модель любым способом
-		    'itemInstances' => array(self::HAS_MANY, 'EasyListItems', 'objectid',
-		        'scopes' => array(
-    		        'forObjectType' => array('EasyListItem'),
-    		    ),
-            ),
+		    'itemInstances' => array(self::HAS_MANY, 'EasyListItem', 'parentid'),
+		    // оригинал значения
+		    'parentItem'    => array(self::BELONGS_TO, 'EasyListItem', 'parentid'),
+		    // все элементы ссылающиеся на этот элемент как на оригинал
+		    //'nestedItems'   =>  array(self::HAS_MANY, 'EasyListItem', 'parentid'),
 		);
 	}
 	
@@ -250,7 +267,7 @@ class EasyListItem extends CActiveRecord
 	        'CustomRelationSourceBehavior' => array(
 	            'class' => 'application.behaviors.CustomRelationSourceBehavior',
 	            'targetRelationName'  => 'valueObject',
-	            'customObjectTypes'   => array('system', 'item'),
+	            'customObjectTypes'   => array(self::TYPE_ITEM),
 	            'enableEmptyObjectId' => true,
 	        ),
 	        // группы условий для поиска по данным моделей, которые ссылаются
@@ -258,6 +275,10 @@ class EasyListItem extends CActiveRecord
 	        'CustomRelationTargetBehavior' => array(
 	            'class' => 'application.behaviors.CustomRelationTargetBehavior',
 	            'customRelations' => array(),
+	        ),
+	        // настройки для модели и методы для поиска по этим настройкам
+	        'ConfigurableRecordBehavior' => array(
+	            'class' => 'application.behaviors.ConfigurableRecordBehavior',
 	        ),
 	    );
 	}
@@ -282,6 +303,7 @@ class EasyListItem extends CActiveRecord
 			'timemodified' => Yii::t('coreMessages', 'timemodified'),
 		    'sortorder'    => 'Порядок сортировки',
 			'status'       => Yii::t('coreMessages', 'status'),
+			'parentid'     => 'Оригинал элемента списка',
 		);
 	}
 	
@@ -303,7 +325,9 @@ class EasyListItem extends CActiveRecord
 	{
 	    return array(
 	        // false вторым параметром нужен для предотвращения бесконечной рекурсии
-	        'order' => $this->getTableAlias(true, false).'.`sortorder` ASC',
+	        'order'     => $this->getTableAlias(true, false).'.`sortorder` ASC',
+	        // по умолчанию скрываем из любой выборки удаленные элементы
+	        'condition' => $this->getTableAlias(true, false).".`status` <> '".self::STATUS_DELETED."'",
 	    );
 	}
 	
@@ -327,18 +351,34 @@ class EasyListItem extends CActiveRecord
 	           'condition' => $this->getTableAlias(true).'.`objectfield` IS NOT NULL AND '.
 	               $this->getTableAlias(true).'.`objectid` > 0',
             ),
+            // все элементы у которых не указано значение в поле "objectfield"
+            // (это записи которые ссылаются на объект целиком, а не на поле в модели)
+            'withEmptyObjectField' => array(
+	            'condition' => $this->getTableAlias(true).'.`objectfield` IS NULL OR '.
+                    $this->getTableAlias(true).".`objectfield` = '' ",
+	        ),
 	    );
         return CMap::mergeArray($timestampScopes, $modelScopes);
 	}
 	
 	/**
 	 * Именованная группа условий: получить все элементы из указанного списка (alias)
+	 * Найдет все элементы присутствующие хотя бы в одном из списков если передан массив
 	 * 
-	 * @param  int|array $listId - id списка (EasyListItem)
+	 * @param  int|array|EasyListItem $list - id списка, модель списка (EasyList) или массив id списков
+	 * @param  string $operation            - как присоединить это условие к остальным?
+	 *                                        (AND/OR/AND NOT/OR NOT)
 	 * @return EasyListItem
 	 */
-	public function forList($listId, $operation='AND')
+	public function forList($list, $operation='AND')
 	{
+	    if ( $list instanceof EasyList )
+	    {
+	        $listId = $list->id;
+	    }else
+	    {
+	        $listId = $list;
+	    }
 	    return $this->withListId($listId, $operation);
 	}
 	
@@ -346,6 +386,7 @@ class EasyListItem extends CActiveRecord
 	 * Именованная группа условий: получить все элементы из указанного списка
 	 * 
 	 * @param  int|array $listId - id списка (EasyListItem)
+	 * @param  string $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
 	 * @return EasyListItem
 	 */
 	public function withListId($listId, $operation='AND')
@@ -357,74 +398,67 @@ class EasyListItem extends CActiveRecord
 	 * Именованная группа условий: получить все элементы c указаным значением в поле objectid
 	 * (или значением соответствующим хотя бы одному из переданных значений если пердан массив)
 	 * 
-	 * @param string|int $objectId - значение или список значений которые ищутся в поле objectid
+	 * @param  string|int $objectId - значение или список значений которые ищутся в поле objectid
+	 * @param  string $operation    - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
 	 * @return EasyListItem
+	 * 
+	 * @deprecated использовать одноименный метод из CustomRelationSourceBehavior
 	 */
-	public function withObjectId($objectId)
+	/*public function withObjectId($objectId, $operation='AND')
 	{
 	    $criteria = new CDbCriteria();
 	    $criteria->compare($this->getTableAlias(true).'.`objectid`', $objectId);
 	    
-	    $this->getDbCriteria()->mergeWith($criteria);
+	    $this->getDbCriteria()->mergeWith($criteria, $operation);
 	
 	    return $this;
-	}
+	}*/
 	
 	/**
 	 * Именованная группа условий: получить все элементы c указаным значением в поле objectfield
 	 * 
-	 * @param  string $objectField - значение или список значений которые ищутся в поле objectfield
+	 * @param  string|array $objectField - значение или список значений которые ищутся в поле objectfield
+	 * @param  string       $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
 	 * @return EasyListItem
 	 */
-	public function withObjectField($objectField)
+	public function withObjectField($objectField, $operation='AND')
 	{
+	    if ( ! $objectField )
+	    {// условие не используется
+	        return $this;
+	    }
 	    $criteria = new CDbCriteria();
 	    $criteria->compare($this->getTableAlias(true).'.`objectfield`', $objectField);
 	     
-	    $this->getDbCriteria()->mergeWith($criteria);
+	    $this->getDbCriteria()->mergeWith($criteria, $operation);
 	
 	    return $this;
 	}
 	
 	/**
-	 * Именованная группа условий: получить все элементы у которых не указано значение в поле 
-	 * "objectfield" (это записи которые ссылаются на объект целиком, а не на поле в нем)
+	 * Группа условий поиска: выбрать записи с указанным статусом
 	 * 
-	 * @param  string $objectField - значение или список значений которые ищутся в поле objectfield
+	 * @param  array|string $status - массив статусов или строка если статус один
 	 * @return EasyListItem
-	 */
-	public function withEmptyObjectField()
-	{
-	    $criteria = new CDbCriteria();
-	    $criteria->compare($this->getTableAlias(true).'.`objectfield` IS NULL');
-	     
-	    $this->getDbCriteria()->mergeWith($criteria);
-	
-	    return $this;
-	}
-	
-	/**
-	 * Именованная группа условий поиска - выбрать записи по статусам
 	 * 
-	 * @param  array|string $statuses - массив статусов или строка если статус один
-	 * @return EasyListItem
+	 * @todo использовать одноименный метод SWActiveRecordBehavior после подключения simpleWorkflow
 	 */
-	public function withStatus($statuses)
+	public function withStatus($status, $operation='AND')
 	{
-	    if ( empty($statuses) )
+	    if ( ! $status )
 	    {// Если статус не указан - выборка по этому параметру не требуется
 	        return $this;
 	    }
 	    $criteria = new CDbCriteria();
-	    $criteria->compare($this->getTableAlias(true).'.`status`', $statuses);
+	    $criteria->compare($this->getTableAlias(true).'.`status`', $status);
 	    
-	    $this->getDbCriteria()->mergeWith($criteria);
+	    $this->getDbCriteria()->mergeWith($criteria, $operation);
 	
 	    return $this;
 	}
 	
 	/**
-	 * Именованная группа условий: получить все элементы c указаным значением в поле value
+	 * (alias) Именованная группа условий: получить все элементы c указаным значением в поле value
 	 * или значением соответствующим хотя бы одному из значений если пердан массив
 	 * (поскольку мы сохраняем все внешние значения полей в записи элемента списка
 	 * нам нет необходимости составлять сложный JOIN-запрос по связаным таблицам:
@@ -433,14 +467,14 @@ class EasyListItem extends CActiveRecord
 	 * @param  string|array $value
 	 * @return EasyListItem
 	 */
-	public function withValue($value)
+	public function withValue($value, $operation='AND')
 	{
-	    return $this->withItemValue($value);
+	    return $this->withItemValue($value, $operation);
 	}
 	
 	/**
 	 * Именованная группа условий: получить все элементы c указаным значением в поле value
-	 * или значением соответствующим хотя бы одному из значений если передан массив
+	 * или значением соответствующим хотя бы одному из вариантов если передан массив
 	 * 
 	 * @param string|array $value - значение или список значений которые ищутся в поле value
 	 * @param bool $includeLinked - также найти все элементы которые все элементы которые
@@ -450,12 +484,12 @@ class EasyListItem extends CActiveRecord
 	 * @todo предусмотреть возможность численного сравнения и поиска по LIKE-шаблону
 	 *       для случая если передано одно значение (испольновать иногда compare())
 	 */
-	public function withItemValue($value)
+	public function withItemValue($value, $operation='AND')
 	{
 	    $criteria = new CDbCriteria();
 	    $criteria->compare($this->getTableAlias(true).'.`value`', $value);
 	    
-	    $this->getDbCriteria()->mergeWith($criteria);
+	    $this->getDbCriteria()->mergeWith($criteria, $operation);
 	    
 	    return $this;
 	}
@@ -467,6 +501,8 @@ class EasyListItem extends CActiveRecord
 	 *                                        если передан массив id - то будут найдены все элементы
 	 *                                        которые ссылаются хотя бы на один из перечисленных id
 	 * @return EasyListItem
+	 * 
+	 * @deprecated
 	 */
 	public function forItem($item)
 	{
@@ -483,90 +519,13 @@ class EasyListItem extends CActiveRecord
 	    {
 	        throw new CException('Неправильный формат данных при составлении условия поиска');
 	    }
-	    return $this->forObject('EasyListItem', $itemId);
+	    return $this->withId($itemId);
 	}
-	
-	/**
-	 * 
-	 * @param  array  $items - массив id моделей элементов списка ссылки на которые 
-	 *                         нужно найти. Результат поиска записит от переданного
-	 *                         типа поиска (второй параметр)
-	 * @param  string $operator - тип поиска: как составлять условие для списка элементов
-	 *                            OR  - в списке должен быть хотя бы один элемент из массива
-	 *                            AND - в списке должен быть каждый перечисленый элемент
-	 * @param  bool $inverse - инвертировать полученное условие
-	 * @return EasyListItem
-	 * 
-	 * @todo закончить работу над этой функцией
-	 */
-	/*public function forItems($items, $operator='OR', $inverse=false)
-	{
-	    if ( ! $items )
-	    {// условие не используется
-	        return $this;
-	    }
-	    if ( ! is_array($items) )
-	    {
-	        throw new CException('Для составления этого условия нужен массив');
-	    }
-	    $criteria = new CDbCriteria();
-	    
-	    // нормализуем формат массива
-	    // @todo определять случай когда все объекты одного типа и сводить его к IN-условию
-	    $itemIds = array();
-	    $columns = array();
-	    foreach ( $items as $item )
-	    {
-	        if ( isset($item->id) AND isset($item->objecttype) )
-	        {// объекты для сравнения: для каждого объекта потребуется условие сравнения 
-	            // по нескольким параметрам - дополняем список таких условий
-	            $idPrefix = '';
-	            if ( $inverse )
-	            {// нужно исключитьиз выборки каждый id строго определенного типа
-	                $idPrefix = '<>';
-	            }
-	            $columns[] = array(
-	                'objecttype' => $item->objecttype,
-	                'objectid'   => $idPrefix.$item->objectid,
-	            );
-	        }elseif ( is_numeric($item) )
-	        {// id для сравнения: дополняем список для будущего IN-условия
-	            $itemIds[] = $item;
-	        }else
-	        {
-	            throw new CException('Для составления этого условия нужен массив из id или EasyListItem');
-	        }
-	    }
-	    
-	    // однотипные модели (например элементы списка) требуют более простых условий
-	    if ( ! empty($itemIds) )
-	    {// список id однотипных элементов списка (EasyListItem)
-	        $idCriteria = new CDbCriteria();
-	        $idCriteria->compare($this->getTableAlias(true).'.`objecttype`', 'EasyListItem');
-	        if ( $inverse )
-	        {// исключить элементы из выборки
-	            if ( $operator == 'AND' )
-	            {// исключить все записи
-	                $idCriteria->addNotInCondition($this->getTableAlias(true).'.`objectid`', $itemIds);
-	            }
-	        }else
-	        {
-	            $idCriteria->addInCondition($this->getTableAlias(true).'.`objectid`', $itemIds);
-	        }
-            
-	    }
-	    
-	    $columnCriteria = new CDbCriteria();
-	    foreach ( $columns as $id => $columnData )
-	    {// список разнородных элементов: для каждого из них нужно отдельное условие "тип + id"
-	        $columnCriteria->addColumnCondition($columnData, 'AND', $operator);
-	    }
-	}*/
 	
 	/**
 	 * Именованная группа условий: получить все элементы 
 	 * c указаным значением в поле связанного объекта
-	 * (или значением соответствующим хотя бы одному из значений если пердан массив)
+	 * (или значением соответствующим хотя бы одному из значений если передан массив)
 	 * 
 	 * @param  string|array $value - значение или список значений которые ищутся в связанном объекте
 	 * @return EasyListItem
@@ -577,8 +536,8 @@ class EasyListItem extends CActiveRecord
 	 */
 	public function withLinkedValue($value)
 	{
-	    $model    = $this->objecttype;
-	    $alias    = $model::model()->getTableAlias(true);
+	    $model = $this->objecttype;
+	    $alias = $model::model()->getTableAlias(true);
 	    // составляем условие поиска по произвольному полю
 	    $fieldCriteria = new CDbCriteria();
 	    $fieldCriteria->compare($alias.".`{$this->objectfield}`", $value);
@@ -598,22 +557,52 @@ class EasyListItem extends CActiveRecord
 	}
 	
 	/**
-	 * Получить все элементы списка с указанным id либо ссылающиеся на этот элемент
+	 * Получить все элементы списка с указанным id либо ссылающиеся на элемент c указанным id
 	 * 
-	 * @param  int|array $itemId - id элемента списка (EasyListItem)
+	 * @param  int|array|EasyListItem $item - id элемента списка (EasyListItem)
+	 * @param  bool $includeLinked - id элемента списка (EasyListItem)
+	 * @return EasyListItem
+	 * 
+	 * @deprecated
+	 */
+	public function withItemId($item, $includeLinked=true, $operator='AND')
+	{
+	    return $this->withParentId($parentId, $operator);
+	}
+	
+	/**
+	 * Все элементы с указанным значением в поле parentid 
+	 * 
+	 * @param  int    $parentId - 
+	 * @param  string $operator - 
 	 * @return EasyListItem
 	 */
-	public function withItemId($itemId, $includeLinked=true)
+	public function withParentId($parentId, $operator='AND')
 	{
-	    if ( is_object($itemId) )
-	    {// используем только id элемента
-	        $itemId = $itemId->id;
-	    }
 	    $criteria = new CDbCriteria();
-	    $criteria->compare($this->getTableAlias(true).'.`id`', $itemId);
+	    $criteria->compare($this->getTableAlias(true).'.`parentid`', $parentId);
+	     
+	    $this->getDbCriteria()->mergeWith($criteria, $operator);
 	    
-	    $this->getDbCriteria()->mergeWith($criteria);
+	    return $this;
+	}
 	
+	/**
+	 * Все элементы, кроме тех у которых переданное значение в parentid 
+	 * Если указан массив id - то найдутся все записи, кроме тех которые содержат
+	 * хотя бы одно из перечисленных id в поле $parentId
+	 * 
+	 * @param  int|array $parentId - 
+	 * @param  string    $operator - 
+	 * @return EasyListItem
+	 */
+	public function exceptParentId($parentId, $operator='AND')
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->addNotInCondition($this->getTableAlias(true).'.`parentid`', $parentId);
+	     
+	    $this->getDbCriteria()->mergeWith($criteria, $operator);
+	    
 	    return $this;
 	}
 	
@@ -626,10 +615,10 @@ class EasyListItem extends CActiveRecord
 	 * 
 	 * @todo добавлять возникшие при сохранении ошибки к ошибкам этой модели, в поле value
 	 */
-	public function updateProxy($field, $value)
+	/*public function updateProxy($field, $value)
 	{
 	    return $this->updateTargetObject($field, $value);
-	}
+	}*/
 	
 	/**
 	 * Получить значение, которое содержится в этом элементе списка
@@ -651,6 +640,7 @@ class EasyListItem extends CActiveRecord
 	        }else
 	        {// модели с таким id нет в базе или в модели нет нужного поля
 	            // @todo обработать эту ошибку
+	            
 	        }
 	    }else
 	    {// ссылка на объект целиком
@@ -661,16 +651,19 @@ class EasyListItem extends CActiveRecord
 	/**
 	 * Сохранить значение элемента списка
 	 * 
-	 * @param string $newData
-	 * @param bool   $updateExternal - изменять ли связанное значение если этот элемент списка
-	 *                                 ссылается на другую модель?
-	 * @return void
+	 * @param  string $newData
+	 * @return bool
 	 * 
 	 * @todo предусмотреть вариант с передачей модели
 	 */
-	public function setData($newData, $updateExternal=false)
+	public function setData($newData, $saveNow=true)
 	{
 	    $this->value = $newData;
+	    if ( $saveNow )
+	    {
+	        return $this->save();
+	    }
+	    return true;
 	}
 	
 	/**
@@ -706,12 +699,8 @@ class EasyListItem extends CActiveRecord
 	 */
 	public function isOriginalItem()
 	{
-	    if ( $this->isNewRecord AND $this->objecttype === 'item' AND ! $this->objectid )
-	    {// не сохраненные элементы всегда считаются уникальными
-	        return true;
-	    }
-	    if ( $this->id == $this->objectid AND $this->objecttype === 'EasyListItem' )
-	    {// ссылка на себя же
+	    if ( $this->objecttype === self::TYPE_ITEM AND ! $this->parentid )
+	    {// элементы со служебным типом всегда являются оригиналом
 	        return true;
 	    }
 	    return false;
@@ -726,12 +715,12 @@ class EasyListItem extends CActiveRecord
 	 */
 	public function isSimpleItem()
 	{
-	    if ( $this->objecttype === 'EasyListItem' )
-	    {
+	    if ( $this->objecttype === self::TYPE_ITEM )
+	    {// этот элемент списка - просто ссылка на другой такой же элемент
 	        return true;
 	    }
 	    if ( $this->isOriginalItem() )
-	    {
+	    {// элемент списка содержит простое значение и не ссылается на другие модели
 	        return true;
 	    }
 	    return false;
@@ -749,7 +738,16 @@ class EasyListItem extends CActiveRecord
 	    {// в качестве одиночного значения
 	        return true;
 	    }
-	    // @todo в качестве одного из нескольких выбранных значений
+	    /*if ( Config::model()->withValueType('EasyList')->withValueId($this->easylistid)->
+	         withSelectedOption($this->id)->exists() )
+	    {// в качестве одного из нескольких выбранных значений
+            return true;
+	    }*/
+	    // использование другими элементами списка
+	    if ( $this->itemInstances )
+	    {// в качестве оригинала значения
+	        return true;
+	    }
 	    // на этот список не ссылается ни одна из моделей системы
 	    return false;
 	}
@@ -761,10 +759,10 @@ class EasyListItem extends CActiveRecord
 	 * 
 	 * @deprecated использовать $this->getTargetObject(), удалить при рефакторингге
 	 */
-	public function getProxy()
+	/*public function getProxy()
 	{
 	    return $this->getTargetObject();
-	}
+	}*/
 	
 	/**
 	 * Для элементов-ссылок: обновить сохраненное значение из внешней таблицы
@@ -773,12 +771,9 @@ class EasyListItem extends CActiveRecord
 	 */
 	public function updateCachedValue()
 	{
-	    // определяем из какого поля модели брать значение
-	    $fieldName = $this->objectfield;
-	    
 	    if ( $this->isOriginalItem() )
 	    {// не обновляем те элементы которые ни на что не ссылаются
-	        return true;
+            return true;
 	    }
 	    if ( ! $this->valueObject )
 	    {// связанное значение было удалено - удаляем запись из списка 
@@ -795,8 +790,9 @@ class EasyListItem extends CActiveRecord
 	        // данные обновлять не нужно
 	        return false;
 	    }
-	    if ( ! $fieldName )
-	    {// для элемунтов, которые не ссылаются на конкретное поле: если целевой объект был изменен
+	    // определяем из какого поля модели брать значение
+	    if ( ! $fieldName = $this->objectfield )
+	    {// для элементов, которые не ссылаются на конкретное поле: если целевой объект был изменен
 	        // то достаточно взять из него время последнего изменения - остальное нас не интересует
 	        $this->timemodified = $this->valueObject->timemodified;
 	        return $this->save();
@@ -830,7 +826,6 @@ class EasyListItem extends CActiveRecord
         {// добавляем значение в тот список в котором находится указанная модель
             $this->easylistid = $targetModel->easylistid;
         }
-        
         // запоминаем освободившийся sortorder
         $this->sortorder = $targetModel->sortorder + 1;
         // сдвигаем все записи на 1 вперед 
@@ -843,5 +838,34 @@ class EasyListItem extends CActiveRecord
 	        $record->save(false, array('sortorder'));
 	    }
 	    return $this->dbConnection->createCommand()->insert($this->tableName(), $this->attributes);
+	}
+	
+	/**
+	 * добавить элемент в список
+	 * 
+	 * @param  int|EasyList $list - 
+	 * @return EasyListItem
+	 */
+	public function copyToList($list)
+	{
+	    if ( ! is_object($list) )
+	    {
+	        if ( ! $list = EasyList::model()->findByPk($list) )
+	        {// ненайден список с таким id
+	            throw new CException('Не найден список с таким id (id='.$list.')');
+	        }
+	    }
+	    return $list->addItem($this);
+	}
+	
+	/**
+	 * @todo переместить элемент в список
+	 * 
+	 * @param  int|EasyList $list
+	 * @return EasyListItem
+	 */
+	public function moveToList($list)
+	{
+	    
 	}
 }
