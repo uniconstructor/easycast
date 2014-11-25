@@ -83,10 +83,26 @@ class CustomScopesBehavior extends CActiveRecordBehavior
             $values = array($values);
         }
         $criteria = new CDbCriteria();
-        $criteria->addNotInCondition($this->owner->getTableAlias(true).'.`'.$field.'`', $values);
+        $criteria->addNotInCondition($this->owner->getTableAlias(true).".`{$field}`", $values);
     
         $this->owner->getDbCriteria()->mergeWith($criteria, $operation);
     
+        return $this->owner;
+    }
+    
+    /**
+     * Установить поле модели, которое будет использовано в качестве ключа массива в итоговой выборке
+     * 
+     * @param  string $field
+     * @return CActiveRecord
+     */
+    public function setResultIndex($field)
+    {
+        $criteria = new CDbCriteria();
+        $criteria->index = $field;
+        
+        $this->owner->getDbCriteria()->mergeWith($criteria);
+            
         return $this->owner;
     }
 }
