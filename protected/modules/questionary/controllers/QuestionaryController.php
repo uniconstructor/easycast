@@ -54,15 +54,17 @@ class QuestionaryController extends Controller
 	{
 		return array(
 			array('allow', 
-			    'actions' => array('index', 'view', 'catalog', 'ajaxGetUserInfo', 'invite', 'dismiss', 'userActivation'),
+			    'actions' => array('index', 'view', 'catalog', 'ajaxGetUserInfo', 'invite', 
+			        'dismiss', 'userActivation',
+			    ),
 				'users'   => array('*'),
 			),
 			array('allow',
-				'actions' => array('update', 'ajax', 'upload'),
+				'actions' => array('update', 'ajax', 'toggleProjectTypeNotification'),
 				'users'   => array('@'),
 			),
 			array('allow',
-				'actions' => array('delete', 'loginAs'),
+				'actions' => array('delete', 'loginAs', 'upload'),
 				'roles'   => array('admin'),
 			),
 			array('deny',
@@ -78,15 +80,14 @@ class QuestionaryController extends Controller
 	{
 	    return array(
 	        'upload' => array(
-	            'class'      => 'xupload.actions.S3XUploadAction',
-	            //'path'       => "s3://video.easycast.ru/uploads/",
-	            //'publicPath' => "https://s3.amazonaws.com/video.easycast.ru/",
+	            'class' => 'xupload.actions.S3XUploadAction',
 	        ),
 	    );
 	}
 
 	/**
 	 * Отображает анкету пользователя
+	 * 
 	 * @param integer $id - id отображаемой анкеты
 	 */
 	public function actionView($id = null)
@@ -206,11 +207,6 @@ class QuestionaryController extends Controller
             // Получаем условия участия в съемках
             $recordingConditions->attributes = Yii::app()->request->getPost('QRecordingConditions');
             
-            // @todo ДЛЯ ТЕСТА (проверка отправленных значений)
-            //CVarDumper::dump($_POST, 10, true);
-            //CVarDumper::dump($questionary, 10, true);
-            //die;
-
             if ( $questionary->validate(null, false) )
             {// все данные анкеты проверены, сохранять можно
                 if( $questionary->save() )
@@ -269,7 +265,6 @@ class QuestionaryController extends Controller
 	 * Получить список городов для AJAX-подсказки в анкете. 
 	 * 
 	 * @deprecated
-	 * @todo Переименовать функцию так, чтобы было понятно что она занимается только городами
 	 */
     public function actionAjax()
     {
@@ -483,16 +478,58 @@ class QuestionaryController extends Controller
         if ( Yii::app()->user->checkAccess('Admin') )
         {// еще одна проверка прав
             Yii::app()->getModule('user')->forceLogin($questionary->user, true);
-            Yii::app()->user->setFlash('info', 'Приятно на время стать кем-то другим :)');
         }
         $this->redirect($url);
+    }
+    
+    /**
+     * Изменить настройку оповещения для проекта
+     * 
+     * @return void
+     */
+    public function actionToggleProjectTypeNotification()
+    {
+        /* @var $config Config */
+        /* @var $item   EasyListItem */
+        $qid         = Yii::app()->request->getPost('objectId', 0);
+        $questionary = $this->loadModel($qid);
+        $configName  = Yii::app()->request->getPost('configName');
+        $itemId      = Yii::app()->request->getPost('itemId', 0);
+        $item        = EasyListItem::model()->findByPk($itemId);
+        
+        if ( ! $item OR ! $configName )
+        {
+            throw new CHttpException(400, 'Не передан обязательный параметр');
+        }
+        if ( ! $this->canEditUser($questionary->userid) )
+        {
+            throw new CHttpException(403, 'Нет доступа');
+        }
+        // получаем настройку, привязанную к модели, либо создаем ее из корневой настройки
+        // (в случае если эта настройка для этой модели ни разу не редактировалась)
+        if ( ! $config = $questionary->getEditableConfig($configName) )
+        {// настройка для этой анкеты еще не создана
+            throw new CHttpException(500, 'Не удалось привязать новый экземпляр настройки к модели');
+        }
+        
+        // ищем элемент из стандартного списка в списке выбранных значений
+        $selectedListId = $config->selectedList->id;
+        $selectedItem   = EasyListItem::model()->withListId($selectedListId)->
+            withParentId($item->id)->find();
+        if ( $selectedItem )
+        {// проект уже в списке - удаляем его
+            $selectedItem->delete();
+        }else
+        {// проект еще не добавлен в список - добавляем его
+            $config->selectedList->addItem($item);
+        }
     }
     
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.
 	 * 
-	 * @param integer the ID of the model to be loaded
+	 * @param  int $id - the ID of the model to be loaded
 	 * @return Questionary
 	 */
 	public function loadModel($id)
@@ -507,7 +544,9 @@ class QuestionaryController extends Controller
 
 	/**
 	 * Performs the AJAX validation.
-	 * @param CModel|Questionary the model to be validated
+	 * 
+	 * @param  CModel|Questionary the model to be validated
+	 * @return void
 	 */
 	protected function performAjaxValidation($model)
 	{
@@ -528,13 +567,16 @@ class QuestionaryController extends Controller
 	 * 
 	 * (приглашать на съемки может только гость (он может быть заказчиком) 
 	 * зарегистрированный заказчик или админ)
+	 * 
 	 * @return bool
+	 * 
+	 * @deprecated ииспользовать собственные роли RBAC
 	 */
 	protected function canInviteUser()
 	{
 	    if ( Yii::app()->user->checkAccess('Customer') OR 
-	          Yii::app()->user->checkAccess('Admin') OR
-	          Yii::app()->user->isGuest )
+	         Yii::app()->user->checkAccess('Admin') OR
+	         Yii::app()->user->isGuest )
 	    {
 	        return true;
 	    }
@@ -544,8 +586,11 @@ class QuestionaryController extends Controller
 	/**
 	 * Узнать, может ли текущий пользователь редактировать анкету
 	 * (только владелец анкеты или админ)
-	 * @param int $userId - id пользователя редактируемой анкеты
+	 * 
+	 * @param  int $userId - id пользователя редактируемой анкеты
 	 * @return bool
+	 * 
+	 * @deprecated ииспользовать собственные роли RBAC
 	 */
 	protected function canEditUser($userId)
 	{
@@ -558,12 +603,12 @@ class QuestionaryController extends Controller
 	
 	/**
 	 * Вывести кнопку для заказчика: пригласить или отозвать приглашение участника
+	 * 
 	 * @param int $id - id анкеты участника
 	 * @param string $type
 	 * @return string
 	 * 
-	 * @todo сделать в сообщении ссылку на возврат в каталог
-	 * @todo вынести код этой кнопки из контроллера в отдельный виджет
+	 * @deprecated вынести в виджет
 	 */
 	protected function createCustomerButton($id, $type)
 	{
@@ -591,7 +636,7 @@ class QuestionaryController extends Controller
 	        // url для отмены приглашения
 	        $buttonUrl = Yii::app()->createUrl('//questionary/questionary/dismiss', array('id' => $id));
 	    }else
-	   {
+	    {
 	        throw CHttpException(404, 'Unknown button type');
 	    }
 	    
@@ -615,11 +660,12 @@ class QuestionaryController extends Controller
 	
 	/**
 	 * Создать JS для отмены приглашения заказчиком
+	 * 
 	 * @param string $messageId - html-id тега с сообщением 
 	 * @param string $buttonId - id кнопки с приглашением
 	 * @return string
 	 * 
-	 * @todo обработка AJAX-ошибок
+	 * @deprecated вынести в виджет
 	 */
 	protected function createDismissSuccessJS($messageId, $buttonId)
 	{
@@ -627,19 +673,19 @@ class QuestionaryController extends Controller
 	    $afterDismissCaption = QuestionaryModule::t('dismiss_message');
 	    
 	    return "function(data, status){
-	    if ( data.error.length )
-	    {
-	        
-	    }else
-	    {
-    	    $('#{$messageId}').fadeIn(100);
-    	    $('#{$messageId}').html('{$afterDismissMessage}');
-    	    $('#{$messageId}').attr('class', 'alert alert-success');
-    	     
-    	    $('#{$buttonId}').attr('class', 'btn btn-primary disabled');
-    	    $('#{$buttonId}').attr('disabled', 'disabled');
-    	    $('#{$buttonId}').attr('value', '{$afterDismissCaption}');
-	    }
+    	    if ( data.error.length )
+    	    {
+    	        
+    	    }else
+    	    {
+        	    $('#{$messageId}').fadeIn(100);
+        	    $('#{$messageId}').html('{$afterDismissMessage}');
+        	    $('#{$messageId}').attr('class', 'alert alert-success');
+        	     
+        	    $('#{$buttonId}').attr('class', 'btn btn-primary disabled');
+        	    $('#{$buttonId}').attr('disabled', 'disabled');
+        	    $('#{$buttonId}').attr('value', '{$afterDismissCaption}');
+    	    }
 	    }";
 	}
 	
@@ -651,7 +697,7 @@ class QuestionaryController extends Controller
 	 * @param string $gender - пол участника (male/female)
 	 * @return string
 	 * 
-	 * @todo обработка AJAX-ошибок
+	 * @deprecated вынести в виджет
 	 */
 	protected function createInviteSuccessJS($messageId, $buttonId, $gender)
 	{
@@ -684,9 +730,12 @@ class QuestionaryController extends Controller
 	
 	/**
 	 * Отправить письмо с подтверждением активации анкеты
-	 * @param Questionary $questionary
-	 * @param string $password - пароль для входа на сайт
+	 * 
+	 * @param  Questionary $questionary
+	 * @param  string $password - пароль для входа на сайт
 	 * @return null
+	 * 
+	 * @deprecated использовать модуль отправки писем
 	 */
 	protected function sendActivateConirmationEmail($questionary, $password)
 	{
