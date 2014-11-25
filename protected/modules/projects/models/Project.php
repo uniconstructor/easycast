@@ -464,7 +464,9 @@ class Project extends SWActiveRecord
 	        ),
 	        // настройки для модели и методы для поиска по этим настройкам
 	        'ConfigurableRecordBehavior' => array(
-	            'class' => 'application.behaviors.ConfigurableRecordBehavior',
+	            'class'      => 'application.behaviors.ConfigurableRecordBehavior',
+	            // настройка "баннер" создается автоматически вместе с каждым проектом
+	            'autoCreate' => array('banner'),
 	        ),
 	    );
 	}

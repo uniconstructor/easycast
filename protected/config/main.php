@@ -262,6 +262,8 @@ return array(
 	        // показываем ошибки авторизации только в режиме отладки: 
 	        // (для тестовой сборки и версии разработчика)
 	        'showErrors' => YII_DEBUG,
+	        // роли назначаемые всем пользователям 
+	        //'defaultRoles' = array(),
 	    ),
 	    // Подключаем модуль i18n чтобы можно было переводить приложение на разные языки
 	    // @todo подключить CDbMessageSource для того чтобы в модуле Questionary
@@ -377,35 +379,6 @@ return array(
         // Настройки по умолчанию для всех виджетов Yii
         'widgetFactory' => array(
             'widgets' => array(
-                // Формы для сложных значений
-                // @todo удалить эту настройку вместе с самим плагином multimodelform
-                //       когда весь multimodelform будет заменен редактируемыми grid-списками
-                'MultiModelForm' => array(
-                    'tableView'         => true,
-                    'bootstrapLayout'   => true,
-                    // все кнопки "удалить" становятся красными
-                    'removeHtmlOptions' => array(
-                        'class' => 'btn btn-danger mmf_removelink',
-                    ),
-                    // все кнопки "добавить" становятся зелеными
-                    'addHtmlOptions' => array(
-                        'class' => 'btn btn-success',
-                    ),
-                    // делаем все формы узкими, чтобы они вписались в верстку
-                    'tableHtmlOptions' => array(
-                        'style' => 'width:auto;',
-                        'class' => 'table-striped',
-                    ),
-                ),
-                // Выбор даты из календаря (jQuery)
-                // @todo этот элемент везде должен быть заменен более новым TbDatePicker 
-                'CJuiDatePicker' => array(
-                    'language' => 'ru',
-                    'options'  => array(
-                        'showAnim'   => 'fold',
-                        'dateFormat' => 'dd/mm/yy',
-                    ),
-                ),
                 // Галерея загрузки фотографий
                 'GalleryManager' => array(),
                 // Выбор даты (календарь из библиотеки yiiBooster)
@@ -494,24 +467,38 @@ return array(
 	    //       Это нужно на случай если для каких-то других плагинов понадобится указать формат даты 
 	    //       и времени
 	    
-	    // форматы ввода даты и времени: используются в настройках виджетов, для преобразования
-	    // unixtime в дату скриптами виджета (на стороне клиента) 
-	    // работает правило форматирования jquery-виджетов:
+	    // форматы ввода даты и времени: 
+	    // @see http://bootstrap-datepicker.readthedocs.org/en/latest/options.html#format
+	    // используются в настройках виджетов, для преобразования 
+	    // unixtime в дату скриптами виджета (на стороне клиента)
+	    // работает правило форматирования jquery-виджетов
 	    //     M  - обозначает месяц (3 буквы, язык текущей локали)
 	    //     ii - обозначает минуты
 	    //     mm - обозначает месяц (2 цифры, ведущие нули)
 	    'inputDateFormat'     => 'dd.mm.yyyy',
 	    'inputTimeFormat'     => 'hh:ii',
 	    'inputDateTimeFormat' => 'dd.mm.yyyy hh:ii',
-	    // форматы вывода даты и времени: используются в коде формы для преобразования 
+	    // форматы вывода даты и времени:
+	    // @see http://ru2.php.net/manual/en/function.date.php 
+	    // используются нас стороне сервера для преобразования 
 	    // unixtime в дату при подстановке значения по умолчанию
-	    // работает формат php-функции date(): 
+	    // используется формат php-функции date(): 
 	    //     M - обозначает месяц (3 буквы, язык текущей локали)
 	    //     m - тоже обозначает месяц (2 цифры, ведущие нули)
 	    //     i - обозначает минуты (2 цифры, ведущие нули)
 	    'outputDateFormat'     => "d.m.Y",
 	    'outputTimeFormat'     => 'H:i',
 	    'outputDateTimeFormat' => "d.m.Y H:i",
+	    // форматы даты и времени для компонентов CDateTimeParser и CDateFormatter: 
+	    // @see http://www.yiiframework.com/doc/api/1.1/CDateTimeParser
+        // @see http://www.unicode.org/reports/tr35/tr35-dates.html#Date_Format_Patterns
+	    // CDateTimeParser преобразует строку в unixtime
+	    // CDateFormatter  преобразует unixtime в строку
+	    // форматы обоих компонентов совпадают между собой (за что огромное спасибо разработчикам Yii)
+	    // но, к сожалению несовместимы ни с форматом функции date() ни с форматом jQuery
+	    'yiiDateFormat'     => 'dd.MM.yyyy',
+	    'yiiTimeFormat'     => 'HH:mm',
+	    'yiiDateTimeFormat' => 'dd.MM.yyyy HH:mm',
 	    
 	    // Настройки хостинга Amazon
 	    'AWSRegion' => 'us-east-1',
