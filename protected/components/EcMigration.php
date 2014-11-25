@@ -185,8 +185,7 @@ class EcMigration extends CDbMigration
         $itemTemplate = array(
             'easylistid'  => $list['id'],
             'timecreated' => time(),
-            'objecttype'  => 'EasyListItem',
-            'objectfield' => 'value',
+            'objecttype'  => '__item__',
             'objectid'    => 0,
         );
         foreach ( $items as $value => $data )
@@ -199,17 +198,10 @@ class EcMigration extends CDbMigration
                 );
             }
             $data['sortorder'] = $sortOrder++;
-            
             // создаем элемент списка из шаблона и переданных данных
             $item = CMap::mergeArray($itemTemplate, $data);
             // сохраняем элемент списка / получаем id созданного элемента
             $item['id'] = $this->createListItem($item);
-            
-            if ( $item['objecttype'] == 'EasyListItem' AND $item['objectfield'] == 'value' AND ! $item['objectid'] )
-            {// стандартные элементы ссылаются на себя за значением - обновим созданную запись
-                $item['objectid'] = $item['id'];
-                $this->update("{{easy_list_items}}", array('objectid' => $item['id']), 'id='.$item['id']);
-            }
         }
         return $list['id'];
     }
@@ -224,8 +216,7 @@ class EcMigration extends CDbMigration
         // шаблон для элементов этого списка
         $itemTemplate = array(
             'timecreated' => time(),
-            'objecttype'  => 'EasyListItem',
-            'objectfield' => 'value',
+            'objecttype'  => '__item__',
             'objectid'    => 0,
         );
         $item = CMap::mergeArray($itemTemplate, $itemData);
@@ -280,12 +271,19 @@ class EcMigration extends CDbMigration
         $table = "{{easy_list_items}}";
         $items = $this->dbConnection->createCommand()->select('*')->
             from($table)->where('easylistid='.$fromListId)->queryAll();
-        
         $sortOrder = 1;
+        
         foreach ( $items as $item )
         {// копируем каждый элемент списка
-            $item['easylistid']   = $toListId;
-            $item['valueid']      = $item['id'];
+            if ( $item['parentid'] )
+            {
+                $item['parentid'] = $item['id'];
+            }else
+            {
+                $item['parentid'] = $toListId;
+            }
+            $item['objecttype']   = '__item__';
+            $item['valueid']      = 0;
             $item['timecreated']  = time();
             $item['timemodified'] = time();
             $item['sortorder']    = $sortOrder++;;
