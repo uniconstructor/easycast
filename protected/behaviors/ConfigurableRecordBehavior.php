@@ -118,6 +118,12 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      * @var string - название связи которая хранит все настройки модели
      */
     public $configRelationName = 'configParams';
+    /**
+     * @var array - список настроек которые должны быть созданы автоматически в момент создания модели
+     *              Содержит только имена настроек ($config->name)
+     *              В этом списке могут быть только настройки из списка $this->getRootConfigParams()
+     */
+    public $autoCreate = array();
     
     /**
      * @return array
@@ -139,16 +145,20 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      * Создает полный список настроек при создании модели
      * @see CActiveRecordBehavior::beforeSave()
      * 
-     * @todo детальнее проработать копирование родительской настройки: брать данные не только из корневой записи
+     * @param  CModelEvent $event
+     * @return void
+     * 
+     * @todo детальнее проработать копирование родительской настройки: 
+     *       брать данные не только из корневой записи
      */
     public function afterSave($event)
     {
         parent::afterSave($event);
         
         if ( $this->owner->isNewRecord )
-        {// после создания каждой записи создаем для нее стандартный набор настроек
-            $configParams = $this->getRootConfigParams();
-            foreach ( $configParams as $configParam )
+        {// если для этой модели есть настройки, которые надо создать вместе с ней автоматически
+            // то создадим для нее стандартный набор настроек
+            foreach ( $this->getAutoCreatedParams() as $configParam )
             {// из корневых настроек делаем настройки для модели
                 // копируем все основные данные из шаблона (родительской настройки)
                 $attributes = $configParam->attributes;
@@ -163,9 +173,10 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
                 $config->parentid    = $configParam->id;
                 if ( ! $config->save() )
                 {// не удалось сохранить или прикрепить новую настройку
-                    // @todo удалить все прикрепленные до этого настройки если они есть или использовать
-                    //       транзакцию перед созданием настроек модели
-                    throw new CException('Не удалось прикрепить настройку к новой модели');
+                    $msg = 'Не удалось прикрепить настройку к новой модели (modelClass='.
+                        $this->getOwnerClass().') (configName='.$configParam->name.')';
+                    Yii::log($msg, CLogger::LEVEL_ERROR, 'application.config');
+                    throw new CException($msg);
                 }
             }
         }
@@ -174,23 +185,25 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
     /**
      * Удаляет все связанные настройки после удаления модели
      * @see CActiveRecordBehavior::afterDelete()
+     * 
+     * @param  CModelEvent $event
+     * @return void
      */
-    public function afterDelete($event)
+    public function beforeDelete($event)
     {
-        parent::afterDelete($event);
-        
         if ( ! $this->owner->hasRelated($this->configRelationName) )
-        {
+        {// удаляемая модель не содержит привязанных настроек
             return;
         }
-        $configRelationName = $this->configRelationName;
-        foreach ( $this->owner->$configRelationName as $configParam )
+        foreach ( $this->owner->getRelated($this->configRelationName) as $configParam )
         {// после удаления модели удяляем все связанные с ней настройки
             if ( ! $configParam->delete() )
-            {// @todo использовать транзакцию
+            {// ошибка при удалении записи
+                $event->isValid = false;
                 throw new CException('Не удалось удалить настройку при удалении модели');
             }
         }
+        return parent::beforeDelete($event);
     }
     
     /**
@@ -315,7 +328,7 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
             $this->configRelationName => array(
                 'select'   => false,
                 'joinType' => 'INNER JOIN',
-                'scopes' => array(
+                'scopes'   => array(
                     'withAnySelectedOption' => array($options),
                 ),
             ),
@@ -355,6 +368,50 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
         
         $this->owner->getDbCriteria()->mergeWith($criteria, $operation);
         
+        return $this->owner;
+    }
+    
+    /**
+     * (alias) Условие поиска по настройкам: все записи у которых есть хотя бы одна настройка
+     * в которой выбрано каждое из указаных значений
+     *
+     * @param  string|array $optionId - массив из id вариантов значения настройки (EasyListItem)
+     * @param  string    $operation   - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+     * @return CActiveRecord
+     */
+    public function exceptConfigOptionId($optionId, $operation='AND')
+    {
+        return $this->exceptAnyConfigOptionId($optionId, $operation='AND');
+    }
+    
+    /**
+     * Условие поиска по настройкам: все записи у которых есть хотя бы одна настройка
+     * в которой выбрано каждое из указаных значений
+     *
+     * @param  string|array $option - массив из id вариантов значения настройки (EasyListItem)
+     * @param  string   $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+     * @return CActiveRecord
+     */
+    public function exceptAnyConfigOptionId($optionId, $operation='AND')
+    {
+        if ( ! $optionId )
+        {// условие не используется
+            return $this->owner;
+        }
+        $criteria = new CDbCriteria();
+        $criteria->with = array(
+            $this->configRelationName => array(
+                'select'   => false,
+                'joinType' => 'INNER JOIN',
+                'scopes'   => array(
+                    'exceptSelectedOption' => array($optionId),
+                ),
+            ),
+        );
+        $criteria->together = true;
+    
+        $this->owner->getDbCriteria()->mergeWith($criteria, $operation);
+    
         return $this->owner;
     }
     
@@ -412,7 +469,7 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      */
     public function withEveryConfigValue($values, $operation='AND')
     {
-        if ( ! $values)
+        if ( ! $values )
         {// условие не используется
             return $this->owner;
         }
@@ -435,25 +492,32 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
     
     /**
      * Получить полный список всех настроек owner-модели
+     * Полныи списком считается список всех корневых настроек модели ($this->getRootConfigParams())
+     * Если к модели не привязана нужная настройка - то вместо нее используется 
+     * корневая с таким же именем, и ее значение считается значением настройки модели
      * 
-     * @param string $model - класс модели для которого нужно получить список настроек
-     *                        По умолчанию будет использован класс owner-модели
-     * @param int    $id    - id модели для которой нужно получить список настроек
+     * @param  bool $checkRoot - включать ли в список настроек модели корневые настройки
+     *                           в качестве настроек по умолчанию?
      * @return Config[] - массив, содержащий все доступные для этой модели настройки
      *                    или пустой массив, если настройки для этой модели не предусмотрены
      *                    Если модель еще не сохранена - то возвращает список корневых настроек модели
      */
-    public function getModelConfigParams($model=null, $id=0)
+    public function getModelConfigParams($checkRoot=true)
     {
-        if ( ! $model )
-        {
-            $model = $this->getOwnerClass();
+        $model = $this->getOwnerClass();
+        $id    = $this->owner->id;
+        
+        $notAttachedParams = array();
+        if ( $checkRoot )
+        {// для настроек которые еще ни разу не редактировались пользователем используются
+            // одноименные настройки по умолчанию 
+            // (они не привязаны к конкретной модели и используются в качестве значений по умолчанию)
+            $notAttachedParams = $this->getNotAttachedConfigParams();
         }
-        if ( ! $id )
-        {
-            $id = $this->owner->id;
-        }
-        return Config::model()->forObject($model, $id)->findAll();
+        // получаем все настройки, привязанные к этой модели
+        $attachedParams = $this->getAttachedConfigParams();
+        
+        return CMap::mergeArray($attachedParams, $notAttachedParams);
     }
     
     /**
@@ -486,40 +550,95 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
     /**
      * Получить полный список всех корневых настроек owner-модели
      * 
-     * @param string $model - класс модели для которого нужно получить список настроек
-     *                        По умолчанию будет использован класс owner-модели
      * @return Config[] - массив, содержащий все доступные корневые настройки для выбранной модели
      *                    или пустой массив, если настройки для этой модели не предусмотрены
      */
-    public function getRootConfigParams($model=null)
+    public function getRootConfigParams()
     {
-        if ( ! $model )
-        {
-            $model = $this->getOwnerClass();
-        }
-        return Config::model()->forObject($model, 0)->findAll();
+        $model = $this->getOwnerClass();
+        return Config::model()->forObject($model, 0)->setResultIndex('name')->findAll();
     }
     
     /**
-     * Узнать существует ли (и подключена ли) настройка с таким именем для текущей owner-модели
-     * Если название настройки не указано - то функция проверит есть ли хотя бы одна настройка
-     * у этой модели вообще
-     *
-     * @param  string $name - служебное имя настройки (поле name в модели Config)
-     * @param  string $model - класс модели (по умолчанию используется класс owner-модели)
-     * @return bool
+     * Получить список настроек, которые должны быть автоматически созданы вместе с owner-моделью
      * 
-     * @todo $model не используется. Проверить зависимости и удалить параметр
+     * @return Config[] - массив корневых настроек, из которых будут создаваться настройки модели
      */
-    public function hasConfig($name=null, $model=null)
+    public function getAutoCreatedParams()
+    {
+        if ( ! $this->autoCreate )
+        {// для этой модели нет настроек которые должны быть созданы автоматически
+            return array();
+        }
+        $model = $this->getOwnerClass();
+        return Config::model()->withName($this->autoCreate)->forObject($model, 0)->findAll();
+    }
+    
+    /**
+     * Получить только привязанные к этой модели настройки
+     * 
+     * @return Config[]
+     */
+    public function getAttachedConfigParams()
+    {
+        $model = $this->getOwnerClass();
+        $id    = $this->owner->id;
+        return Config::model()->forObject($model, $id)->setResultIndex('name')->findAll();
+    }
+    
+    /**
+     * Получить настройки модели, которые есть в списке корневых,
+     * но еще не привязаны к этой модели 
+     * (т. к. настройка создается и привязывается к модели только если ее значение было
+     * изменено пользователем) 
+     * 
+     * @return Config[]
+     */
+    public function getNotAttachedConfigParams()
+    {
+        if ( ! $rootSettings = $this->getRootConfigParams() )
+        {
+            return array();
+        }
+        if ( ! $attachedSettings = $this->getAttachedConfigParams() )
+        {
+            return $rootSettings;
+        }
+        // вычисляем какие настройки из полного набора еще не имеют собственного экземпляра
+        // привязанного к этой модели (другими словами проверяем каких значений из $rootSettings
+        // не хватает в $attachedSettings)
+        return array_diff_key($rootSettings, $attachedSettings);
+    }
+    
+    /**
+     * Узнать существует ли настройка с таким именем для текущей owner-модели
+     * Если название настройки не указано - то функция проверит 
+     * есть ли хотя бы одна настройка у этой модели
+     *
+     * @param  string $name      - служебное название настройки (поле name в модели Config)
+     * @param  bool   $checkRoot - искать ли корневую настройку с таким же названием
+     *                             если для owner-модели нет настройки с таким именем?
+     *                             (По умолчанию true)
+     *                             При значении false функция будет искать только настройки
+     *                             привязанные к owner-модели
+     * @return bool
+     */
+    public function hasConfig($name=null, $checkRoot=true)
     {
         if ( $name )
-        {// проверяем есть ли у модели именно такая настройка
-            return Config::model()->forModel($this)->withName($name)->exists();
+        {// проверяем есть ли у модели настройка с указанным именем
+            if ( $this->getConfigObject($name, $checkRoot) )
+            {
+                return true;
+            }
         }else
-        {// проверяем есть ли модели настройки вообще
-            return Config::model()->forModel($this)->exists();
+        {// проверяем есть ли модели хотя бы одна настройка
+            if ( $this->getModelConfigParams($checkRoot) )
+            {
+                return true;
+            }
         }
+        return false;
     }
     
     /**
@@ -527,27 +646,49 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      * Этот метод также работает как геттер, позволяя обращаться к любой настройке любой модели
      * удобным способом: $model->config['configName'];
      * 
-     * @param  string $name - служебное имя настройки (поле name в модели Config)
+     * @param  string $name      - служебное имя настройки (поле name в модели Config)
+     * @param  bool   $checkRoot - искать ли корневую настройку с таким же названием
+     *                             если для owner-модели нет настройки с таким именем?
      * @return string|array - значение настройки:
      *                        * строка или число (для одиночных настроек) 
      *                        * массив значений настройки (для настроек с множественным выбором)
      *                        * массив всех настроек модели со всеми значениями 
      *                          (если название настройки не указано)
      *                        Если возвращается массив всех настроек модели - то ключами в нем
-     *                        всегда являются имена настроек а значениями - строки (для одиночных настроек)
-     *                        или массивы строк (для настроек с множественным выбором)
+     *                        всегда являются имена настроек а значениями - строки 
+     *                        (для одиночных настроек) или массивы строк 
+     *                        (для настроек с множественным выбором)
      * 
      * @todo кеширование
      */
-    public function getConfig($name=null, $asObect=false)
+    public function getConfig($name=null, $checkRoot=true)
     {
         if ( ! $name )
         {// название не указано - выводим все настройки
-            $params = $this->getModelConfigParams();
+            $params = $this->getModelConfigParams($checkRoot);
             return $this->configParamsToArray($params);
         }
         // выводим значение для одной настройки
-        return $this->getConfigValue($name);
+        return $this->getConfigValue($name, $checkRoot);
+    }
+    
+    /**
+     * Получить настройку для редактирования ее значения
+     * Если к owner-модели настройка с таким именем пока еще не привязана - то создает по
+     * данным корневой настройки новую модель Config и привязывает ее к owner-модели
+     * 
+     * @param  string $name
+     * @return Config|bool
+     */
+    public function getEditableConfig($name)
+    {
+        if ( $config = $this->getConfigObject($name) )
+        {
+            $objectType = get_class($this->owner);
+            $objectId   = $this->owner->id;
+            return $config->getEditableConfig($objectType, $objectId);
+        }
+        return false;
     }
     
     /**
@@ -555,12 +696,12 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      *
      * @param  string|array $name - служебное имя настройки (поле name в модели Config)
      * @param  bool    $checkRoot - искать ли корневую настройку с таким же названием
-     *                              если для owner-модели настройки с таким именем нет?
+     *                              если для owner-модели нет настройки с таким именем?
      * @return Config
      *
      * @todo проверить что при указании $name находится не более 1 записи
      */
-    public function getConfigObject($name, $checkRoot=false)
+    public function getConfigObject($name, $checkRoot=true)
     {
         $config = Config::model()->forModel($this->owner)->withName($name)->find();
         if ( ! $config AND $checkRoot )
@@ -573,16 +714,18 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
     /**
      * Получить значение настройки по ее имени
      *
-     * @param  string $name - служебное имя настройки (поле name в модели Config)
+     * @param  string $name    - служебное имя настройки (поле name в модели Config)
+     * @param  bool $checkRoot - искать ли корневую настройку с таким же названием
+     *                           если для owner-модели нет настройки с таким именем?
      * @return string|array - значение настройки:
      *                        * строка или число (для одиночных настроек)
      *                        * массив значений настройки (для настроек с множественным выбором)
      * @throws CException
      */
-    public function getConfigValue($name)
+    public function getConfigValue($name, $checkRoot=true)
     {
         /* @var $config Config */
-        if ( ! $config = $this->getConfigObject($name) )
+        if ( ! $config = $this->getConfigObject($name, $checkRoot) )
         {// настройки с таким названием нет в списке настроек этой модели -
             throw new CException('Для модели "'.get_class($this->owner).
                 '" не найдена настройка с именем "'.$name.'"');
@@ -595,15 +738,17 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      * Получить объект содержащий значение настройки по имени настройки
      *
      * @param  string $name - служебное имя настройки (поле name в модели Config)
+     * @param  bool $checkRoot - искать ли корневую настройку с таким же названием
+     *                           если для owner-модели нет настройки с таким именем?
      * @return string|array - значение настройки:
      *                        * строка или число (для одиночных настроек)
      *                        * массив значений настройки (для настроек с множественным выбором)
      * @throws CException
      */
-    public function getConfigValueObject($name)
+    public function getConfigValueObject($name, $checkRoot=true)
     {
         /* @var $config Config */
-        if ( ! $config = $this->getConfigObject($name) )
+        if ( ! $config = $this->getConfigObject($name, $checkRoot) )
         {// настройки с таким названием нет в списке настроек этой модели -
             throw new CException('Для модели "'.get_class($this->owner).
                 '" не найдена настройка с именем "'.$name.'"');
@@ -622,14 +767,14 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      *
      * @todo кеширование
      */
-    public function getConfigDefaultValue($name=null)
+    public function getConfigDefaultValue($name)
     {
-        if ( ! $config = $this->getConfigObject($name) )
+        if ( ! $config = $this->getRootConfig($name) )
         {// настройки с таким названием нет в списке настроек этой модели -
             throw new CException('Для модели "'.get_class($this->owner).
-                '" не найдена настройка с именем "'.$name.'"');
+                '" не найдена настройка корневая настройка с именем "'.$name.'"');
         }
-        return $config->getDefaultValue();
+        return $config->value;
     }
     
     /**
@@ -643,7 +788,7 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      */
     public function getRootConfig($name)
     {
-        $objectType = get_class($this->owner);
+        $objectType = $this->getOwnerClass();
         return Config::model()->forObject($objectType, 0)->withName($name)->find();
     }
     
