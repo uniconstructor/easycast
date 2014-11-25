@@ -401,6 +401,7 @@ return array(
     'userinfo_section_invites' => 'Мои приглашения',
     'userinfo_section_requests' => 'Мои заявки',
     'userinfo_section_events' => 'Мои съемки',
+    'userinfo_section_config' => 'Настройки',
     
     
     //////////////////////////////
