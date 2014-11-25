@@ -3,14 +3,7 @@
 /**
  * Виджет, отображающий всю информацию из анкеты пользователя, разбитую по вкладкам
  * 
- * @todo добавить возможность использовать html в названиях вкладок
- * @todo сделать метод canViewTab, и вынести в него всю проверку прав
- * @todo переписать с использованием view-файлов
- * @todo показывать пользователю его условия и контакты, с добавлением сообщения о 
- *       том что это его анкета и контакты видны только ему. Исправить функции отображения вкладок и функцию
- *       составления стандартного списка вкладок
- * @todo добавить проверку прав для случая когда вкладки переданы в виджет параметрами.
- *       (можно изначально добавить все, а в init() убирать те вкладки, на которые не хватает прав)
+ * @deprecated переписать абсолютно всё
  */
 class QUserInfo extends CWidget
 {
@@ -55,17 +48,16 @@ class QUserInfo extends CWidget
     {
         // Подключаем CSS для оформления
         $this->_assetUrl = Yii::app()->assetManager->publish(
-                        Yii::getPathOfAlias('application.modules.questionary.extensions.widgets.QUserInfo.assets') . 
-                        DIRECTORY_SEPARATOR);
+            Yii::getPathOfAlias('application.modules.questionary.extensions.widgets.QUserInfo.assets'). 
+            DIRECTORY_SEPARATOR);
         Yii::app()->clientScript->registerCssFile($this->_assetUrl.'/QUserInfo.css');
-        
         // устанавливаем в объекте анкеты режим "просмотр"
         $this->questionary->setScenario('view');
+        
         if ( $this->questionary->recordingconditions )
         {
             $this->questionary->recordingconditions->setScenario('view');
         }
-        
         // Подключаем нужные для отображения информации классы
         Yii::import('application.modules.questionary.extensions.behaviors.*');
         Yii::import('application.modules.questionary.models.*');
@@ -84,12 +76,12 @@ class QUserInfo extends CWidget
     
     /**
      * Отображает виджет
+     * 
      * @see CWidget::run()
      */
     public function run()
     {
         $tabs = array();
-        
         foreach ( $this->tabNames as $tabName )
         {// собираем информацию по каждому разделу
             if ( $tab = $this->getTab($tabName) )
@@ -97,7 +89,6 @@ class QUserInfo extends CWidget
                 $tabs[$tabName] = $tab;
             }
         }
-        
         $this->widget('bootstrap.widgets.TbTabs', array(
             'type'      => 'pills',
             'placement' => $this->placement,
@@ -121,6 +112,7 @@ class QUserInfo extends CWidget
             'films',
             'projects',
             'awards', 
+            //'config', 
         );
         
         if ( Yii::app()->user->checkAccess('Admin') OR $this->displayContacts )
@@ -151,7 +143,6 @@ class QUserInfo extends CWidget
     protected function getTab($name)
     {
         $content = '';
-        
         switch ( $name )
         {
             // "основное" - показывается всегда
@@ -170,21 +161,17 @@ class QUserInfo extends CWidget
             case 'conditions': $content = $this->getConditionsTabContent(); break;
             // "Контакты" - показывается только админам, содержит контакты и личную информацию
             case 'personal':   $content = $this->getPersonalTabContent(); break;
-            // "Мои приглашения" - показывается всегда, но только на своей странице
-            case 'invites':    $content = $this->getInvitesTabContent(); break;
             // "Мои заявки" - показываются только если есть, только на своей странице
             case 'requests':   $content = $this->getRequestsTabContent(); break;
             // "Мои съемки" - показываются только если есть, только на своей странице
             case 'events':     $content = $this->getEventsTabContent(); break;
-            
-            default: $content = ''; //$this->getMainTabContent();//throw new CException('Неизвестный тип вкладки: '.$name);
+            // настройки
+            case 'config':     $content = $this->getConfigTabContent(); break;
         }
-        
         if ( ! $content )
         {// во вкладке нет никакой информации - значит отображать ее не нужно
             return false;
         }
-        
         // во вкладке есть информация - соберем ее
         $tab = array();
         $tab['label']   = $this->getTabLabel($name);
@@ -193,7 +180,6 @@ class QUserInfo extends CWidget
         {// делаем вкладку активной если нужно
             $tab['active'] = true;
         }
-        
         return $tab;
     }
     
@@ -210,12 +196,12 @@ class QUserInfo extends CWidget
         {// к вкладке добавляем счетчик количества объектов (если предусмотрен)
             $label .= ' ('.$count.')';
         }
-        
         return $label;
     }
     
     /**
      * Получить счетчик количества объектов во вкладке (если предусмотрен)
+     * 
      * @param string $name - короткое название вкладки
      * @return string
      */
@@ -235,6 +221,7 @@ class QUserInfo extends CWidget
     
     /**
      * Получить блок с описанием одного поля анкеты
+     * 
      * @param string $field - поле в анкете (как оно называется в базе)
      * @return string
      * 
@@ -325,6 +312,7 @@ class QUserInfo extends CWidget
     
     /**
      * Получить блок с информацией о дополнительных ракактеристиках внешности
+     * 
      * @return string
      */
     protected function getAddCharPropertyBlock()
@@ -356,11 +344,11 @@ class QUserInfo extends CWidget
     
     /**
      * Получить параметры для создания блока описанием одного поля анкеты
+     * 
      * @param string $label - пояснение для поля анкеты
      * @param string $value - значение поля
      * @param string $placeHolder - текст, который выводится если нет значения
      * @param string $affix - подсказка после значения (если есть)
-     * 
      * @return array
      * 
      * @deprecated возможно не пригодится если решим свойства в анкете всегда выводить в виде таблицы
@@ -491,6 +479,7 @@ class QUserInfo extends CWidget
     
     /**
      * Получить таблицу со списком ВУЗов
+     * 
      * @param array $universities
      * @return string
      */
@@ -811,6 +800,7 @@ class QUserInfo extends CWidget
     
     /**
      * Получить список театров в которых работал актер
+     * 
      * @param unknown $theatres
      */
     protected function getTheatresList($theatres)
@@ -830,14 +820,14 @@ class QUserInfo extends CWidget
         
         // выводим список ВУЗов
         return $this->widget('bootstrap.widgets.TbGridView', array(
-                        'type'         => 'striped bordered',
-                        'dataProvider' => $dataProvider,
-                        'template'=>"{items}",
-                        'columns'=>array(
-                            array('name'=>'name', 'header'=>QuestionaryModule::t('theatre')),
-                            array('name'=>'director', 'header'=>QuestionaryModule::t('theatre_director')),
-                            array('name'=>'workperiod', 'header'=>QuestionaryModule::t('theatre_workperiod')),
-                        ),
+            'type'         => 'striped bordered',
+            'dataProvider' => $dataProvider,
+            'template'=>"{items}",
+            'columns'=>array(
+                array('name'=>'name', 'header'=>QuestionaryModule::t('theatre')),
+                array('name'=>'director', 'header'=>QuestionaryModule::t('theatre_director')),
+                array('name'=>'workperiod', 'header'=>QuestionaryModule::t('theatre_workperiod')),
+            ),
         ), true);
         
         return $result;
@@ -845,6 +835,7 @@ class QUserInfo extends CWidget
     
     /**
      * Получить маркированый список для одной строки таблицы с информацией об участнике
+     * 
      * @param string $name - название ряда таблицы (нужно для виджета TbListView)
      * @param array $values - масив записей для списка
      * @param string $label - id строки перевода для поясняющей надписи слева
@@ -884,6 +875,7 @@ class QUserInfo extends CWidget
     
     /**
      * Получить список значений разделенных запятыми для одной строки таблицы
+     * 
      * @param string $name - название ряда таблицы (нужно для виджета TbListView)
      * @param array $values - масив записей для списка
      * @param string $label - id строки перевода для поясняющей надписи слева
@@ -998,16 +990,15 @@ class QUserInfo extends CWidget
             $element['year'] = $job->year;
             $elements[] = $element;
         }
-        
         $dataProvider = new CArrayDataProvider($elements);
         return $this->widget('bootstrap.widgets.TbGridView', array(
-                    'type'         => 'striped bordered',
-                    'dataProvider' => $dataProvider,
-                    'template'=>"{items}",
-                    'columns'=>array(
-                        array('name'=>'name', 'header'=>QuestionaryModule::t($jobLabel)),
-                        array('name'=>'year', 'header'=>QuestionaryModule::t('year_label')),
-                    ),
+            'type'         => 'striped bordered',
+            'dataProvider' => $dataProvider,
+            'template'=>"{items}",
+            'columns'=>array(
+                array('name'=>'name', 'header'=>QuestionaryModule::t($jobLabel)),
+                array('name'=>'year', 'header'=>QuestionaryModule::t('year_label')),
+            ),
         ), true);
     }
     
@@ -1068,7 +1059,6 @@ class QUserInfo extends CWidget
                 ),
             ), true);
         }
-        
         return $content;
     }
     
@@ -1083,12 +1073,11 @@ class QUserInfo extends CWidget
         {// условия съемок видны только админам
             return false;
         }
-        
-        $content = '';
+        $content     = '';
         $questionary = $this->questionary;
         $conditions  = $this->questionary->recordingconditions;
         $attributes  = array();
-        $data = array();
+        $data        = array();
         
         
         $content .= '<h3>'.QuestionaryModule::t('recording_conditions_label').'</h3>';
@@ -1132,11 +1121,8 @@ class QUserInfo extends CWidget
         }
         // Выводим таблицу с условиями        
         $content .= $this->widget('bootstrap.widgets.TbDetailView', array(
-                        'data'       => $data,
-                        'attributes' => $attributes), true);
-        
-        
-        
+            'data'       => $data,
+            'attributes' => $attributes), true);
         // Дополнительная информация (ее больше некуда впихнуть)
         $content .= '<h4>'.QuestionaryModule::t('userinfo_section_misc').'</h4>';
         $attributes = array();
@@ -1148,14 +1134,12 @@ class QUserInfo extends CWidget
             $attributes[] = array('name'=>'country', 'label'=>QuestionaryModule::t('country_label'));
             $data['country'] = $questionary->country->name;
         }
-        
         // город
         if ( $questionary->City )
         {
             $attributes[] = array('name'=>'city', 'label'=>QuestionaryModule::t('city_label'));
             $data['city'] = $questionary->City;
         }
-        
         // страховка
         if ( $questionary->hasinshurancecard )
         {
@@ -1165,7 +1149,6 @@ class QUserInfo extends CWidget
                 'label' => QuestionaryModule::t('has_medical_inshurance'),
             ), true);
         }
-        
         $content .= $this->widget('bootstrap.widgets.TbDetailView', array(
             'data'       => $data,
             'attributes' => $attributes), true);
@@ -1176,12 +1159,12 @@ class QUserInfo extends CWidget
     
     /**
      * Получить одну строку с информацией об условиях участия в съемках
+     * 
      * @param string $field
      * @param string $label
      * @param string $caption - всплывающая подсказка
      * @param string $textYes
      * @param string $textNo
-     * 
      * @return array
      */
     protected function getConditionRow($field, $label, $caption='', $textYes='', $textNo='')
@@ -1201,8 +1184,6 @@ class QUserInfo extends CWidget
         {
             $textNo = Yii::t('coreMessages','no');
         }
-        
-        
         $attribute = array('name'=>$field, 'label' => QuestionaryModule::t($label), 'type' => 'html');  
         if ( $conditions->$field )
         {
@@ -1213,7 +1194,7 @@ class QUserInfo extends CWidget
                 $htmlOptions['title'] = QuestionaryModule::t($caption.'_enabled');
             }
         }else
-       {
+        {
             $status = $textNo;
             $labelType = 'default';
             if ( $caption )
@@ -1233,9 +1214,6 @@ class QUserInfo extends CWidget
     
     /**
      * Отобразить вкладку с персональными данными
-     * @todo когда-нибудь отобразить здесь паспортные данные
-     * @todo дополнительно обработать данные encode
-     * @todo сделать профили ссылками
      * 
      * @return string - html-содержимое вкладки
      */
@@ -1254,7 +1232,6 @@ class QUserInfo extends CWidget
         
         // Заголовок
         $content .= '<h3>'.QuestionaryModule::t('contact_information').'</h3>';
-        
         // Email
         if ( isset($user->email) AND $user->email )
         {
@@ -1264,7 +1241,6 @@ class QUserInfo extends CWidget
             );
             $data['email'] = $user->email;
         }
-        
         // Мобильный телефон
         if ( isset($questionary->mobilephone) AND $questionary->mobilephone )
         {
@@ -1274,7 +1250,6 @@ class QUserInfo extends CWidget
             );
             $data['mobilephone'] = $questionary->mobilephone;
         }
-        
         // Домашний
         if ( isset($questionary->homephone) AND $questionary->homephone )
         {
@@ -1284,7 +1259,6 @@ class QUserInfo extends CWidget
             );
             $data['homephone'] = $questionary->homephone;
         }
-        
         // Дополнительный
         if ( isset($questionary->addphone) AND $questionary->addphone )
         {
@@ -1294,7 +1268,6 @@ class QUserInfo extends CWidget
             );
             $data['addphone'] = $questionary->addphone;
         }
-        
         // профиль в контакте
         if ( isset($questionary->vkprofile) AND $questionary->vkprofile )
         {
@@ -1304,7 +1277,6 @@ class QUserInfo extends CWidget
             );
             $data['vkprofile'] = $questionary->vkprofile;
         }
-        
         // Профиль facebook
         if ( isset($questionary->fbprofile) AND $questionary->fbprofile )
         {
@@ -1314,7 +1286,6 @@ class QUserInfo extends CWidget
             );
             $data['fbprofile'] = $questionary->fbprofile;
         }
-        
         // Профиль в одноклассниках
         if ( isset($questionary->okprofile) AND $questionary->okprofile )
         {
@@ -1324,7 +1295,6 @@ class QUserInfo extends CWidget
             );
             $data['okprofile'] = $questionary->okprofile;
         }
-        
         $content .= $this->widget('bootstrap.widgets.TbDetailView', array(
             'data'       => $data,
             'attributes' => $attributes,
@@ -1334,9 +1304,30 @@ class QUserInfo extends CWidget
     }
     
     /**
+     * Получить содержимое вкладки "настройки"
+     *
+     * @return string
+     */
+    protected function getConfigTabContent()
+    {
+        if ( ! $this->isMyQuestionary() OR ! Yii::app()->user->checkAccess('Admin') )
+        {// настройки показываются только в своей анкете
+            return '';
+        }
+        $content = '<h3>Настройки</h3>';
+        // настройки оповещений участника (по типам проекта)
+        $content .= $this->widget('questionary.extensions.widgets.QUserConfig.QUserConfig', array(
+            'questionary' => $this->questionary,
+            'configName'  => 'projectTypesBlackList',
+        ), true);
+        return $content;
+    }
+    
+    /**
      * Получить содержимое вкладки "мои приглашения"
      * 
      * @return string
+     * 
      * @deprecated приглашения теперь отображаются под информацией из анкеты
      */
     protected function getInvitesTabContent()

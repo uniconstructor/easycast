@@ -51,10 +51,6 @@ class CustomScopesBehavior extends CActiveRecordBehavior
      */
     public function withCustomValue($field, $values, $operation='AND')
     {
-        if ( ! $values )
-        {// условие не используется
-            return $this->owner;
-        }
         $criteria = new CDbCriteria();
         $criteria->compare($this->owner->getTableAlias(true).'.`'.$field.'`', $values);
     
@@ -74,10 +70,6 @@ class CustomScopesBehavior extends CActiveRecordBehavior
      */
     public function exceptCustomValue($field, $values, $operation='AND')
     {
-        if ( ! $values )
-        {// условие не используется
-            return $this->owner;
-        }
         if ( ! is_array($values) )
         {
             $values = array($values);

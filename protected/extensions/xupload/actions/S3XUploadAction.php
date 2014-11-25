@@ -161,7 +161,7 @@ class S3XUploadAction extends XUploadAction
         if ( ! is_dir($this->path) )
         {
             mkdir($this->path, 0777, true);
-            chmod($this->pat , 0777);
+            chmod($this->path , 0777);
             //throw new CHttpException(500, "{$this->path} does not exists.");
         }elseif ( ! is_writable( $this->path ) )
         {

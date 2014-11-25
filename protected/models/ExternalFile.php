@@ -645,10 +645,7 @@ class ExternalFile extends SWActiveRecord
             {// @todo проверить результат загрузки файла
                 $result = $this->getS3()->putObject($request);
                 // если сохранение удалось - помечаем файл загруженным и готовым к использованию
-                $this->swSetStatus(swExternalFile::ACTIVE);
-                // запоминаем время загрузки файла
-                $this->lastsync = time();
-                $this->save();
+                $this->markActive();
                 // удаляем локальную копию файла - она больше не нужна
                 $this->deleteLocal();
                 return true;

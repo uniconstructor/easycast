@@ -44,10 +44,8 @@ class QAjaxUserInfo extends CWidget
         {
             throw new CHttpException('404', 'Не указан id анкеты');
         }
-        
         $this->sections    = $this->getSectionsByDisplayType($this->displayType);
         $this->questionary = Questionary::model()->findByPk($this->id);
-        
         parent::init();
     }
     

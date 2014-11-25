@@ -233,7 +233,6 @@ class QTvshowInstance extends CActiveRecord
 	    $this->channelname = strip_tags($channel);
 	}
 	
-	
 	/**
 	 * Данные для создания формы одного ВУЗа при помощи расширения multiModelForm
 	 * Подробнее см. http://www.yiiframework.com/doc/guide/1.1/en/form.table

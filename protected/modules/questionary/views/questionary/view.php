@@ -2,15 +2,15 @@
 /**
  * Страница просмотра одной анкеты
  */
-/* @var $this QuestionaryController */
+/* @var $this        QuestionaryController */
 /* @var $questionary Questionary */
 
 Yii::import('application.modules.catalog.CatalogModule');
 Yii::import('application.modules.catalog.models.*');
 
-$this->breadcrumbs = array();
-$this->breadcrumbs[] = $questionary->user->fullname;
-
+$this->breadcrumbs = array(
+    $questionary->user->fullname
+);
 // Кнопка "редактировать"
 $editIcon = '';
 if ( $canEdit )

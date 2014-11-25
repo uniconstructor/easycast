@@ -40,7 +40,7 @@ class ECUploadedVideo extends CWidget
         {
             // TODO
         }
-        
+        $this->videos = Video::model()->findAll($criteria);
     }
     
     /**
