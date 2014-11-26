@@ -6,6 +6,8 @@
 class ProjectController extends Controller
 {
     /**
+     * @see parent::filters()
+     * 
      * @return array action filters
      */
     public function filters()
@@ -20,6 +22,7 @@ class ProjectController extends Controller
     /**
      * Specifies the access control rules.
      * This method is used by the 'accessControl' filter.
+     * 
      * @return array access control rules
      *
      * @todo добавить работу с правами через RBAC
@@ -38,8 +41,8 @@ class ProjectController extends Controller
     }
     
     /**
-     * Отображение одного проекта
-     * (оставлено для совместимости)
+     * Отображение одного проекта (оставлено для совместимости)
+     * 
      * @return void
      */
     public function actionView($id)
@@ -49,6 +52,7 @@ class ProjectController extends Controller
     
     /**
      * Получить информацию о проекте при помощи AJAX-запроса
+     * 
      * @return void
      */
     public function actionAjaxInfo()
@@ -66,7 +70,10 @@ class ProjectController extends Controller
     }
     
     /**
-     * Вывести баннер проекта с Amazon используя easyCast как прокси
+     * Вывести файл баннера проекта с хранилища Amazon используя web-сервер easyCast как прокси
+     * Эта функция нужна для того чтобы корректно работали кнопки репоста в соцсети
+     * Если на странице есть изображения, которые грузятся с другого домена (не easycast.ru)
+     * то они не будут отображаються в новости 
      * 
      * @return void
      */
