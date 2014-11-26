@@ -132,6 +132,10 @@ class InviteController extends Controller
         $key  = Yii::app()->request->getParam('k1', '');
         $key2 = Yii::app()->request->getParam('k2', '');
         
+        // отключаем счетчики и аналитику в процессе отбора чтобы не дать поисковикам 
+        // случайно проиндексировать пользовательские данные со всеми контактами
+        $this->analytics = false;
+        
         // проверяем, что приглашение существует и ключи доступа правильные
         $customerInvite = $this->loadCustomerInviteModel($id);
         $this->checkCustomerInviteKeys($customerInvite, $key, $key2);
@@ -141,8 +145,8 @@ class InviteController extends Controller
         if ( Yii::app()->request->getParam('done') )
         {// нажата кнопка "завершить отбор"
             if ( $this->finishSelectionAllowed($customerInvite) )
-            {// если заказчик закрыл все вакансии и ничего не забыл - перенаправляем его на
-                // страницу завершения отбора
+            {// если заказчик закрыл все вакансии и ничего не забыл - то
+                // перенаправляем его на страницу завершения отбора
                 $this->redirect(Yii::app()->createUrl('/projects/invite/finishSelection', array(
                     'id' => $customerInvite->id,
                     'k1' => $customerInvite->key,
@@ -205,12 +209,12 @@ class InviteController extends Controller
         $field    = Yii::app()->request->getParam('name');
         $value    = Yii::app()->request->getParam('value');
         // а также саму запись
-        $item         = MemberInstance::model()->findByPk($memberId);
-        $item->$field = $value;
+        $item             = MemberInstance::model()->findByPk($memberId);
+        $item->$field     = $value;
         $item->sourcetype = 'customer_invite';
         $item->sourceid   = $customerInvite->id;
         // перед сохранением запоминаем старый статус
-        $oldStatus    = $item->status;
+        $oldStatus        = $item->status;
         
         if ( ! $item->save() )
         {// не удалось обновить запись в поле
@@ -279,7 +283,8 @@ class InviteController extends Controller
     
     /**
      * Залогинить пользователя по одноразовому ключу
-     * @param Questionary $user
+     * 
+     * @param  Questionary $user
      * @return null
      * 
      * @todo рефакторинг: воспользоваться аналогичным методом из UserModule 
@@ -293,7 +298,7 @@ class InviteController extends Controller
     
     /**
      * Изменить статус приглашения (можно только принять или отклонить, остальные статусы ставятся автоматически)
-     * @param string $newStatus - новый статус приглашения
+     * @param  string $newStatus - новый статус приглашения
      * @return bool
      * 
      * @todo обработать возможные ошибки
@@ -308,15 +313,15 @@ class InviteController extends Controller
             $invite->setStatus($newStatus);
             echo 'OK';
         }
-        
         Yii::app()->end();
     }
     
     /**
      * Получить модель приглашения участника или сообщить о том что приглашение не найдено
-     * @param int $id
-     * @throws CHttpException
+     * 
+     * @param  int $id
      * @return EventInvite
+     * @throws CHttpException
      */
     protected function loadModel($id)
     {
@@ -330,9 +335,10 @@ class InviteController extends Controller
     
     /**
      * Получить модель приглашения заказчика или сообщить о том что приглашение не найдено
-     * @param int $id
-     * @throws CHttpException
+     * 
+     * @param  int $id
      * @return CustomerInvite
+     * @throws CHttpException
      */
     protected function loadCustomerInviteModel($id)
     {
@@ -345,11 +351,12 @@ class InviteController extends Controller
     }
     
     /**
-     * Определить, можно ли завершить отбор актеров (все ли вакансии закрыты?)
-     * @param CustomerInvite $invite - приглашение заказчика
+     * Определить, можно ли завершить отбор актеров (все ли роли закрыты?)
+     * 
+     * @param  CustomerInvite $invite - приглашение заказчика
      * @return bool
      * 
-     * @todo заглушка.
+     * @todo пока что только заглушка
      */
     protected function finishSelectionAllowed($invite)
     {
@@ -358,11 +365,12 @@ class InviteController extends Controller
     
     /**
      * Проверить ключи доступа из приглашения заказчика
-     * @param CustomerInvite $invite - приглашение заказчика
-     * @param string $key  - первый ключ безопасности (приходит из GET)
-     * @param string $key2 - второй ключ безопасности (приходит из GET)
-     * @throws CHttpException
+     * 
+     * @param  CustomerInvite $invite - приглашение заказчика
+     * @param  string $key  - первый ключ безопасности (приходит из GET)
+     * @param  string $key2 - второй ключ безопасности (приходит из GET)
      * @return null
+     * @throws CHttpException
      */
     protected function checkCustomerInviteKeys($invite, $key, $key2)
     {

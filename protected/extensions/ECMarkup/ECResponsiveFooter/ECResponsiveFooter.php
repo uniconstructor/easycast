@@ -6,18 +6,34 @@
 class ECResponsiveFooter extends CWidget
 {
     /**
+     * @var bool - включить/выключить инструменты и счетчики веб-аналитики на странице (Яндекс, Google)
+     */
+    public $analytics;
+    
+    /**
+     * @see CWidget::init()
+     */
+    public function init()
+    {
+        if ( $this->analytics === null )
+        {
+            $this->analytics = $this->getController()->analytics;
+        }
+        parent::init();
+    }
+    
+    /**
      * @see CWidget::run()
      */
     public function run()
     {
         $this->render('footer');
-        if ( ! Yii::app()->user->checkAccess('Admin') AND ! YII_DEBUG )
-        {// Выводим счетчик Яндекса
-            //$this->render('yandexCounter');
+        if ( ! Yii::app()->user->checkAccess('Admin') AND $this->analytics AND ! YII_DEBUG )
+        {// счетчик Яндекса
+            $this->render('yandexCounter');
         }
-        // выводим скрипт онлайн-консультанта
         if ( ! Yii::app()->user->checkAccess('Admin') AND ! YII_DEBUG )
-        {// (для всех кроме админов)
+        {// скрипт онлайн-консультанта (для всех кроме админов)
             //$this->render('zopim');
         }
     }
@@ -29,7 +45,7 @@ class ECResponsiveFooter extends CWidget
     protected function printFooterMenu()
     {
         $links = array();
-        $mode = Yii::app()->getModule('user')->getViewMode(false);
+        $mode  = Yii::app()->getModule('user')->getViewMode(false);
         
         if ( $mode === 'user' )
         {
@@ -38,16 +54,14 @@ class ECResponsiveFooter extends CWidget
         {
             $items = $this->getCustomerMenu();
         }else
-        {// не показываем дополнительную навинацию пока не выбран режим просмотра
-            return;
+        {
+            $items = $this->getUserMenu();
         }
-        
         foreach ( $items as $item )
         {
-            $url  = Yii::app()->createAbsoluteUrl($item['url']);
+            $url     = Yii::app()->createAbsoluteUrl($item['url']);
             $links[] = CHtml::link($item['text'], $url).' ';
         }
-        
         echo implode(' | ', $links);
     }
     
@@ -80,6 +94,10 @@ class ECResponsiveFooter extends CWidget
             $items[] = array(
                 'url'  => current(Yii::app()->getModule('user')->registrationUrl),
                 'text' => 'Регистрация',
+            );
+            $items[] = array(
+                'url'  => '//site/index',
+                'text' => 'На страницу выбора',
             );
         }else
         {
@@ -145,7 +163,6 @@ class ECResponsiveFooter extends CWidget
                 'text' => 'Администрирование',
             );
         }
-        
         return $items;
     }
 }
