@@ -46,10 +46,9 @@ class AdminModule extends CWebModule
 	{
 		if ( parent::beforeControllerAction($controller, $action) )
 		{
-    		$user = Yii::app()->getUser();
-            if( $user->isGuest === true )
+            if( Yii::app()->user->isGuest === true )
             {// просим авторизоваться перед входом в админку
-                $user->loginRequired();
+                Yii::app()->user->loginRequired();
             }
             if ( ! Yii::app()->user->checkAccess('Admin') )
             {// если нет прав доступа - делаем вид что админки здесь нет
