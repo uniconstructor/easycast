@@ -177,12 +177,13 @@ class CustomerInvite extends CActiveRecord
             // запоминаем кто отправил приглашение
             $this->managerid = Yii::app()->user->id;
         }
-        
         return parent::beforeSave();
     }
     
     /**
+     * Создает учетную запись заказчика и отправляет ему приглашение для отбора актеров
      * Удаляет запись из базы если возникла ошибка
+     * 
      * @see CActiveRecord::afterSave()
      */
     protected function afterSave()
@@ -197,12 +198,10 @@ class CustomerInvite extends CActiveRecord
                 Сообщение не было отправлено - попробуйте еще раз.');
             return;
         }
-        
         if ( $this->isNewRecord )
         {// отправляем оповещение заказчику (только если запись только что создана)
             $this->sendNotification();
         }
-        
         parent::afterSave();
     }
 
@@ -341,7 +340,6 @@ class CustomerInvite extends CActiveRecord
             'customerInvite' => $this,
             'manager'        => $this->manager,
         );
-        
         // отправляем письмо (сразу же, без очереди)
         $subject = Yii::app()->getModule('mailComposer')->getSubject('customerInvite', $params);
         $message = Yii::app()->getModule('mailComposer')->getMessage('customerInvite', $params);

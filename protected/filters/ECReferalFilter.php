@@ -72,14 +72,18 @@ class ECReferalFilter extends CFilter
         $key = Yii::app()->request->getParam('key');
         $id  = Yii::app()->request->getParam('inviteId');
         
-        if ( ! $invite = EventInvite::model()->findByPk($id) )
-        {/* @var EventInvite $invite */
-            // приглашение не найдено - не производим вход
+        if ( ! $key OR ! $id )
+        {// это не переход по ссылке с приглашением
             return true;
         }
+        if ( ! $invite = EventInvite::model()->findByPk($id) )
+        {/* @var EventInvite $invite */
+            // @todo приглашение не найдено - не производим вход
+            return false;
+        }
         if ( ! isset($invite->subscribekey) OR $invite->subscribekey != $key )
-        {// ключ доступа не совпадает с указанным - не производим вход
-            return true;
+        {// @todo ключ доступа не совпадает с указанным - не производим вход
+            return false;
         }
         if ( Yii::app()->user->isGuest )
         {// автоматически авторизуем гостя по токену
