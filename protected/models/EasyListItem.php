@@ -235,17 +235,14 @@ class EasyListItem extends CActiveRecord
 	{
 		return array(
 		    // список в которой находится значение
-		    'easyList' => array(self::BELONGS_TO, 'EasyList', 'easylistid'),
-		    // модель, на которую ссылается этот элемент списка
-		    //'valueObject' => array(self::BELONGS_TO, $objectType, 'objectid'),
-		    // все элементы списка, ссылающиеся на значение поля 'value' из этой модели
-		    //'itemValueInstances' => array(self::HAS_MANY, 'EasyListItem', 'parentid'),
+		    'easyList'      => array(self::BELONGS_TO, 'EasyList', 'easylistid'),
+		    // оригинал значения (только для элементов-ссылок)
+		    'parentItem'    => array(self::BELONGS_TO, 'EasyListItem', 'parentid'),
 		    // все элементы списка, ссылающиеся на эту модель любым способом
 		    'itemInstances' => array(self::HAS_MANY, 'EasyListItem', 'parentid'),
-		    // оригинал значения
-		    'parentItem'    => array(self::BELONGS_TO, 'EasyListItem', 'parentid'),
-		    // все элементы ссылающиеся на этот элемент как на оригинал
-		    //'nestedItems'   =>  array(self::HAS_MANY, 'EasyListItem', 'parentid'),
+		    // список в котором находится оригинал значения элемента (только для элементов-ссылок)
+		    'parentList'    => array(self::BELONGS_TO, 'EasyList', 'easylistid', 'through' => 'parentItem'),
+		    // @todo все списки в которых присутствует это значение (через "through")
 		);
 	}
 	
@@ -362,7 +359,7 @@ class EasyListItem extends CActiveRecord
 	}
 	
 	/**
-	 * Именованная группа условий: получить все элементы из указанного списка (alias)
+	 * (alias) Именованная группа условий: получить все элементы из указанного списка 
 	 * Найдет все элементы присутствующие хотя бы в одном из списков если передан массив
 	 * 
 	 * @param  int|array|EasyListItem $list - id списка, модель списка (EasyList) или массив id списков
@@ -383,15 +380,65 @@ class EasyListItem extends CActiveRecord
 	}
 	
 	/**
+	 * (alias) Именованная группа условий: получить все элементы из указанного списка
+	 * Найдет все элементы присутствующие хотя бы в одном из списков если передан массив
+	 *
+	 * @param  int|array|EasyListItem $list - id списка, модель списка (EasyList) или массив id списков
+	 * @param  string $operation            - как присоединить это условие к остальным?
+	 *                                        (AND/OR/AND NOT/OR NOT)
+	 * @return EasyListItem
+	 */
+	public function inList($list, $operation='AND')
+	{
+	    return $this->forList($listId, $operation);
+	}
+	
+	/**
+	 * (alias) Именованная группа условий: все элементы, кроме тех которые присутствуют в указанном списке
+	 * Если передан массив - то будут найдены все элементы, кроме тех которые присутствуют
+	 * хотя бы в одном из переданных списков
+	 *
+	 * @param  int|array|EasyListItem $list - id списка, модель списка (EasyList) или массив id списков
+	 * @param  string $operation            - как присоединить это условие к остальным?
+	 *                                        (AND/OR/AND NOT/OR NOT)
+	 * @return EasyListItem
+	 */
+	public function notInList($list, $operation='AND')
+	{
+	    if ( $list instanceof EasyList )
+	    {
+	        $listId = $list->id;
+	    }else
+	    {
+	        $listId = $list;
+	    }
+	    return $this->withoutListId($listId, $operation);
+	}
+	
+	/**
 	 * Именованная группа условий: получить все элементы из указанного списка
 	 * 
-	 * @param  int|array $listId - id списка (EasyListItem)
+	 * @param  int|array $listId - id списка (EasyListItem) или массив id списков
 	 * @param  string $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
 	 * @return EasyListItem
 	 */
 	public function withListId($listId, $operation='AND')
 	{
 	    return $this->withCustomValue('easylistid', $listId, $operation);
+	}
+	
+	/**
+	 * Именованная группа условий: все элементы, кроме тех которые присутствуют в указанном списке
+	 * Если передан массив - то будут найдены все элементы, кроме тех которые присутствуют
+	 * хотя бы в одном из переданных списков
+	 * 
+	 * @param  int|array $listId - id списка (EasyList) или массив id списков
+	 * @param  string $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+	 * @return EasyListItem
+	 */
+	public function exceptListId($listId, $operation='AND')
+	{
+	    return $this->exceptCustomValue('easylistid', $listId, $operation);
 	}
 	
 	/**
@@ -480,9 +527,6 @@ class EasyListItem extends CActiveRecord
 	 * @param bool $includeLinked - также найти все элементы которые все элементы которые
 	 *                              содержат указанное значение в связанном объекте
 	 * @return EasyListItem
-	 * 
-	 * @todo предусмотреть возможность численного сравнения и поиска по LIKE-шаблону
-	 *       для случая если передано одно значение (испольновать иногда compare())
 	 */
 	public function withItemValue($value, $operation='AND')
 	{
@@ -495,31 +539,31 @@ class EasyListItem extends CActiveRecord
 	}
 	
 	/**
-	 * Именованая группа условий: получить все записи ссылающиеся на указаный элемент списка
-	 * 
-	 * @param  int|array|EasyListItem $item - id списка, ссылки на который нужно найти: 
-	 *                                        если передан массив id - то будут найдены все элементы
-	 *                                        которые ссылаются хотя бы на один из перечисленных id
+	 * Получить все элементы списка с указанным id либо ссылающиеся на элемент c указанным id
+	 *
+	 * @param  int|array|EasyListItem $item - id элемента списка (EasyListItem)
+	 * @param  bool $withLinks              - включить в выборку не только элементы с указанным id
+	 *                                        но и ссылки на них 
 	 * @return EasyListItem
-	 * 
-	 * @deprecated
 	 */
-	public function forItem($item)
+	public function withItemId($item, $withLinks=true, $operator='AND')
 	{
-	    if ( ! $item )
-	    {
-	        $itemId = 0;
-	    }elseif ( is_array($item) OR is_numeric($item) )
-	    {
-	        $itemId = $item;
-	    }elseif ( $item instanceof EasyListItem )
+	    if ( $item instanceof EasyListItem )
 	    {
 	        $itemId = $item->id;
 	    }else
 	    {
-	        throw new CException('Неправильный формат данных при составлении условия поиска');
+	        $itemId = $item;
 	    }
-	    return $this->withId($itemId);
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->getTableAlias(true).'.`id`', $itemId);
+	    if ( $withLinks )
+	    {
+	        $criteria->compare($this->getTableAlias(true).'.`parentid`', $itemId, 'OR');
+	    }
+	    $this->getDbCriteria()->mergeWith($criteria, $operator);
+	    
+	    return $this;
 	}
 	
 	/**
@@ -527,16 +571,19 @@ class EasyListItem extends CActiveRecord
 	 * c указаным значением в поле связанного объекта
 	 * (или значением соответствующим хотя бы одному из значений если передан массив)
 	 * 
+	 * @param  string $objectType - 
+	 * @param  string $objectField - 
 	 * @param  string|array $value - значение или список значений которые ищутся в связанном объекте
 	 * @return EasyListItem
 	 * 
-	 * @todo задать внтреннее условие через $criteria а не строкой 
-	 *       чтобы можно было работать с массивом значений
-	 * @todo стандартное условие withFieldValue в поведении для связанных объектов
+	 * @todo непонятно как применять такое условие поиска к моделям в общем виде:
+	 *       переписать этот метод используя objecttype и objectfield заданные извне
 	 */
-	public function withLinkedValue($value)
+	public function withLinkedObjectValue($objectType, $objectField, $value, $operator='AND')
 	{
-	    $model = $this->objecttype;
+	    throw new CException('NOT IMPLEMENED');
+	    
+	    /*$model = $this->objecttype;
 	    $alias = $model::model()->getTableAlias(true);
 	    // составляем условие поиска по произвольному полю
 	    $fieldCriteria = new CDbCriteria();
@@ -551,34 +598,27 @@ class EasyListItem extends CActiveRecord
 	    );
 	    $criteria->together = true;
 	    
-	    $this->getDbCriteria()->mergeWith($criteria);
+	    $this->getDbCriteria()->mergeWith($criteria, $operator);
 	     
-	    return $this;
-	}
-	
-	/**
-	 * Получить все элементы списка с указанным id либо ссылающиеся на элемент c указанным id
-	 * 
-	 * @param  int|array|EasyListItem $item - id элемента списка (EasyListItem)
-	 * @param  bool $includeLinked - id элемента списка (EasyListItem)
-	 * @return EasyListItem
-	 * 
-	 * @deprecated
-	 */
-	public function withItemId($item, $includeLinked=true, $operator='AND')
-	{
-	    return $this->withParentId($parentId, $operator);
+	    return $this;*/
 	}
 	
 	/**
 	 * Все элементы с указанным значением в поле parentid 
 	 * 
-	 * @param  int    $parentId - 
-	 * @param  string $operator - 
+	 * @param  int|array|EasyListItem $parent   - 
+	 * @param  string                 $operator - 
 	 * @return EasyListItem
 	 */
-	public function withParentId($parentId, $operator='AND')
+	public function withParentId($parent, $operator='AND')
 	{
+	    if ( $parent instanceof EasyListItem )
+	    {
+	        $parentId = $parent->id;
+	    }else
+	    {
+	        $parentId = $parent;
+	    }
 	    $criteria = new CDbCriteria();
 	    $criteria->compare($this->getTableAlias(true).'.`parentid`', $parentId);
 	     
@@ -592,12 +632,23 @@ class EasyListItem extends CActiveRecord
 	 * Если указан массив id - то найдутся все записи, кроме тех которые содержат
 	 * хотя бы одно из перечисленных id в поле $parentId
 	 * 
-	 * @param  int|array $parentId - 
-	 * @param  string    $operator - 
+	 * @param  int|array|EasyListItem $parent   - 
+	 * @param  string                 $operator - 
 	 * @return EasyListItem
 	 */
-	public function exceptParentId($parentId, $operator='AND')
+	public function exceptParentId($parent, $operator='AND')
 	{
+	    if ( $parent instanceof EasyListItem )
+	    {
+	        $parentId = $parent->id;
+	    }else
+	    {
+	        $parentId = $parent;
+	    }
+	    if ( ! is_array($parentId) )
+	    {
+	        $parentId = array($parentId);
+	    }
 	    $criteria = new CDbCriteria();
 	    $criteria->addNotInCondition($this->getTableAlias(true).'.`parentid`', $parentId);
 	     
@@ -607,20 +658,6 @@ class EasyListItem extends CActiveRecord
 	}
 	
 	/**
-	 * Обновить привязанный к элементу списка объект
-	 * 
-	 * @param  string $field
-	 * @param  string $value
-	 * @return bool
-	 * 
-	 * @todo добавлять возникшие при сохранении ошибки к ошибкам этой модели, в поле value
-	 */
-	/*public function updateProxy($field, $value)
-	{
-	    return $this->updateTargetObject($field, $value);
-	}*/
-	
-	/**
 	 * Получить значение, которое содержится в этом элементе списка
 	 * 
 	 * @return string|CActiveRecord
@@ -628,9 +665,12 @@ class EasyListItem extends CActiveRecord
 	public function getData()
 	{
 	    if ( $this->isOriginalItem() )
-	    {// частный случай ссылки для поля: элемент "содержащий сам себя" - он содержит оригинал
-	        // значения на который сылаются записи в других списках
+	    {//элемент содержит оригинал значения, на него сылаются элементы в других списках
 	        return $this->value;
+	    }
+	    if ( $this->parentItem )
+	    {// элемент содержит ссылку на оригинал - берем данные из него
+	        return $this->parentItem->getData();
 	    }
 	    if ( $fieldName = $this->objectfield )
 	    {// ссылка на поле в другой модели

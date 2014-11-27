@@ -262,14 +262,18 @@ class EasyList extends CActiveRecord
 	 * Именованная группа условий поиска: Получить все списки содержащие элемент 
 	 * с указанным id, либо ссылающиеся на него
 	 * 
-	 * @param  EasyListItem|int|array $itemId - id значения (EasyListItem) или массив id
+	 * @param  EasyListItem|int|array $item - id или модель значения (EasyListItem) или массив id
+	 * @param  string $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
 	 * @return EasyList
 	 */
-	public function forItem($item)
+	public function forItem($item, $operation='AND')
 	{
-	    if ( is_object($item) )
-	    {// вытаскиваем id из модели если передана модель
-	        $item = $item->id;
+        if ( $item instanceof EasyListItem )
+	    {
+	        $itemId = $item->id;
+	    }else
+	    {
+	        $itemId = $item;
 	    }
 	    $criteria = new CDbCriteria();
 	    $criteria->with = array(
@@ -277,15 +281,28 @@ class EasyList extends CActiveRecord
 	            'select'   => false,
 	            'joinType' => 'INNER JOIN',
 	            'scopes' => array(
-    	            'withItemId' => array($item),
+    	            'withItemId' => array($itemId),
     	        ),
 	        ),
 	    );
 	    $criteria->together = true;
 	    
-	    $this->getDbCriteria()->mergeWith($criteria);
+	    $this->getDbCriteria()->mergeWith($criteria, $operation);
 	    
 	    return $this;
+	}
+	
+	/**
+	 * (alias) Именованная группа условий поиска: Получить все списки содержащие элемент
+	 * с указанным id, либо ссылающиеся на него
+	 *
+	 * @param  EasyListItem|int|array $itemId - id или модель значения (EasyListItem) или массив id
+	 * @param  string $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+	 * @return EasyList
+	 */
+	public function withItem($item, $operation='AND')
+	{
+	    return $this->forItem($item, $operation);
 	}
 	
 	/**
@@ -293,9 +310,10 @@ class EasyList extends CActiveRecord
 	 * или значением соответствующим хотя бы одному из элементов переданного массива
 	 *
 	 * @param  string|array $value - значение или список значений которые ищутся в поле value
+	 * @param  string $operation   - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
 	 * @return EasyList
 	 */
-	public function withItemValue($value)
+	public function withItemValue($value, $operation='AND')
 	{
 	    $criteria = new CDbCriteria();
 	    $criteria->with = array(
@@ -309,24 +327,13 @@ class EasyList extends CActiveRecord
 	    );
 	    $criteria->together = true;
 	    
-	    $this->getDbCriteria()->mergeWith($criteria);
+	    $this->getDbCriteria()->mergeWith($criteria, $operation);
 	    
 	    return $this;
 	}
 	
 	/**
-	 * Определить, содержит ли список элемент с переданным значением
-	 * 
-	 * @param  string|array $value - значение или список значений которые ищутся в поле value
-	 * @return bool
-	 */
-	public function hasItemValue($value)
-	{
-	    return EasyListItem::model()->forList($this->id)->withItemValue($value)->exists();
-	}
-	
-	/**
-	 * 
+	 * Получить варианты обновления содержимого списка
 	 * 
 	 * @return array
 	 * 
@@ -350,7 +357,7 @@ class EasyList extends CActiveRecord
 	public function isUsedByAnyObject()
 	{
 	    // использование в настройках
-	    if ( Config::model()->forDefaultList($this->id, 'OR')->forUserList($this->id)->exists() )
+	    if ( Config::model()->forDefaultList($this->id)->forUserList($this->id, 'OR')->exists() )
 	    {// в качестве списка значений
 	        return true;
 	    }
@@ -374,9 +381,77 @@ class EasyList extends CActiveRecord
 	 * @param  number $objectId - id модели: если не передан - то ищем во всех моделях указанного типа
 	 * @return bool
 	 */
-	public function isUsedBy($objectType, $objectId=0)
+	/*public function isUsedBy($objectType, $objectId=0)
 	{
 	    
+	}*/
+	
+	/**
+	 * Определить, содержится ли указанный элемент (или ссылка на него) в этом списке 
+	 *
+	 * @param  int|array|EasyListItem $item - модель или id элемента или массив id если элементов несколько
+	 * @param  bool $searchLinks - искать ли ссылки на указанный элемент помимо самого элемента? 
+	 * @return bool
+	 */
+	public function hasItem($item, $searchLinks=true)
+	{
+	    if ( $item instanceof EasyListItem )
+	    {
+	        $itemId = $item->id;
+	    }else
+	    {
+	        $itemId = $item;
+	    }
+	    if ( EasyListItem::model()->forList($this->id)->withItemId($itemId, $hasLink)->exists() )
+	    {
+	        return true;
+	    }
+	    return false;
+	}
+	
+	/**
+	 * Определить, содержит ли список элемент с переданным значением
+	 *
+	 * @param  string|array $value - значение или список значений которые ищутся в поле value
+	 * @return bool
+	 */
+	public function hasItemValue($value)
+	{
+	    return EasyListItem::model()->forList($this->id)->withItemValue($value)->exists();
+	}
+	
+	/**
+	 * Получить элемент списка: ищет в списке элемент с таким id, 
+	 * если не находит - то ищет ссылку на него 
+	 * Возвращает false если в этом списке нет ни такого элемента ни ссылки на него
+	 * 
+	 * @param  int|EasyListItem $item - элемент списка (оригинал или ссылка на него)
+	 * @return EasyListItem
+	 */
+	public function getItem($itemId)
+	{
+	    if ( $itemId instanceof EasyListItem )
+	    {
+	        $item = $itemId;
+	    }else
+	    {
+	        $item = EasyListItem::model()->findByPk($itemId);
+	    }
+	    if ( ! $item )
+	    {// элемента с таким id в принципе не существует
+	        return false;
+	    }
+	    if ( $item->easylistid == $this->id )
+	    {// элемент присутствует в списке - вернем его
+	        return $item;
+	    }
+	    $link = EasyListItem::model()->forList($this->id)->withParentId($item->id)->find();
+	    if ( $link->easylistid == $this->id )
+	    {// возвращаем ссылку на элемент
+	        return $link;
+	    }
+	    // в этом списке нет ни такого элемента ни ссылки на него
+	    return false;
 	}
 	
 	/**
@@ -385,11 +460,13 @@ class EasyList extends CActiveRecord
 	 * 
 	 * @param  EasyListItem $item - новый элемент списка
 	 * @return bool|EasyListItem
-	 * 
-	 * @проверять наличие элемента всписке перед вставкой
 	 */
 	public function addItem(EasyListItem $item)
 	{
+	    if ( $this->hasItem($item) )
+	    {// элемент или ссылка на него уже присутствует в списке - дальнейшие действия не требуются 
+	        return $this->getItem($item);
+	    }
 	    // получаем данные элемента
 	    $attributes = $item->attributes;
 	    // убираем лишние поля 
@@ -401,7 +478,7 @@ class EasyList extends CActiveRecord
 	    // привязываем новый элемент к этому списку
 	    $attributes['easylistid'] = $this->id;
 	    if ( ! $attributes['parentid'] )
-	    {// запоминаем ссылку на оригинальный элемент
+	    {// запоминаем ссылку на оригинальный элемент (если добавляемый элемент являлся оригиналом значения)
 	        $attributes['parentid'] = $item->id;
 	    }
 	    // создаем и сохраняем новый элемент списка
@@ -412,6 +489,30 @@ class EasyList extends CActiveRecord
 	        return false;
 	    }
 	    return $newItem;
+	}
+	
+	/**
+	 * Удалить элемент из списка вспомогательный метод, чтобы было проще работать с элементами списка
+	 * Если элемента с переданным id нет в списке - то ищет и удаляет из списка ссылку на него 
+	 * 
+	 * @param  int|EasyListItem $item - 
+	 * @return bool
+	 */
+	public function removeItem($item)
+	{
+	    if ( $item instanceof EasyListItem )
+	    {
+	        $itemId = $item->id;
+	    }else
+	    {
+	        $itemId = $item;
+	    }
+	    if ( $currentItem = $this->getItem($itemId) )
+	    {// удаляем элемент из списка, гарантированно не затрагивая при этом оригинал
+	        return $currentItem->delete();
+	    }
+	    // элемент уже удален
+	    return true;
 	}
 	
 	/**
