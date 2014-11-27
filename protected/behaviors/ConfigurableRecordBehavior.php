@@ -57,7 +57,7 @@
  * @todo проверка: отличается ли значение настройки от стандартного/корневого
  * @todo проверка: существует ли корневая настройка для такого класса модели с таким именем 
  *       (перед сохранением новой настройки)
- * @todo создать переменную для кеширования загруженных настроек
+ * @todo кеширование загруженных настроек
  * @todo добавить использование defaultParentRelation
  * @todo добавить использование customConfigParents
  * @todo добавить phpdoc-заготовку для codeAssist в owner-моделях
@@ -123,11 +123,12 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      *              Содержит только имена настроек ($config->name)
      *              В этом списке могут быть только настройки из списка $this->getRootConfigParams()
      */
-    public $autoCreate = array();
+    public $autoCreate         = array();
     
     /**
-     * @return array
      * @see CActiveRecord::relations()
+     * 
+     * @return array
      *
      * @todo создавать исключение если связи с такими именами в модели уже есть
      */
@@ -153,8 +154,6 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      */
     public function afterSave($event)
     {
-        parent::afterSave($event);
-        
         if ( $this->owner->isNewRecord )
         {// если для этой модели есть настройки, которые надо создать вместе с ней автоматически
             // то создадим для нее стандартный набор настроек
@@ -162,6 +161,7 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
             {// из корневых настроек делаем настройки для модели
                 // копируем все основные данные из шаблона (родительской настройки)
                 $attributes = $configParam->attributes;
+                // удаляем те параметры которые не нужны в новой настройке
                 unset($attributes['timecreated']);
                 unset($attributes['timemodified']);
                 unset($attributes['objectid']);
@@ -180,6 +180,7 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
                 }
             }
         }
+        parent::afterSave($event);
     }
     
     /**
@@ -203,7 +204,7 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
                 throw new CException('Не удалось удалить настройку при удалении модели');
             }
         }
-        return parent::beforeDelete($event);
+        parent::beforeDelete($event);
     }
     
     /**
@@ -966,7 +967,7 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
             $this->configRelationName => array(
                 self::HAS_MANY,
                 'Config',
-                $this->objectid,
+                'objectid',
                 'scopes' => array(
                     'withObjectType' => array($this->getOwnerClass()),
                 ),
@@ -977,7 +978,7 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
     /**
      * Именованая группа условий: все настройки, содержащие указаный вариант стандартного значения
      *
-     * @param EasyListItem|int|array $option
+     * @param  EasyListItem|int|array $option
      * @return Config
      */
     /*public function withSelectedDefaultOption($option)
@@ -988,7 +989,7 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
     /**
      * Именованая группа условий: все настройки, содержащие указаный вариант пользовательского значения
      *
-     * @param EasyListItem|int|array $option
+     * @param  EasyListItem|int|array $option
      * @return Config
      */
     /*public function withSelectedUserOption($option)
@@ -999,7 +1000,7 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
     /**
      * Именованая группа условий: все настройки, содержащие указаный вариант пользовательского значения
      *
-     * @param EasyListItem|int|array $option
+     * @param  EasyListItem|int|array $option
      * @return Config
      */
     /*public function withUserConfigOption($option)
