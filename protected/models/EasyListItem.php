@@ -567,6 +567,38 @@ class EasyListItem extends CActiveRecord
 	}
 	
 	/**
+	 * 
+	 *
+	 * @param  int|array|EasyListItem $item - id элемента списка (EasyListItem)
+	 * @param  bool $withLinks              - учитывать в запросе не только элементы с указанным id
+	 *                                        но и ссылки на них
+	 * @return EasyListItem
+	 */
+	public function exceptItemId($item, $withLinks=true, $operator='AND')
+	{
+	    if ( $item instanceof EasyListItem )
+	    {
+	        $itemId = $item->id;
+	    }else
+	    {
+	        $itemId = $item;
+	    }
+	    if ( ! is_array($itemId) )
+	    {
+	        $itemId = array($itemId);
+	    }
+	    $criteria = new CDbCriteria();
+	    $criteria->addNotInCondition($this->getTableAlias(true).'.`id`', $itemId);
+	    if ( $withLinks )
+	    {
+	        $criteria->addNotInCondition($this->getTableAlias(true).'.`parentid`', $itemId, 'OR');
+	    }
+	    $this->getDbCriteria()->mergeWith($criteria, $operator);
+	     
+	    return $this;
+	}
+	
+	/**
 	 * Именованная группа условий: получить все элементы 
 	 * c указаным значением в поле связанного объекта
 	 * (или значением соответствующим хотя бы одному из значений если передан массив)

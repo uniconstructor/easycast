@@ -1031,22 +1031,31 @@ class Config extends CActiveRecord
 	/**
 	 * Получить значения из элементов списка стандартных значений (EasyListItem)
 	 * допустимых в этой настройке
-	 * Эта функция получает только значения
-	 * Если вам нужны модели целиком используйте $this->defaultListItems
+	 * Эта функция получает только значения: если вам нужны модели целиком 
+	 * используйте $this->defaultListItems
 	 * 
 	 * @param bool $removeSelected - что делать с теми элементами, которые уже выбраны? 
 	 *                               * true   - ничего не делать
 	 *                               * false  - убрать из списка
 	 * @return array
+	 * 
+	 * @todo оптимизировать способ удаления выбранных элементов из списка стандартных
 	 */
 	public function getDefaultOptions($removeSelected=true)
 	{
-	    $result = array();
-	    foreach ( $this->defaultListItems as $item )
+	    $defaultOptions = CHtml::listData($this->defaultListItems, 'id', 'title');
+	    if ( ! $removeSelected )
 	    {
-	        $result[$item->id] = $item->title;
+	        return $defaultOptions;
 	    }
-	    return $result;
+	    foreach ( $this->selectedListItems as $selectedItem )
+	    {
+	        if ( isset($defaultOptions[$selectedItem->parentid]) )
+	        {// выбранные значения настроек всегда будут ссылаться на стандартные в качестве родительских
+	            unset($defaultOptions[$selectedItem->parentid]);
+	        }
+	    }
+	    return $defaultOptions;
 	}
 	
 	/**
@@ -1060,14 +1069,9 @@ class Config extends CActiveRecord
 	 *                               * false  - убрать из списка
 	 * @return array
 	 */
-	public function getUserOptions($includeSelected=true)
+	public function getUserOptions($removeSelected=true)
 	{
-	    $result = array();
-	    foreach ( $this->userListItems as $item )
-	    {
-	        $result[$item->id] = $item->title;
-	    }
-	    return $result;
+	    return CHtml::listData($this->userListItems, 'id', 'title');
 	}
 	
 	/**
@@ -1079,39 +1083,8 @@ class Config extends CActiveRecord
 	 */
 	public function getSelectedOptions()
 	{
-	    $result = array();
-	    foreach ( $this->selectedListItems as $item )
-	    {
-	        $result[$item->id] = $item->title;
-	    }
-	    return $result;
+	    return CHtml::listData($this->selectedListItems, 'id', 'title');
 	}
-	
-	/**
-	 * Получить указанный элемент из списка выбранных значений в настройке
-	 * 
-	 * @param  int|EasyListItem $item
-	 * @return bool|EasyListItem
-	 */
-	/*public function getSelectedOption($item)
-	{
-	    if ( $item instanceof EasyListItem )
-	    {
-	        $id = $item->id;
-	    }else
-	    {
-	        $id = $item;
-	    }
-	    if ( ! $options = $this->getSelectedOptions() )
-	    {
-	        return false;
-	    }
-	    if ( ! isset($options[$id]) )
-	    {
-	        return false;
-	    }
-	    return $options[$id];
-	}*/
 	
 	/**
 	 * Именованая группа условий: все настройки, использующие этот список вариантов значений
@@ -1123,7 +1096,7 @@ class Config extends CActiveRecord
 	 */
 	public function forDefaultList($defaultList, $operation='AND')
 	{
-	    if ( is_object($defaultList) )
+	    if ( $defaultList instanceof EasyList )
 	    {// передан объект целиком но нам нужен из него только id
 	        $id = $defaultList->id;
 	    }else
@@ -1148,7 +1121,7 @@ class Config extends CActiveRecord
 	 */
 	public function forUserList($userList, $operation='AND')
 	{
-	    if ( is_object($userList) )
+	    if ( $userList instanceof EasyList )
 	    {// передан объект целиком но нам нужен из него только id
 	        $id = $userList->id;
 	    }else
@@ -1268,17 +1241,14 @@ class Config extends CActiveRecord
 	        );
 	    }else
 	    {// настройка с одиночным выбором всегда ссылается на значение в поле другой модели
-	        /* @var $model CActiveRecord */
-	        $model = $this->valuetype;
-	        // используем методы CDbCriteria для обработки случая с несколькими $value
-	        $condition = new CDbCriteria();
-            $condition->compare($model::model()->getTableAlias(true).".`{$this->valuefield}`", $value);
 	        // создаем условие поиска по значению связанного поля
 	        $with = array(
 	            'selectedListItem' => array(
 	                'select'    => false,
 	                'joinType'  => 'INNER JOIN',
-                    'condition' => $condition,
+                    'scopes'    => array(
+        	            'withValue' => array($value),
+                    ),
     	        ),
     	    );
 	    }
@@ -1327,8 +1297,7 @@ class Config extends CActiveRecord
 	            'select'   => false,
 	            'joinType' => 'INNER JOIN',
 	            'scopes'   => array(
-	                'withId' => array($optionId),
-	                'withParentId' => array($optionId, 'OR'),
+	                'withItemId' => array($optionId),
 	            ),
 	        ),
 	    );
@@ -1340,8 +1309,8 @@ class Config extends CActiveRecord
 	}
 	
 	/**
-	 * Получить все настройки в которых используется (выбран) переданый вариант стандартного
-	 * значения настройки (как из стандартного списка вариантов так и из пользовательского)
+	 * @todo Получить все настройки в которых используется (выбран) переданый вариант 
+	 * стандартного значения настройки (проверяется только стандартный список вариантов)
 	 *
 	 * @param  int|array|EasyListItem $option
 	 * @param  string $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
@@ -1360,10 +1329,10 @@ class Config extends CActiveRecord
 	 * @param  string $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
 	 * @return Config
 	 */
-	public function withEverySelectedOption($option, $operation='AND')
+	/*public function withEverySelectedOption($option, $operation='AND')
 	{
         
-	}
+	}*/
 	
 	/**
 	 * (alias) Получить все настройки кроме тех, в которых используется (выбран) 
@@ -1407,7 +1376,7 @@ class Config extends CActiveRecord
 	            'select'   => false,
 	            'joinType' => 'INNER JOIN',
 	            'scopes'   => array(
-	                'exceptId' => array($optionId),
+	                'exceptItemId' => array($optionId),
 	            ),
 	        ),
 	    );
@@ -1419,36 +1388,76 @@ class Config extends CActiveRecord
 	}
 	
 	/**
-	 * Определить является ли переданный вариант значения настройки стандартным значением
-	 * или ссылкой на такое значение
+	 * Определить является ли переданный вариант значения настройки ее стандартным значением
+	 * (или ссылкой на такое значение)
 	 *
 	 * @param  EasyListItem $option
 	 * @return bool
 	 */
-	public function isDefaultOption($option)
+	public function hasDefaultOption(EasyListItem $option)
 	{
-        if ( $option->easylistid == $this->easylistid  )
+        if ( $option->easylistid == $this->easylistid )
         {// значение содержится в списке стандартных
             return true;
         }
-        $defaults = $this->getDefaultOptions();
-        if ( isset($defaults[$option->id]) OR 
-           ( isset($defaults[$option->objectid]) AND $option->objecttype == $this->defaultList->itemtype ) )
-        {// значение является ссылкой на стандартное
+        if ( $option->parentItem AND $option->parentItem->easylistid == $this->easylistid )
+        {// является ссылкой на стандартное значение
             return true;
         }
         return false;
 	}
 	
 	/**
-	 * Определить является ли переданный вариант значения настройки пользовательским
+	 * Определить является ли переданный вариант значения пользователем - то есть добавлен ли он
+	 * пользователем в список значений настройки когда стандартного списка не хватило
+	 * (или ялвляется ли он ссылкой на такое значение)
 	 *
 	 * @param  EasyListItem $option
 	 * @return bool
 	 */
-	public function isUserOption($option)
+	public function hasUserOption(EasyListItem $option)
 	{
-	    return ! $this->isDefaultOption($option);
+	    if ( $option->easylistid == $this->userlistid )
+	    {// значение содержится в списке пользовательских
+            return true;
+	    }
+	    if ( $option->parentItem AND $option->parentItem->easylistid == $this->userlistid )
+	    {// является ссылкой на пользовательское значение
+            return true;
+	    }
+	    return false;
+	}
+	
+	/**
+	 * Определить является ли переданный вариант значения настройки ее выбранным значением
+	 *
+	 * @param  EasyListItem $option
+	 * @return bool
+	 */
+	public function hasSelectedOption(EasyListItem $option)
+	{
+	    if ( $this->isMultiple() )
+	    {// для настроек с множественным выбором: ищем значение в списке
+	        if ( $option->easylistid == $this->valueid )
+	        {// значение содержится в списке выбранных
+                return true;
+	        }
+	        if ( $option->parentItem AND $option->parentItem->easylistid == $this->valueid )
+	        {// является ссылкой на стандартное значение
+                return true;
+	        }
+	    }elseif ( $this->valuetype === 'EasyListItem' )
+	    {// для настроек с одним значением: ищем значение в самой настройке
+	        if ( $option->id == $this->valueid )
+	        {// значение содержится в списке выбранных
+                return true;
+	        }
+	        if ( $option->parentid AND $option->parentid == $this->valueid )
+	        {// является ссылкой на выбранное значение
+                return true;
+	        }
+	    }
+	    return false;
 	}
 	
 	/**
