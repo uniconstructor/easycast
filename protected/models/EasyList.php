@@ -402,7 +402,7 @@ class EasyList extends CActiveRecord
 	    {
 	        $itemId = $item;
 	    }
-	    if ( EasyListItem::model()->forList($this->id)->withItemId($itemId, $hasLink)->exists() )
+	    if ( EasyListItem::model()->forList($this->id)->withItemId($itemId, $searchLinks)->exists() )
 	    {
 	        return true;
 	    }
@@ -435,20 +435,11 @@ class EasyList extends CActiveRecord
 	        $item = $itemId;
 	    }else
 	    {
-	        $item = EasyListItem::model()->findByPk($itemId);
+	        $item = EasyListItem::model()->forList($this->id)->withItemId($itemId)->find();
 	    }
-	    if ( ! $item )
-	    {// элемента с таким id в принципе не существует
-	        return false;
-	    }
-	    if ( $item->easylistid == $this->id )
-	    {// элемент присутствует в списке - вернем его
+	    if ( $item AND $item->easylistid == $this->id )
+	    {// элемент присутствует в списке
 	        return $item;
-	    }
-	    $link = EasyListItem::model()->forList($this->id)->withParentId($item->id)->find();
-	    if ( $link->easylistid == $this->id )
-	    {// возвращаем ссылку на элемент
-	        return $link;
 	    }
 	    // в этом списке нет ни такого элемента ни ссылки на него
 	    return false;
