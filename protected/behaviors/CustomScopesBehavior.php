@@ -13,6 +13,9 @@
  * @see CDbCriteria::$with
  * @see CDbCriteria::$together
  * @see http://www.yiiframework.com/doc/guide/1.1/en/database.ar#named-scopes
+ * 
+ * @todo методы exceptAnyCustomValue и exceptEveryCustomValue
+ * @todo методы withAnyCustomValue и withEveryCustomValue 
  */
 class CustomScopesBehavior extends CActiveRecordBehavior
 {
