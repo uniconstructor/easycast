@@ -76,7 +76,7 @@ class ExtraField extends CActiveRecord
 	    return array(
 	        // автоматическое заполнение дат создания и изменения
 	        'EcTimestampBehavior' => array(
-	            'class' => 'zii.behaviors.EcTimestampBehavior',
+	            'class' => 'application.behaviors.EcTimestampBehavior',
 	        ),
 	        // это поведение позволяет изменять набор связей модели в зависимости от того какие данные в ней находятся
 	        'CustomRelationsBehavior' => array(
@@ -571,6 +571,10 @@ class ExtraField extends CActiveRecord
 	public function getTypeOption()
 	{
 	    $types = $this->getTypeOptions();
+	    if ( ! isset($types[$this->type]) )
+	    {
+	        return '';
+	    }
 	    return $types[$this->type];
 	}
 	
