@@ -1461,6 +1461,25 @@ class Config extends CActiveRecord
 	}
 	
 	/**
+	 * Получить оригинал выбранного значения настройки
+	 * 
+	 * @param  EasyListItem $option
+	 * @return EasyListItem
+	 */
+	public function getSelectedOption(EasyListItem $option)
+	{
+	    if ( ! $this->hasSelectedOption($option) )
+	    {
+	        return false;
+	    }
+	    if ( $option->parentItem )
+	    {
+	        return $option->parentItem;
+	    }
+	    return $option;
+	}
+	
+	/**
 	 * Восстановить изначальное значение настройки
 	 * 
 	 * @return bool
