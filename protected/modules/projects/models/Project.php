@@ -522,6 +522,7 @@ class Project extends SWActiveRecord
 	{
 	    // условия поиска по датам создания и изменения 
 	    $timestampScopes = $this->asa('EcTimestampBehavior')->getDefaultTimestampScopes();
+	    $visibleStatuses = array(swProject::ACTIVE, swProject::SUSPENDED, swProject::FINISHED);
 	    // условия поиска для проекта
 	    $modelScopes = array(
 	        // лучшие по рейтингу
@@ -531,6 +532,12 @@ class Project extends SWActiveRecord
 	        // худшие по рейтингу
 	        'worstRated' => array(
 	            'order' => $this->getTableAlias(true).'.`rating` ASC'
+	        ),
+	        // видимые участникам
+	        'visible' => array(
+	            'scopes' => array(
+    	            'withStatus' => array($visibleStatuses),
+    	        ),
 	        ),
 	    );
 	    return CMap::mergeArray($timestampScopes, $modelScopes);
