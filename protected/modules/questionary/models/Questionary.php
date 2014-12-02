@@ -183,7 +183,6 @@ class Questionary extends CActiveRecord
      *               (нужен чтобы нормально работали SQL запросы на поиск "больше/меньше")
      */
     const WEARSIZE_MAX = 99;
-    
     /**
      * @var string - размер обуви "меньше 36" (как он хранится в базе данных)
      *               (нужен чтобы нормально работали SQL запросы на поиск "больше/меньше")
@@ -194,7 +193,6 @@ class Questionary extends CActiveRecord
      *               (нужен чтобы нормально работали SQL запросы на поиск "больше/меньше")
      */
     const SHOESSIZE_MAX = 99;
-    
     /**
      * @var string - значение стоящее в select-списках в параметре value в пункте "выбрать"
      *               константа нужна на случай если мы захотим изменить "не выбранное значение"
@@ -203,7 +201,8 @@ class Questionary extends CActiveRecord
     const VALUE_NOT_SET = "";
     /**
      * @var string - максимальное количество последних приглашений, отображаемое пользователю
-     * @todo убрать константу и добавить настройку анкеты 
+     * 
+     * @deprecated убрать константу и добавить настройку анкеты 
      */
     const LAST_INVITES_COUNT = 20;
     
@@ -234,7 +233,7 @@ class Questionary extends CActiveRecord
     /**
      * Returns the static model of the specified AR class
      * 
-     * @param string $className active record class name.
+     * @param  string $className - active record class name
      * @return Questionary the static model class
      */
     public static function model($className=__CLASS__)
@@ -244,8 +243,10 @@ class Questionary extends CActiveRecord
     
     /**
      * Получить полный список всех полей, которые могут присутствовать в форме анкеты
+     * 
      * @return array
-     * @deprecated
+     * 
+     * @deprecated 
      */
     public static function getAllFields()
     {
@@ -300,6 +301,7 @@ class Questionary extends CActiveRecord
     
     /**
      * Группы условий поиска
+     * 
      * @see CActiveRecord::scopes()
      */
     public function scopes()
@@ -347,7 +349,6 @@ class Questionary extends CActiveRecord
             'recordingconditions' => array(self::HAS_ONE, 'QRecordingConditions', 'questionaryid'),
             // все заявки участника
             'applications' => array(self::HAS_MANY, 'ProjectMember', 'memberid'),
-            
             
             // Значения анкеты, хранящиеся в других таблицах
             // Дополнительные характеристики (близнецы, гетерохромия и т. п.)
@@ -597,8 +598,9 @@ class Questionary extends CActiveRecord
     }
     
     /**
-     * @todo при рефакторинге переписать удаление через события. Слушать дочерними объектами родительский
      * @see CActiveRecord::beforeDelete()
+     * 
+     * @todo при рефакторинге переписать удаление через события. Слушать дочерними объектами родительский
      */
     protected function beforeDelete()
     {
@@ -633,6 +635,7 @@ class Questionary extends CActiveRecord
     
     /**
      * Эта функция проверяет обязательное наличие хотя бы одной загруженной фотографии
+     * 
      * @see CModel::beforeValidate()
      */
     public function beforeValidate()
@@ -650,61 +653,13 @@ class Questionary extends CActiveRecord
     
     /**
      * Событие "админом введена новая анкета"
-     * @param CModelEvent $event
+     * 
+     * @param  CModelEvent $event
      * @return void
      */
     public function onNewUserCreatedByAdmin($event)
     {
         $this->raiseEvent('onNewUserCreatedByAdmin', $event);
-    }
-    
-    /**
-     * Получить все поля для одного раздела при редактировании анкеты
-     * @param string $section - название раздела анкеты
-     * @return array - полный список полей которые относятся к переданому разделу
-     * 
-     * @todo при отображении и редактировании разделы отличаются. Нужно учесть этот момент
-     * @todo нужно сначала спросить, в каких съемках человек хотел бы участвовать, затем в каком качестве
-     *       (актер, модель пародист и т. д.) и только потом всю необходимую для этого информацию
-     * @deprecated
-     */
-    public function getSectionFields($section, $type='edit')
-    {
-        $fields = array();
-        $fields['main'] = array(
-            'email', 'firstname', 'lastname', 'middlename', 'birthdate', 
-            'playagemin', 'playagemax', 'gender', 'password', 'cityid',
-        );
-        $fields['contacts'] = array(
-            'mobilephone', 'homephone', 'addphone', 'vkprofile', 'fbprofile', 'okprofile',
-        );
-        $fields['looks'] = array(
-            'photo', 'video', 'looktype', 'haircolor', 'hairlength', 'eyecolor', 'physiquetype',
-            'chestsize', 'waistsize', 'hipsize',
-            'height', 'weight', 'wearsize', 'shoessize', 'hastatoo', 'addchars',
-        );
-        $fields['skills'] = array(
-            'isactor', 'isamateuractor', 'hasfilms', 'istheatreactor', 'isstatist', 'ismassactor',
-            'isemcee', 'istvshowmen', 'isparodist', 'istwin', 'ismodel', 'isphotomodel', 'ispromomodel',
-            'isdancer', 'isstripper', 'issinger', 'ismusician', 'issportsman', 'isextremal',
-            'isathlete', 'hasskills', 'hastricks', 'haslanuages', 'hasawards',
-        );
-        $fields['conditions'] = array(
-            'isnightrecording', 'istoplessrecording', 'isfreerecording', 'wantsbusinesstrips',
-            'hasforeignpassport', 'salary', 'custom',
-        );
-        $fields['settings'] = array(
-            
-        );
-        $fields['admin'] = array(
-            'rating', 'status', 'ismediaactor', 'privatecomment', 
-        );
-        
-        if ( ! isset($fields[$section]) )
-        {
-            throw new CException('Неизвестный раздел анкеты: '.$section);
-        }
-        return $fields[$section];
     }
     
     /**
@@ -1036,213 +991,6 @@ class Questionary extends CActiveRecord
     }
     
     /**
-     * Автоматическая премодарация анкеты. Помогает администраторам.
-     * 
-     * ВАЖНО!
-     * При запуске этой функции мы полагаемся на то, что все сложные значения анкеты уже сохранены в других таблицах,
-     * а сама анкета еще не сохранена.
-     * 
-     * Автоматически сбрасывает галочки умений в анкете если не выполняются определенные условия.
-     * Участнику не засчитывается:
-     * - профессиональный актер без ВУЗов
-     * - фильмография без фильмов
-     * - ведущий и телеведущий без мероприятий
-     * - Пародист и двойник без образов
-     * - Танцор без стилей танца
-     * - Певец без музыкального ВУЗа всегда считается любителем
-     * 
-     * @return null
-     * 
-     * @deprecated не используется после полной переработки формы, удалить при рефакторинге
-     *             Использовалась в самом начале работы, когда еще не было возможности отслеживать
-     *             заполнение и изменение анкеты
-     *             Сейчас при редактировании анкеты все поля проверяются и сохраняются через AJAX
-     *             поэтому больше нет никакой необходимости прописывать сложные правила проверки для модели
-     *             или менять в ней что-то после сохранения
-     *             До этого мы убирали статус при отсутствии нужных данных, сейчас наоборот: 
-     *             добавляем нужный статус если введено хотя бы одно необходимое значение
-     */
-    protected function autoModeration()
-    {
-        $dependences = array(
-            'isactor'        => 'actoruniversities',
-            'hasfilms'       => 'films',
-            'isemcee'        => 'emceelist',
-            'istvshowmen'    => 'tvshows',
-            'isparodist'     => 'parodistlist',
-            'istwin'         => 'twinlist',
-            'isdancer'       => 'dancetypes',
-            'haslanuages'    => 'languages',
-            'hasawards'      => 'awards',
-            'istheatreactor' => 'theatres',
-        );
-        
-        foreach ( $dependences as $field => $relation )
-        {// Перезагружаем связаные записи чтобы не наткнуться на кеш
-            // поэтому используем getRelated()
-            $data = $this->getRelated($relation, true);
-            if ( isset($this->$field) AND $this->$field AND ! $data )
-            {// галочка выставлена, а необходимых данных нет - сбросим ее обратно
-                $this->$field = 0;
-            }
-        }
-        if ( $this->isamateuractor  )
-        {// если поставлена галочка "непрофессиональный актер"
-            // то должен быть указан или театр или фильмография
-            if ( ! $this->istheatreactor AND ! $this->hasfilms )
-            {
-                $this->isamateuractor = 0;
-            }
-            // а также сбрасывается галочка "профессиональный актер"
-            $this->isactor = 0;
-        }
-        
-        if ( $this->isactor )
-        {// если участник - профессиональный актер - уберем галочку "непрофессиональный актер"
-            // потому что это взаимоисключающие пункты
-            $this->isamateuractor = 0;
-        }
-    }
-    
-    /**
-     * Определить, должна ли анкета попасть к модератору после сохранения пользователем
-     * Анкета отправляется к модератору только если были включены любые поля, отвечающие за умения
-     * (например спортсмен, музыкант, вокал, и т. п.)
-     * Исключение - актер массовых сцен и статист - эти поля могут быть указаны кем угодно и не требуют проверки
-     * модератором
-     * @deprecated не используется после полной переработки формы, удалить при рефакторинге
-     * 
-     * @return bool
-     */
-    protected function needsModerating()
-    {
-        // старые данные анкеты
-        $old = $this::model()->findByPk($this->id);
-        // новые данные анкеты
-        $new = $this;
-        
-        if ( Yii::app()->user->checkAccess('Admin') )
-        {// админы и модераторы не нуждаются ни в каких проверках - их анкеты совершенно другие
-            // также, если кто-то из них сохраняет анкету - значит он знает что делает
-            return false;
-        }
-        
-        if ( $this->status == 'draft' )
-        {// первое заполнение анкеты всегда требует модерации (только если ее не завел админ)
-            return true;
-        }
-        
-        $fields = array('isactor', 'hasfilms', 'isemcee', 'isparodist', 'istwin', 'ismodel', 'isdancer', 
-            'hasawards', 'isstripper', 'issinger', 'ismusician',  'issportsman',  'isextremal',  'isathlete', 
-            'hastricks',  'hasskills',  /*'haslanuages',*/ 'isphotomodel', 'ispromomodel', 'isamateuractor',
-            'istvshowmen');
-        
-        foreach ( $fields as $field )
-        {
-            if ( isset($new->$field) AND ! $old->$field AND $new->$field )
-            {// если галочка до этого не стояла, а потом была отмечена - значит анкету должен просмотреть модератор
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    /**
-     * Удалить комментарий администрации (если анкета одобрена, переведена в статус ожидания проверки 
-     * или перешла из состояния "отложена")
-     * @deprecated не будет использоваться после ввода новой системы оповещений, поле admincomment
-     *             должно быт убрано из этой модели
-     * 
-     * @return null
-     */
-    protected function deleteAdminComment()
-    {
-        // старые данные анкеты
-        $old = $this::model()->findByPk($this->id);
-        // новые данные анкеты
-        $new = $this;
-        if ( $old->status == 'delayed' AND $old->status != $new->status )
-        {
-            $this->admincomment = '';
-            return;
-        }
-        if ( $new->status == 'active' )
-        {
-            $this->admincomment = '';
-            return;
-        }
-        if ( $new->status == 'pending' AND $old->status != $new->status )
-        {
-            $this->admincomment = '';
-            return;
-        }
-    }
-    
-    /**
-     * Отослать участнику письмо о том что его анкета заполнена, с просьбой проверить данные, 
-     * которые ввел наш администратор
-     * (если анкета заводилась нами вручную)
-     * Эта функция должна вызываться перед сохранением данных анкеты
-     * 
-     * @todo присылать разные сообщения для участника, заказчика и члена команды
-     * @deprecated не используется после перехода на систему оповещений по событиям, 
-     *             удалить после введения в эту модель SimpleWorkflow
-     * 
-     * @return null
-     */
-    protected function sendAdminFillingNotification()
-    {
-        $filled    = false;
-        $user      = $this->user;
-        // старый статус анкеты
-        $oldStatus = self::model()->findByPk($this->id)->status;
-        // новый статус анкеты
-        $newStatus = $this->status;
-        
-        if ( $this->ownerid AND $this->ownerid == 823 )
-        {// нужно особое письмо с активацией
-            if ( ( $oldStatus == 'draft' OR $oldStatus == 'delayed' ) AND
-                 ( $newStatus == 'unconfirmed' OR $newStatus == 'active' ) )
-            {
-                $this->sendSSFillingMail();
-            }
-        }else
-        {// обычная активация
-            if ( ( $oldStatus == 'draft' OR $oldStatus == 'delayed' ) AND
-                 ( $newStatus == 'unconfirmed' OR $newStatus == 'active' ) )
-            {// если анкета только что перешла из статуса "черновик" в активный статус -
-                // значит пользователя только что зарегистрировали и ввели все данные
-                $filled = true;
-            }
-            if ( ! Yii::app()->user->checkAccess('Admin') OR ! $filled )
-            {// Эта функция используется только если анкету заполняет админ и только при первом сохранении анкеты
-                return;
-            }
-            if ( ! QCreationHistory::model()->forQuestionary($this->id)->forType('vacancy') )
-            {// @todo если анкета была создана админом для специальной роли
-                // то отсылать письмо специально для этой роли (текст должен лежать внутри роли)
-                $this->sendDefaultFillingMail($user);
-            }
-        }
-    }
-    
-    /**
-     * Отправить письмо участнику с предложением зарегистрироваться
-     * (для анкет из базы Светланы Строиловой)
-     * @return null
-     */
-    protected function sendSSFillingMail()
-    {
-        $mailComposer = Yii::app()->getModule('mailComposer');
-         
-        $email   = $this->user->email;
-        $subject = 'Приглашение от проекта easyCast';
-        $message = $mailComposer->getMessage('SSInvite', array('questionary' => $this));
-        
-        UserModule::sendMail($this->user->email, $subject, $message, true);
-    }
-    
-    /**
      * @todo - переписать с использованием mailComposer
      * @param unknown $user
      * @return null
@@ -1300,21 +1048,8 @@ class Questionary extends CActiveRecord
     }
     
     /**
-     * Разрешено ли участнику подавать заявку на роль?
+     * Получить администратора, который ввел анкету
      * 
-     * @return boolean
-     * 
-     * @deprecated устаревшая функция, оставлена для совместимости,удалить при рефакторинге:
-     *             мы отказались от того чтобы в принципе запрещать кому-то подавать заявки
-     *             Вместо этого мы просто не показываем непроверенные заявки в итоговой выборке
-     */
-    public function isAdmitted()
-    {
-        return true;
-    }
-    
-    /**
-     * Получить администрарора, который ввел анкету
      * @return User|null - объект из таблицы users или null если участник зарегистрировался сам
      */
     public function getQuestionaryAuthor()
@@ -1337,8 +1072,7 @@ class Questionary extends CActiveRecord
     }
     
     /**
-     * Получить настройку которая содержит список проектов в которых пользователь
-     * выбрал не участвовать 
+     * Получить настройку которая содержит список проектов в которых пользователь выбрал не участвовать
      * 
      * @return Config
      */
@@ -1827,6 +1561,280 @@ class Questionary extends CActiveRecord
     }
     
     /**
+     * Разрешено ли участнику подавать заявку на роль?
+     *
+     * @return boolean
+     *
+     * @deprecated устаревшая функция, оставлена для совместимости,удалить при рефакторинге:
+     *             мы отказались от того чтобы в принципе запрещать кому-то подавать заявки
+     *             Вместо этого мы просто не показываем непроверенные заявки в итоговой выборке
+     */
+    public function isAdmitted()
+    {
+        return true;
+    }
+    
+    /**
+     * Удалить комментарий администрации (если анкета одобрена, переведена в статус ожидания проверки
+     * или перешла из состояния "отложена")
+     *
+     * @return null
+     * 
+     * @deprecated не будет использоваться после ввода новой системы оповещений,
+     *             поле admincomment должно быть убрано из этой модели
+     */
+    protected function deleteAdminComment()
+    {
+        // старые данные анкеты
+        $old = $this::model()->findByPk($this->id);
+        // новые данные анкеты
+        $new = $this;
+        if ( $old->status === self::STATUS_DELAYED AND $old->status != $new->status )
+        {
+            $this->admincomment = '';
+            return;
+        }
+        if ( $new->status === self::STATUS_ACTIVE )
+        {
+            $this->admincomment = '';
+            return;
+        }
+        if ( $new->status === self::STATUS_PENDING AND $old->status != $new->status )
+        {
+            $this->admincomment = '';
+            return;
+        }
+    }
+    
+    /**
+     * Определить, должна ли анкета попасть к модератору после сохранения пользователем
+     * Анкета отправляется к модератору только если были включены любые поля, отвечающие за умения
+     * (например спортсмен, музыкант, вокал, и т. п.)
+     * Исключение - актер массовых сцен и статист - эти поля могут быть указаны кем
+     * угодно и не требуют проверки модератором
+     *
+     * @return bool
+     *
+     * @deprecated не используется после полной переработки формы, удалить при рефакторинге
+     */
+    protected function needsModerating()
+    {
+        // старые данные анкеты
+        $old = $this::model()->findByPk($this->id);
+        // новые данные анкеты
+        $new = $this;
+    
+        if ( Yii::app()->user->checkAccess('Admin') )
+        {// админы и модераторы не нуждаются ни в каких проверках - их анкеты совершенно другие
+            // также, если кто-то из них сохраняет анкету - значит он знает что делает
+            return false;
+        }
+        if ( $this->status === self::STATUS_DRAFT )
+        {// первое заполнение анкеты всегда требует модерации (только если ее не завел админ)
+            return true;
+        }
+        //'haslanuages'
+        $fields = array('isactor', 'hasfilms', 'isemcee', 'isparodist', 'istwin', 'ismodel', 'isdancer',
+            'hasawards', 'isstripper', 'issinger', 'ismusician', 'issportsman', 'isextremal', 
+            'isathlete', 'hastricks', 'hasskills', 'isphotomodel', 'ispromomodel', 'isamateuractor',
+            'istvshowmen',
+        );
+        foreach ( $fields as $field )
+        {
+            if ( isset($new->$field) AND ! $old->$field AND $new->$field )
+            {// если галочка до этого не стояла, а потом была отмечена - 
+                // значит анкету должен просмотреть модератор
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Получить все поля для одного раздела при редактировании анкеты
+     *
+     * @param  string $section - название раздела анкеты
+     * @return array - полный список полей которые относятся к переданому разделу
+     *
+     * @todo при отображении и редактировании разделы отличаются. Нужно учесть этот момент
+     * @todo нужно сначала спросить, в каких съемках человек хотел бы участвовать,
+     *       затем в каком качестве (актер, модель пародист и т. д.)
+     *       и только потом всю необходимую для этого информацию
+     * @deprecated не используется: информацию о разделении полей на секции следует хранить в базе
+     *             используя списки
+     */
+    public function getSectionFields($section, $type='edit')
+    {
+        $fields = array();
+        $fields['main'] = array(
+            'email', 'firstname', 'lastname', 'middlename', 'birthdate',
+            'playagemin', 'playagemax', 'gender', 'password', 'cityid',
+        );
+        $fields['contacts'] = array(
+            'mobilephone', 'homephone', 'addphone', 'vkprofile', 'fbprofile', 'okprofile',
+        );
+        $fields['looks'] = array(
+            'photo', 'video', 'looktype', 'haircolor', 'hairlength', 'eyecolor', 'physiquetype',
+            'chestsize', 'waistsize', 'hipsize',
+            'height', 'weight', 'wearsize', 'shoessize', 'hastatoo', 'addchars',
+        );
+        $fields['skills'] = array(
+            'isactor', 'isamateuractor', 'hasfilms', 'istheatreactor', 'isstatist', 'ismassactor',
+            'isemcee', 'istvshowmen', 'isparodist', 'istwin', 'ismodel', 'isphotomodel', 'ispromomodel',
+            'isdancer', 'isstripper', 'issinger', 'ismusician', 'issportsman', 'isextremal',
+            'isathlete', 'hasskills', 'hastricks', 'haslanuages', 'hasawards',
+        );
+        $fields['conditions'] = array(
+            'isnightrecording', 'istoplessrecording', 'isfreerecording', 'wantsbusinesstrips',
+            'hasforeignpassport', 'salary', 'custom',
+        );
+        $fields['settings'] = array(
+    
+        );
+        $fields['admin'] = array(
+            'rating', 'status', 'ismediaactor', 'privatecomment',
+        );
+        
+        if ( ! isset($fields[$section]) )
+        {
+            throw new CException('Неизвестный раздел анкеты: '.$section);
+        }
+        return $fields[$section];
+    }
+    
+    /**
+     * Отослать участнику письмо о том что его анкета заполнена, с просьбой проверить данные,
+     * которые ввел наш администратор (если анкета заводилась нами вручную)
+     * Эта функция должна вызываться перед сохранением данных анкеты
+     *
+     * @return null
+     * 
+     * @todo присылать разные сообщения для участника, заказчика и члена команды
+     * @deprecated не используется после перехода на систему оповещений по событиям,
+     *             удалить после введения в эту модель SimpleWorkflow
+     */
+    protected function sendAdminFillingNotification()
+    {
+        $filled    = false;
+        $user      = $this->user;
+        // старый статус анкеты
+        $oldStatus = self::model()->findByPk($this->id)->status;
+        // новый статус анкеты
+        $newStatus = $this->status;
+    
+        if ( $this->ownerid AND $this->ownerid == 823 )
+        {// нужно особое письмо с активацией
+            if ( ( $oldStatus === self::STATUS_DRAFT       OR $oldStatus === self::STATUS_DELAYED ) AND
+            ( $newStatus === self::STATUS_UNCONFIRMED OR $newStatus === self::STATUS_ACTIVE ) )
+            {
+                $this->sendSSFillingMail();
+            }
+        }else
+        {// обычная активация
+            if ( ( $oldStatus === self::STATUS_DRAFT       OR self::STATUS_DELAYED ) AND
+            ( $newStatus === self::STATUS_UNCONFIRMED OR $newStatus === self::STATUS_ACTIVE ) )
+            {// если анкета только что перешла из статуса "черновик" в активный статус -
+                // значит пользователя только что зарегистрировали и ввели все данные
+                $filled = true;
+            }
+            if ( ! Yii::app()->user->checkAccess('Admin') OR ! $filled )
+            {// Эта функция используется только если анкету заполняет админ и только при первом сохранении анкеты
+                return;
+            }
+            if ( ! QCreationHistory::model()->forQuestionary($this->id)->forType('vacancy') )
+            {// @todo если анкета была создана админом для специальной роли
+                // то отсылать письмо специально для этой роли (текст должен лежать внутри роли)
+                $this->sendDefaultFillingMail($user);
+            }
+        }
+    }
+    
+    /**
+     * Автоматическая премодарация анкеты. Помогает администраторам.
+     * При запуске этой функции мы полагаемся на то, что все сложные значения анкеты уже сохранены в других таблицах,
+     * а сама анкета еще не сохранена.
+     *
+     * Автоматически сбрасывает галочки умений в анкете если не выполняются определенные условия.
+     * Участнику не засчитывается:
+     * - профессиональный актер без ВУЗов
+     * - фильмография без фильмов
+     * - ведущий и телеведущий без мероприятий
+     * - Пародист и двойник без образов
+     * - Танцор без стилей танца
+     * - Певец без музыкального ВУЗа всегда считается любителем
+     *
+     * @return null
+     *
+     * @deprecated не используется после полной переработки формы, удалить при рефакторинге
+     *             Использовалась в самом начале работы, когда еще не было возможности отслеживать
+     *             заполнение и изменение анкеты
+     *             Сейчас при редактировании анкеты все поля проверяются и сохраняются через AJAX
+     *             поэтому больше нет никакой необходимости прописывать сложные правила проверки для модели
+     *             или менять в ней что-то после сохранения
+     *             До этого мы убирали статус при отсутствии нужных данных, сейчас наоборот:
+     *             добавляем нужный статус если введено хотя бы одно необходимое значение
+     */
+    protected function autoModeration()
+    {
+        $dependences = array(
+            'isactor'        => 'actoruniversities',
+            'hasfilms'       => 'films',
+            'isemcee'        => 'emceelist',
+            'istvshowmen'    => 'tvshows',
+            'isparodist'     => 'parodistlist',
+            'istwin'         => 'twinlist',
+            'isdancer'       => 'dancetypes',
+            'haslanuages'    => 'languages',
+            'hasawards'      => 'awards',
+            'istheatreactor' => 'theatres',
+        );
+    
+        foreach ( $dependences as $field => $relation )
+        {// Перезагружаем связаные записи чтобы не наткнуться на кеш
+            // поэтому используем getRelated()
+            $data = $this->getRelated($relation, true);
+            if ( isset($this->$field) AND $this->$field AND ! $data )
+            {// галочка выставлена, а необходимых данных нет - сбросим ее обратно
+                $this->$field = 0;
+            }
+        }
+        if ( $this->isamateuractor  )
+        {// если поставлена галочка "непрофессиональный актер"
+            // то должен быть указан или театр или фильмография
+            if ( ! $this->istheatreactor AND ! $this->hasfilms )
+            {
+                $this->isamateuractor = 0;
+            }
+            // а также сбрасывается галочка "профессиональный актер"
+            $this->isactor = 0;
+        }
+        if ( $this->isactor )
+        {// если участник - профессиональный актер - уберем галочку "непрофессиональный актер"
+            // потому что это взаимоисключающие пункты
+            $this->isamateuractor = 0;
+        }
+    }
+    
+    /**
+     * Отправить письмо участнику с предложением зарегистрироваться
+     * (для анкет из базы Светланы Строиловой)
+     *
+     * @return null
+     *
+     * @deprecated база импортирована, функция больше не нужна, удалить при рефакторинге
+     */
+    protected function sendSSFillingMail()
+    {
+        $mailComposer = Yii::app()->getModule('mailComposer');
+         
+        $email   = $this->user->email;
+        $subject = 'Приглашение от проекта easyCast';
+        $message = $mailComposer->getMessage('SSInvite', array('questionary' => $this));
+    
+        UserModule::sendMail($this->user->email, $subject, $message, true);
+    }
+    
+    /**
      * Определить, отображать по умолчанию указанное поле формы 
      * (или часть формы в которой содержится нескольких полей)
      * 
@@ -1904,7 +1912,6 @@ class Questionary extends CActiveRecord
             $modelfield = $dependences[$section];
             $result = (bool)$this->$modelfield;
         }
-        
         // Только несколько полей формы имеют более сложные зависимости при отображении. Зададим их.
         switch ( $section )
         {
@@ -1945,9 +1952,9 @@ class Questionary extends CActiveRecord
                 }
             break;
         }
-        
         return $result;
     }
+    
     
     /**
      * Получить ссылку на картинку с аватаром пользователя
@@ -1971,9 +1978,9 @@ class Questionary extends CActiveRecord
         {
             return $nophoto;
         }
-        
         return $avatar;
     }
+    
     
     /**
      * Получить список изображений для элемента Carousel в Twitter Bootstrap 
@@ -2004,7 +2011,6 @@ class Questionary extends CActiveRecord
             {
                 $element['caption'] = $photo->description;
             }
-            
             $tbPhotos[] = $element;
             $num++;
         }
