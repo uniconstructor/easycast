@@ -5,8 +5,19 @@
  */
 class AdminController extends Controller
 {
+    /**
+     * @var string
+     */
 	public $defaultAction = 'admin';
-	public $layout='//layouts/column2';
+	/**
+	 * @var string
+	 */
+	public $layout = '//layouts/column2';
+	
+	/**
+	 * @var string - класс модели, по умолчанию используемый для метода $this->loadModel()
+	 */
+	protected $defaultModelClass = 'User';
 	
 	private $_model;
 
@@ -211,7 +222,7 @@ class AdminController extends Controller
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.
 	 */
-	public function loadModel()
+	public function loadModel($id, $modelClass='')
 	{
 		if ( $this->_model === null )
 		{

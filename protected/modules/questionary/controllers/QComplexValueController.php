@@ -198,7 +198,7 @@ class QComplexValueController extends Controller
      * @param integer the ID of the model to be loaded
      * @return CActiveRecord
      */
-    public function loadModel($id)
+    public function loadModel($id, $modelClass)
     {
         $modelClass = $this->modelClass;
         $model      = $modelClass::model($modelClass)->findByPk($id);

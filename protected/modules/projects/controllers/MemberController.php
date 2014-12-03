@@ -7,7 +7,11 @@
 class MemberController extends Controller
 {
     /**
-     * (non-PHPdoc)
+     * @var string - класс модели, по умолчанию используемый для метода $this->loadModel()
+     */
+    protected $defaultModelClass = 'ProjectMember';
+    
+    /**
      * @see CController::init()
      */
     public function init()
@@ -152,7 +156,7 @@ class MemberController extends Controller
      * If the data model is not found, an HTTP exception will be raised.
      * @param integer the ID of the model to be loaded
      */
-    public function loadModel($id)
+    /*public function loadModel($id)
     {
         $model = ProjectMember::model()->findByPk($id);
         if ( $model === null )
@@ -160,5 +164,5 @@ class MemberController extends Controller
             throw new CHttpException(404, 'Заявка не найдена.');
         }
         return $model;
-    }
+    }*/
 }

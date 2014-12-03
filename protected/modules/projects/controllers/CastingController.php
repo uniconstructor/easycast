@@ -9,6 +9,11 @@
 class CastingController extends Controller
 {
     /**
+     * @var string - класс модели, по умолчанию используемый для метода $this->loadModel()
+     */
+    protected $defaultModelClass = 'Project';
+    
+    /**
      * @return array action filters
      */
     public function filters()
@@ -113,7 +118,7 @@ class CastingController extends Controller
      * @param integer the ID of the model to be loaded
      * @return Project
      */
-    public function loadModel($id)
+    /*public function loadModel($id)
     {
         $model = Project::model()->findByPk($id);
         if ( $model === null )
@@ -124,5 +129,5 @@ class CastingController extends Controller
             throw new CHttpException(404, 'Страница не найдена');
         }
         return $model;
-    }
+    }*/
 }

@@ -6,6 +6,11 @@
 class ProjectController extends Controller
 {
     /**
+     * @var string - класс модели, по умолчанию используемый для метода $this->loadModel()
+     */
+    protected $defaultModelClass = 'Project';
+    
+    /**
      * @see parent::filters()
      * 
      * @return array action filters
@@ -98,7 +103,7 @@ class ProjectController extends Controller
 	 * @throws CHttpException
 	 * @return Project
 	 */
-    public function loadModel($id)
+    /*public function loadModel($id)
     {
         $model = Project::model()->findByPk($id);
 	    if ( $model === null )
@@ -106,5 +111,5 @@ class ProjectController extends Controller
 	        throw new CHttpException(404, 'Проект не найден');
 	    }
 	    return $model;
-    }
+    }*/
 }

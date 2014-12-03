@@ -7,7 +7,11 @@
 class NewsController extends Controller
 {
     /**
-     * (non-PHPdoc)
+     * @var string - класс модели, по умолчанию используемый для метода $this->loadModel()
+     */
+    protected $defaultModelClass = 'News';
+    
+    /**
      * @see CController::init()
      */
     public function init()
@@ -42,11 +46,11 @@ class NewsController extends Controller
      * If the data model is not found, an HTTP exception will be raised.
      * @param integer the ID of the model to be loaded
      */
-    public function loadModel($id)
+    /*public function loadModel($id)
     {
         $model=News::model()->findByPk($id);
         if($model===null OR ! $model->visible )
             throw new CHttpException(404,'Новость не найдена');
         return $model;
-    }
+    }*/
 }

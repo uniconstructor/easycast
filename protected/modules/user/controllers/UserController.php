@@ -1,7 +1,15 @@
 <?php
 
+/**
+ * 
+ */
 class UserController extends Controller
 {
+    /**
+     * @var string - класс модели, по умолчанию используемый для метода $this->loadModel()
+     */
+    protected $defaultModelClass = 'User';
+    
 	/**
 	 * @var CActiveRecord the currently loaded data model instance.
 	 */
@@ -69,7 +77,7 @@ class UserController extends Controller
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.
 	 */
-	public function loadModel()
+	public function loadModel($id, $modelClass='')
 	{
 		if($this->_model===null)
 		{
@@ -80,7 +88,6 @@ class UserController extends Controller
 		}
 		return $this->_model;
 	}
-
 
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.

@@ -10,6 +10,10 @@ class ProjectMemberController extends Controller
 	 *               using two-column layout. See 'protected/views/layouts/column2.php'.
 	 */
 	public $layout = '//layouts/column2';
+	/**
+	 * @var string - класс модели, по умолчанию используемый для метода $this->loadModel()
+	 */
+	protected $defaultModelClass = 'ProjectMember';
 
 	/**
 	 * @return array action filters
@@ -247,7 +251,7 @@ class ProjectMemberController extends Controller
 	 * @param integer the ID of the model to be loaded
 	 * @return ProjectMember
 	 */
-	public function loadModel($id)
+	/*public function loadModel($id)
 	{
 		$model = ProjectMember::model()->findByPk($id);
 		if( $model === null )
@@ -255,7 +259,7 @@ class ProjectMemberController extends Controller
 		    throw new CHttpException(404, 'The requested page does not exist.');
 		}
 		return $model;
-	}
+	}*/
 	
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.

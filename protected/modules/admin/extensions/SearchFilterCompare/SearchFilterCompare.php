@@ -78,7 +78,6 @@ class SearchFilterCompare extends CWidget
             {
                 $userValue = '<span class="badge badge-important">'.$userValue.'</span>';
             }
-            
             $row = array(
                 'id'          => $filter->id,
                 'filterName'  => '<b>'.$filter->name.'</b>',

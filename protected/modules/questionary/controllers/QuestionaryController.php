@@ -20,6 +20,11 @@ class QuestionaryController extends Controller
 	public $layout = '//layouts/column1';
 	
 	/**
+	 * @var string - класс модели, по умолчанию используемый для метода $this->loadModel()
+	 */
+	protected $defaultModelClass = 'Questionary';
+	
+	/**
 	 * @see CController::init()
 	 */
 	public function init()
@@ -62,6 +67,7 @@ class QuestionaryController extends Controller
 			array('allow',
 				'actions' => array('update', 'ajax', 'toggleProjectTypeNotification'),
 				'users'   => array('@'),
+			    'roles'   => array('user'),
 			),
 			array('allow',
 				'actions' => array('delete', 'loginAs', 'upload'),
@@ -261,50 +267,12 @@ class QuestionaryController extends Controller
 	    $this->actionView($id);
 	}
 	
-	/**
-	 * Получить список городов для AJAX-подсказки в анкете. 
-	 * 
-	 * @deprecated
-	 */
-    public function actionAjax()
-    {
-        if( ! Yii::app()->request->isAjaxRequest )
-        {
-            // Yii::app()->end();
-        }
-        // request type ('city' ot 'region')
-        $type       = Yii::app()->request->getParam('type');
-        // counry or region
-        $parentType = Yii::app()->request->getParam('parenttype');
-        // record id or country code
-        $parentId   = Yii::app()->request->getParam('parentid');
-        // first letters
-        $term       = Yii::app()->request->getParam('term');
-        
-        Yii::import('ext.CountryCitySelectorRu.*');
-        $selector = new CountryCitySelectorRu();
-        
-        switch ($type)
-        {
-            case 'city':
-                $records = $selector->getCities($parentType, $parentId, $term);
-                $result  = $selector->getAutocompleteOptions($records);
-            break;
-            case 'region':
-                $records = $selector->getRegions($parentId);
-                $result  = $selector->getDropDownOptions($records);
-            break;
-        }
-        
-        echo json_encode($result);
-        Yii::app()->end();
-    }
-    
     /**
      * Пригласить пользователя (работает через AJAX-запрос)
      * Добавляет анкету пользователя в формирующийся в сессии заказ
      * 
      * @return string - json-ответ с результатом
+     * 
      * @todo языковые строки
      * @todo в сообщении писать кто именно приглашен и склонять сообщение в зависимости от пола
      */
@@ -467,18 +435,17 @@ class QuestionaryController extends Controller
      */
     public function actionLoginAs()
     {
-        $id = Yii::app()->request->getParam('id', 0);
+        $id  = Yii::app()->request->getParam('id', 0);
         if ( ! $questionary = Questionary::model()->findByPk($id) )
         {
-            throw new CHttpException('400', 'Не передан id участника');
+            throw new CHttpException(400, 'Не найден участник (id='.$id.')');
             Yii::app()->end();
         }
-        $url = Yii::app()->createUrl('/questionary/questionary/view', array('id' => $id));
-        
         if ( Yii::app()->user->checkAccess('Admin') )
-        {// еще одна проверка прав
+        {// еще одна проверка прав перед входом под учетной записью участника
             Yii::app()->getModule('user')->forceLogin($questionary->user, true);
         }
+        $url = Yii::app()->createUrl('/questionary/questionary/view', array('id' => $id));
         $this->redirect($url);
     }
     
@@ -492,18 +459,18 @@ class QuestionaryController extends Controller
         /* @var $config Config */
         /* @var $item   EasyListItem */
         $qid         = Yii::app()->request->getPost('objectId', 0);
-        $questionary = $this->loadModel($qid);
         $configName  = Yii::app()->request->getPost('configName');
         $itemId      = Yii::app()->request->getPost('itemId', 0);
+        $questionary = $this->loadModel($qid);
         $item        = EasyListItem::model()->findByPk($itemId);
-        
+        // проверка параметров
         if ( ! $item OR ! $configName )
         {
             throw new CHttpException(400, 'Не передан обязательный параметр');
         }
         if ( ! $this->canEditUser($questionary->userid) )
         {
-            throw new CHttpException(403, 'Нет доступа');
+            throw new CHttpException(403, Yii::t('coreMessages', 'access_denied'));
         }
         // получаем настройку, привязанную к модели, либо создаем ее из корневой настройки
         // (в случае если эта настройка для этой модели ни разу не редактировалась)
@@ -511,18 +478,41 @@ class QuestionaryController extends Controller
         {// настройка для этой анкеты еще не создана
             throw new CHttpException(500, 'Не удалось привязать новый экземпляр настройки к модели');
         }
-        
         // ищем элемент из стандартного списка в списке выбранных значений
         $selectedListId = $config->selectedList->id;
         $selectedItem   = EasyListItem::model()->withListId($selectedListId)->
             withParentId($item->id)->find();
         if ( $selectedItem )
         {// проект уже в списке - удаляем его
-            $selectedItem->delete();
+            $config->selectedList->removeItem($item);
         }else
         {// проект еще не добавлен в список - добавляем его
             $config->selectedList->addItem($item);
         }
+        Yii::app()->end();
+    }
+    
+    /**
+     * Отказаться от дальнейших оповещений по id проекта или по типу проекта
+     * 
+     * @return void
+     * 
+     * @todo если одновременно передан и тип и id проекта - то отключить оповещение для всех
+     *       проектов указанного типа кроме переданного (внести его в белый список)
+     */
+    public function actionDisableInvites()
+    {
+        $projectType   = Yii::app()->request->getPost('projectType');
+        $projectId     = Yii::app()->request->getPost('projectId', 0);
+        $questionaryId = Yii::app()->request->getPost('questionaryId', 0);
+        /* @var $questionary Questionary */
+        $questionary   = $this->loadModel($questionaryId);
+        /* @var $project Project */
+        $project       = $this->loadModel($projectId, 'Project');
+        /* @var $config Config */
+        $config        = $questionary->getEditableConfig('projectTypesBlackList');
+        
+        // TODO
     }
     
 	/**
@@ -531,8 +521,9 @@ class QuestionaryController extends Controller
 	 * 
 	 * @param  int $id - the ID of the model to be loaded
 	 * @return Questionary
+	 * @throws CHttpException
 	 */
-	public function loadModel($id)
+	/*public function loadModel($id)
 	{
 		$model = Questionary::model()->findByPk($id);
 		if ( $model === null )
@@ -540,7 +531,7 @@ class QuestionaryController extends Controller
 		    throw new CHttpException(404, 'Запрошенная анкета не существует. (id='.$id.')');
 		}
 		return $model;
-	}
+	}*/
 
 	/**
 	 * Performs the AJAX validation.
@@ -550,7 +541,7 @@ class QuestionaryController extends Controller
 	 */
 	protected function performAjaxValidation($model)
 	{
-		if ( isset($_POST['ajax']) && $_POST['ajax'] === 'questionary-form' )
+		if ( isset($_POST['ajax']) AND $_POST['ajax'] === 'questionary-form' )
 		{
 			$result = CActiveForm::validate($model);
 			if ( ! Yii::app()->user->checkAccess('Admin') )
@@ -560,6 +551,46 @@ class QuestionaryController extends Controller
 			echo $result;
 			Yii::app()->end();
 		}
+	}
+	
+	/// устаревшие методы ///
+	
+	/**
+	 * Получить список городов для AJAX-подсказки в анкете.
+	 *
+	 * @deprecated
+	 */
+	public function actionAjax()
+	{
+	    if( ! Yii::app()->request->isAjaxRequest OR ! Yii::app()->request->isPostRequest )
+	    {
+	        // Yii::app()->end();
+	    }
+	    // @todo заменить обращением к geoNames
+	    Yii::import('ext.CountryCitySelectorRu.*');
+	    $selector = new CountryCitySelectorRu();
+	    // request type ('city' ot 'region')
+	    $type       = Yii::app()->request->getParam('type');
+	    // counry or region
+	    $parentType = Yii::app()->request->getParam('parenttype');
+	    // record id or country code
+	    $parentId   = Yii::app()->request->getParam('parentid');
+	    // first letters
+	    $term       = Yii::app()->request->getParam('term');
+	
+	    switch ( $type )
+	    {
+	        case 'city':
+	            $records = $selector->getCities($parentType, $parentId, $term);
+	            $result  = $selector->getAutocompleteOptions($records);
+            break;
+	        case 'region':
+	            $records = $selector->getRegions($parentId);
+	            $result  = $selector->getDropDownOptions($records);
+            break;
+	    }
+	    echo json_encode($result);
+	    Yii::app()->end();
 	}
 	
 	/**
@@ -604,8 +635,8 @@ class QuestionaryController extends Controller
 	/**
 	 * Вывести кнопку для заказчика: пригласить или отозвать приглашение участника
 	 * 
-	 * @param int $id - id анкеты участника
-	 * @param string $type
+	 * @param  int    $id - id анкеты участника
+	 * @param  string $type
 	 * @return string
 	 * 
 	 * @deprecated вынести в виджет

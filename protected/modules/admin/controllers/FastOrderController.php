@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * 
+ */
 class FastOrderController extends Controller
 {
 	/**
@@ -7,6 +10,10 @@ class FastOrderController extends Controller
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
 	 */
 	public $layout='//layouts/column2';
+	/**
+	 * @var string - класс модели, по умолчанию используемый для метода $this->loadModel()
+	 */
+	protected $defaultModelClass = 'FastOrder';
 
 	/**
 	 * @return array action filters
@@ -166,15 +173,16 @@ class FastOrderController extends Controller
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.
+	 * 
 	 * @param integer the ID of the model to be loaded
 	 */
-	public function loadModel($id)
+	/*public function loadModel($id)
 	{
 		$model=FastOrder::model()->findByPk($id);
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;
-	}
+	}*/
 
 	/**
 	 * Performs the AJAX validation.

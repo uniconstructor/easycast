@@ -194,7 +194,7 @@ class QFieldInstanceController extends Controller
      * @param integer the ID of the model to be loaded
      * @return ExtraFieldInstance
      */
-    public function loadModel($id)
+    public function loadModel($id, $modelClass='')
     {
         $modelClass = $this->modelClass;
         $model = $modelClass::model($modelClass)->findByPk($id);

@@ -10,6 +10,10 @@ class EventVacancyController extends Controller
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
 	 */
 	public $layout = '//layouts/column2';
+	/**
+	 * @var string - класс модели, по умолчанию используемый для метода $this->loadModel()
+	 */
+	protected $defaultModelClass = 'EventVacancy';
 	
 	/**
 	 * @see CController::actions()
@@ -505,11 +509,11 @@ class EventVacancyController extends Controller
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.
+	 *
 	 * @param integer the ID of the model to be loaded
-	 * 
 	 * @return EventVacancy
 	 */
-	public function loadModel($id)
+	/*public function loadModel($id)
 	{
 		$model = EventVacancy::model()->findByPk($id);
 		if ( $model === null )
@@ -517,7 +521,7 @@ class EventVacancyController extends Controller
 		    throw new CHttpException(404, 'Vacancy not found (id='.$id.')');
 		}
 		return $model;
-	}
+	}*/
 
 	/**
 	 * Performs the AJAX validation.

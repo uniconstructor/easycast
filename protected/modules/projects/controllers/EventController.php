@@ -9,6 +9,11 @@
 class EventController extends Controller
 {
     /**
+     * @var string - класс модели, по умолчанию используемый для метода $this->loadModel()
+     */
+    protected $defaultModelClass = 'ProjectEvent';
+    
+    /**
      * @deprecated
      * @todo перемещено в VacancyController, удалить при рефакторинге 
      * @todo удаление не потребуется если здесь можно сделать редирект (проверить)
@@ -95,10 +100,11 @@ class EventController extends Controller
     /**
      * Returns the data model based on the primary key given in the GET variable.
      * If the data model is not found, an HTTP exception will be raised.
+     * 
      * @param integer the ID of the model to be loaded
      * @return ProjectEvent
      */
-    public function loadModel($id)
+    /*public function loadModel($id)
     {
         $model = ProjectEvent::model()->findByPk($id);
         if ( $model === null )
@@ -106,5 +112,5 @@ class EventController extends Controller
             throw new CHttpException(404, 'Мероприятие не найдено id='.$id);
         }
         return $model;
-    }
+    }*/
 }

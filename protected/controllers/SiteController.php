@@ -311,7 +311,10 @@ class SiteController extends Controller
     
     /**
      * Действие для загрузки больших файлов 
+     * 
      * @return void
+     * 
+     * @todo переработать и снова включить
      */
     public function actionUpload()
     {
@@ -337,6 +340,8 @@ class SiteController extends Controller
     /**
      * 
      * @return void
+     * 
+     * @deprecated
      */
     protected function getUploadPath()
     {
@@ -346,6 +351,8 @@ class SiteController extends Controller
     /**
      * 
      * @return void
+     * 
+     * @deprecated 
      */
     protected function getInputFileIndex()
     {

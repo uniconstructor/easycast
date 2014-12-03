@@ -11,6 +11,11 @@
 class InviteController extends Controller
 {
     /**
+     * @var string - класс модели, по умолчанию используемый для метода $this->loadModel()
+     */
+    protected $defaultModelClass = 'EventInvite';
+    
+    /**
      * @see CController::init()
      */
     public function init()
@@ -323,7 +328,7 @@ class InviteController extends Controller
      * @return EventInvite
      * @throws CHttpException
      */
-    protected function loadModel($id)
+    /*protected function loadModel($id)
     {
         $model = EventInvite::model()->findByPk($id);
         if ( $model === null )
@@ -331,7 +336,7 @@ class InviteController extends Controller
             throw new CHttpException(404, 'Приглашение не найдено');
         }
         return $model;
-    }
+    }*/
     
     /**
      * Получить модель приглашения заказчика или сообщить о том что приглашение не найдено

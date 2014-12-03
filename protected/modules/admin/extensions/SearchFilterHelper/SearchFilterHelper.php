@@ -27,14 +27,15 @@ class SearchFilterHelper extends CWidget
     /**
      * @var string - адрес по которому происходит запрос проверки условий
      */
-    public $checkUrl = '/admin/questionary/forceCheck';
+    public $checkUrl         = '/admin/questionary/forceCheck';
     /**
      * @var string - адрес по которому происходит приглашение участника вручную 
-     *               (без учета критериев поиска)
+     *               (заданные для роли критерии поиска игнорируются)
      */
-    public $forceInviteUrl = '/admin/questionary/forceInvite';
+    public $forceInviteUrl   = '/admin/questionary/forceInvite';
     /**
      * @var string - адрес по которому происходит подача заявки от имени участника
+     *               (заданные для роли критерии поиска игнорируются)
      */
     public $forceSubscribeUrl = '/admin/questionary/forceSubscribe';
     
@@ -72,18 +73,14 @@ class SearchFilterHelper extends CWidget
     
     /**
      * 
-     * @param unknown $type
+     * @param  string $type
      * @return string
      */
     protected function getAjaxButton($type)
     {
         $beforeSendJs  = "$('#{$this->getButtonId($type)}').prop('disabled', true); ";
-        //$beforeSendJs .= "$('#{$this->getButtonId($type)}').addClass('btn-danger');";
-        
         $successJs     = "$('#{$this->getResultId($type)}').html(data);";
-        
         $completeJs    = "$('#{$this->getButtonId($type)}').prop('disabled', false); ";
-        //$completeJs   .= "$('#{$this->getButtonId($type)}').removeClass('btn-danger');";
         
         switch ( $type )
         {
@@ -117,19 +114,19 @@ class SearchFilterHelper extends CWidget
                     'id'      => $this->getButtonId($type),
                     'class'   => 'btn btn-success',
                     'confirm' => 'Подать заявку от имени этого участника? Заявка от этого участника
-                    будет принята даже если он не подходит по критериям роли. Если в анкете участника
-                    недостаточно данных для подачи заявки - заявка все равно будет создана, но участнику
-                    придет письмо с просьбой дополнить данные.',
+                        будет принята даже если он не подходит по критериям роли. Если в анкете участника
+                        недостаточно данных для подачи заявки - заявка все равно будет создана, но участнику
+                        придет письмо с просьбой дополнить данные.',
                 );
             break;
             default: throw new CException('Не передан тип кнопки');
         }
-        
+        // выводим виджет кнопки
         $this->widget('bootstrap.widgets.TbButton', array(
-            'buttonType' => 'ajaxSubmit',
-            'size'       => 'large',
-            'label'      => $label,
-            'url'        => $url,
+            'buttonType'  => 'ajaxSubmit',
+            'size'        => 'large',
+            'label'       => $label,
+            'url'         => $url,
             'ajaxOptions' => array(
                 'method'     => 'post',
                  // выключить кнопку когда запрос начался (чтобы пользователи видели что процесс пошел)
@@ -144,6 +141,7 @@ class SearchFilterHelper extends CWidget
             'htmlOptions' => $buttonOptions,
         ));
     }
+    
     /**
      * 
      * 
@@ -155,7 +153,6 @@ class SearchFilterHelper extends CWidget
         {
             return '';
         }
-        
         $this->widget('admin.extensions.SearchFilterCompare.SearchFilterCompare', array(
             'questionary' => $this->questionary,
             'vacancy'     => $this->vacancy,
@@ -181,6 +178,7 @@ class SearchFilterHelper extends CWidget
             ), true);
         }
     }
+    
     /**
      * 
      * @return string
@@ -189,6 +187,7 @@ class SearchFilterHelper extends CWidget
     {
         return 'search-helper-form-'.$this->id;
     }
+    
     /**
      * 
      * @return string
@@ -197,6 +196,7 @@ class SearchFilterHelper extends CWidget
     {
         return $type.'-search-helper-result-'.$this->id;
     }
+    
     /**
      * 
      * @return string

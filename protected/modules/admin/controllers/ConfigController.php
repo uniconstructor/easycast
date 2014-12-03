@@ -10,6 +10,10 @@ class ConfigController extends Controller
      *      using two-column layout. See 'protected/views/layouts/column2.php'.
      */
     public $layout = '//layouts/column1';
+    /**
+     * @var string - класс модели, по умолчанию используемый для метода $this->loadModel()
+     */
+    protected $defaultModelClass = 'Config';
     
     /**
      * @see CController::actions()
@@ -100,7 +104,7 @@ class ConfigController extends Controller
      * 
      * @param integer the ID of the model to be loaded
      */
-    public function loadModel($id)
+    /*public function loadModel($id)
     {
         $model = Config::model()->findByPk($id);
         if ( $model === null )
@@ -108,7 +112,7 @@ class ConfigController extends Controller
             throw new CHttpException(404,'The requested page does not exist.');
         }
         return $model;
-    }
+    }*/
 
     /**
      * Performs the AJAX validation.

@@ -10,10 +10,13 @@ class NewsController extends Controller
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
 	 */
-	public $layout='//layouts/column2';
+	public $layout = '//layouts/column2';
+	/**
+	 * @var string - класс модели, по умолчанию используемый для метода $this->loadModel()
+	 */
+	protected $defaultModelClass = 'News';
 
 	/**
-	 * (non-PHPdoc)
 	 * @see CController::init()
 	 */
 	public function init()
@@ -170,13 +173,13 @@ class NewsController extends Controller
 	 * If the data model is not found, an HTTP exception will be raised.
 	 * @param integer the ID of the model to be loaded
 	 */
-	public function loadModel($id)
+	/*public function loadModel($id)
 	{
 		$model=News::model()->findByPk($id);
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;
-	}
+	}*/
 
 	/**
 	 * Performs the AJAX validation.

@@ -15,6 +15,10 @@ class ProjectEventController extends Controller
 	 * @var string
 	 */
 	public $defaultAction = 'create';
+	/**
+	 * @var string - класс модели, по умолчанию используемый для метода $this->loadModel()
+	 */
+	protected $defaultModelClass = 'ProjectEvent';
 
 	/**
 	 * @see CController::init()
@@ -278,7 +282,7 @@ class ProjectEventController extends Controller
 	 * @param integer the ID of the model to be loaded
 	 * @return ProjectEvent 
 	 */
-	public function loadModel($id)
+	/*public function loadModel($id)
 	{
 		$model = ProjectEvent::model()->findByPk($id);
 		if ( $model === null )
@@ -286,7 +290,7 @@ class ProjectEventController extends Controller
 		    throw new CHttpException(404, Yii::t('coreMessages', 'the_requested_page_does_not_exist'));
 		}
 		return $model;
-	}
+	}*/
 
 	/**
 	 * Performs the AJAX validation.

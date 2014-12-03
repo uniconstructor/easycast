@@ -8,6 +8,11 @@
 class VacancyController extends Controller
 {
     /**
+     * @var string - класс модели, по умолчанию используемый для метода $this->loadModel()
+     */
+    protected $defaultModelClass = 'EventVacancy';
+    
+    /**
      * Подать заявку на участие в мероприятии (указав определенную вакансию)
      * Подача заявки происхочить через AJAX-запрос, методом POST
      *
@@ -408,7 +413,7 @@ class VacancyController extends Controller
      * @param integer the ID of the model to be loaded
      * @return EventVacancy
      */
-    public function loadModel($id)
+    /*public function loadModel($id)
     {
         $model = EventVacancy::model()->findByPk($id);
         if ( $model === null )
@@ -416,7 +421,7 @@ class VacancyController extends Controller
             throw new CHttpException(404, 'Роль не найдена id='.$id);
         }
         return $model;
-    }
+    }*/
     
     /**
      * Performs the AJAX validation.

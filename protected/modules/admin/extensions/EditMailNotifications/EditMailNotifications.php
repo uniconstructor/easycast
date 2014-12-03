@@ -107,7 +107,7 @@ class EditMailNotifications extends CWidget
      */
     protected function isDefault($item)
     {
-        return $this->config->isDefaultOption($item);
+        //return $this->config->hasDefaultOption($item);
     }
     
     /**

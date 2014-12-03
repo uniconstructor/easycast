@@ -2,7 +2,8 @@
 
 /**
  * Контроллер для работы с фотогалереями
- * @todo с подключением модуля galleryManager стал не нужен - удалить при рефакторинге
+ * 
+ * @deprecated с подключением модуля galleryManager стал не нужен - удалить при рефакторинге
  */
 class PhotoGalleryController extends Controller
 {
@@ -11,9 +12,12 @@ class PhotoGalleryController extends Controller
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
 	 */
 	public $layout='//layouts/column2';
+	/**
+	 * @var string - класс модели, по умолчанию используемый для метода $this->loadModel()
+	 */
+	protected $defaultModelClass = 'PhotoGallery';
 	
 	/**
-	 * (non-PHPdoc)
 	 * @see CController::init()
 	 */
 	public function init()
@@ -170,13 +174,13 @@ class PhotoGalleryController extends Controller
 	 * If the data model is not found, an HTTP exception will be raised.
 	 * @param integer the ID of the model to be loaded
 	 */
-	public function loadModel($id)
+	/*public function loadModel($id)
 	{
 		$model=PhotoGallery::model()->findByPk($id);
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;
-	}
+	}*/
 
 	/**
 	 * Performs the AJAX validation.

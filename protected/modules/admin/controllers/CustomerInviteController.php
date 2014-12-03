@@ -10,6 +10,10 @@ class CustomerInviteController extends Controller
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
 	 */
 	public $layout = '//layouts/column1';
+	/**
+	 * @var string - класс модели, по умолчанию используемый для метода $this->loadModel()
+	 */
+	protected $defaultModelClass = 'CustomerInvite';
 	
 	/**
 	 * @see CController::init()
@@ -199,9 +203,10 @@ class CustomerInviteController extends Controller
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.
+	 * 
 	 * @param integer the ID of the model to be loaded
 	 */
-	public function loadModel($id)
+	/*public function loadModel($id)
 	{
 		$model = CustomerInvite::model()->findByPk($id);
 		if ( $model === null )
@@ -209,7 +214,7 @@ class CustomerInviteController extends Controller
 		    throw new CHttpException(404, 'Приглашение не найдено');
 		}
 		return $model;
-	}
+	}*/
 
 	/**
 	 * Performs the AJAX validation.

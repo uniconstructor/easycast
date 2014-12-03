@@ -11,6 +11,11 @@
 class TopModelController extends Controller
 {
     /**
+     * @var string - класс модели, по умолчанию используемый для метода $this->loadModel()
+     */
+    protected $defaultModelClass = 'EventVacancy';
+    
+    /**
      * @see CController::init()
      */
     public function init()
@@ -116,8 +121,10 @@ class TopModelController extends Controller
      * 
      * @param integer the ID of the model to be loaded
      * @return EventVacancy
+     * 
+     * @deprecated удалить при рефакторинге
      */
-    public function loadModel($id)
+    /*public function loadModel($id)
     {
         $model = EventVacancy::model()->findByPk($id);
         if ( $model === null )
@@ -125,7 +132,7 @@ class TopModelController extends Controller
             throw new CHttpException(404, 'Роль не найдена id=' . $id);
         }
         return $model;
-    }
+    }*/
     
     /**
      * Performs the AJAX validation.

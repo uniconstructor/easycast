@@ -2,6 +2,7 @@
 
 /**
  * Контроллер для заказа рассчета стоимости
+ * 
  * @todo перенести в главный контроллер сайта после того как станет ясно как настроить rewriteRule
  *       таким образом, чтобы обращение по короткому адресу easycast.ru/calculation
  *       приводило к выполнению действия SiteController 
@@ -98,7 +99,7 @@ class CalculationController extends Controller
      */
     protected function performAjaxValidation($model)
     {
-        if ( isset($_POST['ajax']) && $_POST['ajax'] === 'calculation-form' )
+        if ( isset($_POST['ajax']) AND $_POST['ajax'] === 'calculation-form' )
         {
             echo CActiveForm::validate($model);
             Yii::app()->end();

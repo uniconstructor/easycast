@@ -13,6 +13,10 @@ class CatalogSectionController extends Controller
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
 	 */
 	public $layout = '//layouts/column2';
+	/**
+	 * @var string - класс модели, по умолчанию используемый для метода $this->loadModel()
+	 */
+	protected $defaultModelClass = 'CatalogSection';
 	
 	/**
 	 * @see CController::init()
@@ -243,7 +247,7 @@ class CatalogSectionController extends Controller
 	 * @param integer the ID of the model to be loaded
 	 * @return CatalogSection
 	 */
-	public function loadModel($id)
+	/*public function loadModel($id)
 	{
 		$model = CatalogSection::model()->findByPk($id);
 		if( $model === null )
@@ -251,7 +255,7 @@ class CatalogSectionController extends Controller
 		    throw new CHttpException(404, 'The requested page does not exist.');
 		}
 		return $model;
-	}
+	}*/
 
 	/**
 	 * Performs the AJAX validation.

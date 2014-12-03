@@ -137,8 +137,8 @@ class CatalogController extends Controller
 	    // режим поиска (по фильтрам в разделе или по всей базе)
 	    $mode     = Yii::app()->request->getParam('mode', 'filter');
 	    $objectId = Yii::app()->request->getParam('searchObjectId', 1);
+	    $section  = CatalogSection::model()->findByPk($objectId);
 	    
-	    $section = CatalogSection::model()->findByPk($objectId);
 	    if ( ! $section AND $objectId > 0 )
 	    {// попытка поискать в несуществующем разделе
 	        throw new CException('Section not found');
@@ -147,7 +147,6 @@ class CatalogController extends Controller
 	        // поиск по всей базе принудительно
 	        $section = CatalogSection::model()->findByPk(1);
 	    }
-	    
 	    if ( $formData = Yii::app()->request->getPost('data') )
 	    {// переданы данные для поиска - делаем из них нормальный массив
 	        $data = CJSON::decode($formData);
@@ -159,7 +158,6 @@ class CatalogController extends Controller
 	    {// при первой загрузке страницы попробуем получить данные поиска из сессии
 	        $data = CatalogModule::getSessionSearchData('filter', $objectId);
 	    }
-	    
 	    // в ответ на AJAX=запрос выводим виджет с результатами поиска
 	    $this->widget('catalog.extensions.search.QSearchResults.QSearchResults', array(
 	        'mode'         => $mode,

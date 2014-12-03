@@ -10,6 +10,10 @@ class QuestionaryController extends Controller
      * @var string
      */
     public $layout = '//layouts/column2';
+    /**
+     * @var string - класс модели, по умолчанию используемый для метода $this->loadModel()
+     */
+    protected $defaultModelClass = 'Questionary';
     
     /**
      * @see CController::init()

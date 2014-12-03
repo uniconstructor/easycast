@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * 
+ */
 class DefaultController extends Controller
 {
 	/**
@@ -24,5 +27,4 @@ class DefaultController extends Controller
 			'dataProvider'=>$dataProvider,
 		));
 	}
-
 }
