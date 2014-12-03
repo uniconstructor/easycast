@@ -4,11 +4,12 @@
  * Виджет AJAX-редактирование настройки анкеты
  * 
  * @todo проверки при инициализации
+ * @todo языковые строки
  */
 class QUserConfig extends CWidget
 {
     /**
-     * @var Questionary - 
+     * @var Questionary - анкета для которой редактируется значения настройки
      */
     public $questionary;
     /**
@@ -16,11 +17,11 @@ class QUserConfig extends CWidget
      */
     public $configName;
     /**
-     * @var string - 
+     * @var string - url по которому происходит изменение значения настройки
      */
     public $ajaxUrl   = '/questionary/questionary/toggleProjectTypeNotification';
     /**
-     * @var string -
+     * @var string - название события по которому происходит обновление значения настройки
      */
     public $eventName = 'toggleItem';
     
@@ -52,7 +53,7 @@ class QUserConfig extends CWidget
         }
         if ( ! $this->configName )
         {
-            throw new CException('Не передано название настройки');
+            throw new CException('Не передано название настройки для отображения виджета');
         }
         if ( ! $this->config = $this->questionary->getConfigObject($this->configName) )
         {
@@ -102,14 +103,10 @@ class QUserConfig extends CWidget
      */
     protected function getItemForm($item)
     {
-        $buttonValue    = 1;
         $selectedListId = $this->config->selectedList->id;
-        $selectedItem   = EasyListItem::model()->withListId($selectedListId)->
-            withParentId($item->id)->find();
-        if ( $selectedItem )
-        {
-            $buttonValue = 0;
-        }
+        $selected       = ! EasyListItem::model()->withListId($selectedListId)->
+            withParentId($item->id)->exists();
+        // AJAX-кнопка смены состояния одного оповещения
         $toggleButton = $this->widget('bootstrap.widgets.TbToggleButton', array(
             'name'          => 'pnType_'.$item->value,
             'onChange'      => 'js:function($el, status, e){'.$this->createToggleActionJs($item).'}',
@@ -118,24 +115,67 @@ class QUserConfig extends CWidget
             'enabledStyle'  => 'primary',
             'disabledStyle' => 'default',
             'width'         => 250,
-            'value'         => $buttonValue,
+            'value'         => (int)$selected,
         ), true);
+        // форма одного элемента, две колонки: слева переключатель, справа иконки проектов
         return array(
             'type'        => 'form',
-            //'model'       => $item,
             'title'       => $item->title,
             'description' => $item->description,
             'elements' => array(
                 '<div class="row-fluid">',
-                //'<div class="span6">',
+                '<div class="span6">',
                 $toggleButton,
-                //'</div>',
-                //'<div class="span6">',
-                //'---------',
-                //'</div>',
+                '</div>',
+                '<div class="span6 text-right">',
+                $this->getExampleProjects($item, $selected),
+                '</div>',
                 '</div>',
             ),
         );
+    }
+    
+    /**
+     * Получить примеры проектов указанного типа
+     * 
+     * @param  EasyListItem $item
+     * @param  bool         $selected - включено ли оповещение для этого типа проектов
+     * @return string
+     */
+    protected function getExampleProjects($item, $selected)
+    {
+        $result   = '';
+        $class    = $item->value;
+        $projects = Project::model()->withTypeId($item->id)->visible()->
+            bestRated()->findAll(array('limit' => 3));
+        if ( ! $projects )
+        {
+            return $result;
+        }
+        if ( ! $selected )
+        {
+            $class .= ' grayscale';
+        }
+        foreach ( $projects as $project )
+        {
+            $imageUrl   = $project->getAvatarUrl('small');
+            $projectUrl = Yii::app()->createUrl('/projects/projects/view', array(
+                'id' => $project->id,
+            ));
+            $title = '<b>'.$project->name.'</b>: <br>'.strip_tags($project->shortdescription, '<br>');
+            $image = CHtml::image($imageUrl, $project->name, array(
+                'style'       => "height:100px;width:100px;",
+                'class'       => $class,
+                'title'       => $title,
+                'data-toggle' => 'tooltip',
+                'data-html'   => true,
+            ));
+            $logo  = CHtml::link($image, $projectUrl, array(
+                'target' => '_blank',
+            ));
+            $result .= $logo.'&nbsp;';
+        }
+        return '<div><b>Пример:</b></div>'.$result;
     }
     
     /**
@@ -147,10 +187,18 @@ class QUserConfig extends CWidget
     protected function createToggleActionJs($item)
     {
         // settings - настройки AJAX-запроса перед отправкой
-        $beforeSendJs = "function(jqXHR, settings){ console.log('beforeSend'); }";
+        $beforeSendJs = "function(jqXHR, settings){
+            console.log('beforeSend');
+        }";
         // data - пришедший в запрос html
-        $successJs    = "function(data, status){ console.log('success');console.log(data); }";
-        $completeJs   = "function(data, status){ console.log('complete');console.log(data); }";
+        $successJs    = "function(data, status){
+            console.log('success');
+        }";
+        $completeJs   = "function(data, status){
+            $('.{$item->value}').toggleClass('grayscale');
+            $.jGrowl('Настройка сохранена');
+            console.log('complete');
+        }";
         // данные запроса
         $data = array(
             'configName' => $this->configName,
