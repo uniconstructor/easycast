@@ -81,6 +81,9 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR .
     $formPartItems[] = array(
         'itemSelector'  => '#conditions_part',
     );
+    $formPartItems[] = array(
+        'itemSelector'  => '#config_part',
+    );
     
     // создаем по 1 виджету, на каждый сворачивающийся раздел формы
     foreach ( $formPartItems as $formPartItem )
@@ -204,11 +207,11 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR .
         );
         ?>
         
-        <?php echo $form->dropDownListRow($questionary, 'gender', $questionary->getFieldVariants('gender')); ?>
-        <?php echo $form->textFieldRow($questionary, 'height', array('size' => 3, 'maxlength' => 6)); ?>
-        <?php echo $form->textFieldRow($questionary,'weight', array('size' => 3, 'maxlength' => 6)); ?>
-        <?php echo $form->dropDownListRow($questionary, 'wearsize', $questionary->getFieldVariants('wearsize')); ?>
-        <?php echo $form->dropDownListRow($questionary, 'shoessize', $questionary->getFieldVariants('shoessize')); ?>
+        <?= $form->dropDownListRow($questionary, 'gender', $questionary->getFieldVariants('gender')); ?>
+        <?= $form->textFieldRow($questionary, 'height', array('size' => 3, 'maxlength' => 6)); ?>
+        <?= $form->textFieldRow($questionary,'weight', array('size' => 3, 'maxlength' => 6)); ?>
+        <?= $form->dropDownListRow($questionary, 'wearsize', $questionary->getFieldVariants('wearsize')); ?>
+        <?= $form->dropDownListRow($questionary, 'shoessize', $questionary->getFieldVariants('shoessize')); ?>
         
         <?php 
         // город проживания
@@ -999,102 +1002,85 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR .
 
     <fieldset id="conditions_part">
         <legend id="conditions_part_label">
-            <a class="btn btn-large btn-warning"><i class="icon-chevron-down"></i>&nbsp;<?php echo QuestionaryModule::t('recording_conditions_label'); ?></a>
+            <a class="btn btn-large btn-warning">
+                <i class="icon-chevron-down"></i>&nbsp;<?= QuestionaryModule::t('recording_conditions_label'); ?>
+            </a>
         </legend>
-            <?php  
-		    // Ночные съемки (да/нет)
-            $this->widget('ext.EToggleBox.EToggleBox', array(
-                'model'     => $recordingConditions,
-                'attribute' => 'isnightrecording',
-                'options'   => $toggleBoxJsOptions));
-            // Ночные съемки (пояснение)
-            $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                array('field' => 'isnightrecording'));
-            ?>
+        <?php  
+	    // Ночные съемки (да/нет)
+        $this->widget('ext.EToggleBox.EToggleBox', array(
+            'model'     => $recordingConditions,
+            'attribute' => 'isnightrecording',
+            'options'   => $toggleBoxJsOptions));
+        // Ночные съемки (пояснение)
+        $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+            array('field' => 'isnightrecording'));
         
-            <?php  
-            // Съемка топлесс
-            // @todo выводить только для женщин и только с возрастом больше 18
-            $this->widget('ext.EToggleBox.EToggleBox', array(
-                'model'     => $recordingConditions,
-                'attribute' => 'istoplessrecording',
-                'options'   => $toggleBoxJsOptions));
-            // Съемка топлесс (пояснение)
-            $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                array('field' => 'istoplessrecording')
-            );
-            ?>
-        
-            <?php
-            // Благотворительные акции
-            $this->widget('ext.EToggleBox.EToggleBox', array(
-                'model'     => $recordingConditions,
-                'attribute' => 'isfreerecording',
-                'options'   => $toggleBoxJsOptions));
-            // Благотворительные акции (пояснение)
-            $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
-                array('field' => 'isfreerecording')
-            );
-            ?>
-        
-            <?php
-            // Согласны ли вы ездить в коммандировки
-            $this->widget('ext.EToggleBox.EToggleBox', array(
-                'model'     => $recordingConditions,
-                'attribute' => 'wantsbusinesstrips',
-                'options'   => $toggleBoxJsOptions));
-            ?>
+        // Съемка топлесс
+        // @todo выводить только для женщин и только с возрастом больше 18
+        $this->widget('ext.EToggleBox.EToggleBox', array(
+            'model'     => $recordingConditions,
+            'attribute' => 'istoplessrecording',
+            'options'   => $toggleBoxJsOptions));
+        // Съемка топлесс (пояснение)
+        $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+            array('field' => 'istoplessrecording')
+        );
 
-            <?php 
-            // Имеется ли загранпаспорт
-            $this->widget('ext.EToggleBox.EToggleBox', array(
-                'model'     => $recordingConditions,
-                'attribute' => 'hasforeignpassport',
-                'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
-                      'after_on'  => 'js:function () {$("#passportexpires").fadeIn(200);}',
-                      'after_off' => 'js:function () {$("#passportexpires").fadeOut(200);}'))
-               ));
-            ?>
-    
-        <div>
-            <div id="passportexpires">
-                <?php 
-                /*echo $form->labelEx($recordingConditions, 'passportexpires');
-                // Срок истечения загранпаспорта
-                $this->widget('ext.ActiveDateSelect',
-                    array(
-                         'model'     => $recordingConditions,
-                         'attribute' => 'passportexpires',
-                         'reverse_years' => false,
-                         'field_order'   => 'DMY',
-                         'start_year' => date("Y", time()),
-                         'end_year'   => date("Y", time()+20*365*24*3600),
-                    )
-                );
-                echo $form->error($recordingConditions,'passportexpires');*/
-                ?>
-            </div>
-        </div>
+        // Благотворительные акции
+        $this->widget('ext.EToggleBox.EToggleBox', array(
+            'model'     => $recordingConditions,
+            'attribute' => 'isfreerecording',
+            'options'   => $toggleBoxJsOptions));
+        // Благотворительные акции (пояснение)
+        $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', 
+            array('field' => 'isfreerecording')
+        );
         
-        <?php 
+        // Согласны ли вы ездить в коммандировки
+        $this->widget('ext.EToggleBox.EToggleBox', array(
+            'model'     => $recordingConditions,
+            'attribute' => 'wantsbusinesstrips',
+            'options'   => $toggleBoxJsOptions));
+        
+        // Имеется ли загранпаспорт
+        $this->widget('ext.EToggleBox.EToggleBox', array(
+            'model'     => $recordingConditions,
+            'attribute' => 'hasforeignpassport',
+            'options'   => CMap::mergeArray($toggleBoxJsOptions, array(
+                  /*'after_on'  => 'js:function () {$("#passportexpires").fadeIn(200);}',
+                  'after_off' => 'js:function () {$("#passportexpires").fadeOut(200);}'*/))
+           ));
+        // @todo Срок истечения загранпаспорта
+        
         // размер оплаты для участия в съемках 
-        echo $form->textFieldRow($recordingConditions, 'salary', array('size'=>10, 'maxlength'=>10));
+        echo $form->textFieldRow($recordingConditions, 'salary', array('size' => 10, 'maxlength' => 10));
         // размер оплаты (пояснение)
         $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription',
             array('field' => 'salary'));
-        ?>
-        
-        <?php 
+
         // дополнительные условия для участия в съемках 
         echo $form->textAreaRow($recordingConditions, 'custom');
         ?>
         <hr>
     </fieldset>
-    
+     <fieldset id="config_part">
+        <legend id="config_part_label">
+            <a class="btn btn-large btn-warning">
+                <i class="icon-chevron-down"></i>&nbsp;<?= QuestionaryModule::t('userinfo_section_config'); ?>
+            </a>
+        </legend>
+        <?php 
+        // настройки оповещений участника (по типам проекта)
+        $this->widget('questionary.extensions.widgets.QUserConfig.QUserConfig', array(
+            'questionary' => $questionary,
+            'configName'  => 'projectTypesBlackList',
+        ));
+        ?>
+    </fieldset>    
     <?php 
     // Блок полей, доступных только администраторам
-    if ( Yii::app()->user->checkAccess('Admin') )
-    {
+    if ( Yii::app()->user->checkAccess('Admin') ):
         // Статус анкеты (только для админов)
         $allowedStatuses = $questionary->getAllowedStatuses();
         $dropDownStatuses = array();
@@ -1119,28 +1105,29 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR .
         // Выделяем его очень ярко, чтобы ни в коем случае не ошибиться
         ?>
         <div class="ec-round-the-corner" style="background-color:#aaa;padding:20px;">
-        <br><br>
-        <?php
-        echo $form->labelEx($questionary, 'privatecomment');
-        // Поле длинное, так что мы можем позволить себе RichText редактор
-        $this->widget('ext.imperavi-redactor-widget.ImperaviRedactorWidget', array(
-            'model' => $questionary,
-            'attribute' => 'privatecomment',
-            'options' => array(
-                'lang' => 'ru',
-            ),
-        ));
-        echo $form->error($questionary, 'privatecomment');
-        // Комментарий к анкете (пояснение)
-        $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', array(
-            'field' => 'privatecomment',
-            'type'  => 'info',
-        ));
-        ?>
-        <br><br>
+            <br><br>
+            <?php
+            echo $form->labelEx($questionary, 'privatecomment');
+            // Поле длинное, так что мы можем позволить себе RichText редактор
+            $this->widget('ext.imperavi-redactor-widget.ImperaviRedactorWidget', array(
+                'model' => $questionary,
+                'attribute' => 'privatecomment',
+                'options' => array(
+                    'lang' => 'ru',
+                ),
+            ));
+            echo $form->error($questionary, 'privatecomment');
+            // Комментарий к анкете (пояснение)
+            $this->widget('questionary.extensions.widgets.QFieldDescription.QFieldDescription', array(
+                'field' => 'privatecomment',
+                'type'  => 'info',
+            ));
+            ?>
+            <br><br>
         </div>
     <?php
-    }// конец блока полей, доступного только администроторам
+    // конец блока полей, доступного только администроторам
+    endif;
     ?>
     <div class="form-actions">
         <?php
@@ -1155,37 +1142,9 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR .
         ));
         ?>
 	</div>
-
 <?php $this->endWidget(); ?>
 </div><!-- form -->
-
-<!-- form action="/site/upload" class="dropzone" id="my-awesome-dropzone" method="post" enctype="multipart/form-data">
-    <input type="file" name="testfile" />
-    <input type="hidden" name="<?= Yii::app()->request->csrfTokenName ?>" value="<?= Yii::app()->request->csrfToken; ?>">
-</form>
-<script>
-Dropzone.options.myAwesomeDropzone = {
-        maxFileSize: 300,
-        paramName: "testfile",
-        uploadMultiple: false,
-}
-</script-->
 <?php
-if ( Yii::app()->user->checkAccess('Admin') )
-{// @todo загрузка файлов видео пока что только для админов
-    Yii::import("xupload.models.XUploadForm");
-    $xUploadForm = new XUploadForm;
-    
-    $this->widget('xupload.XUpload', array(
-        'url'             => Yii::app()->createUrl("//questionary/questionary/upload", array('objectId' => $questionary->id)),
-        'model'           => $xUploadForm,
-        'attribute'       => 'file',
-        'autoUpload'      => true,
-        'previewImages'   => false,
-        'imageProcessing' => false,
-        'multiple'        => false,
-    ));
-}
 // Выводим здесь все всплывающие modal-формы для сложных значений
 // Их оказалось нельзя выводить в середине формы анкеты потому что вложенные виджеты форм в Yii не допускаются
 // Сами формы генерируются по ходу отрисовки формы и запоминаются в клипы, а затем выводятся здесь

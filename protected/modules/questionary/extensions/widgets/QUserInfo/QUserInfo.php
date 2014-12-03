@@ -112,7 +112,7 @@ class QUserInfo extends CWidget
             'films',
             'projects',
             'awards', 
-            //'config', 
+            'config', 
         );
         
         if ( Yii::app()->user->checkAccess('Admin') OR $this->displayContacts )
