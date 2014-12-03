@@ -39,12 +39,12 @@
 class EventInvite extends CActiveRecord
 {
     /**
-     * @var string - статус приглашения: ждет ответа
+     * @var string - статус приглашения: ждет ответа участника
      *               Участник получил приглашение, но пока на него не ответил
      */
     const STATUS_PENDING    = 'pending';
     /**
-     * @var string - статус приглашения: принято
+     * @var string - статус приглашения: принято участником
      *               Участник получил приглашение, и принял согласился на участие в мероприятии
      *               Приглашение в таком статусе означает только сам факт согласия участвовать в съемках
      *               Пользователь может и не подать заявку на участие
@@ -75,6 +75,11 @@ class EventInvite extends CActiveRecord
      *               Этот статус используется редко
      */
     const STATUS_CANCELED   = 'canceled';
+    /**
+     * @var string - статус приглашения: удалено
+     *               Служебный статус для удаленных записей
+     */
+    const STATUS_DELETED   = 'deleted';
     
     /**
      * @see CActiveRecord::init()
@@ -144,7 +149,6 @@ class EventInvite extends CActiveRecord
 	        $this->status       = self::STATUS_PENDING;
 	        $this->subscribekey = sha1(microtime().Yii::app()->params['hashSalt']);
 	    }
-	    
 	    return parent::beforeSave();
 	}
 	
@@ -174,6 +178,7 @@ class EventInvite extends CActiveRecord
         $modelScopes = array(
 	        // истекшие приглашения: все приглашения привязанные к прошедшим событиям
 	        // (кроме приглашений на события без конкретной даты)
+	        // @todo использовать with
 	        'outdated' => array(
     	        'condition' => $this->getTableAlias(true).'.`event`.`timeend` < '.time().' AND '.
                                $this->getTableAlias(true).'.`event`.`nodates` = 0',
@@ -184,7 +189,8 @@ class EventInvite extends CActiveRecord
             ),
             // не удаленные
             'notDeleted' => array(
-    	        'condition' => $this->getTableAlias(true).'.`deleted` <> 0',
+    	        'condition' => $this->getTableAlias(true).'.`deleted` <> 0 AND '.
+                    $this->getTableAlias(true).".`status` <> '".self::STATUS_DELETED."'",
             ),
 	    );
         return CMap::mergeArray($timestampScopes, $modelScopes);
@@ -192,21 +198,18 @@ class EventInvite extends CActiveRecord
 	
 	/**
 	 * Именованая группа условий поиска: извлечь все записи с определенным статусом
-	 * @param array $statuses
+	 * 
+	 * @param  string|array $statuses
 	 * @return EventInvite
 	 */
 	public function withStatus($statuses)
 	{
-	    if ( ! is_array($statuses) )
-	    {// нужен только один статус, и он передан строкой - сделаем из нее массив
-	       $statuses = array($statuses);
-	    }
-	    if ( empty($statuses) )
+	    if ( ! $statuses )
 	    {// статус не указан - добавление условия не требуется
             return $this;
 	    }
 	    $criteria = new CDbCriteria();
-	    $criteria->addInCondition($this->getTableAlias(true).'.`status`', $statuses);
+	    $criteria->compare($this->getTableAlias(true).'.`status`', $statuses);
 	    
 	    $this->getDbCriteria()->mergeWith($criteria);
 	    
@@ -215,6 +218,7 @@ class EventInvite extends CActiveRecord
 	
 	/**
 	 * Именованая группа условий: все записи для участника или нескольких участников
+	 * 
 	 * @param int|array|Questionary $questionary
 	 * @return EventInvite
 	 */
@@ -233,18 +237,22 @@ class EventInvite extends CActiveRecord
 	}
 	
 	/**
-	 * Именованая группа условий: все записи для мероприятия
-	 * @param int|array|ProjectEvent $event
+	 * Именованая группа условий: все приглашения для мероприятия
+	 * 
+	 * @param  int|array|ProjectEvent $event
 	 * @return EventInvite
 	 */
 	public function forEvent($event)
 	{
 	    if ( $event instanceof ProjectEvent )
 	    {
-	        $event = $event->id;
+	        $eventId = $event->id;
+	    }else
+	    {
+	        $eventId = $event;
 	    }
 	    $criteria = new CDbCriteria();
-	    $criteria->compare($this->getTableAlias(true).'.`eventid`', $event);
+	    $criteria->compare($this->getTableAlias(true).'.`eventid`', $eventId);
 	    
 	    $this->getDbCriteria()->mergeWith($criteria);
 	     
@@ -252,9 +260,12 @@ class EventInvite extends CActiveRecord
 	}
 	
 	/**
+	 * @see CActiveRecord::rules()
+	 * 
 	 * @return array validation rules for model attributes.
 	 * 
 	 * @todo проверять что статус находится в списке допустимых
+	 * @todo проверки существования связанных записей
 	 */
 	public function rules()
 	{
@@ -267,6 +278,8 @@ class EventInvite extends CActiveRecord
 	}
 
 	/**
+	 * @see CActiveRecord::relations()
+	 * 
 	 * @return array relational rules.
 	 */
 	public function relations()
@@ -288,6 +301,8 @@ class EventInvite extends CActiveRecord
 	}
 
 	/**
+	 * @see CActiveRecord::attributeLabels()
+	 * 
 	 * @return array customized attribute labels (name=>label)
 	 */
 	public function attributeLabels()
@@ -305,7 +320,8 @@ class EventInvite extends CActiveRecord
 	
 	/**
 	 * Событие "создано новое приглашение"
-	 * @param CModelEvent $event
+	 * 
+	 * @param  CModelEvent $event
 	 * @return null
 	 */
 	public function onNewInvite($event)
@@ -315,7 +331,11 @@ class EventInvite extends CActiveRecord
 	
 	/**
 	 * Получить список статусов, в которые может перейти объект
+	 * 
 	 * @return array
+	 * 
+	 * @todo использовать simpleWorkflow
+	 * @todo дополнить статусом deleted
 	 */
 	public function getAllowedStatuses()
 	{
@@ -355,26 +375,29 @@ class EventInvite extends CActiveRecord
 	        case self::STATUS_CANCELED:
 	            return array();
 	    }
-	
 	    return array();
 	}
 	
     /**
 	 * Перевести объект из одного статуса в другой, выполнив все необходимые действия
-	 * @param string $newStatus
+	 * 
+	 * @param  string $newStatus
+	 * @param  bool   $saveNow - сразу же сохранить запись
 	 * @return bool
 	 * 
-	 * @todo вынести в behaviour
+	 * @todo использовать simpleWorkflow
 	 */
-	public function setStatus($newStatus)
+	public function setStatus($newStatus, $saveNow=true)
 	{
 	    if ( ! in_array($newStatus, $this->getAllowedStatuses()) )
 	    {
 	        return false;
 	    }
 	    $this->status = $newStatus;
-	    $this->save();
-	    
+	    if ( $saveNow )
+	    {
+	        return $this->save(true, array('status'));
+	    }
 	    return true;
 	}
 }
