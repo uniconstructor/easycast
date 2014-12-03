@@ -1,11 +1,12 @@
 <?php
 
 /**
- * Controller is the customized base controller class.
+ * Базовый класс для всех контроллеров приложения
  * All controller classes for this application should extend from this base class.
  * 
  * @todo убрать sideBar, header и subtitle если их использование будет 
  *       ограничиваться только темой оформления SmartAdmin 
+ * @todo языковые строки
  */
 class Controller extends RController
 {
@@ -25,6 +26,12 @@ class Controller extends RController
      * @var bool - включить/выключить инструменты и счетчики веб-аналитики на странице (Яндекс, Google)
      */
     public $analytics = true;
+    
+    /**
+     * @var string - класс модели, по умолчанию используемый для метода $this->loadModel()
+     *               должен быть переопределен при наследовании
+     */
+    protected $defaultModelClass;
      
     /**
      * @see CController::filters()
@@ -62,5 +69,44 @@ class Controller extends RController
             ),
         );
         return CMap::mergeArray($parentBehaviors, $behaviors);
+    }
+    
+    /**
+     * Найти модель по ее id: этот метод используется во всех действиях контроллеров перед  
+     * совершением любых операций с моделями  
+     * Если модель данных не найдена - метод выбросит http-исключение
+     *
+     * @param  int    $id         - id загружаемой модели
+     * @param  string $modelClass - имя класса модели: должно указывать на AR-класс 
+     *                              Необязательный параметр, если не указан - то будет 
+     *                              использован класс, заданный в $this-> 
+     * @return CActiveRecord  - запись с указанным id
+     * @throws CHttpException 
+     */
+    public function loadModel($id, $modelClass='')
+    {
+        if ( ! $modelClass )
+        {
+            if ( ! $modelClass = $this->defaultModelClass )
+            {// не указан класс загружаемой модели
+                throw new CHttpException(500, Yii::t('coreMessages', 'no_default_model_for_controller', array(
+                    '{сlassName}' => get_class($this),
+                )));
+            }
+        }
+        if ( ! is_subclass_of($modelClass, 'CActiveRecord') )
+        {// класс модели указан неправильно
+            throw new CHttpException(500, Yii::t('coreMessages', 'incorrect_default_model_for_controller', array(
+                '{сlassName}' => get_class($this),
+                '{modelName}' => $modelClass,
+            )));
+        }
+        // ищем в базе модель с таким id
+        $model = $modelClass::model()->findByPk($id);
+        if ( $model === null )
+        {
+            throw new CHttpException(404, 'Запрошенная модель не существует. (id='.$id.')');
+        }
+        return $model;
     }
 }
