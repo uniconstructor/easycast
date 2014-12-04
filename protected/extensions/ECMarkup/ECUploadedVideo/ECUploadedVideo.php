@@ -37,8 +37,8 @@ class ECUploadedVideo extends CWidget
         {// заказчику показываем только оцифрованные видео
             $this->videos = Video::model()->findAll($criteria);
         }else
-        {
-            // TODO
+        {// TODO
+            $this->videos = Video::model()->findAll($criteria);
         }
         $this->videos = Video::model()->findAll($criteria);
     }
