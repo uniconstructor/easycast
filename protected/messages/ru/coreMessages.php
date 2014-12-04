@@ -4,23 +4,28 @@ return array(
     /////////////////////////////
     // УНИВЕРСАЛЬНЫЕ СООБЩЕНИЯ //
     /////////////////////////////
-    //    '' => '',
     'yes' => 'Да',
     'no' => 'Нет',
     '1' => 'Да',
     '0' => 'Нет',
     'project_name' => 'easyCast',
-    
     'email' => 'Email',
     'password' => 'Пароль',
     'password_confirmation' => 'Пароль еще раз',
     'login' => 'Логин',
+    'log_in' => 'Войти',
     'name' => 'Имя',
+    'title' => 'Название',
+    'system_name' => 'Служебное название',
+    'description' => 'Описание',
+    'value' => 'Значение',
+    'content' => 'Содержимое',
     'type' => 'Тип',
     'level' => 'Уровень',
     'lastname' => 'Фамилия',
     'timecreated' => 'Дата создания',
     'timemodified' => 'Дата изменения',
+    'sortorder' => 'Порядок сортировки',
     'firstaccess' => 'Первый вход',
     'lastaccess' => 'Последний вход',
     'policyagreed' => 'Согласие с правилами сайта',
@@ -38,12 +43,10 @@ return array(
     'country' => 'Страна',
     'city' => 'Город',
     'emailstop' => 'Не получать сообщения с сайта на email',
-    'description' => 'Описание',
     'role' => 'Роль',
     'remember_me' => 'Запомнить меня',
     'email_or_login' => 'Email или логин',
     'incorrect_username_or_password' => 'Неправильный логин или пароль',
-    'log_in' => 'Войти',
     'capcha' => 'Введите код с картинки',
     'birthdate' => 'Дата рождения',
     'phone' => 'Телефон',
@@ -64,16 +67,32 @@ return array(
     'from' => 'от',
     'to' => 'до',
     'no_data' => 'Нет данных',
+    'empty' => 'Пусто',
     'cm' => 'см',
     'kg' => 'кг',
     'printer_friendly_version' => 'Версия для печати',
     'guest' => 'Гость',
     'customer' => 'Заказчик',
     'user' => 'Участник',
-    'title' => 'Название',
     'question' => 'Вопрос',
     'answer' => 'Ответ',
     
+    /////////////////////////////////////
+    // СООБЩЕНИЯ О РЕЗУЛЬТАТЕ ОПЕРАЦИИ //
+    /////////////////////////////////////
+    'ajax_error' => 'Ошибка при выполнении запроса.',
+    'ajax_error_try_again' => 'Произошла ошибка при выполнении запроса. Проверьте интернет-соединение и попробуйте еще раз.',
+    'required_parameter_missing' => 'Не передан обязательный параметр {paramName}',
+    'required_parameters_missing' => 'Не переданы обязательные параметры',
+    'no_default_model_for_controller' => 'В контроллере {сlassName} не настроен параметр defaultModelClass',
+    'incorrect_default_model_for_controller' => 'Класс [{modelName}] указанный в контроллере [{сlassName}] как загружаемая по умолчанию модель должен быть наследован от CActiveRecord или его потомков',
+    'access_denied' => 'Доступ запрещен',
+    'changes_saved' => 'Изменения сохранены',
+    'data_saved' => 'Данные сохранены',
+    'autosave_data' => 'Автоматическое сохранение',
+    'draft_saved' => 'Черновик сохранен',
+    'form_draft_saved' => 'Черновик формы сохранен',
+    'temporary_result_saved' => 'Промежуточный результат сохранен',
     // Формы
     'form_required_fields' => 'Поля, помеченные звездочкой {mark} - обязательные',
     'place_order' => 'Оформить заказ',
@@ -81,7 +100,6 @@ return array(
     ///////////////////////////
     // ЗАГОЛОВКИ И НАВИГАЦИЯ //
     ///////////////////////////
-    
     'about_us' => 'О проекте',
     'user_list' => 'Список пользователей',
     'mailer' => 'Рассылка сообщений',
@@ -119,7 +137,6 @@ return array(
     ///////////////////////////
     // ОПИСАНИЕ ПОЛЕЙ ТАБЛИЦ //
     ///////////////////////////
-    
     // Пользователь
     'db_user_name' => 'Имя',
     'db_user_lastname' => 'Фамилия',
@@ -128,7 +145,6 @@ return array(
     'db_user_picture' => 'Аватар',
     'db_user_description' => 'Описание',
     'db_user_lastip' => 'Последний использованный IP',
-    
     // заказ
     'db_fastorder_timecreated' => 'Отправлен на сайт',
     'db_fastorder_timemodified' => 'Помечен обработанным',
@@ -144,7 +160,6 @@ return array(
     'order_status_project'  => 'Создан проект',
     'order_status_rejected' => 'Отклонен',
     'order_status_finished' => 'Завершен',
-    
     // видео
     'db_video_name' => 'Название',
     'db_video_type' => 'Тип видео',
@@ -156,7 +171,6 @@ return array(
     ///////////////////
     // ПРАВА ДОСТУПА //
     ///////////////////
-    
     // Пользователи
     'rbac_add_user' => 'Создавать пользователя',
     'rbac_view_user' => 'Просматривать профиль пользователя',
