@@ -242,42 +242,6 @@ class Questionary extends CActiveRecord
     }
     
     /**
-     * Получить полный список всех полей, которые могут присутствовать в форме анкеты
-     * 
-     * @return array
-     * 
-     * @deprecated 
-     */
-    public static function getAllFields()
-    {
-        return array(
-            // поля анкеты
-            'firstname', 'lastname', 'middlename', 'birthdate', 'gender', 'height', 
-            'weight', 'shoessize', 'cityid', 'mobilephone', 'homephone', 
-            'addphone', 'vkprofile', 'looktype', 'haircolor', 'eyecolor', 'physiquetype', 
-            'isactor', 'hasfilms', 'isemcee', 'isparodist', 'istwin', 'ismodel', 'titsize', 
-            'chestsize', 'waistsize', 'hipsize', 'isdancer', 'hasawards', 'isstripper', 'striptype', 
-            'striplevel', 'issinger', 'singlevel', 'ismusician', 'issportsman', 'isextremal', 
-            'isathlete', 'hasskills', 'hastricks', 'haslanuages',
-            'status', 'isphotomodel', 'ispromomodel', 'rating', 
-            'fbprofile', 'okprofile', 'isamateuractor', 'istvshowmen', 
-            'isstatist', 'ismassactor', 'nativecountryid', 'playagemin', 
-            'playagemax', 'hairlength', 'istheatreactor', 'ismediaactor', 
-            'privatecomment', 'wearsize', 'currentcountryid',
-            // поля модели User
-            'email', 'policyagreed',
-            // условия съемки
-            'salary', 'wantsbusinesstrips', 'hasforeignpassport', 'passportexpires', 'isnightrecording', 
-            'istoplessrecording', 'isfreerecording', 'custom', 
-            // сложные значения
-            'addchars', 'actoruniversities', 'films', 'emceelist', 'parodistlist', 'twinlist', 'modelschools',
-            'modeljobs', 'photomodeljobs', 'promomodeljobs', 'dancetypes', 'awards', 'vocaltypes',
-            'voicetimbres', 'instruments', 'musicuniversities', 'sporttypes', 'extremaltypes',
-            'tricks', 'skills', 'languages', 'tvshows', 'theatres', 'video', 'photo',
-        );
-    }
-    
-    /**
      * @return string the associated database table name
      */
     public function tableName()
@@ -466,9 +430,12 @@ class Questionary extends CActiveRecord
                 'condition' => "`status`='pending' AND `deleted`=0",
             ),
             // Предстоящие съемки (время при выборке не учитываем, они сами завершатся когда нужно)
-            // @todo переписать с использованием именованых условий поиска
             'upcomingEventsCount' => array(self::STAT, 'ProjectMember', 'memberid',
-                'condition' => "`status`='active'",
+                'condition' => array(
+                    'scopes' => array(
+                        'withStatus' => array(ProjectMember::STATUS_ACTIVE),
+                    ),
+                ),
             ),
         );
     }
@@ -538,10 +505,10 @@ class Questionary extends CActiveRecord
     {
         if ( $this->isNewRecord )
         {
-            $this->status = 'draft';
+            $this->status = self::STATUS_DRAFT;
         }else
         {
-           if ( PHP_SAPI == 'cli' )
+           if ( PHP_SAPI === 'cli' )
            {// @todo это хак, позволяющий обойти ошибку, возникающую при попытке обновить модель
                // анкеты при запуске миграции из командной строки. Нужно переписать эти проверки так, чтобы
                // ими можно было управлять при помощи параметра needsValidation в save()
@@ -554,7 +521,7 @@ class Questionary extends CActiveRecord
            if ( $this->needsModerating() )
            {// если изменились какие-то ключевые поля, то сохраненная пользователем анкета 
                // сначала должна пройти проверку модератором
-               $this->status = 'pending';
+               $this->status = self::STATUS_PENDING;
            }
            // Удаляем комментарий администрации к анкете, если она уже была исправлена
            $this->deleteAdminComment();
@@ -1835,6 +1802,42 @@ class Questionary extends CActiveRecord
     }
     
     /**
+     * Получить полный список всех полей, которые могут присутствовать в форме анкеты
+     *
+     * @return array
+     *
+     * @deprecated не используется, удалить при рефакторинге использовать списки, 
+     */
+    public static function getAllFields()
+    {
+        return array(
+            // поля анкеты
+            'firstname', 'lastname', 'middlename', 'birthdate', 'gender', 'height',
+            'weight', 'shoessize', 'cityid', 'mobilephone', 'homephone',
+            'addphone', 'vkprofile', 'looktype', 'haircolor', 'eyecolor', 'physiquetype',
+            'isactor', 'hasfilms', 'isemcee', 'isparodist', 'istwin', 'ismodel', 'titsize',
+            'chestsize', 'waistsize', 'hipsize', 'isdancer', 'hasawards', 'isstripper', 'striptype',
+            'striplevel', 'issinger', 'singlevel', 'ismusician', 'issportsman', 'isextremal',
+            'isathlete', 'hasskills', 'hastricks', 'haslanuages',
+            'status', 'isphotomodel', 'ispromomodel', 'rating',
+            'fbprofile', 'okprofile', 'isamateuractor', 'istvshowmen',
+            'isstatist', 'ismassactor', 'nativecountryid', 'playagemin',
+            'playagemax', 'hairlength', 'istheatreactor', 'ismediaactor',
+            'privatecomment', 'wearsize', 'currentcountryid',
+            // поля модели User
+            'email', 'policyagreed',
+            // условия съемки
+            'salary', 'wantsbusinesstrips', 'hasforeignpassport', 'passportexpires', 'isnightrecording',
+            'istoplessrecording', 'isfreerecording', 'custom',
+            // сложные значения
+            'addchars', 'actoruniversities', 'films', 'emceelist', 'parodistlist', 'twinlist', 'modelschools',
+            'modeljobs', 'photomodeljobs', 'promomodeljobs', 'dancetypes', 'awards', 'vocaltypes',
+            'voicetimbres', 'instruments', 'musicuniversities', 'sporttypes', 'extremaltypes',
+            'tricks', 'skills', 'languages', 'tvshows', 'theatres', 'video', 'photo',
+        );
+    }
+    
+    /**
      * Определить, отображать по умолчанию указанное поле формы 
      * (или часть формы в которой содержится нескольких полей)
      * 
@@ -1955,7 +1958,6 @@ class Questionary extends CActiveRecord
         return $result;
     }
     
-    
     /**
      * Получить ссылку на картинку с аватаром пользователя
      * 
@@ -1980,7 +1982,6 @@ class Questionary extends CActiveRecord
         }
         return $avatar;
     }
-    
     
     /**
      * Получить список изображений для элемента Carousel в Twitter Bootstrap 
