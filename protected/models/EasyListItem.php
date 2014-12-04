@@ -257,7 +257,7 @@ class EasyListItem extends CActiveRecord
 	            'class' => 'application.behaviors.EcTimestampBehavior',
 	        ),
 	        // это поведение позволяет изменять набор связей модели в процессе выборки
-	        'CustomScopesBehavior' => array(
+	        'CustomRelationsBehavior' => array(
 	            'class' => 'application.behaviors.CustomRelationsBehavior',
 	        ),
 	        // поведение для связи с другими моделями
@@ -271,7 +271,7 @@ class EasyListItem extends CActiveRecord
 	        // на эту запись по составному ключу objecttype/objectid
 	        'CustomRelationTargetBehavior' => array(
 	            'class' => 'application.behaviors.CustomRelationTargetBehavior',
-	            'customRelations' => array(),
+	            //'customRelations' => array(),
 	        ),
 	        // настройки для модели и методы для поиска по этим настройкам
 	        'ConfigurableRecordBehavior' => array(
@@ -291,14 +291,14 @@ class EasyListItem extends CActiveRecord
 			'objecttype'   => 'Тип объекта',
 			'objectfield'  => 'Поле объекта',
 			'objectid'     => 'id объекта',
-		    'name'         => 'Название элемента',
-		    'title'        => 'Название элемента',
-		    'data'         => 'Содержимое',
-		    'value'        => 'Значение элемента',
-		    'description'  => 'Описание для элемента списка или связанного объекта',
+		    'name'         => Yii::t('coreMessages', 'system_name'),
+		    'title'        => Yii::t('coreMessages', 'title'),
+		    'data'         => Yii::t('coreMessages', 'content'),
+		    'value'        => Yii::t('coreMessages', 'value'),
+		    'description'  => Yii::t('coreMessages', 'description'),
 			'timecreated'  => Yii::t('coreMessages', 'timecreated'),
 			'timemodified' => Yii::t('coreMessages', 'timemodified'),
-		    'sortorder'    => 'Порядок сортировки',
+		    'sortorder'    => Yii::t('coreMessages', 'sortorder'),
 			'status'       => Yii::t('coreMessages', 'status'),
 			'parentid'     => 'Оригинал элемента списка',
 		);
@@ -542,7 +542,7 @@ class EasyListItem extends CActiveRecord
 	 * Получить все элементы списка с указанным id либо ссылающиеся на элемент c указанным id
 	 *
 	 * @param  int|array|EasyListItem $item - id элемента списка (EasyListItem)
-	 * @param  bool $withLinks              - включить в выборку не только элементы с указанным id
+	 * @param  bool $withLinks              - включить в выборку не только элементы с указанным id,
 	 *                                        но и ссылки на них 
 	 * @return EasyListItem
 	 */
@@ -555,11 +555,14 @@ class EasyListItem extends CActiveRecord
 	    {
 	        $itemId = $item;
 	    }
+	    // ищем элементы с указанными id
 	    $criteria = new CDbCriteria();
 	    $criteria->compare($this->getTableAlias(true).'.`id`', $itemId);
 	    if ( $withLinks )
-	    {
-	        $criteria->compare($this->getTableAlias(true).'.`parentid`', $itemId, 'OR');
+	    {// ищем копии этих элементов (они ссылаются на указанные через поле parentid)
+	        $parentCriteria = new CDbCriteria();
+	        $parentCriteria->compare($this->getTableAlias(true).'.`parentid`', $itemId);
+	        $criteria->mergeWith($parentCriteria, 'OR');
 	    }
 	    $this->getDbCriteria()->mergeWith($criteria, $operator);
 	    
@@ -587,11 +590,14 @@ class EasyListItem extends CActiveRecord
 	    {
 	        $itemId = array($itemId);
 	    }
+	    // ищем элементы с указанными id
 	    $criteria = new CDbCriteria();
 	    $criteria->addNotInCondition($this->getTableAlias(true).'.`id`', $itemId);
 	    if ( $withLinks )
-	    {
-	        $criteria->addNotInCondition($this->getTableAlias(true).'.`parentid`', $itemId, 'OR');
+	    {// ищем копии этих элементов (они ссылаются на указанные через поле parentid)
+	        $parentCriteria = new CDbCriteria();
+	        $parentCriteria->addNotInCondition($this->getTableAlias(true).'.`parentid`', $itemId, 'OR');
+	        $criteria->mergeWith($parentCriteria, 'OR');
 	    }
 	    $this->getDbCriteria()->mergeWith($criteria, $operator);
 	     
@@ -746,8 +752,12 @@ class EasyListItem extends CActiveRecord
 	public function getTitle()
 	{
 	    if ( $this->name )
-	    {
+	    {// если есть название элемента - сначала берем его: 
 	        return $this->name;
+	    }
+	    if ( $this->parentItem )
+	    {
+	        $this->parentItem->title;
 	    }
 	    return $this->value;
 	}
