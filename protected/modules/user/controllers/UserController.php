@@ -24,9 +24,11 @@ class UserController extends Controller
 			'accessControl', // perform access control for CRUD operations
 		));
 	}
+	
 	/**
 	 * Specifies the access control rules.
 	 * This method is used by the 'accessControl' filter.
+	 * 
 	 * @return array access control rules
 	 */
 	public function accessRules()
@@ -92,6 +94,7 @@ class UserController extends Controller
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.
+	 * 
 	 * @param integer the primary key value. Defaults to null, meaning using the 'id' GET variable
 	 */
 	public function loadUser($id=null)
