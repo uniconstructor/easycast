@@ -206,7 +206,7 @@ class EasyList extends CActiveRecord
 	        // на эту запись по составному ключу objecttype/objectid
 	        'CustomRelationTargetBehavior' => array(
 	            'class' => 'application.behaviors.CustomRelationTargetBehavior',
-	            'customRelations' => array(),
+	            //'customRelations' => array(),
 	        ),
 	        // настройки для модели и методы для поиска по этим настройкам
 	        'ConfigurableRecordBehavior' => array(
@@ -418,6 +418,27 @@ class EasyList extends CActiveRecord
 	public function hasItemValue($value)
 	{
 	    return EasyListItem::model()->forList($this->id)->withItemValue($value)->exists();
+	}
+	
+	/**
+	 * Получить элемент списка по его значению: ищет в списке элемент с таким id,
+	 * если не находит - то ищет ссылку на него
+	 * Возвращает false если в этом списке нет ни такого элемента ни ссылки на него
+	 *
+	 * @param  string $value
+	 * @return EasyListItem
+	 */
+	public function getItemWithValue($value)
+	{
+	    if ( ! $item = EasyListItem::model()->forList($this->id)->withItemValue($value)->find() )
+	    {
+	        return false;
+	    }
+	    if ( $item AND $item->easylistid == $this->id )
+	    {// элемент присутствует в списке
+	        return $item;
+	    }
+	    return false;
 	}
 	
 	/**
