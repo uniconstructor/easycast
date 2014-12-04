@@ -135,6 +135,8 @@
  *                           Если настройка предусматривает максимум одно значение - то в этом массиве 
  *                           будет только одна модель
  * @property EasyList        $selectedList      - список, содержащий выбранные значения
+ * @property EasyListItem    $selectedListItem  - элемент списка, выбранный в качестве значения настройки
+ *                                                (только для настроек с одним значением)
  * @property EasyListItem[]  $selectedListItems - элементы списка, выбранные в качестве значений настройки
  *                                                (только для настроек с множественным выбором)
  * @property DocumentSchema  $formSchema - схема документа, по которой составляется форма редактирования настройки
@@ -193,6 +195,17 @@
  * @todo разрешить не хранить настройки, во всем совпадающие с корневыми (objectid=0)
  *       при попытке получить настроку искать сначала настройку объекта, а если ее нет
  *       то корневую настройку модели (если при этом возможно сохранить работу всех scopes)
+ * @todo при удалении значения из пользовательского списка - удалять все выбранные значения 
+ *       которые ссылаются на удаляемый элемент
+ * @todo при удалении значения из стандартного списка - переносить все выбранные значения 
+ *       которые ссылаются на удаляемый элемент в пользовательские списки
+ *       (найти все выбранные экземпляры элемента во всех настройках, 
+ *       для каждой настройки получить ее пользовательский список (или создать если его не было)
+ *       перенести в пользовательский список удаляемое значение
+ *       ссылки на удаляемое значение обновить, прописав в них parentid перенесенного элемента из
+ *       пользовательского списка)
+ *       Тогда не получится ситуации, в которой у нас в настройке выбрано значение которого
+ *       нет ни в одном стандартном списке настройки
  */
 class Config extends CActiveRecord
 {
@@ -497,6 +510,10 @@ class Config extends CActiveRecord
 	            'updateAttribute' => 'timemodified',
 	        ),
 	        // это поведение позволяет изменять набор связей модели в процессе выборки
+	        'CustomScopesBehavior' => array(
+	            'class' => 'application.behaviors.CustomScopesBehavior',
+	        ),
+	        // это поведение позволяет изменять набор связей модели в процессе выборки
 	        'CustomRelationsBehavior' => array(
 	            'class' => 'application.behaviors.CustomRelationsBehavior',
 	        ),
@@ -748,6 +765,21 @@ class Config extends CActiveRecord
         // такая настройка вообще не предусмотрена для такого типа объектов
         // @todo записать в лог
         return false;
+	}
+	
+	/**
+	 * Определить, редактировалась ли эта настройка для указанного объекта хотя бы раз
+	 *
+	 * @param  CActiveRecord $model
+	 * @return bool
+	 */
+	public function isModifiedForModel($model)
+	{
+	    if ( ! is_subclass_of($model, 'CActiveRecord') )
+	    {
+	        throw new CException('В метод isModifiedForModel() не передана модель');
+	    }
+	    return $this->isModifiedFor(get_class($model), $model->id);
 	}
 	
 	/**
@@ -1394,36 +1426,36 @@ class Config extends CActiveRecord
 	 * @param  EasyListItem $option
 	 * @return bool
 	 */
-	public function hasDefaultOption(EasyListItem $option)
+	public function hasDefaultOption($option)
 	{
-        if ( $option->easylistid == $this->easylistid )
-        {// значение содержится в списке стандартных
-            return true;
-        }
-        if ( $option->parentItem AND $option->parentItem->easylistid == $this->easylistid )
-        {// является ссылкой на стандартное значение
-            return true;
-        }
-        return false;
+        if ( ! $this->defaultList )
+	    {// в настройке вообще нет списка для стандартных значений
+	        return false;
+	    }
+	    if ( $this->defaultList->hasItem($option) )
+	    {// значение содержится в списке пользовательских
+	        return true;
+	    }
+	    return false;
 	}
 	
 	/**
 	 * Определить является ли переданный вариант значения пользователем - то есть добавлен ли он
 	 * пользователем в список значений настройки когда стандартного списка не хватило
-	 * (или ялвляется ли он ссылкой на такое значение)
+	 * (или является ли он ссылкой на такое значение)
 	 *
 	 * @param  EasyListItem $option
 	 * @return bool
 	 */
-	public function hasUserOption(EasyListItem $option)
+	public function hasUserOption($option)
 	{
-	    if ( $option->easylistid == $this->userlistid )
-	    {// значение содержится в списке пользовательских
-            return true;
+	    if ( ! $this->userList )
+	    {// в настройке вообще нет списка для пользовательских значений
+	        return false;
 	    }
-	    if ( $option->parentItem AND $option->parentItem->easylistid == $this->userlistid )
-	    {// является ссылкой на пользовательское значение
-            return true;
+	    if ( $this->userList->hasItem($option) )
+	    {// значение содержится в списке пользовательских
+	        return true;
 	    }
 	    return false;
 	}
@@ -1431,28 +1463,39 @@ class Config extends CActiveRecord
 	/**
 	 * Определить является ли переданный вариант значения настройки ее выбранным значением
 	 *
-	 * @param  EasyListItem $option
+	 * @param  int|EasyListItem $option
 	 * @return bool
 	 */
-	public function hasSelectedOption(EasyListItem $option)
+	public function hasSelectedOption($option)
 	{
-	    if ( $this->isMultiple() )
+	    if ( ! is_a($option, 'EasyListItem') )
+	    {
+	        if ( ! $option = EasyListItem::model()->withItemId($option)->find() )
+	        {
+	            throw new CException("Не найден элемент списка с id={$option}");
+	        }
+	    }
+	    if ( $this->isMultiple() AND $this->valuetype === 'EasyList' )
 	    {// для настроек с множественным выбором: ищем значение в списке
-	        if ( $option->easylistid == $this->valueid )
-	        {// значение содержится в списке выбранных
-                return true;
+	        if ( ! $this->selectedList )
+	        {// в настройке вообще нет списка для выбранных значений
+	            return false;
 	        }
-	        if ( $option->parentItem AND $option->parentItem->easylistid == $this->valueid )
-	        {// является ссылкой на стандартное значение
-                return true;
+	        if ( $this->selectedList->hasItem($option) )
+	        {// значение содержится в списке
+	            return true;
 	        }
-	    }elseif ( $this->valuetype === 'EasyListItem' )
+	    }elseif ( $this->isSingle() AND $this->valuetype === 'EasyListItem' )
 	    {// для настроек с одним значением: ищем значение в самой настройке
-	        if ( $option->id == $this->valueid )
+	        if ( ! $this->selectedListItem )
+	        {// в настройке пока не выбрано какое-либо значение
+	            return false;
+	        }
+	        if ( $option->id == $this->selectedListItem->id )
 	        {// значение содержится в списке выбранных
                 return true;
 	        }
-	        if ( $option->parentid AND $option->parentid == $this->valueid )
+	        if ( $option->id == $this->selectedListItem->parentid )
 	        {// является ссылкой на выбранное значение
                 return true;
 	        }
@@ -1461,22 +1504,158 @@ class Config extends CActiveRecord
 	}
 	
 	/**
-	 * Получить оригинал выбранного значения настройки
+	 * Получить оригинал стандартного значения настройки
 	 * 
-	 * @param  EasyListItem $option
+	 * @param  int|EasyListItem $option
+	 * @param  bool             $searchParent
 	 * @return EasyListItem
 	 */
-	public function getSelectedOption(EasyListItem $option)
+	public function getDefaultOption($option, $searchParent=true)
+	{
+	    if ( ! $this->hasDefaultOption($option) )
+	    {
+	        return false;
+	    }
+	    if ( ! $defaultOption = $this->defaultList->getItem($option) )
+	    {
+	        return false;
+	    }
+	    if ( $searchParent AND $defaultOption->parentItem )
+	    {
+	        return $defaultOption->parentItem;
+	    }
+	    return $defaultOption;
+	}
+	
+	/**
+	 * Получить оригинал пользовательского значения настройки
+	 * 
+	 * @param  int|EasyListItem $option
+	 * @param  bool             $searchParent
+	 * @return EasyListItem
+	 */
+	public function getUserOption($option, $searchParent=true)
+	{
+	    if ( ! $this->hasUserOption($option) )
+	    {
+	        return false;
+	    }
+	    if ( ! $option = $this->userList->getItem($option) )
+	    {
+	        return false;
+	    }
+	    if ( $searchParent AND $option->parentItem )
+	    {
+	        return $option->parentItem;
+	    }
+	    return $option;
+	}
+	
+	/**
+	 * Получить оригинал выбранного значения настройки
+	 * 
+	 * @param  int|EasyListItem $option
+	 * @param  bool             $searchParent
+	 * @return EasyListItem
+	 */
+	public function getSelectedOption($option, $searchParent=true)
 	{
 	    if ( ! $this->hasSelectedOption($option) )
 	    {
 	        return false;
 	    }
-	    if ( $option->parentItem )
+	    if ( ! $option = $this->defaultList->getItem($option) )
+	    {
+	        return false;
+	    }
+	    if ( $searchParent AND $option->parentItem )
 	    {
 	        return $option->parentItem;
 	    }
 	    return $option;
+	}
+	
+	/**
+	 * Изменить один элемент значения настройки с множественным выбором.
+     * Добавдяет в список выбранных значений элемент если его там не было
+     * или удаляет его из этого списка если он там был
+     * 
+     * @param  int|string|EasyListItem $optionId - изменяемый элемент значения настройки: 
+     *             берется из списка стандартных или пользовательских значений
+     * @return bool
+	 */
+	public function toggleOption($option)
+	{
+	    if ( ! $this->selectedList OR ! $option )
+	    {
+	        return false;
+	    }
+	    if ( ! is_object($option) )
+	    {
+	        if ( ! is_numeric($option) )
+	        {// указано значение настройки вместо ее id
+	            $option = $this->selectedList->getItemWithValue($option);
+	        }
+	    }
+	    if ( $this->hasSelectedOption($option) )
+	    {// значение уже в выбрано - удаляем его
+	        return $this->deselectOption($option);
+	    }else
+	    {// значение еще не выбрано - добавляем его
+	        return $this->selectOption($option);
+	    }
+	}
+	
+	/**
+	 * Установить элемент списка в качестве выбранного значения настройки
+	 *
+	 * @param  string|int|EasyListItem $option - изменяемый элемент из списка значений настройки
+	 * @return bool
+	 * 
+	 * @todo доработать для настроек с одним значением
+	 * @todo создавать пользовательский список если настройка должна содержать список значений
+	 */
+	public function selectOption($option)
+	{
+	    if ( ! $newOption = $this->getDefaultOption($option) )
+	    {// стандартная настройка не найдена - ищем в списке пользовательских
+            if ( ! $newOption = $this->getUserOption($option) )
+            {// пользовательская настройка не найдена
+                if ( ! $this->allowuservalues )
+                {// добавляемый элемент не является стандартным, а добавление собственных значений запрещено
+                    throw new CException("Элемент списка не является стандартным значением 
+                         и не может быть указан в качестве выбранного значения настройки:".
+                        CVarDumper::dumpAsString($option));
+                }
+                if ( isset($option->id) )
+                {
+                    $option = $option->id;
+                }
+                if ( ! $newOption = EasyListItem::model()->findByPk($option) )
+                {// такого элемента не существует
+                    throw new CException("Элемент списка с не существует и не может быть указан 
+                         в качестве выбранного значения настройки".CVarDumper::dumpAsString($option));
+                }
+            }
+	    }
+	    return $this->selectedList->addItem($newOption);
+	}
+	
+	/**
+	 * Удалить элемент из списка выбранных значений настройки
+	 *
+	 * @param  string|int|EasyListItem $option - изменяемый элемент из списка значений настройки
+	 * @return bool
+	 *
+	 * @todo доработать для настроек с одним значением
+	 */
+	public function deselectOption($option)
+	{
+	    if ( ! $this->hasSelectedOption($option) )
+	    {// элемент уже удален
+	        return true;
+	    }
+	    return $this->selectedList->removeItem($option);
 	}
 	
 	/**
