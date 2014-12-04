@@ -66,7 +66,6 @@ class QuestionaryController extends Controller
 			array('allow',
 				'actions' => array('update', 'ajax', 'toggleProjectTypeNotification'),
 				'users'   => array('@'),
-			    'roles'   => array('user'),
 			),
 			array('allow',
 				'actions' => array('delete', 'loginAs', 'upload'),
