@@ -44,20 +44,27 @@ class m141123_181800_addDefaultListItemType extends EcMigration
                 $this->delete('{{event_invites}}', 'eventid='.$event['id']);
             }
         }
+        // переименовываем настройку
         $this->update('{{config}}', array('name' => 'emailBanner'), "name='emailBannerUrl'");
+        // изменяем описание для черного списка email
         $this->insert("{{easy_lists}}", array(
-            'name'           => 'Список введенных вручную адресов',
-            'description'    => '',
+            'name'           => 'Черный список email',
+            'description'    => 'Список введенных вручную email-адресов на которые не будут отправляться никакие письма.',
             'triggerupdate'  => 'manual',
             'triggercleanup' => 'manual',
             'unique'         => 1,
         ));
         $newListId = $this->dbConnection->lastInsertID;
+        
         // обновляем название и описание для настройки оповещений
+        $description  = 'Укажите типы проектов на которые вы хотели бы получать приглашения или ';
+        $description .= 'откажитесь от любого участия в съемках, которые вас не интересуют. ';
+        $description .= 'Мы не будем приглашать вас на такие проекты, независимо от того какие ';
+        $description .= 'роли вам предлагаются и какой размер оплаты за участие.';
         $columns = array(
             'easylistid'  => '1',
-            'title'       => 'Настройки приглашений',
-            'description' => 'Укажите типы проектов на которые вы хотели бы получать приглашения.',
+            'title'       => 'Настройки приглашений (тип проекта)',
+            'description' => $description,
             'userlistid'  => $newListId,
         );
         $this->update('{{config}}', $columns, "name='projectTypesBlackList'");

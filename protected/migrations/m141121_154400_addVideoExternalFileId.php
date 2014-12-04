@@ -17,9 +17,9 @@ class m141121_154400_addVideoExternalFileId extends EcMigration
             from('{{video}}')->where("type='file'")->queryAll();
         foreach ( $s3Videos as $video )
         {// привязываем все существующие записи видео к файлам Amazon
-            $path         = pathinfo($video['externalid'], PATHINFO_DIRNAME);
-            $fileName     = pathinfo($video['externalid'], PATHINFO_FILENAME);
-            $condition    = "bucket = 'video.easycast.ru' AND storage='s3' AND path = '{$path}'";
+            $path      = pathinfo($video['externalid'], PATHINFO_DIRNAME);
+            $fileName  = pathinfo($video['externalid'], PATHINFO_FILENAME);
+            $condition = "bucket='video.easycast.ru' AND storage='s3' AND path='{$path}'";
             
             // ищем созданные файлы в нашей базе
             $externalFile = $this->dbConnection->createCommand()->select('*')->
