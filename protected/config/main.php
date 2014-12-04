@@ -26,8 +26,9 @@ return array(
     'preload'        => array('log', 'messages', 'bootstrap'),
     // Название проекта 
     'name'           => 'easyCast',
-    // Короткие имена для вызова популярных библиотек
+    // Короткие имена для вызова сторонних библиотек
     'aliases' => array(
+        // XUpload: загрузка файлов через AJAX
         'xupload'        => 'ext.xupload',
         // YiiBooster (версия 3 для bootstrap 2.3.2)
         //'bootstrap'      => 'ext.bootstrap',
