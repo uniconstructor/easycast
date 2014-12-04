@@ -112,7 +112,6 @@ class QUserInfo extends CWidget
             'films',
             'projects',
             'awards', 
-            'config', 
         );
         
         if ( Yii::app()->user->checkAccess('Admin') OR $this->displayContacts )
@@ -128,6 +127,7 @@ class QUserInfo extends CWidget
             $tabs[] = 'invites';
             $tabs[] = 'requests';
             $tabs[] = 'events';
+            $tabs[] = 'config';
         }
         return $tabs;
     }
@@ -1310,7 +1310,7 @@ class QUserInfo extends CWidget
      */
     protected function getConfigTabContent()
     {
-        if ( ! $this->isMyQuestionary() OR ! Yii::app()->user->checkAccess('Admin') )
+        if ( ! $this->isMyQuestionary() AND ! Yii::app()->user->checkAccess('Admin') )
         {// настройки показываются только в своей анкете
             return '';
         }
