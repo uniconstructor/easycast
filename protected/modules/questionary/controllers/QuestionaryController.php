@@ -49,10 +49,9 @@ class QuestionaryController extends Controller
 	}
 
 	/**
-     * @todo настроить доступ на основе ролей
-     *
 	 * Specifies the access control rules.
 	 * This method is used by the 'accessControl' filter.
+	 * 
 	 * @return array access control rules
 	 */
 	public function accessRules()
@@ -478,17 +477,8 @@ class QuestionaryController extends Controller
         {// настройка для этой анкеты еще не создана
             throw new CHttpException(500, 'Не удалось привязать новый экземпляр настройки к модели');
         }
-        // ищем элемент из стандартного списка в списке выбранных значений
-        $selectedListId = $config->selectedList->id;
-        $selectedItem   = EasyListItem::model()->withListId($selectedListId)->
-            withParentId($item->id)->find();
-        if ( $selectedItem )
-        {// проект уже в списке - удаляем его
-            $config->selectedList->removeItem($item);
-        }else
-        {// проект еще не добавлен в список - добавляем его
-            $config->selectedList->addItem($item);
-        }
+        // изменяем его значение
+        $questionary->toggleConfigOption($configName, $item);
         Yii::app()->end();
     }
     
@@ -512,27 +502,9 @@ class QuestionaryController extends Controller
         /* @var $config Config */
         $config        = $questionary->getEditableConfig('projectTypesBlackList');
         
-        // TODO
+        throw new CException('UNFINISHED');
     }
     
-	/**
-	 * Returns the data model based on the primary key given in the GET variable.
-	 * If the data model is not found, an HTTP exception will be raised.
-	 * 
-	 * @param  int $id - the ID of the model to be loaded
-	 * @return Questionary
-	 * @throws CHttpException
-	 */
-	/*public function loadModel($id)
-	{
-		$model = Questionary::model()->findByPk($id);
-		if ( $model === null )
-		{
-		    throw new CHttpException(404, 'Запрошенная анкета не существует. (id='.$id.')');
-		}
-		return $model;
-	}*/
-
 	/**
 	 * Performs the AJAX validation.
 	 * 
