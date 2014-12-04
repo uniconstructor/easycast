@@ -30,7 +30,7 @@ class EcMigration extends CDbMigration
      *              образцом для создания настроек для обычных записей
      *              (для поиска по id настройки)
      */
-    protected $_configCache = array();
+    protected $_configCache       = array();
     /**
      * @var array - системные и корневые настройки, кэшируются здесь чтобы служить
      *              образцом для создания настроек для обычных записей
@@ -40,7 +40,7 @@ class EcMigration extends CDbMigration
     /**
      * @var array - списки
      */
-    protected $_listsCache = array();
+    protected $_listsCache       = array();
     
     /**
      * @see CDbMigration::createTable()
@@ -91,7 +91,7 @@ class EcMigration extends CDbMigration
         if ( ! $config['objectid'] )
         {// кешируем настройку если она корневая или системная
             $this->_configCache[$config['id']] = $config;
-            $this->_modelsConfigCache[$config['objecttype']][$config['name']]["0"] = $config;
+            $this->_modelsConfigCache[$config['objecttype']][$config['name']]['0'] = $config;
         }
         return $this->dbConnection->lastInsertID;
     }
@@ -180,8 +180,9 @@ class EcMigration extends CDbMigration
             return $list['id'];
         }
         
+        // заполняем созданный список элементами 
         $sortOrder = 1;
-        // шаблон для элементов этого списка
+        // создаем шаблон для элементов списка
         $itemTemplate = array(
             'easylistid'  => $list['id'],
             'timecreated' => time(),
@@ -190,11 +191,28 @@ class EcMigration extends CDbMigration
         );
         foreach ( $items as $value => $data )
         {// заполняем список значениями
-            if ( ! is_array($data) )
+            if ( is_array($data) )
+            {
+                $dataId = 0;
+                if ( isset($data['id']) )
+                {// убираем id из данных нового элемента если он вдруг случайно туда попал
+                    $dataId = $data['id'];
+                    unset($data['id']);
+                }
+                if ( ! isset($data['parentid']) OR ! $data['parentid'] )
+                {// сохраняем ссылку на оригинал элемента если нужно
+                    $data['parentid'] = $dataId;
+                }
+                if ( mb_strlen($value) > 1 AND ! intval($value) AND 
+                   ( ! isset($data['value']) OR ! $data['value'] ) )
+                {
+                    $data['value'] = $value;
+                }
+            }else
             {
                 $data = array(
-                    'name'  => $data,
-                    'value' => $value,
+                    'name'     => $data,
+                    'value'    => $value,
                 );
             }
             $data['sortorder'] = $sortOrder++;
@@ -202,13 +220,15 @@ class EcMigration extends CDbMigration
             $item = CMap::mergeArray($itemTemplate, $data);
             // сохраняем элемент списка / получаем id созданного элемента
             $item['id'] = $this->createListItem($item);
+            unset($item);
         }
         return $list['id'];
     }
     
     /**
+     * Создать элемент списка
      * 
-     * @param array $itemData
+     * @param  array $itemData
      * @return int
      */
     public function createListItem($itemData)
@@ -256,40 +276,87 @@ class EcMigration extends CDbMigration
     
     /**
      * Скопировать элементы из одного списка в другой
+     * Каждый скопированный элемент в новом списке будет помнить о из какой записи был создан
      * 
-     * @param int    $fromListId
-     * @param int    $toListId
-     * @param array  $excludeIds - исключить из копирования указанные элементы
-     * @param string $asLink - скопировать элементы как "ссылки" - каждый скопированный элемент
-     *                         будет помнить о своем оригинале
-     * @return void
-     * 
-     * @todo проверять существование второго списка, и если его нет - выдавать ошибку
+     * @param int   $fromListId  - id исходного списка (откуда копировать элементы)
+     * @param int   $toListId    - id конечного списка (куда копировать элементы)
+     * @param array $excludeIds  - исключить из копирования указанные элементы 
+     *                             Из списка копируемых элементов будут
+     *                             исключены не только элементы с указанными id но и  
+     * @param bool  $linkedItems - проверять, являются ли ссылками родительские элементы при 
+     *                             создании новых и сохранять ссылки на оригинальный элемент
+     * @return bool
+     * @throws CException
      */
-    public function copyListItems($fromListId, $toListId, $excludeIds=array(), $asLink=true)
+    public function copyListItems($fromListId, $toListId, $excludeIds=array(), $linkedItems=true)
     {
-        $table = "{{easy_list_items}}";
+        if ( ! $fromListId )
+        {
+            throw new CException('Не указан id исходного списка (откуда копировать элементы)');
+        }else
+        {// проверяем существование списка с таким id
+            $fromList = $this->dbConnection->createCommand()->select('*')->from('{{easy_lists}}')->
+                where('id='.$fromListId)->queryRow();
+            if ( ! $fromList )
+            {
+                throw new CException('Исходного списка с таким  id ('.intval($fromListId).') не существует');
+            }
+        }
+        if ( ! $toListId )
+        {
+            throw new CException('Не указан id конечного списка (куда копировать элементы)');
+        }else
+        {// проверяем существование списка с таким id
+            $toList = $this->dbConnection->createCommand()->select('*')->from('{{easy_lists}}')->
+                where('id='.$toListId)->queryRow();
+            if ( ! $toList )
+            {
+                throw new CException('Конечного списка с таким  id ('.intval($toListId).') не существует');
+            }
+        }
         $items = $this->dbConnection->createCommand()->select('*')->
-            from($table)->where('easylistid='.$fromListId)->queryAll();
+            from("{{easy_list_items}}")->where('easylistid='.$fromListId)->queryAll();
         $sortOrder = 1;
         
         foreach ( $items as $item )
         {// копируем каждый элемент списка
-            if ( $item['parentid'] )
-            {
-                $item['parentid'] = $item['id'];
-            }else
-            {
-                $item['parentid'] = $toListId;
+            // запоминаем id копируемого элемента 
+            $itemId   = $item['id'];
+            $parentId = $item['parentid'];
+            // удаляем неиспользуемые поля
+            unset($item['id'], $item['parentid'], $item['easylistid'], $item['sortorder'], 
+                $item['timemodified'], $item['timecreated']);
+            if ( in_array($itemId, $excludeIds) )
+            {// этот элемент не нужно копировать
+                continue;
             }
-            $item['objecttype']   = '__item__';
-            $item['valueid']      = 0;
-            $item['timecreated']  = time();
-            $item['timemodified'] = time();
-            $item['sortorder']    = $sortOrder++;;
-            unset($item['id']);
-            
-            $this->insert($table, $item);
+            if ( $keepLinks AND in_array($parentId, $excludeIds) )
+            {// этот элемент не нужно копировать
+                continue;
+            }
+            // создаем новый элемент
+            $itemTemplate = array(
+                'easylistid'   => $toList['id'],
+                'objecttype'   => '__item__',
+                'timecreated'  => time(),
+                'timemodified' => 0,
+                'sortorder'    => $sortOrder++,
+            );
+            // определяем оригинал для копируемого элемента
+            if ( $parentId )
+            {// исходный элемент сам является ссылкой - копируем его ссылку на оригинал 
+                // чтобы не плодить уровни вложенности
+                $itemTemplate['parentid'] = $parentId;
+            }else
+            {// исходный элемент является оригиналом значения - создаем ссылку на него
+                $itemTemplate['parentid'] = $itemId;
+            }
+            // собираем новый элемент из данных исходного элемента и новых данных
+            $newItem = CMap::mergeArray($itemTemplate, $item);
+            // добавляем элемент в список
+            $this->insert('{{easy_list_items}}', $newItem);
+            // очищаем временные переменные
+            unset($itemTemplate, $newItem);
         }
         return true;
     }
@@ -391,6 +458,7 @@ class EcMigration extends CDbMigration
     
     /**
      * Create indexes for all fields in the table
+     * 
      * @param string $table     - table name
      * @param array  $fields    - table fields
      *                            Example:
@@ -401,15 +469,15 @@ class EcMigration extends CDbMigration
      *
      * @return null
      */
-    protected function ecCreateIndexes($table, $fields, $excluded = array(), $idxPrefix = "idx_")
+    protected function ecCreateIndexes($table, $fields, $excluded=array(), $idxPrefix="idx_")
     {
-        // gather all field names
-        $fieldNames = array_keys($fields);
+        // collect all field names
+        $fieldNames    = array_keys($fields);
         // exclude not needed fields from index
         // ("id" is already primary key, so we never need to create additional index for it)
         $noIndex       = CMap::mergeArray(array("id"), $excluded);
         $indexedFields = array_diff($fieldNames, $noIndex);
-    
+        // create indexes for remaining fields
         foreach ( $indexedFields as $field )
         {
             $this->createIndex($idxPrefix.$field, $table, $field);
@@ -419,27 +487,88 @@ class EcMigration extends CDbMigration
     /**
      * Получить список по умолчанию используемый для дополнительных значений настроек модели
      * 
-     * @param string $objectType - класс модели
-     * @return int
+     * @param  string $objectType - класс модели для которой нужно получить список по умолчанию
+     * @param  bool   $autoCreate - создать список и соответствующую настройку модели 
+     *                              автоматически если ее еще нет
+     * @return int - id списка
+     * @throws CException
      */
-    protected function getDefaultListId($objectType=null)
+    protected function getDefaultListId($objectType, $autoCreate=true)
     {
-        $condition = "objecttype='{$objectType}' AND objectid=0 AND 
-            name='".Yii::app()->params['defaultListConfig']."'"; 
-        
-        $config = $this->dbConnection->createCommand()->select('*')->
-            from('{{config}}')->where($condition)->queryRow();
+        $condition = "objecttype='{$objectType}' AND objectid=0 AND name='".Yii::app()->params['defaultListConfig']."'"; 
+        // получаем настройку, содержащую список по умолчанию для этой модели
+        $config = $this->dbConnection->createCommand()->select('*')->from('{{config}}')->
+            where($condition)->queryRow();
+        // шаблон для нового списка
+        $listTemplate = array(
+            'name'           => 'Список по умолчанию для элементов модели '.$objectType.' (создан автоматически)',
+            'description'    => 'Это системный список, он используется для того чтобы не создавать '.
+            'дополнительные списки при создании промежуточных объектов при совершении миграций. '.
+            'Этот список также используется для того чтобы найти битые/испорченные значения '.
+            'настроек этой модели, не потеряв при этом вводимые пользователем значения.',
+            'triggerupdate'  => 'manual',
+            'triggercleanup' => 'manual',
+            'unique'         => 0,
+        );
+        // шаблон для настройки для нового списка
+        $configTemplate = array(
+            'name'            => Yii::app()->params['defaultListConfig'],
+            'title'           => 'id списка по умолчанию для элементов модели '.$objectType,
+            'description'     => 'Это системная настройка, не изменяйте ее',
+            'triggerupdate'   => 'manual',
+            'triggercleanup'  => 'manual',
+            'objecttype'      => $objectType,
+            'objectid'        => 0,
+            'timecreated'     => time(),
+            'timemodified'    => time(),
+            'allowuservalues' => 1,
+            'valuetype'       => 'EasyList',
+            'valuefield'      => 'id',
+            // заполнение не обязательно
+            'minvalues'       => 0,
+            // содержит одиночное значение (id)
+            'maxvalues'       => 1,
+        );
         if ( ! $config )
-        {// для этой модели такой список не задан
-            return ;
+        {// для этой модели нет нужной настройки
+            if ( ! $autoCreate )
+            {
+                throw new CException('Не найдена настройка с id списка по умолчанию для элементов модели "'.$objectType.'"');
+            }
+            $list   = CMap::copyFrom($listTemplate);
+            $config = CMap::mergeArray($config, $configTemplate);
+            // создадим недостающий список
+            $this->insert('{{easy_lists}}', $list);
+            $list['id'] = $this->dbConnection->lastInsertID;
+            // создадим настройку модели для хранения id списка
+            $config = array(
+                'valueid' => $list['id'],
+            );
+            $config['id'] = $this->createConfig($config);
+        }else
+        {// получаем список из настройки
+            $list = $this->dbConnection->createCommand()->select('id')->from('{{easy_lists}}')->
+                where("id=".$config['valueid'])->queryRow();
+            if ( ! isset($list['id'])  )
+            {// список, указанный в настройке модели не существует или еще не создан
+                if ( ! $autoCreate )
+                {
+                    throw new CException('Не найден список по умолчанию для элементов модели "'.$objectType.'"');
+                }
+                $list = CMap::copyFrom($listTemplate);
+                // создадим недостающий список
+                $this->insert('{{easy_lists}}', $list);
+                $list['id'] = $this->dbConnection->lastInsertID;
+                // обновим настройку
+                $newData = array(
+                    'valuetype'  => 'EasyList',
+                    'valuefield' => 'id',
+                    'valueid'    => $list['id'],
+                );
+                $this->update('{{config}}', $newData, 'id='.$config['id']);
+            }
         }
-        // получаем список из настройки
-        $list = $this->dbConnection->createCommand()->select('id')->
-            from('{{easy_lists}}')->where("id=".$config['valueid'])->queryRow();
-        if ( ! isset($list['id']) )
-        {// списка указанного в настройке нет
-            return;
-        }
+        // возвращаем id найденного (или созданного) списка
         return $list['id'];
     }
 }
@@ -457,10 +586,11 @@ $config = array(
     'timecreated'  => time(),
     'timemodified' => time(),
     'easylistid'   => 0,
-    'valuetype'    => '',
-    'valuefield'   => null,
+    'valuetype'    => 'EasyListItem',
+    'valuefield'   => null, // id
     'valueid'      => 0,
     'parentid'     => 0,
+    'allowuservalues' => 0,
 );
 
 $list = array(
