@@ -2,7 +2,8 @@
 /**
  * Страница подачи заявки на участие (из письма участника)
  */
-/* @var $this InviteController */
+/* @var $this   InviteController */
+/* @var $invite EventInvite */
 
 // навигация
 $this->breadcrumbs = array(
@@ -26,6 +27,14 @@ $this->breadcrumbs = array(
                 'key'    => $key,
                 'invite' => $invite
             ));
+            // настройки оповещений участника (по типам проекта)
+            if ( isset($invite->questionary) AND $invite->questionary instanceof Questionary )
+            {
+                $this->widget('application.modules.questionary.extensions.widgets.QUserConfig.QUserConfig', array(
+                    'questionary' => $invite->questionary,
+                    'configName'  => 'projectTypesBlackList',
+                ));
+            }
             ?>
         </div>
     </div>
