@@ -675,21 +675,23 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
     
     /**
      * Получить настройку для редактирования ее значения
-     * Если к owner-модели настройка с таким именем пока еще не привязана - то создает по
-     * данным корневой настройки новую модель Config и привязывает ее к owner-модели
+     * Если к текущей owner-модели настройка с таким именем пока еще не привязана - то из данных 
+     * корневой настройки для owner-модели будет создана и привязана новая настройка (Config)
+     * Если для owner-модели нет корневой настройки с нужным названием то будет
+     * выброшено исключение
      * 
-     * @param  string $name
-     * @return Config|bool
+     * @param  string $name - служебное название настройки (поле name в модели Config)
+     * @return Config|bool  - привязанная к owner-модели настройка
+     * @throws CException
      */
     public function getEditableConfig($name)
     {
-        if ( $config = $this->getConfigObject($name) )
+        if ( ! $config = $this->getConfigObject($name) )
         {
-            $objectType = get_class($this->owner);
-            $objectId   = $this->owner->id;
-            return $config->getEditableConfig($objectType, $objectId);
+            throw new CException('Для модели "'.get_class($this->owner).
+                '" не найдена настройка с именем "'.$name.'"');
         }
-        return false;
+        return $config->getEditableConfig(get_class($this->owner), $this->owner->id);
     }
     
     /**
@@ -819,7 +821,7 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      *
      * @todo кеширование
      */
-    public function getConfigSelectedOptions($name)
+    public function getSelectedConfigOptions($name)
     {
         if ( ! $config = $this->getConfigObject($name) )
         {// настройки с таким названием нет в списке настроек этой модели -
@@ -837,7 +839,7 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      *
      * @todo кеширование
      */
-    public function getConfigDefaultOptions($name)
+    public function getDefaultConfigOptions($name)
     {
         if ( ! $config = $this->getConfigObject($name) )
         {// настройки с таким названием нет в списке настроек этой модели -
@@ -858,11 +860,12 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      *                            (используется чтобы указать какой именно из 
      *                            выбранных вариантов переводить)
      * @return string|array
+     * @throws CException
      */
-    public function getSelectedOptionTitle($name, $optionId=null)
+    public function getSelectedConfigOptionTitle($name, $optionId=null)
     {
         if ( ! $config = $this->getConfigObject($name) )
-        {// настройки с таким названием нет в списке настроек этой модели -
+        {// настройки с таким названием нет в списке настроек этой модели
             throw new CException('Для модели "'.get_class($this->owner).
                 '" не найдена настройка с именем "'.$name.'"');
         }
@@ -907,11 +910,127 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
     public function getConfigOptionTitle($optionId)
     {
         // для настроек с несколькими значениями: значения таких настроек всегда хранятся в моделях EasyListItem
-        if( $item = EasyListItem::model()->findByPk($optionId) )
+        if( ! $item = EasyListItem::model()->findByPk($optionId) )
         {
-            return '--(not_found)--';
+            return '--(none)--';
         }
         return $item->title;
+    }
+    
+    /**
+     * Изменить один элемент значения настройки с множественным выбором.
+     * Добавдяет в список выбранных значений элемент если его там не было
+     * или удаляет его из этого списка если он там был
+     * 
+     * @param  string           $name   - служебное название настройки
+     * @param  int|EasyListItem $option - изменяемый элемент значения настройки: берется из списка 
+     *                                    стандартных или пользовательских значений
+     * @return bool
+     * 
+     * @todo проверка isMultiple()
+     * @todo продумать вариант добавления нового значения в пользовательский список
+     * @todo доработать для настроек с одним значением
+     * @todo создавать пользовательский список если настройка должна содержать список значений 
+     */
+    public function toggleConfigOption($name, $option)
+    {
+        if ( ! $option )
+        {
+            throw new CException('Не передан изменяемый элемент списка');
+        }
+        // получаем привязанную настройку модели, если ее нет - то создаем и привязываем 
+        $config = $this->getEditableConfig($name);
+        // получаем переключаемый элемент списка
+        if ( $option instanceof EasyListItem )
+        {// передан элемент полностью
+            $item = $option;
+        }elseif ( is_numeric($option) )
+        {// передан id элемента списка
+            $listIds = array();
+            if ( $config->easylistid )
+            {// ищем элемент в списке стандартных значений настройки
+                $listIds[] = $config->easylistid;
+            }
+            if ( $config->userlistid )
+            {// ищем элемент в списке дополнительных (введенных пользователем) значений настройки
+                $listIds[] = $config->userlistid;
+            }
+            if ( $config->isMultiple() AND $config->valuetype === 'EasyList' AND $config->valueid )
+            {// ищем элемент в списке выбранных значений настройки
+                // @todo применять только при удалении битых значений настроек:
+                // они есть в списке выбранных, но отсутствуют в пользовательском и стандартном
+                $listIds[] = $config->valueid;
+            }
+            // получаем элемент списка целиком
+            $item = EasyListItem::model()->withListId($listIds)->withItemId($option)->
+                find(array('limit' => 1));
+            if ( ! $item )
+            {
+                throw new CException('В модели "'.get_class($this->owner)." для настройки ".$name.
+                    " не найден элемент списка для редактирования значения настройки (itemid={$option}");
+            }
+        }else
+        {// недопустимый тип данных
+            throw new CException('В модели "'.get_class($this->owner)." для настройки ".$name.
+                " не найден элемент списка для редактирования значения настройки (itemid={$option}");
+        }
+        if ( $config->isMultiple() AND $config->valuetype === 'EasyList' AND ! $config->selectedList )
+        {// в настройке отсутствует список выбранных значений
+            // @todo предусмотреть действия для настройки с одинарным значением
+            throw new CException('В модели "'.get_class($this->owner)." для настройки ".$name.
+                " не создан список выбранных значений");
+        }
+        if ( $config->hasSelectedOption($item) )
+        {// значение уже в выбрано - удаляем его
+            return $config->deselectOption($item);
+        }else
+        {// значение уже в выбрано - добавляем его
+            return $config->selectOption($item);
+        }
+    }
+    
+    /**
+     * Установить элемент списка в качестве выбранного значения настройки 
+     *
+     * @param  string                  $name   - служебное название настройки
+     * @param  string|int|EasyListItem $option - изменяемый элемент из списка значений настройки
+     * @return bool
+     * 
+     * @todo доработать для настроек с одним значением
+     * @todo создавать пользовательский список если настройка должна содержать список значений
+     */
+    public function selectConfigOption($name, $option)
+    {
+        // получаем привязанную настройку модели, если ее нет - то создаем и привязываем
+        $config = $this->getEditableConfig($name);
+        if ( $config->isMultiple() AND $config->valuetype === 'EasyList' AND ! $config->selectedList )
+        {// в настройке отсутствует список выбранных значений
+            throw new CException('В модели "'.get_class($this->owner)." для настройки ".$name.
+                " для настройки не создан список выбранных значений");
+        }
+        return $config->selectOption($option);
+    }
+    
+    /**
+     * Удалить элемент из списка выбранных значений настройки
+     *
+     * @param  string                  $name   - служебное название настройки
+     * @param  string|int|EasyListItem $option - изменяемый элемент из списка значений настройки
+     * @return bool
+     * 
+     * @todo доработать для настроек с одним значением
+     * @todo создавать пользовательский список если настройка должна содержать список значений
+     */
+    public function deselectConfigOption($name, $option)
+    {
+        // получаем привязанную настройку модели, если ее нет - то создаем и привязываем
+        $config = $this->getEditableConfig($name);
+        if ( $config->isMultiple() AND $config->valuetype === 'EasyList' AND ! $config->selectedList )
+        {// в настройке отсутствует список выбранных значений
+            throw new CException('В модели "'.get_class($this->owner)." для настройки ".$name.
+                " для настройки не создан список выбранных значений");
+        }
+        return $config->deselectOption($option);
     }
     
     /**
