@@ -55,10 +55,10 @@ class CustomScopesBehavior extends CActiveRecordBehavior
     public function withCustomValue($field, $values, $operation='AND')
     {
         $criteria = new CDbCriteria();
-        $criteria->compare($this->owner->getTableAlias(true).'.`'.$field.'`', $values);
+        $criteria->compare($this->owner->getTableAlias(true).".`{$field}`", $values);
     
         $this->owner->getDbCriteria()->mergeWith($criteria, $operation);
-    
+        
         return $this->owner;
     }
     
