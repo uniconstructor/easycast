@@ -25,9 +25,9 @@ class EcUpdateConfigObject extends EcUpdateConfigValue
         {
             // загружаем модель настройки
             $config  = $this->loadConfigModel($id);
-            
-            // готовим настройку к редактированию, защищая системные настройки от случайных правок
-            $config->prepareUpdateValue();
+            // @todo готовим настройку к редактированию, защищая системные настройки от случайных правок
+            //$config = $config->getEditableConfig($objectType, $objectId);
+            throw new CHttpException('TODO');
             
             if ( is_array($modelData) AND ! empty($modelData) )
             {
@@ -38,7 +38,6 @@ class EcUpdateConfigObject extends EcUpdateConfigValue
                 $model->$attribute = $value;
                 $success = $model->save(false, array($attribute));
             }
-        
             if ( Yii::app()->getRequest()->isAjaxRequest )
             {
                 echo $success ? $this->ajaxResponseOnSuccess : $this->ajaxResponseOnFailed;

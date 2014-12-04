@@ -35,8 +35,9 @@ class EcUpdateConfigValue extends EcUpdateAction
         // (используется редко - как правило оно задано в модели)
         $valueField = Yii::app()->request->getParam('valueField', $config->valuefield);
         
-        // готовим настройку к редактированию, защищая системные настройки от случайных правок
-        $config->prepareUpdateValue();
+        // @todo готовим настройку к редактированию, защищая системные настройки от случайных правок
+        //$config = $config->getEditableConfig($objectType, $objectId);
+        throw new CHttpException('TODO');
         
         if ( $config->isSingle() )
         {// настройка с одним значением - проcто обновляем поле связанной записи

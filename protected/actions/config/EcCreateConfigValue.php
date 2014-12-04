@@ -72,8 +72,9 @@ class EcCreateConfigValue extends EcUpdateConfigValue
             throw new CHttpException(Yii::t('zii', 'Invalid request'));
         }
         
-        // готовим настройку к редактированию, защищая системные настройки от случайных правок
-        $config->prepareCreateValue();
+        // @todo готовим настройку к редактированию, защищая системные настройки от случайных правок
+        //$config = $config->getEditableConfig($objectType, $objectId);
+        throw new CHttpException('TODO');
         
         // переносим данные из формы в модель
         $model->attributes = $modelData;
