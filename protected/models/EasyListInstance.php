@@ -68,7 +68,7 @@ class EasyListInstance extends CActiveRecord
 	    return array(
 	        // автоматическое заполнение дат создания и изменения
 	        'EcTimestampBehavior' => array(
-	            'class'           => 'application.behaviors.EcTimestampBehavior',
+	            'class' => 'application.behaviors.EcTimestampBehavior',
 	        ),
 	    );
 	}

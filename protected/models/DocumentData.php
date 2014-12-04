@@ -63,7 +63,10 @@ class DocumentData extends CActiveRecord
 	        // автоматическое заполнение дат создания и изменения
 	        'EcTimestampBehavior' => array(
 	            'class' => 'application.behaviors.EcTimestampBehavior',
-	            'timemodified' => null,
+	        ),
+	        // это поведение позволяет изменять набор связей модели в процессе выборки
+	        'CustomScopesBehavior' => array(
+	            'class' => 'application.behaviors.CustomScopesBehavior',
 	        ),
 	        // это поведение позволяет изменять набор связей модели в зависимости от того какие данные в ней находятся
 	        'CustomRelationsBehavior' => array(
