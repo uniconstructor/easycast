@@ -14,6 +14,7 @@ echo $form->textFieldRow($model, 'email',
         'placeholder' => 'mail@example.com',
     ),
     array(
-        'prepend'     => '<i class="icon icon-envelope"></i>',
+        'prepend' => '<i class="icon icon-envelope"></i>',
+        'enableAjaxValidation' => true,
     )
 );
