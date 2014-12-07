@@ -125,6 +125,16 @@ class QuestionaryController extends Controller
     {
         $vacancyId     = Yii::app()->request->getParam('vacancyId', 0);
         $questionaryId = Yii::app()->request->getParam('questionaryId', 0);
+        if ( $questionaryId AND ! is_numeric($questionaryId) )
+        {// передан email вместо id
+            if ( $user = User::model()->withEmail($questionaryId)->find() )
+            {
+                $questionaryId = $user->questionary->id;
+            }else
+            {// @todo обработать ошибку
+                Yii::app()->end();
+            }
+        }
         // загружаем модели из базы
         /* @var $vacancy EventVacancy */
         $vacancy     = $this->loadModel($vacancyId, 'EventVacancy');
@@ -170,6 +180,16 @@ class QuestionaryController extends Controller
     {
         $vacancyId     = Yii::app()->request->getParam('vacancyId', 0);
         $questionaryId = Yii::app()->request->getParam('questionaryId', 0);
+        if ( $questionaryId AND ! is_numeric($questionaryId) )
+        {// передан email вместо id
+            if ( $user = User::model()->withEmail($questionaryId)->find() )
+            {
+                $questionaryId = $user->questionary->id;
+            }else
+            {// @todo обработать ошибку
+                Yii::app()->end();
+            }
+        }
         // загружаем модели из базы
         $vacancy     = $this->loadModel($vacancyId, 'EventVacancy');
         $questionary = $this->loadModel($questionaryId, 'Questionary');
@@ -204,8 +224,18 @@ class QuestionaryController extends Controller
      */
     public function actionForceSubscribe()
     {
-        $vacancyId     = Yii::app()->request->getParam('vacancyId', 0);
-        $questionaryId = Yii::app()->request->getParam('questionaryId', 0);
+        $vacancyId     = trim(Yii::app()->request->getParam('vacancyId', 0));
+        $questionaryId = trim(Yii::app()->request->getParam('questionaryId', 0));
+        if ( $questionaryId AND ! is_numeric($questionaryId) )
+        {// передан email вместо id
+            if ( $user = User::model()->withEmail($questionaryId)->find() )
+            {
+                $questionaryId = $user->questionary->id;
+            }else
+            {// @todo обработать ошибку
+                Yii::app()->end();
+            }
+        }
         // загружаем модели из базы
         $vacancy     = $this->loadModel($vacancyId, 'EventVacancy');
         $questionary = $this->loadModel($questionaryId, 'Questionary');
