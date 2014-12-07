@@ -476,6 +476,7 @@ class Config extends CActiveRecord
 		    // список всех выбранных вариантов значений этой настройки (как стандартных так пользовательских) 
 		    // Используется только для настроек с множественным выбором
 		    // Эта связь всегда содержит только объекты класса EasyListItem либо пустой массив
+		    //'selectedListItems' => array(self::HAS_MANY, 'EasyListItem', array('easylistid' => 'valueid')),
 		    'selectedListItems' => array(self::HAS_MANY, 'EasyListItem', array('id' => 'easylistid'),
 		        'through' => 'selectedList',
 		    ),
@@ -592,11 +593,15 @@ class Config extends CActiveRecord
 	        'rootOnly' => array(
 	            'condition' => $this->getTableAlias(true).".`valuetype` IS NOT NULL",
 	            'scopes' => array(
-	                'withValueType' => array('<>system'),
-	                'withValueId'   => array('0'),
+	                'withObjectType' => array('<>system'),
+	                'withObjectId'   => array('0'),
 	            ),
 	        ),
-	        // настройки не накследуемые от родительских
+	        // только не корневые настройки
+	        'notRoot' => array(
+	            'condition' => $this->getTableAlias(true).".`objectid` <> 0",
+	        ),
+	        // настройки не наследуемые от родительских
 	        'withoutParent' => array(
 	            'condition' => $this->getTableAlias(true).".`parentid` = 0",
 	        ),
@@ -1168,21 +1173,48 @@ class Config extends CActiveRecord
 	    return $this;
 	}
 	
+	/*public function withObjectOption($objectType, $objectId, $name, $option)
+	{
+	    $criteria->addColumnCondition($columns, 'AND', $operation);
+	}*/
+	
 	/**
 	 * Именованая группа условий: все настройки c указанным служебным названием или все настройки
 	 * с указанными названиями, если $name передан как массив
 	 * 
-	 * @param  string|array $name - служебное название настройки (или список названий)
+	 * @param  string|array $names - служебное название настройки (или список названий)
 	 * @param  string $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
 	 * @return Config
 	 */
-	public function withName($name, $operation='AND')
+	public function withName($names, $operation='AND')
 	{
 	    $criteria = new CDbCriteria();
-	    $criteria->compare($this->getTableAlias(true).'.`name`', $name);
+	    $criteria->compare($this->getTableAlias(true).'.`name`', $names);
 	
 	    $this->getDbCriteria()->mergeWith($criteria, $operation);
 	
+	    return $this;
+	}
+	
+	/**
+	 * Именованая группа условий: все настройки кроме настроек указанным служебным названием
+	 * (если передано несколько названий - то все они будут исключены из выборки)
+	 *
+	 * @param  string|array $names - служебное название настройки (или список названий)
+	 * @param  string $operation   - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+	 * @return Config
+	 */
+	public function exceptName($names, $operation='AND')
+	{
+	    if ( ! is_array($names) )
+	    {
+	        $names = array($names);
+	    }
+	    $criteria = new CDbCriteria();
+	    $criteria->addNotInCondition($this->getTableAlias(true).'.`name`', $names);
+	    
+	    $this->getDbCriteria()->mergeWith($criteria, $operation);
+	    
 	    return $this;
 	}
 	
@@ -1248,11 +1280,6 @@ class Config extends CActiveRecord
 	 * @param  array|string $value - требуемое значение в поле value для связанной модели
 	 * @param  string $operation   - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
 	 * @return Config
-	 * 
-	 * @todo функция withOptionId все multiple-настройки с указанным EasyListItem.id 
-	 *       в привязаном объекте значения (получаем одно или несколько EasyListItem.id 
-	 *       из стандартного (или пользовательского) списка занчений и ищем в своем 
-	 *       списке ссылки на них)
 	 */
 	public function withSelectedValue($value, $operation='AND')
 	{
@@ -1260,32 +1287,16 @@ class Config extends CActiveRecord
 	    {// условие не используется
 	        return $this;
 	    }
-	    if ( $this->isMultiple() )
-	    {// настройка с множественным выбором всегда ссылается на список значений (EasyList)
-	        $with = array(
-	            'selectedListItems' => array(
-	                'select'   => false,
-	                'joinType' => 'INNER JOIN',
-    	            'scopes'   => array(
-        	            'withValue' => array($value),
-                    ),
-                ),
-	        );
-	    }else
-	    {// настройка с одиночным выбором всегда ссылается на значение в поле другой модели
-	        // создаем условие поиска по значению связанного поля
-	        $with = array(
-	            'selectedListItem' => array(
-	                'select'    => false,
-	                'joinType'  => 'INNER JOIN',
-                    'scopes'    => array(
-        	            'withValue' => array($value),
-                    ),
-    	        ),
-    	    );
-	    }
 	    $criteria = new CDbCriteria();
-	    $criteria->with     = $with;
+	    $criteria->with     = array(
+            'selectedListItems' => array(
+                'select'   => false,
+                'joinType' => 'INNER JOIN',
+	            'scopes'   => array(
+    	            'withValue' => array($value),
+                ),
+            ),
+        );
 	    $criteria->together = true;
 	    
 	    $this->getDbCriteria()->mergeWith($criteria, $operation);
@@ -1393,23 +1404,28 @@ class Config extends CActiveRecord
 	{
 	    if ( ! $option )
 	    {// условие не используется
-            return $this;
+            throw new CException('exceptAnySelectedOption: не передан обязательный параметр option');
 	    }
 	    if ( $option instanceof EasyListItem )
 	    {
-	        $optionId = $option->id;
+	        $options = $option->id;
 	    }else
 	    {
-	        $optionId = $option;
+	        $options = $option;
 	    }
+	    if ( ! is_array($options) )
+	    {
+	        $options = array($options);
+	    }
+	    $options = implode(',', $options);
+	    
 	    $criteria = new CDbCriteria();
 	    $criteria->with = array(
 	        'selectedListItems' => array(
-	            'select'   => false,
-	            'joinType' => 'INNER JOIN',
-	            'scopes'   => array(
-	                'exceptItemId' => array($optionId),
-	            ),
+	            'select'    => false,
+	            'joinType'  => 'LEFT JOIN',
+	            'on'        => "(`selectedListItems`.`id` IN ({$options})) OR (`selectedListItems`.`parentid` IN ({$options}))",
+	            'condition' => "`selectedListItems`.`id` IS NULL"
 	        ),
 	    );
 	    $criteria->together = true;
