@@ -293,7 +293,7 @@ class Questionary extends CActiveRecord
      */
     public function relations()
     {
-        return array(
+        $relations = array(
             // Связи обычных значений с другими таблицами
             // ссылка на пользователя системы
             'user'    => array(self::BELONGS_TO, 'User', 'userid'),
@@ -438,6 +438,17 @@ class Questionary extends CActiveRecord
                 ),
             ),
         );
+        // подключаем связи для настроек
+        if ( ! $configBehavior = $this->asa('configurableRecordBehavior') )
+        {
+            $this->attachBehavior('configurableRecordBehavior', array(
+                'class' => 'application.behaviors.ConfigurableRecordBehavior',
+                'defaultOwnerClass' => get_class($this),
+            ));
+        }
+        $configRelations = $this->asa('configurableRecordBehavior')->getDefaultConfigRelations();
+        
+        return CMap::mergeArray($relations, $configRelations);
     }
 
     /**
