@@ -126,7 +126,9 @@ class QuestionaryController extends Controller
         $vacancyId     = Yii::app()->request->getParam('vacancyId', 0);
         $questionaryId = Yii::app()->request->getParam('questionaryId', 0);
         // загружаем модели из базы
+        /* @var $vacancy EventVacancy */
         $vacancy     = $this->loadModel($vacancyId, 'EventVacancy');
+        /* @var $questionary Questionary */
         $questionary = $this->loadModel($questionaryId, 'Questionary');
         // выводим в таблице информацию о соответствии участника критериям поиска
         echo $this->widget('admin.extensions.SearchFilterCompare.SearchFilterCompare', array(
@@ -145,6 +147,13 @@ class QuestionaryController extends Controller
             echo $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
                 'type'    => 'danger',
                 'message' => 'Участник не подходит по критериям роли',
+            ), true);
+        }
+        if ( $vacancy->hasApplication($questionary->id) )
+        {
+            echo $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
+                'type'    => 'warning',
+                'message' => 'Участник уже подал заявку на эту роль',
             ), true);
         }
         Yii::app()->end();
