@@ -503,8 +503,8 @@ class CustomRelationSourceBehavior extends CustomScopesBehavior
     public function withAnyObjectId($objectIds, $operation='AND')
     {
         if ( ! $objectIds )
-        {// условие не используется
-            return $this->owner;
+        {// поиск по objectid=0
+            $objectIds = intval($objectIds);
         }
         $criteria = new CDbCriteria();
         $criteria->compare($this->owner->getTableAlias(true).'.`'.$this->objectIdField.'`', $objectIds);
