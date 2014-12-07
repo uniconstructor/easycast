@@ -236,48 +236,25 @@ class User extends CActiveRecord
     {
         return CMap::mergeArray(Yii::app()->getModule('user')->defaultScope, array(
             'alias'  => 'user',
-            //'select' => 'user.*',
         ));
     }
 
     /**
-     * Именованая гнруппа условий поиска
-     * @param string $email
+     * Условие поиска: email или список email-адресов
+     * 
+     * @param  string $email
+     * @param  string $operation
      * @return User
      */
-    public function withEmail($email)
+    public function withEmail($email, $operation='AND')
     {
         $criteria = new CDbCriteria();
-        $criteria->compare('email', $email);
+        $criteria->compare($this->getTableAlias(true).'.`email`', $email);
          
-        $this->getDbCriteria()->mergeWith($criteria);
+        $this->getDbCriteria()->mergeWith($criteria, $operation);
         
         return $this;
     } 
-	
-    /**
-     * 
-     * @param string $type
-     * @param string $code
-     * @return boolean|string
-     */
-	public static function itemAlias($type,$code=NULL) {
-		$_items = array(
-			'UserStatus' => array(
-			    self::STATUS_ACTIVE   => UserModule::t('Active'),
-			    self::STATUS_NOACTIVE => UserModule::t('Not active'),
-				self::STATUS_BANNED   => UserModule::t('Banned'),
-			),
-			'AdminStatus' => array(
-				'0' => UserModule::t('No'),
-				'1' => UserModule::t('Yes'),
-			),
-		);
-		if (isset($code))
-			return isset($_items[$type][$code]) ? $_items[$type][$code] : false;
-		else
-			return isset($_items[$type]) ? $_items[$type] : false;
-	}
 	
     /**
      * Retrieves a list of models based on the current search/filter conditions.
@@ -461,5 +438,29 @@ class User extends CActiveRecord
     public static function getDefaultOwnerId()
     {
         return 1;
+    }
+    
+    /**
+     *
+     * @param string $type
+     * @param string $code
+     * @return boolean|string
+     */
+    public static function itemAlias($type,$code=NULL) {
+        $_items = array(
+            'UserStatus' => array(
+                self::STATUS_ACTIVE   => UserModule::t('Active'),
+                self::STATUS_NOACTIVE => UserModule::t('Not active'),
+                self::STATUS_BANNED   => UserModule::t('Banned'),
+            ),
+            'AdminStatus' => array(
+                '0' => UserModule::t('No'),
+                '1' => UserModule::t('Yes'),
+            ),
+        );
+        if (isset($code))
+            return isset($_items[$type][$code]) ? $_items[$type][$code] : false;
+        else
+            return isset($_items[$type]) ? $_items[$type] : false;
     }
 }
