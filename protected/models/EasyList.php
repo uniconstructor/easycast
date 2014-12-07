@@ -177,7 +177,7 @@ class EasyList extends CActiveRecord
 	 */
 	public function relations()
 	{
-		return array(
+		$relations = array(
 		    // связи этого списка с другими объектами
 		    // (если он прикреплен к ним через пару objecttype/objectid)
 		    'instances' => array(self::HAS_MANY, 'EasyListInstance', 'easylistid'),
@@ -186,6 +186,16 @@ class EasyList extends CActiveRecord
 		    // условия выборки для элементов списка
 		    'searchData' => array(self::BELONGS_TO, 'SearchData', 'searchdataid')
 		);
+		// подключаем связи для настроек
+		if ( ! $this->asa('ConfigurableRecordBehavior') )
+		{
+		    $this->attachBehavior('ConfigurableRecordBehavior', array(
+		        'class' => 'application.behaviors.ConfigurableRecordBehavior',
+		        'defaultOwnerClass' => get_class($this),
+		    ));
+		}
+		$configRelations = $this->asa('ConfigurableRecordBehavior')->getDefaultConfigRelations();
+		return CMap::mergeArray($relations, $configRelations);
 	}
 	
 	/**
@@ -211,6 +221,7 @@ class EasyList extends CActiveRecord
 	        // настройки для модели и методы для поиска по этим настройкам
 	        'ConfigurableRecordBehavior' => array(
 	            'class' => 'application.behaviors.ConfigurableRecordBehavior',
+	            'defaultOwnerClass' => get_class($this),
 	        ),
 	    );
 	}
