@@ -439,15 +439,14 @@ class Questionary extends CActiveRecord
             ),
         );
         // подключаем связи для настроек
-        if ( ! $configBehavior = $this->asa('configurableRecordBehavior') )
+        if ( ! $this->asa('ConfigurableRecordBehavior') )
         {
-            $this->attachBehavior('configurableRecordBehavior', array(
+            $this->attachBehavior('ConfigurableRecordBehavior', array(
                 'class' => 'application.behaviors.ConfigurableRecordBehavior',
                 'defaultOwnerClass' => get_class($this),
             ));
         }
-        $configRelations = $this->asa('configurableRecordBehavior')->getDefaultConfigRelations();
-        
+        $configRelations = $this->asa('ConfigurableRecordBehavior')->getDefaultConfigRelations();
         return CMap::mergeArray($relations, $configRelations);
     }
 
@@ -1064,10 +1063,36 @@ class Questionary extends CActiveRecord
     /////////////////////////////////////////
     
     /**
+     * Условие поиска: анкета с указанным email
+     * 
+     * @param  string $email
+     * @param  string $operation
+     * @return Questionary
+     */
+    public function withEmail($email, $operation='AND')
+    {
+        $criteria = new CDbCriteria();
+        $criteria->with = array(
+            'user' => array(
+                'select'   => false,
+                'joinType' => 'INNER JOIN',
+                'scopes'   => array(
+                    'withEmail' => array($email),
+                ),
+            ),
+        );
+        $criteria->together = true;
+         
+        $this->getDbCriteria()->mergeWith($criteria, $operation);
+        
+        return $this;
+    }
+    
+    /**
      * Условие поиска: анкеты, созданные пользователем или объектом системы
      * 
-     * @param string $objectType - тип объекта в таблице q_creation_history (user/vacancy/...)
-     * @param int    $objectId
+     * @param  string $objectType - тип объекта в таблице q_creation_history (user/vacancy/...)
+     * @param  int    $objectId
      * @return Questionary
      */
     public function createdBy($objectType, $objectId)
@@ -1183,20 +1208,20 @@ class Questionary extends CActiveRecord
             $typeId = $type;
         }
         // извлекаем все записи кроме тех которые содержат переданный тип проекта в черном списке
-        $criteria = new CDbCriteria();
+        /*$criteria = new CDbCriteria();
         $criteria->with = array(
             'configParams' => array(
                 'select'   => false,
                 'joinType' => 'INNER JOIN',
                 'scopes'   => array(
-                    'withName'             => array('projectTypesBlackList'),
-                    'exceptConfigOptionId' => array($typeId),
+                    'withName' => array('projectTypesBlackList'),
+                    'exceptSelectedOption' => array($typeId),
                 ),
             ),
         );
-        $this->getDbCriteria()->mergeWith($criteria, $operation);
+        $this->getDbCriteria()->mergeWith($criteria, $operation);*/
         
-        return $this;
+        return $this->exceptConfigOptionId('projectTypesBlackList', $typeId);
     }
     
     /////////////////////////////////////////////////
