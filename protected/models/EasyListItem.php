@@ -233,7 +233,7 @@ class EasyListItem extends CActiveRecord
 	 */
 	public function relations()
 	{
-		return array(
+		$relations = array(
 		    // список в которой находится значение
 		    'easyList'      => array(self::BELONGS_TO, 'EasyList', 'easylistid'),
 		    // оригинал значения (только для элементов-ссылок)
@@ -244,6 +244,7 @@ class EasyListItem extends CActiveRecord
 		    'parentList'    => array(self::BELONGS_TO, 'EasyList', 'easylistid', 'through' => 'parentItem'),
 		    // @todo все списки в которых присутствует это значение (через "through")
 		);
+		return $relations;
 	}
 	
 	/**
@@ -271,11 +272,6 @@ class EasyListItem extends CActiveRecord
 	        // на эту запись по составному ключу objecttype/objectid
 	        'CustomRelationTargetBehavior' => array(
 	            'class' => 'application.behaviors.CustomRelationTargetBehavior',
-	            //'customRelations' => array(),
-	        ),
-	        // настройки для модели и методы для поиска по этим настройкам
-	        'ConfigurableRecordBehavior' => array(
-	            'class' => 'application.behaviors.ConfigurableRecordBehavior',
 	        ),
 	    );
 	}
@@ -322,7 +318,7 @@ class EasyListItem extends CActiveRecord
 	{
 	    return array(
 	        // false вторым параметром нужен для предотвращения бесконечной рекурсии
-	        'order'     => $this->getTableAlias(true, false).'.`sortorder` ASC',
+	        //'order'     => $this->getTableAlias(true, false).'.`sortorder` ASC',
 	        // по умолчанию скрываем из любой выборки удаленные элементы
 	        'condition' => $this->getTableAlias(true, false).".`status` <> '".self::STATUS_DELETED."'",
 	    );
@@ -412,7 +408,7 @@ class EasyListItem extends CActiveRecord
 	    {
 	        $listId = $list;
 	    }
-	    return $this->withoutListId($listId, $operation);
+	    return $this->exceptListId($listId, $operation);
 	}
 	
 	/**
@@ -440,26 +436,6 @@ class EasyListItem extends CActiveRecord
 	{
 	    return $this->exceptCustomValue('easylistid', $listId, $operation);
 	}
-	
-	/**
-	 * Именованная группа условий: получить все элементы c указаным значением в поле objectid
-	 * (или значением соответствующим хотя бы одному из переданных значений если пердан массив)
-	 * 
-	 * @param  string|int $objectId - значение или список значений которые ищутся в поле objectid
-	 * @param  string $operation    - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
-	 * @return EasyListItem
-	 * 
-	 * @deprecated использовать одноименный метод из CustomRelationSourceBehavior
-	 */
-	/*public function withObjectId($objectId, $operation='AND')
-	{
-	    $criteria = new CDbCriteria();
-	    $criteria->compare($this->getTableAlias(true).'.`objectid`', $objectId);
-	    
-	    $this->getDbCriteria()->mergeWith($criteria, $operation);
-	
-	    return $this;
-	}*/
 	
 	/**
 	 * Именованная группа условий: получить все элементы c указаным значением в поле objectfield
@@ -539,7 +515,7 @@ class EasyListItem extends CActiveRecord
 	}
 	
 	/**
-	 * Получить все элементы списка с указанным id либо ссылающиеся на элемент c указанным id
+	 * Условие поиска: получить все элементы списка с указанным id либо ссылающиеся на элемент c указанным id
 	 *
 	 * @param  int|array|EasyListItem $item - id элемента списка (EasyListItem)
 	 * @param  bool $withLinks              - включить в выборку не только элементы с указанным id,
@@ -570,7 +546,7 @@ class EasyListItem extends CActiveRecord
 	}
 	
 	/**
-	 * 
+	 * Условие поиска: 
 	 *
 	 * @param  int|array|EasyListItem $item - id элемента списка (EasyListItem)
 	 * @param  bool $withLinks              - учитывать в запросе не только элементы с указанным id
@@ -595,9 +571,7 @@ class EasyListItem extends CActiveRecord
 	    $criteria->addNotInCondition($this->getTableAlias(true).'.`id`', $itemId);
 	    if ( $withLinks )
 	    {// ищем копии этих элементов (они ссылаются на указанные через поле parentid)
-	        $parentCriteria = new CDbCriteria();
-	        $parentCriteria->addNotInCondition($this->getTableAlias(true).'.`parentid`', $itemId, 'OR');
-	        $criteria->mergeWith($parentCriteria, 'OR');
+	        $criteria->addNotInCondition($this->getTableAlias(true).'.`parentid`', $itemId);
 	    }
 	    $this->getDbCriteria()->mergeWith($criteria, $operator);
 	     
