@@ -121,7 +121,11 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
     /**
      * @var string - название связи которая хранит все корневые настройки модели
      */
-    public $rootConfigRelationName = 'rootConfigParams';
+    public $rootConfigRelationName = 'configDefaults';
+    /**
+     * @var string - название связи которая хранит все корневые и все привязанные настройки модели
+     */
+    public $fullConfigRelationName = 'fullConfigParams';
     /**
      * @var array - список настроек которые должны быть созданы автоматически в момент создания модели
      *              Содержит только имена настроек ($config->name)
@@ -136,7 +140,7 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      *
      * @todo создавать исключение если связи с такими именами в модели уже есть
      */
-    public function relations()
+    /*public function relations()
     {
         // добавляем к стандартной связи все указанные в параметрах поведения при подключении модели
         $this->customRelations = CMap::mergeArray($this->getDefaultConfigRelations(), $this->customRelations);
@@ -144,7 +148,7 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
         $modelRelations = $this->owner->relations();
         // возвращаем список в котором совмещены связи модели ниши связи через составно внешний ключ
         return CMap::mergeArray($modelRelations, $this->customRelations);
-    }
+    }*/
     
     /**
      * Создает полный список настроек при создании модели
@@ -243,10 +247,8 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
     }
     
     /**
-     * (alias) Условие поиска по настройкам: все записи у которых есть 
-     * настройка c указанным названием 
+     * (alias) Условие поиска по настройкам: все записи у которых есть настройка c указанным названием 
      * (или хотя бы одним названием из списка если передан массив)
-     *  
      *
      * @param  string|array $name  - служебное название настройки (или список названий)
      * @param  string   $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
@@ -266,9 +268,22 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      * @param  string   $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
-    public function withoutConfig($name)
+    public function withoutConfig($name, $operation='AND')
     {
-        return $this->withConfigName($name, 'AND NOT');
+        $criteria = new CDbCriteria();
+        $criteria->with = array(
+            $this->configRelationName => array(
+                'select'    => false,
+                'joinType'  => 'LEFT JOIN',
+                'on'        => "`{$this->configRelationName}`.`name`='{$name}'",
+                'condition' => "`{$this->configRelationName}`.`id` IS NULL",
+            ),
+        );
+        $criteria->together = true;
+        
+        $this->owner->getDbCriteria()->mergeWith($criteria, $operation);
+        
+        return $this->owner;
     }
     
     /**
@@ -332,55 +347,50 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      * (alias) Условие поиска по настройкам: все записи у которых есть хотя бы одна настройка
      * в которой выбран переданный вариант значения 
      * (или хотя бы одним значением из списка если передан массив)
-     *
+     * 
+     * @param  string|array $name  - служебное название настройки (или список названий)
      * @param  int|array $optionId - id варианта значения настройки (EasyListItem)
      * @param  string   $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
-    public function withConfigOptionId($optionId, $operation='AND')
+    public function withConfigOptionId($name, $optionId, $operation='AND')
     {
-        return $this->withAnyConfigOptionId($optionId, $operation);
+        return $this->withAnyConfigOptionId($name, $optionId, $operation);
     }
     
     /**
      * Условие поиска по настройкам: все записи у которых есть хотя бы одна настройка
      * в которой выбран переданный вариант значения 
      * (или хотя бы одним значением из списка если передан массив)
-     *
+     * 
+     * @param  string    $name   - служебное название настройки
      * @param  int|array $options   - id варианта значения настройки (EasyListItem)
      * @param  string    $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
-    public function withAnyConfigOptionId($options, $operation='AND')
+    public function withAnyConfigOptionId($name, $options, $operation='AND')
     {
+        if ( ! $name )
+        {
+            throw new CException('Не передано название настройки');
+        }
         if ( ! $options )
         {// условие не используется
             return $this->owner;
         }
         // сначала проверяем значение привязанной настройки
-        $criteria1 = new CDbCriteria();
-        $criteria1->with = array(
+        $criteria = new CDbCriteria();
+        $criteria->with = array(
             $this->configRelationName => array(
                 'select'   => false,
                 'joinType' => 'INNER JOIN',
+                'on'       => "`{$this->configRelationName}`.`name`='{$name}'",
                 'scopes'   => array(
                     'withAnySelectedOption' => array($options),
                 ),
             ),
         );
-        $criteria1->together = true;
-        // затем значение родительской, но только если привязанная отсутствует
-        $criteria2 = new CDbCriteria();
-        $criteria2->with = array(
-            $this->configRelationName => array(
-                'select'   => false,
-                'joinType' => 'INNER JOIN',
-                'scopes' => array(
-                    'withName' => array($name, 'AND NOT'),
-                ),
-            ),
-        );
-        $criteria2->together = true;
+        $criteria->together = true;
         
         $this->owner->getDbCriteria()->mergeWith($criteria, $operation);
         
@@ -390,22 +400,29 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
     /**
      * Условие поиска по настройкам: все записи у которых есть настройка в которой выбран
      * каждый переданный вариант значения из списка
-     *
+     * 
+     * @param  string $name      - служебное название настройки
      * @param  array  $options   - массив из id вариантов значения настройки (EasyListItem)
      * @param  string $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
-    public function withEveryConfigOptionId($options, $operation='AND')
+    public function withEveryConfigOptionId($name, $options, $operation='AND')
     {
+        if ( ! $name )
+        {
+            throw new CException('Не передано название настройки');
+        }
         if ( ! $options )
         {// условие не используется
             return $this->owner;
         }
+        // сначала проверяем значение привязанной настройки
         $criteria = new CDbCriteria();
         $criteria->with = array(
             $this->configRelationName => array(
                 'select'   => false,
                 'joinType' => 'INNER JOIN',
+                'on'       => "`{$this->configRelationName}`.`name`='{$name}'",
                 'scopes' => array(
                     'withEverySelectedOption' => array($options),
                 ),
@@ -421,26 +438,32 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
     /**
      * (alias) Условие поиска по настройкам: все записи у которых есть хотя бы одна настройка
      * в которой выбрано каждое из указаных значений
-     *
+     * 
+     * @param  string       $name  - служебное название настройки
      * @param  string|array $optionId - массив из id вариантов значения настройки (EasyListItem)
      * @param  string    $operation   - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
-    public function exceptConfigOptionId($optionId, $operation='AND')
+    public function exceptConfigOptionId($name, $optionId, $operation='AND')
     {
-        return $this->exceptAnyConfigOptionId($optionId, $operation='AND');
+        return $this->exceptAnyConfigOptionId($name, $optionId, $operation);
     }
     
     /**
      * Условие поиска по настройкам: все записи у которых есть хотя бы одна настройка
      * в которой выбрано каждое из указаных значений
-     *
+     * 
+     * @param  string       $name   - служебное название настройки
      * @param  string|array $option - массив из id вариантов значения настройки (EasyListItem)
      * @param  string   $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
-    public function exceptAnyConfigOptionId($optionId, $operation='AND')
+    public function exceptAnyConfigOptionId($name, $optionId, $operation='AND')
     {
+        if ( ! $name )
+        {
+            throw new CException('Не передано название настройки');
+        }
         if ( ! $optionId )
         {// условие не используется
             return $this->owner;
@@ -449,7 +472,8 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
         $criteria->with = array(
             $this->configRelationName => array(
                 'select'   => false,
-                'joinType' => 'INNER JOIN',
+                'joinType' => 'LEFT JOIN',
+                'on'       => "`{$this->configRelationName}`.`name`='{$name}'",
                 'scopes'   => array(
                     'exceptSelectedOption' => array($optionId),
                 ),
@@ -465,12 +489,13 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
     /**
      * (alias) Условие поиска по настройкам: все записи у которых есть хотя бы одна настройка
      * c указанным значением (или хотя бы одним значением из списка если передан массив)
-     *
+     * 
+     * @param  string       $name  - служебное название настройки
      * @param  string|array $value - значение настройки
      * @param  string   $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
-    public function withConfigValue($value, $operation='AND')
+    public function withConfigValue($name, $value, $operation='AND')
     {
         return $this->withAnyConfigValue($value, $operation);
     }
@@ -478,12 +503,13 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
     /**
      * Условие поиска по настройкам: все записи у которых есть хотя бы одна настройка
      * c указанным значением (или хотя бы одним значением из списка если передан массив)
-     *
+     * 
+     * @param  string       $name   - служебное название настройки
      * @param  string|array $values - значение настройки
      * @param  string   $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
-    public function withAnyConfigValue($values, $operation='AND')
+    public function withAnyConfigValue($name, $values, $operation='AND')
     {
         if ( ! $values)
         {// условие не используется
@@ -495,6 +521,7 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
                 'select'   => false,
                 'joinType' => 'INNER JOIN',
                 'scopes' => array(
+                    'withName'             => array($name),
                     'withAnySelectedValue' => array($values),
                 ),
             ),
@@ -510,11 +537,12 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      * Условие поиска по настройкам: все записи у которых есть хотя бы одна настройка
      * в которой выбрано каждое из указаных значений
      *
+     * @param  string       $name   - служебное название настройки
      * @param  string|array $values - список значений настройки
      * @param  string   $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
      * @return CActiveRecord
      */
-    public function withEveryConfigValue($values, $operation='AND')
+    public function withEveryConfigValue($name, $values, $operation='AND')
     {
         if ( ! $values )
         {// условие не используется
@@ -526,6 +554,7 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
                 'select'   => false,
                 'joinType' => 'INNER JOIN',
                 'scopes' => array(
+                    'withName' => array($name),
                     'withEverySelectedValue' => array($values),
                 ),
             ),
@@ -551,9 +580,6 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      */
     public function getModelConfigParams($checkRoot=true)
     {
-        $model = $this->getOwnerClass();
-        $id    = $this->owner->id;
-        
         $notAttachedParams = array();
         if ( $checkRoot )
         {// для настроек которые еще ни разу не редактировались пользователем используются
@@ -602,8 +628,7 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      */
     public function getRootConfigParams()
     {
-        $model = $this->getOwnerClass();
-        return Config::model()->forObject($model, 0)->setResultIndex('name')->findAll();
+        return Config::model()->forObject($this->getOwnerClass(), 0)->setResultIndex('name')->findAll();
     }
     
     /**
@@ -837,8 +862,7 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      */
     public function getRootConfig($name)
     {
-        $objectType = $this->getOwnerClass();
-        return Config::model()->forObject($objectType, 0)->withName($name)->find();
+        return Config::model()->forObject($this->getOwnerClass(), 0)->withName($name)->find();
     }
     
     /**
@@ -1080,6 +1104,38 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
     }
     
     /**
+     * Создать связь с целевым объектом (к которому прикрепляется модель)
+     * опираясь на значения по умолчанию
+     *
+     * @return array
+     */
+    public function getDefaultConfigRelations()
+    {
+        // задаем имя и параметры связи owner-модели cо списком настроек
+        return array(
+            $this->configRelationName => array(
+                CActiveRecord::HAS_MANY,
+                'Config',
+                'objectid',
+                'on' => "`{$this->configRelationName}`.`objecttype` = '{$this->getOwnerClass()}'"
+            ),
+            $this->fullConfigRelationName => array(
+                CActiveRecord::HAS_MANY,
+                'Config',
+                '',
+                'on' => "`{$this->fullConfigRelationName}`.`objecttype` = '{$this->getOwnerClass()}'",
+            ),
+            $this->rootConfigRelationName => array(
+                CActiveRecord::HAS_MANY,
+                'Config',
+                '',
+                'on' => "`{$this->rootConfigRelationName}`.`objecttype` = '{$this->getOwnerClass()}'
+                    AND `{$this->rootConfigRelationName}`.`objectid` = 0",
+            ),
+        );
+    }
+    
+    /**
      * Преобразовать список моделей настроек в ассоциативный массив содержащий только значения настроек
      * 
      * @param Config[] $params - массив моделей настроек из базы
@@ -1117,36 +1173,6 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
             $this->defaultOwnerClass = get_class($this->owner);
         }
         return $this->defaultOwnerClass;
-    }
-    
-    /**
-     * Создать связь с целевым объектом (к которому прикрепляется модель)
-     * опираясь на значения по умолчанию
-     *
-     * @return array
-     */
-    protected function getDefaultConfigRelations()
-    {
-        // задаем имя и параметры связи owner-модели cо списком настроек
-        return array(
-            $this->configRelationName => array(
-                CActiveRecord::HAS_MANY,
-                'Config',
-                'objectid',
-                'scopes' => array(
-                    'withObjectType' => array($this->getOwnerClass()),
-                ),
-            ),
-            $this->rootConfigRelationName => array(
-                CActiveRecord::HAS_MANY,
-                'Config',
-                '',
-                'on'     => "`{$this->rootConfigRelationName}.`objecttype`='{$this->getOwnerClass()}'",
-                'scopes' => array(
-                    'withObjectId' => array('0'),
-                ),
-            ),
-        );
     }
     
     /**
