@@ -334,7 +334,7 @@ class Project extends SWActiveRecord
 	 */
 	public function relations()
 	{
-	    return array(
+	    $relations = array(
 	        // Руководитель проекта
 	        'leader' => array(self::BELONGS_TO, 'User', 'leaderid'),
 	        // Помошник руководителя
@@ -376,6 +376,16 @@ class Project extends SWActiveRecord
 	            'condition' => "`finishedevents`.`status` = 'finished' AND (`finishedevents`.`type` != 'group')",
 	            'order'     => "`finishedevents`.`timeend` DESC"),
 	    );
+	    // подключаем связи для настроек
+	    if ( ! $this->asa('ConfigurableRecordBehavior') )
+	    {
+	        $this->attachBehavior('ConfigurableRecordBehavior', array(
+	            'class' => 'application.behaviors.ConfigurableRecordBehavior',
+	            'defaultOwnerClass' => get_class($this),
+	        ));
+	    }
+	    $configRelations = $this->asa('ConfigurableRecordBehavior')->getDefaultConfigRelations();
+	    return CMap::mergeArray($relations, $configRelations);
 	}
 	
 	/**

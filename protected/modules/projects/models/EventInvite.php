@@ -113,6 +113,38 @@ class EventInvite extends CActiveRecord
 	}
 	
 	/**
+	 * @see CActiveRecord::relations()
+	 *
+	 * @return array relational rules.
+	 */
+	public function relations()
+	{
+	    $relations = array(
+	        // анкета приглашенного участника
+	        'questionary' => array(self::BELONGS_TO, 'Questionary', 'questionaryid'),
+	        // мероприятие, на которое приглашен участник
+	        'event'       => array(self::BELONGS_TO, 'ProjectEvent', 'eventid'),
+	        /**
+	         * {@todo одобренная заявка на участие в проекте
+    	     *        (после создания таблицы связей приглашений с вакансиями)}
+    	     * 'request'     => array(self::HAS_ONE, 'MemberRequest', array() ),
+    	     * {@todo одобренная заявка на участие в проекте}
+    	     * 'member'      => array(self::HAS_ONE, 'ProjectMember', array() ),
+    	     */
+	    );
+	    // подключаем связи для настроек
+	    if ( ! $this->asa('ConfigurableRecordBehavior') )
+	    {
+	        $this->attachBehavior('ConfigurableRecordBehavior', array(
+	            'class' => 'application.behaviors.ConfigurableRecordBehavior',
+	            'defaultOwnerClass' => get_class($this),
+	        ));
+	    }
+	    $configRelations = $this->asa('ConfigurableRecordBehavior')->getDefaultConfigRelations();
+	    return CMap::mergeArray($relations, $configRelations);
+	}
+	
+	/**
 	 * @see CModel::behaviors()
 	 */
 	public function behaviors()
@@ -274,29 +306,6 @@ class EventInvite extends CActiveRecord
 			array('questionaryid, eventid, timecreated, timemodified', 'length', 'max' => 11),
 		    array('status', 'length', 'max' => 50),
 		    array('subscribekey', 'length', 'max' => 40),
-		);
-	}
-
-	/**
-	 * @see CActiveRecord::relations()
-	 * 
-	 * @return array relational rules.
-	 */
-	public function relations()
-	{
-		return array(
-		    // анкета приглашенного участника
-		    'questionary' => array(self::BELONGS_TO, 'Questionary', 'questionaryid'),
-		    // мероприятие, на которое приглашен участник
-		    'event'       => array(self::BELONGS_TO, 'ProjectEvent', 'eventid'),
-		    
-		    /** 
-		     * {@todo одобренная заявка на участие в проекте 
-		     *        (после создания таблицы связей приглашений с вакансиями)}
-		     * 'request'     => array(self::HAS_ONE, 'MemberRequest', array() ),
-		     * {@todo одобренная заявка на участие в проекте}
-		     * 'member'      => array(self::HAS_ONE, 'ProjectMember', array() ),
-		     */
 		);
 	}
 

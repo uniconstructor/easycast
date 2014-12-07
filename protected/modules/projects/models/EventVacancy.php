@@ -228,7 +228,7 @@ class EventVacancy extends CActiveRecord
 	 */
 	public function relations()
 	{
-	    return array(
+	    $relations = array(
 	        // мероприятие на которое создана вакансия
 	        'event' => array(self::BELONGS_TO, 'ProjectEvent', 'eventid'),
 	        // дополнительные поля, необходимые для подачи заявки на эту роль
@@ -316,6 +316,16 @@ class EventVacancy extends CActiveRecord
 	        // @todo удалить после изменения способа хранения критериев поиска
 	        'scope' => array(self::BELONGS_TO, 'SearchScope', 'scopeid'),
 	    );
+	    // подключаем связи для настроек
+	    if ( ! $this->asa('ConfigurableRecordBehavior') )
+	    {
+	        $this->attachBehavior('ConfigurableRecordBehavior', array(
+	            'class' => 'application.behaviors.ConfigurableRecordBehavior',
+	            'defaultOwnerClass' => get_class($this),
+	        ));
+	    }
+	    $configRelations = $this->asa('ConfigurableRecordBehavior')->getDefaultConfigRelations();
+	    return CMap::mergeArray($relations, $configRelations);
 	}
 	
 	/**

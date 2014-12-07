@@ -202,6 +202,56 @@ class ProjectEvent extends CActiveRecord
 	}
 	
 	/**
+	 * @return array relational rules.
+	 *
+	 * @todo переписать с использованием именованных групп условий
+	 */
+	public function relations()
+	{
+	    $relations = array(
+	        // проект к которому привязано мероприятие
+	        'project' => array(self::BELONGS_TO, 'Project', 'projectid'),
+	        // адрес, по которому проходит мероприятие
+	        'address' => array(self::HAS_ONE, 'Address', 'objectid',
+	            'condition' => "`address`.`objecttype`='event'",
+	        ),
+	        // группа мероприятия (если это мероприятие входит в группу)
+	        'group' => array(self::BELONGS_TO, 'ProjectEvent', 'parentid'),
+	        // Вакансии (роли) мероприятия
+	        'vacancies' => array(self::HAS_MANY, 'EventVacancy', 'eventid'),
+	        // активные вакансии мероприятия
+	        // @deprecated
+	        'activevacancies' => array(self::HAS_MANY, 'EventVacancy', 'eventid',
+	            'scopes' => array(
+	                'withStatus' => array(EventVacancy::STATUS_ACTIVE),
+	            ),
+	        ),
+	        // Приглашения на мероприятие
+	        'invites' => array(self::HAS_MANY, 'EventInvite', 'eventid'),
+	        // Видео c мероприятия
+	        'videos' => array(self::HAS_MANY, 'Video', 'objectid',
+	            'condition' => "`videos`.`objecttype`='projectevent'",
+	        ),
+	        // дочерние мероприятия группы (если это является группой)
+	        'events' => array(self::HAS_MANY, 'ProjectEvent', 'parentid',
+	            'order' => '`events`.`timestart` ASC',
+	        ),
+	        // @todo подтвержденные участники мероприятия
+	        //'members' => array(self::HAS_MANY, 'ProjectMember', ......),
+	    );
+	    // подключаем связи для настроек
+	    if ( ! $this->asa('ConfigurableRecordBehavior') )
+	    {
+	        $this->attachBehavior('ConfigurableRecordBehavior', array(
+	            'class' => 'application.behaviors.ConfigurableRecordBehavior',
+	            'defaultOwnerClass' => get_class($this),
+	        ));
+	    }
+	    $configRelations = $this->asa('ConfigurableRecordBehavior')->getDefaultConfigRelations();
+	    return CMap::mergeArray($relations, $configRelations);
+	}
+	
+	/**
 	 * @see parent::behaviors
 	 */
 	public function behaviors()
@@ -271,48 +321,6 @@ class ProjectEvent extends CActiveRecord
 			array('name', 'length', 'max' => 255),
 			// The following rule is used by search().
 			//array('id, projectid, name, description, timestart, timeend, timecreated, timemodified, addressid, status', 'safe', 'on'=>'search'),
-		);
-	}
-
-	/**
-	 * @return array relational rules.
-	 * 
-	 * @todo добавить openGroups - те группы, в которые может быть добавлено мероприятие
-	 * @todo придумать как в списки вакансий добавить вакансии группы
-	 * @todo переписать с использованием именованных групп условий
-	 */
-	public function relations()
-	{
-		return array(
-		    // проект к которому привязано мероприятие
-		    'project' => array(self::BELONGS_TO, 'Project', 'projectid'),
-		    // адрес, по которому проходит мероприятие
-		    'address' => array(self::HAS_ONE, 'Address', 'objectid',
-		        'condition' => "`address`.`objecttype`='event'",
-		    ),
-		    // группа мероприятия (если это мероприятие входит в группу)
-		    'group' => array(self::BELONGS_TO, 'ProjectEvent', 'parentid'),
-		    // Вакансии (роли) мероприятия
-		    'vacancies' => array(self::HAS_MANY, 'EventVacancy', 'eventid'),
-		    // активные вакансии мероприятия
-		    // @deprecated
-		    'activevacancies' => array(self::HAS_MANY, 'EventVacancy', 'eventid',
-                'scopes' => array(
-                    'withStatus' => array(EventVacancy::STATUS_ACTIVE),
-    		    ),
-		    ),
-		    // Приглашения на мероприятие
-		    'invites' => array(self::HAS_MANY, 'EventInvite', 'eventid'),
-		    // Видео c мероприятия
-		    'videos' => array(self::HAS_MANY, 'Video', 'objectid',
-		        'condition' => "`videos`.`objecttype`='projectevent'",
-		    ),
-		    // дочерние мероприятия группы (если это является группой)
-		    'events' => array(self::HAS_MANY, 'ProjectEvent', 'parentid',
-		        'order' => '`events`.`timestart` ASC',
-		    ),
-		    // @todo подтвержденные участники мероприятия
-		    //'members' => array(self::HAS_MANY, 'ProjectMember', ......),
 		);
 	}
 
