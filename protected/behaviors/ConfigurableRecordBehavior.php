@@ -115,9 +115,13 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
      */
     public $customRelations    = array();
     /**
-     * @var string - название связи которая хранит все настройки модели
+     * @var string - название связи которая хранит все привязанные настройки модели
      */
-    public $configRelationName = 'configParams';
+    public $configRelationName     = 'configParams';
+    /**
+     * @var string - название связи которая хранит все корневые настройки модели
+     */
+    public $rootConfigRelationName = 'rootConfigParams';
     /**
      * @var array - список настроек которые должны быть созданы автоматически в момент создания модели
      *              Содержит только имена настроек ($config->name)
@@ -239,6 +243,35 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
     }
     
     /**
+     * (alias) Условие поиска по настройкам: все записи у которых есть 
+     * настройка c указанным названием 
+     * (или хотя бы одним названием из списка если передан массив)
+     *  
+     *
+     * @param  string|array $name  - служебное название настройки (или список названий)
+     * @param  string   $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+     * @return CActiveRecord
+     */
+    public function withConfig($name, $operation='AND')
+    {
+        return $this->withConfigName($name, $operation);
+    }
+    
+    /**
+     * Условие поиска по настройкам: все записи у которых нет прикрепленной 
+     * настройки с указанным названием
+     * (или хотя бы одним названием из списка если передан массив)
+     *
+     * @param  string|array $name  - служебное название настройки (или список названий)
+     * @param  string   $operation - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+     * @return CActiveRecord
+     */
+    public function withoutConfig($name)
+    {
+        return $this->withConfigName($name, 'AND NOT');
+    }
+    
+    /**
      * Условие поиска по настройкам: все записи у которых есть хотя бы одна настройка 
      * c указанным parentid (или хотя бы одним parentid из списка если передан массив)
      *
@@ -324,8 +357,9 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
         {// условие не используется
             return $this->owner;
         }
-        $criteria = new CDbCriteria();
-        $criteria->with = array(
+        // сначала проверяем значение привязанной настройки
+        $criteria1 = new CDbCriteria();
+        $criteria1->with = array(
             $this->configRelationName => array(
                 'select'   => false,
                 'joinType' => 'INNER JOIN',
@@ -334,7 +368,19 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
                 ),
             ),
         );
-        $criteria->together = true;
+        $criteria1->together = true;
+        // затем значение родительской, но только если привязанная отсутствует
+        $criteria2 = new CDbCriteria();
+        $criteria2->with = array(
+            $this->configRelationName => array(
+                'select'   => false,
+                'joinType' => 'INNER JOIN',
+                'scopes' => array(
+                    'withName' => array($name, 'AND NOT'),
+                ),
+            ),
+        );
+        $criteria2->together = true;
         
         $this->owner->getDbCriteria()->mergeWith($criteria, $operation);
         
@@ -1084,11 +1130,20 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
         // задаем имя и параметры связи owner-модели cо списком настроек
         return array(
             $this->configRelationName => array(
-                self::HAS_MANY,
+                CActiveRecord::HAS_MANY,
                 'Config',
                 'objectid',
                 'scopes' => array(
                     'withObjectType' => array($this->getOwnerClass()),
+                ),
+            ),
+            $this->rootConfigRelationName => array(
+                CActiveRecord::HAS_MANY,
+                'Config',
+                '',
+                'on'     => "`{$this->rootConfigRelationName}.`objecttype`='{$this->getOwnerClass()}'",
+                'scopes' => array(
+                    'withObjectId' => array('0'),
                 ),
             ),
         );
