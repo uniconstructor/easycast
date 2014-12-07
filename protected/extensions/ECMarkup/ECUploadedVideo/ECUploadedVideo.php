@@ -3,6 +3,8 @@
 /**
  * Список загруженных на сайт видео, воспроизведение происходит через html5.
  * Позже видео будет заменено на потоковое, как только станет ясно как настраивать Amazon CloudFront
+ * 
+ * @todo изначально извлекать только оцифрованные видео
  */
 class ECUploadedVideo extends CWidget
 {
@@ -29,18 +31,24 @@ class ECUploadedVideo extends CWidget
      */
     public function init()
     {
-        $criteria = new CDbCriteria();
-        $criteria->compare('objecttype', $this->objectType);
-        $criteria->compare('objectid', $this->objectId);
-        $criteria->compare('type', 'file');
-        if ( ! Yii::app()->user->checkAccess('Admin') )
-        {// заказчику показываем только оцифрованные видео
-            $this->videos = Video::model()->findAll($criteria);
+        /*$encodedFiles  = Video::model()->withType('file')->encodedOnly()->
+                forObject($this->objectType, $this->objectId)->findAll();
+        $originalFiles = Video::model()->withType('file')->originalOnly()->
+                forObject($this->objectType, $this->objectId)->findAll();*/
+        /*if ( $encodedFiles )
+        {
+            $this->videos = $encodedFiles;
         }else
-        {// TODO
-            $this->videos = Video::model()->findAll($criteria);
+        {
+            $this->videos = $originalFiles;
+        }*/
+        $videos = Video::model()->withType('file')->
+                forObject($this->objectType, $this->objectId)->findAll();
+        foreach ( $videos as $video )
+        {
+            $this->videos[$video->id] = $video;
         }
-        $this->videos = Video::model()->findAll($criteria);
+        parent::init();
     }
     
     /**
@@ -56,16 +64,25 @@ class ECUploadedVideo extends CWidget
             return;
         }
         // отображаем список видео
-        echo CHtml::openTag('ul');
+        echo CHtml::openTag('ul', array('class' => 'text-left'));
         foreach ( $this->videos as $video )
         {/* @var $video Video */
+            $htmlOptions = array();
+            if ( ! $video->externalFile->originalid AND ! Yii::app()->user->checkAccess('Admin') )
+            {
+                continue;
+            }elseif ( ! $video->externalFile->originalid AND Yii::app()->user->checkAccess('Admin') )
+            {
+                $video->name .= ' [оригинал]';
+                $htmlOptions = array('class' => 'muted');
+            }
             $url = Sweeml::raiseOpenShadowboxUrl('#', array(
                 'player'  => 'html',
                 'content' => '<div><video controls src="'.$video->getEmbedUrl($this->expires).'" width="640" height="480"></video></div>',
                 'width'   => 650,
                 'height'  => 490,
             ));
-            echo CHtml::tag('li', array(), CHtml::link(CHtml::encode($video->name), $url));
+            echo CHtml::tag('li', $htmlOptions, CHtml::link(CHtml::encode($video->name), $url, $htmlOptions));
         }
         echo CHtml::closeTag('ul');
     }
