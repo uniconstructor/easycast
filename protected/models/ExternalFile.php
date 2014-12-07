@@ -106,7 +106,7 @@ class ExternalFile extends SWActiveRecord
 	 */
 	public function relations()
 	{
-		return array(
+		$relations = array(
 		    // оригинал файла из которого был создан этот файл 
 		    // (только для уменьшеных/перекодированых версий файлов)
 		    'originalFile' => array(self::BELONGS_TO, 'ExternalFile', 'originalid'),
@@ -114,6 +114,16 @@ class ExternalFile extends SWActiveRecord
 		    // (только для уменьшеных/перекодированых версий файлов)
 		    'fileVersions' => array(self::HAS_MANY, 'ExternalFile', 'originalid'),
 		);
+	    // подключаем связи для настроек
+		if ( ! $this->asa('ConfigurableRecordBehavior') )
+		{
+		    $this->attachBehavior('ConfigurableRecordBehavior', array(
+		        'class' => 'application.behaviors.ConfigurableRecordBehavior',
+		        'defaultOwnerClass' => get_class($this),
+		    ));
+		}
+		$configRelations = $this->asa('ConfigurableRecordBehavior')->getDefaultConfigRelations();
+		return CMap::mergeArray($relations, $configRelations);
 	}
 	
 	/**

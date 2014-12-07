@@ -52,7 +52,7 @@ class FlexibleForm extends CActiveRecord
 	 */
 	public function relations()
 	{
-		return array(
+		$relations = array(
 		    // схемы использующие эту форму
             'schemas' => array(self::HAS_MANY, 'DocumentSchema', 'formid'),
 		    // поля этой формы
@@ -64,6 +64,16 @@ class FlexibleForm extends CActiveRecord
                 ),
 		    ),
 		);
+		// подключаем связи для настроек
+		if ( ! $this->asa('ConfigurableRecordBehavior') )
+		{
+		    $this->attachBehavior('ConfigurableRecordBehavior', array(
+		        'class' => 'application.behaviors.ConfigurableRecordBehavior',
+		        'defaultOwnerClass' => get_class($this),
+		    ));
+		}
+		$configRelations = $this->asa('ConfigurableRecordBehavior')->getDefaultConfigRelations();
+		return CMap::mergeArray($relations, $configRelations);
 	}
 	
 	/**

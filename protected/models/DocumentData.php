@@ -44,7 +44,7 @@ class DocumentData extends CActiveRecord
 	 */
 	public function relations()
 	{
-		return array(
+		$relations = array(
 		    // документ которому принадлежит это значение
 		    'document'   => array(self::BELONGS_TO, 'Document', 'documentid'),
 		    // схема поля документа: (если поле документа тоже хранит в себе документ)
@@ -52,6 +52,16 @@ class DocumentData extends CActiveRecord
 		    // поле документа которому принадлежит это значение
 		    'extraField' => array(self::BELONGS_TO, 'ExtraField', 'extrafieldid'),
 		);
+		// подключаем связи для настроек
+		if ( ! $this->asa('ConfigurableRecordBehavior') )
+		{
+		    $this->attachBehavior('ConfigurableRecordBehavior', array(
+		        'class' => 'application.behaviors.ConfigurableRecordBehavior',
+		        'defaultOwnerClass' => get_class($this),
+		    ));
+		}
+		$configRelations = $this->asa('ConfigurableRecordBehavior')->getDefaultConfigRelations();
+		return CMap::mergeArray($relations, $configRelations);
 	}
 	
 	/**

@@ -43,7 +43,7 @@ class Document extends CActiveRecord
 	 */
 	public function relations()
 	{
-		return array(
+		$relations = array(
 		    // схема документа: хранит структуру полей документа
 		    'schema' => array(self::BELONGS_TO, 'DocumentSchema', 'schemaid'),
 		    // данные модели документа
@@ -51,6 +51,16 @@ class Document extends CActiveRecord
 		    // история изменений документа
 		    'historyItems' => array(self::HAS_MANY, 'DocumentDataHistory', 'documentid'),
 		);
+		// подключаем связи для настроек
+		if ( ! $this->asa('ConfigurableRecordBehavior') )
+		{
+		    $this->attachBehavior('ConfigurableRecordBehavior', array(
+		        'class' => 'application.behaviors.ConfigurableRecordBehavior',
+		        'defaultOwnerClass' => get_class($this),
+		    ));
+		}
+		$configRelations = $this->asa('ConfigurableRecordBehavior')->getDefaultConfigRelations();
+		return CMap::mergeArray($relations, $configRelations);
 	}
 	
 	/**

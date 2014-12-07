@@ -59,12 +59,22 @@ class FlexibleFormField extends CActiveRecord
 	 */
 	public function relations()
 	{
-		return array(
+		$relations = array(
 		    // форма в которой содержится поле
 		    'flexibleForm' => array(self::BELONGS_TO, 'FlexibleForm', 'objectid'),
 		    // поля, использующие эту форму
 		    'extraField'   => array(self::HAS_MANY, 'ExtraField', 'formfieldid'),
 		);
+		// подключаем связи для настроек
+		if ( ! $this->asa('ConfigurableRecordBehavior') )
+		{
+		    $this->attachBehavior('ConfigurableRecordBehavior', array(
+		        'class' => 'application.behaviors.ConfigurableRecordBehavior',
+		        'defaultOwnerClass' => get_class($this),
+		    ));
+		}
+		$configRelations = $this->asa('ConfigurableRecordBehavior')->getDefaultConfigRelations();
+		return CMap::mergeArray($relations, $configRelations);
 	}
 	
 	/**

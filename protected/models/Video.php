@@ -81,11 +81,21 @@ class Video extends SWActiveRecord
 	 */
 	public function relations()
 	{
-		return array(
+		$relations = array(
 		    // файл в хранилище Amazon S3 (если видео хранится у нас или где-то на 
 		    // стороннем хостинге к которому мы имеем доступ)
 		    'externalFile' => array(self::BELONGS_TO, 'ExternalFile', 'externalfileid'),
 		);
+		// подключаем связи для настроек
+		if ( ! $this->asa('ConfigurableRecordBehavior') )
+		{
+		    $this->attachBehavior('ConfigurableRecordBehavior', array(
+		        'class' => 'application.behaviors.ConfigurableRecordBehavior',
+		        'defaultOwnerClass' => get_class($this),
+		    ));
+		}
+		$configRelations = $this->asa('ConfigurableRecordBehavior')->getDefaultConfigRelations();
+		return CMap::mergeArray($relations, $configRelations);
 	}
 	
 	/**
@@ -115,6 +125,7 @@ class Video extends SWActiveRecord
 	        // настройки для модели и методы для поиска по этим настройкам
 	        'ConfigurableRecordBehavior' => array(
 	            'class' => 'application.behaviors.ConfigurableRecordBehavior',
+	            'defaultOwnerClass' => get_class($this),
 	        ),
 	        // подключаем расширение для работы со статусами
 	        'swBehavior' => array(

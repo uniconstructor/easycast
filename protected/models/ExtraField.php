@@ -100,7 +100,7 @@ class ExtraField extends CActiveRecord
 	 */
 	public function relations()
 	{
-		return array(
+		$relations = array(
 		    // все ссылки на это поле
 		    /** @deprecated */
             'instances' => array(self::HAS_MANY, 'ExtraFieldInstance', 'fieldid'),
@@ -111,6 +111,16 @@ class ExtraField extends CActiveRecord
 		    // поле формы для редактирования этого поля документа
 		    'formField' => array(self::HAS_ONE, 'FlexibleFormField', 'formfieldid'),
 		);
+		// подключаем связи для настроек
+		if ( ! $this->asa('ConfigurableRecordBehavior') )
+		{
+		    $this->attachBehavior('ConfigurableRecordBehavior', array(
+		        'class' => 'application.behaviors.ConfigurableRecordBehavior',
+		        'defaultOwnerClass' => get_class($this),
+		    ));
+		}
+		$configRelations = $this->asa('ConfigurableRecordBehavior')->getDefaultConfigRelations();
+		return CMap::mergeArray($relations, $configRelations);
 	}
 	
 	/**

@@ -45,13 +45,23 @@ class DocumentSchema extends CActiveRecord
 	 */
 	public function relations()
 	{
-		return array(
+		$relations = array(
 		    // все документы, структура которых описывается этой схемой
 		    'documents' => array(self::HAS_MANY, 'Document', 'schemaid'),
 		    // форма для создания модели по этой схеме
 		    'flexibleForm' => array(self::HAS_ONE, 'FlexibleForm', 'formid'),
 		    // @todo все поля документов хранящие в себе данные со структурой этой схемы
 		);
+		// подключаем связи для настроек
+		if ( ! $this->asa('ConfigurableRecordBehavior') )
+		{
+		    $this->attachBehavior('ConfigurableRecordBehavior', array(
+		        'class' => 'application.behaviors.ConfigurableRecordBehavior',
+		        'defaultOwnerClass' => get_class($this),
+		    ));
+		}
+		$configRelations = $this->asa('ConfigurableRecordBehavior')->getDefaultConfigRelations();
+		return CMap::mergeArray($relations, $configRelations);
 	}
 	
 	/**
