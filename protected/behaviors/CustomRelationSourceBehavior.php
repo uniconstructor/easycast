@@ -343,6 +343,9 @@ class CustomRelationSourceBehavior extends CustomScopesBehavior
      */
     public function forEveryObject($objects, $operation='AND')
     {
+        $columns         = array();
+        $objectTypeField = $this->objectTypeField;
+        $objectIdField   = $this->objectIdField;
         if ( ! $objects )
         {// условие не используется
             return $this->owner;
@@ -351,10 +354,6 @@ class CustomRelationSourceBehavior extends CustomScopesBehavior
         {
             $objects = array($objects);
         }
-        
-        $columns         = array();
-        $objectTypeField = $this->objectTypeField;
-        $objectIdField   = $this->objectIdField;
         foreach ( $objects as $condition )
         {// проверяем и составляем массив с условиями
             if ( is_array($condition) )
@@ -515,7 +514,7 @@ class CustomRelationSourceBehavior extends CustomScopesBehavior
     }
     
     /**
-     * Все записи, которые хотя бы раз связаны с любым из переданых id (независимо от типа)
+     * (alias) Все записи, которые хотя бы раз связаны с любым из переданых id (независимо от типа)
      *
      * @param int|array $objectIds  - id модели в таблице: 0 для записей относящихся ко всем
      *                                объектам модели одновременно, или индексированый масив таких id
@@ -593,6 +592,20 @@ class CustomRelationSourceBehavior extends CustomScopesBehavior
     }
     
     /**
+     * (alias) Все записи, кроме тех, которые хотя бы раз связаны хотя бы с одним из id
+     * объектов в списке (без учета типа)
+     *
+     * @param int|array $objectIds  - id модели в таблице: 0 для записей относящихся ко всем
+     *                                объектам модели одновременно, или индексированый масив таких id
+     * @param string    $operation  - как присоединить это условие к остальным? (AND/OR/AND NOT/OR NOT)
+     * @return CActiveRecord
+     */
+    public function exceptObjectId($objectIds, $operation='AND')
+    {
+        return $this->exceptLinkedWithAnyObjectId($objectIds, $operation);
+    }
+    
+    /**
      * Все записи, кроме тех, которые хотя бы раз связаны хотя бы с одним из id
      * объектов в списке (без учета типа)
      *
@@ -604,8 +617,8 @@ class CustomRelationSourceBehavior extends CustomScopesBehavior
     public function exceptLinkedWithAnyObjectId($objectIds, $operation='AND')
     {
         if ( ! $objectIds )
-        {// условие не используется
-            return $this->owner;
+        {// поиск по objectid=0
+            $objectIds = intval($objectIds);
         }
         if ( ! is_array($objectIds) )
         {
@@ -613,7 +626,7 @@ class CustomRelationSourceBehavior extends CustomScopesBehavior
         }
         $criteria = new CDbCriteria();
         $criteria->addNotInCondition($this->owner->getTableAlias(true).
-            '.`'.$this->objectIdField.'`',  $objectIds);
+            '.`'.$this->objectIdField.'`', $objectIds);
         
         $this->owner->getDbCriteria()->mergeWith($criteria, $operation);
         
