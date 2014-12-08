@@ -139,7 +139,9 @@ class SortableModel extends CActiveRecordBehavior
         $this->owner->dbCriteria->mergeWith(array(
             'condition' => '`' . $this->orderField . '` = :position' . ($this->condition ? ' AND ' . $this->condition : ''), 
             'params' => array_merge(array(
-                ':position' => $this->owner->attributes[$this->orderField] + 1), $this->params)));
+                ':position' => $this->owner->attributes[$this->orderField] + 1), $this->params),
+            )
+        );
         return $this->owner;
     }
 
@@ -152,7 +154,9 @@ class SortableModel extends CActiveRecordBehavior
         $this->owner->dbCriteria->mergeWith(array(
             'condition' => '`' . $this->orderField . '` = :position' . ($this->condition ? ' AND ' . $this->condition : ''), 
             'params' => array_merge(array(
-                ':position' => $this->owner->attributes[$this->orderField] - 1), $this->params)));
+                ':position' => $this->owner->attributes[$this->orderField] - 1), $this->params),
+            )
+        );
         return $this->owner;
     }
 
@@ -161,7 +165,9 @@ class SortableModel extends CActiveRecordBehavior
      */
     private function ensureNotLocked()
     {
-        if ( $this->owner->findByAttributes(array(
-            $this->orderField => 0)) !== null ) throw new Exception('Table order is locked!');
+        if ( $this->owner->findByAttributes(array($this->orderField => 0)) !== null )
+        {
+            throw new Exception('Table order is locked!');
+        }
     }
 }
