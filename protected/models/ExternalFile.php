@@ -244,13 +244,24 @@ class ExternalFile extends SWActiveRecord
 	 */
 	public function scopes()
 	{
-	    $alias = $this->owner->getTableAlias(true);
+	    $alias    = $this->owner->getTableAlias(true);
 	    // условия поиска по датам создания и изменения
 	    $timestampScopes = $this->asa('EcTimestampBehavior')->getDefaultTimestampScopes();
-	     
 	    // собственные условия поиска модели
+	    // @todo понять почему не работает фильтрация по originalid
 	    $modelScopes = array(
-	        
+	        'originalOnly' => array(
+	            'condition' => "{$alias}.`originalid` = 0",
+    	        /*'scopes' => array(
+    	            'withOriginalId' => array('0'),
+    	        ),*/
+    	    ),
+	        'encodedOnly' => array(
+	            'condition' => "{$alias}.`originalid` > 0",
+    	        /*'scopes' => array(
+    	            'withOriginalId' => array('<>0'),
+    	        ),*/ 
+    	    ),
 	    );
 	    return CMap::mergeArray($timestampScopes, $modelScopes);
 	}
@@ -295,6 +306,23 @@ class ExternalFile extends SWActiveRecord
 	    
 	    $this->getDbCriteria()->mergeWith($criteria, $operator);
 	    
+	    return $this;
+	}
+	
+	/**
+	 * Условие поиска: найти файлы по относительному пути внутри контейнера
+	 *
+	 * @param  string $originalId
+	 * @param  string $operator
+	 * @return ExternalFile
+	 */
+	public function withOriginalId($originalId, $operator='AND')
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare($this->owner->getTableAlias(true).'.`originalid`', $originalId);
+	     
+	    $this->getDbCriteria()->mergeWith($criteria, $operator);
+	     
 	    return $this;
 	}
 	
