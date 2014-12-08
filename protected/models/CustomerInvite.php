@@ -275,10 +275,11 @@ class CustomerInvite extends CActiveRecord
      */
     public function checkKeys($id, $key, $key2)
     {
+        $alias = $this->getTableAlias(true);
         $criteria = new CDbCriteria();
-        $criteria->compare('id', $id);
-        $criteria->compare('key', $key);
-        $criteria->compare('key2', $key2);
+        $criteria->compare($alias.'.`id`', $id);
+        $criteria->compare($alias.'.`key`', $key);
+        $criteria->compare($alias.'.`key2`', $key2);
         
         return CustomerInvite::model()->exists($criteria);
     }

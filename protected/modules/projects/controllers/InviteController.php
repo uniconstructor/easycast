@@ -382,7 +382,7 @@ class InviteController extends Controller
      */
     protected function checkCustomerInviteKeys($invite, $key, $key2)
     {
-        if ( $invite->checkKeys($invite->id, $key, $key2) )
+        if ( ! $invite->checkKeys($invite->id, $key, $key2) )
         {// ключи доступа не совпадают
             throw new CHttpException(400, "Неправильная ссылка с приглашением ({$invite->id})");
         }
