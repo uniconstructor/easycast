@@ -96,26 +96,19 @@ class InviteController extends Controller
     public function actionSubscribe()
     {
         $inviteId = Yii::app()->request->getParam('id', 0);
-        $invite   = $this->loadModel($inviteId);
+        /* @var $invite EventInvite */
+        $invite   = $this->loadModel($inviteId, '');
         if ( ! $key = Yii::app()->request->getParam('key', '') )
         {
-            throw new CHttpException(404, 'Страница не найдена');
+            throw new CHttpException(404, 'Ссылка недействительна');
         }
-        if ( $key != $invite->subscribekey )
-        {
-            throw new CHttpException(404, 'Страница не найдена');
+        if ( ! $invite->validateKeys($inviteId, $key) )
+        {// @todo предлагать отправить другую ссылку на это же действие
+            throw new CHttpException(400, 'Ссылка недействительна');
         }
         // ключ подошел - значит участник зашел по ссылке. попробуем его залогинить.
         Yii::app()->getModule('user')->forceLogin($invite->questionary->user);
-        // @todo убрать if/else, и отображать оба случая одним виджетом, без ветвления
-        
-        if ( $invite->event->type == ProjectEvent::TYPE_GROUP )
-        {// отобразить мероприятия и вакансии группы событый
-            $this->render('subscribe', array('invite' => $invite));
-        }else
-        {// отобразить вакансии одного события 
-            $this->render('tokenInvite', array('invite' => $invite, 'key' => $key));
-        }
+        $this->render('tokenInvite', array('invite' => $invite, 'key' => $key));
     }
     
     /**
@@ -206,7 +199,7 @@ class InviteController extends Controller
         $key2 = Yii::app()->request->getParam('k2', '');
         
         // проверяем, что приглашение существует и ключи доступа правильные
-        $customerInvite = $this->loadCustomerInviteModel($id);
+        $customerInvite = $this->loadModel($id, 'CustomerInvite');
         $this->checkCustomerInviteKeys($customerInvite, $key, $key2);
         
         // получаем все параметры для редактирования одной записи
@@ -260,30 +253,39 @@ class InviteController extends Controller
         }
         if ( ! $vacancies = $event->activevacancies )
         {
-            echo $this->getInfoMessage('Вакансия была закрыта: набрано достаточное количество человек
-                или истек срок подачи заявок.', 'Вакансия закрыта');
+            echo $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
+                'type'    => 'info',
+                'header'  => 'Набор завершен',
+                'message' => 'Роль закрыта: набрано достаточное количество человек
+                    или истек срок подачи заявок.',
+            ), true);
             return false;
         }
-        
         $vacancy = current($vacancies);
         if ( $vacancy->status == EventVacancy::STATUS_FINISHED )
         {
-            echo $this->getInfoMessage('Вакансия была закрыта: набрано достаточное количество человек 
-                или истек срок подачи заявок.', 'Вакансия закрыта');
+            echo $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
+                'type'    => 'info',
+                'header'  => 'Набор завершен',
+                'message' => 'Роль закрыта: набрано достаточное количество человек 
+                    или истек срок подачи заявок.',
+            ), true);
             return false;
         }
         if ( $vacancy->hasApplication($questionary->id) )
         {
-            echo $this->getInfoMessage('Вы уже подали заявку на участие в этом мероприятии', 'Заявка уже подана');
+            echo $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
+                'type'    => 'info',
+                'header'  => 'Заявка принята',
+                'message' => 'Вы уже подали заявку на участие в этом мероприятии.',
+            ), true);
             return false;
         }
         // все в порядке - создаем и сохраняем заявку
         $request = new MemberRequest();
         $request->vacancyid = $vacancy->id;
         $request->memberid  = $questionary->id;
-        $request->save();
-        
-        return true;
+        return $request->save();
     }
     
     /**
@@ -292,9 +294,8 @@ class InviteController extends Controller
      * @param  Questionary $user
      * @return null
      * 
-     * @todo рефакторинг: воспользоваться аналогичным методом из UserModule 
+     * @deprecated рефакторинг: воспользоваться аналогичным методом из UserModule 
      *       Yii::app()->module('user')->forceLogin($user);
-     * @deprecated 
      */
     protected function quickLogin($questionary)
     {
@@ -344,6 +345,8 @@ class InviteController extends Controller
      * @param  int $id
      * @return CustomerInvite
      * @throws CHttpException
+     * 
+     * @deprecated использовать обновленный $this->loadModel($id, $class);
      */
     protected function loadCustomerInviteModel($id)
     {
@@ -379,7 +382,7 @@ class InviteController extends Controller
      */
     protected function checkCustomerInviteKeys($invite, $key, $key2)
     {
-        if ( $invite->key != $key OR $invite->key2 != $key2 )
+        if ( $invite->checkKeys($invite->id, $key, $key2) )
         {// ключи доступа не совпадают
             throw new CHttpException(400, "Неправильная ссылка с приглашением ({$invite->id})");
         }
