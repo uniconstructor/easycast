@@ -277,6 +277,7 @@ class ConfigurableRecordBehavior extends CActiveRecordBehavior
                 'joinType'  => 'LEFT JOIN',
                 'on'        => "`{$this->configRelationName}`.`name`='{$name}'",
                 'condition' => "`{$this->configRelationName}`.`id` IS NULL",
+                //'limit'     => 1, // @todo проверить нужен ли limit
             ),
         );
         $criteria->together = true;
