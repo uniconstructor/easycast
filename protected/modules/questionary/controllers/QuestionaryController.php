@@ -176,7 +176,7 @@ class QuestionaryController extends Controller
     {
         // Загружаем модели изменяемых элементов
         $questionary = $this->loadModel($id);
-        $questionary->setScenario('update');
+        //$questionary->setScenario('update');
         $user        = $questionary->user;
         
         if ( ! Yii::app()->user->checkAccess('Admin') AND Yii::app()->user->id != $user->id )
@@ -201,26 +201,22 @@ class QuestionaryController extends Controller
             $recordingConditions->save();
         }
         
-        if ( Yii::app()->request->getPost('Questionary') )
+        if ( $attributes = Yii::app()->request->getPost('Questionary') )
         {
-            $user->attributes        = Yii::app()->request->getPost('User');
             // получаем данные анкеты
-            $questionary->attributes = Yii::app()->request->getPost('Questionary');
+            $questionary->attributes = $attributes;
+            //$user->attributes        = Yii::app()->request->getPost('User');
             // получаем данные адреса
-            $address->attributes     = Yii::app()->request->getPost('Address');
-            // Получаем условия участия в съемках
-            $recordingConditions->attributes = Yii::app()->request->getPost('QRecordingConditions');
-            
-            if ( $questionary->validate(null, false) )
-            {// все данные анкеты проверены, сохранять можно
-                if( $questionary->save() )
-                {// записываем в базу значения анкеты и адреса
-                    $user->save();
-                    $address->save();
+            //$address->attributes     = Yii::app()->request->getPost('Address');
+            if ( $questionary->save() )
+            {// записываем в базу значения анкеты и адреса
+                if ( $recordingConditions->attributes = Yii::app()->request->getPost('QRecordingConditions') )
+                {// Получаем условия участия в съемках
                     $recordingConditions->save();
-                    
-                    $this->redirect(array('view', 'id' => $questionary->id));
                 }
+                //$user->save();
+                //$address->save();
+                $this->redirect(array('view', 'id' => $questionary->id));
             }
         }
 
@@ -525,12 +521,7 @@ class QuestionaryController extends Controller
 	{
 		if ( isset($_POST['ajax']) AND $_POST['ajax'] === 'questionary-form' )
 		{
-			$result = CActiveForm::validate($model);
-			if ( ! Yii::app()->user->checkAccess('Admin') )
-			{// не даем сохранять анкету если есть ошибки
-			    $result = CJSON::encode($result);
-			}
-			echo $result;
+			echo CActiveForm::validate($model);
 			Yii::app()->end();
 		}
 	}
