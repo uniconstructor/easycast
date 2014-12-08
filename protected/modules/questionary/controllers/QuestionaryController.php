@@ -455,16 +455,17 @@ class QuestionaryController extends Controller
     public function actionToggleProjectTypeNotification()
     {
         /* @var $config Config */
-        /* @var $item   EasyListItem */
         $qid         = Yii::app()->request->getPost('objectId', 0);
-        $configName  = Yii::app()->request->getPost('configName');
+        $configName  = Yii::app()->request->getPost('configName', '');
         $itemId      = Yii::app()->request->getPost('itemId', 0);
+        /* @var $questionary Questionary */
         $questionary = $this->loadModel($qid);
-        $item        = EasyListItem::model()->findByPk($itemId);
+        /* @var $item EasyListItem */
+        $item        = $this->loadModel($itemId, 'EasyListItem');
         // проверка параметров
-        if ( ! $item OR ! $configName )
+        if ( ! $configName )
         {
-            throw new CHttpException(400, 'Не передан обязательный параметр');
+            throw new CHttpException(400, 'Не передано название настройки');
         }
         if ( ! $this->canEditUser($questionary->userid) )
         {
@@ -476,8 +477,18 @@ class QuestionaryController extends Controller
         {// настройка для этой анкеты еще не создана
             throw new CHttpException(500, 'Не удалось привязать новый экземпляр настройки к модели');
         }
-        // изменяем его значение
+        // изменяем ее значение
         $questionary->toggleConfigOption($configName, $item);
+        if ( $config->hasSelectedOption($item) )
+        {
+            echo '['.Yii::t('coreMessages', 'config_saved').']<br><b>'.$item->title.'</b>'.
+                ' больше не появится в списке ваших приглашений';
+        }else
+        {
+            echo '['.Yii::t('coreMessages', 'config_saved').']<br>Если у нас будет <b>'.
+                mb_strtolower($item->title, 'utf-8').'</b> '.
+                'с подходящей ролью - мы обязательно сообщим';
+        }
         Yii::app()->end();
     }
     
