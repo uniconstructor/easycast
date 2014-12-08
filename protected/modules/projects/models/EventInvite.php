@@ -174,7 +174,7 @@ class EventInvite extends CActiveRecord
 	/**
 	 * @see CActiveRecord::beforeSave()
 	 */
-	protected function beforeSave()
+	public function beforeSave()
 	{
 	    if ( $this->isNewRecord )
 	    {// при создании записи установим начальный статус
@@ -187,7 +187,7 @@ class EventInvite extends CActiveRecord
 	/**
 	 * @see CActiveRecord::afterSave()
 	 */
-	protected function afterSave()
+	public function afterSave()
 	{
 	    if  ( $this->isNewRecord )
 	    {// сразу же после создания приглашения - отсылаем письмо участнику
@@ -408,5 +408,20 @@ class EventInvite extends CActiveRecord
 	        return $this->save(true, array('status'));
 	    }
 	    return true;
+	}
+	
+	/**
+	 * 
+	 * @param  int    $id
+	 * @param  string $key
+	 * @return boolean
+	 */
+	public function validateKeys($id, $key)
+	{
+	    $criteria = new CDbCriteria();
+	    $criteria->compare('id', $id);
+	    $criteria->compare('subscribekey', $key);
+	    
+	    return EventInvite::model()->exists($criteria);
 	}
 }
