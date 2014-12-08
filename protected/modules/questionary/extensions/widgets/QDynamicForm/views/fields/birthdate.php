@@ -6,28 +6,20 @@
 /* @var $this  QDynamicForm */
 /* @var $model QDynamicFormModel */
 
+$dateFormat = Yii::app()->params['yiiDateFormat'];
 // дата рождения
-$formData = Yii::app()->request->getParam('QDynamicFormModel');
-if ( isset($formData['birthdate']) )
-{
-    $model->birthdate = $formData['birthdate'];
-}elseif ( $model->birthdate )
-{
-    $model->birthdate = date(Yii::app()->params['outputDateFormat'], (int)$model->birthdate);
-}else
-{
-    $model->birthdate = '';
-}
-echo $form->datePickerRow($model, 'birthdate',
-    array(
+echo $form->datePickerRow($model, 'birthdate', array(
         'options' => array(
             'language'  => 'ru',
-            'format'    => 'dd.mm.yyyy',
+            'format'    => Yii::app()->params['inputDateFormat'],
             'startView' => 'decade',
             'weekStart' => 1,
             'startDate' => '-75y',
             'endDate'   => '-1y',
             'autoclose' => true,
+        ),
+        'htmlOptions' => array(
+            'value' => Yii::app()->dateFormatter->format($dateFormat, $model->birthdate),
         ),
     ),
     array(
