@@ -8,7 +8,14 @@
 
 // jQuery должен быть на всех страницах темы
 Yii::app()->clientScript->registerCoreScript('jquery');
-
+// <!--link rel="stylesheet" href="https://fuelcdn.com/fuelux/2.3/css/fuelux.min.css"-->
+// <!-- Revolution Slider -->
+// <!--link href="< ?= Yii::app()->theme->baseUrl; ? >/bootstrap/rs-plugin/css/settings.css" rel="stylesheet" type="text/css"-->
+// <!-- Dropzone.js -->
+// <link href="<? = Yii::app()->theme->baseUrl; ? >/bootstrap/dropzone/css/basic.css" rel="stylesheet" type="text/css">
+// <link href="<? = Yii::app()->theme->baseUrl; ? >/bootstrap/dropzone/css/dropzone.css" rel="stylesheet" type="text/css">
+// <!--script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script-->
+// <!--script type="text/javascript">stLight.options({publisher: "9144efb6-c5a7-4360-9b70-24e468be66c3", doNotHash: false, doNotCopy: false, hashAddressBar: false});</script-->
 ?><!DOCTYPE html>
 <!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
 <!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
@@ -30,21 +37,13 @@ Yii::app()->clientScript->registerCoreScript('jquery');
     <link href="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/css/main.css" rel="stylesheet" type='text/css'>
     <link href="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" type='text/css'>
     <link href="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/css/responsive.css" rel="stylesheet" type="text/css">
-    <!-- Revolution Slider -->
-    <!--link href="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/rs-plugin/css/settings.css" rel="stylesheet" type="text/css"-->
-    <!-- Dropzone.js -->
-    <link href="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/dropzone/css/basic.css" rel="stylesheet" type="text/css">
-    <link href="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/dropzone/css/dropzone.css" rel="stylesheet" type="text/css">
-    <!-- Our helper styles -->
+    <!-- Helper styles -->
     <link href="<?= Yii::app()->baseUrl; ?>/css/helpers.css" rel="stylesheet" type='text/css'>
-    <!--link rel="stylesheet" href="https://fuelcdn.com/fuelux/2.3/css/fuelux.min.css"-->
     <!-- modernizr lib -->
     <script src="<?= Yii::app()->baseUrl; ?>/js/modernizr.custom.min.js" type="text/javascript"></script>
-    <script src="<?= Yii::app()->baseUrl; ?>/js/yiiFormExtensions.js" type="text/javascript"></script>
+    <script src="<?= Yii::app()->baseUrl; ?>/js/easycast.js" type="text/javascript"></script>
     <!-- jGrowl notifications -->
     <link href="<?= Yii::app()->baseUrl; ?>/css/jquery.jgrowl.min.css" rel="stylesheet" type='text/css'>
-    <!--script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script-->
-    <!--script type="text/javascript">stLight.options({publisher: "9144efb6-c5a7-4360-9b70-24e468be66c3", doNotHash: false, doNotCopy: false, hashAddressBar: false});</script-->
 </head>
 <body>
     <?php
@@ -65,15 +64,17 @@ Yii::app()->clientScript->registerCoreScript('jquery');
     <script src="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/js/jquery.isotope.js" type="text/javascript"></script>
     <script src="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/js/placeholder.js" type="text/javascript"></script>
     <script src="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/js/plugins.js" type="text/javascript"></script>
-    <!-- script src="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/js/theme.js" type="text/javascript"></script -->
-    <!-- Revolution Slider -->
-    <!--script src="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/rs-plugin/js/jquery.themepunch.revolution.min.js" type="text/javascript"></script-->
-    <!-- script src="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/rs-plugin/pluginsources/jquery.themepunch.plugins.min.js" type="text/javascript"></script-->
-    <!-- Flex Slider -->
-    <script src="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/js/jquery.flexslider-min.js" type="text/javascript"></script>
     <!-- jGrowl notifications -->
     <script src="<?= Yii::app()->baseUrl; ?>/js/jquery.jgrowl.min.js" type="text/javascript"></script>
-    <!-- Dropzone.js -->
-    <script src="<?= Yii::app()->theme->baseUrl; ?>/bootstrap/dropzone/dropzone.min.js" type="text/javascript"></script>
 </body>
-</html>
+</html><?php 
+// <!-- Theme init -->
+// <!-- script src="< ?= Yii::app()->theme->baseUrl; ? >/bootstrap/js/theme.js" type="text/javascript"></script -->
+// <!-- Revolution Slider -->
+// <!-- script src="< ?= Yii::app()->theme->baseUrl; ? >/bootstrap/rs-plugin/js/jquery.themepunch.revolution.min.js" type="text/javascript"></script-->
+// <!-- script src="< ?= Yii::app()->theme->baseUrl; ? >/bootstrap/rs-plugin/pluginsources/jquery.themepunch.plugins.min.js" type="text/javascript"></script-->
+// <!-- Flex Slider -->
+// <script src="< ?= Yii::app()->theme->baseUrl; ? >/bootstrap/js/jquery.flexslider-min.js" type="text/javascript"></script>
+// <!-- Dropzone.js -->
+// <!--script src="<? = Yii::app()->theme->baseUrl; ? >/bootstrap/dropzone/dropzone.min.js" type="text/javascript"></script-->
+
