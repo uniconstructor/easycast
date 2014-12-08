@@ -8,7 +8,7 @@ class ECPurifier extends CHtmlPurifier
     /**
      * @var string
      */
-    public static $encoding = 'UTF-8';
+    public static $encoding = 'utf-8';
     
     /**
      * Обрезать все кавычки из названия
@@ -173,7 +173,7 @@ class ECPurifier extends CHtmlPurifier
      */
     public static function ucfirst($str)
     {
-        $fc = mb_strtoupper(mb_substr($str, 0, 1, self::$encoding));
+        $fc = mb_strtoupper(mb_substr($str, 0, 1, self::$encoding), self::$encoding);
         return $fc.mb_substr($str, 1, self::$encoding);
     }
 }
