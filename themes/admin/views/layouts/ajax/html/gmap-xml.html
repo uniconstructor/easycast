@@ -54,30 +54,7 @@
 				-->
 				<header>
 					<span class="widget-icon"> <i class="fa fa-map-marker"></i> </span>
-					<h2>XML Generated</h2>
-
-					<div class="widget-toolbar">
-						<!-- add: non-hidden - to disable auto hide -->
-
-						<div class="btn-group">
-							<button class="btn dropdown-toggle btn-xs btn-primary" data-toggle="dropdown">
-								Load XML <i class="icon-caret-down"></i>
-							</button>
-							<ul class="dropdown-menu pull-right">
-								<li>
-									<a href="javascript:void(0);"><i class="icon-circle txt-color-green"></i> Realestate XML</a>
-								</li>
-								<li>
-									<a href="javascript:void(0);"><i class="icon-circle txt-color-red"></i> Clients XML</a>
-								</li>
-								<li class="divider"></li>
-								<li>
-									<a href="javascript:void(0);"><i class="icon-delete"></i> Cancel</a>
-								</li>
-							</ul>
-						</div>
-					</div>
-
+					<h2>Data Attribute Driven</h2>
 				</header>
 
 				<!-- widget div-->
@@ -1366,7 +1343,7 @@
 	        name: "One Color"
 	    });
 	
-	    function xmlLoadMap() {
+	    function demoLoadAttribute() {
 	
 	        var centerLatLng = new google.maps.LatLng($data_lat, $data_lng),
 	        mapOptions = {
@@ -1398,53 +1375,8 @@
 	        //map.setMapTypeId(google.maps.MapTypeId.TERRAIN);
 	        map.setMapTypeId('metro_style');
 	
-				$.get($xml_src, function(data) {
-		
-			        // create the Bounds object
-			        var bounds = new google.maps.LatLngBounds();
-			        
-					$(data).find("marker").each(function(){
-			
-						var eachMarker = jQuery(this),
-							// grab the address from XML
-							theAddress = eachMarker.find("address").text(),
-							mygc = new google.maps.Geocoder(theAddress);
-							
-							mygc.geocode({'address' : theAddress}, function(results, status) {
-			
-								var mLat = results[0].geometry.location.lat(),
-									Long = results[0].geometry.location.lng(),
-				
-									marker = new google.maps.Marker({
-									position : new google.maps.LatLng(mLat, Long),
-									map : map,
-									icon : ('img/' + eachMarker.find("icons").text() + '.png'),
-									scrollwheel : false,
-									streetViewControl : true,
-									title : eachMarker.find("name").text()
-							}),
-					        
-							link = "link";
-							
-							google.maps.event.addListener(marker, 'click', function() {// click
-								// Setting the content of the InfoWindow
-								var contentString = '<div id="info-map" style="width:300px; height:85px; padding:0px;"><div>' + '<div style="display:inline-block; width:86px; verticle-align:top; float:left;"><img src=' + eachMarker.find("image").text() + ' class="thumbnail" style="width:80%; verticle-align:top;" /></div>' + '<div style="display:inline-block; width:200px; float:left;"><h4>' + eachMarker.find("name").text() + '</h4><b>' + eachMarker.find("address").text() + '</b><br/>' + '<p><a href="' + eachMarker.find("link").text() + '" class="btn btn-xs btn-default pull-right"><i class="fa fa-fw fa-map-marker"></i>More Info</a></p>' + '</div></div></div>';
-								infowindow.setContent(contentString);
-								infowindow.open(map, marker);
-			
-								google.maps.event.addListener(map, 'click', function() {
-									infowindow.close()
-									})
-								});
-			
-							});// end geocode
-				
-					});// end find marker loop
-				
-			});	// end get data
-			
 					
-	    } // end xmlLoadMap
+	    } // end demoLoadAttribute
 	
 	    // grey
 	    function generate_map_1() {
@@ -1566,7 +1498,7 @@
 	
 	    }
 	
-	    xmlLoadMap();
+	    demoLoadAttribute();
 	    generate_map_1();
 	    generate_map_2();
 	    generate_map_3();
@@ -1580,10 +1512,36 @@
 	};
 	
 	// end pagefunction
+
+	// destroy generated instances
+	// pagedestroy is called automatically before loading a new page
+	// only usable in AJAX version!
+
+	var pagedestroy = function() {
+
+		/*
+		 Example below:
+
+		 $("#calednar").fullCalendar( 'destroy' );
+		 if (debugState){
+		 root.console.log("✔ Calendar destroyed");
+		 }
+
+		 For common instances, such as Jarviswidgets, Google maps, and Datatables, are automatically destroyed through the app.js loadURL mechanic
+
+		 */
+		$(window).unbind('gMapsLoaded');
+
+		if (debugState) {
+			root.console.log("✔ Google maps unbind");
+		}
+
+	}
+	// end destroy
 	
 	// run pagefunction on load
 
-	$(window).unbind('gMapsLoaded');
+	//$(window).unbind('gMapsLoaded');
 	$(window).bind('gMapsLoaded', pagefunction);
 	window.loadGoogleMaps();
 

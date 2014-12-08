@@ -283,6 +283,8 @@
 
 	// pagefunction
 	
+	var fullviewcalendar;
+
 	var pagefunction = function() {
 		
 		// full calendar
@@ -352,7 +354,7 @@
 	    /* initialize the calendar
 		 -----------------------------------------------------------------*/
 	
-	    $('#calendar').fullCalendar({
+	    fullviewcalendar = $('#calendar').fullCalendar({
 	
 	        header: hdr,
 	        buttonText: {
@@ -503,8 +505,60 @@
 	
 	// end pagefunction
 	
+	// destroy generated instances 
+
+	// destroy generated instances 
+	// pagedestroy is called automatically before loading a new page
+	// only usable in AJAX version!
+
+	var pagedestroy = function(){
+
+		/*
+		Example below:
+
+		$("#calednar").fullCalendar( 'destroy' );
+		if (debugState){
+			root.console.log("✔ Calendar destroyed");
+		} 
+
+		For common instances, such as Jarviswidgets, Google maps, and Datatables, are automatically destroyed through the app.js loadURL mechanic
+
+		*/
+		
+		fullviewcalendar.fullCalendar( 'destroy' );
+		fullviewcalendar = null;
+		$("#add-event").off();
+		$("#add-event").remove();
+
+		$('#external-events > li').off();
+		$('#external-events > li').remove();
+		$('#add-event').off();
+		$('#add-event').remove();
+		$('#calendar-buttons #btn-prev').off();
+		$('#calendar-buttons #btn-prev').remove();
+		$('#calendar-buttons #btn-next').off();
+		$('#calendar-buttons #btn-next').remove();
+		$('#calendar-buttons #btn-today').off();
+		$('#calendar-buttons #btn-today').remove();
+		$('#mt').off();
+		$('#mt').remove();
+		$('#ag').off();
+		$('#ag').remove();
+		$('#td').off();
+		$('#td').remove();
+
+		if (debugState){
+			root.console.log("✔ Calendar destroyed");
+		} 
+	}
+
+	// end destroy
+
 	// loadscript and run pagefunction
-	loadScript("js/plugin/fullcalendar/jquery.fullcalendar.min.js", pagefunction);
+	loadScript("js/plugin/moment/moment.min.js", function(){
+		loadScript("js/plugin/fullcalendar/jquery.fullcalendar.min.js", pagefunction);
+	});
+
 
 
 </script>

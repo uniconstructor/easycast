@@ -469,6 +469,27 @@ var save = function() {
 	};
 	
 	// end pagefunction
+
+	// destroy generated instances 
+	// pagedestroy is called automatically before loading a new page
+	// only usable in AJAX version!
+
+	var pagedestroy = function(){
+		
+		// destroy summernote
+		$(".summernote").summernote( 'destroy' );
+
+		//destroy markdown
+		$("#mymarkdown").markdown( 'destroy' );
+
+		// debug msg
+		if (debugState){
+			root.console.log("✔ Summernote and Markdown editors destroyed");
+		} 
+
+	}
+
+	// end destroy
 	
 	// load summernote, and all markdown related plugins
 	loadScript("js/plugin/summernote/summernote.min.js", function(){

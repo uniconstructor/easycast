@@ -495,6 +495,72 @@ data-slider-tooltip = "show"       <span class="text-muted"> // show or hide</sp
 			</div>
 			<!-- end widget -->
 
+			<!-- Widget ID (each widget will need unique ID)-->
+			<div class="jarviswidget jarviswidget-color-darken" id="wid-id-2" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-custombutton="false">
+				<!-- widget options:
+				usage: <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false">
+
+				data-widget-colorbutton="false"
+				data-widget-editbutton="false"
+				data-widget-togglebutton="false"
+				data-widget-deletebutton="false"
+				data-widget-fullscreenbutton="false"
+				data-widget-custombutton="false"
+				data-widget-collapsed="true"
+				data-widget-sortable="false"
+
+				-->
+				<header>
+					<span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+					<h2>Bootstrap Duallist Box </h2>
+					
+				</header>
+
+				<!-- widget div-->
+				<div>
+
+					<!-- widget edit box -->
+					<div class="jarviswidget-editbox">
+						<!-- This area used as dropdown edit box -->
+
+					</div>
+					<!-- end widget edit box -->
+
+					<!-- widget content -->
+					<div class="widget-body">
+						
+						<select multiple="multiple" size="10" name="duallistbox_demo2" id="initializeDuallistbox">
+							<option value="option1">Option 1</option>
+							<option value="option2">Option 2</option>
+							<option value="option3" selected="selected">Option 3</option>
+							<option value="option4">Option 4</option>
+							<option value="option5">Option 5</option>
+							<option value="option6" selected="selected">Option 6</option>
+							<option value="option7">Option 7</option>
+							<option value="option8">Option 8</option>
+							<option value="option9">Option 9</option>
+							<option value="option0">Option 10</option>
+							<option value="option0">Option 11</option>
+							<option value="option0">Option 12</option>
+							<option value="option0">Option 13</option>
+							<option value="option0">Option 14</option>
+							<option value="option0">Option 15</option>
+							<option value="option0">Option 16</option>
+							<option value="option0">Option 17</option>
+							<option value="option0">Option 18</option>
+							<option value="option0">Option 19</option>
+							<option value="option0">Option 20</option>
+						</select>
+
+					</div>
+					<!-- end widget content -->
+
+				</div>
+				<!-- end widget div -->
+
+			</div>
+			<!-- end widget -->
+
 		</article>
 		<!-- END COL -->
 
@@ -510,7 +576,7 @@ data-slider-tooltip = "show"       <span class="text-muted"> // show or hide</sp
 		<article class="col-sm-12 col-md-12 col-lg-6">
 
 			<!-- Widget ID (each widget will need unique ID)-->
-			<div class="jarviswidget" id="wid-id-2" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-custombutton="false">
+			<div class="jarviswidget" id="wid-id-3" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-custombutton="false">
 				<!-- widget options:
 				usage: <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false">
 
@@ -794,20 +860,20 @@ data-slider-tooltip = "show"       <span class="text-muted"> // show or hide</sp
 
 										<div class="form-group">
 											<label>Default</label>
-											<input class="form-control spinner-left"  id="spinner" name="spinner" value="1" type="text">
+											<input class="form-control spinner spinner-left"  id="spinner" name="spinner" value="1" type="text">
 										</div>
 
 									</div>
 									<div class="col-sm-6 col-md-4 col-lg-4">
 										<div class="form-group">
 											<label>Decimal spinner</label>
-											<input class="form-control"  id="spinner-decimal" name="spinner-decimal" value="7.99">
+											<input class="form-control spinner"  id="spinner-decimal" name="spinner-decimal" value="7.99">
 										</div>
 									</div>
 									<div class="col-sm-12 col-md-4 col-lg-4">
 										<div class="form-group">
 											<label>Increment spinner</label>
-											<input class="form-control spinner-both"  id="spinner-currency" name="spinner-currency" value="5">
+											<input class="form-control spinner spinner-both"  id="spinner-currency" name="spinner-currency" value="5">
 										</div>
 									</div>
 								</div>
@@ -889,7 +955,7 @@ data-slider-tooltip = "show"       <span class="text-muted"> // show or hide</sp
 		<article class="col-sm-12 col-md-12 col-lg-6">
 
 			<!-- Widget ID (each widget will need unique ID)-->
-			<div class="jarviswidget" id="wid-id-3" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-custombutton="false">
+			<div class="jarviswidget" id="wid-id-4" data-widget-colorbutton="false" data-widget-editbutton="false" data-widget-custombutton="false">
 				<!-- widget options:
 				usage: <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false">
 
@@ -1357,7 +1423,23 @@ data-slider-tooltip = "show"       <span class="text-muted"> // show or hide</sp
 		    });
 	
 		}
-	
+
+		/*
+		 * BOOTSTRAP DUALLIST BOX
+		 */
+		
+		loadScript("js/plugin/bootstrap-duallistbox/jquery.bootstrap-duallistbox.min.js", initializeDuallistbox);
+		
+		function initializeDuallistbox(){
+			var initializeDuallistbox = $('#initializeDuallistbox').bootstrapDualListbox({
+	          nonSelectedListLabel: 'Non-selected',
+	          selectedListLabel: 'Selected',
+	          preserveSelectionOnMove: 'moved',
+	          moveOnSelect: false,
+	          nonSelectedFilter: 'ion ([7-9]|[1][0-2])'
+	        });
+		}
+		
 		/*
 		 * COLOR PICKER
 		 */
@@ -1378,8 +1460,10 @@ data-slider-tooltip = "show"       <span class="text-muted"> // show or hide</sp
 		 * TAGS
 		 */
 	
-		loadScript("js/plugin/bootstrap-tags/bootstrap-tagsinput.min.js");
-	
+		loadScript("js/plugin/bootstrap-tags/bootstrap-tagsinput.min.js", function(){
+			$('.tagsinput').tagsinput('refresh')
+		});
+
 	
 		/*
 		 * KNOB
@@ -2058,6 +2142,99 @@ data-slider-tooltip = "show"       <span class="text-muted"> // show or hide</sp
 	}; 
 	
 	// end pagefunction
+
+	// destroy generated instances 
+	// pagedestroy is called automatically before loading a new page
+	// only usable in AJAX version!
+
+	var pagedestroy = function(){
+		
+		/*
+		Example below:
+
+		$("#calednar").fullCalendar( 'destroy' );
+		if (debugState){
+			root.console.log("✔ Calendar destroyed");
+		} 
+
+		For common instances, such as Jarviswidgets, Google maps, and Datatables, are automatically destroyed through the app.js loadURL mechanic
+
+		*/
+		
+		// destroy spinner
+		$( ".spinner" ).spinner("destroy");
+		
+		// remove maxlength
+		$('input[maxlength]').off();
+		$('input[maxlength]').remove();
+		
+		// remove timepicker
+		$('#timepicker').off();
+		$('#timepicker').remove();
+		
+		// remove clockpicker
+		$('#clockpicker').off();
+		$('#clockpicker').remove();
+		
+		// destroy duellist
+		$('#initializeDuallistbox').bootstrapDualListbox('destroy');
+		
+		// destroy built in datepicker
+		$('.hasDatepicker').off();
+		$('.hasDatepicker').remove();
+
+		// destroy noui slider
+		$('.noUiSlider').find('*').addBack().off();
+		
+		// destroy ion range slider 
+		$('.irs').find('*').addBack().off();
+		
+		// destroy tagsinput
+		$('.tagsinput').tagsinput('destroy');
+		
+		// destroy colorpicker
+		$('#colorpicker-1').off();
+		$('#colorpicker-1').remove();
+	    $('#colorpicker-2').off();
+	    $('#colorpicker-2').remove();
+	    
+	    //destroy xeditable
+	    $('#username').editable("destroy");
+	    $('#firstname').editable("destroy");
+	    $('#sex').editable("destroy");
+	    $('#group').editable("destroy");
+	    $('#status').editable("destroy");
+	    $('#vacation').editable("destroy");
+	    $('#dob').editable("destroy");
+	    $('#event').editable("destroy");
+	    $('#comments').editable("destroy");
+	    $('#state2').editable("destroy");
+	    //$('#fruits').editable("destroy");
+	    //$('#tags').editable("destroy");
+	    //$('#country').editable("destroy");
+	    //$('#address').editable("destroy");
+	   
+	    // destroy knob
+		$('.knob').find('*').addBack().off();
+		
+		if (debugState){
+			root.console.log("✔ Spiner destroyed");
+			root.console.log("✔ Maxlength destroyed");
+			root.console.log("✔ Duellist destroyed");
+			root.console.log("✔ Timepicker destroyed");
+			root.console.log("✔ Clockpicker destroyed");
+			root.console.log("✔ Custom Datepicker destroyed");
+			root.console.log("✔ NoUI Slider destroyed");
+			root.console.log("✔ Ion Range Slider destroyed");
+			root.console.log("✔ Tagsinput destroyed");
+			root.console.log("✔ Colorpicker destroyed");
+			root.console.log("✔ Xeditable  destroyed");
+			root.console.log("✔ JSKnob  destroyed");
+		} 
+		
+	}
+
+	// end destroy
 	
 	// run pagefunction
 	

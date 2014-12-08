@@ -302,7 +302,7 @@
 
 				<header>
 					<span class="widget-icon"> <i class="fa fa-comments txt-color-white"></i> </span>
-					<h2> SmartChat </h2>
+					<h2> SmartMessage </h2>
 					<div class="widget-toolbar">
 						<!-- add: non-hidden - to disable auto hide -->
 
@@ -953,6 +953,8 @@
 	 *
 	 */
 
+	 var flot_updating_chart, flot_statsChart, flot_multigraph, calendar;
+
 	pageSetUp();
 	
 	/*
@@ -1019,17 +1021,16 @@
 		/*
 		 * RUN PAGE GRAPHS
 		 */
-		
-		// Load FLOAT dependencies (related to page)
-		loadScript("js/plugin/flot/jquery.flot.cust.min.js", loadFlotResize);
-		
-		function loadFlotResize() {
-		    loadScript("js/plugin/flot/jquery.flot.resize.min.js", loadFlotToolTip);
-		}
-		
-		function loadFlotToolTip() {
-		    loadScript("js/plugin/flot/jquery.flot.tooltip.min.js", generatePageGraphs);
-		}
+
+		// load all flot plugins
+		loadScript("js/plugin/flot/jquery.flot.cust.min.js", function(){
+			loadScript("js/plugin/flot/jquery.flot.resize.min.js", function(){
+				loadScript("js/plugin/flot/jquery.flot.time.min.js", function(){
+					loadScript("js/plugin/flot/jquery.flot.tooltip.min.js", generatePageGraphs);
+				});
+			});
+		});
+
 		
 		function generatePageGraphs() {
 		
@@ -1102,7 +1103,7 @@
 		        }
 		    };
 		
-		    var plot = $.plot($("#updating-chart"), [getRandomData()], options);
+		    flot_updating_chart = $.plot($("#updating-chart"), [getRandomData()], options);
 		
 		    /* live switch */
 		    $('input[type="checkbox"]#start_interval').click(function () {
@@ -1117,14 +1118,20 @@
 		    });
 		
 		    function update() {
-		        if ($on == true) {
-		            plot.setData([getRandomData()]);
-		            plot.draw();
-		            setTimeout(update, updateInterval);
-		
-		        } else {
-		            clearInterval(updateInterval)
-		        }
+
+				try {
+			        if ($on == true) {
+			            flot_updating_chart.setData([getRandomData()]);
+			            flot_updating_chart.draw();
+			            setTimeout(update, updateInterval);
+			
+			        } else {
+			            clearInterval(updateInterval)
+			        }
+				}
+				catch(err) {
+				    clearInterval(updateInterval);
+				}
 		
 		    }
 		
@@ -1236,7 +1243,7 @@
 		            }
 		        };
 		
-		        var plot3 = $.plot($("#statsChart"), data, options);
+		        flot_statsChart = $.plot($("#statsChart"), data, options);
 		    });
 		
 		    // END TAB 2
@@ -1345,7 +1352,7 @@
 		
 		        };
 		
-		        plot2 = null;
+		        flot_multigraph = null;
 		
 		        function plotNow() {
 		            var d = [];
@@ -1355,11 +1362,11 @@
 		                }
 		            });
 		            if (d.length > 0) {
-		                if (plot2) {
-		                    plot2.setData(d);
-		                    plot2.draw();
+		                if (flot_multigraph) {
+		                    flot_multigraph.setData(d);
+		                    flot_multigraph.draw();
 		                } else {
-		                    plot2 = $.plot(target, d, options);
+		                    flot_multigraph = $.plot(target, d, options);
 		                }
 		            }
 		
@@ -1368,6 +1375,7 @@
 		        toggles.find(':checkbox').on('change', function () {
 		            plotNow();
 		        });
+
 		        plotNow()
 		
 		    });
@@ -1389,14 +1397,12 @@
 		    "BD": 100
 		};
 		
-		// Load Map dependency 1 then call for dependency 2
-		loadScript("js/plugin/vectormap/jquery-jvectormap-1.2.2.min.js", loadMapFile);
+		// Load Map dependency 1 then call for dependency 2 and then run renderVectorMap function
+		loadScript("js/plugin/vectormap/jquery-jvectormap-1.2.2.min.js", function(){
+			loadScript("js/plugin/vectormap/jquery-jvectormap-world-mill-en.js", renderVectorMap);
+		});
 		
-		// Load Map dependency 2 then rendeder Map
-		function loadMapFile() {
-		    loadScript("js/plugin/vectormap/jquery-jvectormap-world-mill-en.js", renderVectorMap);
-		}
-		
+
 		function renderVectorMap() {
 		    $('#vector-map').vectorMap({
 		        map: 'world_mill_en',
@@ -1432,7 +1438,10 @@
 		 */
 		
 		// Load Calendar dependency then setup calendar
-		loadScript("js/plugin/fullcalendar/jquery.fullcalendar.min.js", setupCalendar);
+		
+		loadScript("js/plugin/moment/moment.min.js", function(){
+			loadScript("js/plugin/fullcalendar/jquery.fullcalendar.min.js", setupCalendar);
+		});
 		
 		function setupCalendar() {
 		
@@ -1442,7 +1451,7 @@
 		        var m = date.getMonth();
 		        var y = date.getFullYear();
 		
-		        var calendar = $('#calendar').fullCalendar({
+		        calendar = $('#calendar').fullCalendar({
 		
 		            editable: true,
 		            draggable: true,
@@ -1592,7 +1601,8 @@
 		    return (a.textContent || a.innerText || "").toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
 		};
 		
-		function listFilter(list) { // header is any element, list is an unordered list
+		function listFilter(list) { 
+			// header is any element, list is an unordered list
 		    // create and add the filter form to the header
 		
 		    filter_input.change(function () {
@@ -1629,6 +1639,45 @@
 	};
 	
 	// end pagefunction
+
+	// destroy generated instances 
+	// pagedestroy is called automatically before loading a new page
+	// only usable in AJAX version!
+
+	var pagedestroy = function(){
+		
+		// destroy calendar
+		calendar.fullCalendar('destroy');
+		calendar = null;
+
+		//destroy flots
+		flot_updating_chart.shutdown();  
+		flot_updating_chart=null;
+		flot_statsChart.shutdown(); 
+		flot_statsChart = null;
+
+		flot_multigraph.shutdown(); 
+		flot_multigraph = null;
+
+		// destroy vector map objects
+		$('#vector-map').find('*').addBack().off().remove();
+
+		// destroy todo
+		$("#sortable1, #sortable2").sortable("destroy");
+		$('.todo .checkbox > input[type="checkbox"]').off();
+
+		// destroy misc events
+		$("#rev-toggles").find(':checkbox').off();
+		$('#chat-container').find('*').addBack().off().remove();
+
+		// debug msg
+		if (debugState){
+			root.console.log("✔ Calendar, Flot Charts, Vector map, misc events destroyed");
+		} 
+
+	}
+
+	// end destroy
 	
 	// run pagefunction on load
 	pagefunction();

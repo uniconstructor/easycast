@@ -210,6 +210,32 @@
 	};
 	
 	// end pagefunction
+
+	// destroy generated instances 
+	// pagedestroy is called automatically before loading a new page
+	// only usable in AJAX version!
+
+	/*var pagedestroy = function(){
+		
+		// destroy summernote
+		if (".summernote") {
+			$(".summernote").summernote( 'destroy' );
+		}
+		
+		// clear misc. click events
+		//$(".inbox-load").off();
+
+		//loadInbox = undefined;
+		//tableHeightSize = undefined;
+
+		// debug msg
+		if (debugState){
+			root.console.log("✔ Summernote editor destroyed");
+		} 
+
+	}*/
+
+	// end destroy
 	
 	// load delete row plugin and run pagefunction
 

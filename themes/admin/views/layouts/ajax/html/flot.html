@@ -503,6 +503,8 @@
 	 *
 	 */
 
+	 var plot_1, plot_2, plot_3, plot_4, plot_5, plot_6, plot_7, plot_8;
+
 	pageSetUp();
 	
 	// PAGE RELATED SCRIPTS
@@ -592,7 +594,9 @@
 		
 			};
 		
-			var plot = $.plot($("#saleschart"), [d], options);
+			plot_1 = $.plot($("#saleschart"), [d], options);
+
+
 		};
 		
 		/* end sales chart */
@@ -606,7 +610,7 @@
 				cos.push([i, Math.cos(i)]);
 			}
 	
-			var plot = $.plot($("#sin-chart"), [{
+			plot_2 = $.plot($("#sin-chart"), [{
 				data : sin,
 				label : "sin(x)"
 			}, {
@@ -698,7 +702,7 @@
 			});
 	
 			//Display graph
-			$.plot($("#bar-chart"), ds, {
+			plot_3 = $.plot($("#bar-chart"), ds, {
 				colors : [$chrt_second, $chrt_fourth, "#666", "#BBB"],
 				grid : {
 					show : true,
@@ -766,7 +770,7 @@
 			});
 	
 			// display graph
-			$.plot($("#bar-chart-h"), ds_h, {
+			plot_4 = $.plot($("#bar-chart-h"), ds_h, {
 				colors : [$chrt_second, $chrt_fourth, "#666", "#BBB"],
 				grid : {
 					show : true,
@@ -929,7 +933,7 @@
 				fillBetween : 'm75%'
 			}]
 	
-			$.plot($("#fill-chart"), dataset, {
+			plot_5 = $.plot($("#fill-chart"), dataset, {
 	
 				xaxis : {
 					tickDecimals : 0
@@ -959,7 +963,7 @@
 					}
 				}
 	
-				$.plot($("#pie-chart"), data_pie, {
+				plot_6 = $.plot($("#pie-chart"), data_pie, {
 					series : {
 						pie : {
 							show : true,
@@ -1003,7 +1007,7 @@
 			var pageviews = [[1, 75], [3, 87], [4, 93], [5, 127], [6, 116], [7, 137], [8, 135], [9, 130], [10, 167], [11, 169], [12, 179], [13, 185], [14, 176], [15, 180], [16, 174], [17, 193], [18, 186], [19, 177], [20, 153], [21, 149], [22, 130], [23, 100], [24, 50]];
 			var visitors = [[1, 65], [3, 50], [4, 73], [5, 100], [6, 95], [7, 103], [8, 111], [9, 97], [10, 125], [11, 100], [12, 95], [13, 141], [14, 126], [15, 131], [16, 146], [17, 158], [18, 160], [19, 151], [20, 125], [21, 110], [22, 100], [23, 85], [24, 37]];
 			//console.log(pageviews)
-			var plot = $.plot($("#site-stats"), [{
+			plot_7 = $.plot($("#site-stats"), [{
 				data : pageviews,
 				label : "Your pageviews"
 			}, {
@@ -1134,16 +1138,26 @@
 					}
 				}
 			};
-			var plot = $.plot($("#updating-chart"), [getRandomData()], options);
+			
+			plot_8 = $.plot($("#updating-chart"), [getRandomData()], options);
 	
 			function update() {
-				plot.setData([getRandomData()]);
-				// since the axes don't change, we don't need to call plot.setupGrid()
-				plot.draw();
-	
-				setTimeout(update, updateInterval);
+
+				try {
+					plot_8.setData([getRandomData()]);
+					// since the axes don't change, we don't need to call plot_7.setupGrid()
+					plot_8.draw();
+		
+					var demointerval = setTimeout(update, updateInterval);
+				}
+				catch(err) {
+				    clearInterval(demointerval);
+				}
+
+				
 			}
 	
+
 			update();
 	
 		}
@@ -1151,6 +1165,45 @@
 		/*end updating chart*/
 
 	};
+
+	// destroy generated instances 
+	// pagedestroy is called automatically before loading a new page
+	// only usable in AJAX version!
+
+	var pagedestroy = function(){
+		
+		//destroy flots
+		plot_1.shutdown(); 
+		plot_1 = null;
+
+		plot_2.shutdown(); 
+		plot_2 = null;
+
+		plot_3.shutdown(); 
+		plot_3 = null;
+
+		plot_4.shutdown(); 
+		plot_4 = null;
+
+		plot_5.shutdown(); 
+		plot_5 = null;
+
+		plot_6.shutdown(); 
+		plot_6 = null;
+
+		plot_7.shutdown(); 
+		plot_7 = null;
+
+		plot_8.shutdown();
+		plot_8 = null;
+
+		if (debugState){
+			root.console.log("✔ Flots destroyed");
+		} 
+
+	}
+
+	// end destroy
 	
 	// end pagefunction
 
@@ -1160,14 +1213,13 @@
 			loadScript("js/plugin/flot/jquery.flot.fillbetween.min.js", function(){
 				loadScript("js/plugin/flot/jquery.flot.orderBar.min.js", function(){
 					loadScript("js/plugin/flot/jquery.flot.pie.min.js", function(){
-						loadScript("js/plugin/flot/jquery.flot.tooltip.min.js", pagefunction);
+						loadScript("js/plugin/flot/jquery.flot.time.min.js", function(){
+							loadScript("js/plugin/flot/jquery.flot.tooltip.min.js", pagefunction);
+						});
 					});
 				});
 			});
 		});
 	});
-	
 
-	
-	
 </script>

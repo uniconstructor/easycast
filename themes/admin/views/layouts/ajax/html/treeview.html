@@ -376,6 +376,29 @@
 	
 	// end pagefunction
 	
+	// destroy generated instances 
+	// pagedestroy is called automatically before loading a new page
+	// only usable in AJAX version!
+
+	var pagedestroy = function(){
+		
+		/*
+		Example below:
+
+		$("#calednar").fullCalendar( 'destroy' );
+		if (debugState){
+			root.console.log("✔ Calendar destroyed");
+		} 
+
+		For common instances, such as Jarviswidgets, Google maps, and Datatables, are automatically destroyed through the app.js loadURL mechanic
+
+		*/
+
+
+	}
+
+	// end destroy
+
 	// run pagefunction on load
 
 	pagefunction();

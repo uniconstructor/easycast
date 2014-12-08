@@ -26,7 +26,7 @@ $themeUrl = Yii::app()->theme->baseUrl.'/assets/';
 <!-- PACE LOADER - turn this on if you want ajax loading to show (caution: uses lots of memory on iDevices) -->
 <script data-pace-options='{ "restartOnRequestAfter": true }' src="<?= $themeUrl; ?>js/plugin/pace/pace.min.js"></script>
 <!-- Link to Google CDN's jQuery + jQueryUI; fall back to local -->
-<script src="<?= $themeUrl; ?>js/libs/jquery-2.0.2.min.js"></script>
+<script src="<?= $themeUrl; ?>js/libs/jquery-2.1.1.min.js"></script>
 <script src="<?= $themeUrl; ?>js/libs/jquery-ui-1.10.3.min.js"></script>
 <!-- IMPORTANT: APP CONFIG -->
 <script src="<?= $themeUrl; ?>js/app.config.js"></script>
