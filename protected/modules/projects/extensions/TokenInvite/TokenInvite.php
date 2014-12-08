@@ -44,13 +44,7 @@ class TokenInvite extends CWidget
      */
     public function run()
     {
-        if ( $this->event->type === ProjectEvent::TYPE_GROUP )
-        {
-            $this->displayGroup();
-        }else
-        {
-            $this->displayEvent($this->event);
-        }
+        $this->displayEvent($this->event);
     }
     
     /**
@@ -58,7 +52,7 @@ class TokenInvite extends CWidget
      * 
      * @return null
      * 
-     * @todo писать даты начала и окончания всей серии мероприятий
+     * @deprecated группы больше не используются - удалить при рефакторинге
      */
     protected function displayGroup()
     {
@@ -74,10 +68,8 @@ class TokenInvite extends CWidget
     /**
      * Отобразить информацию по одному мероприятию
      * 
-     * @param ProjectEvent $event
+     * @param  ProjectEvent $event
      * @return null
-     * 
-     * @todo определить, когда писать "вакансии", а когда "роли"
      */
     protected function displayEvent($event)
     {
