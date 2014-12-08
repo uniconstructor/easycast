@@ -254,13 +254,44 @@ class Questionary extends CActiveRecord
      */
     public function rules()
     {
-        // правила проверки простых (скалярных) значений формы
-        // проверки по умолчанию
-        $defaultScalarRules = $this->getDefaultScalarRules();
-        // дополнительные проверки
-        $customScalarRules  = $this->getCustomScalarRules();
+        return array(
+            // passportdate, formattedBirthDate,  passportorg
+            // array('passportserial, passportnum', 'length', 'max' => 10),
+            // array('voicetimbre, addchar, parodist, twin, vocaltype, sporttype, extremaltype, trick, skill', 'safe'),
+            array('userid, isactor, isamateuractor, hasfilms, isemcee, istvshowmen,
+                        isstatist, ismassactor,
+                        isparodist, istwin, ismodel, isphotomodel, ispromomodel, isdancer,
+                        hasawards, isstripper, issinger,
+                        ismusician, issportsman, isextremal, isathlete, hasskills, hastricks,
+                        haslanuages, hasinshurancecard, countryid, nativecountryid,
+                        shoessize, rating, hastatoo, 
+                        istheatreactor, ismediaactor, ownerid, currentcountryid, visible',
+                'numerical', 'integerOnly' => true),
+            array('firstname, lastname, middlename, city, cityid, inshurancecardnum', 'length', 'max' => 128),
         
-        return CMap::mergeArray($defaultScalarRules, $customScalarRules);
+            array('mobilephone, homephone, addphone, inn', 'length', 'max' => 32),
+            array('status', 'length', 'max' => 50),
+            array('hairlength, wearsize', 'length', 'max' => 16),
+            array('vkprofile, fbprofile, okprofile', 'length', 'max' => 255), 
+            array('privatecomment, admincomment, moderationcomment', 'length', 'max' => 4095),
+            // @todo добавить индивидуальную проверку для каждого типа поля
+            array('gender, height, weight, wearsize, looktype, haircolor, eyecolor,
+                physiquetype, titsize, chestsize, waistsize, hipsize, striptype
+                striplevel, singlevel, wearsize', 'safe',
+            ),
+            // @todo пропустить через trim все остальные поля
+            array('birthdate, gender, height, weight, wearsize, looktype, haircolor, eyecolor,
+                physiquetype, titsize, chestsize, waistsize, hipsize, striptype
+                striplevel, singlevel, wearsize, firstname, lastname, gender, galleryid, city', 
+                'filter', 'filter' => 'trim',
+            ),
+            // проверка даты через фильтр
+            array('birthdate', 'date',
+                'allowEmpty'         => false,
+                'format'             => Yii::app()->params['yiiDateFormat'],
+                'timestampAttribute' => 'birthDateTimestamp',
+            ),
+        );
     }
     
     /**
@@ -479,10 +510,6 @@ class Questionary extends CActiveRecord
             'EcTimestampBehavior' => array(
                 'class' => 'application.behaviors.EcTimestampBehavior',
             ),
-            // проверки для простых полей формы
-            'QScalarRules' => array(
-                'class' => 'questionary.extensions.behaviors.QScalarRules',
-            ),
             // @todo подключать это поведение динамически и только при отображении списка анкет
             'CdGridView' => array(
                 'class' => 'questionary.extensions.behaviors.CdGridViewQuestionaryBehavior',
@@ -535,7 +562,6 @@ class Questionary extends CActiveRecord
            }
            // Удаляем комментарий администрации к анкете, если она уже была исправлена
            $this->deleteAdminComment();
-           
            // Отправляем участнику сообщение о том, что его анкета заполнена (если нужно)
            $this->sendAdminFillingNotification();
         }
@@ -759,14 +785,12 @@ class Questionary extends CActiveRecord
             'privatecomment' => QuestionaryModule::t('privatecomment_label'),
             'galleryid' => QuestionaryModule::t('photos_label'),
             'visible' => QuestionaryModule::t('visible_label'),
-
             // пояснения, не являющиеся полями
             'level' => QuestionaryModule::t('level'),
             'type' => QuestionaryModule::t('type'),
             'passport' => QuestionaryModule::t('passport_data'),
             'wearsize' => QuestionaryModule::t('wearsize_label'),
             'address' => QuestionaryModule::t('address'),
-            
             // поля, хранящиеся в других таблицах
             'addchar' => QuestionaryModule::t('addchar_label'),
             'university' => QuestionaryModule::t('universities_label'),
@@ -787,7 +811,6 @@ class Questionary extends CActiveRecord
     {
         $labels = array();
         $fields = QUserField::model()->findAll();
-        
         foreach ( $fields as $field )
         {
             $labels[$field->name] = QuestionaryModule::t($field->name.'_label');
@@ -808,6 +831,18 @@ class Questionary extends CActiveRecord
             return '[['.$name.']]';
         }
         return $labels[$name];
+    }
+    
+    /**
+     * Сеттер для безопасного сохранения даты роджения
+     *
+     * @param  int $time
+     * @return void
+     */
+    public function setBirthDateTimestamp($time)
+    {
+        $this->birthdate = $time;
+        //return $this->setAttribute('birthdate', $time);
     }
 
     /**
@@ -968,14 +1003,17 @@ class Questionary extends CActiveRecord
     }
     
     /**
-     * @todo - переписать с использованием mailComposer
-     * @param unknown $user
+     * 
+     * @param  unknown $user
      * @return null
+     * 
+     * @deprecated переписать с использованием workflow, проверить вызовы, удалить
      */
     protected function sendDefaultFillingMail($user)
     {
+        $user = $this->user;
         $mailComposer = Yii::app()->getModule('mailComposer');
-         
+        
         $email   = $this->user->email;
         $subject = 'Приглашение от проекта easyCast';
         $message = $mailComposer->getMessage('ECRegistration', array('questionary' => $this));
@@ -1416,10 +1454,10 @@ class Questionary extends CActiveRecord
      * @deprecated
      * @todo удалить при рефакторинге
      */
-    public function convertedFields()
+    /*public function convertedFields()
     {
-        return array(/*'birthdate',*/ 'passportexpires', 'passportdate');
-    }
+        return array('birthdate', 'passportexpires', 'passportdate');
+    }*/
     
     /** 
      * Получить массив атрибутов модели, пригодных для записи в базу
@@ -1429,7 +1467,7 @@ class Questionary extends CActiveRecord
      * @deprecated
      * @todo удалить при рефакторинге
      */
-    public function getConvertedAttributes($attributes)
+    /*public function getConvertedAttributes($attributes)
     {
         $result = array();
         $needsConversion = $this->convertedFields();
@@ -1446,7 +1484,7 @@ class Questionary extends CActiveRecord
         }
         
         return $result;
-    }
+    }*/
     
     /** 
      * Преобразовать значение из формы в значение хранимое в базе
@@ -1460,7 +1498,7 @@ class Questionary extends CActiveRecord
      * @deprecated
      * @todo удалить при рефакторинге
      */
-    protected function convertFieldValue($result, $field, $value)
+    /*protected function convertFieldValue($result, $field, $value)
     {
         switch ($field)
         {
@@ -1470,7 +1508,7 @@ class Questionary extends CActiveRecord
             
             default: return $result;
         }
-    }
+    }*/
     
     /** 
      * Преобразовать значения полей даты из массива в unixtime
@@ -1482,12 +1520,12 @@ class Questionary extends CActiveRecord
      * @deprecated
      * @todo удалить при рефакторинге
      */
-    protected function convertDate($result, $field, $value)
+    /*protected function convertDate($result, $field, $value)
     {
         $result[$field] = ActiveDateSelect::make_unixtime($value);
         
         return $result;
-    }
+    }*/
     
     /**
      * Получить список значений по умолчанию для сложного поля
@@ -1653,7 +1691,7 @@ class Questionary extends CActiveRecord
      * @deprecated не используется: информацию о разделении полей на секции следует хранить в базе
      *             используя списки
      */
-    public function getSectionFields($section, $type='edit')
+    /*public function getSectionFields($section, $type='edit')
     {
         $fields = array();
         $fields['main'] = array(
@@ -1690,7 +1728,7 @@ class Questionary extends CActiveRecord
             throw new CException('Неизвестный раздел анкеты: '.$section);
         }
         return $fields[$section];
-    }
+    }*/
     
     /**
      * Отослать участнику письмо о том что его анкета заполнена, с просьбой проверить данные,
