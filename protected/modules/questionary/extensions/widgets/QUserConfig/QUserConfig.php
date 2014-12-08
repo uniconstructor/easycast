@@ -126,11 +126,11 @@ class QUserConfig extends CWidget
             'width'         => 90,
             'value'         => (int)$selected,
         ), true);
-        $toggleButton = CHtml::tag('span', array('class' => 'pull-right'), $toggleButton);
+        $toggleButton = CHtml::tag('span', array(/*'class' => 'pull-right'*/), $toggleButton);
         // форма одного элемента, две колонки: слева переключатель, справа иконки проектов
         return array(
             'type'        => 'form',
-            'title'       => $item->title.' '.$toggleButton,
+            'title'       => $toggleButton.' '.$item->title,
             'elements' => array(
                 '<div class="row-fluid">',
                 '<div class="span6">',
