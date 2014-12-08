@@ -10,7 +10,7 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
     /**
      * @var string
      */
-    protected $_formattedBirthDate;
+    //protected $_formattedBirthDate;
     
     /**
      * @return string
@@ -139,7 +139,7 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
     /**
      * Получить дату рождения
      */
-    public function getFormattedBirthDate()
+    /*public function getFormattedBirthDate()
     {
         if ( $this->_formattedBirthDate )
         {
@@ -153,16 +153,16 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
                 return $date;
             }
         }
-    }
+    }*/
     
     /**
      * Получить дату рождения
      */
-    public function setFormattedBirthDate($date)
+    /*public function setFormattedBirthDate($date)
     {
         $this->_formattedBirthDate = $date;
         $this->owner->birthdate = CDateTimeParser::parse($date, Yii::app()->params['inputDateFormat']);
-    }
+    }*/
     
     /**
      * Получить срок истечения загранпаспорта
