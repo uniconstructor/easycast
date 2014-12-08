@@ -24,7 +24,7 @@ class RightsModule extends CWebModule
 	/**
 	* @property string the name of the role with superuser privileges.
 	*/
-	public $superuserName = 'Admin';
+	public $superuserName     = 'Admin';
 	/**
 	* @property string the name of the guest role.
 	*/
@@ -32,11 +32,11 @@ class RightsModule extends CWebModule
 	/**
 	* @property string the name of the user model class.
 	*/
-	public $userClass = 'User';
+	public $userClass      = 'User';
 	/**
 	* @property string the name of the id column in the user table.
 	*/
-	public $userIdColumn = 'id';
+	public $userIdColumn   = 'id';
 	/**
 	* @property string the name of the username column in the user table.
 	*/
@@ -44,11 +44,11 @@ class RightsModule extends CWebModule
 	/**
 	* @property boolean whether to enable business rules.
 	*/
-	public $enableBizRule = true;
+	public $enableBizRule      = true;
 	/**
 	* @property boolean whether to enable data for business rules.
 	*/
-	public $enableBizRuleData = true;
+	public $enableBizRuleData  = true;
 	/**
 	* @property boolean whether to display authorization items description 
 	* instead of name it is set.
@@ -61,19 +61,19 @@ class RightsModule extends CWebModule
 	/**
 	* @property string the flash message key to use for error messages.
 	*/
-	public $flashErrorKey = 'RightsError';
+	public $flashErrorKey   = 'RightsError';
 	/**
 	* @property boolean whether to install rights when accessed.
 	*/
-	public $install = false;
+	public $install   = false;
 	/**
 	* @property string the base url to Rights. Override when module is nested.
 	*/
-	public $baseUrl = '/rights';
+	public $baseUrl   = '/rights';
 	/**
 	* @property string the path to the layout file to use for displaying Rights.
 	*/
-	public $layout = 'rights.views.layouts.main';
+	public $layout    = 'rights.views.layouts.main';
 	/**
 	* @property string the path to the application layout file.
 	*/
@@ -228,7 +228,7 @@ class RightsModule extends CWebModule
 	            Yii::app()->user->loginRequired();
 	        }
 	        if ( ! Yii::app()->user->checkAccess('Admin') )
-	        {// если нет прав доступа - делаем вид что такой страницы нет
+	        {// без прав доступа делаем вид что такой страницы нет
 	            throw new CHttpException(404, 'Страница не найдена');
 	            return false;
 	        }
