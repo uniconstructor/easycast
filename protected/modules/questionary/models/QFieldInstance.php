@@ -18,7 +18,7 @@
  * Relations:
  * @property QUserField $fieldObject
  * 
- * @todo перенести эту модель в корень проекта, так как она связана с несколькими модулями
+ * @deprecated заменить схемой документа
  */
 class QFieldInstance extends CActiveRecord
 {
@@ -219,13 +219,14 @@ class QFieldInstance extends CActiveRecord
 	
 	/**
 	 * Получить список возможных вариантов заполнения поля
+	 * 
 	 * @return array
 	 */
 	public function getFillingModes()
 	{
 	    return array(
-	        'required'    => Yii::t('coreMessages', 'yes'),
-	        'recommended' => Yii::t('coreMessages', 'no'),
+	        'required'    => Yii::t('yii', 'Yes'),
+	        'recommended' => Yii::t('yii', 'No'),
 	        'forced'      => 'Автоматически задано',
 	    );
 	}
@@ -233,6 +234,8 @@ class QFieldInstance extends CActiveRecord
 	/**
 	 * 
 	 * @return string
+	 * 
+	 * @deprecated
 	 */
 	public function getStepName()
 	{
@@ -248,6 +251,8 @@ class QFieldInstance extends CActiveRecord
 	 * 
 	 * @param int $id
 	 * @return WizardStepInstance
+	 * 
+	 * @deprecated
 	 */
 	public function getLinkedStepInstance()
 	{
@@ -272,29 +277,32 @@ class QFieldInstance extends CActiveRecord
 	/**
 	 * Получить экземпляр записи привязаный к определенному полю 
 	 * 
-	 * @param int $fieldId
+	 * @param  int $fieldId
 	 * @return QFieldInstance
 	 */
 	public function forField($fieldId)
 	{
 	    $criteria = new CDbCriteria();
-	    $criteria->compare('fieldid', $fieldId);
+	    $criteria->compare($this->getTableAlias(true).'.`fieldid`', $fieldId);
 	    
 	    $this->getDbCriteria()->mergeWith($criteria);
+	    
 	    return $this;
 	}
 	
 	/**
-	 * Именованая группа условий: получить все записи, привязанные к определенному объекту (например к роли)
-	 * @param string $objectType - тип объекта к которому привязано поле
-	 * @param int $objectId - id объекта к которому привязано поле
+	 * Именованая группа условий: получить все записи, привязанные к определенному 
+	 * объекту (например к роли)
+	 * 
+	 * @param  string $objectType - тип объекта к которому привязано поле
+	 * @param  int $objectId - id объекта к которому привязано поле
 	 * @return QFieldInstance
 	 */
 	public function forObject($objectType, $objectId)
 	{
 	    $criteria = new CDbCriteria();
-	    $criteria->compare('objecttype', $objectType);
-	    $criteria->compare('objectid', $objectId);
+	    $criteria->compare($this->getTableAlias(true).'.`objecttype`', $objectType);
+	    $criteria->compare($this->getTableAlias(true).'.`objectid`', $objectId);
 	     
 	    $this->getDbCriteria()->mergeWith($criteria);
 	     
@@ -303,9 +311,12 @@ class QFieldInstance extends CActiveRecord
 	
 	/**
 	 * Именованая группа условий: получить все записи, привязанные к нескольким объектам одного типа
-	 * @param string $objectType - тип объекта к которому привязано поле
-	 * @param array $objectIds - id объектов к которому привязано поле
+	 * 
+	 * @param  string $objectType - тип объекта к которому привязано поле
+	 * @param  array $objectIds - id объектов к которому привязано поле
 	 * @return QFieldInstance
+	 * 
+	 * @deprecated
 	 */
 	public function forObjects($objectType, $objectIds)
 	{
@@ -319,12 +330,13 @@ class QFieldInstance extends CActiveRecord
 	}
 	
 	/**
-	 * Именованая группа условий: получить все записи, привязанные к определенному объекту (например к роли)
+	 * Именованая группа условий: получить все записи, привязанные 
+	 * к определенному объекту (например к роли)
 	 * @param string $objectType - тип объекта к которому привязано поле
 	 * @param int $objectId - id объекта к которому привязано поле
 	 * @return QFieldInstance
 	 * 
-	 * @todo оставлено для совместимости: везде используем forObject
+	 * @deprecated оставлено для совместимости: везде используем forObject
 	 */
 	public function attachedTo($objectType, $objectId)
 	{
@@ -338,7 +350,7 @@ class QFieldInstance extends CActiveRecord
 	 */
 	public function forVacancy($vacancy)
 	{
-	    if ( $vacancy->regtype == 'form' )
+		if ( $vacancy->regtype == 'form' )
 	    {
 	        return $this->forObject('vacancy', $vacancy->id);
 	    }else
