@@ -126,15 +126,15 @@ class QUserConfig extends CWidget
             'width'         => 90,
             'value'         => (int)$selected,
         ), true);
+        $toggleButton = CHtml::tag('span', array('class' => 'pull-right'), $toggleButton);
         // форма одного элемента, две колонки: слева переключатель, справа иконки проектов
         return array(
             'type'        => 'form',
-            'title'       => $item->title,
-            'description' => $item->description,
+            'title'       => $item->title.' '.$toggleButton,
             'elements' => array(
                 '<div class="row-fluid">',
                 '<div class="span6">',
-                $toggleButton,
+                $item->description,
                 '</div>',
                 '<div class="span6 text-right">',
                 $this->getExampleProjects($item, $selected),
@@ -249,6 +249,6 @@ class QUserConfig extends CWidget
      */
     protected function getItemWrapperId(EasyListItem $item)
     {
-        return 'pnType_'.$item->value;
+        return 'wrapper-pnType_'.$item->value;
     }
 }
