@@ -139,7 +139,25 @@ class Video extends SWActiveRecord
 	 */
 	public function scopes()
 	{
-	    return $this->asa('EcTimestampBehavior')->getDefaultTimestampScopes();
+	    $modelScopes = array(
+	        'originalOnly' => array(
+    	        'with' => array(
+    	           'externalFile' => array(
+    	               'scopes' => array('originalOnly'),
+    	           ),
+    	        ),
+    	    ),
+	        'encodedOnly' => array(
+    	        'with' => array(
+    	           'externalFile' => array(
+    	               'scopes' => array('encodedOnly'),
+    	           ),
+    	        ),
+    	    ),
+	    );
+	    $timeScopes = $this->asa('EcTimestampBehavior')->getDefaultTimestampScopes();
+	    
+	    return CMap::mergeArray($timeScopes, $modelScopes);
 	}
 
 	/**
