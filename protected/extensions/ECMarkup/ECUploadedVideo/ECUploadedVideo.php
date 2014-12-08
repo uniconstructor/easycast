@@ -67,14 +67,14 @@ class ECUploadedVideo extends CWidget
         echo CHtml::openTag('ul', array('class' => 'text-left'));
         foreach ( $this->videos as $video )
         {/* @var $video Video */
-            $htmlOptions = array();
+            $htmlOptions = array('id' => 'video'.$video->id);
             if ( ! $video->externalFile->originalid AND ! Yii::app()->user->checkAccess('Admin') )
             {
                 continue;
             }elseif ( ! $video->externalFile->originalid AND Yii::app()->user->checkAccess('Admin') )
             {
                 $video->name .= ' [оригинал]';
-                $htmlOptions = array('class' => 'muted');
+                $htmlOptions  = array('class' => 'muted');
             }
             $url = Sweeml::raiseOpenShadowboxUrl('#', array(
                 'player'  => 'html',
