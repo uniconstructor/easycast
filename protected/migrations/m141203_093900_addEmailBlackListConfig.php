@@ -11,10 +11,8 @@ class m141203_093900_addEmailBlackListConfig extends EcMigration
         $typesConfig = $this->dbConnection->createCommand()->select('*')->
             from('{{config}}')->where("name='projectTypesBlackList' AND objectid=0")->queryRow();
         // обновляем название и описание для настройки оповещений
-        $description  = 'Укажите типы проектов на которые вы хотели бы получать приглашения или ';
-        $description .= 'заранее откажитесь от участия в съемках, которые вас не интересуют. ';
-        $description .= 'Мы не будем приглашать вас на проекты такого типа, независимо от того какие ';
-        $description .= 'роли в них будут доступны и какой размер оплаты за участие. ';
+        $description  = 'Укажите типы проектов на которые нам следует вас приглашать. '; 
+        $description .= 'Отключите приглашения на те съемки в которых вы не планируете участвовать. ';
         $columns = array(
             'title'           => 'Настройки приглашений (тип проекта)',
             'description'     => $description,
