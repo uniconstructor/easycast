@@ -85,6 +85,11 @@ class QUserConfig extends CWidget
         $elements = array();
         foreach ( $this->availableItems as $item )
         {// для каждого элемента списка создаем форму
+            if ( ! Project::model()->withTypeId($item->id)->visible()->exists() )
+            {// пока не было ни одного проекта с таким типом - не предлагаем участнику
+                // отказаться от типа проекта про который он еще не знает
+                continue;
+            }
             if ( $item->value === 'onlinecasting' )
             {// @todo придумать оставить ли этот тип проекта или убрать
                 continue;
@@ -114,11 +119,11 @@ class QUserConfig extends CWidget
         $toggleButton = $this->widget('bootstrap.widgets.TbToggleButton', array(
             'name'          => $this->getItemInputId($item),
             'onChange'      => 'js:function($el, status, e){'.$this->createToggleActionJs($item).'}',
-            'enabledLabel'  => Yii::t('yii', 'Yes'),
-            'disabledLabel' => Yii::t('yii', 'No'),
+            'enabledLabel'  => 'I',//Yii::t('yii', 'Yes'),
+            'disabledLabel' => 'O',//Yii::t('yii', 'No'),
             'enabledStyle'  => 'primary',
-            'disabledStyle' => 'default',
-            'width'         => 250,
+            'disabledStyle' => 'danger',
+            'width'         => 90,
             'value'         => (int)$selected,
         ), true);
         // форма одного элемента, две колонки: слева переключатель, справа иконки проектов
@@ -199,7 +204,7 @@ class QUserConfig extends CWidget
         }";
         // data - пришедший в запрос html
         $successJs    = "function(data, status){
-            $.jGrowl('Настройка сохранена');
+            $.jGrowl(data);
         }";
         $completeJs   = "function(data, status){
             $('.{$item->value}').toggleClass('grayscale');
