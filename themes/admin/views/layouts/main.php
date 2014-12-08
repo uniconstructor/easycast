@@ -5,9 +5,10 @@
  * 
  * В разделе "ribbon" располагается верхняя навигация ("хлебные крошки")
  * В разделе "content", как следует из название, лежит наше всё
+ * 
+ * @todo разобраться должен ли блок breadcrumb быть пустым (у нас именно AJAX-версия)
  */
 /* @var $this Controller */
-
 ?>
 <!-- MAIN_PANEL -->
 <div id="main">
@@ -25,11 +26,14 @@
     <!-- END RIBBON -->
     <!-- MAIN_CONTENT -->
     <div id="content">
-        <?php echo $content; ?>
+        <?php
+        // основное содержимое страницы: обновляется через AJAX 
+        echo $content;
+        ?>
     </div>
     <!-- END MAIN_CONTENT -->
 </div>
 <!-- END MAIN_PANEL -->
 <?php
-// подвал страницы
+// @todo понять нужен ли тут подвал страницы
 //$this->endContent();

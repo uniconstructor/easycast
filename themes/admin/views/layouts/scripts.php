@@ -4,24 +4,32 @@
  * перед закрывающим "</body>"
  * Если переместите их в заголовок - тема начнет вести себя странно, так что оставьте тут все как есть
  * Это адмика так что гугл-аналитика отключена на всех страницах
- * Не меняйте порядок подключения скриптов. Особенно если вы не читали документацию к админке.
+ * Не меняйте порядок подключения скриптов без чтения документации к админки
+ * 
+ * @todo протестировать, насколько много памяти потребляется PACE LOADER после обновления до 1.5.2
+ * @todo подключить FastClick для мобильных устройств
+ * @todo подключить JS TOUCH для мобильных устройств
  */
 /* @var $this Controller */
 
 // путь к корню темы оформления (там лежат все скрипты и стили)
 $themeUrl = Yii::app()->theme->baseUrl.'/assets/';
+
+// временно отключенные библиотеки
+// <!-- FastClick: For mobile devices: you can disable this in app.js -->
+// <!-- script src="< ?= $themeUrl; ? >js/plugin/fastclick/fastclick.js"></script -->
+// <!-- JS TOUCH : include this plugin for mobile drag / drop touch events -->
+// <!-- script src="< ?= $themeUrl; ? >js/plugin/jquery-touch/jquery.ui.touch-punch.min.js"></script-->
 ?>
 <!-- END SHORTCUT AREA -->
 <!--================================================== -->
-<!-- PACE LOADER - turn this on if you want ajax loading to show (caution: uses lots of memory on iDevices)
-<script data-pace-options='{ "restartOnRequestAfter": true }' src="<?= $themeUrl; ?>js/plugin/pace/pace.min.js"></script>-->
+<!-- PACE LOADER - turn this on if you want ajax loading to show (caution: uses lots of memory on iDevices) -->
+<script data-pace-options='{ "restartOnRequestAfter": true }' src="<?= $themeUrl; ?>js/plugin/pace/pace.min.js"></script>
 <!-- Link to Google CDN's jQuery + jQueryUI; fall back to local -->
 <script src="<?= $themeUrl; ?>js/libs/jquery-2.0.2.min.js"></script>
 <script src="<?= $themeUrl; ?>js/libs/jquery-ui-1.10.3.min.js"></script>
 <!-- IMPORTANT: APP CONFIG -->
 <script src="<?= $themeUrl; ?>js/app.config.js"></script>
-<!-- JS TOUCH : include this plugin for mobile drag / drop touch events -->
-<!--script src="<?= $themeUrl; ?>js/plugin/jquery-touch/jquery.ui.touch-punch.min.js"></script-->
 <!-- BOOTSTRAP JS -->
 <script src="<?= $themeUrl; ?>js/bootstrap/bootstrap.min.js"></script>
 <!-- CUSTOM NOTIFICATION -->
@@ -42,9 +50,6 @@ $themeUrl = Yii::app()->theme->baseUrl.'/assets/';
 <script src="<?= $themeUrl; ?>js/plugin/bootstrap-slider/bootstrap-slider.min.js"></script>
 <!-- browser msie issue fix -->
 <script src="<?= $themeUrl; ?>js/plugin/msie-fix/jquery.mb.browser.min.js"></script>
-<!-- FastClick: For mobile devices: you can disable this in app.js -->
-<!--script src="<?= $themeUrl; ?>js/plugin/fastclick/fastclick.js"></script-->
-<!-- script src="<?= $themeUrl; ?>js/demo.js"></script-->
 <!-- MAIN APP JS FILE -->
 <script src="<?= $themeUrl; ?>js/app.min.js"></script>
 <!-- jGrowl: tiny notifications -->

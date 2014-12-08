@@ -1,4 +1,10 @@
-<!DOCTYPE html>
+<?php
+/**
+ * Страница входа
+ * 
+ * @todo заготовка для будущей верстки
+ */
+?><!DOCTYPE html>
 <html lang="en-us" id="extr-page">
 	<head>
 		<meta charset="utf-8">
@@ -54,17 +60,14 @@
 	</head>
 	
 	<body class="animated fadeInDown">
-		<!-- possible classes: minified, no-right-panel, fixed-ribbon, fixed-header, fixed-width-->
+
 		<header id="header">
-			<!--<span id="logo"></span>-->
 
 			<div id="logo-group">
 				<span id="logo"> <img src="img/logo.png" alt="SmartAdmin"> </span>
-
-				<!-- END AJAX-DROPDOWN -->
 			</div>
 
-			<span id="extr-page-header-space"> <span class="hidden-mobile">Need an account?</span> <a href="register.html" class="btn btn-danger">Creat account</a> </span>
+			<span id="extr-page-header-space"> <span class="hidden-mobile">Need an account?</span> <a href="register.html" class="btn btn-danger">Create account</a> </span>
 
 		</header>
 
@@ -108,36 +111,39 @@
 					</div>
 					<div class="col-xs-12 col-sm-12 col-md-5 col-lg-4">
 						<div class="well no-padding">
-							<form action="login.html" id="login-form" class="smart-form client-form">
+							<form action="index.html" id="login-form" class="smart-form client-form">
 								<header>
-									Forgot Password
+									Sign In
 								</header>
 
 								<fieldset>
 									
 									<section>
-										<label class="label">Enter your email address</label>
-										<label class="input"> <i class="icon-append fa fa-envelope"></i>
-											<input type="email" name="email">
-											<b class="tooltip tooltip-top-right"><i class="fa fa-envelope txt-color-teal"></i> Please enter email address for password reset</b></label>
-									</section>
-									<section>
-										<span class="timeline-seperator text-center text-primary"> <span class="font-sm">OR</span> 
-									</section>
-									<section>
-										<label class="label">Your Username</label>
+										<label class="label">E-mail</label>
 										<label class="input"> <i class="icon-append fa fa-user"></i>
-											<input type="text" name="username">
-											<b class="tooltip tooltip-top-right"><i class="fa fa-user txt-color-teal"></i> Enter your username</b> </label>
+											<input type="email" name="email">
+											<b class="tooltip tooltip-top-right"><i class="fa fa-user txt-color-teal"></i> Please enter email address/username</b></label>
+									</section>
+
+									<section>
+										<label class="label">Password</label>
+										<label class="input"> <i class="icon-append fa fa-lock"></i>
+											<input type="password" name="password">
+											<b class="tooltip tooltip-top-right"><i class="fa fa-lock txt-color-teal"></i> Enter your password</b> </label>
 										<div class="note">
-											<a href="login.html">I remembered my password!</a>
+											<a href="forgotpassword.html">Forgot password?</a>
 										</div>
 									</section>
 
+									<section>
+										<label class="checkbox">
+											<input type="checkbox" name="remember" checked="">
+											<i></i>Stay signed in</label>
+									</section>
 								</fieldset>
 								<footer>
 									<button type="submit" class="btn btn-primary">
-										<i class="fa fa-refresh"></i> Reset Password
+										Sign in
 									</button>
 								</footer>
 							</form>
@@ -146,17 +152,17 @@
 						
 						<h5 class="text-center"> - Or sign in using -</h5>
 															
-										<ul class="list-inline text-center">
-											<li>
-												<a href="javascript:void(0);" class="btn btn-primary btn-circle"><i class="fa fa-facebook"></i></a>
-											</li>
-											<li>
-												<a href="javascript:void(0);" class="btn btn-info btn-circle"><i class="fa fa-twitter"></i></a>
-											</li>
-											<li>
-												<a href="javascript:void(0);" class="btn btn-warning btn-circle"><i class="fa fa-linkedin"></i></a>
-											</li>
-										</ul>
+							<ul class="list-inline text-center">
+								<li>
+									<a href="javascript:void(0);" class="btn btn-primary btn-circle"><i class="fa fa-facebook"></i></a>
+								</li>
+								<li>
+									<a href="javascript:void(0);" class="btn btn-info btn-circle"><i class="fa fa-twitter"></i></a>
+								</li>
+								<li>
+									<a href="javascript:void(0);" class="btn btn-warning btn-circle"><i class="fa fa-linkedin"></i></a>
+								</li>
+							</ul>
 						
 					</div>
 				</div>
@@ -198,8 +204,41 @@
 		<script src="js/app.min.js"></script>
 
 		<script type="text/javascript">
-	
+			runAllForms();
 
+			$(function() {
+				// Validation
+				$("#login-form").validate({
+					// Rules for form validation
+					rules : {
+						email : {
+							required : true,
+							email : true
+						},
+						password : {
+							required : true,
+							minlength : 3,
+							maxlength : 20
+						}
+					},
+
+					// Messages for form validation
+					messages : {
+						email : {
+							required : 'Please enter your email address',
+							email : 'Please enter a VALID email address'
+						},
+						password : {
+							required : 'Please enter your password'
+						}
+					},
+
+					// Do not change code below
+					errorPlacement : function(error, element) {
+						error.insertAfter(element.parent());
+					}
+				});
+			});
 		</script>
 
 	</body>

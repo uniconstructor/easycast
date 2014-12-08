@@ -1,51 +1,51 @@
+<?php 
+/**
+ * Пример максимально полной разметки страницы
+ * 
+ * @todo заготовка для верстки
+ */
+?>
 <!-- Bread crumb is created dynamically -->
 <!-- row -->
 <div class="row">
 	<!-- col -->
 	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 		<h1 class="page-title txt-color-blueDark">
-        <!-- PAGE HEADER --><i class="fa fa-lg fa-fw fa-cube"></i> SmartAdmin Intel <span>
-			App Settings</span></h1>
+            <!-- PAGE HEADER -->
+            <i class="fa fa-lg fa-fw fa-cube"></i>SmartAdmin Intel
+            <span>App Settings</span>
+		</h1>
 	</div>
 	<!-- end col -->
 </div>
 <!-- end row -->
-
 <!--
-The ID "widget-grid" will start to initialize all widgets below
-You do not need to use widgets if you dont want to. Simply remove
-the <section></section> and you can use wells or panels instead
+    The ID "widget-grid" will start to initialize all widgets below
+    You do not need to use widgets if you dont want to. Simply remove
+    the <section></section> and you can use wells or panels instead
 -->
-
 <!-- widget grid -->
 <section id="widget-grid" class="">
-
 	<!-- row -->
 	<div class="row">
-
 		<!-- NEW WIDGET START -->
 		<article class="col-xs-12 col-sm-12 col-md-12 col-lg-7">
-
 			<!-- Widget ID (each widget will need unique ID)-->
 			<div class="jarviswidget" id="wid-id-0" data-widget-colorbutton="false"	data-widget-editbutton="false" data-widget-togglebutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false">
 				<header>
 					<h2> Menu Toggle / Collapse / Minify </h2>
 					<span class="badge pull-right margin-right-5 margin-top-5">new</span>
 				</header>
-
 				<!-- widget div-->
 				<div>
-
 					<!-- widget edit box -->
 					<div class="jarviswidget-editbox">
 						<!-- This area used as dropdown edit box -->
 						<input class="form-control" type="text">
 					</div>
 					<!-- end widget edit box -->
-
 					<!-- widget content -->
 					<div class="widget-body no-padding">
-
 						<!-- this is what the user will see -->
 						<div class="padding-gutter">
 							To toggle minify menu manually add the class <code>
@@ -55,17 +55,13 @@ the <section></section> and you can use wells or panels instead
 							to the <b><i>BODY</i></b> element.
 							<br>
 							<br>
-
 							<span class="btn btn-default" data-action="minifyMenu"> Toggle .minify class </span>
 							&nbsp;&nbsp;
 							<button class="btn btn-default" data-action="toggleMenu">
 								Toggle .collapse class
 							</button>
-
 						</div>
-
 						<div class="table-responsive no-margin">
-
 							<table class="table table-bordered">
 								<thead>
 									<tr>
@@ -141,45 +137,33 @@ the <section></section> and you can use wells or panels instead
 									</tr>
 								</tbody>
 							</table>
-
 						</div>
-
 					</div>
 					<!-- end widget content -->
-
 				</div>
 				<!-- end widget div -->
-
 			</div>
 			<!-- end widget -->
-
 			<!-- Widget ID (each widget will need unique ID)-->
 			<div class="jarviswidget" id="wid-id-1" data-widget-colorbutton="false"	data-widget-editbutton="false" data-widget-togglebutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false">
 				<header>
 					<h2>App Settings</h2>
-
 				</header>
-
 				<!-- widget div-->
 				<div>
-
 					<!-- widget edit box -->
 					<div class="jarviswidget-editbox">
 						<!-- This area used as dropdown edit box -->
 						<input class="form-control" type="text">
 					</div>
 					<!-- end widget edit box -->
-
 					<!-- widget content -->
 					<div class="widget-body no-padding">
-
 						<!-- this is what the user will see -->
 						<div class="padding-gutter">
 							<span class="badge bg-color-green">Note:</span> You can adjust these settings inside <span class="text-primary">app.js</span> file to your comfort.
 						</div>
-
 						<div class="table-responsive">
-
 							<table class="table table-bordered margin-top-10">
 								<thead>
 									<tr>
@@ -276,41 +260,31 @@ the <section></section> and you can use wells or panels instead
 									</tr>
 								</tbody>
 							</table>
-
 						</div>
 					</div>
 					<!-- end widget content -->
-
 				</div>
 				<!-- end widget div -->
-
 			</div>
 			<!-- end widget -->
-
 		</article>
 		<!-- WIDGET END -->
-
 		<article class="col-xs-12 col-sm-12 col-md-12 col-lg-5">
-
 			<!-- Widget ID (each widget will need unique ID)-->
 			<div class="jarviswidget" id="wid-id-2" data-widget-colorbutton="false"	data-widget-editbutton="false" data-widget-togglebutton="false" data-widget-deletebutton="false" data-widget-fullscreenbutton="false">
 				<header>
 					<h2> Page layout options </h2>
 				</header>
-
 				<!-- widget div-->
 				<div>
-
 					<!-- widget edit box -->
 					<div class="jarviswidget-editbox">
 						<!-- This area used as dropdown edit box -->
 						<input class="form-control" type="text">
 					</div>
 					<!-- end widget edit box -->
-
 					<!-- widget content -->
 					<div class="widget-body no-padding">
-
 						<div class="padding-gutter padding-bottom-0">
 							Possible classes for the <b><i>BODY</i></b> tag: <code>
 								smart-skin-{SKIN_NUMBER}</code>
@@ -326,9 +300,7 @@ the <section></section> and you can use wells or panels instead
 								fixed-footer</code>
 							, <code>
 								container</code>
-
 						</div>
-
 						<!-- this is what the user will see -->
 						<div class="padding-gutter">
 							<div style="background: #f1f1f1;border-radius:3px;overflow: hidden">
@@ -346,7 +318,6 @@ the <section></section> and you can use wells or panels instead
 								</div>
 							</div>
 						</div>
-
 						<hr>
 						<div class="padding-gutter padding-top-0 padding-bottom-0">
 							Switch to top menu by adding class <code>
@@ -376,22 +347,15 @@ the <section></section> and you can use wells or panels instead
 			<!-- end widget -->
 		</article>
 	</div>
-
 	<!-- end row -->
-
 	<!-- row -->
-
 	<div class="row">
-
 		<!-- a blank row to get started -->
 		<div class="col-sm-12">
 			<!-- your contents here -->
 		</div>
-
 	</div>
-
 	<!-- end row -->
-
 </section>
 <!-- end widget grid -->
 

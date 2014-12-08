@@ -1,11 +1,22 @@
 <?php
 /**
- * Скрипт загружающий страницу по AJAX
- * Должен быть добавлен в конце каждой AJAX-разметки для корректной работы
+ * Скрипт инициализации содержимого страницы
+ * Обязательно нужен в конце каждой страницы темы smartAdmin для корректной работы
+ * отвечает за подгрузку всего содержимого страницы через AJAX, а также за подключение 
+ * js-файлов для виджетов, находящихся на странице
+ * 
+ * Функцию pageSetUp() править и перемещать нельзя, она служебная
+ * Функцию pagefunction() править можно, но рекомендуется добавлять в нее данные при помощи
+ * компонента SmartClientScript который делает это автоматически 
+ * 
+ * @todo модернизировать CClientScript таким образом, чтобы все подключаемые скрипты
+ *      (как файлы так и отдельные строки) автоматически добавлялись внутрь pagefunction(){...}
  */
 ?>
 <script type="text/javascript">
-	/* DO NOT REMOVE : GLOBAL FUNCTIONS!
+    // [BEGIN_FINAL_CONTENT_INIT]
+	/**
+     * DO NOT REMOVE : GLOBAL FUNCTIONS!
 	 *
 	 * pageSetUp(); WILL CALL THE FOLLOWING FUNCTIONS
 	 *
@@ -34,10 +45,10 @@
 	 * and makes rendering easier.
 	 *
 	 */
-
+	
 	pageSetUp();
 	
-	/*
+	/**
 	 * ALL PAGE RELATED SCRIPTS CAN GO BELOW HERE
 	 * eg alert("my home function");
 	 * 
@@ -61,14 +72,12 @@
 	 */
 	
 	// pagefunction
-	
 	var pagefunction = function() {
 		// clears the variable if left blank
 	};
-	
 	// end pagefunction
 	
 	// run pagefunction
 	pagefunction();
-	
+	// [END_FINAL_CONTENT_INIT]
 </script>

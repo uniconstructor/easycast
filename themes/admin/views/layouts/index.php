@@ -15,7 +15,7 @@
  * @todo 
  */
 /* @var $this Controller */
-/* @var $content string - основное содержимое страницы */
+/* @var $content string */
 ?><!DOCTYPE html>
 <html lang="ru">
     <?php 
