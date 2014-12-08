@@ -1208,19 +1208,6 @@ class Questionary extends CActiveRecord
             $typeId = $type;
         }
         // извлекаем все записи кроме тех которые содержат переданный тип проекта в черном списке
-        /*$criteria = new CDbCriteria();
-        $criteria->with = array(
-            'configParams' => array(
-                'select'   => false,
-                'joinType' => 'INNER JOIN',
-                'scopes'   => array(
-                    'withName' => array('projectTypesBlackList'),
-                    'exceptSelectedOption' => array($typeId),
-                ),
-            ),
-        );
-        $this->getDbCriteria()->mergeWith($criteria, $operation);*/
-        
         return $this->exceptConfigOptionId('projectTypesBlackList', $typeId);
     }
     
