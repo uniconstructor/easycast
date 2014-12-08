@@ -608,21 +608,41 @@ class QDynamicFormModel extends CFormModel
                 array('email', 'email'),
             ),
             'policyagreed' => array(
-                array('policyagreed', 'compare',
+                array(
+                    'policyagreed', 'compare',
                     'compareValue' => 1,
                     'message'      => 'Для регистрации требуется ваше согласие',
                 ),
             ),
-            'birthdate' => array(
-                array('birthdate', 'filter',
-                    'filter'  => array($this, 'checkInputDate'),
-                    'message' => 'Нужно указать дату в формате дд.мм.гггг',
+            // проверка даты через фильтр
+            array('birthdate', 'ext.YiiConditionalValidator',
+                'if' => array(
+                    array(
+                        'birthdate', 'date',
+                        'allowEmpty' => false,
+                        'format'     => Yii::app()->params['yiiDateFormat'],
+                    ),
+                ),
+                'then' => array(
+                    array(
+                        'birthdate', 'filter',
+                        'filter' => array('EcDateTimeParser', 'parse'),
+                    ),
                 ),
             ),
-            'passportexpires' => array(
-                array('passportexpires', 'filter',
-                    'filter'  => array($this, 'checkInputDate'),
-                    'message' => 'Нужно указать дату в формате дд.мм.гггг',
+            array('passportexpires', 'ext.YiiConditionalValidator',
+                'if' => array(
+                    array(
+                        'passportexpires', 'date',
+                        'allowEmpty' => false,
+                        'format'     => Yii::app()->params['yiiDateFormat'],
+                    ),
+                ),
+                'then' => array(
+                    array(
+                        'passportexpires', 'filter',
+                        'filter' => array('EcDateTimeParser', 'parse'),
+                    ),
                 ),
             ),
             'photo' => array(
@@ -669,19 +689,20 @@ class QDynamicFormModel extends CFormModel
         {
             $rules[$fieldName][] = array($fieldName, 'numerical', 'integerOnly' => true);
         }
-        
         $trim = array('birthdate', 'formattedBirthDate', 'firstname', 'lastname', 'middlename',
-            'gender', 'galleryid', 'mobilephone', 'homephone', 'addphone', 'vkprofile', 'fbprofile', 'okprofile',
-            'passportdate', 'height', 'weight', 'wearsize', 'looktype', 'haircolor', 'hairlength', 'eyecolor', 
-            'city', 'cityid', 'passportexpires','chestsize', 'waistsize', 'hipsize',
+            'gender', 'galleryid', 'mobilephone', 'homephone', 'addphone', 'vkprofile', 
+            'fbprofile', 'okprofile', 'passportdate', 'height', 'weight', 'wearsize', 
+            'looktype', 'haircolor', 'hairlength', 'eyecolor', 'city', 'cityid', 
+            'passportexpires', 'chestsize', 'waistsize', 'hipsize',
         );
         foreach ( $trim as $fieldName )
         {
             $rules[$fieldName][] = array($fieldName, 'filter', 'filter' => 'trim');
         }
         
-        if ( $field->isRequiredForVacancy($this->vacancy) AND 
-             ! Yii::app()->user->checkAccess('Admin') AND ! $field->multiple )
+    	if ( $field->isRequiredForVacancy($this->vacancy) 
+             AND ! Yii::app()->user->checkAccess('Admin') 
+             AND ! $field->multiple )
         {// некоторые поля анкеты могут быть обязательными при подаче заявки, но админов
             // которые регистрируют заявки вручную это не касается
             // списки полей также не могут быть обязательными: они сохраняются отдельно от формы
@@ -714,6 +735,7 @@ class QDynamicFormModel extends CFormModel
     
     /**
      * Получить набор правил для дополнительного поля
+     * 
      * @param ExtraField $field - поле, для которого нужно получить правила формы
      * @return array
      */
@@ -734,6 +756,7 @@ class QDynamicFormModel extends CFormModel
     /**
      * Перенести данные из модели анкеты и связаных с анкетой таблиц 
      * в модель динамической формы (этот класс)
+     * 
      * @return void
      */
     protected function setUpData()
@@ -769,20 +792,24 @@ class QDynamicFormModel extends CFormModel
     
     /**
      * Фильтр для даты
-     * @param string $date
+     * 
+     * @param  string $date
      * @return int
+     * 
+     * @deprecated
      */
-    public function checkInputDate($date)
+    /*public function checkInputDate($date)
     {
         if ( strpos($date, '.') === false )
         {// дата из базу уже в unixtime: она не нуждается в преобразовании
             return $date;
         }
         return CDateTimeParser::parse($date, Yii::app()->params['inputDateFormat']);
-    }
+    }*/
     
     /**
      * Эта функция проверяет обязательное наличие хотя бы одной загруженной фотографии
+     * 
      * @see CModel::beforeValidate()
      */
     public function beforeValidate()
