@@ -85,6 +85,10 @@ class QUserConfig extends CWidget
         $elements = array();
         foreach ( $this->availableItems as $item )
         {// для каждого элемента списка создаем форму
+            if ( $item->value === 'onlinecasting' )
+            {// @todo придумать оставить ли этот тип проекта или убрать
+                continue;
+            }
             $elements[$item->name] = $this->getItemForm($item);
         }
         // настройки конструктора формы
