@@ -2572,3 +2572,10 @@ span.required {
     font-size: 14px;
     font-style: italic;
 }
+/* Исправление верстки кнопок-переключателей */
+.toggle-button div {
+    box-sizing: content-box;
+}
+.toggle-button div span {
+    box-sizing: content-box;
+}
