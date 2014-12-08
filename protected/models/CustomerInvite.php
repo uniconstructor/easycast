@@ -268,9 +268,9 @@ class CustomerInvite extends CActiveRecord
     /**
      * Проверить ключи доступа из приглашения заказчика
      * 
-     * @param CustomerInvite $invite - приглашение заказчика
-     * @param string $key  - первый ключ безопасности (приходит из GET)
-     * @param string $key2 - второй ключ безопасности (приходит из GET)
+     * @param  CustomerInvite $invite - приглашение заказчика
+     * @param  string $key  - первый ключ безопасности (приходит из GET)
+     * @param  string $key2 - второй ключ безопасности (приходит из GET)
      * @return bool
      */
     public function checkKeys($id, $key, $key2)
@@ -280,7 +280,7 @@ class CustomerInvite extends CActiveRecord
         $criteria->compare('key', $key);
         $criteria->compare('key2', $key2);
         
-        return $this->exists($criteria);
+        return CustomerInvite::model()->exists($criteria);
     }
     
     /**
