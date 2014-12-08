@@ -108,10 +108,10 @@ class QUserConfig extends CWidget
             withParentId($item->id)->exists();
         // AJAX-кнопка смены состояния одного оповещения
         $toggleButton = $this->widget('bootstrap.widgets.TbToggleButton', array(
-            'name'          => 'pnType_'.$item->value,
+            'name'          => $this->getItemInputId($item),
             'onChange'      => 'js:function($el, status, e){'.$this->createToggleActionJs($item).'}',
-            'enabledLabel'  => 'Да',
-            'disabledLabel' => 'Нет',
+            'enabledLabel'  => Yii::t('yii', 'Yes'),
+            'disabledLabel' => Yii::t('yii', 'No'),
             'enabledStyle'  => 'primary',
             'disabledStyle' => 'default',
             'width'         => 250,
@@ -186,18 +186,21 @@ class QUserConfig extends CWidget
      */
     protected function createToggleActionJs($item)
     {
+        $inputId   = $this->getItemInputId($item);
+        $wrapperId = $this->getItemWrapperId($item);
         // settings - настройки AJAX-запроса перед отправкой
-        $beforeSendJs = "function(jqXHR, settings){
-            console.log('beforeSend');
+        $beforeSendJs = "function(jqXHR, settings) {
+            $('#{$inputId}').prop('disabled', true);
+            $('#{$wrapperId}').addClass('disabled').addClass('muted');
         }";
         // data - пришедший в запрос html
         $successJs    = "function(data, status){
-            console.log('success');
+            $.jGrowl('Настройка сохранена');
         }";
         $completeJs   = "function(data, status){
             $('.{$item->value}').toggleClass('grayscale');
-            $.jGrowl('Настройка сохранена');
-            console.log('complete');
+            $('#{$inputId}').prop('disabled', false);
+            $('#{$wrapperId}').removeClass('disabled').removeClass('muted');
         }";
         // данные запроса
         $data = array(
@@ -218,5 +221,25 @@ class QUserConfig extends CWidget
             'complete'   => $completeJs,
         );
         return CHtml::ajax($ajax);
+    }
+    
+    /**
+     * 
+     * @param  EasyListItem $item
+     * @return string
+     */
+    protected function getItemInputId(EasyListItem $item)
+    {
+        return 'pnType_'.$item->value;
+    }
+    
+    /**
+     * 
+     * @param  EasyListItem $item
+     * @return string
+     */
+    protected function getItemWrapperId(EasyListItem $item)
+    {
+        return 'pnType_'.$item->value;
     }
 }
