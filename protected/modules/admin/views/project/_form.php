@@ -7,9 +7,6 @@
 /* @var $bannerForm CActiveForm */
 /* @var $this       ProjectController */
 
-//$params = $model->getConfig();
-//CVarDumper::dump($params, 10, true);
-
 
 // баннер
 // @todo заменить стандартным виджетом настроек
@@ -36,11 +33,11 @@ if ( $model->isNewRecord )
     /*
      *     $this->widget(
     'bootstrap.widgets.TbEditableField',
-    array(
-    'type' => 'text',
-    'model' => $model,
-    'attribute' => 'name', // $model->name will be editable
-    'url' => $endpoint, //url for submit data
+        array(
+        'type' => 'text',
+        'model' => $model,
+        'attribute' => 'name', // $model->name will be editable
+        'url' => $endpoint, //url for submit data
     )
     );
      */
@@ -49,10 +46,15 @@ if ( $model->isNewRecord )
 // модуль User
 $userModule = Yii::app()->getModule('user');
 // данные формы нужны для корректной работы элемента выбора даты
-$formData = Yii::app()->request->getParam('Project');
-// рейтинг проекта (задается только здесь, в админке. Нужен только для сортировки проектов
+$formData   = Yii::app()->request->getParam('Project');
+// формат даты
+$dateFormat = Yii::app()->params['yiiDateFormat'];
+
+
+// рейтинг проекта
+$ratings = array('0' => 'Нет'); 
+// (задается только здесь, в админке. Нужен только для сортировки проектов
 // при отображении для для заказчика и в коммерческом предложении)
-$ratings = array('0' => 'Нет');
 for ( $i = 0; $i <= 1000; $i++ )
 {// и ключи и значения массива должны быть строковыми иначе не работает dropdownlist
     $ratings["$i"] = (string)$i;
@@ -112,25 +114,20 @@ if ( ! $logoGallery )
 // создать проект без даты начала
 echo $form->checkBoxRow($model, 'notimestart');
 // дата начала проекта
-if ( isset($formData['timestart']) )
-{
-    $model->timestart = $formData['timestart'];
-}elseif ( $model->timestart )
-{
-    $model->timestart = date(Yii::app()->params['outputDateFormat'], (int)$model->timestart);
-}else
-{
-    $model->timestart = null;
-}
 echo $form->datepickerRow($model, 'timestart', array(
-    'options' => array(
-        'language'       => 'ru',
-        'format'         => Yii::app()->params['inputDateFormat'],
-        'startView'      => 'month',
-        'weekStart'      => 1,
-        'autoclose'      => true,
-        'todayHighlight' => true,
-    )),
+        'options' => array(
+            'language'       => 'ru',
+            'format'         => Yii::app()->params['inputDateFormat'],
+            'startView'      => 'month',
+            'weekStart'      => 1,
+            'autoclose'      => true,
+            'todayHighlight' => true,
+            'startDate'      => '-1d',
+        ),
+        'htmlOptions' => array(
+            'value' => Yii::app()->dateFormatter->format($dateFormat, $model->timestart),
+        ),
+    ),
     array(
         'hint'    => 'Если дата начала точно не известна - поставьте галочку "дата начала уточняется"',
         'prepend' => '<i class="icon-calendar"></i>',
@@ -140,25 +137,19 @@ echo $form->datepickerRow($model, 'timestart', array(
 // создать длительный без даты окончания
 echo $form->checkBoxRow($model, 'notimeend');
 // дата окончания проекта
-if ( isset($formData['timeend']) )
-{
-    $model->timeend = $formData['timeend'];
-}elseif ( $model->timeend )
-{
-    $model->timeend = date(Yii::app()->params['outputDateFormat'], (int)$model->timeend);
-}else
-{
-    $model->timeend = null;
-}
 echo $form->datepickerRow($model, 'timeend', array(
-    'options' => array(
-        'language'       => 'ru',
-        'format'         => Yii::app()->params['inputDateFormat'],
-        'startView'      => 'month',
-        'weekStart'      => 1,
-        'autoclose'      => true,
-        'todayHighlight' => true,
-    )),
+        'options' => array(
+            'language'       => 'ru',
+            'format'         => Yii::app()->params['inputDateFormat'],
+            'startView'      => 'month',
+            'weekStart'      => 1,
+            'autoclose'      => true,
+            'todayHighlight' => true,
+        ),
+        'htmlOptions' => array(
+            'value' => Yii::app()->dateFormatter->format($dateFormat, $model->timeend),
+        ),
+    ),
     array(
         'hint'    => 'Если планируется длительный проект - поставьте галочку "Дата окончания неизвестна"',
         'prepend' => '<i class="icon-calendar"></i>',                
@@ -218,44 +209,3 @@ foreach ( Yii::app()->getModule('admin')->formClips as $clip )
 {
     echo $this->clips[$clip];
 }
-
-// @todo выключать поля даты и начала окончания при изменении галочек
-/*$function = 'function setProjectTimeInput()
-{
-    var timeStartInput = $("#Project_timestart");
-    var timeEndInput   = $("#Project_timeend");
-    if ( $("#Project_notimestart").is(":checked") )
-    {
-        timeStartInput.addClass("muted");
-        timeStartInput.val("");
-        timeStartInput.prop("disabled", true);
-    }else
-    {
-        timeStartInput.removeClass("muted");
-        timeStartInput.prop("disabled", false);
-    }
-    if ( $("#Project_notimeend").is(":checked") )
-    {
-        timeEndInput.addClass("muted");
-        timeEndInput.val("");
-        timeEndInput.prop("disabled", true);
-    }else
-    {
-        timeEndInput.removeClass("muted");
-        timeEndInput.prop("disabled", false);
-    }
-    console.log("set__");
-}';
-*/
-//Sweeml::registerEvent('updateTimeInput', "function(data){setProjectTimeInput()}");
-//Sweeml::registerEvent('updateTimeInput', $function);
-?>
-<script>
-    // trigger on change
-    //$("#Project_notimestart").change(function() {<?= Sweeml::raiseEvent('updateTimeInput'); ?>});
-    //$("#Project_notimeend").change(function()   {<?= Sweeml::raiseEvent('updateTimeInput'); ?>});
-    // init fields state
-    <?php 
-    //echo Sweeml::raiseEvent('updateTimeInput');
-    ?>
-</script>

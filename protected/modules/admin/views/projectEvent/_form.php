@@ -15,6 +15,8 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 ));
 // данные формы нужны для корректной работы элемента выбора даты
 $formData = Yii::app()->request->getParam('ProjectEvent');
+// форматирование даты
+$dateFormat = Yii::app()->params['yiiDateFormat'];
 
 // ошибки формы
 echo Yii::t('coreMessages', 'form_required_fields',
@@ -51,8 +53,7 @@ echo $form->redactorRow($model, 'description', array(),
     'hint' => 'Видно всем',
 ));
 // Дополнительная информация для участников
-echo $form->redactorRow($model, 'memberinfo', array(),
-    array(
+echo $form->redactorRow($model, 'memberinfo', array(), array(
     'hint' => 'Отображается только подтвержденным участникам',
 ));
 // нужно создать мероприятие без даты (она пока неизвестна)
@@ -60,27 +61,20 @@ echo $form->redactorRow($model, 'memberinfo', array(),
 echo $form->checkBoxRow($model, 'nodates');
 
 // время начала
-if ( isset($formData['timestart']) )
-{
-    $model->timestart = $formData['timestart'];
-}elseif ( $model->timestart )
-{
-    $model->timestart = date(Yii::app()->params['outputDateTimeFormat'], (int)$model->timestart);
-}else
-{
-    $model->timestart = null;
-}
-echo $form->dateTimePickerRow($model, 'timestart', array(
+echo $form->datepickerRow($model, 'timestart', array(
         'options' => array(
             'language'       => 'ru',
             'format'         => Yii::app()->params['inputDateTimeFormat'],
             'startView'      => 'month',
             'maxView'        => 'year',
-            'startDate'      => date(Yii::app()->params['outputDateTimeFormat']),
+            'startDate'      => '+0d',
             'weekStart'      => 1,
             'autoclose'      => true,
             'todayHighlight' => true,
-            'minuteStep'     => 5,
+            'minuteStep'     => 10,
+        ),
+        'htmlOptions' => array(
+            'value' => Yii::app()->dateFormatter->format($dateFormat, $model->timestart),
         ),
     ),
     array(
@@ -88,33 +82,25 @@ echo $form->dateTimePickerRow($model, 'timestart', array(
         'prepend' => '<i class="icon-calendar"></i>',
     )
 );
-
 // время окончания
-if ( isset($formData['timeend']) )
-{
-    $model->timeend = $formData['timeend'];
-}elseif ( $model->timestart )
-{
-    $model->timeend = date(Yii::app()->params['outputDateTimeFormat'], (int)$model->timeend);
-}else
-{
-    $model->timeend = null;
-}
-echo $form->dateTimePickerRow($model, 'timeend', array(
+echo $form->datepickerRow($model, 'timeend', array(
         'options' => array(
             'language'       => 'ru',
             'format'         => Yii::app()->params['inputDateTimeFormat'],
             'startView'      => 'month',
             'maxView'        => 'year',
-            'startDate'      => date(Yii::app()->params['outputDateTimeFormat']),
+            'startDate'      => '+0d',
             'weekStart'      => 1,
             'autoclose'      => true,
             'todayHighlight' => true,
-            'minuteStep'     => 5,
+            'minuteStep'     => 10,
+        ),
+        'htmlOptions' => array(
+            'value' => Yii::app()->dateFormatter->format($dateFormat, $model->timeend),
         ),
     ),
     array(
-        'hint'    => 'Если дата начала точно не известна - поставьте галочку "дата начала уточняется"',
+        'hint'    => 'Если дата окончания точно не известна - поставьте галочку "дата окончания уточняется"',
         'prepend' => '<i class="icon-calendar"></i>',
     )
 );
@@ -122,8 +108,7 @@ echo $form->dateTimePickerRow($model, 'timeend', array(
 // время сбора
 // @todo заменить этот виджет на более удобный: http://amsul.ca/pickadate.js/time.htm#formats
 echo $form->labelEx($model, 'eta');
-$this->widget('ext.ETinyTimePicker.ETinyTimePicker',
-    array(
+$this->widget('ext.ETinyTimePicker.ETinyTimePicker', array(
     'model'     => $model,
     'attribute' => 'eta',
 ));

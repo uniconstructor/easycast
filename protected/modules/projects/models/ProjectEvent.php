@@ -319,6 +319,38 @@ class ProjectEvent extends CActiveRecord
 			array('status', 'length', 'max' => 9),
 			array('type', 'length', 'max' => 20),
 			array('name', 'length', 'max' => 255),
+		    // проверка даты начала через фильтр
+		    array('timestart', 'ext.YiiConditionalValidator',
+		        'if' => array(
+		            array(
+		                'timestart', 'date',
+		                'allowEmpty' => false,
+		                'format'     => Yii::app()->params['yiiDateFormat'],
+		            ),
+		        ),
+		        'then' => array(
+		            array(
+		                'timestart', 'filter',
+		                'filter' => array('EcDateTimeParser', 'parse'),
+		            ),
+		        ),
+		    ),
+		    // проверка даты окончания через фильтр
+	        array('timeend', 'ext.YiiConditionalValidator',
+	            'if' => array(
+	                array(
+	                    'timeend', 'date',
+	                    'allowEmpty' => false,
+	                    'format'     => Yii::app()->params['yiiDateFormat'],
+	                ),
+	            ),
+	            'then' => array(
+	                array(
+	                    'timeend', 'filter',
+	                    'filter' => array('EcDateTimeParser', 'parse'),
+	                ),
+	            ),
+	        ),
 			// The following rule is used by search().
 			//array('id, projectid, name, description, timestart, timeend, timecreated, timemodified, addressid, status', 'safe', 'on'=>'search'),
 		);

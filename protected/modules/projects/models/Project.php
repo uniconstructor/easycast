@@ -496,9 +496,10 @@ class Project extends SWActiveRecord
 			array('description, shortdescription, customerdescription', 'length', 'max' => 4095),
 			array('photogalleryid, galleryid, timestart, timeend, timecreated, timemodified, 
 			    leaderid, supportid, customerid, orderid, memberscount, rating, notimestart, 
-			    notimeend, typeid', 'length', 'max' => 11),
-		    // делаем обязательными дату начала и окончания проекта, только если не установлены галочки
-		    // "без даты начала" или "без даты окончания"
+			    notimeend, typeid', 'length', 'max' => 11,
+            ),
+		    // делаем обязательными дату начала и окончания проекта, 
+		    // только если не установлены галочки "без даты начала"
 		    array('timestart', 'ext.YiiConditionalValidator',
 		        'if' => array(
 		            array('notimestart', 'compare', 'compareValue' => '0'),
@@ -507,6 +508,7 @@ class Project extends SWActiveRecord
 		            array('timestart', 'required'),
 		        ),
 		    ),
+		    // или "без даты окончания"
 		    array('timeend', 'ext.YiiConditionalValidator',
 		        'if' => array(
 		            array('notimeend', 'compare', 'compareValue' => '0'),
@@ -515,13 +517,43 @@ class Project extends SWActiveRecord
 		            array('timeend', 'required'),
 		        ),
 		    ),
-		    array('timestart', 'parseDateInput'),
-		    array('timeend', 'parseDateInput'),
-		    
+		    // проверка даты начала через фильтр
+		    array('timestart', 'ext.YiiConditionalValidator',
+                'if' => array(
+                    array(
+                        'timestart', 'date',
+                        'allowEmpty' => false,
+                        'format'     => Yii::app()->params['yiiDateFormat'],
+                    ),
+                ),
+                'then' => array(
+                    array(
+                        'timestart', 'filter',
+                        'filter' => array('EcDateTimeParser', 'parse'),
+                    ),
+                ),
+            ),
+		    // проверка даты окончания через фильтр
+		    array('timeend', 'ext.YiiConditionalValidator',
+                'if' => array(
+                    array(
+                        'timeend', 'date',
+                        'allowEmpty' => false,
+                        'format'     => Yii::app()->params['yiiDateFormat'],
+                    ),
+                ),
+                'then' => array(
+                    array(
+                        'timeend', 'filter',
+                        'filter' => array('EcDateTimeParser', 'parse'),
+                    ),
+                ),
+            ),
 			// The following rule is used by search().
 			array('id, name, typeid, description, galleryid, timestart, timeend, timecreated, timemodified, 
 			    leaderid, customerid, orderid, isfree, virtual, memberscount, status, rating', 
-			    'safe', 'on' => 'search'),
+			    'safe', 'on' => 'search',
+	        ),
 		);
 	}
 	
@@ -1112,7 +1144,7 @@ class Project extends SWActiveRecord
 	 *
 	 * @deprecated использовать фильтр в rules()
 	 */
-	public function parseDateInput($attribute, $params)
+	/*public function parseDateInput($attribute, $params)
 	{
 	    if ( ! $this->hasErrors() )
 	    {
@@ -1121,7 +1153,7 @@ class Project extends SWActiveRecord
 	            $this->$attribute = $date;
 	        }
 	    }
-	}
+	}*/
 	
 	/**
 	 * Получить все вакансии для всех активных событий проекта
