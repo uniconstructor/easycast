@@ -174,6 +174,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR .
         <?= $form->textFieldRow($questionary, 'middlename', array('size' => 60,'maxlength' => 128)); ?>
         <?php 
         // дата рождения
+        $birthDate = Yii::app()->dateFormatter->format($dateFormat, $questionary->birthdate);
         echo $form->datepickerRow($questionary, 'birthdate', array(
                 'options' => array(
                     'language'  => 'ru',
@@ -185,7 +186,7 @@ Yii::app()->clientScript->registerCssFile($assetsUrl . DIRECTORY_SEPARATOR .
                     'autoclose' => true,
                 ),
                 'htmlOptions' => array(
-                    'value' => Yii::app()->dateFormatter->format($dateFormat, $questionary->birthdate),
+                    'value' => $birthDate,
                 ),
             ),
             array(
