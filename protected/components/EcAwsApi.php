@@ -832,11 +832,11 @@ class EcAwsApi extends CApplicationComponent
             $this->trace($email.': test address - ', false);
             return true;
         }
-        if ( $this->emailInBlackList($email) )
-        {// не отправляем письма на битые и испорченные адреса
+        /*if ( $this->emailInBlackList($email) )
+        {// @todo не отправляем письма на битые и испорченные адреса
             $this->trace($email.': disabled by admin (broken or complain) - ', false);
             return true;
-        }
+        }*/
         return false;
     }
     
