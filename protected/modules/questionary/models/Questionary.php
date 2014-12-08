@@ -1,5 +1,8 @@
 <?php
 
+Yii::import('application.modules.projects.models.*');
+Yii::import('application.modules.questionary.extensions.behaviors.*');
+
 /**
  * Модель анкеты участника
  * 
@@ -177,12 +180,12 @@ class Questionary extends CActiveRecord
      * @var string - размер одежды "меньше 36" (как он хранится в базе данных)
      *               (нужен чтобы нормально работали SQL запросы на поиск "больше/меньше")
      */
-    const WEARSIZE_MIN = 1;
+    const WEARSIZE_MIN  = 1;
     /**
      * @var string - размер одежды "больше 56" (как он хранится в базе данных)
      *               (нужен чтобы нормально работали SQL запросы на поиск "больше/меньше")
      */
-    const WEARSIZE_MAX = 99;
+    const WEARSIZE_MAX  = 99;
     /**
      * @var string - размер обуви "меньше 36" (как он хранится в базе данных)
      *               (нужен чтобы нормально работали SQL запросы на поиск "больше/меньше")
@@ -212,18 +215,6 @@ class Questionary extends CActiveRecord
     public function init()
     {
         parent::init();
-        
-        Yii::import('application.modules.questionary.extensions.behaviors.*');
-        // модели проектов требуются для функций подсчета статистики
-        // @todo и это хороший вопрос - нужны ли они здесь?
-        //       Нужно решить, следует обращаться 
-        //       за статистикой приглашений к самим приглашениям (в модуль Projects), передавая им id участника
-        //       а не к от модели участника требовать список или количество приглашений
-        //       + приглашения и заявки относятся к участнику и логично иметь в его модели функции запроса таких данных
-        //       + чтобы посмотреть приглашения не нужно знать о том где они лежат
-        //       - теущее решение требует подключения моделей из другого модуля, это плохо для изолированности
-        Yii::import('application.modules.projects.models.*');
-        
         // обработчики событий
         $module = Yii::app()->getModule('questionary');
         // один из админов ввел новую анкету 
@@ -286,10 +277,20 @@ class Questionary extends CActiveRecord
                 'filter', 'filter' => 'trim',
             ),
             // проверка даты через фильтр
-            array('birthdate', 'date',
-                'allowEmpty'         => false,
-                'format'             => Yii::app()->params['yiiDateFormat'],
-                'timestampAttribute' => 'birthDateTimestamp',
+            array('birthdate', 'ext.YiiConditionalValidator',
+                'if' => array(
+                    array(
+                        'birthdate', 'date',
+                        'allowEmpty' => false,
+                        'format'     => Yii::app()->params['yiiDateFormat'],
+                    ),
+                ),
+                'then' => array(
+                    array(
+                        'birthdate', 'filter',
+                        'filter' => array('EcDateTimeParser', 'parse'),
+                    ),
+                ),
             ),
         );
     }
