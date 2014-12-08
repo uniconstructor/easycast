@@ -21,21 +21,32 @@ $this->breadcrumbs = array(
             </div>
         </div>
         <div class="row-fluid">
-            <?php 
-            // виджет со списком приглашений
-            $this->widget('application.modules.projects.extensions.TokenInvite.TokenInvite', array(
-                'key'    => $key,
-                'invite' => $invite
-            ));
-            // настройки оповещений участника (по типам проекта)
-            if ( isset($invite->questionary) AND $invite->questionary instanceof Questionary )
-            {
-                $this->widget('application.modules.questionary.extensions.widgets.QUserConfig.QUserConfig', array(
-                    'questionary' => $invite->questionary,
-                    'configName'  => 'projectTypesBlackList',
+            <div class="span8 offset2">
+                <?php 
+                // виджет со списком приглашений
+                $this->widget('application.modules.projects.extensions.TokenInvite.TokenInvite', array(
+                    'key'    => $key,
+                    'invite' => $invite
                 ));
-            }
-            ?>
+                // настройки оповещений участника (по типам проекта)
+                if ( isset($invite->questionary) AND $invite->questionary instanceof Questionary )
+                {/* @var $config Config */
+                    $config = $invite->questionary->getConfigObject('projectTypesBlackList');
+                    $accordionConfig = array(
+                        'title'   => $config->title,
+                        'content' => $this->widget('application.modules.questionary.extensions.widgets.QUserConfig.QUserConfig', array(
+                            'questionary' => $invite->questionary,
+                            'configName'  => 'projectTypesBlackList',
+                        ), true),
+                    );
+                    if ( ! $config->isModifiedForModel($invite->questionary) )
+                    {// настройка еще ни разу не редактировалась участником
+                        $accordionConfig['collapse'] = false;
+                    }
+                    $this->widget('ext.ECMarkup.ECAccordion.ECAccordion', $accordionConfig);
+                }
+                ?>
+            </div>
         </div>
     </div>
 </div>

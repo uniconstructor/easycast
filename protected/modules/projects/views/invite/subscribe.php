@@ -1,18 +1,27 @@
 <?php
 /**
  * Страница подписки по одноразовому ключу
+ * 
+ * @deprecated раньше использовалась для групп мероприятий, больше не нужна, удалить при рефакторинге
  */
-/* @var $this InviteController */
+/* @var $this   InviteController */
+/* @var $invite EventInvite */
 
 //$this->breadcrumbs = array();
 
 if ( $this->createMemberRequest($invite->questionary, $invite->event) )
 {
-    $this->quickLogin($invite->questionary);
-    echo $this->getInfoMessage('Сейчас вам на почту должно придти подтверждение.
-                Как только заявка будет одобрена - мы сообщим вам об этом по почте, а также пришлем
-                более подробную информацию об участии.',
-    'Ваша заявка принята', 'alert alert-block alert-info');
+    Yii::app()->getModule('user')->forceLogin($invite->questionary->user);
+    $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
+        'type'    => 'info',
+        'header'  => 'Ваша заявка принята',
+        'message' => 'На почту должно придти подтверждение регистрации.
+            Если заявка будет одобрена - мы сообщим вам об этом.',
+    ));
+    
+    /*echo $this->getInfoMessage('Ваша заявка принята. На почту должно придти подтверждение регистрации.
+        Если заявка будет одобрена - мы сообщим вам об этом.',
+    '', 'alert alert-block alert-info');*/
     // @todo ссылка на заявки
     /*$requestsUrl = Yii::app()->createAbsoluteUrl(Yii::app()->getModule('questionary')->profileUrl,
     array(
