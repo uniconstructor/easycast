@@ -317,9 +317,9 @@ return array(
             'enablePopover'    => false,
             'enableTooltip'    => false,
             // переопределяем пакеты скриптов
-            'packages' => array(
+            /*'packages' => array(
                 
-            ),
+            ),*/
         ),
         // библиотека для работы с изображениями: требуется для плагина galleryManager
         'image' => array(
@@ -452,13 +452,16 @@ return array(
                 'EcLogRoute' => array(
                     'class'        => 'EcLogRoute',
                     'connectionID' => 'db',
-                    'levels'       => 'easycast',
+                    //'levels'       => 'EC_PROCESS,EC_ACTION,EC_EVENT,EC_INFO,EC_TRACE,EC_STAT',
+                    'categories'   => array('easycast.*'),
                     'filter'       => array(
                         'class'      => 'CLogFilter',
                         'prefixUser' => true,
                         'logUser'    => true,
                     ),
                     'autoCreateLogTable' => false,
+                    // @todo временно отключено
+                    'enabled' => false,
                 ),
             ),
         ),
