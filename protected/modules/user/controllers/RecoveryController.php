@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * 
+ */
 class RecoveryController extends Controller
 {
 	public $defaultAction = 'recovery';
@@ -26,7 +29,7 @@ class RecoveryController extends Controller
 	 */
 	public function actionRecovery()
 	{
-        $form = new UserRecoveryForm;
+        $form  = new UserRecoveryForm;
 	    $email = ( (isset($_GET['email'])) ? $_GET['email'] : '');
 	    $activkey = ( (isset($_GET['activkey'])) ? $_GET['activkey'] : '');
 	    if ( $email && $activkey )
