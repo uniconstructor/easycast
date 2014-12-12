@@ -77,6 +77,18 @@
 	};
 	// end pagefunction
 	
+	// pagedestroy is called automatically before loading a new page
+	// (only usable for AJAX pages)
+	var pagedestroy = function(){
+	    // destroy generated instances 
+	    
+		if ( debugState ) 
+		{// debug msg
+			root.console.log("pagedestroy()");
+		}
+	}
+	// end destroy
+	
 	// run pagefunction
 	pagefunction();
 	// [END_FINAL_CONTENT_INIT]
