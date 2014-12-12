@@ -1,9 +1,14 @@
 <?php
 /**
  * Разметка боковой навигации
+ * 
  * @todo вынести в отдельный виджет
+ * 
+ * To make this navigation dynamic please make sure to link the node
+ * (the reference to the nav > ul) after page load. Or the navigation
+ * will not initialize.
  */
-/* @var $this Controller */
+/* @var $this        Controller */
 /* @var $questionary Questionary */
 
 $module = Yii::app()->getModule('questionary');
@@ -17,6 +22,8 @@ if ( $questionary = $module->getCurrentQuestionary() )
     $name   = 'Временный доступ';
 }
 ?>
+<!-- #NAVIGATION -->
+<!-- Left panel : Navigation area -->
 <aside id="left-panel">
     <!-- User info -->
     <div class="login-info">
@@ -39,4 +46,5 @@ if ( $questionary = $module->getCurrentQuestionary() )
         ?>
     </nav>
 </aside>
+<!-- END NAVIGATION -->
 <div id="jGrowl" class="jGrowl"></div>
