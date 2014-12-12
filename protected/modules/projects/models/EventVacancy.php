@@ -552,6 +552,7 @@ class EventVacancy extends CActiveRecord
 	
 	/**
 	 * Разослать приглашения всем подходящим пользователям
+	 * 
 	 * @return bool
 	 * 
 	 * @todo придумать что делать со списком вакансий в приглашении
@@ -1044,7 +1045,13 @@ class EventVacancy extends CActiveRecord
 	        ".`status` NOT IN ('delayed', 'draft', 'unconfirmed')");
 	    // сортируем анкеты по рейтингу (сначала лучшие)
 	    $criteria->order = Questionary::model()->getTableAlias(true).'.`rating` DESC';
-	    
+	    // @todo настройки оповещений пользователей (перенести в стандартные критерии поиска)
+	    if ( $this->event AND $this->event->project )
+	    {
+	        $criteria->scopes = array(
+	            'forProjectType' => array($this->event->project->typeid),
+	        );
+	    }
 	    return $criteria;
 	}
 	
