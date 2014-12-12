@@ -31,7 +31,12 @@ class AssignmentController extends RController
 	*/
 	public function filters()
 	{
-		return array('accessControl');
+		return array(
+		    'accessControl',
+		    array(
+		        'ext.bootstrap.filters.BootstrapFilter',
+		    ),
+		);
 	}
 
 	/**

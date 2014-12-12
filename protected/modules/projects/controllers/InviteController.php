@@ -33,7 +33,9 @@ class InviteController extends Controller
         $baseFilters = parent::filters();
 	    $newFilters  = array(
 	        'accessControl',
-	        'ext.bootstrap.filters.BootstrapFilter + subscribe, selection, finishSelection',
+	        array(
+	           'ext.bootstrap.filters.BootstrapFilter + subscribe, selection, finishSelection',
+            ),
 	    );
 	    return CMap::mergeArray($baseFilters, $newFilters);
     }

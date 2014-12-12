@@ -36,7 +36,10 @@ class AuthItemController extends RController
 	public function filters()
 	{
 		return array(
-			'accessControl'
+			'accessControl',
+		    array(
+		        'ext.bootstrap.filters.BootstrapFilter',
+		    ),
 		);
 	}
 
