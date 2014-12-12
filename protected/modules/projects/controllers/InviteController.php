@@ -33,6 +33,7 @@ class InviteController extends Controller
         $baseFilters = parent::filters();
 	    $newFilters  = array(
 	        'accessControl',
+	        'ext.bootstrap.filters.BootstrapFilter + subscribe, selection, finishSelection',
 	    );
 	    return CMap::mergeArray($baseFilters, $newFilters);
     }
@@ -69,11 +70,10 @@ class InviteController extends Controller
      */
     public function actionAccept()
     {
-        if ( $id = Yii::app()->request->getParam('id', 0) )
-        {
-            $invite = $this->loadModel($id);
-            $invite->setStatus(EventInvite::STATUS_ACCEPTED);
-        }
+        $id     = Yii::app()->request->getParam('id', 0);
+        $invite = $this->loadModel($id);
+        $invite->setStatus(EventInvite::STATUS_ACCEPTED);
+        Yii::app()->end();
     }
     
     /**
@@ -83,9 +83,10 @@ class InviteController extends Controller
      */
     public function actionReject()
     {
-        $id = Yii::app()->request->getParam('id', 0);
+        $id     = Yii::app()->request->getParam('id', 0);
         $invite = $this->loadModel($id);
         $invite->setStatus(EventInvite::STATUS_REJECTED);
+        Yii::app()->end();
     }
     
     /**

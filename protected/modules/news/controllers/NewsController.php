@@ -20,6 +20,23 @@ class NewsController extends Controller
     }
     
     /**
+     * @return array
+     *
+     * @todo настроить проверку прав на основе RBAC
+     */
+    public function filters()
+    {
+        $baseFilters = parent::filters();
+        $newFilters  = array(
+            // фильтр для подключения YiiBooster 3.x (bootstrap 2.x)
+            array(
+                'ext.bootstrap.filters.BootstrapFilter',
+            ),
+        );
+        return CMap::mergeArray($baseFilters, $newFilters);
+    }
+    
+    /**
      * Отображение всех новостей
      */
     public function actionIndex()
@@ -40,17 +57,4 @@ class NewsController extends Controller
             'newsItem' => $newsItem,
         ));
     }
-    
-    /**
-     * Returns the data model based on the primary key given in the GET variable.
-     * If the data model is not found, an HTTP exception will be raised.
-     * @param integer the ID of the model to be loaded
-     */
-    /*public function loadModel($id)
-    {
-        $model=News::model()->findByPk($id);
-        if($model===null OR ! $model->visible )
-            throw new CHttpException(404,'Новость не найдена');
-        return $model;
-    }*/
 }

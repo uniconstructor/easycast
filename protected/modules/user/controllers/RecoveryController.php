@@ -5,6 +5,23 @@ class RecoveryController extends Controller
 	public $defaultAction = 'recovery';
 	
 	/**
+	 * @return array
+	 *
+	 * @todo настроить проверку прав на основе RBAC
+	 */
+	public function filters()
+	{
+	    $baseFilters = parent::filters();
+	    $newFilters  = array(
+	        // фильтр для подключения YiiBooster 3.x (bootstrap 2.x)
+	        array(
+	            'ext.bootstrap.filters.BootstrapFilter',
+	        ),
+	    );
+	    return CMap::mergeArray($baseFilters, $newFilters);
+	}
+	
+	/**
 	 * Recovery password
 	 */
 	public function actionRecovery()
@@ -85,8 +102,8 @@ class RecoveryController extends Controller
     
 	/**
 	 * 
-	 * @param unknown $user
-	 * @param unknown $plainPassword
+	 * @param  User $user
+	 * @param  string $plainPassword
 	 * @return null
 	 */
 	public function sendRawPassword($user, $plainPassword)

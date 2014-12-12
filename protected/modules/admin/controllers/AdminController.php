@@ -11,9 +11,26 @@ class AdminController extends Controller
 {
     /**
      * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
-     * using two-column layout. See 'protected/views/layouts/column2.php'.
+     *      using two-column layout. See 'protected/views/layouts/column2.php'.
      */
     public $layout = '//layouts/column2';
+    
+    /**
+     * @return array
+     *
+     * @todo настроить проверку прав на основе RBAC
+     */
+    public function filters()
+    {
+        $baseFilters = parent::filters();
+        $newFilters  = array(
+            // фильтр для подключения YiiBooster 3.x (bootstrap 2.x)
+            array(
+                'ext.bootstrap.filters.BootstrapFilter + index, sendCustomerInvite, createNewGallery, mailPreview',
+            ),
+        );
+        return CMap::mergeArray($baseFilters, $newFilters);
+    }
     
     /**
      * @see CController::actions()
@@ -95,7 +112,6 @@ class AdminController extends Controller
 	public function actionSendCustomerInvite()
 	{
 	    $model = new CustomerInvite;
-	    
 	    // Uncomment the following line if AJAX validation is needed
 	    $this->performInviteAjaxValidation($model);
 	    
@@ -133,7 +149,7 @@ class AdminController extends Controller
 	    
 	    $gallery = new PhotoGallery();
 	    $gallery->versions    = Yii::app()->getModule('questionary')->gallerySettings['versions'];
-	    $gallery->limit       = 1;
+	    $gallery->limit       = 40;
 	    $gallery->name        = 1;
 	    $gallery->description = 1;
 	    $gallery->save(false);
@@ -182,12 +198,12 @@ class AdminController extends Controller
 	 * @param CustomerInvite $invite
 	 * @return array
 	 */
-	public function performInviteAjaxValidation($invite)
+	/*public function performInviteAjaxValidation($invite)
 	{
 	    if ( isset($_POST['ajax']) && $_POST['ajax']==='customer-invite-form' )
 	    {
 	        echo CActiveForm::validate($model);
 	        Yii::app()->end();
 	    }
-	}
+	}*/
 }

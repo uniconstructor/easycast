@@ -2,6 +2,8 @@
 
 /**
  * Контроллер для редактирования списка элементов виджетом EditableGrid
+ * 
+ * @todo прописать действия создания/удаления отдельными классами
  */
 class EditableGridController extends Controller
 {
@@ -28,15 +30,8 @@ class EditableGridController extends Controller
     }
 
     /**
-     * @see CController::init()
-     */
-    public function init()
-    {
-        parent::init();
-    }
-
-    /**
      * @return array action filters
+     * 
      * @todo настроить проверку прав на основе RBAC
      */
     public function filters()
@@ -59,11 +54,11 @@ class EditableGridController extends Controller
     public function accessRules()
     {
         return array(
-            array('allow', // allow authenticated user to perform 'create' and 'update' actions
+            array('allow',
                 'actions' => array('create', 'update', 'delete', 'view', 'toggle', 'sortable'),
                 'users'   => array('@'),
             ),
-            array('deny',  // deny all users
+            array('deny',
                 'users' => array('*'),
             ),
         );

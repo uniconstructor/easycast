@@ -4,6 +4,8 @@ Yii::import('ext.EditableGrid.EditableGridController');
 
 /**
  * Обработчик для виджета редактирования списка пошаговых форм
+ * 
+ * @deprecated не используется, удалить при рефакторинге
  */
 class WizardGridController extends EditableGridController
 {

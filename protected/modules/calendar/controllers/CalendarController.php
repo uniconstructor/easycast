@@ -2,10 +2,28 @@
 
 /**
  * Контроллер для календаря событий
- * @todo настроить права доступа
+ * 
+ * @todo удалить модуль и перенести все действия в action
  */
 class CalendarController extends Controller
 {
+    /**
+     * @return array
+     *
+     * @todo настроить проверку прав на основе RBAC
+     */
+    public function filters()
+    {
+        $baseFilters = parent::filters();
+        $newFilters  = array(
+            // фильтр для подключения YiiBooster 3.x (bootstrap 2.x)
+            array(
+                'ext.bootstrap.filters.BootstrapFilter',
+            ),
+        );
+        return CMap::mergeArray($baseFilters, $newFilters);
+    }
+    
     /**
      * Отображение главной страницы календаря событий
      * 
@@ -40,7 +58,6 @@ class CalendarController extends Controller
         $timeEnd   = Yii::app()->request->getParam('end');
         $projectId = Yii::app()->request->getParam('projectid');
         $userId    = null;
-        
         if ( ! Yii::app()->user->isGuest )
         {
             if ( Yii::app()->user->checkAccess('Admin') OR
@@ -49,7 +66,6 @@ class CalendarController extends Controller
                 $userId = Yii::app()->request->getParam('userid');
             }
         }
-        
         $projectType = Yii::app()->request->getParam('type');
         $onlyActive  = Yii::app()->request->getParam('onlyactive', false);
         $events = ProjectEvent::model()->getCalendarEvents($timeStart,$timeEnd,$projectId,$userId,$projectType,$onlyActive);

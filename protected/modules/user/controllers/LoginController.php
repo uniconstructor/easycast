@@ -3,6 +3,23 @@
 class LoginController extends Controller
 {
 	public $defaultAction = 'login';
+	
+	/**
+	 * @return array
+	 *
+	 * @todo настроить проверку прав на основе RBAC
+	 */
+	public function filters()
+	{
+	    $baseFilters = parent::filters();
+	    $newFilters  = array(
+	        // фильтр для подключения YiiBooster 3.x (bootstrap 2.x)
+	        array(
+	            'ext.bootstrap.filters.BootstrapFilter',
+	        ),
+	    );
+	    return CMap::mergeArray($baseFilters, $newFilters);
+	}
 
 	/**
 	 * Displays the login page
@@ -37,6 +54,10 @@ class LoginController extends Controller
 		}
 	}
 	
+	/**
+	 * 
+	 * @return void
+	 */
 	private function lastVisit()
 	{
 		$lastVisit = User::model()->notsafe()->findByPk(Yii::app()->user->id);

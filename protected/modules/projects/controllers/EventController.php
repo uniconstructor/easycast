@@ -14,6 +14,23 @@ class EventController extends Controller
     protected $defaultModelClass = 'ProjectEvent';
     
     /**
+     * @return array
+     *
+     * @todo настроить проверку прав на основе RBAC
+     */
+    public function filters()
+    {
+        $baseFilters = parent::filters();
+        $newFilters  = array(
+            // фильтр для подключения YiiBooster 3.x (bootstrap 2.x)
+            array(
+                'ext.bootstrap.filters.BootstrapFilter',
+            ),
+        );
+        return CMap::mergeArray($baseFilters, $newFilters);
+    }
+    
+    /**
      * @deprecated
      * @todo перемещено в VacancyController, удалить при рефакторинге 
      * @todo удаление не потребуется если здесь можно сделать редирект (проверить)
@@ -96,21 +113,4 @@ class EventController extends Controller
             'questionary' => $questionary,
         ));
     }
-    
-    /**
-     * Returns the data model based on the primary key given in the GET variable.
-     * If the data model is not found, an HTTP exception will be raised.
-     * 
-     * @param integer the ID of the model to be loaded
-     * @return ProjectEvent
-     */
-    /*public function loadModel($id)
-    {
-        $model = ProjectEvent::model()->findByPk($id);
-        if ( $model === null )
-        {
-            throw new CHttpException(404, 'Мероприятие не найдено id='.$id);
-        }
-        return $model;
-    }*/
 }

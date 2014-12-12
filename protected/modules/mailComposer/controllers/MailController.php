@@ -25,6 +25,7 @@ class MailController extends Controller
         $baseFilters = parent::filters();
 	    $newFilters  = array(
 	        'accessControl',
+	        'ext.bootstrap.filters.BootstrapFilter',
 	    );
 	    return CMap::mergeArray($baseFilters, $newFilters);
     }

@@ -123,6 +123,9 @@ class QUserInfo extends CWidget
             $tabs[] = 'invites';
             $tabs[] = 'requests';
             $tabs[] = 'events';
+        }
+        if ( $this->isMyQuestionary() )
+        {
             $tabs[] = 'config';
         }
         return $tabs;

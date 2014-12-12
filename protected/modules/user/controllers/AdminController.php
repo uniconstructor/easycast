@@ -27,7 +27,11 @@ class AdminController extends Controller
 	public function filters()
 	{
 		return CMap::mergeArray(parent::filters(),array(
-			'accessControl', // perform access control for CRUD operations
+			'accessControl',
+		    // фильтр для подключения YiiBooster 3.x (bootstrap 2.x)
+		    array(
+		        'ext.bootstrap.filters.BootstrapFilter',
+		    ),
 		));
 	}
 	
