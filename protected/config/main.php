@@ -1,7 +1,7 @@
 <?php
 
 // YiiBooster (версия 3 для bootstrap 2.3.2)
-Yii::setPathOfAlias('bootstrap', dirname(__FILE__).'/../extensions/bootstrap');
+//Yii::setPathOfAlias('bootstrap', dirname(__FILE__).'/../extensions/bootstrap');
 
 // Главный файл конфигурации приложения.
 // Здесь задаются все общие параметры, одинаковые для "production"(релиза), "test"(тестового сервера) 
@@ -23,15 +23,17 @@ return array(
     // язык исходников (установлен английский потому что он основной для большинства сторонних модулей)
     'sourceLanguage' => 'en_us',
     // предварительно загружаемые компоненты
-    'preload'        => array('log', 'messages', 'bootstrap'),
+    'preload'        => array('log', 'messages'),
     // Название проекта 
     'name'           => 'easyCast',
     // Короткие имена для вызова сторонних библиотек
     'aliases' => array(
         // XUpload: загрузка файлов через AJAX
         'xupload'        => 'ext.xupload',
-        // YiiBooster (версия 3 для bootstrap 2.3.2)
-        //'bootstrap'      => 'ext.bootstrap',
+        // YiiBooster3 (версия 3.х для bootstrap 2.3.x)
+        'bootstrap'      => 'ext.bootstrap',
+        // YiiBooster4 (версия 4.х для bootstrap 3.x)
+        'booster'        => 'ext.booster',
         // библиотека google для обработки телефонных номеров
         'libphonenumber' => 'application.components.libphonenumber',
     ),
@@ -208,19 +210,29 @@ return array(
 		    // отображаем все URL в формате /путь/к/странице (на сервере должен быть включен mod_rewrite)
 			'urlFormat' => 'path',
 			'rules'     => array(
-				'<controller:\w+>/<id:\d+>'              => '<controller>/view',
-				'<controller:\w+>/<action:\w+>/<id:\d+>' => '<controller>/<action>',
-				'<controller:\w+>/<action:\w+>'          => '<controller>/<action>',
-				// сокращенные ссылки на специальные страницы
-				// @todo перенести в контроллер
-				// проект "МастерШеф"
-				'chief'       => 'projects/vacancy/registration/vid/749',
-				'masterchief' => 'projects/vacancy/registration/vid/749',
-				// проект "выбери меня"
-				'vm'          => 'projects/vacancy/registration/vid/1017',
-				'vm1'         => 'projects/vacancy/registration/vid/1018',
-				'vybor_man'   => 'projects/vacancy/registration/vid/1017',
-				'vybor_woman' => 'projects/vacancy/registration/vid/1018',
+                '<controller:\w+>/<id:\d+>'              => '<controller>/view',
+                '<controller:\w+>/<action:\w+>/<id:\d+>' => '<controller>/<action>',
+                '<controller:\w+>/<action:\w+>'          => '<controller>/<action>',
+                // сокращенные ссылки на специальные страницы
+                // наши события
+                'agenda'      => 'site/agenda',
+                // сделать заказ
+                'order'       => 'site/order',
+                // поиск
+                'search'      => 'site/search',
+                // регистрация
+                'easy'        => 'site/easy',
+                // @todo обработку таких ссылок перенести в контроллер
+                // проект "Топ-модель по-русски"
+                'topmodel'    => 'projects/vacancy/registration/vid/600',
+                // проект "МастерШеф"
+                'chief'       => 'projects/vacancy/registration/vid/749',
+                'masterchief' => 'projects/vacancy/registration/vid/749',
+                // проект "выбери меня"
+                'vm'          => 'projects/vacancy/registration/vid/1017',
+                'vm1'         => 'projects/vacancy/registration/vid/1018',
+                'vybor_man'   => 'projects/vacancy/registration/vid/1017',
+                'vybor_woman' => 'projects/vacancy/registration/vid/1018',
 			),
 		    'showScriptName' => false,
 		),
@@ -275,7 +287,7 @@ return array(
 	        // (пока что все языковые строки берутся из php-файлов)
             'class' => 'CPhpMessageSource',
 	    ),
-        // YiiBooster 3: обертка для Twitter Bootstrap 2.3.2 
+        // YiiBooster 3: обертка для Twitter Bootstrap 2.3.2 (для старой верстки)
         'bootstrap' => array(
             'class'          => 'bootstrap.components.Bootstrap',
             // подключаем набор иконок "Font Awesome"
@@ -286,6 +298,31 @@ return array(
             'coreCss'        => false,
             'bootstrapCss'   => false,
             'responsiveCss'  => false,
+        ),
+        // YiiBooster 4: обертка для Twitter Bootstrap 3.x (для новой верстки) 
+        'booster' => array(
+            'class'            => 'booster.components.Booster',
+            // набор иконок "Font Awesome" уже включен в новую тему оформления
+            'fontAwesomeCss'   => false,
+            // сжимаем скрипты и стили
+            'minify'           => true,
+            // отключаем базовые css для bootstrap при использовании темы smartAdmin
+            'coreCss'          => false,
+            'bootstrapCss'     => false,
+            'responsiveCss'    => false,
+            'jqueryCss'        => true,
+            'yiiCss'           => true,
+            // отключаем конфликтующие js
+            'enableJS'         => false,
+            //'enableJS'         => true,
+            'enableBootboxJS'  => false,
+            'enableNotifierJS' => false,
+            'enablePopover'    => false,
+            'enableTooltip'    => false,
+            // переопределяем пакеты скриптов
+            'packages' => array(
+                
+            ),
         ),
         // библиотека для работы с изображениями: требуется для плагина galleryManager
         'image' => array(
@@ -310,6 +347,11 @@ return array(
                     'class' => 'ext.sweekit.behaviors.SwClientScriptBehavior',
                 ),
             ),
+            // переопределяем базовые JS и CSS
+            'corePackages' => array(
+                
+            ),
+            
         ),
         // Наша обертка вокруг Amazon Web Services API: облегчает обращение к часто используемым методам
         'ecawsapi' => array(
@@ -386,7 +428,7 @@ return array(
                 'TbDatePicker' => array(
                     'options' => array(
                         'language'  => 'ru',
-                        // @todo проверить, правильно ли записано, привести к единому формату, использовать константы
+                        // @todo привести к единому формату, использовать константы
                         'format'    => 'dd.mm.yyyy',
                         // неделя всегда начинается с понедельника
                         'weekStart' => 1,
