@@ -617,21 +617,21 @@ class EventVacancy extends CActiveRecord
 	{
 	    if ( ! $questionaryId )
 	    {// id анкеты не указан - попробуем взять текущий
-	        $questionaryId = $this->getCurrentUserQuestionaryId();
+	        $questionaryId = Yii::app()->getModule('questionary')->getCurrentQuestionaryId();
 	    }
         if ( $this->event->isExpired() )
         {// мероприятие для этой роли уже прошло - нельзя подавать заявки на завершенные мероприятия
             return false;
         }
 	    if ( $this->hasApplication($questionaryId) AND ! $ignoreApplication )
-	    {// участник уже подал заявку на эту вакансию
+	    {// участник уже подал заявку на эту роль
 	        return false;
 	    }
-	    if ( ! $this->userMatchVacancyConditions($questionaryId) )
-	    {// участник не подходит под указанные в вакансии критерии
-	        return false;
+	    if ( $this->userMatchVacancyConditions($questionaryId) )
+	    {// участник подходит под критерии роли
+	        return true;
 	    }
-	    return true;
+	    return false;
 	}
 	
 	/**
@@ -867,14 +867,20 @@ class EventVacancy extends CActiveRecord
 	    // сначала проверим, был ли участник приглашен на роль это более простая проверка
 	    // чем проверка всех критериев поиска, к тому же нет риска что участник перестал подходить
 	    // на роль (если он отредактировал свою анкету после получения приглашения)
-	    if ( $this->isInvited($questionaryId, $this->event->id) )
-	    {// участник был приглашен - значит как минимум подходил нам в момент отправки приглашения
-	        return true;
-	    }
+	    // @todo такой подход приводит к ошибке: окончательно удалить это условие после
+	    //       подключения списков
+	    //if ( ! $this->isInvited($questionaryId, $this->event->id) )
+	    //{// участник не был приглашен - значит как минимум не подходил нам в момент отправки приглашения
+	    //    return false;
+	    //}
 	    // получаем полные условия соответствия роли
-	    $criteria = $this->getSearchCriteria();
+	    $criteria   = $this->getSearchCriteria();
 	    // сужаем их до единственного человека
-	    $criteria->addCondition(Questionary::model()->getTableAlias(true).'.`id` = '.$questionary->id);
+	    $idCriteria = new CDbCriteria();
+	    $idCriteria->scopes = array(
+	        'withId' => array($questionary->id),
+	    );
+	    $criteria->mergeWith($idCriteria);
 	    
 	    // и в итоге просто проверяем существование такой записи
 	    return Questionary::model()->exists($criteria);
