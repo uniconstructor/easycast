@@ -2,7 +2,6 @@
 
 /**
  * Виджет бокой навигации для темы SmartAdmin
- * @todo не пригодилось: удалить если и дальше не понадобится
  */
 class SmartSideBar extends CWidget
 {
@@ -25,7 +24,7 @@ class SmartSideBar extends CWidget
     public function run()
     {
         $this->widget('zii.widgets.CMenu', array(
-            'items' => $this->items,
+            'items'            => $this->items,
             'linkLabelWrapper' => 'li',
             'firstItemCssClas' => 'menu-item-parent',
         ));
