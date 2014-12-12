@@ -1480,6 +1480,13 @@ class EventVacancy extends CActiveRecord
 	    }
 	}
 	
+	/**
+	 * 
+	 * @param  array  $data
+	 * @param  string $name
+	 * @return array 
+	 */
+	
 	private function getActivityLabels($data, $name)
 	{
 	    if ( isset($data[$name]) )
