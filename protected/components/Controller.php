@@ -2,9 +2,9 @@
 
 /**
  * Базовый класс для всех контроллеров приложения
- * All controller classes for this application should extend from this base class.
+ * Все контроллеры приложения должны быть наследованы от него
  * 
- * @todo убрать sideBar, header и subtitle если их использование будет 
+ * @todo убрать sideBar, pageHeader и subtitle если их использование будет 
  *       ограничиваться только темой оформления SmartAdmin 
  * @todo языковые строки
  */
@@ -41,15 +41,15 @@ class Controller extends RController
     public function filters()
     {
         return array(
-            array(
+            'ECReferalFilter' => array(
                 // фильтр обработки ссылок с токенами
                 'application.filters.ECReferalFilter',
             ),
             // @todo фильтр, который заставляет использовать только защищенное соединение 
-            /*array(
-                'ext.sweekit.filters.SwProtocolFilter - parse',
-                'mode' => 'https',
-            ),*/
+            //array(
+            //    'ext.sweekit.filters.SwProtocolFilter - parse',
+            //    'mode' => 'https',
+            //),
         );
     }
     
@@ -80,7 +80,7 @@ class Controller extends RController
      * @param  string $modelClass - имя класса модели: должно указывать на AR-класс 
      *                              Необязательный параметр, если не указан - то будет 
      *                              использован класс, заданный в $this-> 
-     * @return CActiveRecord  - запись с указанным id
+     * @return CActiveRecord - запись с указанным id
      * @throws CHttpException 
      */
     public function loadModel($id, $modelClass='')
@@ -108,5 +108,20 @@ class Controller extends RController
             throw new CHttpException(404, 'Запрошенная модель не существует. (id='.$id.')');
         }
         return $model;
+    }
+    
+    /**
+     * Performs the AJAX validation.
+     *
+     * @param  CModel the model to be validated
+     * @return void
+     */
+    protected function performAjaxValidation($model)
+    {
+        if ( isset($_POST['ajax']) AND mb_strstr($_POST['ajax'], '-form') )
+        {
+            echo CActiveForm::validate($model);
+            Yii::app()->end();
+        }
     }
 }
