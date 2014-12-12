@@ -47,4 +47,5 @@ if ( $questionary = $module->getCurrentQuestionary() )
     </nav>
 </aside>
 <!-- END NAVIGATION -->
+<!-- jGrowl messages shoud be displayed below ribbon -->
 <div id="jGrowl" class="jGrowl"></div>

@@ -43,3 +43,7 @@
     <!-- END MAIN_CONTENT -->
 </div>
 <!-- END MAIN_PANEL -->
+<?php
+// стандартный JS-код темы оформления, который должен находится на каждой странице для
+// корректной работы AJAX-навигации
+$this->renderPartial('//layouts/ajax/_pageSetup');
