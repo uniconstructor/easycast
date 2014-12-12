@@ -3,7 +3,7 @@
 /**
  * Виджет бокой навигации для темы SmartAdmin
  */
-class SmartSideBar extends CWidget
+class SideBar extends CWidget
 {
     /**
      * @var array

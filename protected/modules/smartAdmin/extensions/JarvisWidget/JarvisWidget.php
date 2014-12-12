@@ -122,6 +122,10 @@ class JarvisWidget extends CWidget
      *             или использовать JS-инициализацию [false]
      */
     public $useDataAttributes = true;
+    /**
+     * @var bool - подключать ли скрипты и стили виджета?
+     */
+    public $inclideAssets = false;
     
     /**
      * @var array - параметры основного тега виджета

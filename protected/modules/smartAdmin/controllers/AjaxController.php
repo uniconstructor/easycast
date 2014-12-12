@@ -5,8 +5,37 @@
  * Вся новая админка работает через AJAX, поэтому ознакомьтесь с документацией 
  * админской темы прежде чем создавать новые страницы
  */
-class AjaxController extends Admin2BaseController
+class AjaxController extends BaseAdminController
 {
+    /**
+     * @var string the name of the default action. Defaults to 'index'.
+     */
+    public $defaultAction = 'dashboard';
+    
+    /**
+     * @see BaseAdminController::init()
+     */
+    public function init()
+    {
+        parent::init();
+    }
+    
+    /**
+     * @return array
+     *
+     * @todo настроить проверку прав на основе RBAC
+     */
+    public function filters()
+    {
+        $baseFilters = parent::filters();
+        $newFilters  = array(
+            'accessControl',
+            // фильтр для подключения YiiBooster 4.x (bootstrap 3.x)
+            //array('ext.booster.filters.BoosterFilter'),
+        );
+        return CMap::mergeArray($baseFilters, $newFilters);
+    }
+    
     /**
      * Specifies the access control rules.
      * This method is used by the 'accessControl' filter.
@@ -17,7 +46,7 @@ class AjaxController extends Admin2BaseController
     {
         return array(
             array('allow',
-                'actions' => array('index'),
+                'actions' => array('dashboard'),
                 'roles'   => array('Admin'),
             ),
             array('allow',
@@ -40,20 +69,29 @@ class AjaxController extends Admin2BaseController
     public function actions()
     {
         return array(
-            'upload' => array(
+            /*'upload' => array(
+                'class' => 'xupload.actions.S3XUploadAction',
+            ),*/
+            'dashboard' => array(
                 'class' => 'xupload.actions.S3XUploadAction',
             ),
         );
     }
     
     /**
-     * Отображает dashboard - главную страницу админки
-     * 
-     * @return void
+     * @see CController::beforeAction()
      */
-    public function actionIndex()
+    protected function beforeAction($action)
     {
-        
+        return parent::beforeAction($action);
+    }
+    
+    /**
+     * @see CController::afterAction()
+     */
+    protected function afterAction($action)
+    {
+        parent::afterAction($action);
     }
     
     /**

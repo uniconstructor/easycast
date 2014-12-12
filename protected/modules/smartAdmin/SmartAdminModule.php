@@ -10,7 +10,7 @@ class SmartAdminModule extends CWebModule
      */
     public $controllerMap = array(
         'ajax' => array(
-            'class' => 'application.modules.admin2.controllers.AjaxController',
+            'class' => 'application.modules.smartAdmin.controllers.AjaxController',
         ),
     );
     /**
@@ -73,14 +73,14 @@ class SmartAdminModule extends CWebModule
 	 * @param  $dic
 	 * @return string
 	 */
-	public static function t($str='', $params=array(), $dic='admin2')
+	public static function t($str='', $params=array(), $dic='smartAdmin')
 	{
-	    if ( Yii::t("Admin2Module", $str) == $str )
+	    if ( Yii::t("SmartAdminModule", $str) == $str )
 	    {
-	        return Yii::t("Admin2Module.".$dic, $str, $params);
+	        return Yii::t("SmartAdminModule.".$dic, $str, $params);
 	    }else
 	    {
-	        return Yii::t("Admin2Module", $str, $params);
+	        return Yii::t("SmartAdminModule", $str, $params);
 	    }
 	}
 	
@@ -245,5 +245,6 @@ class SmartAdminModule extends CWebModule
 	    // получаем все активные события с прошедшим временем окончания
 	    
 	    // помечаем их истекшими
+	    
 	}
 }

@@ -5,7 +5,7 @@
  * 
  * @todo убрать enableJavaScript=false после подключения новой версии bootstrap
  */
-abstract class Admin2BaseController extends Controller
+abstract class BaseAdminController extends Controller
 {
     /**
      * @var string - 
@@ -61,7 +61,7 @@ abstract class Admin2BaseController extends Controller
         // для просмотра заявок в расширенном виде: убираем все скрипты и стили
         // (они все равно не совместимы с админской темой)
         // и используем только то что подключается из нее
-        //Yii::app()->clientScript->enableJavaScript = false;
+        Yii::app()->clientScript->enableJavaScript = false;
         // в админке переключаемся на специальную тему оформления
         Yii::app()->setTheme('admin');
          
