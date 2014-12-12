@@ -460,7 +460,7 @@ class EcMigration extends CDbMigration
      * Create indexes for all fields in the table
      * 
      * @param string $table     - table name
-     * @param array  $fields    - table fields
+     * @param array  $columns   - table fields
      *                            Example:
      *                            array("fieldname1" => "fieldtype1", "fieldname2" => "fieldtype2", ... )
      * @param array  $excluded  - not indexed fields
@@ -469,10 +469,10 @@ class EcMigration extends CDbMigration
      *
      * @return null
      */
-    protected function ecCreateIndexes($table, $fields, $excluded=array(), $idxPrefix="idx_")
+    protected function ecCreateIndexes($table, $columns, $excluded=array(), $idxPrefix="idx_")
     {
         // collect all field names
-        $fieldNames    = array_keys($fields);
+        $fieldNames    = array_keys($columns);
         // exclude not needed fields from index
         // ("id" is already primary key, so we never need to create additional index for it)
         $noIndex       = CMap::mergeArray(array("id"), $excluded);
