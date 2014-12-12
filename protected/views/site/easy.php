@@ -5,11 +5,11 @@
  * 
  * @todo языковые строки
  */
-/* @var $this          EasyController */
+/* @var $this          SiteController */
 /* @var $form          TbActiveForm */
 /* @var $massActorForm MassActorsForm */
 
-$this->pageTitle   = 'Регистрация';
+$this->pageTitle   = 'Регистрация - easyCast';
 $this->breadcrumbs = array(
     'Регистрация',
 );

@@ -4,6 +4,8 @@
  */
 /* @var $this SiteController */
 
+$this->pageTitle = 'Наши события - easyCast';
+
 $this->breadcrumbs = array(
     'Наши события',
 );

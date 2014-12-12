@@ -2,7 +2,8 @@
 /**
  * Форма срочного заказа на отдельной странице
  */
-/* @var $this OrderController */
+/* @var $this  SiteController */
+/* @var $order FastOrder */
 
 $this->pageTitle = 'Заказ на съемку - easyCast';
 
