@@ -22,7 +22,25 @@ class CalculationController extends Controller
     }
     
     /**
+     * @return array
+     *
+     * @todo настроить проверку прав на основе RBAC
+     */
+    public function filters()
+    {
+        $baseFilters = parent::filters();
+        $newFilters  = array(
+            // фильтр для подключения YiiBooster 3.x (bootstrap 2.x)
+            array(
+                'ext.bootstrap.filters.BootstrapFilter',
+            ),
+        );
+        return CMap::mergeArray($baseFilters, $newFilters);
+    }
+    
+    /**
      * Отобразить и обработать форму рассчета стоимости
+     * 
      * @return void
      */
     public function actionIndex()
@@ -76,7 +94,6 @@ class CalculationController extends Controller
                 }
             }
         }
-        
         $this->render('calculation', array(
             'categories'      => $categories,
             'projectTypes'    => $projectTypes,
@@ -95,6 +112,7 @@ class CalculationController extends Controller
     
     /**
      * Performs the AJAX validation.
+     * 
      * @param CModel the model to be validated
      */
     protected function performAjaxValidation($model)
