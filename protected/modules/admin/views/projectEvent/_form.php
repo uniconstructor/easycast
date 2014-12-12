@@ -16,7 +16,19 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 // данные формы нужны для корректной работы элемента выбора даты
 $formData = Yii::app()->request->getParam('ProjectEvent');
 // форматирование даты
-$dateFormat = Yii::app()->params['yiiDateFormat'];
+$dateFormat = Yii::app()->params['yiiDateTimeFormat'];
+// дата начала
+$timeStart = '';
+if ( $model->timestart )
+{
+    $timeStart = Yii::app()->dateFormatter->format($dateFormat, $model->timestart);
+}
+// дата окончания
+$timeEnd = '';
+if ( $model->timeend )
+{
+    $timeEnd = Yii::app()->dateFormatter->format($dateFormat, $model->timeend);
+}
 
 // ошибки формы
 echo Yii::t('coreMessages', 'form_required_fields',
@@ -61,20 +73,20 @@ echo $form->redactorRow($model, 'memberinfo', array(), array(
 echo $form->checkBoxRow($model, 'nodates');
 
 // время начала
-echo $form->datepickerRow($model, 'timestart', array(
+echo $form->dateTimePickerRow($model, 'timestart', array(
         'options' => array(
             'language'       => 'ru',
             'format'         => Yii::app()->params['inputDateTimeFormat'],
             'startView'      => 'month',
             'maxView'        => 'year',
-            'startDate'      => '+0d',
+            'startDate'      => '-0d',
             'weekStart'      => 1,
             'autoclose'      => true,
             'todayHighlight' => true,
             'minuteStep'     => 10,
         ),
         'htmlOptions' => array(
-            'value' => Yii::app()->dateFormatter->format($dateFormat, $model->timestart),
+            'value' => $timeStart,
         ),
     ),
     array(
@@ -83,20 +95,20 @@ echo $form->datepickerRow($model, 'timestart', array(
     )
 );
 // время окончания
-echo $form->datepickerRow($model, 'timeend', array(
+echo $form->dateTimePickerRow($model, 'timeend', array(
         'options' => array(
             'language'       => 'ru',
             'format'         => Yii::app()->params['inputDateTimeFormat'],
             'startView'      => 'month',
             'maxView'        => 'year',
-            'startDate'      => '+0d',
+            'startDate'      => '-0d',
             'weekStart'      => 1,
             'autoclose'      => true,
             'todayHighlight' => true,
             'minuteStep'     => 10,
         ),
         'htmlOptions' => array(
-            'value' => Yii::app()->dateFormatter->format($dateFormat, $model->timeend),
+            'value' => $timeEnd,
         ),
     ),
     array(

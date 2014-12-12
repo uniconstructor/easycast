@@ -325,13 +325,13 @@ class ProjectEvent extends CActiveRecord
 		            array(
 		                'timestart', 'date',
 		                'allowEmpty' => false,
-		                'format'     => Yii::app()->params['yiiDateFormat'],
+		                'format'     => Yii::app()->params['yiiDateTimeFormat'],
 		            ),
 		        ),
 		        'then' => array(
 		            array(
 		                'timestart', 'filter',
-		                'filter' => array('EcDateTimeParser', 'parse'),
+		                'filter' => array('EcDateTimeParser', 'parseDateTime'),
 		            ),
 		        ),
 		    ),
@@ -341,13 +341,13 @@ class ProjectEvent extends CActiveRecord
 	                array(
 	                    'timeend', 'date',
 	                    'allowEmpty' => false,
-	                    'format'     => Yii::app()->params['yiiDateFormat'],
+	                    'format'     => Yii::app()->params['yiiDateTimeFormat'],
 	                ),
 	            ),
 	            'then' => array(
 	                array(
 	                    'timeend', 'filter',
-	                    'filter' => array('EcDateTimeParser', 'parse'),
+	                    'filter' => array('EcDateTimeParser', 'parseDateTime'),
 	                ),
 	            ),
 	        ),
@@ -1133,11 +1133,11 @@ class ProjectEvent extends CActiveRecord
 	{
 	    $types = array();
 	    $types[self::TYPE_EVENT] = 'Нет (обычное мероприяте)';
-	    if ( $this->isNewRecord OR ! $this->events OR $ignoreRestrictions )
+	    /*if ( $this->isNewRecord OR ! $this->events OR $ignoreRestrictions )
 	    {// группу можно указать только при создании новой записи
 	        // и изменить этот тип, только если в ней еще нет ни одного мероприятия
 	        $types[self::TYPE_GROUP] = 'Группа мероприятий';
-	    }
+	    }*/
 	    $types[self::TYPE_CASTING]    = 'Кастинг';
 	    $types[self::TYPE_PHOTO]      = 'Фотосессия';
 	    $types[self::TYPE_REPETITION] = 'Репетиция';

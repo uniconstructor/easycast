@@ -49,7 +49,18 @@ $userModule = Yii::app()->getModule('user');
 $formData   = Yii::app()->request->getParam('Project');
 // формат даты
 $dateFormat = Yii::app()->params['yiiDateFormat'];
-
+// дата начала
+$timeStart = '';
+if ( $model->timestart )
+{
+    $timeStart = Yii::app()->dateFormatter->format($dateFormat, $model->timestart);
+}
+// дата окончания
+$timeEnd = '';
+if ( $model->timeend )
+{
+    $timeEnd = Yii::app()->dateFormatter->format($dateFormat, $model->timeend);
+}
 
 // рейтинг проекта
 $ratings = array('0' => 'Нет'); 
@@ -125,7 +136,7 @@ echo $form->datepickerRow($model, 'timestart', array(
             'startDate'      => '-1d',
         ),
         'htmlOptions' => array(
-            'value' => Yii::app()->dateFormatter->format($dateFormat, $model->timestart),
+            'value' => $timeStart,
         ),
     ),
     array(
@@ -147,7 +158,7 @@ echo $form->datepickerRow($model, 'timeend', array(
             'todayHighlight' => true,
         ),
         'htmlOptions' => array(
-            'value' => Yii::app()->dateFormatter->format($dateFormat, $model->timeend),
+            'value' => $timeEnd,
         ),
     ),
     array(
