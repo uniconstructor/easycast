@@ -1,8 +1,5 @@
 <?php
 
-// YiiBooster (версия 3 для bootstrap 2.3.2)
-//Yii::setPathOfAlias('bootstrap', dirname(__FILE__).'/../extensions/bootstrap');
-
 // Главный файл конфигурации приложения.
 // Здесь задаются все общие параметры, одинаковые для "production"(релиза), "test"(тестового сервера) 
 // и "dev"(версии разработчика).
@@ -347,10 +344,10 @@ return array(
                     'class' => 'ext.sweekit.behaviors.SwClientScriptBehavior',
                 ),
             ),
-            // переопределяем базовые JS и CSS
-            'corePackages' => array(
+            // @todo переопределяем базовые JS и CSS
+            /*'corePackages' => array(
                 
-            ),
+            ),*/
             
         ),
         // Наша обертка вокруг Amazon Web Services API: облегчает обращение к часто используемым методам
