@@ -18,6 +18,7 @@ class QComplexValueController extends Controller
      */
     public function init()
     {
+        $this->defaultModelClass = $this->modelClass;
         parent::init();
         
         Yii::import('questionary.models.*');
