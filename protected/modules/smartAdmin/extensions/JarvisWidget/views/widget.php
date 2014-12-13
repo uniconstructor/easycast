@@ -1,19 +1,17 @@
 <?php
 /**
  * Верстка одного виджета JARVIS
+ * 
  * @todo настройки
  */
 /* @var $this SmartWidget */
 
-
 ?>
-
-<!-- Widget ID (each widget will need unique ID)-->
 <?= CHtml::openTag('div', $this->htmlOptions); ?>
-<div class="jarviswidget" id="wid-id-0">
 	<!-- widget options:
-		usage: <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false">
+		usage: <div class="jarviswidget" id="wid-id-0" 
 		
+		data-widget-editbutton="false"
 		data-widget-colorbutton="false"	
 		data-widget-editbutton="false"
 		data-widget-togglebutton="false"
@@ -22,9 +20,11 @@
 		data-widget-custombutton="false"
 		data-widget-collapsed="true" 
 		data-widget-sortable="false"
-		
 	-->
 	<header>
+        <span class="jarviswidget-loader">
+            <i class="fa fa-refresh fa-spin"></i>
+        </span>
 		<h2><?= $this->title; ?></h2>				
 	</header>
 	<!-- widget div-->

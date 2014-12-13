@@ -18,6 +18,7 @@ class QComplexValueController extends Controller
      */
     public function init()
     {
+        $this->defaultModelClass = $this->modelClass;
         parent::init();
         
         Yii::import('questionary.models.*');
@@ -34,6 +35,10 @@ class QComplexValueController extends Controller
         $newFilters  = array(
             'accessControl',
             'postOnly + delete',
+            // фильтр для подключения YiiBooster 3.x (bootstrap 2.x)
+            array(
+                'ext.bootstrap.filters.BootstrapFilter',
+            ),
         );
         return CMap::mergeArray($baseFilters, $newFilters);
     }
@@ -198,7 +203,7 @@ class QComplexValueController extends Controller
      * @param integer the ID of the model to be loaded
      * @return CActiveRecord
      */
-    public function loadModel($id, $modelClass)
+    /*public function loadModel($id, $modelClass)
     {
         $modelClass = $this->modelClass;
         $model      = $modelClass::model($modelClass)->findByPk($id);
@@ -207,7 +212,7 @@ class QComplexValueController extends Controller
             throw new CHttpException(404, 'Запись не найдена. (id='.$id.')');
         }
         return $model;
-    }
+    }*/
     
     /**
      * Performs the AJAX validation.

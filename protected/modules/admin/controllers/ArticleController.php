@@ -35,6 +35,9 @@ class ArticleController extends Controller
 	    $newFilters  = array(
 	        'accessControl',
 	        'postOnly + delete',
+	        array(
+	            'ext.bootstrap.filters.BootstrapFilter',
+	        ),
 	    );
 	    return CMap::mergeArray($baseFilters, $newFilters);
 	}

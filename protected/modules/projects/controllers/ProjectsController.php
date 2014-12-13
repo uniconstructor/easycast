@@ -14,6 +14,23 @@ class ProjectsController extends Controller
     const MAX_SECTION_ITEMS = 36;
     
     /**
+     * @return array
+     *
+     * @todo настроить проверку прав на основе RBAC
+     */
+    public function filters()
+    {
+        $baseFilters = parent::filters();
+        $newFilters  = array(
+            // фильтр для подключения YiiBooster 3.x (bootstrap 2.x)
+            array(
+                'ext.bootstrap.filters.BootstrapFilter',
+            ),
+        );
+        return CMap::mergeArray($baseFilters, $newFilters);
+    }
+    
+    /**
      * Отобразить главную страницу со списком проектов
      * 
      * @return void
@@ -93,9 +110,12 @@ class ProjectsController extends Controller
 	
 	/**
 	 * Получить модель проекта или отобразить сообщение о том что проект не найден
+	 * 
 	 * @param int $id
 	 * @throws CHttpException
 	 * @return Project
+	 * 
+	 * @deprecated
 	 */
 	protected function loadProjectModel($id)
 	{
@@ -109,9 +129,12 @@ class ProjectsController extends Controller
 	
 	/**
 	 * Получить модель мероприятия или отобразить сообщение о том что мероприятие не найдено
+	 * 
 	 * @param int $id
 	 * @throws CHttpException
 	 * @return ProjectEvent
+	 * 
+	 * @deprecated
 	 */
 	protected function loadEventModel($id)
 	{
@@ -125,9 +148,12 @@ class ProjectsController extends Controller
 	
 	/**
 	 * Получить модель вакансии или отобразить сообщение о том что вакансия не найдена
+	 * 
 	 * @param int $id
 	 * @throws CHttpException
 	 * @return EventVacancy
+	 * 
+	 * @deprecated
 	 */
 	protected function loadVacancyModel($id)
 	{

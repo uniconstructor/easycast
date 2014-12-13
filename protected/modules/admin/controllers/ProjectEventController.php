@@ -39,6 +39,9 @@ class ProjectEventController extends Controller
 		$baseFilters = parent::filters();
 	    $newFilters  = array(
 	        'accessControl',
+	        array(
+	            'ext.bootstrap.filters.BootstrapFilter',
+	        ),
 	    );
 	    return CMap::mergeArray($baseFilters, $newFilters);
 	}

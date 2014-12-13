@@ -13,6 +13,23 @@ class VacancyController extends Controller
     protected $defaultModelClass = 'EventVacancy';
     
     /**
+     * @return array
+     *
+     * @todo настроить проверку прав на основе RBAC
+     */
+    public function filters()
+    {
+        $baseFilters = parent::filters();
+        $newFilters  = array(
+            // фильтр для подключения YiiBooster 3.x (bootstrap 2.x)
+            array(
+                'ext.bootstrap.filters.BootstrapFilter',
+            ),
+        );
+        return CMap::mergeArray($baseFilters, $newFilters);
+    }
+    
+    /**
      * Подать заявку на участие в мероприятии (указав определенную вакансию)
      * Подача заявки происхочить через AJAX-запрос, методом POST
      *
@@ -405,34 +422,5 @@ class VacancyController extends Controller
         }
         // создаем и сохраняем заявку
         return  (bool)$vacancy->addApplication($questionaryId);
-    }
-    
-    /**
-     * Returns the data model based on the primary key given in the GET variable.
-     * If the data model is not found, an HTTP exception will be raised.
-     * @param integer the ID of the model to be loaded
-     * @return EventVacancy
-     */
-    /*public function loadModel($id)
-    {
-        $model = EventVacancy::model()->findByPk($id);
-        if ( $model === null )
-        {
-            throw new CHttpException(404, 'Роль не найдена id='.$id);
-        }
-        return $model;
-    }*/
-    
-    /**
-     * Performs the AJAX validation.
-     * @param CModel the model to be validated
-     */
-    protected function performAjaxValidation($model)
-    {
-        if ( isset($_POST['ajax']) AND $_POST['ajax'] === 'dynamic-registration-form' )
-        {
-            echo CActiveForm::validate($model);
-            Yii::app()->end();
-        }
     }
 }

@@ -2,7 +2,9 @@
 /**
  * Страница со списком всех событий из всех проектов
  */
-/* @var $this AgendaController */
+/* @var $this SiteController */
+
+$this->pageTitle = 'Наши события - easyCast';
 
 $this->breadcrumbs = array(
     'Наши события',

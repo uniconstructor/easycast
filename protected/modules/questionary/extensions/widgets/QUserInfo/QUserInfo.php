@@ -23,7 +23,7 @@ class QUserInfo extends CWidget
     /**
      * @var string - расположение линейки вкладок
      */
-    public $placement = 'right';
+    public $placement = TbTabs::PLACEMENT_RIGHT;
     /**
      * @var bool
      */
@@ -47,13 +47,11 @@ class QUserInfo extends CWidget
     public function init()
     {
         // Подключаем CSS для оформления
-        $this->_assetUrl = Yii::app()->assetManager->publish(
-            Yii::getPathOfAlias('application.modules.questionary.extensions.widgets.QUserInfo.assets'). 
-            DIRECTORY_SEPARATOR);
+        $assetPath       = 'application.modules.questionary.extensions.widgets.QUserInfo.assets';
+        $this->_assetUrl = Yii::app()->assetManager->publish(Yii::getPathOfAlias($assetPath).DIRECTORY_SEPARATOR);
         Yii::app()->clientScript->registerCssFile($this->_assetUrl.'/QUserInfo.css');
         // устанавливаем в объекте анкеты режим "просмотр"
         $this->questionary->setScenario('view');
-        
         if ( $this->questionary->recordingconditions )
         {
             $this->questionary->recordingconditions->setScenario('view');
@@ -75,8 +73,6 @@ class QUserInfo extends CWidget
     }
     
     /**
-     * Отображает виджет
-     * 
      * @see CWidget::run()
      */
     public function run()
@@ -90,7 +86,7 @@ class QUserInfo extends CWidget
             }
         }
         $this->widget('bootstrap.widgets.TbTabs', array(
-            'type'      => 'pills',
+            'type'      => 'tabs',
             'placement' => $this->placement,
             'tabs'      => $tabs,
         ));
@@ -127,6 +123,9 @@ class QUserInfo extends CWidget
             $tabs[] = 'invites';
             $tabs[] = 'requests';
             $tabs[] = 'events';
+        }
+        if ( $this->isMyQuestionary() )
+        {
             $tabs[] = 'config';
         }
         return $tabs;

@@ -21,8 +21,28 @@ class CastingController extends Controller
         $baseFilters = parent::filters();
 	    $newFilters  = array(
 	        'accessControl',
+	        array(
+	            'ext.bootstrap.filters.BootstrapFilter',
+	        ),
 	    );
 	    return CMap::mergeArray($baseFilters, $newFilters);
+    }
+    
+    /**
+     * @return array
+     *
+     * @todo настроить проверку прав на основе RBAC
+     */
+    public function filters()
+    {
+        $baseFilters = parent::filters();
+        $newFilters  = array(
+            // фильтр для подключения YiiBooster 3.x (bootstrap 2.x)
+            array(
+                'ext.bootstrap.filters.BootstrapFilter',
+            ),
+        );
+        return CMap::mergeArray($baseFilters, $newFilters);
     }
     
     /**
@@ -57,7 +77,8 @@ class CastingController extends Controller
     public function actionCreate()
     {
         $model = new Project;
-        $model->type = Project::TYPE_ONLINECASTING;
+        $model->type    = Project::TYPE_ONLINECASTING;
+        $model->virtual = 1;
         
         if( $castingData = Yii::app()->request->getPost('Project') )
         {
@@ -67,7 +88,6 @@ class CastingController extends Controller
                 $this->redirect(array('view', 'id' => $model->id));
             }
         }
-        
         $this->render('create', array('model' => $model));
     }
     

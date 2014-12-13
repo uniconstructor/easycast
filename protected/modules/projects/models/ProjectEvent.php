@@ -325,13 +325,13 @@ class ProjectEvent extends CActiveRecord
 		            array(
 		                'timestart', 'date',
 		                'allowEmpty' => false,
-		                'format'     => Yii::app()->params['yiiDateFormat'],
+		                'format'     => Yii::app()->params['yiiDateTimeFormat'],
 		            ),
 		        ),
 		        'then' => array(
 		            array(
 		                'timestart', 'filter',
-		                'filter' => array('EcDateTimeParser', 'parse'),
+		                'filter' => array('EcDateTimeParser', 'parseDateTime'),
 		            ),
 		        ),
 		    ),
@@ -341,13 +341,13 @@ class ProjectEvent extends CActiveRecord
 	                array(
 	                    'timeend', 'date',
 	                    'allowEmpty' => false,
-	                    'format'     => Yii::app()->params['yiiDateFormat'],
+	                    'format'     => Yii::app()->params['yiiDateTimeFormat'],
 	                ),
 	            ),
 	            'then' => array(
 	                array(
 	                    'timeend', 'filter',
-	                    'filter' => array('EcDateTimeParser', 'parse'),
+	                    'filter' => array('EcDateTimeParser', 'parseDateTime'),
 	                ),
 	            ),
 	        ),
@@ -1030,16 +1030,23 @@ class ProjectEvent extends CActiveRecord
 	 */
 	public function isExpired()
 	{
-	    if ( $this->nodates )
-	    {// события без даты не могут быть просроченными
-	        return false;
-	    }
 	    if ( $this->status === ProjectEvent::STATUS_FINISHED )
 	    {// событие завершено
-	        return true;
+            return true;
+	    }
+	    // вычисляем как долго мероприятие стоит открытым
+	    // @todo вынести максимальный период существования мероприятия в настройку
+	    $alivePeriod = time() - $this->timecreated;
+	    if ( $this->nodates )
+	    {// мероприятия без даты считаются просроченными
+	        if ( $alivePeriod > 30 * 24 * 3600 )
+	        {// ну только если не висят больше месяца - это беспредел
+	            return true;
+	        }
+	        return false;
 	    }
 	    if ( $this->timeend < time() )
-	    {// событие прошло
+	    {// мероприятияе уже прошло но еще не завершено администратором
 	        return true;
 	    }
 	    return false;
@@ -1133,11 +1140,11 @@ class ProjectEvent extends CActiveRecord
 	{
 	    $types = array();
 	    $types[self::TYPE_EVENT] = 'Нет (обычное мероприяте)';
-	    if ( $this->isNewRecord OR ! $this->events OR $ignoreRestrictions )
+	    /*if ( $this->isNewRecord OR ! $this->events OR $ignoreRestrictions )
 	    {// группу можно указать только при создании новой записи
 	        // и изменить этот тип, только если в ней еще нет ни одного мероприятия
 	        $types[self::TYPE_GROUP] = 'Группа мероприятий';
-	    }
+	    }*/
 	    $types[self::TYPE_CASTING]    = 'Кастинг';
 	    $types[self::TYPE_PHOTO]      = 'Фотосессия';
 	    $types[self::TYPE_REPETITION] = 'Репетиция';
@@ -1206,18 +1213,13 @@ class ProjectEvent extends CActiveRecord
 	 * @return array - массив вакансий, доступных участнику или пустой массив,
 	 *                 если ни одной подходящей вакансии нет
 	 * 
-	 * @todo добавить к этому списку вакансии группы 
+	 * @todo добавить к этому списку вакансии группы
+	 * @todo решить, каким образом лучше всего проверять доступность ролей группы для участника
+	 *       при помощи списков: возможно следует разрешить иметь не более 1 набора условий
+	 *       для всей группы мероприятий 
 	 */
 	public function getAllowedVacancies($questionaryId, $showGroup=false)
 	{
-	    // @todo решить, каким образом лучше всего проверять доступность вакансий группы
-	    /*if ( $this->group )
-	    {// если это мероприятие входит в состав группы, то проверим и вакансии группы
-    	    // @todo убрать эту проверку, когда все вакансии будут прописаны через relations
-    	    $activeVacancies = $this->group->getAllowedVacancies($questionaryId);
-	    }*/
-	    //CVarDumper::dump($this->vacancies, 10, true);die;
-	    
 	    $vacancies = array();
 	    // проверяем каждую вакансию мероприятия, и определяем, подходит ли для нее участник
 	    foreach ( $this->vacancies as $vacancy )
@@ -1240,6 +1242,7 @@ class ProjectEvent extends CActiveRecord
 	{
 	    return count($this->getAllowedVacancies($questionaryId));
 	}
+	
 	
 	/**
 	 * Определить, есть ли хоть одна доступная роль для выбранного пользователя в текущем событии

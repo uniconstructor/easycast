@@ -4,6 +4,8 @@ Yii::import('ext.EditableGrid.EditableGridController');
 
 /**
  * Контроллер для работы со списком шагов регистрации
+ * 
+ * @deprecated не используется, удалить при рефакторинге
  */
 class WizardStepController extends EditableGridController
 {

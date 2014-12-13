@@ -12,7 +12,7 @@ class OnlineCastingController extends Controller
     /**
      * @var string - верстка всех страниц онлайн-кастинга - в одну колонку
      */
-    public $layout='//layouts/column1';
+    public $layout = '//layouts/column1';
     
     /**
      * @see CController::init()
@@ -26,7 +26,25 @@ class OnlineCastingController extends Controller
     }
     
     /**
+     * @return array
+     *
+     * @todo настроить проверку прав на основе RBAC
+     */
+    public function filters()
+    {
+        $baseFilters = parent::filters();
+        $newFilters  = array(
+            // фильтр для подключения YiiBooster 3.x (bootstrap 2.x)
+            array(
+                'ext.bootstrap.filters.BootstrapFilter - count, saveRoleCriteria, clearRoleCriteria',
+            ),
+        );
+        return CMap::mergeArray($baseFilters, $newFilters);
+    }
+    
+    /**
      * Отобразить первую страницу с пояснением о начале работы с онлайн-кастингом
+     * 
      * @return void
      */
     public function actionIndex()
@@ -266,7 +284,6 @@ class OnlineCastingController extends Controller
             throw new CException('Не удалось сохранить заявку на онлайн-кастинг. '.
                 $this->getCustomerErrorMessage());
         }
-        
         // привязываем проект к только что созданному заказу
         $project->orderid = $order->id;
         if ( ! $project->save(true, array('orderid')) )
@@ -274,7 +291,6 @@ class OnlineCastingController extends Controller
             throw new CException('Не удалось привязать заказу к проекту. '.
                 $this->getCustomerErrorMessage());
         }
-        
         // удаляем заготовку проекта онлайн-кастинга из сессии
         Yii::app()->session->remove('onlineCasting');
         

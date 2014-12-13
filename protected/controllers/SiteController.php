@@ -7,6 +7,23 @@
 class SiteController extends Controller
 {
     /**
+     * @return array
+     *
+     * @todo настроить проверку прав на основе RBAC
+     */
+    public function filters()
+    {
+        $baseFilters = parent::filters();
+        $newFilters  = array(
+            // фильтр для подключения YiiBooster 3.x (bootstrap 2.x)
+            array(
+                'ext.bootstrap.filters.BootstrapFilter',
+            ),
+        );
+        return CMap::mergeArray($baseFilters, $newFilters);
+    }
+    
+    /**
      * Declares class-based actions.
      */
     public function actions()
@@ -201,6 +218,109 @@ class SiteController extends Controller
             $this->redirect(Yii::app()->createUrl('/catalog/catalog/myChoice'));
         }
     }
+    
+    /**
+     * Отобразить форму срочного заказа на отдельной странице
+     * 
+     * @return void
+     */
+    public function actionOrder()
+    {
+        $order = new FastOrder();
+        $this->performAjaxValidation($order);
+        if ( $offer = Yii::app()->session->get('activeOffer') )
+        {/* @var $offer CustomerOffer */
+            if ( $offer->email AND ! $order->email )
+            {
+                $order->email = $offer->email;
+            }
+            if ( $offer->name AND ! $order->name )
+            {
+                $order->name = $offer->name;
+            }
+        }
+        $this->render('order', array('order' => $order));
+    }
+    
+    /**
+     * Отображает расширенную форму поиска
+     * При обработке поискового запроса перенаправляет пользователя на страницу поиска в каталоге
+     * (та которая со списком поисковых фильтров справа)
+     * 
+     * @return void
+     */
+    public function actionSearch()
+    {
+        Yii::import('catalog.models.*');
+        $this->render('search');
+    }
+    
+    /**
+     * Страница быстрой регистрации
+     * Этот метод регистрации использует один хак при работе с галереей: поскольку мы не можем сохранить
+     * фотографии галереии без объекта, к котому она привязана, то мы сначала создаем галерею отдельно
+     * (не привязанную ни к чему), затем создаем пользователя и анкету, и только после этого подставляем
+     * созданную галерею в объект анкеты
+     *
+     * @return void
+     *
+     * @todo обработать возможные ошибки
+     * @todo перенести в отдельный класс
+     * @todo если пользователь - авторизованый участник то направлять 
+     *       его на страницу профиля вместро регистрации
+     */
+    public function actionEasy()
+    {
+        // Создаем форму для регистрации массовки
+        $massActorForm = new MassActorsForm();
+    
+        $this->performAjaxValidation($massActorForm);
+    
+        if ( $formData = Yii::app()->request->getPost('MassActorsForm') )
+        {// пришли данные из формы регистрации пользователя
+            $massActorForm->attributes = $formData;
+            $gallery = Gallery::model()->findByPk($massActorForm->galleryid);
+    
+            if ( $massActorForm->validate() )
+            {// все данные формы верны
+                if ( $user = $massActorForm->save() )
+                {// сохранение удалось
+                    // Вместе с сохранением данных участника
+                // сразу же происходит его авторизация на сайте
+                    Yii::app()->getModule('user')->forceLogin($user);
+                    // добавляем flash-сообщение об успешной регистрации
+                    Yii::app()->user->setFlash('success', 'Регистрация завершена.<br>
+                        Добро пожаловать.<br>
+                        Ваш пароль отправлен вам на почту.'
+                        );
+                        // и перенаправляем его на страницу просмотра своей анкеты
+                        $this->redirect('/questionary/questionary/view');
+                }
+            }
+        }else
+        {// Создаем пустую галерею
+            $gallery = new Gallery();
+            // Определяем в каких размерах созлдавать миниатюры изображений в галерее
+            $gallery->versions    = Yii::app()->getModule('questionary')->gallerySettings['versions'];
+            $gallery->limit       = 40;
+            $gallery->name        = 1;
+            $gallery->description = 1;
+            $gallery->save();
+            if ( ! $gallery->subfolder )
+            {// @todo beforeSave не может знать id для записи в subfolder до сохранения записи
+                // поэтому загрузка изображений происходила в неправильные директории
+                // этот код можно будет убрать после того как будет переписан класс gallery
+                $gallery->subfolder = $gallery->id;
+                //$gallery->save();
+            }
+            $massActorForm->galleryid = $gallery->id;
+        }
+        // Отображаем страницу формы с регистрацией массовки
+        $this->render('easy', array(
+            'gallery'       => $gallery,
+            'massActorForm' => $massActorForm,
+        ));
+    }
 
     /**
      * Функция для поддержания сессии в рабочем состоянии, используется через AJAX для того чтобы при
@@ -335,6 +455,16 @@ class SiteController extends Controller
         //CVarDumper::dump($_FILES);
         $file = CUploadedFile::getInstanceByName($this->getInputFileIndex());
         $file->saveAs($this->getUploadPath().$file->getTempName().'.'.$file->getExtensionName());
+    }
+    
+    /**
+     * Страница "наши события"
+     * 
+     * @return void
+     */
+    public function actionAgenda()
+    {
+        $this->render('agenda');
     }
     
     /**

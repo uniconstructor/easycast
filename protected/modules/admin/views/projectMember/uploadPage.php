@@ -2,8 +2,9 @@
 /**
  * Отдельная страница для загрузки видео для заявки
  */
-/* @var $this   ProjectMemberController */
-/* @var $member ProjectMember */
+/* @var $this        ProjectMemberController */
+/* @var $member      ProjectMember */
+/* @var $questionary Questionary */
 
 $questionary = $member->questionary;
 
@@ -11,9 +12,12 @@ $this->breadcrumbs = array(
     'Администрирование' => array('/admin'),
     'Загрузка видео для заявки',
 );
+
+$userUrl  = Yii::app()->createUrl('/questionary/questionary/view', array('id' => $questionary->id));
+$userLink = CHtml::link($questionary->fullname, $userUrl, array('target' => '_blank'));
 ?>
 <div class="page">
-    <h3 class="text-center"><?= $questionary->fullname; ?></h3>
+    <h3 class="text-center"><?= $userLink; ?></h3>
     <div class="row-fluid">
         <div class="span5">
             <?php 

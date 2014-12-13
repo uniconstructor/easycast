@@ -44,6 +44,10 @@ class QuestionaryController extends Controller
 	    $newFilters  = array(
 	        'accessControl',
 	        'postOnly + delete',
+	        // фильтр для подключения YiiBooster 3.x (bootstrap 2.x)
+	        array(
+	            'ext.bootstrap.filters.BootstrapFilter - delete, loginAs, upload',
+	        ),
 	    );
 	    return CMap::mergeArray($baseFilters, $newFilters);
 	}

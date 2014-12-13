@@ -24,6 +24,23 @@ class CatalogController extends Controller
     }
     
     /**
+     * @return array
+     *
+     * @todo настроить проверку прав на основе RBAC
+     */
+    public function filters()
+    {
+        $baseFilters = parent::filters();
+        $newFilters  = array(
+            // фильтр для подключения YiiBooster 3.x (bootstrap 2.x)
+            array(
+                'ext.bootstrap.filters.BootstrapFilter',
+            ),
+        );
+        return CMap::mergeArray($baseFilters, $newFilters);
+    }
+    
+    /**
      * Отобразить главную страницу - список актеров по категориям
      */
 	public function actionIndex()
@@ -167,28 +184,9 @@ class CatalogController extends Controller
 	}
 	
 	/**
-	 * Отобразить результат поиска по фильтрам
-	 * @param CatalogSection $section
-	 * @param array $data - данные из формы поиска
-	 * @return null
-	 */
-	protected function displayFilterSearch($section, $data)
-	{
-	    
-	}
-	
-	/**
-	 * Отобразить результат поиска по большой форме
-	 * @param array $data - данные из формы поиска
-	 * @return null
-	 */
-	protected function displayFormSearch($data)
-	{
-	     
-	}
-	
-	/**
 	 * Запомнить в сессию номер страницы каталога, на которую перешел пользователь
+	 * 
+	 * @deprecated
 	 */
 	public function actionSetNavigationParam()
 	{
@@ -211,7 +209,6 @@ class CatalogController extends Controller
 	    {
 	        CatalogModule::setNavigationParam('page', $page);
 	    }
-	    
 	    echo 'OK';
 	}
 	
@@ -283,12 +280,10 @@ class CatalogController extends Controller
 	    {
 	        return true;
 	    }
-	    
 	    if ( Yii::app()->user->checkAccess('Customer') OR Yii::app()->user->checkAccess('Admin') )
 	    {
 	        return true;
 	    }
-	    
 	    return false;
 	}
 }

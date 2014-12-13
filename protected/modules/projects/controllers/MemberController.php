@@ -17,6 +17,24 @@ class MemberController extends Controller
     public function init()
     {
         Yii::import('application.modules.projects.models.*');
+        parent::init();
+    }
+    
+    /**
+     * @return array
+     *
+     * @todo настроить проверку прав на основе RBAC
+     */
+    public function filters()
+    {
+        $baseFilters = parent::filters();
+        $newFilters  = array(
+            // фильтр для подключения YiiBooster 3.x (bootstrap 2.x)
+            array(
+                'ext.bootstrap.filters.BootstrapFilter',
+            ),
+        );
+        return CMap::mergeArray($baseFilters, $newFilters);
     }
     
     /**
@@ -150,19 +168,4 @@ class MemberController extends Controller
         }
         return false;
     }
-    
-    /**
-     * Returns the data model based on the primary key given in the GET variable.
-     * If the data model is not found, an HTTP exception will be raised.
-     * @param integer the ID of the model to be loaded
-     */
-    /*public function loadModel($id)
-    {
-        $model = ProjectMember::model()->findByPk($id);
-        if ( $model === null )
-        {
-            throw new CHttpException(404, 'Заявка не найдена.');
-        }
-        return $model;
-    }*/
 }

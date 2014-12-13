@@ -18,14 +18,14 @@ class ECPurifier extends CHtmlPurifier
      */
     public static function trimQuotes($string)
     {
-        $string = mb_trim($string);
+        $string = trim($string);
         // стандартная кодировка для всех регулярных выражений
         mb_regex_encoding(self::$encoding);
         
         if ( mb_eregi("^['\"«»„“]{1-2}.{1+}['\"«»„“]{1-2}$", $string) )
         {// проверим, что строка начинается и заканчивается кавычками, чтобы не отрезать лишнееы
             // в случаях типа: БАЛЕТ "ЛЕБЕДИНОЕ ОЗЕРО"
-            $string = mb_trim($string, " \t\n\r\0\x0B'\"«»„“");
+            $string = trim($string, " \t\n\r\0\x0B'\"«»„“");
         }
         return $string;
     }

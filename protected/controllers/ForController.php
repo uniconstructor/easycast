@@ -2,7 +2,7 @@
 
 /**
  * 
- * @todo временный контроллер для обработки сокращенных ссылок
+ * @todo контроллер для обработки сокращенных ссылок вида easycast.ru/for/example
  */
 class ForController extends Controller
 {

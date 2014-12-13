@@ -2,11 +2,13 @@
 
 /**
  * Базовый класс для всех контроллеров приложения
- * All controller classes for this application should extend from this base class.
+ * Все контроллеры приложения должны быть наследованы от него
  * 
- * @todo убрать sideBar, header и subtitle если их использование будет 
+ * @todo убрать sideBar, pageHeader и subtitle если их использование будет 
  *       ограничиваться только темой оформления SmartAdmin 
  * @todo языковые строки
+ * @todo переместить методы ведения системных логов модуль log когда станет 
+ *       понятно как находясь там достать извне все необходимые данные
  */
 class Controller extends RController
 {
@@ -41,15 +43,15 @@ class Controller extends RController
     public function filters()
     {
         return array(
-            array(
+            'ECReferalFilter' => array(
                 // фильтр обработки ссылок с токенами
                 'application.filters.ECReferalFilter',
             ),
             // @todo фильтр, который заставляет использовать только защищенное соединение 
-            /*array(
-                'ext.sweekit.filters.SwProtocolFilter - parse',
-                'mode' => 'https',
-            ),*/
+            //array(
+            //    'ext.sweekit.filters.SwProtocolFilter - parse',
+            //    'mode' => 'https',
+            //),
         );
     }
     
@@ -72,6 +74,26 @@ class Controller extends RController
     }
     
     /**
+     * @see CController::beforeAction()
+     */
+    public function beforeAction($action)
+    {
+        try
+        {// для аналитики: записываем каждое совершенное пользователем действие
+            $data = array(
+                'level'  => 'action',
+                //'action' => $action->getId(),
+            );
+            self::logSystemData($data);
+        }catch ( Exception $e )
+        {// сбор аналитики не должен мешать нормальной работе системы
+            $msg = "Exception: ".$e->getMessage().' ('.$e->getFile().':'.$e->getLine().")\n".$e->getTraceAsString()."\n";
+            Yii::log($msg, CLogger::LEVEL_ERROR, 'application');
+        }
+        return parent::beforeAction($action);
+    }
+    
+    /**
      * Найти модель по ее id: этот метод используется во всех действиях контроллеров перед  
      * совершением любых операций с моделями  
      * Если модель данных не найдена - метод выбросит http-исключение
@@ -80,7 +102,7 @@ class Controller extends RController
      * @param  string $modelClass - имя класса модели: должно указывать на AR-класс 
      *                              Необязательный параметр, если не указан - то будет 
      *                              использован класс, заданный в $this-> 
-     * @return CActiveRecord  - запись с указанным id
+     * @return CActiveRecord - запись с указанным id
      * @throws CHttpException 
      */
     public function loadModel($id, $modelClass='')
@@ -108,5 +130,123 @@ class Controller extends RController
             throw new CHttpException(404, 'Запрошенная модель не существует. (id='.$id.')');
         }
         return $model;
+    }
+    
+    /**
+     * Получить название выполняемого контроллером действия (для составления ленты системных событий)
+     * 
+     * @param  string $module
+     * @param  string $controller
+     * @param  string $action
+     * @return string
+     * 
+     * @todo заготовка для будущего метода - прописать языковые строки с названиями всех действий
+     *       контроллеров во всех модулях
+     */
+    public static function getActionTitle($action, $controller=null, $module=null)
+    {
+        return null;
+    }
+    
+    ////// временные методы //////
+    
+    /**
+     * 
+     * @param  string $message
+     * @param  string $category
+     * @param  array $params
+     * @return void
+     */
+    public function logTargetEvent($targetType, $targetId=0, array $params=array())
+    {
+        $params['targettype'] = $targetType;
+        $params['targetid']   = $targetId;
+        $params['category']   = $category;
+        
+        return $this->logSystemData($params);
+    }
+    
+    /**
+     * 
+     * @param  array $params
+     * @return void
+     * 
+     * @todo заменить path на referer чтобы можно было отслеживать путь
+     */
+    public function logSystemData(array $params=array())
+    {
+        $categoryComponents = array();
+        $template = array(
+            'level'      => 'info',
+            'category'   => 'easycast',
+            'targettype' => 'system',
+            'targetid'   => 0,
+            'sourcetype' => 'guest',
+            'sourceid'   => 0,
+            'logtime'    => time(),
+        );
+        if ( ! Yii::app()->user->isGuest AND Yii::app()->user->id )
+        {
+            $template['sourcetype'] = 'user';
+            $template['sourceid']   = Yii::app()->user->id;
+            $template['userid']     = Yii::app()->user->id;
+        }
+        if ( Yii::app()->request->userHostAddress )
+        {
+            $template['userip'] = Yii::app()->request->userHostAddress;
+        }
+        if ( $module = $this->getModule() AND is_object($module) )
+        {
+            $template['module']   = $module->getId();
+            $categoryComponents[] = $template['module'];
+        }
+        if ( $this->getId() )
+        {
+            $template['controller'] = $this->getId();
+            $categoryComponents[]   = $template['controller'];
+        }
+        if ( $action = $this->getAction() AND is_object($action) )
+        {
+            $template['action']   = $action->getId();
+            $categoryComponents[] = $template['action'];
+        }
+        if ( Yii::app()->request->urlReferrer )
+        {
+            $template['referer'] = Yii::app()->request->urlReferrer;
+        }
+        if ( ! empty($categoryComponents) )
+        {
+            $template['category'] = implode('.', $categoryComponents);
+        }
+        if ( $this->pageTitle )
+        {
+            $template['title'] = $this->pageTitle;
+        }
+        $this->saveLog(CMap::mergeArray($template, $params));
+    }
+    
+    /**
+     * 
+     * @param  unknown $log
+     * @return void
+     */
+    protected function saveLog($log)
+    {
+        Yii::app()->db->createCommand()->insert('{{system_logs}}', $log);
+    }
+    
+    /**
+     * Performs the AJAX validation.
+     *
+     * @param  CModel the model to be validated
+     * @return void
+     */
+    protected function performAjaxValidation($model)
+    {
+        if ( isset($_POST['ajax']) AND mb_strstr($_POST['ajax'], '-form') )
+        {
+            echo CActiveForm::validate($model);
+            Yii::app()->end();
+        }
     }
 }
