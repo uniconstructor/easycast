@@ -11,5 +11,6 @@ class DashboardAction extends AjaxAction
     public function run()
     {
         
+        $this->controller->render('dashboard');
     }
 }

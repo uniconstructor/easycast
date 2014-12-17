@@ -73,6 +73,9 @@ class AjaxController extends BaseAdminController
                 'class' => 'xupload.actions.S3XUploadAction',
             ),*/
             'dashboard' => array(
+                'class' => 'smartAdmin.controllers.actions.DashboardAction',
+            ),
+            'index' => array(
                 'class' => 'xupload.actions.S3XUploadAction',
             ),
         );
@@ -81,7 +84,7 @@ class AjaxController extends BaseAdminController
     /**
      * @see CController::beforeAction()
      */
-    protected function beforeAction($action)
+    public function beforeAction($action)
     {
         return parent::beforeAction($action);
     }
@@ -89,7 +92,7 @@ class AjaxController extends BaseAdminController
     /**
      * @see CController::afterAction()
      */
-    protected function afterAction($action)
+    public function afterAction($action)
     {
         parent::afterAction($action);
     }

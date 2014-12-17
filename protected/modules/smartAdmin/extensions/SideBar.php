@@ -2,6 +2,8 @@
 
 /**
  * Виджет боковой навигации для темы SmartAdmin
+ * 
+ * @todo языковые строки
  */
 class SideBar extends CWidget
 {
@@ -73,7 +75,64 @@ class SideBar extends CWidget
      */
     protected $defaultItems = array(
         array(
-            'label' => '',
+            'label' => 'Панель управления',
+            'url'   => '#dashboard',
+            'icon'  => '',
+        ),
+        array(
+            'label' => 'Календарь',
+            'url'   => '',
+            'icon'  => '',
+        ),
+        array(
+            'label' => 'Команда',
+            'url'   => '',
+            'icon'  => '',
+        ),
+        array(
+            'label' => 'Проекты',
+            'url'   => '',
+            'icon'  => '',
+        ),
+        array(
+            'label' => 'Мероприятия',
+            'url'   => '',
+            'icon'  => '',
+        ),
+        array(
+            'label' => 'Анкеты',
+            'url'   => '',
+            'icon'  => '',
+        ),
+        array(
+            'label' => 'Лента активности',
+            'url'   => '',
+            'icon'  => '',
+        ),
+        array(
+            'label' => 'Системные настройки',
+            'url'   => '',
+            'icon'  => '',
+        ),
+        array(
+            'label' => 'Разделы каталога',
+            'url'   => '',
+            'icon'  => '',
+        ),
+        array(
+            'label' => 'Заказчики',
+            'url'   => '',
+            'icon'  => '',
+        ),
+        array(
+            'label' => 'Статистика',
+            'url'   => '',
+            'icon'  => '',
+        ),
+        array(
+            'label' => 'Онлайн',
+            'url'   => '',
+            'icon'  => '',
         ),
     );
     
@@ -84,9 +143,9 @@ class SideBar extends CWidget
     {
         $this->items = $this->normalizeItems($this->items);
         $this->widget('zii.widgets.CMenu', array(
-            'items'            => $this->items,
-            'linkLabelWrapper' => 'li',
-            'firstItemCssClas' => 'menu-item-parent',
+            'items'             => $this->items,
+            'linkLabelWrapper'  => 'li',
+            'firstItemCssClass' => 'menu-item-parent',
         ));
         parent::run();
     }

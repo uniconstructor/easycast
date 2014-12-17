@@ -38,10 +38,10 @@ if ( $questionary = $module->getCurrentQuestionary() )
     <nav>
         <?php 
         // левая колонка меню с навигацией
-        $this->widget('zii.widgets.CMenu', array(
-            'items'         => $this->sideBar,
-            'activateItems' => false,
-            'encodeLabel'   => false,
+        $this->widget('smartAdmin.extensions.SideBar', array(
+            //'items'         => $this->sideBar,
+            //'activateItems' => false,
+            //'encodeLabel'   => false,
         ));
         ?>
     </nav>

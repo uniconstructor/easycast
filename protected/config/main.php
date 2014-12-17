@@ -148,6 +148,10 @@ return array(
                 ),
             ),
         ),
+        // Новая божественно настроенная админка, прекраская как сам Иисус!
+        'smartAdmin' => array(
+            'class' => 'application.modules.smartAdmin.SmartAdminModule',
+        ),
         // Проекты
         'projects' => array(
             'class' => 'application.modules.projects.ProjectsModule',
@@ -272,7 +276,7 @@ return array(
 	        // показываем ошибки авторизации только в режиме отладки: 
 	        // (для тестовой сборки и версии разработчика)
 	        'showErrors' => YII_DEBUG,
-	        // роли назначаемые всем пользователям 
+	        // роли назначаемые всем пользователям автоматически после регистрации
 	        //'defaultRoles' = array(),
 	    ),
 	    // Подключаем модуль i18n чтобы можно было переводить приложение на разные языки
