@@ -37,11 +37,11 @@ class SmartAdminModule extends CWebModule
 		    'smartAdmin.controllers.actions.*',
 		    // @todo удалить после замены модуля галереи
 		    'ext.galleryManager.*',
-		    'application.extensions.galleryManager.components.*',
+		    'ext.galleryManager.components.*',
 		    'ext.galleryManager.models.*',
 		));
         // переопределяем базовые пакеты скриптов
-        $сorePackages   = require(YII_PATH.'/web/js/packages.php');
+        $corePackages   = require(YII_PATH.'/web/js/packages.php');
         $customPackages = array(
             'package-name' => array(
                 'basePath'     => 'alias of the directory containing the script files',
@@ -54,8 +54,8 @@ class SmartAdminModule extends CWebModule
                 'depends'      => array(),
             ),
         );
-        
-        $сorePackages = CMap::mergeArray($сorePackages , $customPackages);
+        // заменяем базовые скрипты и стили на собственные
+        $packages = CMap::mergeArray($corePackages , $customPackages);
 	}
     
 	/**
