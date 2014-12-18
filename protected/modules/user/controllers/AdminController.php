@@ -58,13 +58,15 @@ class AdminController extends Controller
 	 */
 	public function actionAdmin()
 	{
-		$model=new User('search');
+		$model = new User('search');
         $model->unsetAttributes();  // clear any default values
-        if(isset($_GET['User']))
-            $model->attributes=$_GET['User'];
+        if( isset($_GET['User']) )
+        {
+            $model->attributes = $_GET['User'];
+        }
 
         $this->render('index',array(
-            'model'=>$model,
+            'model' => $model,
         ));
 		/*$dataProvider=new CActiveDataProvider('User', array(
 			'pagination'=>array(
@@ -192,21 +194,20 @@ class AdminController extends Controller
 	 */
 	public function actionDelete()
 	{
-		if(Yii::app()->request->isPostRequest)
-		{
-			// we only allow deletion via POST request
+		if ( Yii::app()->request->isPostRequest )
+		{// we only allow deletion via POST request
+			$id    = Yii::app()->request->getParam('id', 0);
 			$model = $this->loadModel();
-			if ( $profile = Profile::model()->findByPk($model->id) )
-			{
-			    $profile->delete();
-			}
 			$model->delete();
-			// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-			if(!isset($_POST['ajax']))
-				$this->redirect(array('/user/admin'));
+			if( ! isset($_POST['ajax']) )
+			{// if AJAX request (triggered by deletion via admin grid view), 
+			    // we should not redirect the browser
+			    $this->redirect(array('/user/admin'));
+			}
+		}else
+		{
+		    throw new CHttpException(400, 'Invalid request');
 		}
-		else
-			throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
 	}
 	
 	/**
@@ -215,7 +216,7 @@ class AdminController extends Controller
      */
     protected function performAjaxValidation($validate)
     {
-        if( isset($_POST['ajax']) && $_POST['ajax']==='user-form' )
+        if( isset($_POST['ajax']) && $_POST['ajax'] === 'user-form' )
         {
             echo CActiveForm::validate($validate);
             Yii::app()->end();
@@ -226,15 +227,15 @@ class AdminController extends Controller
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.
 	 */
-	public function loadModel($id, $modelClass='')
+	public function loadModel($id=0, $modelClass='')
 	{
 		if ( $this->_model === null )
 		{
-			if ( isset($_GET['id']) )
-			{
-			    $this->_model = User::model()->notsafe()->findbyPk($_GET['id']);
-			}
-			if( $this->_model === null )
+		    if ( ! $id )
+		    {
+		        $id = Yii::app()->request->getParam('id', 0);
+		    }
+			if ( ! $this->_model = User::model()->notsafe()->findbyPk($id) )
 			{
 			    throw new CHttpException(404, 'The requested page does not exist.');
 			}
