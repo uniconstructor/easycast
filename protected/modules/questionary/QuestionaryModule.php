@@ -189,6 +189,8 @@ class QuestionaryModule extends CWebModule
     
     /**
      * @see CWebModule::beforeControllerAction()
+     * 
+     * @todo заменить настройкой фильтров доступа в контроллере
      */
     public function beforeControllerAction($controller, $action)
     {
@@ -200,9 +202,9 @@ class QuestionaryModule extends CWebModule
             }
             if ( Yii::app()->user->checkAccess('Admin') )
             {
-                return true;
+                return parent::beforeControllerAction($controller,$action);
             }
-            return true;
+            return parent::beforeControllerAction($controller,$action);
         }
         return parent::beforeControllerAction($controller,$action);
     }
