@@ -25,7 +25,10 @@ class MailController extends Controller
         $baseFilters = parent::filters();
 	    $newFilters  = array(
 	        'accessControl',
-	        'ext.bootstrap.filters.BootstrapFilter',
+	        // фильтр для подключения YiiBooster 3.x (bootstrap 2.x)
+	        array(
+	           'ext.bootstrap.filters.BootstrapFilter - webVersion,display,test,emailPreview',
+            ),
 	    );
 	    return CMap::mergeArray($baseFilters, $newFilters);
     }
