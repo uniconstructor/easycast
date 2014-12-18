@@ -211,8 +211,8 @@ class EventVacancy extends CActiveRecord
 	{
 	    return array(
 	        array('name, limit', 'required'),
-	        // @todo исправлять название на заглавную букву
-	        // array('name', 'filter', 'filter' => array('ECPurifier', 'ucfirst')),
+	        // название всегда с большой буквы
+	        array('name', 'filter', 'filter' => array('EcPurifier', 'ucfirst')),
 	        array('salary, autoconfirm, eventid, scopeid, timecreated, timemodified, timestart, timeend', 'length', 'max' => 11),
 	        array('name', 'length', 'max' => 255),
 	        array('description', 'length', 'max' => 4095),
