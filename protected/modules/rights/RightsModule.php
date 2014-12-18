@@ -227,15 +227,14 @@ class RightsModule extends CWebModule
 	        {// просим авторизоваться для использования любого действия в модуле управления правами
 	            Yii::app()->user->loginRequired();
 	        }
-	        if ( ! Yii::app()->user->checkAccess('Admin') )
+	        if ( Yii::app()->user->checkAccess('Admin') )
+	        {
+	            return true;
+	        }else
 	        {// без прав доступа делаем вид что такой страницы нет
 	            throw new CHttpException(404, 'Страница не найдена');
-	            return false;
 	        }
-	        return true;
-	    }else
-	    {
-	        return false;
 	    }
+	    return false;
 	}
 }
