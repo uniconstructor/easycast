@@ -59,6 +59,6 @@ class ChangeMemberVacancy extends CWidget
             withStatus($this->vacancyStatuses)->findAll();
         $options = CHtml::listData($vacancies, 'id', 'name');
         
-        return ECPurifier::getEditableSelectOptions($options);
+        return EcPurifier::getEditableSelectOptions($options);
     }
 }
