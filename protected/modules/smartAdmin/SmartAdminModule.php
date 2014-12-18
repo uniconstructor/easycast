@@ -63,23 +63,21 @@ class SmartAdminModule extends CWebModule
 	 */
 	public function beforeControllerAction($controller, $action)
 	{
-        //throw new Exception('test');
-        //die('kjhkj');
 		if ( parent::beforeControllerAction($controller, $action) )
-		{
-            if( Yii::app()->user->isGuest === true )
-            {// просим авторизоваться перед входом в админку
-                Yii::app()->user->loginRequired();
-            }
-            if ( ! Yii::app()->user->checkAccess('Admin') )
-            {// если нет прав доступа - делаем вид что админки здесь нет
-                throw new CHttpException(404, 'Страница не найдена');
-            }
-			return true;
-		}else
-		{
-		    return false;
-		}
+	    {
+	        if( Yii::app()->user->isGuest )
+	        {// просим авторизоваться для использования любого действия в модуле управления правами
+	            Yii::app()->user->loginRequired();
+	        }
+	        if ( Yii::app()->user->checkAccess('Admin') )
+	        {
+	            return true;
+	        }else
+	        {// без прав доступа делаем вид что такой страницы нет
+	            throw new CHttpException(404, 'Страница не найдена');
+	        }
+	    }
+	    return false;
 	}
 	
 	/**
