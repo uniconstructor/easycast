@@ -69,7 +69,7 @@ class QTheatreInstanceController extends QComplexValueController
     
         $models   = $this->getModels($term);
         $listData = CHtml::listData($models, 'id', 'name');
-        $options  = ECPurifier::getSelect2Options($listData);
+        $options  = EcPurifier::getSelect2Options($listData);
     
         echo CJSON::encode($options);
     }

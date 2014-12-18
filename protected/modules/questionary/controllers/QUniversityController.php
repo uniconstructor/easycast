@@ -52,7 +52,7 @@ class QUniversityController extends QComplexValueController
         
         $models   = $this->getModels($term, $type);
         $listData = CHtml::listData($models, 'id', 'name');
-        $options  = ECPurifier::getSelect2Options($listData);
+        $options  = EcPurifier::getSelect2Options($listData);
         
         echo CJSON::encode($options);
     }
