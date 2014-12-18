@@ -94,8 +94,8 @@ class UserModule extends CWebModule
 	 * @see http://www.yiiframework.com/doc/guide/database.arr
 	 */
 	public $relations = array(
-	        'questionary' => array(CActiveRecord::HAS_ONE, 'Questionary', 'userid'),
-	    );
+        'questionary' => array(CActiveRecord::HAS_ONE, 'Questionary', 'userid'),
+    );
 	
 	/**
 	 * @var array
@@ -138,10 +138,13 @@ class UserModule extends CWebModule
 	 */
 	public function init()
 	{
-		// import the module-level models and components
 		$this->setImport(array(
 			'user.models.*',
 			'user.components.*',
+		    // модуль анкеты связан с пользователями, поэтому загружаем его при инициализации
+		    'questionary.extensions.behaviors.*',
+		    'questionary.models.*',
+		    'questionary.models.complexValues.*',
 		));
 	}
 	
