@@ -63,7 +63,7 @@ class ProjectMemberController extends Controller
 			),
 			array('allow',
 				'actions' => array('admin', 'delete', 'changeVacancy', 'upload', 'uploadPage', 'deleteVideo'),
-			    'roles'   => array('admin'),
+			    'roles'   => array('Admin'),
 			),
 			array('deny',
 				'users' => array('*'),

@@ -1167,8 +1167,10 @@ class ProjectEvent extends CActiveRecord
 	        $type = $this->type;
 	    }
 	    $types = $this->getTypes(true);
-	    
-	    return $types[$type];
+	    if ( isset($types[$type]) )
+	    {
+	        return $types[$type];
+	    }
 	}
 	
 	/**
