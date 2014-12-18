@@ -44,10 +44,10 @@ class EMailHeader extends CWidget
         {// у письма шапка с изображением
             if ( $this->target === 'customer' )
             {// шапка с телефоном для заказчиков
-                $imageUrl = ECPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl('//images/mail-header-customer.png'));
+                $imageUrl = EcPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl('//images/mail-header-customer.png'));
             }else
             {// шапка с телефоном для участников
-                $imageUrl = ECPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl('//images/mail-header-user.png'));
+                $imageUrl = EcPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl('//images/mail-header-user.png'));
             }
             $this->render('imageHeader', array('imageUrl' => $imageUrl));
         }

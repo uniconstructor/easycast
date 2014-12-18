@@ -391,7 +391,7 @@ class EMailCallList extends EMailBase
     {
         if ( $this->language != 'ru' )
         {
-            return ECPurifier::translit($this->manager->questionary->firstname.' '.$this->manager->questionary->lastname);
+            return EcPurifier::translit($this->manager->questionary->firstname.' '.$this->manager->questionary->lastname);
         }else
         {
             return $this->manager->questionary->firstname.' '.$this->manager->questionary->lastname;

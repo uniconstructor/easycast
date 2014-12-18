@@ -453,10 +453,10 @@ class EMailCastingList extends EMailCallList
         if ( $this->language === 'en' )
         {// для английского языка используем транслит (пока нет синхронизации с Кинопоиском)
             $item['id']       = $film->id;
-            $item['name']     = ECPurifier::translit($film->name);
-            $item['role']     = ECPurifier::translit($film->role);
+            $item['name']     = EcPurifier::translit($film->name);
+            $item['role']     = EcPurifier::translit($film->role);
             $item['year']     = $film->year;
-            $item['director'] = ECPurifier::translit($film->director);
+            $item['director'] = EcPurifier::translit($film->director);
         }else
         {// во всех остальных случаях выводим данные как есть
             $item['id']       = $film->id;
@@ -483,10 +483,10 @@ class EMailCastingList extends EMailCallList
         {// для английского языка используем транслит 
             // (пока нет синхронизации с каким-нибудь глобальным каталогом ВУЗов)
             $item['id']        = $university->id;
-            $item['name']      = ECPurifier::translit($university->name);
-            $item['specialty'] = ECPurifier::translit($university->specialty);
+            $item['name']      = EcPurifier::translit($university->name);
+            $item['specialty'] = EcPurifier::translit($university->specialty);
             $item['year']      = $university->year;
-            $item['workshop']  = ECPurifier::translit($university->workshop);
+            $item['workshop']  = EcPurifier::translit($university->workshop);
         }else
         {// во всех остальных случаях выводим данные как есть
             $item['id']        = $university->id;
@@ -511,7 +511,7 @@ class EMailCastingList extends EMailCallList
         if ( $this->language === 'en' )
         {
             $item['id']   = $school->id;
-            $item['name'] = ECPurifier::translit($school->school);
+            $item['name'] = EcPurifier::translit($school->school);
             $item['year'] = $school->year;
         }else
         {

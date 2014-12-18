@@ -15,11 +15,11 @@ class EMailManagerInfo extends CWidget
      */
     public function run()
     {
-        $anyTimeImage   = ECPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl('/images/24-7-365.png'));
-        $iTakeCareImage = ECPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl('/images/i-take-care.png'));
+        $anyTimeImage   = EcPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl('/images/24-7-365.png'));
+        $iTakeCareImage = EcPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl('/images/i-take-care.png'));
         
         $mainImageUrl   = $this->manager->questionary->getAvatarUrl('catalog');
-        $managerPhoto   = ECPurifier::getImageProxyUrl($mainImageUrl);
+        $managerPhoto   = EcPurifier::getImageProxyUrl($mainImageUrl);
         
         $position = 'руководитель проектов';
         if ( $this->manager->email === 'ceo@easycast.ru' )
