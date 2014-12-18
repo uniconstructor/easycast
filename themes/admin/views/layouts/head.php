@@ -39,7 +39,7 @@ $themeUrl = Yii::app()->theme->baseUrl.'/assets/';
 	<link href="<?= $themeUrl; ?>css/smartadmin-skins.min.css" rel="stylesheet" type="text/css" media="screen">
 	
 	<!-- easyCast Styles-->
-	<link rel="stylesheet" type="text/css" media="screen" href="css/easycast.css">
+	<link rel="stylesheet" type="text/css" media="screen" href="<?= $themeUrl; ?>css/easycast.css">
     
     <!-- #FAVICONS -->
     <link href="<?= $themeUrl; ?>img/favicon/favicon.ico" rel="shortcut icon" type="image/x-icon">

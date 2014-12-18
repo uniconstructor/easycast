@@ -25,6 +25,14 @@ $themeUrl = Yii::app()->theme->baseUrl.'/assets/';
 <script src="<?= $themeUrl; ?>js/libs/jquery-2.1.1.min.js"></script>
 <script src="<?= $themeUrl; ?>js/libs/jquery-ui-1.10.3.min.js"></script>
 
+<!-- easyCast: дополняем каждый AJAX-запрос служебными переменными Yii -->
+<script>
+$.ajaxPrefilter(function(options, originalOptions, jqXHR) {
+    console.log(options);
+    console.log(originalOptions);
+});
+</script>
+
 <!-- IMPORTANT: APP CONFIG -->
 <script src="<?= $themeUrl; ?>js/app.config.js"></script>
 

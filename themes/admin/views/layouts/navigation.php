@@ -12,14 +12,14 @@
 /* @var $questionary Questionary */
 
 $module = Yii::app()->getModule('questionary');
-if ( $questionary = $module->getCurrentQuestionary() )
-{
-    $avatar = '<img alt="me" class="online" src="'.$questionary->avatarUrl.'">';
-    $name   = $questionary->fullname;
-}else
+if ( Yii::app()->user->isGuest )
 {
     $avatar = '<span class="online glyphicon glyphicon-eye-open"></span>';
     $name   = 'Временный доступ';
+}else
+{
+    $avatar = Yii::app()->user->getAvatarImage('small', array('class' => 'online'));
+    $name   = Yii::app()->user->fullName;
 }
 ?>
 <!-- #NAVIGATION -->
@@ -37,12 +37,8 @@ if ( $questionary = $module->getCurrentQuestionary() )
     <!-- end user info -->
     <nav>
         <?php 
-        // левая колонка меню с навигацией
-        $this->widget('smartAdmin.extensions.SideBar', array(
-            //'items'         => $this->sideBar,
-            //'activateItems' => false,
-            //'encodeLabel'   => false,
-        ));
+        // левая колонка: главное меню с навигацией
+        $this->widget('smartAdmin.extensions.SideBar');
         ?>
     </nav>
 </aside>
