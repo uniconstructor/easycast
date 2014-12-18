@@ -28,7 +28,8 @@ class ActivationController extends Controller
 	/**
 	 * Activation user account
 	 */
-	public function actionActivation () {
+	public function actionActivation()
+	{
 		$email = $_GET['email'];
 		$activkey = $_GET['activkey'];
 		if ($email&&$activkey) {

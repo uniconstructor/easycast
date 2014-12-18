@@ -85,12 +85,16 @@ class UserController extends Controller
 	 */
 	public function loadModel($id, $modelClass='')
 	{
-		if($this->_model===null)
+		if ( $this->_model === null )
 		{
-			if(isset($_GET['id']))
-				$this->_model=User::model()->findbyPk($_GET['id']);
-			if($this->_model===null)
-				throw new CHttpException(404,'The requested page does not exist.');
+		    if ( ! $id )
+		    {
+		        $id = Yii::app()->request->getParam('id', 0);
+		    }
+			if ( ! $this->_model = User::model()->notsafe()->findbyPk($id) )
+			{
+			    throw new CHttpException(404, 'The requested page does not exist.');
+			}
 		}
 		return $this->_model;
 	}
