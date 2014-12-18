@@ -227,7 +227,7 @@ class Controller extends RController
     
     /**
      * 
-     * @param  unknown $log
+     * @param  array $log
      * @return void
      */
     protected function saveLog($log)
