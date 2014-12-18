@@ -51,10 +51,10 @@ class AdminModule extends CWebModule
                 Yii::app()->user->loginRequired();
             }
             if ( Yii::app()->user->checkAccess('Admin') )
-            {// если нет прав доступа - делаем вид что админки здесь нет
+            {
                 return true;
             }else
-            {
+            {// если нет прав доступа - делаем вид что админки здесь нет
                 throw new CHttpException(404, 'Страница не найдена');
             }
 		}

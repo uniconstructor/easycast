@@ -566,7 +566,7 @@ class EditableGrid extends CWidget
             'placeholderOption' => '',
             'multiple'          => false,
         );
-        $variants = ECPurifier::getSelect2Options($variants);
+        $variants = EcPurifier::getSelect2Options($variants);
         
         if ( $allowCustom )
         {
