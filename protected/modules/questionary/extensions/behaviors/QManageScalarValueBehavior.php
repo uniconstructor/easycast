@@ -513,16 +513,14 @@ class QManageScalarValueBehavior extends CActiveRecordBehavior
     public function getFullname()
     {
         $fullname = $this->owner->firstname.' '.$this->owner->lastname;
-        
         if ( ! trim($fullname) AND is_object($this->owner->user) )
         {// Если пользователь еще не заолнил анкету - выводим только его логин
             $fullname = $this->owner->user->username;
         }
         if ( Yii::app()->language != 'ru' )
         {// если язык выбран любой язык, кроме русского - выводим ФИО транслитом
-            $fullname = ECPurifier::translit($fullname);
+            $fullname = EcPurifier::translit($fullname);
         }
-        
         return CHtml::encode($fullname);
     }
     

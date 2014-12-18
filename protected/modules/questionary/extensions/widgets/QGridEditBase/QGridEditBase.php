@@ -412,7 +412,7 @@ class QGridEditBase extends EditableGrid
             'placeholderOption'    => '',
             'multiple'             => false,
         );
-        //$variants = ECPurifier::getSelect2Options($variants);
+        //$variants = EcPurifier::getSelect2Options($variants);
         
         if ( $allowCustom )
         {// разрешить ли вводить и сохранять свое значение в этом поле?
@@ -527,6 +527,6 @@ class QGridEditBase extends EditableGrid
         $options = QActivityType::model()->forActivity($type)->except($selected)->findAll();
         $options = CHtml::listData($options, 'value', 'translation');
         
-        return ECPurifier::getSelect2Options($options);
+        return EcPurifier::getSelect2Options($options);
     }
 }
