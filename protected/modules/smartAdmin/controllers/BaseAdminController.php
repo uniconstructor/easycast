@@ -10,7 +10,7 @@ abstract class BaseAdminController extends Controller
     /**
      * @var string - 
      */
-    public $layout = '//layouts/index';
+    public $layout = '//layouts/main';
     /**
      * @var array - левая панель навигации в меню, массив из элементов 'label', 'url' и 'htmlOptions'
      *              Для вложенных элементов меню используется параметр items

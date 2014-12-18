@@ -69,15 +69,15 @@ class AjaxController extends BaseAdminController
     public function actions()
     {
         return array(
-            /*'upload' => array(
+            'upload' => array(
                 'class' => 'xupload.actions.S3XUploadAction',
-            ),*/
+            ),
             'dashboard' => array(
                 'class' => 'smartAdmin.controllers.actions.DashboardAction',
             ),
-            'index' => array(
+            /*'index' => array(
                 'class' => 'xupload.actions.S3XUploadAction',
-            ),
+            ),*/
         );
     }
     
@@ -100,7 +100,7 @@ class AjaxController extends BaseAdminController
     /**
      * @return void
      */
-    public function actionAgregateMembers()
+    /*public function actionAgregateMembers()
     {
         $vacancyid = Yii::app()->request->getParam('vid');
         if ( $vacancy = EventVacancy::model()->findByPk($vacancyid) )
@@ -145,13 +145,13 @@ class AjaxController extends BaseAdminController
             $this->sideBar = $items;
         }
         $this->render('members');
-    }
+    }*/
     
     /**
      * Список всех заявок на роль
      * @return void
      */
-    public function actionFullMemberList()
+    /*public function actionFullMemberList()
     {
         // верстка списка участников во всю ширину
         $this->layout = '//layouts/ajax/row';
@@ -165,13 +165,13 @@ class AjaxController extends BaseAdminController
         $this->render('fullList', array(
             'vacancy' => $vacancy,
         ));
-    }
+    }*/
     
     /**
      * Изменить список разделов в которые входит заявка участника
      * @return void
      */
-    public function actionChangeMemberCategory()
+    /*public function actionChangeMemberCategory()
     {
         $memberId          = Yii::app()->request->getParam('memberId');
         $sectionInstanceId = Yii::app()->request->getParam('sectionInstanceId');
@@ -185,5 +185,5 @@ class AjaxController extends BaseAdminController
         {
             $projectMember->removeFromInstance($sectionInstanceId);
         }
-    }
+    }*/
 }
