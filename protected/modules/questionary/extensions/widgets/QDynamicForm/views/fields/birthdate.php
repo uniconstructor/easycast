@@ -7,6 +7,11 @@
 /* @var $model QDynamicFormModel */
 
 $dateFormat = Yii::app()->params['yiiDateFormat'];
+$birthDate  = '';
+if ( $model->birthdate )
+{
+    $birthDate = Yii::app()->dateFormatter->format($dateFormat, $model->birthdate);
+}
 // дата рождения
 echo $form->datePickerRow($model, 'birthdate', array(
         'options' => array(
@@ -19,7 +24,7 @@ echo $form->datePickerRow($model, 'birthdate', array(
             'autoclose' => true,
         ),
         'htmlOptions' => array(
-            'value' => Yii::app()->dateFormatter->format($dateFormat, $model->birthdate),
+            'value' => $birthDate,
         ),
     ),
     array(

@@ -615,19 +615,11 @@ class QDynamicFormModel extends CFormModel
                 ),
             ),
             // проверка даты через фильтр
-            array('birthdate', 'ext.YiiConditionalValidator',
-                'if' => array(
-                    array(
-                        'birthdate', 'date',
-                        'allowEmpty' => false,
-                        'format'     => Yii::app()->params['yiiDateFormat'],
-                    ),
-                ),
-                'then' => array(
-                    array(
-                        'birthdate', 'filter',
-                        'filter' => array('EcDateTimeParser', 'parse'),
-                    ),
+            'birthdate' => array(
+                array(
+                    'birthdate', 'date',
+                    'allowEmpty' => false,
+                    'format'     => Yii::app()->params['yiiDateFormat'],
                 ),
             ),
             array('passportexpires', 'ext.YiiConditionalValidator',
@@ -965,7 +957,7 @@ class QDynamicFormModel extends CFormModel
             $oldGallery->delete();
         }
         // сохраняем анкету (без проверки полей, она уже произведена здесь)
-        if ( ! $questionary->save(false) )
+        if ( ! $questionary->save() )
         {
             throw new CException('Не удалось создать анкету');
         }

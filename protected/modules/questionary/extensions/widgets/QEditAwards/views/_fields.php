@@ -7,7 +7,7 @@
 /* @var $this  QEditAwards */
 /* @var $model QAward */
 
-$countries = ECPurifier::getSelect2Options($this->createCountryList());
+$countries = EcPurifier::getSelect2Options($this->createCountryList());
 
 // ошибки формы
 echo $form->errorSummary(array($model), null, null, array('id' => $this->formId.'_errors'));
