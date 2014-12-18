@@ -329,7 +329,7 @@ class EMailOffer extends EMailBase
      */
     protected function createProjectLogo($project)
     {
-        $logoUrl    = ECPurifier::getImageProxyUrl($project->getAvatarUrl('small', true));
+        $logoUrl    = EcPurifier::getImageProxyUrl($project->getAvatarUrl('small', true));
         $projectUrl = Yii::app()->createAbsoluteUrl('/projects/projects/view', array('id' => $project->id));
         $image      = CHtml::image($logoUrl, '', array('style' => 'width:64px;height:64px;border-radius:5px;'));
         $logo       = CHtml::link($image, $projectUrl);
@@ -344,7 +344,7 @@ class EMailOffer extends EMailBase
      */
     protected function getImageUrl($path)
     {
-        return ECPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl($path));
+        return EcPurifier::getImageProxyUrl(Yii::app()->createAbsoluteUrl($path));
     }
     
     /**
