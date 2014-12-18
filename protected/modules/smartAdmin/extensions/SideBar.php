@@ -76,62 +76,62 @@ class SideBar extends CWidget
     protected $defaultItems = array(
         array(
             'label' => 'Панель управления',
-            'url'   => '#dashboard',
+            'url'   => '/dash',
             'icon'  => '',
         ),
         array(
             'label' => 'Календарь',
-            'url'   => '',
+            'url'   => '/calendar',
             'icon'  => '',
         ),
         array(
             'label' => 'Команда',
-            'url'   => '',
+            'url'   => '/team',
             'icon'  => '',
         ),
         array(
             'label' => 'Проекты',
-            'url'   => '',
+            'url'   => '/projects',
             'icon'  => '',
         ),
         array(
             'label' => 'Мероприятия',
-            'url'   => '',
+            'url'   => '/events',
             'icon'  => '',
         ),
         array(
             'label' => 'Анкеты',
-            'url'   => '',
+            'url'   => '/questionaries',
             'icon'  => '',
         ),
         array(
             'label' => 'Лента активности',
-            'url'   => '',
+            'url'   => '/feed',
             'icon'  => '',
         ),
         array(
             'label' => 'Системные настройки',
-            'url'   => '',
+            'url'   => '/config',
             'icon'  => '',
         ),
         array(
             'label' => 'Разделы каталога',
-            'url'   => '',
+            'url'   => '/catalog',
             'icon'  => '',
         ),
         array(
             'label' => 'Заказчики',
-            'url'   => '',
+            'url'   => '/customers',
             'icon'  => '',
         ),
         array(
             'label' => 'Статистика',
-            'url'   => '',
+            'url'   => '/stat',
             'icon'  => '',
         ),
         array(
-            'label' => 'Онлайн',
-            'url'   => '',
+            'label' => 'Чат',
+            'url'   => '/chat',
             'icon'  => '',
         ),
     );
