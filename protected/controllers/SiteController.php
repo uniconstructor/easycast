@@ -411,7 +411,7 @@ class SiteController extends Controller
         }
     
         $listData = CHtml::listData($records, 'id', 'name');
-        $options  = ECPurifier::getSelect2Options($listData);
+        $options  = EcPurifier::getSelect2Options($listData);
         
         echo CJSON::encode($options);
     }

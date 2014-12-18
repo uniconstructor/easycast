@@ -76,7 +76,7 @@ class CalculationController extends Controller
             //$categories[$section->id] = $section->id;
             $categories[$section->name] = $section->name;
         }
-        $categories = ECPurifier::getSelect2Options($categories);
+        $categories = EcPurifier::getSelect2Options($categories);
         
         if ( $formData = Yii::app()->request->getPost('CalculationForm') )
         {// пришли данные из формы расчета стоимости
