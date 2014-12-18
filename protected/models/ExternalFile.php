@@ -222,7 +222,7 @@ class ExternalFile extends SWActiveRecord
 	 */
 	public static function getRandomFileName($length=self::NEW_NAME_LENGTH, $append='', $prepend='')
 	{
-	    return $prepend.ECPurifier::getRandomString($length).$append;
+	    return $prepend.Yii::app()->securityManager->generateRandomString($length).$append;
 	}
 	
 	/**
@@ -626,7 +626,7 @@ class ExternalFile extends SWActiveRecord
 	    $this->lastupload = time();
 	    $this->mimetype   = $file->getType();
 	    $this->size       = $file->getSize();
-	    $this->name       = ECPurifier::getRandomString(self::NEW_NAME_LENGTH).'.'.$this->getExtension();
+	    $this->name       = Yii::app()->securityManager->generateRandomString(self::NEW_NAME_LENGTH).'.'.$this->getExtension();
 	    if ( ! is_dir($this->getLocalPathPrefix()) )
 	    {// создаем локальную директорию если нужно
 	        // @todo рассмотреть вариант с 644
