@@ -188,7 +188,7 @@ class QFilmInstance extends CActiveRecord
         }
         
         // обрезаем любые кавычки в названии
-        $name = ECPurifier::trimQuotes($name);
+        $name = EcPurifier::trimQuotes($name);
         $this->name = $name;
     }
     
