@@ -5,7 +5,7 @@
  * 
  * @todo убрать enableJavaScript=false после подключения новой версии bootstrap
  */
-abstract class BaseAdminController extends Controller
+abstract class SmartAdminController extends Controller
 {
     /**
      * @var string - 
@@ -21,7 +21,6 @@ abstract class BaseAdminController extends Controller
      *                      'label' => 'Item1',
      *                      'url'   => '...',
      *                      'htmlOptions' => array(),
-     *                      'open'  => true,
      *                      'items' => array(
      *                          array(
      *                              'label' => 'Item1/subItem1',
@@ -37,11 +36,10 @@ abstract class BaseAdminController extends Controller
      *                  ),
      *                  ...
      *              );
-     *              
      */
-    public $sideBar = array();
+    public $menuItems = array();
     /**
-     * @var string
+     * @var string - Основной заголовок страницы
     */
     public $pageHeader;
     /**
@@ -64,7 +62,10 @@ abstract class BaseAdminController extends Controller
         Yii::app()->clientScript->enableJavaScript = false;
         // в админке переключаемся на специальную тему оформления
         Yii::app()->setTheme('admin');
-         
+        if ( Yii::app()->request->isAjaxRequest )
+        {
+            $this->layout = '//layouts/ajax/_blank';
+        }
         parent::init();
     }
     

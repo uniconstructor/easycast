@@ -2,6 +2,10 @@
 
 /**
  * Новая версия админки: тема оформления smartAdmin, работает через AJAX
+ * 
+ * @todo добавить новый параметр "isPageRequest" в класс CHttpRequest
+ *       который отвечает за то, добавлять ли скрипты инициализации
+ *       в конце запроса или нет
  */
 class SmartAdminModule extends CWebModule
 {
@@ -12,11 +16,14 @@ class SmartAdminModule extends CWebModule
         'ajax' => array(
             'class' => 'application.modules.smartAdmin.controllers.AjaxController',
         ),
+        'console' => array(
+            'class' => 'application.modules.smartAdmin.controllers.ConsoleController',
+        ),
     );
     /**
      * @var string the ID of the default controller for this module. Defaults to 'default'.
      */
-    public $defaultController = 'ajax';
+    public $defaultController = 'console';
     /**
      * @var array - массив id фрагментов кода (клипов), для всплывающих форм сложных значений
      *              В форме анкеты требуется вывести множество "дочерних форм", а вкладывать их

@@ -71,83 +71,19 @@ class SideBar extends CWidget
     public $iconHintOptions = array();
     
     /**
-     * @var array
-     */
-    protected $defaultItems = array(
-        array(
-            'label' => 'Панель управления',
-            'url'   => '/dash',
-            'icon'  => '',
-        ),
-        array(
-            'label' => 'Календарь',
-            'url'   => '/calendar',
-            'icon'  => '',
-        ),
-        array(
-            'label' => 'Команда',
-            'url'   => '/team',
-            'icon'  => '',
-        ),
-        array(
-            'label' => 'Проекты',
-            'url'   => '/projects',
-            'icon'  => '',
-        ),
-        array(
-            'label' => 'Мероприятия',
-            'url'   => '/events',
-            'icon'  => '',
-        ),
-        array(
-            'label' => 'Анкеты',
-            'url'   => '/questionaries',
-            'icon'  => '',
-        ),
-        array(
-            'label' => 'Лента активности',
-            'url'   => '/feed',
-            'icon'  => '',
-        ),
-        array(
-            'label' => 'Системные настройки',
-            'url'   => '/config',
-            'icon'  => '',
-        ),
-        array(
-            'label' => 'Разделы каталога',
-            'url'   => '/catalog',
-            'icon'  => '',
-        ),
-        array(
-            'label' => 'Заказчики',
-            'url'   => '/customers',
-            'icon'  => '',
-        ),
-        array(
-            'label' => 'Статистика',
-            'url'   => '/stat',
-            'icon'  => '',
-        ),
-        array(
-            'label' => 'Чат',
-            'url'   => '/chat',
-            'icon'  => '',
-        ),
-    );
-    
-    /**
      * @see CWidget::run()
      */
     public function run()
     {
         $this->items = $this->normalizeItems($this->items);
+        //CVarDumper::dump($this->items, 10, true);
         $this->widget('zii.widgets.CMenu', array(
             'items'             => $this->items,
             'linkLabelWrapper'  => 'li',
             'firstItemCssClass' => 'menu-item-parent',
+            'hideEmptyItems'    => false,
+            'encodeLabel'       => false,
         ));
-        parent::run();
     }
     
     /**
@@ -164,9 +100,10 @@ class SideBar extends CWidget
             //$newItem = CMap::copyFrom($item);
             $template = array(
                 'url'            => '',
-                'visible'        => '',
+                'visible'        => '1',
                 'active'         => '',
-                'template'       => '',
+                'label'          => '',
+                //'template'       => '',
                 'linkOptions'    => array(),
                 'itemOptions'    => array(),
                 'submenuOptions' => array(),
@@ -176,7 +113,8 @@ class SideBar extends CWidget
                 'url'            => $item['url'],
                 'visible'        => $item['visible'],
                 'active'         => $item['active'],
-                'template'       => $item['template'],
+                'label'          => $item['label'],
+                //'template'       => $item['template'],
                 'linkOptions'    => $item['linkOptions'],
                 'itemOptions'    => $item['itemOptions'],
                 'submenuOptions' => $item['submenuOptions'],
@@ -225,7 +163,6 @@ class SideBar extends CWidget
                 );*/
             }
             $newItems[] = $newItem;
-            unset($newItem);
         }
         return $newItems;
     }

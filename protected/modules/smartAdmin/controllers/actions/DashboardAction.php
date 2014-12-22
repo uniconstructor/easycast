@@ -10,7 +10,12 @@ class DashboardAction extends AjaxAction
      */
     public function run()
     {
-        
-        $this->controller->render('dashboard');
+        if ( ! Yii::app()->request->isAjaxRequest )
+        {
+            $this->controller->renderText('dashboard');
+        }else
+        {
+            echo 'dashboard';
+        }
     }
 }
