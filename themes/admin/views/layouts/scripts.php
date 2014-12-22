@@ -9,17 +9,19 @@
  * @todo протестировать, насколько много памяти потребляется PACE LOADER после обновления до 1.5.2
  * @todo подключить FastClick для мобильных устройств
  */
-/* @var $this Controller */
+/* @var $this SmartAdminController */
 
 // путь к корню темы оформления (там лежат все скрипты и стили)
 $themeUrl = Yii::app()->theme->baseUrl.'/assets/';
 
 // временно отключенные библиотеки
-// 
+// <!-- PACE LOADER - turn this on if you want ajax loading to show (caution: uses lots of memory on iDevices) -->
+// <!-- script data-pace-options='{ "restartOnRequestAfter": true }' src="< ?= $themeUrl; ? >js/plugin/pace/pace.min.js"></script-->
+// <!-- FastClick: For mobile devices: you can disable this in app.js -->
+// <!-- script src="< ?= $themeUrl; ? >js/plugin/fastclick/fastclick.min.js"></script-->
 ?>
 <!--================================================== -->
-<!-- PACE LOADER - turn this on if you want ajax loading to show (caution: uses lots of memory on iDevices) -->
-<script data-pace-options='{ "restartOnRequestAfter": true }' src="<?= $themeUrl; ?>js/plugin/pace/pace.min.js"></script>
+
 
 <!-- jQuery + jQueryUI -->
 <script src="<?= $themeUrl; ?>js/libs/jquery-2.1.1.min.js"></script>
@@ -29,7 +31,7 @@ $themeUrl = Yii::app()->theme->baseUrl.'/assets/';
 <script>
 $.ajaxPrefilter(function(options, originalOptions, jqXHR) {
     console.log(options);
-    console.log(originalOptions);
+    //console.log(originalOptions);
 });
 </script>
 
@@ -71,9 +73,6 @@ $.ajaxPrefilter(function(options, originalOptions, jqXHR) {
 
 <!-- browser msie issue fix -->
 <script src="<?= $themeUrl; ?>js/plugin/msie-fix/jquery.mb.browser.min.js"></script>
-
-<!-- FastClick: For mobile devices: you can disable this in app.js -->
-<script src="<?= $themeUrl; ?>js/plugin/fastclick/fastclick.min.js"></script>
 
 <!--[if IE 8]>
 	<h1>Your browser is out of date, please update your browser by going to www.microsoft.com/download</h1>

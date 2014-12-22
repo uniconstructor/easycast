@@ -18,7 +18,7 @@
  * @todo настраиваемый стиль страницы (от smart-style-5 до smart-style-1)
  * @todo управление боковым меню: свернуть/восстановить
  */
-/* @var $this    Controller */
+/* @var $this SmartAdminController */
 /* @var $content string */
 
 ?><!DOCTYPE html>

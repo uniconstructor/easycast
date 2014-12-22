@@ -8,7 +8,7 @@
  * @todo подключение jGrowl вынести в отдельный виджет 
  * @todo подключение bootstrap вынести в пакеты скриптов
  */
-/* @var $this Controller */
+/* @var $this SmartAdminController */
 
 // @todo все meta-теги брать из контроллера
 // <!-- meta content="" name="description" -->

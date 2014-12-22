@@ -5,7 +5,7 @@
  * @todo разбить на более мелкие виджеты
  * @todo поиск по всем объектам
  */
-/* @var $this Controller */
+/* @var $this SmartAdminController */
 
 $projectCount = 0;
 $projectList  = '';

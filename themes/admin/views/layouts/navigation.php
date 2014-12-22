@@ -8,7 +8,7 @@
  * (the reference to the nav > ul) after page load. Or the navigation
  * will not initialize.
  */
-/* @var $this        Controller */
+/* @var $this SmartAdminController */
 /* @var $questionary Questionary */
 
 $module = Yii::app()->getModule('questionary');
@@ -38,7 +38,9 @@ if ( Yii::app()->user->isGuest )
     <nav>
         <?php 
         // левая колонка: главное меню с навигацией
-        $this->widget('smartAdmin.extensions.SideBar');
+        $this->widget('smartAdmin.extensions.SideBar', array(
+            'items' => $this->menuItems,
+        ));
         ?>
     </nav>
 </aside>

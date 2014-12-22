@@ -4,7 +4,7 @@
  * 
  * @todo заготовка для разметки
  */
-/* @var $this Controller */
+/* @var $this SmartAdminController */
 ?>
 <!-- #PAGE FOOTER -->
 <div class="page-footer">

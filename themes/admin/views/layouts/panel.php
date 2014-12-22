@@ -6,7 +6,7 @@
  * В разделе "ribbon" располагается верхняя навигация ("хлебные крошки")
  * В разделе "content", как следует из названия, лежит наше всё
  */
-/* @var $this Controller */
+/* @var $this SmartAdminController */
 ?>
 <!-- #MAIN_PANEL -->
 <div id="main">
@@ -36,9 +36,6 @@
         <?php
         // основное содержимое страницы: обновляется через AJAX 
         echo $content;
-        // стандартный JS-код темы оформления: должен находится 
-        // на каждой странице для корректной работы AJAX-навигации
-        //$this->renderPartial('//layouts/ajax/_pageSetup');
         ?>
     </div>
     <!-- END MAIN_CONTENT -->
