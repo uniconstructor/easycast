@@ -18,61 +18,73 @@ class ConsoleController extends SmartAdminController
             'label' => 'Панель управления',
             'url'   => '/smartAdmin/console/dashboard',
             'icon'  => '',
+            'iconOptions' => array('class' => 'fa-home'),
         ),
         array(
             'label' => 'Календарь',
             'url'   => '/smartAdmin/console/calendar',
             'icon'  => '',
+            'iconOptions' => array('class' => 'fa-calendar'),
         ),
         array(
             'label' => 'Команда',
             'url'   => '/smartAdmin/console/team',
             'icon'  => '',
+            'iconOptions' => array('class' => 'fa-group'),
         ),
         array(
             'label' => 'Проекты',
             'url'   => '/smartAdmin/console/projects',
             'icon'  => '',
+            'iconOptions' => array('class' => 'fa-puzzle-piece'),
         ),
         array(
             'label' => 'Мероприятия',
             'url'   => '/smartAdmin/console/events',
             'icon'  => '',
+            'iconOptions' => array('class' => 'fa-list-alt'),
         ),
         array(
             'label' => 'Анкеты',
             'url'   => '/smartAdmin/console/questionaries',
             'icon'  => '',
+            'iconOptions' => array('class' => 'fa-book'),
         ),
         array(
             'label' => 'Последние действия',
             'url'   => '/smartAdmin/console/feed',
             'icon'  => '',
+            'iconOptions' => array('class' => 'fa-rss'),
         ),
         array(
             'label' => 'Настройки',
             'url'   => '/smartAdmin/console/config',
             'icon'  => '',
+            'iconOptions' => array('class' => 'fa-cogs'),
         ),
         array(
             'label' => 'Разделы каталога',
             'url'   => '/smartAdmin/console/catalog',
             'icon'  => '',
+            'iconOptions' => array('class' => 'fa-folder-open'),
         ),
         array(
             'label' => 'Заказчики',
             'url'   => '/smartAdmin/console/customers',
             'icon'  => '',
+            'iconOptions' => array('class' => 'fa-graduation-cap'),
         ),
         array(
             'label' => 'Статистика',
             'url'   => '/smartAdmin/console/stat',
             'icon'  => '',
+            'iconOptions' => array('class' => 'fa-bar-chart'),
         ),
         array(
             'label' => 'Чат',
             'url'   => '/smartAdmin/console/chat',
             'icon'  => '',
+            'iconOptions' => array('class' => 'fa-comments'),
         ),
     );
     
