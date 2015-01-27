@@ -12,7 +12,7 @@ class SideBar extends CWidget
      *              'icon'            => 'fa-inbox', // иконка font awesome
      *              'iconOptions'     => array(),    // htmlOptions для тега иконки 
      *              'iconHint'        => 'new',      // 
-     *              'iconHintOptions' => array(),      // 
+     *              'iconHintOptions' => array(),    // 
      *              'count'           => 35,         // счетчик
      *              'countOptions'    => array(),    // htmlOptions для тега счетчика
      *              'append'          => '<b>custom html</b>', // @todo
@@ -75,12 +75,12 @@ class SideBar extends CWidget
      */
     public function run()
     {
-        $this->items = $this->normalizeItems($this->items);
-        //CVarDumper::dump($this->items, 10, true);
+        //CVarDumper::dump(count($this->items), 10, true);echo '|';
+        //CVarDumper::dump(count($items), 10, true);
         $this->widget('zii.widgets.CMenu', array(
-            'items'             => $this->items,
-            'linkLabelWrapper'  => 'li',
-            'firstItemCssClass' => 'menu-item-parent',
+            'items'             => $this->normalizeItems($this->items),
+            //'linkLabelWrapper'  => 'li',
+            //'firstItemCssClass' => 'menu-item-parent',
             'hideEmptyItems'    => false,
             'encodeLabel'       => false,
         ));
@@ -151,7 +151,8 @@ class SideBar extends CWidget
                     $this->iconHintOptions = CMap::mergeArray($this->iconHintOptions, $item['iconHintOptions']);
                     $iconHint = CHtml::tag('em', $this->iconHintOptions, $item['iconHint']);
                 }
-                $newItem['label'] = CHtml::tag('i', $item['iconOptions'], $iconHint).' '.$newItem['label'];
+                $newItem['label'] = CHtml::tag('i', $item['iconOptions'], $iconHint).' '.
+                    CHtml::tag('span', array('class' => 'menu-item-parent'), $newItem['label']);
             }
             if ( isset($item['items']) )
             {// вложенные элементы
