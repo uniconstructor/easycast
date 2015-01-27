@@ -138,10 +138,12 @@ class SideBar extends CWidget
                 {// свойства иконки
                     if ( isset($item['iconOptions']['class']) AND isset($this->iconOptions['class']) )
                     {
-                        $this->iconOptions['class'] .= ' '.$item['iconOptions']['class'];
-                        unset($item['iconOptions']['class']);
+                        $item['iconOptions']['class'] = $this->iconOptions['class'].' '.$item['iconOptions']['class'];
                     }
-                    $this->iconOptions = CMap::mergeArray($this->iconOptions, $item['iconOptions']);
+                    $item['iconOptions'] = CMap::mergeArray($this->iconOptions, $item['iconOptions']);
+                }else
+                {
+                    $item['iconOptions'] = $this->iconOptions;
                 }
                 $iconHint = '';
                 if ( isset($item['iconHint']) )
@@ -149,7 +151,7 @@ class SideBar extends CWidget
                     $this->iconHintOptions = CMap::mergeArray($this->iconHintOptions, $item['iconHintOptions']);
                     $iconHint = CHtml::tag('em', $this->iconHintOptions, $item['iconHint']);
                 }
-                $newItem['label'] = CHtml::tag('i', $this->iconHintOptions, $iconHint).' '.$newItem['label'];
+                $newItem['label'] = CHtml::tag('i', $item['iconOptions'], $iconHint).' '.$newItem['label'];
             }
             if ( isset($item['items']) )
             {// вложенные элементы
