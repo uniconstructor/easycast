@@ -169,7 +169,6 @@ class EcWebUser extends RWebUser
         return CHtml::link($image, $url, $linkOptions);
     }
     
-    
     /**
      * Получить адрес страницы профиля текущего авторизованного пользователя
      * 

@@ -82,7 +82,6 @@ class Controller extends RController
         {// для аналитики: записываем каждое совершенное пользователем действие
             $data = array(
                 'level'  => 'action',
-                //'action' => $action->getId(),
             );
             self::logSystemData($data);
         }catch ( Exception $e )
@@ -161,7 +160,6 @@ class Controller extends RController
     {
         $params['targettype'] = $targetType;
         $params['targetid']   = $targetId;
-        $params['category']   = $category;
         
         return $this->logSystemData($params);
     }
