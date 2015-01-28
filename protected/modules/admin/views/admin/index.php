@@ -33,6 +33,6 @@ $this->menu = array(
     <?php
     // пока не настроен автоматический запуск cron - он выполняется каждый раз при 
     // обращении к главной странице админки
-    Yii::app()->getModule('admin')->cron();
+    //Yii::app()->getModule('admin')->cron();
     ?>
 </div>

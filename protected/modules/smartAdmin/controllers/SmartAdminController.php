@@ -8,7 +8,7 @@
 abstract class SmartAdminController extends Controller
 {
     /**
-     * @var string - 
+     * @var string 
      */
     public $layout = '//layouts/main';
     /**

@@ -11,6 +11,8 @@
  * 
  * @todo модернизировать CClientScript таким образом, чтобы все подключаемые скрипты
  *      (как файлы так и отдельные строки) автоматически добавлялись внутрь pagefunction(){...}
+ *      Переписать renderBodyEnd()
+ *      Добавить renderPageSetUp() [синоним renderBodyEnd()] и renderPageDestroy()
  */
 ?>
 <script type="text/javascript">

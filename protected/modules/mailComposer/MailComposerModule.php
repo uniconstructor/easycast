@@ -260,12 +260,11 @@ class MailComposerModule extends CWebModule
      */
     public function createSimpleMessage($header, $text, $options=array())
     {
-        $mailComposer = self::getMailComposerComponent();
-        return $mailComposer->createSimpleMail($header, $text, $options);
+        return self::getMailComposerComponent()->createSimpleMail($header, $text, $options);
     }
     
     /**
-     * Получить компонент, составляющий письма
+     * Создать компонент, составляющий письма
      * 
      * @return MailComposer
      */
