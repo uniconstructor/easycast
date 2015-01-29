@@ -49,7 +49,10 @@
 	 */
 	
 	pageSetUp();
-	
+    
+    // Скрипты регистрируемые компонентом SmartClientScript
+    // %SCC_POS_SETUP% //
+    
 	/**
 	 * ALL PAGE RELATED SCRIPTS CAN GO BELOW HERE
 	 * eg alert("my home function");
@@ -75,7 +78,8 @@
 	
 	// pagefunction
 	var pagefunction = function() {
-		// clears the variable if left blank
+		// Скрипты регистрируемые компонентом SmartClientScript
+        // %SCC_POS_PAGE% //
 	};
 	// end pagefunction
 	
@@ -83,11 +87,8 @@
 	// (only usable for AJAX pages)
 	var pagedestroy = function(){
 	    // destroy generated instances 
-	    
-		if ( debugState ) 
-		{// debug msg
-			root.console.log("pagedestroy()");
-		}
+	    // Скрипты регистрируемые компонентом SmartClientScript
+        // %SCC_POS_PAGE% //
 	}
 	// end destroy
 	
