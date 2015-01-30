@@ -9,8 +9,6 @@
  * Функцию pagefunction() править можно, но рекомендуется добавлять в нее данные при помощи
  * компонента EcClientScript который делает это автоматически 
  */
-CVarDumper::dump(Yii::app()->clientScript->scriptFiles, 10, true);
-CVarDumper::dump(Yii::app()->clientScript->scripts, 10, true);
 ?>
 <script type="text/javascript">
     // [BEGIN_FINAL_CONTENT_INIT]
@@ -47,10 +45,8 @@ CVarDumper::dump(Yii::app()->clientScript->scripts, 10, true);
 	
 	pageSetUp();
     
-    // EcClientScript::POS_SETUP
-    <?php 
-    Yii::app()->clientScript->renderPageSetUp();
-    ?>
+    /* EcClientScript::POS_SETUP */
+    <?php Yii::app()->clientScript->renderPageSetUp(); ?>
     
 	/**
 	 * ALL PAGE RELATED SCRIPTS CAN GO BELOW HERE
@@ -77,10 +73,8 @@ CVarDumper::dump(Yii::app()->clientScript->scripts, 10, true);
 	
 	// pagefunction
 	var pagefunction = function() {
-		// EcClientScript::POS_PAGE
-        <?php 
-	    Yii::app()->clientScript->renderPageFunction();
-	    ?>
+		/* EcClientScript::POS_PAGE */
+        <?php Yii::app()->clientScript->renderPageFunction(); ?>
 	};
 	// end pagefunction
 	
@@ -88,14 +82,13 @@ CVarDumper::dump(Yii::app()->clientScript->scripts, 10, true);
 	// pagedestroy is called automatically before loading a new page
 	// (only usable for AJAX pages)
 	var pagedestroy = function() {
-	    // EcClientScript::POS_DESTROY
-	    <?php 
-	    Yii::app()->clientScript->renderPageDestroy();
-	    ?>
+	    /* EcClientScript::POS_DESTROY */
+	    <?php Yii::app()->clientScript->renderPageDestroy(); ?>
 	}
 	// end destroy
 	
 	// run pagefunction
-	pagefunction();
+	/* EcClientScript::POS_END */
+	<?php Yii::app()->clientScript->renderPageEnd(); ?>
 	// [END_FINAL_CONTENT_INIT]
 </script>
