@@ -62,7 +62,6 @@ class EcClientScript extends CClientScript
         $this->prepareScripts();
         $this->renderPositionScripts(self::POS_HEAD);
         $this->renderPositionScripts(self::POS_BEGIN);
-        $this->renderPositionScripts(self::POS_END);
     }
     
     /**
@@ -76,6 +75,8 @@ class EcClientScript extends CClientScript
     }
     
     /**
+     * Очистка памяти при обновлении содержимого страницы (только для AJAX-навигации)
+     * 
      * @return void
      */
     public function renderPageDestroy()
@@ -85,27 +86,41 @@ class EcClientScript extends CClientScript
     }
     
     /**
+     * @return void
+     */
+    public function renderPageEnd()
+    {
+        $this->prepareScripts();
+        $this->renderPositionScripts(self::POS_END);
+    }
+    
+    /**
      * 
      * @param  string $position
      * @return void
      */
     protected function renderPositionScripts($position)
     {
-        $html = '';
+        $html   = "";
+        if ( $position === self::POS_END )
+        {
+            $html = "pagefunction();";
+        }
         if ( isset($this->scriptFiles[$position]) )
         {
-            foreach ( $this->scriptFiles[$position] as $scriptFileValueUrl => $scriptFileValue )
+            $scripts = array_reverse($this->scriptFiles[$position]);
+            foreach ( $scripts as $scriptUrl => $scriptValue )
             {
-                $html .= "\n".'loadScript("'.$scriptFileValueUrl.'", function(){});'."\n";
+                $html    = "\n    ".'loadScript("'.$scriptUrl.'", function(){'.$html.'});'."\n";
             }
         }
         if ( isset($this->scripts[$position]) )
         {
             foreach ( $this->scripts[$position] as $script )
             {
-                $html .= $script."\n";
+                $html .= "\n".$script;
             }
         }
-        echo $html;
+        echo $html."\n";
     }
 }
