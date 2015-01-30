@@ -54,47 +54,62 @@ class swProject
 			'node'    => array(
 				array(
 					'id'         => self::DRAFT,
-					'label'      => 'Черновик',
+					'label'      => Yii::t('ProjectsModule.projects', 'project_status_'.self::DRAFT),
 					'constraint' => '',
 					'transition' => array(
 					    self::READY,
-						self::ACTIVE   => array($this, 'toActive'),
+						self::ACTIVE => array($this, 'toActive'),
 					    self::FINISHED,
+					),
+				    'metadata' => array(
+				        'bgColor' => '#c79121',
 					),
 				),
 				array(
 					'id'         => self::READY,
-					'label'      => 'Готов к запуску',
+					'label'      => Yii::t('ProjectsModule.projects', 'project_status_'.self::READY),
 					'constraint' => '$this->isReady();',
 					'transition' => array(
 					    self::ACTIVE => array($this, 'toActive'),
 					),
+				    'metadata' => array(
+				        'bgColor' => '#3276b1',
+				    ),
 				),
 			    array(
 			        'id'         => self::ACTIVE,
-			        'label'      => 'Идет',
+			        'label'      => Yii::t('ProjectsModule.projects', 'project_status_'.self::ACTIVE),
 			        'constraint' => '$this->canActivate();',
 			        'transition' => array(
 			            self::SUSPENDED,
 			            self::FINISHED => array($this, 'toFinished'),
 			        ),
+			        'metadata' => array(
+			            'bgColor' => '#739e73',
+			        ),
 			    ),
 			    array(
 			        'id'         => self::SUSPENDED,
-			        'label'      => 'Приостановлен',
+			        'label'      => Yii::t('ProjectsModule.projects', 'project_status_'.self::SUSPENDED),
 			        'constraint' => '$this->canSuspend();',
 			        'transition' => array(
 			            self::READY,
 			            self::ACTIVE,
 			            self::FINISHED,
 			        ),
+			        'metadata' => array(
+			            'bgColor' => '#57889c',
+			        ),
 			    ),
 			    array(
 			        'id'         => self::FINISHED,
-			        'label'      => 'Завершен',
+			        'label'      => Yii::t('ProjectsModule.projects', 'project_status_'.self::FINISHED),
 			        'constraint' => '$this->canFinish();',
 			        'transition' => array(
 			            self::DRAFT,
+			        ),
+			        'metadata' => array(
+			            'bgColor' => '#999',
 			        ),
 			    ),
 			)
