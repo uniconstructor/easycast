@@ -757,7 +757,10 @@ class Project extends SWActiveRecord
 	/**
 	 * Получить тип проекта для отображения пользователю
 	 * 
-	 * @param  string $field
+	 * @param  string $field - как получить тип проекта (поле объекта EasyListItem)
+	 *                         name  - название для пользователя
+	 *                         value - короткое служебное название
+	 *                         id    - id элемента в списке типов
 	 * @return string
 	 */
 	public function getType($field='name')
@@ -770,7 +773,7 @@ class Project extends SWActiveRecord
 	}
 	
 	/**
-	 * Задать тип проекта (геттер)
+	 * Задать тип проекта (сеттер)
 	 * 
 	 * @param  string|int|EasyListItem $type - id или короткое название типа проекта
 	 * @return void
@@ -778,7 +781,7 @@ class Project extends SWActiveRecord
 	public function setType($type)
 	{
 	    if ( ! $type )
-	    {
+	    {// сбросить тип проекта нельзя - только изменить
 	        return;
 	    }
 	    $typesListId = $this->getProjectTypesConfig()->valueid;
@@ -786,7 +789,7 @@ class Project extends SWActiveRecord
 	    if ( is_object($type) AND ( get_class($type) === 'EasyListItem' ) )
 	    {// передан элемент списка
 	        if ( $type->easylistid === $typesListId )
-	        {
+	        {// этот элемент точно является типом проекта
 	            $this->typeid = $type->id;
 	            return;
 	        }
