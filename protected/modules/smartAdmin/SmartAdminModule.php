@@ -70,6 +70,8 @@ class SmartAdminModule extends CWebModule
         // через конфигурацию clientScript (скрипты yii все равно пока несовместимы с админской темой)
         // пока используем только то что подключается в layout
         Yii::app()->clientScript->enableJavaScript = false;
+        // подключаем файлы скриптов в конце страницы для более стабильной работы 
+        Yii::app()->clientScript->defaultScriptFilePosition = CClientScript::POS_END;
 	}
     
 	/**
