@@ -32,6 +32,7 @@
  * 
  * Геттеры:
  * @property string $type
+ * @property SWNode $statusNode - текущий статус записи 
  * 
  * Relations:
  * @property User           $leader
@@ -39,6 +40,7 @@
  * @property ProjectEvent[] $events
  * @property Video[]        $videos
  * @property EasyListItem   $typeItem
+ * 
  * 
  * @property array $userevents (deprecated)
  * @property array $activeevents (deprecated)
@@ -866,6 +868,14 @@ class Project extends SWActiveRecord
 	        return $this->_typesListConfig;
 	    }
 	    throw new CException('Не удалось найти системную настройку со списком типов проекта');
+	}
+	
+	/**
+	 * @return SWNode
+	 */
+	public function getStatusNode()
+	{
+	    return $this->swGetStatus();
 	}
 	
 	/**
