@@ -133,6 +133,10 @@ class DataTable extends CWidget
         //'stripeClasses' => array(),
         // Tab index control for keyboard navigation
         //'tabIndex' => 0,
+        // Internationalisation
+        'language' => array(
+            'url' => '//cdn.datatables.net/plug-ins/3cfcc339e89/i18n/Russian.json',
+        ),
     );
     
     /**
@@ -166,6 +170,8 @@ class DataTable extends CWidget
         {
             $this->options['data'] = $this->data;
         }
+        // настройка колонок
+        
         // регистрация скриптов оригинального плагина
         $themeUrl = Yii::app()->theme->baseUrl.'/assets/';
         /* @var $cs EcClientScript */
