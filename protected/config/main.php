@@ -342,6 +342,7 @@ return array(
         ),
         // Настройки js-библиотек и скриптов
         'clientScript' => array(
+            'class' => 'EcClientScript',
             // подключаем скрипты для работы js-библиотеки sweekit 
             'behaviors' => array(
                 'sweelixClientScript' => array(
@@ -352,7 +353,6 @@ return array(
             /*'corePackages' => array(
                 
             ),*/
-            
         ),
         // Наша обертка вокруг Amazon Web Services API: облегчает обращение к часто используемым методам
         'ecawsapi' => array(

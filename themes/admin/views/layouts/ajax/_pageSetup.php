@@ -7,13 +7,10 @@
  * 
  * Функцию pageSetUp() править и перемещать нельзя, она служебная
  * Функцию pagefunction() править можно, но рекомендуется добавлять в нее данные при помощи
- * компонента SmartClientScript который делает это автоматически 
- * 
- * @todo модернизировать CClientScript таким образом, чтобы все подключаемые скрипты
- *      (как файлы так и отдельные строки) автоматически добавлялись внутрь pagefunction(){...}
- *      Переписать renderBodyEnd()
- *      Добавить renderPageSetUp() [синоним renderBodyEnd()] и renderPageDestroy()
+ * компонента EcClientScript который делает это автоматически 
  */
+CVarDumper::dump(Yii::app()->clientScript->scriptFiles, 10, true);
+CVarDumper::dump(Yii::app()->clientScript->scripts, 10, true);
 ?>
 <script type="text/javascript">
     // [BEGIN_FINAL_CONTENT_INIT]
@@ -50,8 +47,10 @@
 	
 	pageSetUp();
     
-    // Скрипты регистрируемые компонентом SmartClientScript
-    // %SCC_POS_SETUP% //
+    // EcClientScript::POS_SETUP
+    <?php 
+    Yii::app()->clientScript->renderPageSetUp();
+    ?>
     
 	/**
 	 * ALL PAGE RELATED SCRIPTS CAN GO BELOW HERE
@@ -78,17 +77,21 @@
 	
 	// pagefunction
 	var pagefunction = function() {
-		// Скрипты регистрируемые компонентом SmartClientScript
-        // %SCC_POS_PAGE% //
+		// EcClientScript::POS_PAGE
+        <?php 
+	    Yii::app()->clientScript->renderPageFunction();
+	    ?>
 	};
 	// end pagefunction
 	
+	// destroy generated instances
 	// pagedestroy is called automatically before loading a new page
 	// (only usable for AJAX pages)
-	var pagedestroy = function(){
-	    // destroy generated instances 
-	    // Скрипты регистрируемые компонентом SmartClientScript
-        // %SCC_POS_PAGE% //
+	var pagedestroy = function() {
+	    // EcClientScript::POS_DESTROY
+	    <?php 
+	    Yii::app()->clientScript->renderPageDestroy();
+	    ?>
 	}
 	// end destroy
 	

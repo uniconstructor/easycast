@@ -10,7 +10,6 @@ class CalendarAction extends AjaxAction
      */
     public function run()
     {
-        CVarDumper::dump(Yii::app()->request->isAjaxRequest);
-        echo 'CALENDAR';
+        $this->controller->renderText('cal');
     }
 }

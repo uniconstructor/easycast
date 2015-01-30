@@ -66,20 +66,14 @@ class AjaxController extends SmartAdminController
     /**
      * @see CController::actions()
      */
-    public function actions()
+    /*public function actions()
     {
         return array(
             'upload' => array(
                 'class' => 'xupload.actions.S3XUploadAction',
             ),
-            'dashboard' => array(
-                'class' => 'smartAdmin.controllers.actions.DashboardAction',
-            ),
-            /*'index' => array(
-                'class' => 'xupload.actions.S3XUploadAction',
-            ),*/
         );
-    }
+    }*/
     
     /**
      * @see CController::beforeAction()

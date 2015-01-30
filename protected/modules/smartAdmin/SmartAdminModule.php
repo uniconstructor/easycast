@@ -47,8 +47,8 @@ class SmartAdminModule extends CWebModule
 		    'ext.galleryManager.components.*',
 		    'ext.galleryManager.models.*',
 		));
-        // переопределяем базовые пакеты скриптов
-        $corePackages   = require(YII_PATH.'/web/js/packages.php');
+        // @todo переопределяем базовые пакеты скриптов
+        /*$corePackages   = require(YII_PATH.'/web/js/packages.php');
         $customPackages = array(
             'package-name' => array(
                 'basePath'     => 'alias of the directory containing the script files',
@@ -62,7 +62,14 @@ class SmartAdminModule extends CWebModule
             ),
         );
         // заменяем базовые скрипты и стили на собственные
-        $packages = CMap::mergeArray($corePackages , $customPackages);
+        $packages = CMap::mergeArray($corePackages , $customPackages);*/
+        
+        // в админке переключаемся на специальную тему оформления
+        Yii::app()->setTheme('admin');
+        // @todo убираем все скрипты и стили до тех пор пока не настроено подключение всех пакетов
+        // через конфигурацию clientScript (скрипты yii все равно пока несовместимы с админской темой)
+        // пока используем только то что подключается в layout
+        Yii::app()->clientScript->enableJavaScript = false;
 	}
     
 	/**

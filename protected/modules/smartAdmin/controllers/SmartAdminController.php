@@ -56,15 +56,9 @@ abstract class SmartAdminController extends Controller
      */
     public function init()
     {
-        // для просмотра заявок в расширенном виде: убираем все скрипты и стили
-        // (они все равно не совместимы с админской темой)
-        // и используем только то что подключается из нее
-        Yii::app()->clientScript->enableJavaScript = false;
-        // в админке переключаемся на специальную тему оформления
-        Yii::app()->setTheme('admin');
         if ( Yii::app()->request->isAjaxRequest )
         {
-            $this->layout = '//layouts/ajax/_blank';
+            $this->layout = '//layouts/ajax/_page';
         }
         parent::init();
     }
