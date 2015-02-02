@@ -4,6 +4,7 @@
  * 
  * @todo разбить на более мелкие виджеты
  * @todo поиск по всем объектам
+ * @todo языковые строки
  */
 /* @var $this SmartAdminController */
 
@@ -92,14 +93,14 @@ if ( ! empty($myProjects) )
     <div class="pull-right">
         <!-- collapse menu button -->
         <div class="btn-header pull-right" id="hide-menu">
-            <span><a href="javascript:void(0);" title="CollapseMenu"></a></span>
+            <span><a href="javascript:void(0);" title="CollapseMenu"><i class="fa fa-reorder"></i></a></span>
         </div>
         <!-- end collapse menu -->
     
         <!-- logout button -->
         <div class="btn-header transparent pull-right" id="logout">
             <span><a data-logout-msg="You can improve your security further after logging out by closing this opened browser" 
-                href="login.html" title="Sign Out"></a>
+                href="login.html" title="Sign Out"><i class="fa fa-sign-out"></i></a>
             </span>
         </div>
         <!-- end logout button -->
@@ -113,13 +114,13 @@ if ( ! empty($myProjects) )
         <!-- input: search field -->
         <form action="#ajax/search.html" class="header-search pull-right">
             <input id="search-fld" name="param" placeholder="Find reports and more" type="text">
-            <a href="javascript:void(0);" id="cancel-search-js" title="Cancel Search"></a>
+            <a href="javascript:void(0);" id="cancel-search-js" title="Cancel Search"><i class="fa fa-search"></i></a>
         </form>
         <!-- end input: search field -->
     
         <!-- fullscreen button -->
         <div class="btn-header transparent pull-right" id="fullscreen">
-            <span><a href="javascript:void(0);" onclick="launchFullscreen(document.documentElement);" title="Full Screen"></a></span>
+            <span><a href="javascript:void(0);" onclick="launchFullscreen(document.documentElement);" title="Full Screen"><i class="fa fa-arrows-alt"></i></a></span>
         </div>
         <!-- end fullscreen button -->
         
