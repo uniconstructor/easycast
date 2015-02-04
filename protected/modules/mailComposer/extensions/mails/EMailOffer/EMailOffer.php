@@ -130,7 +130,7 @@ class EMailOffer extends EMailBase
      */
     protected function getSalePageUrl($section='')
     {
-        return Yii::app()->createAbsoluteUrl('/sale/index', $this->getReferalParams()).$section;
+        return Yii::app()->createAbsoluteUrl('/sale').$section;
     }
     
     /**
@@ -144,7 +144,7 @@ class EMailOffer extends EMailBase
         {
             $params['service'] = $service;
         }
-        return Yii::app()->createAbsoluteUrl('/order/index', $params);
+        return Yii::app()->createAbsoluteUrl('/order');
     }
     
     /**
@@ -153,7 +153,7 @@ class EMailOffer extends EMailBase
      */
     protected function getSearchPageUrl()
     {
-        return Yii::app()->createAbsoluteUrl('/search/index', $this->getReferalParams());
+        return Yii::app()->createAbsoluteUrl('/search');
     }
     
     /**
@@ -162,7 +162,7 @@ class EMailOffer extends EMailBase
      */
     protected function getCastingPageUrl()
     {
-        return Yii::app()->createAbsoluteUrl('/onlineCasting/index', $this->getReferalParams());
+        return Yii::app()->createAbsoluteUrl('/onlineCasting');
     }
     
     /**
@@ -177,7 +177,7 @@ class EMailOffer extends EMailBase
         {
             $params['service'] = $service;
         }
-        return Yii::app()->createAbsoluteUrl('/calculation/index', $params);
+        return Yii::app()->createAbsoluteUrl('/calculation');
     }
     
     /**
@@ -318,7 +318,6 @@ class EMailOffer extends EMailBase
             case 'musicians':        $params['sectionid'] = 10; break;
             default: return Yii::app()->createAbsoluteUrl('/search', $params);
         }
-        
         return Yii::app()->createAbsoluteUrl('/catalog/catalog/index', $params);
     }
     
