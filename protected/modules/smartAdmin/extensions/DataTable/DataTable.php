@@ -23,7 +23,8 @@ class DataTable extends CWidget
      * @see http://datatables.net/reference/option/columns
      * array(
      *     'cellType'  => 'td', // td|th
-     *     'data'      => 'fieldName', // data.row.fieldName 
+     *     'data'      => 'fieldName', // название поля в объекте data (если массив данных ассоциативный)
+     *                                 // data.row.fieldName 
      *     'defaultContent' => '---',
      *     'orderable' => true, 
      *     'title'     => 'ФИО', 
@@ -33,7 +34,7 @@ class DataTable extends CWidget
      */
     public $columns = array();
     /**
-     * @var array
+     * @var array - данные таблицы
      */
     public $data = array();
     /**
@@ -138,6 +139,14 @@ class DataTable extends CWidget
             'url' => '//cdn.datatables.net/plug-ins/3cfcc339e89/i18n/Russian.json',
         ),
     );
+    /**
+     * @var array
+     */
+    public $selectFilters = array();
+    /**
+     * @var array
+     */
+    public $textFilters   = array();
     
     /**
      * @see CWidget::init()
@@ -171,7 +180,10 @@ class DataTable extends CWidget
             $this->options['data'] = $this->data;
         }
         // настройка колонок
-        
+        if ( ! isset($this->options['columns']) OR ! $this->options['columns'] )
+        {
+            $this->options['columns'] = $this->columns;
+        }
         // регистрация скриптов оригинального плагина
         $themeUrl = Yii::app()->theme->baseUrl.'/assets/';
         /* @var $cs EcClientScript */
@@ -188,9 +200,16 @@ class DataTable extends CWidget
             $cs->registerScriptFile($themeUrl.$path, $cs::POS_END);
         }
         // init-скрипт для таблицы
-        $tableOptions = CJSON::encode($this->options);
+        $this->options['initComplete'] = $this->getSelectJs();
+        //$tableOptions = CJSON::encode($this->options);
+        $tableOptions = CJavaScript::encode($this->options);
         $initJs = "$('#{$this->htmlOptions['id']}').DataTable({$tableOptions});";
         $cs->registerScript($this->id.'_init', $initJs, $cs::POS_READY);
+        // скрипт для фильтрации данных
+        //$filterJs = $this->createFilterJs();
+        //$cs->registerScript($this->id.'_filter', $filterJs, $cs::POS_READY);
+        //$filterJs = "$('#{$this->htmlOptions['id']}').DataTable().initComplete = {$this->getSelectJs()};";
+        //$cs->registerScript($this->id.'_filter', $filterJs, $cs::POS_READY);
         // очистка памяти
         $destroyJs = "$('#{$this->htmlOptions['id']}').DataTable().destroy();";
         $cs->registerScript($this->id.'_destroy', $destroyJs, $cs::POS_DESTROY);
@@ -202,8 +221,9 @@ class DataTable extends CWidget
     public function run()
     {
         echo CHtml::openTag('table', $this->htmlOptions);
-        // шапка
+        // заголовок таблицы
         echo CHtml::openTag('thead');
+        // фильтры поиска (если есть)
         echo CHtml::openTag('tr');
         foreach ( $this->columns as $column )
         {
@@ -224,5 +244,30 @@ class DataTable extends CWidget
         echo CHtml::closeTag('tfoot');
         // конец таблицы
         echo CHtml::closeTag('table');
+    }
+    
+    /**
+     * 
+     * 
+     * @return void
+     */
+    protected function getSelectJs()
+    {
+        return "js:function () {
+            var api = this.api();
+            api.columns().indexes().flatten().each( function ( i ) {
+                var column = api.column( i );
+                var select = $('<select class=\"form-control\" style=\"width:100%;\"><option value=\"\"></option></select>')
+                    .appendTo( $(column.footer()).empty() )
+                    .on( 'change', function () {
+                        var val = $(this).val();
+                        column.search( val ? '^'+val+'\$' : '', true, false ).draw();
+                    });
+                column.data().unique().sort().each( function ( d, j ) {
+                //d = \$(d).text();
+                select.append( '<option value=\"'+d+'\">'+d+'</option>' )
+                } );
+            } );
+        }";
     }
 }

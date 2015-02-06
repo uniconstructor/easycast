@@ -18,10 +18,11 @@ class ProjectsAction extends AjaxAction
                 'class' => 'label',
                 'style' => 'background-color:'.$project->statusNode->metadata['bgColor'].';',
             );
-            $status = CHtml::tag('span', $labelOptions, $project->statusNode->label);
+            //$status = CHtml::tag('span', $labelOptions, $project->statusNode->label);
+            $status = $project->statusNode->label;
             $data[] = array(
                 $project->id, 
-                $project->name, 
+                CHtml::encode($project->name), 
                 $project->type, 
                 $project->leader ? $project->leader->fullname : Yii::t('zii', 'Not set'),
                 $status,
