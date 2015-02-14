@@ -51,6 +51,10 @@ return array(
 	    'application.extensions.bootstrap.widgets.*',
         // @todo заменить выбор страны и города на GeoNames API
 	    'application.extensions.CountryCitySelectorRu.models.*',
+	    // дополнительные поля для модели
+	    'application.components.eavactiverecord.*',
+	    'application.components.eavactiverecord.datatypes.*',
+	    'application.components.eavactiverecord.helpers.*',
 	    // Пользователи
 	    'application.modules.user.models.*',
 	    'application.modules.user.components.*',
@@ -187,6 +191,29 @@ return array(
             'c2dmPassword' => 'my_gmail_push_account_password',
             'c2dmApplicationIdentifier' => 'my_gmail_push_app_identifier',
         ),*/
+        'eav' => array(
+            'class' => 'application.modules.eav.EavModule',
+            /*'filters' => array(
+                'set'       => array('accessControl'),
+                'attribute' => array('accessControl'),
+            ),
+            'accessRules' => array(
+                'set' => array(
+                    array('allow',
+                        'actions' => array('index', 'create', 'update', 'delete'),
+                        'roles' => array('Admin'),
+                    ),
+                    array('deny'),
+                ),
+                'attribute' => array(
+                    array('allow',
+                        'actions' => array('index', 'create', 'update', 'delete'),
+                        'roles' => array('Admin'),
+                    ),
+                    array('deny'),
+                ),
+            ),*/
+        ),
 	),
 	// Компоненты приложения
 	'components' => array(
@@ -262,6 +289,14 @@ return array(
 	        'enableCsrfValidation'   => true,
 	        // включаем защиту от подмены cookie
 	        'enableCookieValidation' => true,
+	    ),
+	    // @todo настроить кеширование
+	    'cache' => array(
+	        'class' => 'system.caching.CDummyCache'
+	    ),
+	    // кеширование связанных записей для плагина eavactiverecord (заглушка)
+	    'eavCache' => array(
+	        'class' => 'system.caching.CDummyCache'
 	    ),
 	    // обработка ошибок
 		'errorHandler' => array(
