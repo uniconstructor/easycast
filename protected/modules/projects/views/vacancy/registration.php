@@ -19,7 +19,7 @@ $bannerUrl = Yii::app()->createAbsoluteUrl('/projects/project/banner', array('id
 if ( $bannerUrl )
 {// выводим баннер до основного содержимого, чтобы он располагался по во всю ширину страницы
     $bannerImage = CHtml::image($bannerUrl, $model->vacancy->event->project->name, array('style' => 'max-width:100%;'));
-    echo CHtml::tag('div', array('class' => 'row-fluid'), $bannerImage);
+    echo CHtml::tag('div', array('class' => 'row-fluid text-center'), $bannerImage);
 }
 ?>
 <div class="container">
