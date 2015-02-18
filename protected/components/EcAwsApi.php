@@ -696,6 +696,7 @@ class EcAwsApi extends CApplicationComponent
                     ),
                 ),
             ),
+            'ReturnPath' => 'complains@easycast.ru',
         );
     }
     
