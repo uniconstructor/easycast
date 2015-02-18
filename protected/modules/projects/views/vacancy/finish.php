@@ -37,15 +37,21 @@
             <?php 
             // предлагаем посмотреть другие события
             // @todo вывести первые 5 доступных подходящих событий
-            //$redirecrUrl = Yii::app()->createUrl('//agenda', array('newMode' => 'user'));
+            //$redirectUrl = Yii::app()->createUrl('//agenda', array('newMode' => 'user'));
+            $redirectLabel   = 'Продолжить';
+            $redirectOptions = array(
+                'class' => 'btn btn-large btn-primary',
+            );
             if ( $vacancy->event->project->id == 285 )
             {
-                $redirectUrl = 'http://therealtyshow.ru/one';
+                $redirectLabel   = 'Загрузить видео';
+                $redirectUrl     = 'http://therealtyshow.ru/one';
+                $redirectOptions = array(
+                    'class'  => 'btn btn-large btn-info',
+                );
                 echo '<div class="well">Для продолжения регистрации загрузите видео на сайте therealtyshow.ru</div>';
             }
-            echo CHtml::link('Продолжить', $redirectUrl, array(
-                'class' => 'btn btn-large btn-primary',
-            ));
+            echo CHtml::link($redirectLabel, $redirectUrl, $redirectOptions);
             ?>
         </div>
     </div>
