@@ -8,6 +8,7 @@
  */
 /* @var $this VacancyController */
 /* @var $redirectUrl string */
+/* @var $vacancy EventVacancy */
 ?>
 <div class="page-alternate">
     <div class="container">
@@ -37,19 +38,14 @@
             // предлагаем посмотреть другие события
             // @todo вывести первые 5 доступных подходящих событий
             //$redirecrUrl = Yii::app()->createUrl('//agenda', array('newMode' => 'user'));
+            if ( $vacancy->event->project->id == 285 )
+            {
+                $redirecrUrl = 'http://therealtyshow.ru/one';
+                echo '<div class="well">Для продолжения регистрации загрузите видео на сайте therealtyshow.ru</div>';
+            }
             echo CHtml::link('Продолжить', $redirectUrl, array(
                 'class' => 'btn btn-large btn-primary',
             ));
-            // FIXME значение в настройку
-            if ( in_array((int)$vacancy->id, array(1017, 1018)) )
-            {
-                $bannerUrl = 'http://ma.lifestylegroup.ru';
-                $image = CHtml::image('https://s3.amazonaws.com/temp.easycast.ru/social/banner.png', '', array(
-                    'style' => 'max-width: 100%;height: 120px;',
-                ));
-                echo '<h4 class="intro-description">Информационная поддержка</h4>';
-                echo CHtml::link($image, $bannerUrl);
-            }
             ?>
         </div>
     </div>
