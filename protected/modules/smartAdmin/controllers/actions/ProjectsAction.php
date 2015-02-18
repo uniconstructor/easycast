@@ -21,34 +21,34 @@ class ProjectsAction extends AjaxAction
             //$status = CHtml::tag('span', $labelOptions, $project->statusNode->label);
             $status = $project->statusNode->label;
             $data[] = array(
-                $project->id, 
-                CHtml::encode($project->name), 
-                $project->type, 
-                $project->leader ? $project->leader->fullname : Yii::t('zii', 'Not set'),
-                $status,
+                'id'     => $project->id, 
+                'name'   => CHtml::encode($project->name), 
+                'type'   => $project->type, 
+                'leader' => $project->leader ? $project->leader->fullname : Yii::t('zii', 'Not set'),
+                'status' => $status,
             );
         }
         $html = $this->controller->widget('smartAdmin.extensions.DataTable.DataTable', array(
             'columns' => array(
                 array(
                     'title' => 'id',
-                    //'data' => 'id',
+                    'data'  => 'id',
                 ),
                 array(
                     'title' => 'Название',
-                    //'data'  => 'name',
+                    'data'  => 'name',
                 ),
                 array(
                     'title' => 'Тип',
-                    //'data'  => 'name',
+                    'data'  => 'type',
                 ),
                 array(
                     'title' => 'Руководитель',
-                    //'data'  => 'name',
+                    'data'  => 'leader',
                 ),
                 array(
                     'title' => 'Статус',
-                    //'data'  => 'name',
+                    'data'  => 'status',
                 ),
             ),
             'data' => $data,
