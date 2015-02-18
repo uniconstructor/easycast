@@ -40,7 +40,7 @@
             //$redirecrUrl = Yii::app()->createUrl('//agenda', array('newMode' => 'user'));
             if ( $vacancy->event->project->id == 285 )
             {
-                $redirecrUrl = 'http://therealtyshow.ru/one';
+                $redirectUrl = 'http://therealtyshow.ru/one';
                 echo '<div class="well">Для продолжения регистрации загрузите видео на сайте therealtyshow.ru</div>';
             }
             echo CHtml::link('Продолжить', $redirectUrl, array(
