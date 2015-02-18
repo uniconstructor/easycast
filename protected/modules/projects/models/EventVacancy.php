@@ -1489,14 +1489,17 @@ class EventVacancy extends CActiveRecord
 	
 	private function getActivityLabels($data, $name)
 	{
+        $items = array();
 	    if ( isset($data[$name]) )
 	    {
 	        return '';
 	    }
+        if ( ! isset($data[$name]) )
+        {
+            return '';
+        }
 	    $elements = $data[$name];
-	    $items    = array();
 	    $types    = QActivityType::model()->activityVariants($name);
-	    
 	    if ( ! $elements )
 	    {
 	        return '';
