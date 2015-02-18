@@ -265,7 +265,7 @@ class DataTable extends CWidget
                     });
                 column.data().unique().sort().each( function ( d, j ) {
                 //d = \$(d).text();
-                select.append( '<option value=\"'+d+'\">'+d+'</option>' )
+                select.append('<option value=\"'+d+'\">' + d + '</option>')
                 } );
             } );
         }";
