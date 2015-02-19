@@ -130,7 +130,7 @@ class EMailCallList extends EMailBase
      */
     protected function getHeaderBlock()
     {
-        $block = $this->textBlock('', mb_strtoupper(MailComposerModule::t('casting_list')));
+        $block = $this->textBlock('', MailComposerModule::t('casting_list'));
         $block['headerAlign'] = 'center';
         $block['addCutRuler'] = true;
         

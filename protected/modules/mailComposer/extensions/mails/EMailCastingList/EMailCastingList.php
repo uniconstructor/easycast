@@ -246,7 +246,6 @@ class EMailCastingList extends EMailCallList
         return array($label, $value.' '.$affix);
     }
     
-    
     /**
      * Получить содержимое вкладки "Образование"
      * @param Questionary $questionary
