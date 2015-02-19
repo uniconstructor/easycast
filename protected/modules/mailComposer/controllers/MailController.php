@@ -27,7 +27,7 @@ class MailController extends Controller
 	        'accessControl',
 	        // фильтр для подключения YiiBooster 3.x (bootstrap 2.x)
 	        array(
-	           'ext.bootstrap.filters.BootstrapFilter - webVersion,display,test,emailPreview',
+	           'ext.bootstrap.filters.BootstrapFilter',
             ),
 	    );
 	    return CMap::mergeArray($baseFilters, $newFilters);
