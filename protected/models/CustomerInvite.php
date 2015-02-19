@@ -1,4 +1,4 @@
- <?php
+<?php
 
 /**
  * Модель для работы с приглашениями для заказчиков
@@ -236,7 +236,7 @@ class CustomerInvite extends CActiveRecord
      */
     public function search()
     {
-        $criteria=new CDbCriteria;
+        $criteria = new CDbCriteria;
 
         $criteria->compare('id',$this->id);
         $criteria->compare('objecttype',$this->objecttype,true);
@@ -251,7 +251,9 @@ class CustomerInvite extends CActiveRecord
 
         return new CActiveDataProvider($this, array(
             'criteria'   => $criteria,
-            'pagination' => false,
+            'pagination' => array(
+                'pageSize' => 200,
+            ),
         ));
     }
     
