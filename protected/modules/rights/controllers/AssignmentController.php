@@ -6,7 +6,7 @@
 * @copyright Copyright &copy; 2010 Christoffer Niska
 * @since 0.9.1
 */
-class AssignmentController extends RController
+class AssignmentController extends Controller
 {
 	/**
 	* @property RAuthorizer
@@ -31,12 +31,13 @@ class AssignmentController extends RController
 	*/
 	public function filters()
 	{
-		return array(
-		    'accessControl',
-		    array(
+	    $baseFilters = parent::filters();
+		$newFilters  = array(
+            'accessControl', array(
 		        'ext.bootstrap.filters.BootstrapFilter',
 		    ),
 		);
+		return CMap::mergeArray($baseFilters, $newFilters);
 	}
 
 	/**
@@ -47,16 +48,18 @@ class AssignmentController extends RController
 	public function accessRules()
 	{
 		return array(
-			array('allow', // Allow superusers to access Rights
-				'actions'=>array(
-					'view',
-					'user',
-					'revoke',
+			array(
+			    'allow', // Allow superusers to access Rights
+				    'actions' => array(
+    					'view',
+    					'user',
+    					'revoke',
 				),
-				'users'=>$this->_authorizer->getSuperusers(),
+				'users' => $this->_authorizer->getSuperusers(),
 			),
-			array('deny', // Deny all users
-				'users'=>array('*'),
+			array(
+			    'deny', // Deny all users
+				'users' => array('*'),
 			),
 		);
 	}
@@ -68,14 +71,14 @@ class AssignmentController extends RController
 	{
 		// Create a data provider for listing the users
 		$dataProvider = new RAssignmentDataProvider(array(
-			'pagination'=>array(
-				'pageSize'=>50,
+			'pagination' => array(
+				'pageSize' => 100,
 			),
 		));
 
 		// Render the view
 		$this->render('view', array(
-			'dataProvider'=>$dataProvider,
+			'dataProvider' => $dataProvider,
 		));
 	}
 

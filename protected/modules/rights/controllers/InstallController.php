@@ -6,7 +6,7 @@
 * @copyright Copyright &copy; 2010 Christoffer Niska
 * @since 0.9.8
 */
-class InstallController extends RController
+class InstallController extends Controller
 {
 	/**
 	* @property RAuthorizer
@@ -50,20 +50,24 @@ class InstallController extends RController
 	*/
 	public function accessRules()
 	{
-		return array(
-			array('allow', // Allow superusers to access Rights
-				'actions'=>array(
-					'confirm',
-					'run',
+        $baseFilters = parent::filters();
+        $newFilters  = array(
+            array(
+                'allow',
+            	'actions' => array(
+            		'confirm',
+            		'run',
                     'error',
-					'ready',
-				),
-				'users'=>$this->_authorizer->getSuperusers(),
-			),
-			array('deny', // Deny all users
-				'users'=>array('*'),
-			),
-		);
+            		'ready',
+            	),
+            	'users' => $this->_authorizer->getSuperusers(),
+            ),
+            array(
+                'deny',
+                'users' => array('*'),
+            ),
+        );
+        return CMap::mergeArray($baseFilters, $newFilters);
 	}
 
 	/**

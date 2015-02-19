@@ -6,7 +6,7 @@
 * @copyright Copyright &copy; 2010 Christoffer Niska
 * @since 0.5
 */
-class AuthItemController extends RController
+class AuthItemController extends Controller
 {
 	/**
 	* @property RAuthorizer
@@ -35,12 +35,13 @@ class AuthItemController extends RController
 	*/
 	public function filters()
 	{
-		return array(
-			'accessControl',
-		    array(
+		$baseFilters = parent::filters();
+		$newFilters  = array(
+			'accessControl', array(
 		        'ext.bootstrap.filters.BootstrapFilter',
 		    ),
 		);
+		return CMap::mergeArray($baseFilters, $newFilters);
 	}
 
 	/**
