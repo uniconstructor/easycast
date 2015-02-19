@@ -408,7 +408,7 @@ class ProjectInfo extends CWidget
     {
         $content = '';
         
-        if ( ! $events = $this->project->userevents )
+        if ( ! $events = $this->project->userevents AND ! Yii::app()->user->isGuest )
         {// нет доступных пользователю мероприятий
             return false;
         }
@@ -495,12 +495,6 @@ class ProjectInfo extends CWidget
     protected function getVacanciesTab($type)
     {
         $content = '<h3>'.ProjectsModule::t('projectinfo_section_vacancies').'</h3>';
-        
-        if ( $this->customerView() )
-        {// заказчикам раздел вакансий не показывается
-            return '';
-        }
-        
         if ( $type == 'project' )
         {// все вакансии проекта
             $vacancies = $this->project->getAvailableVacancies();
@@ -508,18 +502,15 @@ class ProjectInfo extends CWidget
         {// все вакансии мероприятия
             $vacancies  = $this->event->activevacancies;
         }
-        
         if ( ! $vacancies )
         {// Участнику не подходит ни одна роль - сообщим об этом
             $content .= '<div class="alert alert-info">В этом проекте нет подходящих ролей</div>';
             return $content;
         }
-        
         foreach ( $vacancies as $vacancy )
         {
             $content .= $this->displayVacancyInstance($vacancy);
         }
-        
         return $content;
     }
     
@@ -534,7 +525,7 @@ class ProjectInfo extends CWidget
      */
     protected function displayVacancyInstance($vacancy)
     {
-        if ( ! $vacancy->isAvailableForUser(null, true) AND ! $this->adminView() )
+        if ( ! Yii::app()->user->isGuest AND ! $vacancy->isAvailableForUser(null, true) AND ! $this->adminView() )
         {// участник не проходит по критериям вакансии - не покажем ее
             return '';
         }
