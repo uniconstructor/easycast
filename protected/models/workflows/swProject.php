@@ -149,6 +149,7 @@ class swProject
 	    // завершаем все отдельные мероприятия проекта
 	    $activeEvents = ProjectEvent::model()->forProject($model->id)->
             withStatus(array(ProjectEvent::STATUS_ACTIVE))->exceptGroups()->findAll();
+	    foreach ( $activeEvents as $event )
 	    {
 	        $event->setStatus('finished');
 	    }
