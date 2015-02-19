@@ -50,10 +50,10 @@ class ProjectsController extends Controller
 	    );
 	    if ( Yii::app()->getModule('user')->getViewMode() === 'customer' )
 	    {// для заказчиков отображаем лучшие проекты по рейтингу
-	        $criteria->scopes = array('bestRated');
+	        $criteria->scopes[] = 'bestRated';
 	    }else
 	    {// для участников отображаем последние проекты
-	        $criteria->scopes = array('lastCreated');
+	        $criteria->scopes[] = 'lastCreated';
 	    }
 	    $dataProvider = new CActiveDataProvider('Project', array(
             'criteria'   => $criteria,
