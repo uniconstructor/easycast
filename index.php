@@ -9,6 +9,8 @@ $config = dirname(__FILE__).'/protected/config/dev.php';
 define('YII_EASYCAST_CONFIG_DB_CONNECTION_STRING', 'mysql:host=localhost;dbname=easycast');
 define('YII_EASYCAST_CONFIG_DB_LOGIN', 'root');
 define('YII_EASYCAST_CONFIG_DB_PASSWORD', 'root');
+// задаем временную зону вручную - новая версия PHP может некорректно работать с настройкой php.ini
+date_default_timezone_set('Europe/Moscow');
 
 // remove the following lines when in production mode
 defined('YII_DEBUG') or define('YII_DEBUG', true);
