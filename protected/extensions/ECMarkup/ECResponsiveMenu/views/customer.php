@@ -6,7 +6,7 @@
 ?>
 <div class="row-fluid">
     <div class="span2">            
-        <a class="box" href="/order" data-toggle='modal' data-target="#fastOrderModal">
+        <a class="box" href="/order">
             <div class="icon">
                 <i class="icon-shopping-cart"></i>
             </div>

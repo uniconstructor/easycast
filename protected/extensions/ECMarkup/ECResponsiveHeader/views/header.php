@@ -34,6 +34,3 @@ if ( Yii::app()->user->isGuest )
 {// всплывающая форма регистрации (только для гостей)
     $this->widget('ext.ECMarkup.ECRegister.ECRegister');
 }
-// всплывающая форма заказа
-$this->widget('ext.ECMarkup.ECFastOrder.ECFastOrder');
-?>
