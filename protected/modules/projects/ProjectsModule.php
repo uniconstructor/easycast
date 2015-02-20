@@ -76,14 +76,13 @@ class ProjectsModule extends CWebModule
 	 * Отправить участнику письмо о том, что он приглашен на съемки
 	 * Эта функция является обработчиком события 'onNewInvite'
 	 * 
-	 * @param CModelEvent $event - отправленное приглашением (EventInvite) событие
+	 * @param  CModelEvent $event - отправленное приглашением (EventInvite) событие
 	 * @return bool
 	 */
 	public static function sendNewInviteNotification($event)
 	{
 	    /* @var $invite EventInvite */
 	    $invite = $event->sender;
-	    
 	    if ( ! $invite->questionary OR ! is_object($invite->questionary->user) )
 	    {// проверка на случай нарушения целостности БД
 	        // @todo записать ошибку в лог
@@ -94,7 +93,6 @@ class ProjectsModule extends CWebModule
 	        // чтобы не было драмы и вопросов в стиле "почему вы приглашаете меня на уже прошедшее мероприятие?"
 	        return true;
 	    }
-	    
 	    // составляем текст письма с приглашением
 	    $mailComposer = Yii::app()->getModule('mailComposer');
 	    $email   = $invite->questionary->user->email;
