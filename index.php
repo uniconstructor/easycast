@@ -7,6 +7,8 @@ ini_set('max_input_time', '18000');
 ini_set('date.timezone', 'Europe/Moscow');
 ini_set('upload_max_filesize', '5000M');
 ini_set('post_max_size', '5000M');
+// задаем временную зону вручную - новая версия PHP может некорректно работать с настройкой php.ini
+date_default_timezone_set('Europe/Moscow');
 
 
 // change the following paths if necessary
