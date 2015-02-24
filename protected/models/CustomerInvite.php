@@ -83,6 +83,10 @@ class CustomerInvite extends CActiveRecord
      * @var string - статус приглашения: истек срок действия
      */
     const STATUS_EXPIRED     = 'expired';
+    /**
+     * @var int - период после которого любая ссылка считается истекшей
+     */
+    const EXPIRE_PERIOD      = 2592000;
     
     /**
      * Returns the static model of the specified AR class.
@@ -283,7 +287,15 @@ class CustomerInvite extends CActiveRecord
         $criteria->compare($alias.'.`key`', $key);
         $criteria->compare($alias.'.`key2`', $key2);
         
-        return CustomerInvite::model()->exists($criteria);
+        if ( ! $invite = CustomerInvite::model()->find($criteria) )
+        {// ключи ссылки не совпадают
+            return false;
+        }
+        if ( ! $invite->expired() )
+        {// приглашение еще не истекло
+            return true;
+        }
+        return false;
     }
     
     /**
@@ -386,5 +398,20 @@ class CustomerInvite extends CActiveRecord
             return null;
         }
         return unserialize($this->data);
+    }
+    
+    /**
+     * Проверить истек ли срок действия приглашения
+     * 
+     * @return bool
+     */
+    public function expired()
+    {
+        $deadLine = $this->timecreated + self::EXPIRE_PERIOD;
+        if ( time() > $deadLine )
+        {
+            return true;
+        }
+        return false;
     }
 }

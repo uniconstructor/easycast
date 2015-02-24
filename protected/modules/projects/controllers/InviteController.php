@@ -387,7 +387,7 @@ class InviteController extends Controller
     {
         if ( ! $invite->checkKeys($invite->id, $key, $key2) )
         {// ключи доступа не совпадают
-            throw new CHttpException(400, "Неправильная ссылка с приглашением ({$invite->id})");
+            throw new CHttpException(400, "Документ устарел");
         }
     }
     
