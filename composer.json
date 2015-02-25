@@ -1,0 +1,21 @@
+{
+    "name": "uniconstructor/easycast",
+    "description": "easycast.ru",
+    "homepage": "https://github.com/uniconstructor/easycast",
+    "authors": [
+        {
+            "name": "uniconstructor",
+            "email": "frost@easycast.ru",
+            "homepage": "https://github.com/uniconstructor",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0"
+    },
+    "require-dev": {
+        "mihaildev/yiicomposer": "dev-master",
+        "phing/phing": "2.*",
+        "codeception/codeception": "*"
+    }
+}
