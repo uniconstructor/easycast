@@ -1,6 +1,9 @@
 {
     "name": "uniconstructor/easycast",
     "description": "easycast.ru",
+    "config": {
+        "vendor-dir": "protected/vendor"
+    },
     "homepage": "https://github.com/uniconstructor/easycast",
     "authors": [
         {
@@ -11,7 +14,8 @@
         }
     ],
     "require": {
-        "php": ">=5.3.0"
+        "php": ">=5.3.0",
+        "yiisoft/yii": "1.1.16"
     },
     "require-dev": {
         "mihaildev/yiicomposer": "dev-master",
