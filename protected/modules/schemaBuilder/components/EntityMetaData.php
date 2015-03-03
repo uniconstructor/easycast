@@ -5,7 +5,7 @@ namespace SchemaBuilder\RDF;
 /**
  * Custom metadata class for loading relations from the base
  */
-class RdfEntityMetaData
+class EntityMetaData
 {
     /**
      * @var CDbTableSchema the table schema information

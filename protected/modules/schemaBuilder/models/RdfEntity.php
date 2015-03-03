@@ -20,8 +20,8 @@ class RdfEntity extends CActiveRecord
      * @var array
      */
     protected static $rdsTableMap = array(
-        'Entity' => 'entities',
-        'EntityFieldType' => 'entity_field_types',
+        'RdfEntity' => 'entities',
+        'RdfEntityFieldType' => 'entity_field_types',
     );
     /**
      * @var string - entity model class
