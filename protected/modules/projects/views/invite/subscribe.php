@@ -7,6 +7,9 @@
 /* @var $this   InviteController */
 /* @var $invite EventInvite */
 
+// запрет индексации поисковиками
+Yii::app()->clientScript->registerMetaTag('noindex', 'robots');
+
 //$this->breadcrumbs = array();
 
 if ( $this->createMemberRequest($invite->questionary, $invite->event) )

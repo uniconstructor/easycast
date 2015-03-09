@@ -5,6 +5,9 @@
 /* @var $this   InviteController */
 /* @var $invite EventInvite */
 
+// запрет индексации поисковиками
+Yii::app()->clientScript->registerMetaTag('noindex', 'robots');
+
 // навигация
 $this->breadcrumbs = array(
 	'Приглашение',

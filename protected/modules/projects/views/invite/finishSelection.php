@@ -2,6 +2,9 @@
 /**
  * Страница с сообщением о завершении отбора участников
  */
+
+// запрет индексации поисковиками
+Yii::app()->clientScript->registerMetaTag('noindex', 'robots');
 ?>
 <div class="alert alert-info" style="text-align:center;">
     <br>
