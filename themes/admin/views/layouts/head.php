@@ -2,7 +2,7 @@
 /**
  * Заголовок страницы, стили скрипты и мета-теги
  * 
- * Справка по правильной настройки иконок
+ * Справка по правильной настройке иконок
  * @see https://developer.apple.com/library/ios/documentation/AppleApplications/Reference/SafariWebContent/ConfiguringWebApplications/ConfiguringWebApplications.html
  * 
  * @todo подключение jGrowl вынести в отдельный виджет 
