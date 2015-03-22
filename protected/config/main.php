@@ -18,7 +18,7 @@ return array(
     // язык приложения
     'language'       => 'ru',
     // язык исходников (установлен английский потому что он основной для большинства сторонних модулей)
-    'sourceLanguage' => 'en_us',
+    'sourceLanguage' => 'ru',
     // предварительно загружаемые компоненты
     'preload'        => array('log', 'messages'),
     // Название проекта 
@@ -33,6 +33,8 @@ return array(
         'booster'        => 'ext.booster',
         // библиотека google для обработки телефонных номеров
         'libphonenumber' => 'application.components.libphonenumber',
+        // библиотеки установленные менеджером Composer
+        'vendor'         => 'application.vendor',
     ),
     // Используем собственную тему оформления для сайта
     'theme'  => 'maximal',
@@ -190,6 +192,10 @@ return array(
 	),
 	// Компоненты приложения
 	'components' => array(
+        // RedBeanPHP - редактирование структуры таблиц вручную
+        //'redBean' => array(
+        //    'class' => 'application.components.YiiRedBean',
+        //),
 	    // пользователи (важно: здесь настройки для авторизации, а не для модели User)
 		'user' => array(
 		    // используем класс пользователя из модуля rights чтобы работали права доступа на основе ролей (RBAC)
@@ -265,10 +271,6 @@ return array(
 	    ),
 	    // @todo настроить кеширование
 	    'cache' => array(
-	        'class' => 'system.caching.CDummyCache'
-	    ),
-	    // кеширование связанных записей для плагина eavactiverecord (заглушка)
-	    'eavCache' => array(
 	        'class' => 'system.caching.CDummyCache'
 	    ),
 	    // обработка ошибок
@@ -427,7 +429,6 @@ return array(
             // (for a Service Account or Web Application Account)
             'simpleApiKey' => 'AIzaSyB5IsWcZfQE5otLyrXMBNMiRTktAeEbHCg',
         ),
-        
         // Настройки по умолчанию для всех виджетов Yii
         'widgetFactory' => array(
             'widgets' => array(
@@ -478,7 +479,6 @@ return array(
             ),
         ),
 	),
-	
 	// другие параметры приложения, синтаксис вызова: Yii::app()->params['paramName']
 	// @todo переместить в params.php
 	'params' => array(
