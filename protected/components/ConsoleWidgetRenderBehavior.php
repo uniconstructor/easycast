@@ -30,6 +30,6 @@ class ConsoleWidgetRenderBehavior extends CBehavior
      */
     public function getWidgetFactory()
     {
-        return Yii::createComponent(array('class'=>'CWidgetFactory'));
+        return Yii::createComponent(array('class' => 'CWidgetFactory'));
     }
 }
