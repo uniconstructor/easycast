@@ -32,15 +32,15 @@ class DataTable extends CWidget
      *     'visible'   => false, 
      * )
      */
-    public $columns = array();
+    public $columns     = array();
     /**
      * @var array - данные таблицы
      */
-    public $data = array();
+    public $data        = array();
     /**
      * @var bool
      */
-    public $hasFooter = true;
+    public $hasFooter   = true;
     /**
      * @var array
      */
@@ -185,15 +185,15 @@ class DataTable extends CWidget
             $this->options['columns'] = $this->columns;
         }
         // регистрация скриптов оригинального плагина
-        $themeUrl = Yii::app()->theme->baseUrl.'/assets/';
+        $themeUrl = Yii::app()->theme->baseUrl.'/assets/js/plugin/';
         /* @var $cs EcClientScript */
-        $cs       = Yii::app()->clientScript;
+        $cs      = Yii::app()->clientScript;
         $scripts = array(
-            'js/plugin/datatables/jquery.dataTables.min.js',
-            'js/plugin/datatables/dataTables.colVis.min.js',
-            'js/plugin/datatables/dataTables.tableTools.min.js',
-            'js/plugin/datatables/dataTables.bootstrap.min.js',
-            'js/plugin/datatable-responsive/datatables.responsive.min.js',
+            'datatables/jquery.dataTables.min.js',
+            'datatables/dataTables.colVis.min.js',
+            'datatables/dataTables.tableTools.min.js',
+            'datatables/dataTables.bootstrap.min.js',
+            'datatable-responsive/datatables.responsive.min.js',
         );
         foreach ( $scripts as $path )
         {
@@ -264,8 +264,8 @@ class DataTable extends CWidget
                         column.search( val ? '^'+val+'\$' : '', true, false ).draw();
                     });
                 column.data().unique().sort().each( function ( d, j ) {
-                //d = \$(d).text();
-                select.append('<option value=\"'+d+'\">' + d + '</option>')
+                    //d = \$(d).text();
+                    select.append('<option value=\"'+d+'\">' + d + '</option>')
                 } );
             } );
         }";
