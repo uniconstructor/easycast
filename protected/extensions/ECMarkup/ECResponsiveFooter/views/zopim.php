@@ -4,6 +4,7 @@
  */
 ?>
 <!--Start of Zopim Live Chat Script-->
+<noindex>
 <script type="text/javascript">
 window.$zopim||(function(d,s){var z=$zopim=function(c){z._.push(c)},$=z.s=
 d.createElement(s),e=d.getElementsByTagName(s)[0];z.set=function(o){z.set.
@@ -30,4 +31,5 @@ if ( ! Yii::app()->user->isGuest )
 }
 ?>
 </script>
+</noindex>
 <!--End of Zopim Live Chat Script-->

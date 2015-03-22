@@ -1,4 +1,5 @@
 <!-- Yandex.Metrika counter -->
+<noindex>
 <script type="text/javascript">
 (function (d, w, c) {
     (w[c] = w[c] || []).push(function() {
@@ -25,4 +26,5 @@
 })(document, window, "yandex_metrika_callbacks");
 </script>
 <noscript><div><img src="//mc.yandex.ru/watch/21568222" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+</noindex>
 <!-- /Yandex.Metrika counter -->

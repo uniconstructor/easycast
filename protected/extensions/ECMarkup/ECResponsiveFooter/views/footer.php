@@ -44,8 +44,8 @@
 
     <p class="credits">
         &copy;2005-<?= date('Y'); ?>
-        Кастинговое агенство 
-        «<a href="<?= Yii::app()->createAbsoluteUrl('//'); ?>" title="Кастинговое агенство easyCast">easyCast</a>».
+        Кастинговое агентство 
+        «<a href="<?= Yii::app()->createAbsoluteUrl('//'); ?>" title="Кастинговое агентство easyCast">easyCast</a>».
         Все права защищены.
         <br>
         <small><a href="<?= Yii::app()->createAbsoluteUrl('/site/page/view/license'); ?>">Пользовательское соглашение</a></small>
