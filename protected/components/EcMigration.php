@@ -571,6 +571,37 @@ class EcMigration extends CDbMigration
         // возвращаем id найденного (или созданного) списка
         return $list['id'];
     }
+    
+    /**
+     * 
+     * @param type $table
+     * @param type $columns
+     * @param type $noIndex
+     */
+    protected function createOneTable($table, $columns, $noIndex=array())
+    {
+        $this->createTable($table, $columns);
+        $this->ecCreateIndexes($table, $columns, $noIndex);
+    }
+    
+    /**
+     * 
+     * @param array $tables
+     */
+    protected function createTableList($tables, $prefix='')
+    {
+        foreach ( $tables as $tableName => $tableData )
+        {
+            $noIndex = array();
+            $table   = '{{'.$prefix.$tableName.'}}';
+            $columns = $tableData['columns'];
+            if ( isset($tableData['no_index']) )
+            {
+                $noIndex = $tableData['no_index'];
+            }
+            $this->createOneTable($table, $columns, $noIndex);
+        }
+    }
 }
 
 /*
