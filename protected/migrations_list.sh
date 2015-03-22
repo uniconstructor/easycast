@@ -13,6 +13,8 @@ php $EASYCAST_PROTECTED/yiic migrate --migrationPath=application.modules.questio
 php $EASYCAST_PROTECTED/yiic migrate --migrationPath=application.modules.user.migrations
 # Отчеты
 php $EASYCAST_PROTECTED/yiic migrate --migrationPath=application.modules.reports.migrations
+# Динамичиское формирование AR
+php $EASYCAST_PROTECTED/yiic migrate --migrationPath=application.components.carma.migrations
 
 ####### отключено ########
 # Уведомления (пока неизвестно, пригодится ли этот модуль)
