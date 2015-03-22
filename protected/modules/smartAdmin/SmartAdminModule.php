@@ -41,7 +41,7 @@ class SmartAdminModule extends CWebModule
 		    'projects.models.*',
 		    'questionary.models.*',
 		    'smartAdmin.controllers.*',
-		    'smartAdmin.controllers.actions.*',
+		    'smartAdmin.actions.*',
 		    // @todo удалить после замены модуля галереи
 		    'ext.galleryManager.*',
 		    'ext.galleryManager.components.*',
@@ -95,7 +95,7 @@ class SmartAdminModule extends CWebModule
 	    }
 	    return false;
 	}
-	
+    
 	/**
 	 * alias для функции получения строк перевода
 	 * 
