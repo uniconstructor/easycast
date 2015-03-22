@@ -9,7 +9,6 @@ class ConsoleController extends SmartAdminController
      * @var string the name of the default action.
      */
     public $defaultAction = 'dashboard';
-    
     /**
      * @var array
      */
@@ -72,7 +71,13 @@ class ConsoleController extends SmartAdminController
             'label' => 'Заказчики',
             'url'   => '/smartAdmin/console/customers',
             'icon'  => '',
-            'iconOptions' => array('class' => 'fa-graduation-cap'),
+            'iconOptions' => array('class' => 'fa-book'),
+        ),
+        array(
+            'label' => 'Организации',
+            'url'   => '/smartAdmin/console/organizations',
+            'icon'  => '',
+            'iconOptions' => array('class' => 'fa-building'),
         ),
         array(
             'label' => 'Статистика',
@@ -133,16 +138,16 @@ class ConsoleController extends SmartAdminController
                 'class' => 'xupload.actions.S3XUploadAction',
             ),*/
             'dashboard' => array(
-                'class' => 'smartAdmin.controllers.actions.DashboardAction',
+                'class' => 'smartAdmin.actions.DashboardAction',
             ),
             'team' => array(
-                'class' => 'smartAdmin.controllers.actions.TeamAction',
+                'class' => 'smartAdmin.actions.TeamAction',
             ),
             'calendar' => array(
-                'class' => 'smartAdmin.controllers.actions.CalendarAction',
+                'class' => 'smartAdmin.actions.CalendarAction',
             ),
             'projects' => array(
-                'class' => 'smartAdmin.controllers.actions.ProjectsAction',
+                'class' => 'smartAdmin.actions.ProjectsAction',
             ),
         );
     }
