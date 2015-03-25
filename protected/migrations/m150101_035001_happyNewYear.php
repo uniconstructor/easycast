@@ -12,6 +12,7 @@ class m150101_035001_happyNewYear extends EcMigration
     public function safeUp()
     {
         // вытаскиваем все email-адреса заказчиков из списка отправленных коммерческих
+        /*
         $table = "{{customer_invites}}";
         $items = $this->dbConnection->createCommand()->
             select(array('name', 'email'))->from($table)->
@@ -41,6 +42,7 @@ class m150101_035001_happyNewYear extends EcMigration
             echo "email   : {$email}\n";
             echo "name    : {$name}\n\n";
         }
+        */
     }
     
     /**
