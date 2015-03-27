@@ -478,6 +478,11 @@ return array(
                 ),
             ),
         ),
+        // Custom Active Record Metadata Assistant
+        // Модуль для упрощенного управления структурой матаданных для AR-моделей
+        'carma' => array(
+            'class' => 'application.components.carma.Carma',
+        ),
 	),
 	// другие параметры приложения, синтаксис вызова: Yii::app()->params['paramName']
 	// @todo переместить в params.php
