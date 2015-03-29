@@ -18,18 +18,23 @@
  * 
  * @todo более четкая проверка имени класса
  */
-function customActiveRecordAutoloadHack($arClass)
-{
-    /**if ( ! Yii::app()->getComponent('carma')->carmaArExists($arClass) )
-    {// подключаем класс только в том случае если он есть в нашем списке моделей
-        return false;
-    }*/
-    eval("class {$arClass} extends CustomActiveRecord {}");
-}
+//function customActiveRecordAutoloadHack($arClass)
+//{
+    // if ( ! Yii::app()->getComponent('carma')->carmaArExists($arClass) )
+    //{// подключаем класс только в том случае если он есть в нашем списке моделей
+    //    return false;
+    //}
+    //eval("class {$arClass} extends CustomActiveRecord {}");
+//}
 
 /**
- * Custom Active Record Metadata Assistant
- * Модуль для упрощенного управления структурой матаданных для AR-моделей
+ * Custom
+ * Active
+ * Record
+ * Metadata
+ * Assistant
+ * 
+ * Модуль для ручного управления структурой матаданных для AR-моделей
  * 
  * Позволяет изменять структуру базы данных без применения миграций
  * Позволяет создавать новые AR-модели с произвольной структурой, связи между моделями, 
@@ -45,28 +50,42 @@ class Carma extends CApplicationComponent
      * @var string
      */
     //public $mdTablePrefix = 'md_';
+    /**
+     * @var string
+     */
+    public $arModelsTable = 'models';
 
     /**
      * @see parent::init()
      */
     public function init()
     {
+        // подключаем базовый класс для всех ar-моделей
         Yii::import('application.components.carma.models.CustomActiveRecord');
-        $models = Yii::app()->db->createCommand()->select()->from('{{ar_models}}')->queryAll();
+        // подключаем все виджеты для работы с AR-моделями
+        Yii::import('application.components.carma.widgets.*');
+        // подключаем все созданные пользователем ar-модели
+        $models = Yii::app()->db->createCommand()->select()->
+            from('{{'.$this->arTablePrefix.$this->arModelsTable.'}}')->queryAll();
         foreach ( $models as $model )
         {
+            if ( class_exists($model) )
+            {// класс уже подключен
+                continue;
+            }
+            // да, по-другому никак:
+            // @see http://stackoverflow.com/questions/9229605/in-php-how-do-you-get-the-called-aliased-class-when-using-class-alias
             eval("class {$model['model']} extends CustomActiveRecord {}");
         }
-        //spl_autoload_register('customActiveRecordAutoloadHack', true, true);
         parent::init();
     }
     
     /**
      * 
-     * @param string $arClass - класс наследуемый от CustomActiveRecord
+     * @param  string $arClass - класс наследуемый от CustomActiveRecord
      * @return bool
      */
-    public function carmaArExists($arClass)
+    /*public function carmaArExists($arClass)
     {
         $arData = $this->getDbConnection()->createCommand()->select()->
             from('{{ar_models}}')->where('model = :model', array(':model' => $arClass))->queryRow();
@@ -75,5 +94,5 @@ class Carma extends CApplicationComponent
             return true;
         }
         return false;
-    }
+    }*/
 }
