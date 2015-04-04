@@ -58,6 +58,7 @@ class CustomActiveRecord extends CActiveRecord
      * @see parent::init()
      * 
      * @todo подключить behaviors из базы
+     * @todo подключить обработчики событий из базы
      */
     public function init()
     {
@@ -73,7 +74,7 @@ class CustomActiveRecord extends CActiveRecord
      */
     public function tableName()
     {
-        return '{{'.self::$arTablePrefix.$this->loadArInfo()['table'].'}}';
+        return '{{'.self::$arTablePrefix.$this->loadArInfo('table').'}}';
     }
     
     /**
@@ -95,9 +96,8 @@ class CustomActiveRecord extends CActiveRecord
 		{
             // получаем основные метаданные
             $activeMd = new CActiveRecordMetaData($this);
-            $activeMd->relations = $this->loadArRelations($arClass);
-            //CVarDumper::dump($activeMd, 10, true);die;
             // preventing recursive invokes of {@link getMetaData()} via {@link __get()}
+            self::$armd[$arClass] = null;
 			self::$armd[$arClass] = $activeMd;
 		}
 		return self::$armd[$arClass];
@@ -119,50 +119,6 @@ class CustomActiveRecord extends CActiveRecord
     }
 
     /**
-     * Динамически дополнить связи модели (relations)
-     * 
-     * @param  string $arClass - AR class name
-     * @return array - custom relations, stored in DB
-     * 
-     * @todo остальные параметры для relations()
-     */
-    protected function loadArRelations($arClass=null)
-    {
-        if ( $arClass === null )
-        {// по умолчанию подгружаем связи текущей AR-модели
-            $arClass = $this->loadArInfo(get_called_class(), 'model');
-        }
-        if ( ! isset(self::$arMeta[$arClass]['relations']) )
-        {// связей нет в кеше - тащим их из базы
-            $relations = array();
-            $table     = '{{'.self::$arTablePrefix.'relations}}';
-            $modelId   = $this->loadArInfo(get_called_class(), 'id');
-            // извлекаем записи содержащие связи этой модели с другими
-            $relData   = $this->getDbConnection()->createCommand()->select()->
-                from($table)->where('modelid = :modelid', array(':modelid' => $modelId))->queryAll();
-            foreach ( $relData as $item )
-            {// из каждой записи делаем массив настроек для $this->relations
-                $relations[$item['name']] = array(
-                    // тип связи
-                    $item['type'],
-                    // AR-класс модели с которой создается связь
-                    $item['relatedmodel'], 
-                    // первичный и вторичный ключ по которому устанавливается связь
-                    $item['fkdata'],
-                    // @todo condition
-                    // @todo alias
-                    // @todo together
-                    // @todo through
-                    // @todo title
-                    // @todo description
-                );
-            }
-            self::$arMeta[$arClass]['relations'] = $relations;
-        }
-        return self::$arMeta[$arClass]['relations'];
-    }
-    
-    /**
      * @see parent::relations()
      * @return array
      * 
@@ -170,10 +126,24 @@ class CustomActiveRecord extends CActiveRecord
      */
     public function relations()
     {
-        $relations      = parent::relations();
-        $curomRelations = $this->loadArRelations();
-        return CMap::mergeArray($relations, $curomRelations);
+        $arClassId = $this->loadArInfo('id');
+        
+        $relations = parent::relations();
+        $relations['arAttributes'] = array(self::HAS_MANY, 'ArModelAttribute', 'objectid', 
+            'condition' => "modelid={$arClassId} OR (`arAttributes`.`objectid` = 0)"
+        );
+        return CMap::mergeArray($relations, $this->loadArRelations());
     }
+    
+    /**
+     * @see parent::getActiveRelation()
+     * 
+     * @todo удалить если не используется
+     */
+    public function getActiveRelation($name)
+	{
+		return isset($this->getMetaData()->relations[$name]) ? $this->getMetaData()->relations[$name] : null;
+	}
     
     /**
      * @see parent::attributeLabels()
@@ -182,7 +152,7 @@ class CustomActiveRecord extends CActiveRecord
     public function attributeLabels()
     {
         $labels     = array();
-        $arClass    = $this->loadArInfo(get_called_class(), 'model');
+        $arClass    = $this->loadArInfo('model');
         $attributes = $this->attributeNames();
         foreach ( $attributes as $name => $type )
         {
@@ -196,8 +166,23 @@ class CustomActiveRecord extends CActiveRecord
      */
     public function generateAttributeLabel($name)
     {
-        $arClass = $this->loadArInfo(get_called_class(), 'model');
+        $arClass = $this->loadArInfo('model');
         return Yii::t("carma.models", "{$arClass}.{$name}.label");
+    }
+    
+    /**
+     * @see parent::behaviors()
+     * 
+     * @todo продумать случаи наложения подключаемых классов поведения
+     */
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        // все модели, независимо от класса хранят информацию о дате создания и изменения объекта
+        $behaviors['ecTimeStampBehavior'] = array(
+            'class' => 'application.behaviors.EcTimestampBehavior',
+        );
+        return CMap::mergeArray($behaviors, $this->loadArBehaviors());
     }
     
     /**
@@ -212,7 +197,7 @@ class CustomActiveRecord extends CActiveRecord
             return $this->title;
         }
         // возвращяем автоматический перевод только если в таблице не предусмотрена такая колонка
-        $arClass = $this->loadArInfo(get_called_class(), 'model');
+        $arClass = $this->loadArInfo('model');
         return Yii::t("carma.models", "{$arClass}.title");
     }
     
@@ -228,18 +213,8 @@ class CustomActiveRecord extends CActiveRecord
             return $this->title;
         }
         // возвращяем автоматический перевод только если в таблице не предусмотрена такая колонка
-        $arClass = $this->loadArInfo(get_called_class(), 'model');
+        $arClass = $this->loadArInfo('model');
         return Yii::t("carma.models", "{$arClass}.description");
-    }
-
-    /**
-     * @see parent::behaviors()
-     * 
-     * @todo продумать случаи наложения подключаемых классов поведения
-     */
-    public function behaviors()
-    {
-        return CMap::mergeArray(parent::behaviors(), $this->loadArBehaviors());
     }
 
     /**
@@ -252,12 +227,10 @@ class CustomActiveRecord extends CActiveRecord
      * 
      * @todo использование $key
      */
-    protected function loadArInfo($arClass=null, $key=null)
+    protected function loadArInfo($key=null)
     {
-        if ( ! $arClass )
-        {// по умолчанию настраиваем модель под тот класс экземпляр которого был вызван
-            $arClass = get_called_class();
-        }
+        // по умолчанию настраиваем модель под тот класс экземпляр которого был вызван
+        $arClass = get_called_class();
         if ( $arClass === 'CustomActiveRecord' OR $arClass === 'CActiveRecord' )
         {// неизвестно откуда брать метаданные
             throw new CException('Incorrect CustomActiveRecord call');
@@ -281,6 +254,51 @@ class CustomActiveRecord extends CActiveRecord
     }
     
     /**
+     * Дополнить связи модели (relations) по данным из базы
+     * 
+     * @return array - custom relations, stored in DB
+     * 
+     * @todo реализовать остальные параметры для relations()
+     * @todo убрать параметр $arClass
+     */
+    protected function loadArRelations()
+    {
+        // по умолчанию подгружаем связи текущей AR-модели
+        $arClass = $this->loadArInfo('model');
+        if ( ! isset(self::$arMeta[$arClass]['relations']) )
+        {// связей нет в кеше - тащим их из базы
+            $relations = array();
+            $table     = '{{'.self::$arTablePrefix.'relations}}';
+            $modelId   = $this->loadArInfo('id');
+            // извлекаем записи содержащие связи этой модели с другими
+            $relData   = $this->getDbConnection()->createCommand()->select()->
+                from($table)->where('`modelid` = :modelid', array(':modelid' => $modelId))->queryAll();
+            foreach ( $relData as $item )
+            {// из каждой записи делаем массив настроек для $this->relations
+                $relations[$item['name']] = array(
+                    // тип связи
+                    $item['type'],
+                    // AR-класс модели с которой создается связь
+                    $item['relatedmodel'], 
+                    // первичный и вторичный ключ по которому устанавливается связь
+                    $item['fkdata'],
+                    // @todo alias
+                    // @todo together
+                    // @todo through
+                    // @todo title
+                    // @todo description
+                );
+                if ( isset($item['condition']) AND $item['condition'] )
+                {// если для внешнего ключа есть дополнительные условия - добавим их
+                    $relations[$item['name']]['condition'] = $item['condition'];
+                }
+            }
+            self::$arMeta[$arClass]['relations'] = $relations;
+        }
+        return self::$arMeta[$arClass]['relations'];
+    }
+    
+    /**
      * Загрузить дополнительные классы поведения из базы
      * 
      * @return array
@@ -289,14 +307,15 @@ class CustomActiveRecord extends CActiveRecord
      */
     protected function loadArBehaviors()
     {
-        // FIXME
+        // TODO
         return array();
-        $arClass = $this->loadArInfo(get_called_class(), 'model');
+        /*
+        $arClass = $this->loadArInfo('model');
         if ( ! isset(self::$arBehaviors[$arClass]) )
         {
             $behaviors = array();
             $table     = '{{'.self::$arTablePrefix.'behaviors}}';
-            $modelId   = $this->loadArInfo(get_called_class(), 'id');
+            $modelId   = $this->loadArInfo('id');
             $behaviorList = $this->getDbConnection()->createCommand()->select()->
                 from($table)->where('modelid = :modelid', array(':modelid' => $modelId))->queryAll();
             foreach ( $behaviorList as $item )
@@ -315,6 +334,8 @@ class CustomActiveRecord extends CActiveRecord
             self::$arBehaviors[$arClass] = $behaviors;
         }
         return self::$arBehaviors[$arClass];
+        */
+        
     }
     
     /**
@@ -326,12 +347,12 @@ class CustomActiveRecord extends CActiveRecord
      */
     protected function loadArRules()
     {
-        $arClass = $this->loadArInfo(get_called_class(), 'model');
+        $arClass = $this->loadArInfo('model');
         if ( ! isset(self::$arRules[$arClass]) )
         {
             $rules     = array();
             $table     = '{{'.self::$arTablePrefix.'rules}}';
-            $modelId   = $this->loadArInfo(get_called_class(), 'id');
+            $modelId   = $this->loadArInfo('id');
             $rulesList = $this->getDbConnection()->createCommand()->select()->
                 from($table)->where('modelid = :modelid', array(':modelid' => $modelId))->queryAll();
             foreach ( $rulesList as $item )
@@ -359,3 +380,26 @@ class CustomActiveRecord extends CActiveRecord
         return self::$arRules[$arClass];
     }
 }
+
+class ArModel extends CustomActiveRecord {}
+class ArRelation extends CustomActiveRecord {}
+class ArRule extends CustomActiveRecord {}
+class ArTemplate extends CustomActiveRecord {}
+class ArWidget extends CustomActiveRecord {}
+class ArPointer extends CustomActiveRecord {}
+class ArAttribute extends CustomActiveRecord {}
+class ArModelAttribute extends CustomActiveRecord {}
+class ArAttributeValue extends CustomActiveRecord {}
+class ArMetaLink extends CustomActiveRecord {}
+class ArValueJson extends CustomActiveRecord {}
+class ArValueInt extends CustomActiveRecord {}
+class ArValueString extends CustomActiveRecord {}
+class ArValueText extends CustomActiveRecord {}
+class ArValueBoolean extends CustomActiveRecord {}
+class ArValueFloat extends CustomActiveRecord {}
+class ArForm extends CustomActiveRecord {}
+class ArFormField extends CustomActiveRecord {}
+class ArEvent extends CustomActiveRecord {}
+class ArEventListener extends CustomActiveRecord {}
+class ArEventLauncher extends CustomActiveRecord {}
+class ArEntity extends CustomActiveRecord {}
