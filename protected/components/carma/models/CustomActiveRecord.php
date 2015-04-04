@@ -380,26 +380,3 @@ class CustomActiveRecord extends CActiveRecord
         return self::$arRules[$arClass];
     }
 }
-
-class ArModel extends CustomActiveRecord {}
-class ArRelation extends CustomActiveRecord {}
-class ArRule extends CustomActiveRecord {}
-class ArTemplate extends CustomActiveRecord {}
-class ArWidget extends CustomActiveRecord {}
-class ArPointer extends CustomActiveRecord {}
-class ArAttribute extends CustomActiveRecord {}
-class ArModelAttribute extends CustomActiveRecord {}
-class ArAttributeValue extends CustomActiveRecord {}
-class ArMetaLink extends CustomActiveRecord {}
-class ArValueJson extends CustomActiveRecord {}
-class ArValueInt extends CustomActiveRecord {}
-class ArValueString extends CustomActiveRecord {}
-class ArValueText extends CustomActiveRecord {}
-class ArValueBoolean extends CustomActiveRecord {}
-class ArValueFloat extends CustomActiveRecord {}
-class ArForm extends CustomActiveRecord {}
-class ArFormField extends CustomActiveRecord {}
-class ArEvent extends CustomActiveRecord {}
-class ArEventListener extends CustomActiveRecord {}
-class ArEventLauncher extends CustomActiveRecord {}
-class ArEntity extends CustomActiveRecord {}
