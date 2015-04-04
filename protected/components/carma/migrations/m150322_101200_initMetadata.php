@@ -16,7 +16,9 @@ class m150322_101200_initMetadata extends CDbMigration
             array('ArTemplate', 'templates', time(), 0, 'Шаблон разметки', 'Текст шаблона веб-страницы (HTML+PHP+Twig). Содержит структуру веб-страницы или небольшую часть такой разметки (например виджет). Максимальный размер 64кб. Шаблоны можно вкладывать друг в друга.'),
             array('ArWidget', 'widgets', time(), 0, 'Виджет с настраиваемой разметкой', 'Виджет, внешний вид которого можно редактировать. Можно создавать свои виджеты и вкладывать внутрь них уже существующие.'),
             array('ArPointer', 'pointers', time(), 0, 'Указатель на модель данных', 'Служебный объект'),
-            array('ArAttribute', 'attributes', time(), 0, 'Дополнительное поле объекта', 'Контейнер для хранения данных со сложной структурой. Служебный объект.'),
+            array('ArAttribute', 'attributes', time(), 0, 'Свойство', 'Произвольное свойство которое можно добавить к любому объекту. Также может являться контейнером для хранения других свойств (то есть у свойств могут быть свойства и так далее). Служебный объект.'),
+            array('ArModelAttribute', 'model_attributes', time(), 0, 'Дополнительное свойство объекта', 'Связывает свойство с AR-моделью. Служебный объект.'),
+            array('ArAttributeValue', 'attribute_values', time(), 0, 'Значение свойства объекта', 'Связывает тип объекта, id объекта, свойство объекта, тип значения объекта и само значение. Служебный объект.'),
             array('ArMetaLink', 'meta_links', time(), 0, 'Связь между двумя моделями', 'Позволяет связать между собой два любых объекта любого типа. Также позволяет связывать между собой поля объектов и значения внутри полей - в любой комбинации.'),
             array('ArValueJson', 'value_json', time(), 0, 'Значение поля: json-массив', 'Служебный объект для хранения значений.Служебный объект для хранения значений.'),
             array('ArValueInt', 'value_int', time(), 0, 'Значение поля: целое число', 'Служебный объект для хранения значений.Служебный объект для хранения значений.'),
@@ -29,17 +31,20 @@ class m150322_101200_initMetadata extends CDbMigration
             array('ArEvent', 'events', time(), 0, 'Системное событие', 'Этот объект хранит настройки для каждого типа события: название, описание и назначение, используемый событием PHP-класс.'),
             array('ArEventListener', 'events_listeners', time(), 0, 'Получатель события', 'Объект, отслеживающий возникновение событий. Он реагирует на системные события в зависимости от их типа совершая различные действия.'),
             array('ArEventLauncher', 'events_launchers', time(), 0, 'Источник события', 'Объект-источник запускающий системное событие (launcher) в ответ на действия, пользователя изменения в таблицах и т. д.'),
+            array('ArEntity', 'entities', time(), 0, 'Объект произвольной структуры (сущность)', 'Объект в котором может содержатся любой набор свойств любой структуры. Служебный объект.'),
         );
         $arModelIds = array();
         foreach ( $arModels as $arModel )
         {
             $arModelData = array(
-                'model'        => $arModel[0],
-                'table'        => $arModel[1],
-                'timecreated'  => $arModel[2],
-                'timemodified' => $arModel[3],
-                'title'        => $arModel[4],
-                'description'  => $arModel[5],
+                'model'         => $arModel[0],
+                'table'         => $arModel[1],
+                'timecreated'   => $arModel[2],
+                'timemodified'  => $arModel[3],
+                'title'         => $arModel[4],
+                'description'   => $arModel[5],
+                'system'        => 1,
+                'defaultformid' => 0,
             );
             $this->insert($table, $arModelData);
             $arModelIds[$arModelData['model']] = $this->getDbConnection()->lastInsertID;
@@ -49,6 +54,144 @@ class m150322_101200_initMetadata extends CDbMigration
         // добавляем связи между классами моделей чтобы можно было извлекать записи при помощи API Yii
         $table   = "{{ar_relations}}";
         $relations = array(
+            // model
+            array(
+                'modelid'       => $arModelIds['ArRelation'],
+                'name'          => 'defaultForm',
+                'type'          => CActiveRecord::BELONGS_TO,
+                'fkdata'        => 'defaultformid',
+                'relatedmodel'  => 'ArForm',
+                'title'         => 'Форма, по-умолчанию используемая для создания и редактирования всех объектов этого типа',
+                'description'   => '',
+                'timecreated'   => time(),
+                'timemodified'  => 0,
+            ),
+            array(
+                'modelid'       => $arModelIds['ArModel'],
+                'name'          => 'carmaRelations',
+                'type'          => CActiveRecord::HAS_MANY,
+                'fkdata'        => 'modelid',
+                'relatedmodel'  => 'ArRelation',
+                'title'         => 'Связи модели [relations()] определенные в базе данных плагином Carma', // Кармические связи, да :)
+                'description'   => '',
+                'timecreated'   => time(),
+                'timemodified'  => 0,
+            ),
+            array(
+                'modelid'       => $arModelIds['ArModel'],
+                'name'          => 'carmaRules',
+                'type'          => CActiveRecord::HAS_MANY,
+                'fkdata'        => 'modelid',
+                'relatedmodel'  => 'ArRule',
+                'title'         => 'Правила проверки данных для полей модели [rules()] определенные в базе данных плагином Carma',
+                'description'   => '',
+                'timecreated'   => time(),
+                'timemodified'  => 0,
+            ),
+            array(
+                'modelid'       => $arModelIds['ArModel'],
+                'name'          => 'expectedInAttributes',
+                'type'          => CActiveRecord::HAS_MANY,
+                'fkdata'        => 'valuetypemodelid',
+                'relatedmodel'  => 'ArAttribute',
+                'title'         => 'Все дополнительные свойства в которых этот объект используется как ожидаемый тип значения',
+                'description'   => '',
+                'timecreated'   => time(),
+                'timemodified'  => 0,
+            ),
+            array(
+                'modelid'       => $arModelIds['ArModel'],
+                'name'          => 'relatedValues',
+                'type'          => CActiveRecord::HAS_MANY,
+                'fkdata'        => 'valuemodelid',
+                'relatedmodel'  => 'ArAttributeValue',
+                'title'         => 'Все значения всех дополнительных свойств связанные с любым объектом этого типа',
+                'description'   => '',
+                'timecreated'   => time(),
+                'timemodified'  => 0,
+            ),
+            array(
+                'modelid'       => $arModelIds['ArModel'],
+                'name'          => 'arEventListeners',
+                'type'          => CActiveRecord::HAS_MANY,
+                'fkdata'        => 'listenerid',
+                'relatedmodel'  => 'ArEventListener',
+                'title'         => 'Отслеживаемые события',
+                'description'   => '',
+                'timecreated'   => time(),
+                'timemodified'  => 0,
+            ),
+            array(
+                'modelid'       => $arModelIds['ArModel'],
+                'name'          => 'arEventLaunchers',
+                'type'          => CActiveRecord::HAS_MANY,
+                'fkdata'        => 'listenerid',
+                'relatedmodel'  => 'ArEventLauncher',
+                'title'         => 'Генерируемые события',
+                'description'   => '',
+                'timecreated'   => time(),
+                'timemodified'  => 0,
+            ),
+            array(
+                'modelid'       => $arModelIds['ArModel'],
+                'name'          => 'arEntities',
+                'type'          => CActiveRecord::HAS_MANY,
+                'fkdata'        => 'modelid',
+                'relatedmodel'  => 'ArEntity',
+                'title'         => 'Объекты с произвольной структурой данных [Entity] использующие эту модель',
+                'description'   => '',
+                'timecreated'   => time(),
+                'timemodified'  => 0,
+            ),
+            //array(
+            //    'modelid'       => $arModelIds['ArModel'],
+            //    'name'          => 'arAttributes',
+            //    'type'          => CActiveRecord::HAS_MANY,
+            //    'fkdata'        => 'objectid', // AND modelid=1
+            //    'relatedmodel'  => 'ArModelAttribute',
+            //    'title'         => 'Все дополнительные свойства прикрепленные к этому типу объекта.',
+            //    'description'   => 'Могут использоваться как обычные поля в любом объекте этого типа. К любому объекту можно добавить неограниченное количество дополнительных свойств. У объекта не может быть двух свойств с одинаковым именем [name].',
+            //    'timecreated'   => time(),
+            //    'timemodified'  => 0,
+            //),
+            array(
+                'modelid'       => $arModelIds['ArModel'],
+                'name'          => 'incomingPointers',
+                'type'          => CActiveRecord::HAS_MANY,
+                'fkdata'        => 'recordid', // AND 
+                'condition'     => '`modelid` = 1',
+                'relatedmodel'  => 'ArPointer',
+                'title'         => 'Указатели ссылающиеся на эту модель',
+                'description'   => '',
+                'timecreated'   => time(),
+                'timemodified'  => 0,
+            ),
+            // relation
+            array(
+                'modelid'       => $arModelIds['ArRelation'],
+                'name'          => 'model',
+                'type'          => CActiveRecord::BELONGS_TO,
+                'fkdata'        => 'modelid',
+                'relatedmodel'  => 'ArModel',
+                'title'         => 'Тип объекта к которому относится связь',
+                'description'   => '',
+                'timecreated'   => time(),
+                'timemodified'  => 0,
+            ),
+            // rule
+            array(
+                'modelid'       => $arModelIds['ArRule'],
+                'name'          => 'model',
+                'type'          => CActiveRecord::BELONGS_TO,
+                'fkdata'        => 'modelid',
+                'relatedmodel'  => 'ArModel',
+                'title'         => 'Тип объекта относится правило',
+                'description'   => '',
+                'timecreated'   => time(),
+                'timemodified'  => 0,
+            ),
+            // template
+            // widget
             array(
                 'modelid'       => $arModelIds['ArWidget'],
                 'name'          => 'template',
@@ -71,28 +214,7 @@ class m150322_101200_initMetadata extends CDbMigration
                 'timecreated'   => time(),
                 'timemodified'  => 0,
             ),
-            array(
-                'modelid'       => $arModelIds['ArRelation'],
-                'name'          => 'model',
-                'type'          => CActiveRecord::BELONGS_TO,
-                'fkdata'        => 'modelid',
-                'relatedmodel'  => 'ArModel',
-                'title'         => 'Тип объекта к которому относится связь',
-                'description'   => '',
-                'timecreated'   => time(),
-                'timemodified'  => 0,
-            ),
-            array(
-                'modelid'       => $arModelIds['ArRule'],
-                'name'          => 'model',
-                'type'          => CActiveRecord::BELONGS_TO,
-                'fkdata'        => 'modelid',
-                'relatedmodel'  => 'ArModel',
-                'title'         => 'Тип объекта относится правило',
-                'description'   => '',
-                'timecreated'   => time(),
-                'timemodified'  => 0,
-            ),
+            // pointer
             array(
                 'modelid'       => $arModelIds['ArPointer'],
                 'name'          => 'model',
@@ -104,6 +226,7 @@ class m150322_101200_initMetadata extends CDbMigration
                 'timecreated'   => time(),
                 'timemodified'  => 0,
             ),
+            // attribute
             array(
                 'modelid'       => $arModelIds['ArAttribute'],
                 'name'          => 'parent',
@@ -127,6 +250,64 @@ class m150322_101200_initMetadata extends CDbMigration
                 'timemodified'  => 0,
             ),
             array(
+                'modelid'       => $arModelIds['ArAttribute'],
+                'name'          => 'valuetypemodel',
+                'type'          => CActiveRecord::BELONGS_TO,
+                'fkdata'        => 'valuetypemodelid',
+                'relatedmodel'  => 'ArModel',
+                'title'         => 'Ожидаемый тип значения для свойства',
+                'description'   => '',
+                'timecreated'   => time(),
+                'timemodified'  => 0,
+            ),
+            // model attribute
+            array(
+                'modelid'       => $arModelIds['ArModelAttribute'],
+                'name'          => 'model',
+                'type'          => CActiveRecord::BELONGS_TO,
+                'fkdata'        => 'modelid',
+                'relatedmodel'  => 'ArModel',
+                'title'         => 'Тип объекта к которому прикрепляется свойство',
+                'description'   => '',
+                'timecreated'   => time(),
+                'timemodified'  => 0,
+            ),
+            array(
+                'modelid'       => $arModelIds['ArModelAttribute'],
+                'name'          => 'arAttribute',
+                'type'          => CActiveRecord::BELONGS_TO,
+                'fkdata'        => 'attributeid',
+                'relatedmodel'  => 'ArAttribute',
+                'title'         => 'Cвойство объекта',
+                'description'   => '',
+                'timecreated'   => time(),
+                'timemodified'  => 0,
+            ),
+            // attribute value
+            array(
+                'modelid'       => $arModelIds['ArAttributeValue'],
+                'name'          => 'arAttribute',
+                'type'          => CActiveRecord::BELONGS_TO,
+                'fkdata'        => 'attributeid',
+                'relatedmodel'  => 'ArAttribute',
+                'title'         => 'Cвойство объекта',
+                'description'   => '',
+                'timecreated'   => time(),
+                'timemodified'  => 0,
+            ),
+            array(
+                'modelid'       => $arModelIds['ArAttributeValue'],
+                'name'          => 'valuetypemodel',
+                'type'          => CActiveRecord::BELONGS_TO,
+                'fkdata'        => 'valuetypemodelid',
+                'relatedmodel'  => 'ArModel',
+                'title'         => 'Ожидаемый тип значения для свойства',
+                'description'   => '',
+                'timecreated'   => time(),
+                'timemodified'  => 0,
+            ),
+            // meta link
+            array(
                 'modelid'       => $arModelIds['ArMetaLink'],
                 'name'          => 'sourcepointer',
                 'type'          => CActiveRecord::BELONGS_TO,
@@ -148,6 +329,25 @@ class m150322_101200_initMetadata extends CDbMigration
                 'timecreated'   => time(),
                 'timemodified'  => 0,
             ),
+            // value json
+            // value int
+            // value string
+            // value text
+            // value boolean
+            // value float
+            // form
+            array(
+                'modelid'       => $arModelIds['ArForm'],
+                'name'          => 'fields',
+                'type'          => CActiveRecord::HAS_MANY,
+                'fkdata'        => 'formid',
+                'relatedmodel'  => 'ArFormField',
+                'title'         => 'Поля формы',
+                'description'   => '',
+                'timecreated'   => time(),
+                'timemodified'  => 0,
+            ),
+            // form field
             array(
                 'modelid'       => $arModelIds['ArFormField'],
                 'name'          => 'form',
@@ -159,6 +359,30 @@ class m150322_101200_initMetadata extends CDbMigration
                 'timecreated'   => time(),
                 'timemodified'  => 0,
             ),
+            // event
+            array(
+                'modelid'       => $arModelIds['ArEvent'],
+                'name'          => 'listeners',
+                'type'          => CActiveRecord::HAS_MANY,
+                'fkdata'        => 'eventid',
+                'relatedmodel'  => 'ArEventListener',
+                'title'         => 'Объекты отслеживающие это событие',
+                'description'   => '',
+                'timecreated'   => time(),
+                'timemodified'  => 0,
+            ),
+            array(
+                'modelid'       => $arModelIds['ArEvent'],
+                'name'          => 'launchers',
+                'type'          => CActiveRecord::HAS_MANY,
+                'fkdata'        => 'eventid',
+                'relatedmodel'  => 'ArEventLauncher',
+                'title'         => 'Объекты запускающие это событие',
+                'description'   => '',
+                'timecreated'   => time(),
+                'timemodified'  => 0,
+            ),
+            // event listener
             array(
                 'modelid'       => $arModelIds['ArEventListener'],
                 'name'          => 'event',
@@ -185,13 +409,14 @@ class m150322_101200_initMetadata extends CDbMigration
                 'modelid'       => $arModelIds['ArEventListener'],
                 'name'          => 'model',
                 'type'          => CActiveRecord::BELONGS_TO,
-                'fkdata'        => 'modelid',
+                'fkdata'        => 'listenerid',
                 'relatedmodel'  => 'ArModel',
-                'title'         => 'Тип listener-объекта',
+                'title'         => 'Тип объекта-наблюдателя',
                 'description'   => '',
                 'timecreated'   => time(),
                 'timemodified'  => 0,
             ),
+            // event launcher
             array(
                 'modelid'       => $arModelIds['ArEventLauncher'],
                 'name'          => 'event',
@@ -204,12 +429,46 @@ class m150322_101200_initMetadata extends CDbMigration
                 'timemodified'  => 0,
             ),
             array(
-                'modelid'       => $arModelIds['ArEventListener'],
+                'modelid'       => $arModelIds['ArEventLauncher'],
+                'name'          => 'model',
+                'type'          => CActiveRecord::BELONGS_TO,
+                'fkdata'        => 'launcherid',
+                'relatedmodel'  => 'ArModel',
+                'title'         => 'Тип объекта запускающего событие',
+                'description'   => '',
+                'timecreated'   => time(),
+                'timemodified'  => 0,
+            ),
+            // entity
+            array(
+                'modelid'       => $arModelIds['ArEntity'],
+                'name'          => 'parent',
+                'type'          => CActiveRecord::BELONGS_TO,
+                'fkdata'        => 'parentid',
+                'relatedmodel'  => 'ArAttribute',
+                'title'         => 'Объект от которого наследуется структура полей',
+                'description'   => '',
+                'timecreated'   => time(),
+                'timemodified'  => 0,
+            ),
+            array(
+                'modelid'       => $arModelIds['ArEntity'],
+                'name'          => 'children',
+                'type'          => CActiveRecord::HAS_MANY,
+                'fkdata'        => 'parentid',
+                'relatedmodel'  => 'ArEntity',
+                'title'         => 'Объекты, наследующие структуру полей',
+                'description'   => '',
+                'timecreated'   => time(),
+                'timemodified'  => 0,
+            ),
+            array(
+                'modelid'       => $arModelIds['ArEntity'],
                 'name'          => 'model',
                 'type'          => CActiveRecord::BELONGS_TO,
                 'fkdata'        => 'modelid',
                 'relatedmodel'  => 'ArModel',
-                'title'         => 'Тип launcher-объекта',
+                'title'         => 'Тип объекта',
                 'description'   => '',
                 'timecreated'   => time(),
                 'timemodified'  => 0,
@@ -221,4 +480,3 @@ class m150322_101200_initMetadata extends CDbMigration
         }
     }
 }
-
