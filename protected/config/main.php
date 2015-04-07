@@ -22,14 +22,16 @@ return array(
 	'basePath'       => dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
     // язык приложения
     'language'       => 'ru',
-    // язык исходников приложения
-    'sourceLanguage' => 'ru',
+    // язык строк перевода в приложении: названий, по которым извлекается перевод для текущей локали
+    'sourceLanguage' => 'en',
     // предварительно загружаемые компоненты
     'preload'        => array('log', 'messages'),
     // Название проекта 
     'name'           => 'easyCast',
     // Короткие имена для вызова сторонних библиотек
     'aliases' => array(
+        // сокращение для application
+        'app'            => 'application',
         // XUpload: загрузка файлов через AJAX
         'xupload'        => 'ext.xupload',
         // YiiBooster3 (версия 3.х для bootstrap 2.3.x)
@@ -301,7 +303,7 @@ return array(
 	    'dbMessages' => array(
             'class'                  => 'CDbMessageSource',
             'cacheID'                => 'cache',
-            // кеширование перевода - 12 часов
+            // кэширование перевода - 12 часов
             'cachingDuration'        => 43200,
             'connectionID'           => 'db',
             'sourceMessageTable'     => '{{i18n_source_messages}}',
