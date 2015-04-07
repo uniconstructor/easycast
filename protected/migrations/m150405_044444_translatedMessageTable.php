@@ -31,7 +31,7 @@ class m150405_044444_translatedMessageTable extends CDbMigration
         $sourceMessageTable = $msgComponent->sourceMessageTable;
         $messageTable       = $msgComponent->translatedMessageTable;
         
-        // message sources
+        // source messages
         $this->createTable($sourceMessageTable, array(
             'id'           => 'bigpk',
             'category'     => 'string',
@@ -43,7 +43,7 @@ class m150405_044444_translatedMessageTable extends CDbMigration
         $this->createIndex('idx_timecreated', $sourceMessageTable, 'timecreated');
         $this->createIndex('idx_timemodified', $sourceMessageTable, 'timemodified');
         
-        // messages
+        // translated messages
         $this->createTable($messageTable, array(
             'id'              => 'bigpk',
             'sourcemessageid' => 'bigint',
@@ -86,4 +86,3 @@ class m150405_044444_translatedMessageTable extends CDbMigration
         $this->dropTable($messageTable);
     }
 }
-

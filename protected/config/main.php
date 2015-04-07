@@ -1,23 +1,28 @@
 <?php
 
-// Главный файл конфигурации приложения.
-// Здесь задаются все общие параметры, одинаковые для "production"(релиза), "test"(тестового сервера) 
-// и "dev"(версии разработчика).
-// В разных ветках git-репозитория лежат дополнительные config-файлы для каждой версии сайта.
-// Каждая версия сайта собирается отдельным ant-скриптом.
-// Последовательность сборки такова: 
-//                    1) Yii
-//                    2) EasyCast (ядро)
-//                    3) Оригинальные плагины
-//                    4) Наши изменения в плагинах
-//                    5) Настройки окружения (для dev, test или production версии)
+/**
+ * Главный файл конфигурации приложения.
+ * Здесь задаются все общие параметры, одинаковые для "production"(релиза), "test"(тестового сервера) 
+ * и "dev"(версии разработчика).
+ * В разных ветках git-репозитория лежат дополнительные config-файлы для каждой версии сайта.
+ * Каждая версия сайта собирается отдельным ant-скриптом.
+ * 
+ * @see YiiBase - полный набор параметров конфигурации
+ * 
+ *  Последовательность сборки такова: 
+ *  1) Yii
+ *  2) EasyCast (ядро)
+ *  3) Оригинальные плагины
+ *  4) Наши изменения в плагинах
+ *  5) Настройки окружения (для dev, test или production версии)
+ */
 return array(
     // Основные параметры приложения
     // физический путь к папке "protected"
 	'basePath'       => dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
     // язык приложения
     'language'       => 'ru',
-    // язык исходников (установлен английский потому что он основной для большинства сторонних модулей)
+    // язык исходников приложения
     'sourceLanguage' => 'ru',
     // предварительно загружаемые компоненты
     'preload'        => array('log', 'messages'),
@@ -192,10 +197,6 @@ return array(
 	),
 	// Компоненты приложения
 	'components' => array(
-        // RedBeanPHP - редактирование структуры таблиц вручную
-        //'redBean' => array(
-        //    'class' => 'application.components.YiiRedBean',
-        //),
 	    // пользователи (важно: здесь настройки для авторизации, а не для модели User)
 		'user' => array(
 		    // используем класс пользователя из модуля rights чтобы работали права доступа на основе ролей (RBAC)
@@ -269,7 +270,7 @@ return array(
 	        // включаем защиту от подмены cookie
 	        'enableCookieValidation' => true,
 	    ),
-	    // @todo настроить кеширование
+	    // @todo настроить кеширование (для начала хотя бы sqlite in-memory)
 	    'cache' => array(
 	        'class' => 'system.caching.CDummyCache'
 	    ),
@@ -290,15 +291,23 @@ return array(
 	        //'defaultRoles' = array(),
 	    ),
 	    // Подключаем модуль i18n чтобы можно было переводить приложение на разные языки
-	    // @todo подключить CDbMessageSource для того чтобы в модуле Questionary
-	    //       можно было руками добавлять перевод для стандартных значений 
-	    //       или править тексты пояснений к полям анкеты
-	    //       
+        // @todo перенести все языковые строки из php-файлов в БД
+        // @deprecated языковые строки из php-файлов: оставлено для совместимости
+        //             пока весь перевод не перенесен в БД
 	    'messages' => array(
-	        // (пока что все языковые строки берутся из php-файлов)
             'class' => 'CPhpMessageSource',
 	    ),
-        // YiiBooster 3: обертка для Twitter Bootstrap 2.3.2 (для старой верстки)
+        // хранение строк перевода в БД
+	    'dbMessages' => array(
+            'class'                  => 'CDbMessageSource',
+            'cacheID'                => 'cache',
+            // кеширование перевода - 12 часов
+            'cachingDuration'        => 43200,
+            'connectionID'           => 'db',
+            'sourceMessageTable'     => '{{i18n_source_messages}}',
+            'translatedMessageTable' => '{{i18n_translated_messages}}',
+        ),
+        // YiiBooster 3.x: обертка для Twitter Bootstrap 2.3.2 (для старой верстки)
         'bootstrap' => array(
             'class'          => 'bootstrap.components.Bootstrap',
             // подключаем набор иконок "Font Awesome"
@@ -310,7 +319,7 @@ return array(
             'bootstrapCss'   => false,
             'responsiveCss'  => false,
         ),
-        // YiiBooster 4: обертка для Twitter Bootstrap 3.x (для новой верстки) 
+        // YiiBooster 4.x: обертка для Twitter Bootstrap 3.x (для новой верстки) 
         'booster' => array(
             'class'            => 'booster.components.Booster',
             // набор иконок "Font Awesome" уже включен в новую тему оформления
@@ -346,7 +355,7 @@ return array(
             'class'                  => 'CDbHttpSession',
             'autoStart'              => true,
             // стандартное время хранения сессии: 2 месяца
-            'timeout'                => 3600 * 24 * 60,
+            'timeout'                => 5184000,
             'connectionID'           => 'db',
             'autoCreateSessionTable' => false,
         ),
