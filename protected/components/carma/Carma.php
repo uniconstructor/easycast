@@ -1,30 +1,5 @@
 <?php
 
-/**
- * Этот хак необходим для корректной работы всех созданных пользователем AR-записей
- * унаследованных от CustomActiveRecord
- * Доступа на запись на production-сервере у нас нет, сервер в облаке, поэтому
- * создавать файлы с кодом новых AR-классов нельзя - они пропадут при перезагрузке
- * 
- * class_alias() не дает возможности, находясь в созданном объекте, определить какой именно 
- * alias-класс был вызван для создания объекта - поэтому мы не можем узнать для какой модели
- * подгружать метаданные
- * 
- * Подробнее здесь: 
- * @see http://stackoverflow.com/questions/9229605/in-php-how-do-you-get-the-called-aliased-class-when-using-class-alias
- * 
- * @param  string $arClass
- * @return null
- */
-//function customActiveRecordAutoloadHack($arClass)
-//{
-    // if ( ! Yii::app()->getComponent('carma')->carmaArExists($arClass) )
-    //{// подключаем класс только в том случае если он есть в нашем списке моделей
-    //    return false;
-    //}
-    //eval("class {$arClass} extends CustomActiveRecord {}");
-//}
-
 // подключаем базовый класс для всех ar-моделей
 Yii::import('application.components.carma.models.*');
 
@@ -52,11 +27,11 @@ class Carma extends CApplicationComponent
     /**
      * @var string
      */
-    //public $mdTablePrefix = 'md_';
+    public $arModelsTable = 'models';
     /**
      * @var string
      */
-    public $arModelsTable = 'models';
+    public $dbMessageSourceName = 'dbMessages';
 
     /**
      * @see parent::init()
@@ -69,19 +44,30 @@ class Carma extends CApplicationComponent
         // подключаем все созданные пользователем ar-модели
         $models = Yii::app()->db->createCommand()->select()->
             from('{{'.$this->arTablePrefix.$this->arModelsTable.'}}')->
-            where('`system`!=1')->
-            queryAll();
+            where('`system` <> 1')->queryAll();
         foreach ( $models as $model )
         {
             if ( /*$model['system'] OR*/ class_exists($model['model'], true) )
-            {// класс модели является системным (уже подключен) или внешним 
-                // (дополнительное объявление не требуется)
+            {// класс модели является системным (уже подключен автоматически)
                 continue;
             }
-            // да, здесь eval, 
-            // да, по-другому никак (совсем-совсем), 
-            // да, class_alias() не поможет и вот почему:
-            // @see http://stackoverflow.com/questions/9229605/in-php-how-do-you-get-the-called-aliased-class-when-using-class-alias
+            /**
+             * да, здесь eval, 
+             * да, по-другому никак (совсем-совсем), 
+             * да, class_alias() не поможет и вот почему:
+             * 
+             * Этот хак необходим для корректной работы всех созданных пользователем AR-записей
+             * унаследованных от CustomActiveRecord
+             * Доступа на запись на production-сервере у нас нет, сервер в облаке, поэтому
+             * создавать файлы с кодом новых AR-классов нельзя - они пропадут при перезагрузке
+             * 
+             * class_alias() не дает возможности, находясь в созданном объекте, определить какой именно 
+             * alias-класс был вызван для создания объекта - поэтому мы не можем узнать для какой модели
+             * подгружать метаданные
+             * 
+             * Подробнее здесь: 
+             * @see http://stackoverflow.com/questions/9229605/in-php-how-do-you-get-the-called-aliased-class-when-using-class-alias
+             */
             eval("class {$model['model']} extends CustomActiveRecord {}");
         }
         // подключаем все виджеты для работы с AR-моделями
@@ -112,3 +98,5 @@ class ArEvent extends CustomActiveRecord {}
 class ArEventListener extends CustomActiveRecord {}
 class ArEventLauncher extends CustomActiveRecord {}
 class ArEntity extends CustomActiveRecord {}
+class ArI18nMessage extends CustomActiveRecord {}
+class ArI18nTranslation extends CustomActiveRecord {}

@@ -130,7 +130,7 @@ class CustomActiveRecord extends CActiveRecord
         
         $relations = parent::relations();
         $relations['arAttributes'] = array(self::HAS_MANY, 'ArModelAttribute', 'objectid', 
-            'condition' => "modelid={$arClassId} OR (`arAttributes`.`objectid` = 0)"
+            'condition' => "`arAttributes`.`modelid`={$arClassId} OR (`arAttributes`.`objectid` = 0 AND `arAttributes`.`modelid`={$arClassId})",
         );
         return CMap::mergeArray($relations, $this->loadArRelations());
     }
@@ -190,15 +190,15 @@ class CustomActiveRecord extends CActiveRecord
      * 
      * @return string
      */
-    public function getTitle()
+    public function getArModelTitle()
     {
         if ( $this->hasAttribute('title') )
         {
             return $this->title;
         }
         // возвращяем автоматический перевод только если в таблице не предусмотрена такая колонка
-        $arClass = $this->loadArInfo('model');
-        return Yii::t("carma.models", "{$arClass}.title");
+        $arClass = mb_strtolower($this->loadArInfo('model'));
+        return Yii::t("carma.models.{$arClass}.metadata", "model_class_title", array(), 'dbMessages');
     }
     
     /**
@@ -206,15 +206,15 @@ class CustomActiveRecord extends CActiveRecord
      * 
      * @return string
      */
-    public function getDescription()
+    public function getArModelDescription()
     {
         if ( $this->hasAttribute('description') )
         {
             return $this->title;
         }
         // возвращяем автоматический перевод только если в таблице не предусмотрена такая колонка
-        $arClass = $this->loadArInfo('model');
-        return Yii::t("carma.models", "{$arClass}.description");
+        $arClass = mb_strtolower($this->loadArInfo('model'));
+        return Yii::t("carma.models.{$arClass}.metadata", "model_class_description", array(), 'dbMessages');
     }
 
     /**
@@ -275,13 +275,40 @@ class CustomActiveRecord extends CActiveRecord
                 from($table)->where('`modelid` = :modelid', array(':modelid' => $modelId))->queryAll();
             foreach ( $relData as $item )
             {// из каждой записи делаем массив настроек для $this->relations
+                $foreignKey = $item['fk0'];
+                if ( ! $foreignKey )
+                {
+                    $foreignKey = array();
+                    if ( $item['fk1'] AND $item['pk1'] )
+                    {
+                        $foreignKey[] = array($item['fk1'] => $item['pk1']);
+                    }
+                    if ( $item['fk2'] AND $item['pk2'] )
+                    {
+                        $foreignKey[] = array($item['fk2'] => $item['pk2']);
+                    }
+                    if ( $item['fkc1'] AND $item['pkc1'] )
+                    {
+                        $foreignKey[$item['fkc1']] = $item['pkc1'];
+                    }
+                    if ( $item['fkc2'] AND $item['pkc2'] )
+                    {
+                        $foreignKey[$item['fkc2']] = $item['pkc2'];
+                    }
+                    if ( ! $foreignKey )
+                    {// не указан ни один из вариантов внешнего ключа
+                        throw new CException('Error: foreign key not set fo relation "'.$item['name'].'" '
+                            .' in model "'.$arClass.'"');
+                    }
+                }
+                // внешний ключ настроен - создаем связь
                 $relations[$item['name']] = array(
                     // тип связи
                     $item['type'],
                     // AR-класс модели с которой создается связь
                     $item['relatedmodel'], 
                     // первичный и вторичный ключ по которому устанавливается связь
-                    $item['fkdata'],
+                    $foreignKey,
                     // @todo alias
                     // @todo together
                     // @todo through

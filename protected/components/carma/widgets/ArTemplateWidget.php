@@ -14,7 +14,6 @@ class ArTemplateWidget extends CWidget
      */
     public $data = array();
 
-
     /**
      * @see parent::init()
      */
@@ -28,6 +27,6 @@ class ArTemplateWidget extends CWidget
      */
     public function run()
     {
-        $this->evaluateExpression($this->arTemplate->content, $this->data);
+        echo $this->evaluateExpression($this->arTemplate->content, $this->data);
     }
 }
