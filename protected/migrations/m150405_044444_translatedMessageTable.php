@@ -1,14 +1,18 @@
 <?php
 
 /**
- * @see http://www.yiiframework.com/doc/api/1.1/CDbMessageSource#c13630
+ * 
  */
 class m150405_044444_translatedMessageTable extends CDbMigration
 {
     /**
-     * @var string
+     * @var string - name of CDbMessageSource component in config.php
      */
-    public $dbMessageSourceComponent = 'dbMessage';
+    public $dbMessageSourceComponent = 'dbMessages';
+    /**
+     * @var string default table options
+     */
+    public $_mysqlTableOptions = 'ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci';
     
     /**
      * @see parent::safeUp()
@@ -20,9 +24,10 @@ class m150405_044444_translatedMessageTable extends CDbMigration
         /* @var $msgComponent CDbMessageSource */
         if ( ! $msgComponent = Yii::app()->getComponent($this->dbMessageSourceComponent) )
         {
-            throw new CException('Error: CDbMessageSource component with name '.$this->dbMessageSourceComponent.
-                ' not found: check your config.php');
+            throw new CException('Error: CDbMessageSource component with name "'.
+                $this->dbMessageSourceComponent.'" not found: check "components" section in your config.php');
         }
+        // get table names from config
         $sourceMessageTable = $msgComponent->sourceMessageTable;
         $messageTable       = $msgComponent->translatedMessageTable;
         
@@ -33,7 +38,7 @@ class m150405_044444_translatedMessageTable extends CDbMigration
             'message'      => 'text',
             'timecreated'  => 'bigint',
             'timemodified' => 'bigint',
-        ));
+        ), $this->_mysqlTableOptions);
         $this->createIndex('idx_category', $sourceMessageTable, 'category');
         $this->createIndex('idx_timecreated', $sourceMessageTable, 'timecreated');
         $this->createIndex('idx_timemodified', $sourceMessageTable, 'timemodified');
@@ -46,13 +51,12 @@ class m150405_044444_translatedMessageTable extends CDbMigration
             'translation'     => 'text',
             'timecreated'     => 'bigint',
             'timemodified'    => 'bigint',
-        ));
+        ), $this->_mysqlTableOptions);
         $this->createIndex('idx_sourcemessageid', $messageTable, 'sourcemessageid');
         $this->createIndex('idx_language', $messageTable, 'language');
         $this->createIndex('idx_timecreated', $messageTable, 'timecreated');
         $this->createIndex('idx_timemodified', $messageTable, 'timemodified');
         
-        $this->addPrimaryKey('PK_message_sourcemessage', $messageTable, 'sourcemessageid, language');
         $this->addForeignKey(
             'FK_message_sourcemessage',
             $messageTable,
