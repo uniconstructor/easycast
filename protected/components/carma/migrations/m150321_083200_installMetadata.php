@@ -255,15 +255,19 @@ class m150321_083200_installMetadata extends EcMigration
                     'id'                => 'bigpk',
                     'eventid'           => "bigint NOT NULL DEFAULT 0",
                     'listenermodelid'   => "bigint NOT NULL DEFAULT 0",
+                    'listenerobjectid'  => "bigint NOT NULL DEFAULT 0",
                     'launchermodelid'   => "bigint NOT NULL DEFAULT 0",
+                    'launcherobjectid'  => "bigint NOT NULL DEFAULT 0",
                     'actionchainid'     => "bigint NOT NULL DEFAULT 0",
-                    //'sleepconditionid'  => "bigint NOT NULL DEFAULT 0",
                     'muteconditionid'   => "bigint NOT NULL DEFAULT 0",
                     'enabled'           => "boolean NOT NULL DEFAULT 1",
                     'timecreated'       => "bigint NOT NULL DEFAULT 0",
                     'timemodified'      => "bigint NOT NULL DEFAULT 0",
                 ),
             ),
+            /*
+            // для регистрации обработчиков событий нужны только listeners
+            // а отправка событий об изменениях модели уже прописана
             'event_launchers' => array(
                 'columns' => array(
                     'id'                 => 'bigpk',
@@ -276,6 +280,7 @@ class m150321_083200_installMetadata extends EcMigration
                     'timemodified'       => "bigint NOT NULL DEFAULT 0",
                 ),
             ),
+            */
             'entities' => array(
                 'columns' => array(
                     'id'            => 'bigpk',

@@ -72,7 +72,46 @@ class Carma extends CApplicationComponent
         }
         // подключаем все виджеты для работы с AR-моделями
         Yii::import('application.components.carma.widgets.*');
+        // регистрация всех обработчиков событий
         parent::init();
+    }
+    
+    /**
+     * 
+     * @param ArEvent $event
+     */
+    /*public function loadArEventLaunchers($event, )
+    {
+        
+    }*/
+    
+    /**
+     * 
+     * @param ArEvent $event
+     */
+    public function loadArEventListeners($event=null)
+    {
+        
+    }
+    
+    /**
+     * 
+     * @param ArEvent $event
+     */
+    public function loadArEventHandlers($event=null)
+    {
+        
+    }
+    
+    /**
+     * Зарегистрировать всех инициаторов и обработчиков событий AR-моделей
+     * Вызывается при инициализации модуля
+     * 
+     * @return void
+     */
+    protected function initEventSystem()
+    {
+        
     }
 }
 

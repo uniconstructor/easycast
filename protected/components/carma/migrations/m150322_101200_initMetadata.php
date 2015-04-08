@@ -30,7 +30,7 @@ class m150322_101200_initMetadata extends EcMigration
             array('ArFormField', 'form_fields', time(), 0, 'Поле формы', 'Виджет одного поля формы: например текстовая строка или выпадающий список. Хранит информацию о том в каком порядке какие поля в каких формах находятся.'),
             array('ArEvent', 'events', time(), 0, 'Системное событие', 'Этот объект хранит настройки для каждого типа события: название, описание и назначение, используемый событием PHP-класс.'),
             array('ArEventListener', 'events_listeners', time(), 0, 'Получатель события', 'Объект, отслеживающий возникновение событий. Он реагирует на системные события в зависимости от их типа совершая различные действия.'),
-            array('ArEventLauncher', 'events_launchers', time(), 0, 'Источник события', 'Объект-источник запускающий системное событие (launcher) в ответ на действия, пользователя изменения в таблицах и т. д.'),
+            //array('ArEventLauncher', 'events_launchers', time(), 0, 'Источник события', 'Объект-источник запускающий системное событие (launcher) в ответ на действия, пользователя изменения в таблицах и т. д.'),
             array('ArEntity', 'entities', time(), 0, 'Объект произвольной структуры (сущность)', 'Объект в котором может содержатся любой набор свойств любой структуры. Служебный объект.'),
         );
         $arModelIds = array();
@@ -418,7 +418,7 @@ class m150322_101200_initMetadata extends EcMigration
                 'timemodified'  => 0,
             ),
             // event launcher
-            array(
+            /*array(
                 'modelid'       => $arModelIds['ArEventLauncher'],
                 'name'          => 'event',
                 'type'          => CActiveRecord::BELONGS_TO,
@@ -439,7 +439,7 @@ class m150322_101200_initMetadata extends EcMigration
                 'description'   => '',
                 'timecreated'   => time(),
                 'timemodified'  => 0,
-            ),
+            ),*/
             // entity
             array(
                 'modelid'       => $arModelIds['ArEntity'],
