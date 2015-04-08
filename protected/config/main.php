@@ -494,6 +494,10 @@ return array(
         'carma' => array(
             'class' => 'application.components.carma.Carma',
         ),
+        // Отчистка пользвательского HTML
+        'htmlPurifier' => array(
+            'class' => 'CHtmlPurifier',
+        ),
 	),
 	// другие параметры приложения, синтаксис вызова: Yii::app()->params['paramName']
 	// @todo переместить в params.php
