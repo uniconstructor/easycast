@@ -32,6 +32,9 @@ class m150322_101200_initMetadata extends EcMigration
             array('ArEventListener', 'events_listeners', time(), 0, 'Получатель события', 'Объект, отслеживающий возникновение событий. Он реагирует на системные события в зависимости от их типа совершая различные действия.'),
             //array('ArEventLauncher', 'events_launchers', time(), 0, 'Источник события', 'Объект-источник запускающий системное событие (launcher) в ответ на действия, пользователя изменения в таблицах и т. д.'),
             array('ArEntity', 'entities', time(), 0, 'Объект произвольной структуры (сущность)', 'Объект в котором может содержатся любой набор свойств любой структуры. Служебный объект.'),
+            array('ArSystemScript', 'system_scripts', time(), 0, 'Системный скрипт', 'Служебный объект'),
+            array('ArController', 'controllers', time(), 0, 'Контроллер приложения', 'Служебный объект'),
+            array('ArControllerAction', 'controller_actions', time(), 0, 'Действие контроллера приложения', 'Служебный объект'),
         );
         $arModelIds = array();
         foreach ( $arModels as $arModel )
@@ -417,29 +420,6 @@ class m150322_101200_initMetadata extends EcMigration
                 'timecreated'   => time(),
                 'timemodified'  => 0,
             ),
-            // event launcher
-            /*array(
-                'modelid'       => $arModelIds['ArEventLauncher'],
-                'name'          => 'event',
-                'type'          => CActiveRecord::BELONGS_TO,
-                'fk0'           => 'eventid',
-                'relatedmodel'  => 'ArEvent',
-                'title'         => 'Запускаемое событие',
-                'description'   => '',
-                'timecreated'   => time(),
-                'timemodified'  => 0,
-            ),
-            array(
-                'modelid'       => $arModelIds['ArEventLauncher'],
-                'name'          => 'model',
-                'type'          => CActiveRecord::BELONGS_TO,
-                'fk0'           => 'launcherid',
-                'relatedmodel'  => 'ArModel',
-                'title'         => 'Тип объекта запускающего событие',
-                'description'   => '',
-                'timecreated'   => time(),
-                'timemodified'  => 0,
-            ),*/
             // entity
             array(
                 'modelid'       => $arModelIds['ArEntity'],
@@ -474,6 +454,29 @@ class m150322_101200_initMetadata extends EcMigration
                 'timecreated'   => time(),
                 'timemodified'  => 0,
             ),
+            // controller actions
+            array(
+                'modelid'       => $arModelIds['ArControllerAction'],
+                'name'          => 'arController',
+                'type'          => CActiveRecord::BELONGS_TO,
+                'fk0'           => 'controllerid',
+                'relatedmodel'  => 'ArControll',
+                'title'         => 'Контроллер',
+                'description'   => '',
+                'timecreated'   => time(),
+                'timemodified'  => 0,
+            ),
+            array(
+                'modelid'       => $arModelIds['ArController'],
+                'name'          => 'arActions',
+                'type'          => CActiveRecord::HAS_MANY,
+                'fk0'           => 'controllerid',
+                'relatedmodel'  => 'ArControllerAction',
+                'title'         => 'Действия контроллера',
+                'description'   => '',
+                'timecreated'   => time(),
+                'timemodified'  => 0,
+            ),
         );
         foreach ( $relations as $relation )
         {
@@ -481,3 +484,26 @@ class m150322_101200_initMetadata extends EcMigration
         }
     }
 }
+// event launcher
+/*array(
+    'modelid'       => $arModelIds['ArEventLauncher'],
+    'name'          => 'event',
+    'type'          => CActiveRecord::BELONGS_TO,
+    'fk0'           => 'eventid',
+    'relatedmodel'  => 'ArEvent',
+    'title'         => 'Запускаемое событие',
+    'description'   => '',
+    'timecreated'   => time(),
+    'timemodified'  => 0,
+),
+array(
+    'modelid'       => $arModelIds['ArEventLauncher'],
+    'name'          => 'model',
+    'type'          => CActiveRecord::BELONGS_TO,
+    'fk0'           => 'launcherid',
+    'relatedmodel'  => 'ArModel',
+    'title'         => 'Тип объекта запускающего событие',
+    'description'   => '',
+    'timecreated'   => time(),
+    'timemodified'  => 0,
+),*/

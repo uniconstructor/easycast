@@ -6,7 +6,7 @@
 class m150321_083200_installMetadata extends EcMigration
 {
     /**
-     * 
+     * @see parent::safeUp()
      */
     public function safeUp()
     {
@@ -265,22 +265,6 @@ class m150321_083200_installMetadata extends EcMigration
                     'timemodified'      => "bigint NOT NULL DEFAULT 0",
                 ),
             ),
-            /*
-            // для регистрации обработчиков событий нужны только listeners
-            // а отправка событий об изменениях модели уже прописана
-            'event_launchers' => array(
-                'columns' => array(
-                    'id'                 => 'bigpk',
-                    'eventid'            => "bigint NOT NULL DEFAULT 0",
-                    'launchermodelid'    => "bigint NOT NULL DEFAULT 0",
-                    'launcherobjectid'   => "bigint NOT NULL DEFAULT 0",
-                    //'silenceconditionid' => "bigint NOT NULL DEFAULT 0",
-                    'enabled'            => "boolean NOT NULL DEFAULT 1",
-                    'timecreated'        => "bigint NOT NULL DEFAULT 0",
-                    'timemodified'       => "bigint NOT NULL DEFAULT 0",
-                ),
-            ),
-            */
             'entities' => array(
                 'columns' => array(
                     'id'            => 'bigpk',
@@ -288,6 +272,37 @@ class m150321_083200_installMetadata extends EcMigration
                     'modelid'       => "bigint NOT NULL DEFAULT 0",
                     'timecreated'   => "bigint NOT NULL DEFAULT 0",
                     'timemodified'  => "bigint NOT NULL DEFAULT 0",
+                ),
+            ),
+            'system_scripts' => array(
+                'columns' => array(
+                    'id'           => 'bigpk',
+                    'code'         => "string NOT NULL",
+                    'timecreated'  => "bigint NOT NULL DEFAULT 0",
+                    'timemodified' => "bigint NOT NULL DEFAULT 0",
+                ),
+            ),
+            'controllers' => array(
+                'columns' => array(
+                    'id'           => 'bigpk',
+                    'class'        => "string NOT NULL",
+                    'name'         => "string NOT NULL",
+                    'title'        => "string",
+                    'description'  => "string",
+                    'timecreated'  => "bigint NOT NULL DEFAULT 0",
+                    'timemodified' => "bigint NOT NULL DEFAULT 0",
+                ),
+            ),
+            'controller_actions' => array(
+                'columns' => array(
+                    'id'           => 'bigpk',
+                    'controllerid' => 'bigint NOT NULL DEFAULT 0',
+                    'class'        => "string NOT NULL",
+                    'name'         => "string NOT NULL",
+                    'title'        => "string",
+                    'description'  => "string",
+                    'timecreated'  => "bigint NOT NULL DEFAULT 0",
+                    'timemodified' => "bigint NOT NULL DEFAULT 0",
                 ),
             ),
         );
