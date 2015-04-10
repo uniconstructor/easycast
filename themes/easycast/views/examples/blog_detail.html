@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EasyCast Redesign</title>
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="http://fontawesome.io/assets/font-awesome/css/font-awesome.css" rel="stylesheet" media="screen">    
+    <link href='http://fonts.googleapis.com/css?family=Roboto+Condensed:300italic,400,300,700&subset=cyrillic,latin' rel='stylesheet' type='text/css'>
+    <link href="css/custom/icheck/minimal/minimal.css" rel="stylesheet">
+    <link href="css/custom/global.css" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="css/custom/jquery.fancybox.css" />
+	<link rel="stylesheet" type="text/css" href="css/custom/jquery.fancybox-thumbs.css" />
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+  </head>
+  <body>
+	<div class="container">
+		<header class="row">
+			<div id="nav-top">
+				<div class="pull-left">
+					<div id="logo"><a class="noborder" href="#"><img src="images/logo.png"/></a></div>
+				</div>
+				<div class="pull-right">
+					<div id="search">
+						<form action="" method="GET">    
+							<input id="nav-search" value="Поиск по сайту" required="required" onfocus="this.value = ''" onblur="if (this.value == '') {this.value = 'Поиск по сайту';}" class="form-control" name="Search[QUERY]" type="text">    
+							<input type="submit" name="yt2" value="">    
+						</form>
+					</div>
+					<div id="user">
+						<a class="noborder"><img class="avatar img-circle" src="images/user-avatar.jpg"/></a>
+						<a class="name" href="#">Александр Бугаев</a>
+						<a class="noborder" href="#"><img src="images/i-logout.png"/></a>
+					</div>
+				</div>
+			</div>
+			<div id="nav-menu">
+				<ul>
+					<li><a href="">Главная</a></li>
+					<li class="active"><a href="">Проекты</a></li>
+					<li><a href="">Мероприятия</a></li>
+					<li><a href="">FAQ</a></li>
+					<li><a href="">Контакты</a></li>
+				</ul>
+			</div>
+		</header>
+		<section class="row" id="breadcrumbs">
+			<div itemprop="breadcrumb">
+				<a class="nohover" href="/">Главная</a><em>></em><span class="brtitle">Проекты</span>
+			</div>
+		</section>
+		<section class="row leftcol" id="content">
+			<div class="col-md-9">
+				<div id="main">
+					<div class="row news-detail">
+						<div class="holder"><img class="img-responsive" src="images/sample13.jpg" /><h1 class="text-center">Здесь будет длинный заголовок поста</h1><span class="date">17 августа 2015</span></div>
+						<div class="text">
+							<p>Давно выяснено, что при оценке дизайна и композиции читаемый текст мешает сосредоточиться. Lorem Ipsum используют потому, что тот обеспечивает более или менее стандартное заполнение шаблона, а также реальное распределение букв и пробелов в абзацах, которое не получается при простой дубликации "Здесь ваш текст.. Здесь ваш текст.. Здесь ваш текст.." </p>
+							<p class="image"><a href="images/sample6.jpg" class="fancybox-thumb" rel="fancybox-thumb"><img src="images/sample6.jpg"/></a></p>
+							<p class="image"><a href="images/sample10.jpg" class="fancybox-thumb" rel="fancybox-thumb"><img src="images/sample10.jpg"/></a></p>
+							<p class="image"><a href="images/sample9.jpg" class="fancybox-thumb" rel="fancybox-thumb"><img src="images/sample9.jpg"/></a></p>
+							<p>Многие программы электронной вёрстки и редакторы HTML используют Lorem Ipsum в качестве текста по умолчанию, так что поиск по ключевым словам "lorem ipsum" сразу показывает, как много веб-страниц всё ещё дожидаются своего настоящего рождения. За прошедшие годы текст Lorem Ipsum получил много версий. Некоторые версии появились по ошибке, некоторые - намеренно (например, юмористические варианты).</p>
+							<p>Давно выяснено, что при оценке дизайна и композиции читаемый текст мешает сосредоточиться. Lorem Ipsum используют потому, что тот обеспечивает более или менее стандартное заполнение шаблона, а также реальное распределение букв и пробелов в абзацах, которое не получается при простой дубликации "Здесь ваш текст.. Здесь ваш текст.. Здесь ваш текст.." </p>
+						</div>
+						<div class="row info">
+							<div class="col-md-6">
+								<div class="author">
+									<img src="images/ngrishin.png" />
+									<div class="author-name"><h4>Николай Гришин</h4><span class="position">Управляющий партнер</span></div>
+								</div>
+							</div>
+							<div class="col-md-6 text-right">
+								<img src="images/social.png" />
+							</div>
+						</div>
+						<div class="news-divider"></div>
+						<div id="comments">
+							<h2 class="leave-comment">Оставить комментарий</h2>
+							<div class="leave-form">
+								<img src="images/sample3.jpg" />
+								<form action="" method="get">
+									<textarea name="" rows="5" class="form-control" id="comment-text" placeholder="Введите текст вашего комментария"></textarea>
+									<input type="submit" class="btn btn-fresh text-uppercase" id="comment-send" value="Отправить комментарий" />
+								</form>
+							</div>
+							<hr/>
+							<div class="comments-list">
+								<div class="comment-item" id="comment-1797">
+							       <div class="user-icon"><a href="#"><img class="img-rounded" width="70" height="70" src="images/sample12.jpg"></a></div>
+							       <div class="item-container">
+							           <div class="comment-item-top"><a href="/user/Devushkaru">Алиса Чеширская</a>, <span class="comment-date">5 марта 2015</span></div>
+										<div class="comment-item-controls">
+											<a title="" href="#" data-original-title="цитировать"><i class="fa fa-comment"></i></a>
+											<a title="" href="#" data-original-title="редактировать"><i class="fa fa-pencil"></i></a>
+											<a title="" href="#" data-original-title="удалить"><i class="fa fa-remove"></i></a>
+										</div>
+							           <div class="clearfix"></div>
+							           <div class="comment-item-content">я одна крутила комп и телефон под разными углами, чтобы найти там хотя бы какой-нибудь намек на золотой и уж тем более белый?...</div>
+							           <div class="clearfix"></div>
+							       </div>
+							       <div class="clearfix"></div>
+							    </div>
+							    <hr/>
+								<div class="comment-item" id="comment-1798">
+							       <div class="user-icon"><a href="#"><img class="img-rounded" width="70" height="70" src="images/sample9.jpg"></a></div>
+							       <div class="item-container">
+							           <div class="comment-item-top"><a class="moderator" href="/user/Devushkaru">Николай Гришин</a>, <span class="comment-date">5 марта 2015</span></div>
+										<div class="comment-item-controls">
+											<a title="" href="#" data-original-title="цитировать"><i class="fa fa-comment"></i></a>
+											<a title="" href="#" data-original-title="редактировать"><i class="fa fa-pencil"></i></a>
+											<a title="" href="#" data-original-title="удалить"><i class="fa fa-remove"></i></a>
+										</div>
+							           <div class="clearfix"></div>
+							           <div class="comment-item-content"><blockquote>я одна крутила комп и телефон под разными углами, чтобы найти там хотя бы какой-нибудь намек на золотой и уж тем более белый?</blockquote>я одна крутила комп и телефон под разными углами, чтобы найти там хотя бы какой-нибудь намек на золотой и уж тем более белый?...</div>
+							           <div class="clearfix"></div>
+							       </div>
+							       <div class="clearfix"></div>
+							    </div>
+							    <hr/>
+								<div class="comment-item" id="comment-1799">
+							       <div class="user-icon"><a href="#"><img class="img-rounded" width="70" height="70" src="images/ngrishin.png"></a></div>
+							       <div class="item-container">
+							           <div class="comment-item-top"><a href="/user/Devushkaru">Оксана Аксенова</a>, <span class="comment-date">5 марта 2015</span></div>
+										<div class="comment-item-controls">
+											<a title="" href="#" data-original-title="цитировать"><i class="fa fa-comment"></i></a>
+											<a title="" href="#" data-original-title="редактировать"><i class="fa fa-pencil"></i></a>
+											<a title="" href="#" data-original-title="удалить"><i class="fa fa-remove"></i></a>
+										</div>
+							           <div class="clearfix"></div>
+							           <div class="comment-item-content">я одна крутила комп и телефон под разными углами, чтобы найти там хотя бы какой-нибудь намек на золотой и уж тем более белый?...</div>
+							           <div class="clearfix"></div>
+							       </div>
+							       <div class="clearfix"></div>
+							    </div>
+							    <hr/>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="sticker">
+					<div class="wrapper">
+						<h3>Подсказка</h3>
+						<div class="sticker-item">
+							Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. <br/><br/>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+						</div>
+					</div>
+				</div>
+				<div class="sticker">
+					<div class="wrapper">
+						<h3>Еще одна</h3>
+						<div class="sticker-item">
+							Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<footer class="row">
+			<div class="col-md-3">
+				<img src="images/logo-white.png" />
+				<p class="copyright">© 2005-2015 КАСТИНГОВОЕ АГЕНСТВО «EASYCAST». ВСЕ ПРАВА ЗАЩИЩЕНЫ. </p>
+			</div>
+			<div class="col-md-3">
+				<ul>
+					<li><a href="#">Контакты</a></li>
+					<li><a href="#">Как это работает</a></li>
+					<li><a href="#">Связаться с нами</a></li>
+					<li><a href="#">Еще пункт</a></li>
+				</ul>
+			</div>
+			<div class="col-md-3">
+				<ul>
+					<li><a href="#">Контакты</a></li>
+					<li><a href="#">Как это работает</a></li>
+					<li><a href="#">Связаться с нами</a></li>
+					<li><a href="#">Еще пункт</a></li>
+				</ul>
+			</div>
+			<div class="col-md-3">
+				<div id="dev">
+					<img src="images/logolance.png" alt="Puertolance Web Studio"/>
+					Разработка дизайна
+					<a href="#">Puertolance</a>
+				</div>
+			</div>
+		</footer>
+	</div>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/custom/icheck.min.js"></script>
+    <script src="js/custom/imagesloaded.pkgd.min.js"></script>
+    <script src="js/custom/positions.js"></script>
+    <script src="js/custom/script.js"></script>
+	<script src="js/custom/jquery.fancybox.pack.js"></script>
+	<script src="js/custom/jquery.fancybox-thumbs.js"></script>
+	
+  	<script>
+	$(".fancybox-thumb").fancybox({
+		prevEffect	: 'none',
+		nextEffect	: 'none',
+		helpers	: {
+			title	: {
+				type: 'outside'
+			},
+			thumbs	: {
+				width	: 100,
+				height	: 100
+			}
+		}
+	});
+  	</script>
+	
+  </body>
+</html>
