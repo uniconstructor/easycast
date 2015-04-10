@@ -209,7 +209,7 @@ class m150322_101200_initMetadata extends EcMigration
             ),
             array(
                 'modelid'       => $arModelIds['ArWidget'],
-                'name'          => 'configdata',
+                'name'          => 'configData',
                 'type'          => CActiveRecord::BELONGS_TO,
                 'fk0'           => 'configdataid',
                 'relatedmodel'  => 'ArValueJson',
@@ -255,7 +255,7 @@ class m150322_101200_initMetadata extends EcMigration
             ),
             array(
                 'modelid'       => $arModelIds['ArAttribute'],
-                'name'          => 'valuetypemodel',
+                'name'          => 'valueTypeModel',
                 'type'          => CActiveRecord::BELONGS_TO,
                 'fk0'           => 'valuetypemodelid',
                 'relatedmodel'  => 'ArModel',
@@ -301,7 +301,7 @@ class m150322_101200_initMetadata extends EcMigration
             ),
             array(
                 'modelid'       => $arModelIds['ArAttributeValue'],
-                'name'          => 'valuetypemodel',
+                'name'          => 'valueTypeModel',
                 'type'          => CActiveRecord::BELONGS_TO,
                 'fk0'           => 'valuemodelid',
                 'relatedmodel'  => 'ArModel',
@@ -313,7 +313,7 @@ class m150322_101200_initMetadata extends EcMigration
             // meta link
             array(
                 'modelid'       => $arModelIds['ArMetaLink'],
-                'name'          => 'sourcepointer',
+                'name'          => 'sourcePointer',
                 'type'          => CActiveRecord::BELONGS_TO,
                 'fk0'           => 'sourcepointerid',
                 'relatedmodel'  => 'ArPointer',
@@ -324,7 +324,7 @@ class m150322_101200_initMetadata extends EcMigration
             ),
             array(
                 'modelid'       => $arModelIds['ArMetaLink'],
-                'name'          => 'targetpointer',
+                'name'          => 'targetPointer',
                 'type'          => CActiveRecord::BELONGS_TO,
                 'fk0'           => 'targetpointerid',
                 'relatedmodel'  => 'ArPointer',
