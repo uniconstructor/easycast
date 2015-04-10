@@ -73,7 +73,7 @@ class EcWebUser extends RWebUser
     }
     
     /**
-     * Получить id анкеты текущего авторизованного пользователя
+     * Получить ФИО из анкеты текущего авторизованного пользователя
      *
      * @return string|null
      */
@@ -81,8 +81,9 @@ class EcWebUser extends RWebUser
     {
         if ( $questionary = $this->getQuestionary() )
         {
-            return $questionary->fullName;
+            return $questionary->firstname.' '.$questionary->lastname;
         }
+        return 'Гость';
     }
     
     /**
@@ -149,7 +150,7 @@ class EcWebUser extends RWebUser
         $image = $this->getAvatarImage($size, $imageOptions);
         if ( ! $url = $this->getProfileUrl() )
         {
-            return $this->getAvatarImage();
+            $url = Yii::app()->createUrl('/easy');
         }
         return CHtml::link($image, $url, $linkOptions);
     }
@@ -161,12 +162,12 @@ class EcWebUser extends RWebUser
      */
     public function getFullNameLink()
     {
-        $image = $this->getAvatarImage($size, $imageOptions);
+        $name = $this->getFullName();
         if ( ! $url = $this->getProfileUrl() )
         {
-            return $this->getAvatarImage();
+            $url = Yii::app()->createUrl('/easy');
         }
-        return CHtml::link($image, $url, $linkOptions);
+        return CHtml::link($name, $url);
     }
     
     /**
