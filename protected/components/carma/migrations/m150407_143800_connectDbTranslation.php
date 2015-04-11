@@ -76,5 +76,23 @@ class m150407_143800_connectDbTranslation extends EcMigration
                 'timemodified'  => 0,
             ),
         );
+        foreach ( $relations as $relation )
+        {
+            $this->insert("{{ar_relations}}", $relation);
+        }
+        
+        // форма создания разметки
+        $this->insert("{{ar_forms}}", array(
+            'title'       => 'Создание/редактирование разметки',
+            'description' => 'Позволяет создавать и редактировать разметку страницы',
+        ));
+        $layoutFormId = $this->getDbConnection()->lastInsertID;
+        $this->insert("{{ar_form_fields}}", array(
+            'formid'      => $layoutFormId,
+            'name'        => '',
+            'title'       => 'Текст разметки',
+            'description' => 'Можно использовать синтаксис Mustache Template: https://github.com/bobthecow/mustache.php/wiki/Variable-Resolution',
+        ));
+        $formFieldId = $this->getDbConnection()->lastInsertID;
     }
 }

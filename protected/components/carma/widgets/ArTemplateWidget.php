@@ -27,6 +27,9 @@ class ArTemplateWidget extends CWidget
      */
     public function run()
     {
-        echo $this->evaluateExpression($this->arTemplate->content, $this->data);
+        //echo $this->evaluateExpression($this->arTemplate->content, $this->data);
+        //echo $this->arTemplate->content;
+        //$this->controller->renderText($this->arTemplate->content);
+        
     }
 }

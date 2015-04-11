@@ -80,19 +80,10 @@ class Carma extends CApplicationComponent
      * 
      * @param ArEvent $event
      */
-    /*public function loadArEventLaunchers($event, )
+    /*public function loadArEventListeners($event=null)
     {
         
     }*/
-    
-    /**
-     * 
-     * @param ArEvent $event
-     */
-    public function loadArEventListeners($event=null)
-    {
-        
-    }
     
     /**
      * 
@@ -123,7 +114,25 @@ class ArWidget extends CustomActiveRecord {}
 class ArPointer extends CustomActiveRecord {}
 class ArAttribute extends CustomActiveRecord {}
 class ArModelAttribute extends CustomActiveRecord {}
-class ArAttributeValue extends CustomActiveRecord {}
+class ArAttributeValue extends CustomActiveRecord
+{
+    /**
+     * @return mixed
+     */
+    public function getValue()
+    {
+        $arClass = $this->valueTypeModel->model;
+        if ( ! $value = $arClass::model()->findByPk($this->valueid) )
+        {
+            return null;
+        }
+        if ( isset($value->value) )
+        {
+            return $value->value;
+        }
+        return $value;
+    }
+}
 class ArMetaLink extends CustomActiveRecord {}
 class ArValueJson extends CustomActiveRecord {}
 class ArValueInt extends CustomActiveRecord {}
@@ -139,3 +148,6 @@ class ArEventLauncher extends CustomActiveRecord {}
 class ArEntity extends CustomActiveRecord {}
 class ArI18nMessage extends CustomActiveRecord {}
 class ArI18nTranslation extends CustomActiveRecord {}
+class ArSystemScript extends CustomActiveRecord {}
+class ArController extends CustomActiveRecord {}
+class ArControllerAction extends CustomActiveRecord {}

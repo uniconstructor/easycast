@@ -46,28 +46,15 @@ class CustomActiveRecord extends CActiveRecord
     protected $arTranslationPrefix = 'app.modules.carma.models.';
     
     /**
-     * 
-     * @param type $scenario
-     */
-    public function __construct($scenario='insert')
-    {
-        if ( self::$arTablePrefix === null )
-        {// получаем настройки AR-класса из модуля
-            self::$arTablePrefix = Yii::app()->getComponent('carma')->arTablePrefix;
-        }
-        parent::__construct($scenario);
-    }
-    
-    /**
      * @see parent::init()
      * 
      * @todo подключить behaviors из базы
      * @todo подключить обработчики событий из базы
      */
-    public function init()
+    /*public function init()
     {
         parent::init();
-    }
+    }*/
 
     /**
      * Определяет таблицу в зависимости от того какой AR-класс сейчас используется
@@ -96,10 +83,8 @@ class CustomActiveRecord extends CActiveRecord
     public function getMetaData()
     {
         $arClass = get_called_class();
-        //$arClass = $this->arClassName;
 		if ( ! array_key_exists($arClass, self::$armd) )
-		{
-            // получаем основные метаданные
+		{// получаем метаданные таблицы
             $activeMd = new CActiveRecordMetaData($this);
             // preventing recursive invokes of {@link getMetaData()} via {@link __get()}
             self::$armd[$arClass] = null;
@@ -128,6 +113,7 @@ class CustomActiveRecord extends CActiveRecord
      * @return array
      * 
      * @todo прописать логику на случай наложения связей
+     * @todo использовать подстановку :params
      */
     public function relations()
     {
@@ -135,18 +121,11 @@ class CustomActiveRecord extends CActiveRecord
         $relations['arAttributes'] = array(self::HAS_MANY, 'ArModelAttribute', 'objectid', 
             'condition' => "`arAttributes`.`modelid`={$this->getArClassId()} OR (`arAttributes`.`objectid` = 0 AND `arAttributes`.`modelid`={$this->getArClassId()})",
         );
+        $relations['myModel'] = array(self::HAS_MANY, 'ArModelAttribute', 'objectid', 
+            'condition' => "`arAttributes`.`modelid`={$this->getArClassId()} OR (`arAttributes`.`objectid` = 0 AND `arAttributes`.`modelid`={$this->getArClassId()})",
+        );
         return CMap::mergeArray($relations, $this->loadArRelations());
     }
-    
-    /**
-     * @see parent::getActiveRelation()
-     * 
-     * @todo удалить если не используется
-     */
-    /*public function getActiveRelation($name)
-	{
-		return isset($this->getMetaData()->relations[$name]) ? $this->getMetaData()->relations[$name] : null;
-	}*/
     
     /**
      * @see parent::attributeLabels()
@@ -173,6 +152,9 @@ class CustomActiveRecord extends CActiveRecord
         // все модели, независимо от класса хранят информацию о дате создания и изменения объекта
         $behaviors['ecTimeStampBehavior'] = array(
             'class' => 'application.behaviors.EcTimestampBehavior',
+        );
+        $behaviors['arModelBehavior'] = array(
+            'class' => 'carma.behaviors.EcTimestampBehavior',
         );
         return CMap::mergeArray($behaviors, $this->loadArBehaviors());
     }
@@ -239,6 +221,10 @@ class CustomActiveRecord extends CActiveRecord
         if ( ! $table )
         {
             $table = $this->loadArInfo('table');
+        }
+        if ( self::$arTablePrefix === null )
+        {// получаем настройки AR-класса из модуля
+            self::$arTablePrefix = Yii::app()->getComponent('carma')->arTablePrefix;
         }
         return '{{'.self::$arTablePrefix.$table.'}}';
     }
@@ -439,6 +425,49 @@ class CustomActiveRecord extends CActiveRecord
     }
     
     /**
+     * Создать объект формы по метаданным модели
+     * 
+     * @param string $arClass
+     * @return ArForm
+     */
+    public function createArModelForm($arClass=null)
+    {
+        $fields = array();
+        // создаем фильтры и валидаторы по метаданным колонок таблицы
+        // при изменении структуры таблицы проверуи изменяются вместе с ней автоматически
+        $columns   = $this->getMetaData()->columns;
+        foreach ( $columns as $column )
+        {
+            $fields = $this->createColumnField($column);
+        }
+        // связи с другими моделями
+        $relations = $this->relations();
+    }
+    
+    /**
+     * Получить форму для редактирования модели
+     * 
+     * @param string $arClass - класс
+     * @return ArForm
+     */
+    public function getArModelForm($arClass=null)
+    {
+        
+    }
+    
+    /**
+     * Создать input-элемент для поля формы
+     * 
+     * @param string $attribute
+     * @param string $arClass
+     * @return ArFormField
+     */
+    /*public function createArAttributeField($attribute, $arClass=null)
+    {
+        
+    }*/
+    
+    /**
      * получить шаблон строки перевода для атрибута модели
      * 
      * @param type $item - поле или атрибут модели для которого создается шаблон строки
@@ -461,8 +490,8 @@ class CustomActiveRecord extends CActiveRecord
      * Настроить текущий AR-объект на работу с переданным классом записи: загрузить из базы метаданные,
      * обновить связи, набор полей и все остальные настраиваемые параметры класса ActiveRecord
      * 
-     * @param  string $arClass
-     * @param  string $key
+     * @param string $arClass
+     * @param string $key
      * @return array|string
      */
     protected function loadArInfo($key=null, $arClass=null)
@@ -502,7 +531,6 @@ class CustomActiveRecord extends CActiveRecord
      * @return array - custom relations, stored in DB
      * 
      * @todo реализовать остальные параметры для relations()
-     * @todo убрать параметр $arClass
      */
     protected function loadArRelations()
     {
@@ -544,12 +572,19 @@ class CustomActiveRecord extends CActiveRecord
                             .' in model "'.$arClass.'"');
                     }
                 }
+                if ( intval($item['relatedmodel']) )
+                {
+                    $relatedModel = ArRelation::model()->findByPk($item['relatedmodel']);
+                }else
+                {
+                    $relatedModel = $item['relatedmodel'];
+                }
                 // внешний ключ настроен - создаем связь
                 $relations[$item['name']] = array(
                     // тип связи
                     $item['type'],
                     // AR-класс модели с которой создается связь
-                    $item['relatedmodel'], 
+                    $relatedModel, 
                     // первичный и вторичный ключ по которому устанавливается связь
                     $foreignKey,
                     // @todo alias
@@ -695,16 +730,16 @@ class CustomActiveRecord extends CActiveRecord
     /**
      * Проверить, загружен ли такой фрагмент метаданных
      * 
-     * @param string $name - 
+     * @param string $name - название фрагмента
      * @return bool
      */
-    protected function arMetaFragmentIsLoaded($name)
+    /*protected function arMetaFragmentIsLoaded($name)
     {
         switch ( $name )
         {
             
         }
-    }
+    }*/
     
     /**
      * Создать набор правил по метаданным колонок таблиц
@@ -764,8 +799,29 @@ class CustomActiveRecord extends CActiveRecord
                     }
                 break;
             }
-            
         }
         return $rules;
+    }
+    
+    /**
+     * Создать поле формы из метаданных колонки таблицы
+     * 
+     * @param CDbColumnSchema $column - колонка таблицы для которой создается поле
+     * @return ArFormField
+     */
+    protected function createColumnInput(CDbColumnSchema $column)
+    {
+        
+    }
+    
+    /**
+     * Создать поле формы из метаданных реляционной связи модели если колонка таблицы отсутствует
+     * 
+     * @param string $relation - название ralation-связи
+     * @return ArFormField
+     */
+    protected function createRelationInput($relation)
+    {
+        
     }
 }
