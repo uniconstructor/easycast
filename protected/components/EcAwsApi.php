@@ -175,7 +175,7 @@ class EcAwsApi extends CApplicationComponent
         // регистрируем обертку протокола s3:// для того чтобы использовать
         // стандартные функции работы с файлами из PHP в Amazon
         $this->getS3()->registerStreamWrapper();
-        
+        // выполняем другие действия по инициализации если требуется
         parent::init();
     }
     
