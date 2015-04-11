@@ -42,9 +42,12 @@ return array(
         'libphonenumber' => 'application.components.libphonenumber',
         // библиотеки установленные менеджером Composer
         'vendor'         => 'application.vendor',
+        // шаблоны mustache
+        'mustache'       => 'ext.mustache.lib',
     ),
     // Используем собственную тему оформления для сайта
     'theme'  => 'maximal',
+    //'theme'  => 'easycast',
 	// автозагрузка для основных классов приложения
     'import' => array(
         // основные компоненты приложения
@@ -85,6 +88,10 @@ return array(
         // @todo с подключением YiiBooster виджет устарел: заменить все обращения
         //       к нему на новые элементы а затем удалить из сборки при рефакторинге
         'application.extensions.jtogglecolumn.*',
+        // шаблоны mustache
+        //'mustache.*',
+        //'mustache.helpers.*',
+        'ext.mustache.lib.CMustacheViewRenderer',
 	),
     // все модули проекта
 	'modules' => array(
@@ -254,10 +261,17 @@ return array(
 			// в config-файлах веткок dev, test и release
 			// (для того чтобы базовый config.php содержал только те настройки, которые не меняются
 		    // в зависимости от варианта сборки)  
-		    'tablePrefix'    => 'bgl_',
-		    'emulatePrepare' => true,
-			'charset'        => 'utf8',
+		    'tablePrefix'           => 'bgl_',
+		    'emulatePrepare'        => true,
+			'charset'               => 'utf8',
+            'schemaCachingDuration' => 3600,
 		),
+        // база данных sqlte для кеширования запросов
+        'dbCache' => array(
+            'charset' => 'utf8',
+            
+            
+        ),
 	    // работа с HTTP-запросами
 	    'request' => array(
 	        'class'     => 'CHttpRequest',
@@ -272,9 +286,14 @@ return array(
 	        // включаем защиту от подмены cookie
 	        'enableCookieValidation' => true,
 	    ),
-	    // @todo настроить кеширование (для начала хотя бы sqlite in-memory)
+	    // кеширование (sqlite) - применяем именно таблицу на диске 
+        // так как создание таблицы в памяти будет работать неэффективно: 
+        // http://stackoverflow.com/questions/10055216/php-database-cache-with-sqlite-in-memory
 	    'cache' => array(
-	        'class' => 'system.caching.CDummyCache'
+	        'class'        => 'CDbCache',
+            'connectionID' => 'sqlite:/'.dirname(__FILE__).DIRECTORY_SEPARATOR.'..'.
+                DIRECTORY_SEPARATOR.'data/cache/cache.db',
+            //'autoCreateCacheTable' => true,
 	    ),
 	    // обработка ошибок
 		'errorHandler' => array(
@@ -498,6 +517,11 @@ return array(
         'htmlPurifier' => array(
             'class' => 'CHtmlPurifier',
         ),
+        // отрисовка шаблонов mustache
+        //'viewRenderer' => array(
+        //    'class' => 'ext.mustache.lib.CMustacheViewRenderer',
+        //    //'fileExtension' => '.php',
+        //),
 	),
 	// другие параметры приложения, синтаксис вызова: Yii::app()->params['paramName']
 	// @todo переместить в params.php
