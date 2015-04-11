@@ -25,7 +25,7 @@ class DataTable extends CWidget
      *     'cellType'  => 'td', // td|th
      *     'data'      => 'fieldName', // название поля в объекте data (если массив данных ассоциативный)
      *                                 // data.row.fieldName 
-     *     'defaultContent' => '---',
+     *     'defaultContent' => '---', // содержимое ячейки для случая когда в ней нет данных
      *     'orderable' => true, 
      *     'title'     => 'ФИО', 
      *     'type'      => 'html', // http://datatables.net/reference/option/columns.type 

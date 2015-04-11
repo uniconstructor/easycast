@@ -134,9 +134,12 @@ class ConsoleController extends SmartAdminController
     public function actions()
     {
         return array(
-            /*'xupload' => array(
-                'class' => 'xupload.actions.S3XUploadAction',
-            ),*/
+            //'xupload' => array(
+            //    'class' => 'xupload.actions.S3XUploadAction',
+            //),
+            'cockpit' => array(
+                'class' => 'application.actions.CockpitAction',
+            ),
             'dashboard' => array(
                 'class' => 'smartAdmin.actions.DashboardAction',
             ),

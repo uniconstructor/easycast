@@ -62,7 +62,9 @@ class SmartAdminModule extends CWebModule
             ),
         );
         // заменяем базовые скрипты и стили на собственные
-        $packages = CMap::mergeArray($corePackages , $customPackages);*/
+        $packages = CMap::mergeArray($corePackages , $customPackages);
+        */
+        Yii::app()->getComponent('carma');
         
         // в админке переключаемся на специальную тему оформления
         Yii::app()->setTheme('admin');
@@ -99,14 +101,14 @@ class SmartAdminModule extends CWebModule
 	/**
 	 * alias для функции получения строк перевода
 	 * 
-	 * @param  $str
-	 * @param  $params
-	 * @param  $dic
+	 * @param $str
+	 * @param $params
+	 * @param $dic
 	 * @return string
 	 */
 	public static function t($str='', $params=array(), $dic='smartAdmin')
 	{
-	    if ( Yii::t("SmartAdminModule", $str) == $str )
+	    if ( Yii::t("SmartAdminModule", $str) === $str )
 	    {
 	        return Yii::t("SmartAdminModule.".$dic, $str, $params);
 	    }else
