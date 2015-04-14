@@ -22,12 +22,12 @@
 /* @var $content string */
 
 ?><!DOCTYPE html>
-<html class="smart-style-5" lang="ru">
+<html class="smart-style-2" lang="ru">
     <?php 
     // заголовок страницы
     $this->renderPartial('//layouts/head');
     ?>
-    <body class="smart-style-5 fixed-navigation">
+    <body class="smart-style-2 fixed-navigation">
         <?php 
         // шапка страницы + верхняя панель с инструментами
         $this->renderPartial('//layouts/header');
@@ -68,7 +68,6 @@
         <?php
         // полный набор скриптов для работы темы оформления
         $this->renderPartial('//layouts/scripts');
-        
         $csfrVarOptions = array(
             'id' => '_ecYiiCsrfContainer',
         );
