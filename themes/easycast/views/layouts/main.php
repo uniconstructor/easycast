@@ -9,7 +9,6 @@
 
 // путь к корню темы оформления (там лежат все скрипты и стили)
 $themeUrl = Yii::app()->theme->baseUrl.'/assets/';
-
 ?><!DOCTYPE html>
 <html lang="ru">
     <head>
@@ -36,7 +35,7 @@ $themeUrl = Yii::app()->theme->baseUrl.'/assets/';
             <header class="row">
                 <div id="nav-top">
                     <div class="pull-left">
-                        <div id="logo"><a class="noborder" href="#"><img src="<?= $themeUrl; ?>images/logo.png"/></a></div>
+                        <div id="logo"><a class="noborder" href="<?= Yii::app()->baseUrl; ?>"><img src="<?= $themeUrl; ?>images/logo.png"/></a></div>
                     </div>
                     <div class="pull-right">
                         <!--div id="search">
