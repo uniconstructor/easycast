@@ -14,21 +14,6 @@ class CastingController extends Controller
     protected $defaultModelClass = 'Project';
     
     /**
-     * @return array action filters
-     */
-    public function filters()
-    {
-        $baseFilters = parent::filters();
-	    $newFilters  = array(
-	        'accessControl',
-	        array(
-	            'ext.bootstrap.filters.BootstrapFilter',
-	        ),
-	    );
-	    return CMap::mergeArray($baseFilters, $newFilters);
-    }
-    
-    /**
      * @return array
      *
      * @todo настроить проверку прав на основе RBAC
