@@ -44,13 +44,13 @@ class EcUpdateAction extends CAction
     public function run()
     {
         // id модели
-        $id        = Yii::app()->request->getParam('id');
+        $id         = Yii::app()->request->getParam('id');
         // поле модели
-        $attribute = Yii::app()->request->getParam('attribute');
+        $attribute  = Yii::app()->request->getParam('attribute');
         // обновляемое значение
-        $value     = Yii::app()->request->getParam('value');
+        $value      = Yii::app()->request->getParam('value');
         // массив с обновляемыми значениями (если есть)
-        $modelData = Yii::app()->request->getPost($this->modelName);
+        $modelData  = Yii::app()->request->getPost($this->modelName);
         
         if ( Yii::app()->getRequest()->isPostRequest )
         {
@@ -90,17 +90,23 @@ class EcUpdateAction extends CAction
      */
     protected function loadModel($id)
     {
+        if ( ! $this->modelName AND Yii::app()->user->checkAccess('Admin') )
+        {// задать вручную класс редактируемой модели разрешено только админу
+            $modelName = trim(Yii::app()->request->getParam('modelName'));
+        }
+        if ( ! $this->modelName AND ($modelName instanceof CActiveRecord) )
+        {// и только если все правильно
+            $this->modelName = $modelName;
+        }
         $finder = CActiveRecord::model($this->modelName);
         
         if ( $this->additionalCriteriaOnLoadModel )
         {
             $c = new CDbCriteria($this->additionalCriteriaOnLoadModel);
-            $c->mergeWith(
-                array(
-                    'condition' => $finder->tableSchema->primaryKey . '=:id',
-                    'params'    => array(':id' => $id),
-                )
-            );
+            $c->mergeWith(array(
+                'condition' => $finder->tableSchema->primaryKey.'=:id',
+                'params'    => array(':id' => $id),
+            ));
             $model = $finder->find($c);
         }else
         {
@@ -118,6 +124,7 @@ class EcUpdateAction extends CAction
      * @param CActiveRecord $model the model to be validated
      *
      * @todo придумать более цивилизованный способ сообщать об ошибках
+     * @todo добавить проверку isAjaxRequest
      */
     protected function performAjaxValidation($model)
     {
