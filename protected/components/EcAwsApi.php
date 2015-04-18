@@ -81,36 +81,46 @@ class EcAwsApi extends CApplicationComponent
     /**
      * @var string - статус задачи оцифровки: в очереди
      */
-    const ENC_STATUS_SUBMITTED   = 'Submitted';
+    const ENC_STATUS_SUBMITTED       = 'Submitted';
     /**
      * @var string - статус задачи оцифровки: обработка
      */
-    const ENC_STATUS_PROGRESSING = 'Progressing';
+    const ENC_STATUS_PROGRESSING     = 'Progressing';
     /**
      * @var string - статус задачи оцифровки: выполнено
      */
-    const ENC_STATUS_COMPLETE    = 'Complete';
+    const ENC_STATUS_COMPLETE        = 'Complete';
     /**
      * @var string - статус задачи оцифровки: отменено
      */
-    const ENC_STATUS_CANCELED    = 'Canceled';
+    const ENC_STATUS_CANCELED        = 'Canceled';
     /**
      * @var string - статус задачи оцифровки: ошибка
      */
-    const ENC_STATUS_ERROR       = 'Error';
+    const ENC_STATUS_ERROR           = 'Error';
     
     /**
      * @var array - настройки всех сервисов Amazon
      */
     public $settings = array(
+        'defaults' => array(
+            'AWSRegion'=> 'us-east-1',
+        ),
         'ses' => array(
-            
+            'verifiedSenders' => array(
+                'admin@easycast.ru',
+                'ceo@easycast.ru',
+                'irina@easycast.ru',
+                'liza@easycast.ru',
+                'max@easycast.ru',
+            ),
+            'adminEmail' => 'admin@easycast.ru',
         ),
         'sqs' => array(
             
         ),
         's3' => array(
-            
+            'dataBucket' => 'data.easycast.ru',
         ),
         'transcoder' => array(
             'defaultVideoBucket'     => 'video.easycast.ru',
@@ -174,7 +184,9 @@ class EcAwsApi extends CApplicationComponent
         );
         // регистрируем обертку протокола s3:// для того чтобы использовать
         // стандартные функции работы с файлами из PHP в Amazon
-        $this->getS3()->registerStreamWrapper();
+        // Имеются противопоказания, перед применением обратитесь к документации:
+        // ftp://ftp.cira.colostate.edu/ftp/Partain/AWSSDKforPHP/_docs/STREAMWRAPPER_README.html
+        $this->getS3()->registerStreamWrapper(Yii::app()->params['AWSRegion']);
         // выполняем другие действия по инициализации если требуется
         parent::init();
     }
@@ -236,15 +248,31 @@ class EcAwsApi extends CApplicationComponent
     }
     
     /**
+     * Получить настройку для компонента Amazon
+     * 
+     * @param string $component - 
+     * @param string $param     - 
+     * @return mixed - значение настройки
+     */
+    public function getSetting($component, $param)
+    {
+        if ( ! isset($this->settings[$component][$param]) )
+        {
+            throw new CException('Config not found');
+        }
+        return $this->settings[$component][$param];
+    }
+    
+    /**
      * Отправить одно письмо при помощи Amazon SQS
      * 
-     * @param  string $email - адрес получателя
-     * @param  string $subject - тема письма
-     * @param  string $message - текст сообщения
-     * @return bool удалось ли отправить письмо
+     * @param string $email   - адрес получателя
+     * @param string $subject - тема письма
+     * @param string $message - текст сообщения
+     * @return bool - удалось ли отправить письмо
      * 
-     * @todo анализировать ответ сервера и проверять правильность выполнения отправки точнее чем по 
-     *       отсутствию исключений
+     * @todo анализировать ответ сервера и проверять правильность выполнения
+     *       отправки точнее чем по отсутствию исключений
      */
     public function sendMail($email, $subject, $message, $from=null)
     {
