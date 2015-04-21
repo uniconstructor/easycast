@@ -15,18 +15,6 @@ if (PHP_SAPI == 'cli-server' && is_file(__DIR__.parse_url($_SERVER['REQUEST_URI'
     return false;
 }
 
-// Amazon Web Services lib (for S3 data storage)
-require_once __DIR__ . '/vendor/aws.phar';
-use Aws\Common\Aws;
-use Aws\S3\S3Client;
-use Aws\S3\Exception\S3Exception;
-$s3 = S3Client::factory(array(
-    'key'    => 'AKIAISQJ47JQQ2QOGBKA',
-    'secret' => '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',
-    'region' => 'us-east-1',
-));
-$s3->registerStreamWrapper();
-
 // bootstrap cockpit
 require(__DIR__.'/bootstrap.php');
 
@@ -68,6 +56,3 @@ $cockpit->on("after", function() {
 
 // run backend
 $cockpit->set('route', COCKPIT_ADMIN_ROUTE)->trigger("admin.init")->run();
-//echo '<pre>';
-//print_r($cockpit);
-//echo '</pre>';

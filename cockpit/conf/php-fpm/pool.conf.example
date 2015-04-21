@@ -1,6 +1,0 @@
-[rockmongo]
-listen=/Applications/meanstack-3.0.2-0/php/var/run/rockmongo.sock
-include=/Applications/meanstack-3.0.2-0/php/etc/common-ondemand.conf
-include=/Applications/meanstack-3.0.2-0/apps/rockmongo/conf/php-fpm/php-settings.conf
-include=/Applications/meanstack-3.0.2-0/php/etc/environment.conf
-pm=ondemand
