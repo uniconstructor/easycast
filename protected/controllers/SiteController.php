@@ -43,6 +43,40 @@ class SiteController extends Controller
             )
         );
     }
+    
+    public function actionTest()
+    {
+        $this->layout = '//layouts/landing-index';
+        $items = array(
+            array(
+                'text' => 'Проекты',
+                'url'  => '#',
+            ),
+            array(
+                'text' => 'Мероприятия',
+                'url'  => '#',
+            ),
+            array(
+                'text' => 'Очень длинный пункт меню',
+                'url'  => '#',
+            ),
+        );
+        $text  = '';
+        $text .= Yii::app()->getComponent('cockpit')->getRegion('header-landing');
+        
+        $text .= Yii::app()->getComponent('cockpit')->getRegion('landing-large-header');
+        $text .= Yii::app()->getComponent('cockpit')->getRegion('landing-stats');
+        $text .= Yii::app()->getComponent('cockpit')->getRegion('landing-slider');
+        $text .= Yii::app()->getComponent('cockpit')->getRegion('landing-marks');
+        //$text .= Yii::app()->getComponent('cockpit')->getRegion('project-swiper');
+        
+        $text .= Yii::app()->getComponent('cockpit')->getRegion('footer-container');
+        //$cockpit = Yii::app()->getComponent('cockpit');
+        //CVarDumper::dump($cockpit->cockpit);
+        $this->renderText($text);
+        //echo $text;
+        //echo 'aa';
+    }
 
     /**
      * This is the default 'index' action that is invoked

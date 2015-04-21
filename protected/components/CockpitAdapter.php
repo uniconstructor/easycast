@@ -11,9 +11,9 @@ class CockpitAdapter extends CApplicationComponent
      */
     public $user = array(
         "user"     => "admin",
-        "email"    => "test@test.de",
+        "email"    => "frost@easycast.ru",
         "group"    => "admin",
-        "password" => "admin", // j5Nmin-hqUHMd_X5
+        "password" => "j5Nmin-hqUHMd_X5",
     );
     
     /**

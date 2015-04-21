@@ -13,13 +13,57 @@
             "role": "Developer"
         }
     ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url":  "uniconstructor@github.com:uniconstructor/easycast-plugins.git"
+        },
+        {
+            "type": "vcs",
+            "url":  "git@github.com:uniconstructor/galleria.git"
+        },
+        {
+            "type": "vcs",
+            "url":  "git@github.com:uniconstructor/jcarousel.git"
+        },
+        {
+            "type": "vcs",
+            "url":  "git@github.com:uniconstructor/Yii-Conditional-Validator.git"
+        },
+        {
+            "type": "vcs",
+            "url":  "git@github.com:uniconstructor/simpleWorkflow.git"
+        },
+        {
+            "type": "vcs",
+            "url":  "git@github.com:uniconstructor/yii-smspilot.git"
+        },
+        {
+            "type": "vcs",
+            "url":  "git@github.com:uniconstructor/libphonenumberValidator.git"
+        },
+        {
+            "type": "vcs",
+            "url":  "git@github.com:uniconstructor/sweekit.git"
+        }
+    ],
     "require": {
-        "php": ">=5.3.0",
-        "yiisoft/yii": "1.1.16"
-    },
-    "require-dev": {
-        "mihaildev/yiicomposer": "dev-master",
-        "phing/phing": "2.*",
-        "codeception/codeception": "*"
+        "php": ">=5.4.0",
+        "yiisoft/yii": "1.1.16",
+        "uniconstructor/easycast-plugins": "*",
+        "mikemix/efullcalendar": "*",
+        "yiiext/imperavi-redactor-widget": "*",
+        "z_bodya/yii-gallery-manager": "*",
+        "uniconstructor/galleria": "*",
+        "uniconstructor/jcarousel": "*",
+        "select2/select2": "*",
+        "uniconstructor/Yii-Conditional-Validator": "*",
+        "uniconstructor/simpleWorkflow": "*",
+        "uniconstructor/yii-smspilot": "*",
+        "giggsey/libphonenumber-for-php": "*",
+        "uniconstructor/libphonenumberValidator":"*",
+        "clevertech/yii-booster": "3.1.1",
+        "clevertech/yii-booster": "4.0.1",
+        "uniconstructor/sweekit":"*"
     }
 }

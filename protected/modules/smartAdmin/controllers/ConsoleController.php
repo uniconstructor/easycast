@@ -119,7 +119,7 @@ class ConsoleController extends SmartAdminController
     {
         return array(
             array('allow',
-                'actions' => array('xupload', 'dashboard', 'team', 'calendar', 'projects'),
+                'actions' => array('xupload', 'dashboard', 'team', 'calendar', 'projects', 'cockpit'),
                 'roles'   => array('Admin'),
             ),
             array('deny',
@@ -138,7 +138,7 @@ class ConsoleController extends SmartAdminController
             //    'class' => 'xupload.actions.S3XUploadAction',
             //),
             'cockpit' => array(
-                'class' => 'application.actions.CockpitAction',
+                'class' => 'smartAdmin.actions.CockpitAction',
             ),
             'dashboard' => array(
                 'class' => 'smartAdmin.actions.DashboardAction',
