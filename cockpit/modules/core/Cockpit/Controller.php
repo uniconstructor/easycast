@@ -13,7 +13,6 @@ class Controller extends \LimeExtra\Controller {
 
         if (!$user){
             $app->reroute('/auth/login');
-            //echo 'Access denied';
             $app->stop();
         }
 
