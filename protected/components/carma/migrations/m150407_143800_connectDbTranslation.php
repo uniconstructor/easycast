@@ -90,7 +90,7 @@ class m150407_143800_connectDbTranslation extends EcMigration
         $this->insert("{{ar_form_fields}}", array(
             'formid'      => $layoutFormId,
             'name'        => '',
-            'title'       => 'Текст разметки',
+            'label'       => 'Текст разметки',
             'description' => 'Можно использовать синтаксис Mustache Template: https://github.com/bobthecow/mustache.php/wiki/Variable-Resolution',
         ));
         $formFieldId = $this->getDbConnection()->lastInsertID;
