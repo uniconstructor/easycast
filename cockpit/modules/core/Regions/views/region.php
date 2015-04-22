@@ -291,6 +291,7 @@
                                 </select>
                             </div>
                         </div>
+                        <div><a href="/site/test/region/@@ region.name @@" target="_blank">Предпросмотр</a></div>
                     </div>
 
                 </div>
