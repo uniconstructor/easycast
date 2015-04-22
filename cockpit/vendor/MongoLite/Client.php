@@ -31,10 +31,6 @@ class Client {
     public function __construct($path, $options=array()) {
         $this->path    = rtrim($path, '\\');
         $this->options = $options;
-        if ( isset($this->options['schema']) )
-        {
-            $this->path = $this->options['schema'].$this->path;
-        }
     }
 
     /**
