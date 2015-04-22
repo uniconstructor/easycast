@@ -1,3 +1,10 @@
+@media screen and (max-width: 1124px) {
+    .container {
+        max-width: none !important;
+        width: 970px !important;
+    }
+}
+
 html, body {
 	height: 100%;
 }
@@ -642,6 +649,15 @@ hr.black {
 	background-size: 100%;
 }
 
+.u-sm {
+	border: 1px solid #e0e0e0;
+	border-radius: 7px;
+	-webkit-box-shadow: 0 15px 10px -13px #9d9cab;
+	box-shadow: 0 15px 10px -13px #9d9cab;
+	padding: 10px;
+	background-color: #fff;
+}
+
 .u-item.sm {
 	width: 160px;
 	height: 160px;
@@ -1040,7 +1056,7 @@ hr.black {
 
 .e-item div.roles-list .money {
 	position: absolute;
-	right: -30px;
+	right: -22px;
 	top: 5px;
 	background: #ffe100;
 	background: -moz-linear-gradient(left,#ffe100 0%,#f7a700 100%);
@@ -1050,8 +1066,12 @@ hr.black {
 	background: -ms-linear-gradient(left,#ffe100 0%,#f7a700 100%);
 	background: linear-gradient(to right,#ffe100 0%,#f7a700 100%);
 	padding: 5px 10px;
+	font-size: 21px;
+	border-radius: 5px 0 0 5px;
+	font-weight: 400;
 }
 
+/*
 .e-item div.roles-list .money:after {
 	position: absolute;
 	top: 100%;
@@ -1066,7 +1086,7 @@ hr.black {
 	border-left: 5px solid #f08132; 
 	border-top: 5px solid #f08132;
 }
-
+*/
 .e-item.detailed div.roles-list {
 	margin: 0 20px 20px 0;
 	position: relative;
@@ -1714,20 +1734,69 @@ header #nav-menu ul li.active a {
 	margin: 20px 0 0 0;
 }
 
-section.figures {
+div.space {
 	margin-top: 170px;
+}
+
+section.choose {
+	padding: 20px 0;
+}
+
+section.choose .circle {
+	width: 150px;
+	height: 150px;
+	margin: 0 auto;
+}
+
+section.choose .circle.left {
+	background: url('../../images/circle-left-sm.jpg') no-repeat;
+}
+
+section.choose .circle.right {
+	background: url('../../images/circle-right-sm.jpg') no-repeat;
+}
+
+section.choose h3 {
+	margin-bottom: 20px;
+	position: relative;
+	font-size: 25px;
+	font-weight: 500;
+}
+
+section.choose ul {
+	margin: 0;
+	padding: 0;
+}
+
+section.choose ul li {
+	margin: 10px 0;
+	font-weight: 300;
+	color: gray;
+}
+
+section.choose ul li i {
+	margin-right: 4px;
+}
+
+section.figures {
 	background-color: #FFF;
-	background: -moz-linear-gradient(#FFF, #F6F6F6);
-	background: -ms-linear-gradient(#FFF, #F6F6F6);
-	background: -o-linear-gradient(#FFF, #F6F6F6);
-	background: -webkit-linear-gradient(#FFF, #F6F6F6);
+	background: -moz-linear-gradient(#FFF, #fdfdfd);
+	background: -ms-linear-gradient(#FFF, #fdfdfd);
+	background: -o-linear-gradient(#FFF, #fdfdfd);
+	background: -webkit-linear-gradient(#FFF, #fdfdfd);
 	padding-bottom: 30px;
+	border-top: 1px solid #e7e7e7;
 	border-bottom: 1px solid #e7e7e7;
 }
 
 section.figures .project {
 	margin-top: 12px;
 	text-align: center;
+	border-right: 1px solid #e7e7e7;
+}
+
+section.figures .project:last-child {
+	border-right: none;
 }
 
 section.figures .project h3 {
@@ -1752,31 +1821,25 @@ section.figures .project p {
 	color: #858585;
 }
 
-section.type {
-	margin: 30px 0;
+section.services {
+	padding: 20px 0 10px 0;
+	background-color: #f4f4f4;
+	overflow: hidden;
+	border-bottom: 1px solid #e7e7e7;
 }
 
-section.type span.highlight {
-	padding: 3px 10px;
-	font-size: 25px;
-	background: #f7a700;
-	background: rgb(251,181,8); /* Old browsers */
-	background: -moz-linear-gradient(left,  rgba(251,181,8,1) 0%, rgba(255,233,137,1) 100%); /* FF3.6+ */
-	background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(251,181,8,1)), color-stop(100%,rgba(255,233,137,1))); /* Chrome,Safari4+ */
-	background: -webkit-linear-gradient(left,  rgba(251,181,8,1) 0%,rgba(255,233,137,1) 100%); /* Chrome10+,Safari5.1+ */
-	background: -o-linear-gradient(left,  rgba(251,181,8,1) 0%,rgba(255,233,137,1) 100%); /* Opera 11.10+ */
-	background: -ms-linear-gradient(left,  rgba(251,181,8,1) 0%,rgba(255,233,137,1) 100%); /* IE10+ */
-	background: linear-gradient(to right,  rgba(251,181,8,1) 0%,rgba(255,233,137,1) 100%); /* W3C */
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fbb508', endColorstr='#ffe989',GradientType=1 ); /* IE6-9 */
-	border-radius: 5px;
+section.services .one {
+	width: 20%;
+	text-align: center;
 }
 
-section.type span.dynamic {
-	padding: 2px 10px;
-	font-size: 25px;
-	border: 1px dashed #282828;
-	cursor: pointer;
-	border-radius: 5px;
+section.services .one:last-child {
+	border-right: none;
+}
+
+section.services .one h4 {
+	position: relative;
+	margin-bottom: 20px;
 }
 
 section.slider .swiper-container {
@@ -1990,12 +2053,54 @@ section.roles-offer .box span.av {
 	color: #a9a9a9;
 }
 
-section.projects {
-	background: url('../../images/tr-bg.png') top center no-repeat;
+section.projects{
+	overflow: hidden;
+}
+
+section.projects .types-swiper-container .swiper-slide {
+	width: 25%;
+	text-align: center;
+	min-height: 100px;
+	padding: 20px 0 0 0;
+}
+
+section.projects .types-swiper-container h5 {
+	color: gray;
+	font-weight: 400;
+}
+
+section.projects .types-swiper-container .data {
+	position: relative;
+	text-align: left;
+	padding-left: 110px;
+}
+
+section.projects .types-swiper-container .swiper-slide img {
+	width: 60px;
+	height: 60px;
+	position: absolute;
+	left: 10%;
+	top: 5px;
+	border-radius: 7px;
+}
+
+section.projects h4 {
+	font-size: 30px;
+	font-weight: 400;
+	position: relative;
+	padding-top: 0;
+	margin-bottom: 0;
+}
+
+section.projects p {
+	color: silver;
+	margin-bottom: 20px;
 }
 
 section.projects .projects-swiper-container {
 	width: 100%;
+	overflow: hidden;
+	padding: 0 20px 0 20px;
 }
 
 section.projects .projects-swiper-container .swiper-slide {
@@ -2007,6 +2112,8 @@ section.projects .projects-swiper-container .swiper-slide {
 
 section.projects .projects-swiper-container .swiper-slide img {
 	border-radius: 5px;
+	width: 70px;
+	height: 70px;
 }
 
 section.mark {
@@ -2015,7 +2122,7 @@ section.mark {
 	background: url('../../images/macscreen.jpg') 50% 0 fixed no-repeat;
 	background-size: cover;
 	padding: 0;
-	min-height: 900px;
+	min-height: 700px;
 }
 
 section.mark h2.services {
@@ -2062,7 +2169,7 @@ section.mark ul.pluses {
 
 section.mark ul.pluses li {
 	padding: 0;
-	margin: 0 0 20px 0;
+	margin: 0 0 30px 0;
 	color: #FFF;
 	list-style: none;
 	font-size: 18px;
@@ -2075,8 +2182,26 @@ section.mark ul.pluses li span {
 	margin-top: 10px;
 }
 
+section.users {
+	padding: 20px 0;
+	background-color: #f4f4f4;
+	border-bottom: 1px solid #e7e7e7;
+}
+
+section.users {
+	overflow: hidden;
+}
+
+section.users .users-swiper-container .swiper-slide {
+	width: 80%;
+}
+
 section.reviews {
 	position: relative;
+}
+
+section.reviews .reviews-swiper-container {
+	overflow: hidden;
 }
 
 section.reviews .about1 {
@@ -2119,7 +2244,7 @@ section.reviews .horL {
 	overflow: auto;
 	margin: auto;
 	position: absolute;
-	top: 140px;
+	top: 20px;
 	left: 0;
 	bottom: 0;
 	right: 0;
@@ -2128,6 +2253,24 @@ section.reviews .horL {
 	content: '';
 	z-index: 30;
 	background: url('../../images/horL.png') no-repeat;
+}
+
+section.ceo {
+	margin: 30px 0 20px 0;
+}
+
+section.ceo h2 {
+	margin-bottom: 30px;
+}
+
+section.ceo p {
+	color: gray;
+	font-size: 15px;
+}
+
+section.ceo img.sign {
+	width: 70px;
+	margin-top: 10px;
 }
 
 #breadcrumbs em {
@@ -2494,7 +2637,7 @@ h2.leave-comment {
 	padding: 30px 20px 0 20px;
 }
 
-.about .team p.phrase {
+p.phrase {
 	font-size: 15px;
 	color: #777;
 	margin-top: 10px;
@@ -2884,7 +3027,7 @@ h2.leave-comment {
 
 .rating {
 	border-bottom: 1px solid #e3e3e3;
-	min-height: 70px;
+	min-height: 60px;
 	margin-top: -5px;
 	overflow: hidden;
 }
@@ -2894,7 +3037,7 @@ h2.leave-comment {
 }
 
 .rating span.rating-lg {
-	font-size: 50px;
+	font-size: 45px;
 	letter-spacing: -3px;
 	color: #a2a2a2;
 	font-weight: 500;
@@ -2921,7 +3064,7 @@ h2.leave-comment {
 
 .rating .rating-text span {
 	display: block;
-	font-size: 17px;
+	font-size: 15px;
 	color: #8b8b8b;
 }
 
@@ -2935,7 +3078,7 @@ h2.leave-comment {
 }
 
 .ui-group-buttons .or{position:relative;float:left;width:.3em;height:1.3em;z-index:3;font-size:12px}
-.ui-group-buttons .or:before{position:absolute;top:50%;left:50%;content:'РёР»Рё';background-color:#5a5a5a;margin-top:-.1em;margin-left:-.9em;width:1.9em;height:1.8em;line-height:1.55;color:#fff;font-style:normal;font-weight:400;text-align:center;border-radius:500px;-webkit-box-shadow:0 0 0 1px rgba(0,0,0,0.1);box-shadow:0 0 0 1px rgba(0,0,0,0.1);-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-ms-box-sizing:border-box;box-sizing:border-box;}
+.ui-group-buttons .or:before{position:absolute;top:50%;left:50%;content:'или';background-color:#5a5a5a;margin-top:-.1em;margin-left:-.9em;width:1.9em;height:1.8em;line-height:1.55;color:#fff;font-style:normal;font-weight:400;text-align:center;border-radius:500px;-webkit-box-shadow:0 0 0 1px rgba(0,0,0,0.1);box-shadow:0 0 0 1px rgba(0,0,0,0.1);-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-ms-box-sizing:border-box;box-sizing:border-box;}
 .ui-group-buttons .or:after{position:absolute;top:0;left:0;content:' ';width:.3em;height:2.84em;background-color:rgba(0,0,0,0);border-top:.6em solid #5a5a5a;border-bottom:.6em solid #5a5a5a}
 .ui-group-buttons .or.or-lg:after{height:2.85em}
 .ui-group-buttons .or.or-sm{height:1em}
@@ -3066,16 +3209,25 @@ h2.leave-comment {
 	margin-top: 5px;
 }
 
+.general-params .tags {
+	margin-bottom: 20px;
+}
+
 .general-params .one {
 	padding: 5px 0;
 	border-bottom: 1px solid #f5f5f5;
+}
+
+.general-params .one h3 {
+	font-size: 35px;
+	padding-top: 0;
 }
 
 .general-params .one span {
 	display: block;
 }
 
-.light-box .status, .pro-box .status {
+.status {
 	position: absolute;
 	right: 10px;
 	top: 10px;
@@ -3233,6 +3385,21 @@ h2.leave-comment {
 .profile-user-photos .one {
 	width: 30.7%;
 	margin-bottom: 20px;
+}
+
+.profile-user-photos.sm {
+	margin-top: 10px;
+	margin-bottom: 0;
+}
+
+.profile-user-photos.sm .one {
+	width: 78px;
+	height: 78px;
+	margin-bottom: 0;
+}
+
+.profile-user-photos.sm img {
+	border-radius: 5px;
 }
 
 .profile-rating .recs .one {
@@ -4011,12 +4178,15 @@ left: 35%;
 	width: 100%;
 	background: #333;
 	overflow: hidden;
-	background-size: cover;
 	background-position: center center;
 	z-index: 1;
 	height: 200px;
-	background: url(../../images/demo-1-bg.jpg) no-repeat 0 0;
+	background: url(../../images/russia.jpg) no-repeat 0 0;
 	background-size: cover;
+}
+
+.large-header.demo {
+	background: url(../../images/russia-emp.jpg) no-repeat 0 0;
 }
 
 .main-title {
@@ -4027,6 +4197,7 @@ left: 35%;
 	text-align: center;
 	top: 65%;
 	left: 50%;
+	text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
 	-webkit-transform: translate3d(-50%,-50%,0);
 	transform: translate3d(-50%,-50%,0);
 	width: 100%;
@@ -4036,8 +4207,9 @@ left: 35%;
 	font-weight: 200;
 	display: block;
 	font-size: 20px;
-	color:#bbbbbb;
+	color:#c0c0c0;
 	margin-top: 10px;
+	text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
 }
 
 @media only screen and (max-width : 768px) {

@@ -43,11 +43,6 @@ $().ready(function()
 		$('div.profile-user-photos').masonry({ itemSelector: '.one', "isOriginLeft": true, "gutter": 20});
     });
     
-    imagesLoaded("div.boxes", function(){
-		$('div.boxes').masonry({ itemSelector: '.one', "isOriginLeft": true, "gutter": 20});
-    });
-
-    
     /*
     var items = $('.btn-nav');
     $( ".btn-nav" ).click(function() {

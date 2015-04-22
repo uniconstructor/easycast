@@ -53,9 +53,9 @@ $themeUrl = Yii::app()->theme->baseUrl.'/assets/';
                 </div>
                 <div id="nav-menu">
                     <ul>
-                        <li><a href="">Главная</a></li>
+                        <!--li><a href="">Главная</a></li>
                         <li><a href="">Проекты</a></li>
-                        <li><a href="">Мероприятия</a></li>
+                        <li><a href="">Мероприятия</a></li-->
                         <!--li  class="active"><a href="">FAQ</a></li-->
                         <!--li><a href="">Контакты</a></li-->
                     </ul>
