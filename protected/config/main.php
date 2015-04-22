@@ -46,8 +46,8 @@ return array(
         'mustache'       => 'ext.mustache.lib',
     ),
     // Используем собственную тему оформления для сайта
-    //'theme'          => 'maximal',
-    'theme'  => 'easycast',
+    'theme'          => 'maximal',
+    //'theme'  => 'easycast',
     // автозагрузка для основных классов приложения
     'import'         => array(
         // основные компоненты приложения
