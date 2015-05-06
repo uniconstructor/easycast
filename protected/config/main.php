@@ -92,11 +92,6 @@ return array(
         //'mustache.*',
         //'mustache.helpers.*',
         'ext.mustache.lib.CMustacheViewRenderer',
-        // MongoDb
-        'application.extensions.MongoYii.*',
-        'application.extensions.MongoYii.validators.*',
-        'application.extensions.MongoYii.behaviors.*',
-        'application.extensions.MongoYii.util.*'
     ),
     // все модули проекта
     'modules'        => array(
@@ -283,7 +278,7 @@ return array(
         ),
         // кеширование (sqlite) - применяем именно таблицу на диске 
         // так как создание таблицы в памяти будет работать неэффективно: 
-        // @see http://stackoverflow.com/questions/10055216/php-database-cache-with-sqlite-in-memory
+        // http://stackoverflow.com/questions/10055216/php-database-cache-with-sqlite-in-memory
         // @todo отключить автоматическое создание таблицы для кеша
         // @todo попробовать перенести с кешированием на S3
         'cache'         => array(
@@ -535,12 +530,6 @@ return array(
         // cockpit - микрофремворк для работы с внутренней структурой приложения
         'cockpit'         => array(
             'class' => 'application.components.CockpitAdapter',
-        ),
-        // mongo
-        'mongodb' => array(
-            'class' => 'EMongoClient',
-            'server' => 'mongodb://localhost:27017',
-            'db' => 'super_test'
         ),
     ),
     // другие параметры приложения, синтаксис вызова: Yii::app()->params['paramName']
