@@ -2,6 +2,7 @@
 
 /**
  * Главный контроллер сайта
+ * 
  * @todo настроить права доступа
  */
 class SiteController extends Controller
@@ -22,7 +23,7 @@ class SiteController extends Controller
         );
         return CMap::mergeArray($baseFilters, $newFilters);
     }
-    
+
     /**
      * Declares class-based actions.
      */
@@ -33,49 +34,63 @@ class SiteController extends Controller
             'captcha' => array(
                 'class'     => 'CCaptchaAction',
                 'backColor' => 0xFFFFFF,
-                'maxLength' => 4,
+                'maxLength' => 5,
                 'minLength' => 4,
             ),
             // page action renders "static" pages stored under 'protected/views/site/pages'
             // They can be accessed via: index.php?r=site/page&view=FileName
-            'page' => array(
+            'page'    => array(
                 'class' => 'CViewAction'
             )
         );
     }
     
+    /**
+     * @deprecated временный метод
+     */
+    public function actionTmpSale()
+    {
+        $versions = ['ceo', 'a00', 'a01', 'a02', 'a05', 'a07', 'a08', 'a09'];
+        $current  = Yii::app()->request->getParam('current');
+        if ( ! in_array($current, $versions) )
+        {
+            $this->redirect('index');
+        }
+        $url = 'https://s3.amazonaws.com/img.easycast.ru/tmpsale/'.$current.'.jpg';
+        echo '<html><body style="text-align:center;">'. 
+            '<img src="'.$url.'" style="max-width:100%;">'.
+            "</body></html>";
+    }
+    
+    /**
+     * @todo метод для тестирования cockpit
+     */
     public function actionTest()
     {
-        $this->layout = '//layouts/landing-index';
-        $items = array(
-            array(
-                'text' => 'Проекты',
-                'url'  => '#',
-            ),
-            array(
-                'text' => 'Мероприятия',
-                'url'  => '#',
-            ),
-            array(
-                'text' => 'Очень длинный пункт меню',
-                'url'  => '#',
-            ),
-        );
-        $text  = '';
-        $text .= Yii::app()->getComponent('cockpit')->getRegion('header-landing');
-        
-        $text .= Yii::app()->getComponent('cockpit')->getRegion('landing-large-header');
-        $text .= Yii::app()->getComponent('cockpit')->getRegion('landing-stats');
-        $text .= Yii::app()->getComponent('cockpit')->getRegion('landing-slider');
-        $text .= Yii::app()->getComponent('cockpit')->getRegion('landing-marks');
-        //$text .= Yii::app()->getComponent('cockpit')->getRegion('project-swiper');
-        
-        $text .= Yii::app()->getComponent('cockpit')->getRegion('footer-container');
-        //$cockpit = Yii::app()->getComponent('cockpit');
-        //CVarDumper::dump($cockpit->cockpit);
+        Yii::app()->theme = 'easycast';
+        $this->layout     = '//layouts/main';
+        $region           = Yii::app()->request->getParam('region');
+
+        $text = '';
+        if ( $region )
+        {
+            $text .= Yii::app()->getComponent('cockpit')->getRegion($region);
+        }
         $this->renderText($text);
-        //echo $text;
-        //echo 'aa';
+    }
+    
+    public function actionTestMongo()
+    {
+        //$text = CVarDumper::dumpAsString(Project::model()->getMetadata(), 10, true);
+        //CVarDumper::dump(Project::model()->getMetadata(), 10, true);
+        //$this->renderText($text);
+        //$columns  = Project::model()->getMetadata()->columns;
+        //$labels   = Project::model()->attributeLabels();
+        //$projects = Project::model()->findAll();
+        
+        //CVarDumper::dump($columns, 10, true);
+        //CVarDumper::dump($labels, 10, true);
+        //CVarDumper::dump(array_keys($projects), 10, true);
     }
 
     /**
@@ -98,9 +113,9 @@ class SiteController extends Controller
         {// выбран новый режим просмотра - запомним его
             Yii::app()->getModule('user')->setViewMode($newState);
         }
-        
+
         // определяем текущий режим просмотра
-        if ( ! $view = Yii::app()->getModule('user')->getViewMode(false) )
+        if ( !$view = Yii::app()->getModule('user')->getViewMode(false) )
         {// текущий режим просмотра не ранее и не выбран пользователем сейчас
             if ( Yii::app()->user->checkAccess('Admin') )
             {// для администраторов: показываем страницу заказчика
@@ -158,12 +173,12 @@ class SiteController extends Controller
             {
                 Yii::import('application.modules.user.UserModule');
                 $name = CHtml::encode($model->name);
-                
+
                 $subject = CHtml::encode($model->subject);
-                $subject = '[EasyCast] (Обратная связь) ' . $subject;
-                
-                $body = 'От кого: ' . $name . ' ( ' . $model->email . ' ) <br>' . $model->body;
-                
+                $subject = '[EasyCast] (Обратная связь) '.$subject;
+
+                $body = 'От кого: '.$name.' ( '.$model->email.' ) <br>'.$model->body;
+
                 UserModule::sendMail(Yii::app()->params['adminEmail'], $subject, $body);
                 // mail(Yii::app()->params['adminEmail'],$subject,$model->body,$headers);
                 Yii::app()->user->setFlash('contact', 'Благодарим за ваш отзыв');
@@ -187,17 +202,17 @@ class SiteController extends Controller
             Yii::app()->end();
         }
         $model = new FastOrder();
-        
+
         if ( $post = Yii::app()->request->getParam('FastOrder') )
         {
             $model->attributes = $post;
-            $valid = $model->validate();
+            $valid             = $model->validate();
             if ( $valid )
             {// Заказ успешно зарегистрирован
                 $model->status = 'active';
                 $model->type   = 'fast';
                 $model->save();
-                
+
                 echo CJSON::encode(array(
                     'status' => 'success'
                 ));
@@ -227,32 +242,32 @@ class SiteController extends Controller
     {
         if ( $formData = Yii::app()->request->getParam('FastOrder') )
         { // данные заказа пришли, создаем заказ
-            $model = new FastOrder();
+            $model             = new FastOrder();
             $model->attributes = $formData;
-            $model->status = 'active';
-            $model->type   = 'normal';
+            $model->status     = 'active';
+            $model->type       = 'normal';
             $model->save();
-            
+
             // заказ создан, добавляем в него данные анкет
-            $orderData = array();
-            $orderData['users'] = FastOrder::getPendingOrderUsers();
+            $orderData               = array();
+            $orderData['users']      = FastOrder::getPendingOrderUsers();
             $orderData['usersCount'] = count($orderData['users']);
             $model->saveOrderData($orderData);
             // заказ оформлен, данные сохранены, очищаем данные в сессии
             FastOrder::clearPendingOrder();
-            $orderNum = '<b>' . $model->id . '</b>';
-            
+            $orderNum                = '<b>'.$model->id.'</b>';
+
             // сообщаем пользователю что его заказ оформлен
-            Yii::app()->user->setFlash('success', 
+            Yii::app()->user->setFlash('success',
                 '<h4 class="alert-heading">Ваш заказ оформлен</h4>
-	            Его номер ' . $orderNum . '.<br>
+	            Его номер '.$orderNum.'.<br>
 	            Скоро мы свяжемся с вами для того чтобы уточнить детали.');
-            
+
             // перенаправляем обратно на страницу "мой выбор"
             $this->redirect(Yii::app()->createUrl('/catalog/catalog/myChoice'));
         }
     }
-    
+
     /**
      * Отобразить форму срочного заказа на отдельной странице
      * 
@@ -275,7 +290,7 @@ class SiteController extends Controller
         }
         $this->render('order', array('order' => $order));
     }
-    
+
     /**
      * Отображает расширенную форму поиска
      * При обработке поискового запроса перенаправляет пользователя на страницу поиска в каталоге
@@ -288,7 +303,7 @@ class SiteController extends Controller
         Yii::import('catalog.models.*');
         $this->render('search');
     }
-    
+
     /**
      * Страница быстрой регистрации
      * Этот метод регистрации использует один хак при работе с галереей: поскольку мы не можем сохранить
@@ -307,40 +322,41 @@ class SiteController extends Controller
     {
         // Создаем форму для регистрации массовки
         $massActorForm = new MassActorsForm();
-    
+
         $this->performAjaxValidation($massActorForm);
-    
+
         if ( $formData = Yii::app()->request->getPost('MassActorsForm') )
         {// пришли данные из формы регистрации пользователя
             $massActorForm->attributes = $formData;
-            $gallery = Gallery::model()->findByPk($massActorForm->galleryid);
-    
+            $gallery                   = Gallery::model()->findByPk($massActorForm->galleryid);
+
             if ( $massActorForm->validate() )
             {// все данные формы верны
                 if ( $user = $massActorForm->save() )
                 {// сохранение удалось
                     // Вместе с сохранением данных участника
-                // сразу же происходит его авторизация на сайте
+                    // сразу же происходит его авторизация на сайте
                     Yii::app()->getModule('user')->forceLogin($user);
                     // добавляем flash-сообщение об успешной регистрации
-                    Yii::app()->user->setFlash('success', 'Регистрация завершена.<br>
+                    Yii::app()->user->setFlash('success',
+                        'Регистрация завершена.<br>
                         Добро пожаловать.<br>
                         Ваш пароль отправлен вам на почту.'
-                        );
-                        // и перенаправляем его на страницу просмотра своей анкеты
-                        $this->redirect('/questionary/questionary/view');
+                    );
+                    // и перенаправляем его на страницу просмотра своей анкеты
+                    $this->redirect('/questionary/questionary/view');
                 }
             }
         }else
         {// Создаем пустую галерею
-            $gallery = new Gallery();
+            $gallery              = new Gallery();
             // Определяем в каких размерах созлдавать миниатюры изображений в галерее
             $gallery->versions    = Yii::app()->getModule('questionary')->gallerySettings['versions'];
             $gallery->limit       = 40;
             $gallery->name        = 1;
             $gallery->description = 1;
             $gallery->save();
-            if ( ! $gallery->subfolder )
+            if ( !$gallery->subfolder )
             {// @todo beforeSave не может знать id для записи в subfolder до сохранения записи
                 // поэтому загрузка изображений происходила в неправильные директории
                 // этот код можно будет убрать после того как будет переписан класс gallery
@@ -350,7 +366,8 @@ class SiteController extends Controller
             $massActorForm->galleryid = $gallery->id;
         }
         // Отображаем страницу формы с регистрацией массовки
-        $this->render('easy', array(
+        $this->render('easy',
+            array(
             'gallery'       => $gallery,
             'massActorForm' => $massActorForm,
         ));
@@ -377,53 +394,54 @@ class SiteController extends Controller
      */
     public function actionLoadSocial()
     {
-        $this->widget('application.extensions.ESocial.ESocial', array(
+        $this->widget('application.extensions.ESocial.ESocial',
+            array(
             'renderAjaxData' => true,
-            'style' => 'horizontal',
-            'networks' => array(
+            'style'          => 'horizontal',
+            'networks'       => array(
                 // g+
                 'googleplusone' => array(
-                    "size" => "medium",
+                    "size"       => "medium",
                     "annotation" => "bubble",
                 ),
                 // В контакте
-                'vkontakte' => array(
-                    'apiid' => Yii::app()->params['vkontakteApiId'],
+                'vkontakte'     => array(
+                    'apiid'       => Yii::app()->params['vkontakteApiId'],
                     'containerid' => 'vk_like',
-                    'scriptid' => 'vkontakte-init-script',
-                    'type' => 'button',
+                    'scriptid'    => 'vkontakte-init-script',
+                    'type'        => 'button',
                 ),
                 // mail.ru и одноклассники (добавляются одной кнопкой)
-                'mailru' => array(
+                'mailru'        => array(
                     'type' => 'combo',
                 ),
                 // Твиттер
-                'twitter' => array(
+                'twitter'       => array(
                     'data-via' => '',
                 ),
                 // Facebook
-                'facebook' => array(
-                    'href' => 'http://easycast.ru/', // asociate your page http://www.facebook.com/page
-                    'action' => 'recommend', // recommend, like
+                'facebook'      => array(
+                    'href'        => 'http://easycast.ru/', // asociate your page http://www.facebook.com/page
+                    'action'      => 'recommend', // recommend, like
                     'colorscheme' => 'light',
-                    'width' => '140px',
+                    'width'       => '140px',
                 )
             )
         ));
     }
-    
+
     /**
      * Получить список городов для AJAX-подсказки в анкете.
      */
     public function actionGeoLookup()
     {
-        if( ! Yii::app()->request->isAjaxRequest )
+        if ( !Yii::app()->request->isAjaxRequest )
         {
             Yii::app()->end();
         }
         Yii::import('ext.CountryCitySelectorRu.*');
         $selector = new CountryCitySelectorRu();
-        
+
         // request type ('city' ot 'region')
         $type       = Yii::app()->request->getParam('type');
         // country or region
@@ -432,21 +450,20 @@ class SiteController extends Controller
         $parentId   = Yii::app()->request->getParam('parentid');
         // first letters
         $term       = Yii::app()->request->getParam('term');
-    
-        switch ($type)
-        {
+
+        switch ( $type ) {
             case 'city':
                 $records = $selector->getCities($parentType, $parentId, $term);
-            break;
+                break;
             case 'region':
                 $records = $selector->getRegions($parentId);
-            break;
+                break;
             default: $records = array();
         }
-    
+
         $listData = CHtml::listData($records, 'id', 'name');
         $options  = EcPurifier::getSelect2Options($listData);
-        
+
         echo CJSON::encode($options);
     }
 
@@ -456,13 +473,14 @@ class SiteController extends Controller
      * Подробнее здесь: http://airbladesoftware.com/notes/note-to-self-prevent-uploads-hanging-in-safari
      *
      * @return null
+     * @deprecated после замены компонента загрузки файлов не требуется, удалить при рефакторинге
      */
     public function actionClose()
     {
         header("Connection: close");
         Yii::app()->end();
     }
-    
+
     /**
      * Действие для загрузки больших файлов 
      * 
@@ -473,7 +491,7 @@ class SiteController extends Controller
     public function actionUpload()
     {
         die();
-        $s3 = Yii::app()->getComponent('ecawsapi')->getS3();
+        $s3      = Yii::app()->getComponent('ecawsapi')->getS3();
         // без установки контекста потока сохранение на S3 работать не будет
         // @todo пока что устанавливаем полномочия файла как public-read: 
         //       позже следует изменить это поверение
@@ -487,10 +505,10 @@ class SiteController extends Controller
         // 3) файл не загружается сначала на сервер а потом в хранилище: 
         //    это в 2 раза быстрее и в 2 раза меньше трафика
         //CVarDumper::dump($_FILES);
-        $file = CUploadedFile::getInstanceByName($this->getInputFileIndex());
+        $file    = CUploadedFile::getInstanceByName($this->getInputFileIndex());
         $file->saveAs($this->getUploadPath().$file->getTempName().'.'.$file->getExtensionName());
     }
-    
+
     /**
      * Страница "наши события"
      * 
@@ -500,7 +518,7 @@ class SiteController extends Controller
     {
         $this->render('agenda');
     }
-    
+
     /**
      * 
      * @return void
@@ -511,7 +529,7 @@ class SiteController extends Controller
     {
         return "s3://temp.easycast.ru/test/";
     }
-    
+
     /**
      * 
      * @return void

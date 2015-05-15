@@ -59,7 +59,7 @@ return array(
         'application.components.*',
         'application.extensions.*',
         // Виджеты Twitter Bootstrap 3.0.1
-        // @todo совместное подключение YiiBoster 4.0.1
+        // @todo полностью заменить на YiiBoster 4.0.1
         'application.extensions.bootstrap.widgets.*',
         // @todo заменить выбор страны и города на GeoNames API
         'application.extensions.CountryCitySelectorRu.models.*',
@@ -91,7 +91,7 @@ return array(
         // шаблоны mustache
         //'mustache.*',
         //'mustache.helpers.*',
-        'ext.mustache.lib.CMustacheViewRenderer',
+        //'ext.mustache.lib.CMustacheViewRenderer',
     ),
     // все модули проекта
     'modules'        => array(
@@ -239,7 +239,7 @@ return array(
                 'search'                                 => 'site/search',
                 // регистрация
                 'easy'                                   => 'site/easy',
-                // @todo обработку таких ссылок перенести в контроллер
+                // @todo обработку таких ссылок перенести в контроллер и удалить отсюда
                 // проект "Топ-модель по-русски"
                 'topmodel'                               => 'projects/vacancy/registration/vid/600',
                 // проект "МастерШеф"
@@ -250,6 +250,15 @@ return array(
                 'vm1'                                    => 'projects/vacancy/registration/vid/1018',
                 'vybor_man'                              => 'projects/vacancy/registration/vid/1017',
                 'vybor_woman'                            => 'projects/vacancy/registration/vid/1018',
+                // временные страницы коммерческого
+                'ceo' => 'site/tmpsale/current/ceo',
+                'a00' => 'site/tmpsale/current/a00',
+                'a01' => 'site/tmpsale/current/a01',
+                'a02' => 'site/tmpsale/current/a02',
+                'a05' => 'site/tmpsale/current/a05',
+                'a07' => 'site/tmpsale/current/a07',
+                'a08' => 'site/tmpsale/current/a08',
+                'a09' => 'site/tmpsale/current/a09',
             ),
             'showScriptName' => false,
         ),
@@ -424,17 +433,16 @@ return array(
           'class'  => 'application.extensions.mailchimp.EMailChimp2',
           'apikey' => '43db0f030585ce1f6b6a27fa4d13de12-us7',
           ), */
-        // Google API: компонент для работы с сервисами Google
-        'JGoogleAPI'    => array(
+        // @todo Google API: компонент для работы с сервисами Google
+        /*'JGoogleAPI'    => array(
             'class'                     => 'application.components.JGoogleAPI.JGoogleAPI',
             // Account type Authentication data
-            /* 'serviceAPI' => array(
-              'clientId'    => '28411509328-h2tdqhkf8vbi606iddpgmolvdj1559gj.apps.googleusercontent.com',
-              'clientEmail' => '28411509328-h2tdqhkf8vbi606iddpgmolvdj1559gj@developer.gserviceaccount.com',
-              'keyFilePath' => dirname(__FILE__).'/../data/JGoogleAPI/API Project-38864dd6a6bf.p12',
-              ),
-              'defaultAuthenticationType' => 'serviceAPI',
-             */
+            //'serviceAPI' => array(
+            //    'clientId'    => '28411509328-h2tdqhkf8vbi606iddpgmolvdj1559gj.apps.googleusercontent.com',
+            //    'clientEmail' => '28411509328-h2tdqhkf8vbi606iddpgmolvdj1559gj@developer.gserviceaccount.com',
+            //    'keyFilePath' => dirname(__FILE__).'/../data/JGoogleAPI/API Project-38864dd6a6bf.p12',
+            //),
+            'defaultAuthenticationType' => 'serviceAPI',
             // Web Service Authentication data
             // @todo вынести ключи доступа в параметры сервера Amazon 
             'webappAPI'                 => array(
@@ -463,7 +471,7 @@ return array(
             // You can define one of the authentication types or both 
             // (for a Service Account or Web Application Account)
             'simpleApiKey'              => 'AIzaSyB5IsWcZfQE5otLyrXMBNMiRTktAeEbHCg',
-        ),
+        ),*/
         // Настройки по умолчанию для всех виджетов Yii
         'widgetFactory' => array(
             'widgets' => array(
@@ -515,9 +523,9 @@ return array(
         ),
         // Custom Active Record Metadata Assistant
         // Модуль для упрощенного управления структурой матаданных для AR-моделей
-        'carma'         => array(
-            'class' => 'application.components.carma.Carma',
-        ),
+        //'carma'         => array(
+        //    'class' => 'application.components.carma.Carma',
+        //),
         // Отчистка пользвательского HTML
         'htmlPurifier'  => array(
             'class' => 'CHtmlPurifier',
