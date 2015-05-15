@@ -70,8 +70,8 @@ return CMap::mergeArray(
             'useAmazonS3'    => true,
             'AWSBucket'      => 'test.easycast.ru',
             //'AWSBucketPath' => 'http://bglance',
-            'AWSBucketPath'  => 'https://img.easycast.ru.s3.amazonaws.com',
-            //'AWSBucketPath'  => 'http://test.easycast.ru.s3.amazonaws.com',
+            //'AWSBucketPath'  => 'https://img.easycast.ru.s3.amazonaws.com',
+            'AWSBucketPath'  => 'http://test.easycast.ru.s3.amazonaws.com',
             'AWSVideoBucket' => 'video.easycast.ru',
             // SES
             // использовать сервис Amazon SES для отправки почты на реальные адреса

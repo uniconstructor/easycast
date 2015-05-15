@@ -2,7 +2,7 @@
 // EasyCast dev index
 
 // change the following paths if necessary
-$yii    = dirname(__FILE__).'/framework/yiilite.php';
+$yii    = dirname(__FILE__).'/protected/vendor/yiisoft/yii/framework/yiilite.php';
 $config = dirname(__FILE__).'/protected/config/dev.php';
 
 
@@ -17,5 +17,17 @@ defined('YII_DEBUG') or define('YII_DEBUG', true);
 // specify how many levels of call stack should be shown in each log message
 defined('YII_TRACE_LEVEL') or define('YII_TRACE_LEVEL', 3);
 
+set_error_handler(function($errno, $errstr, $errfile, $errline, $errcontext){
+    $info = array(
+        'errno' => $errno,
+        'errstr' => $errstr,
+        'errfile' => $errfile,
+        'errline' => $errline,
+        'errcontext' => $errcontext,
+    );
+    throw new Exception(print_r($info, true));
+});
+
 require_once($yii);
+
 Yii::createWebApplication($config)->run();
