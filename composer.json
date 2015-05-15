@@ -1,31 +1,29 @@
 {
     "name": "uniconstructor/easycast",
-    "description": "easycast.ru",
+    "type": "project",
+    "license": "proprietary",
+    "description": "Основной репозиторий easycast.ru: содержит только код проекта easycast.",
     "config": {
-        "vendor-dir": "protected/vendor"
+        "vendor-dir": "protected/vendor",
+        "process-timeout": 1800
     },
+    "minimum-stability": "dev",
     "homepage": "https://github.com/uniconstructor/easycast",
     "authors": [
         {
-            "name": "uniconstructor",
+            "name": "Frost",
             "email": "frost@easycast.ru",
             "homepage": "https://github.com/uniconstructor",
             "role": "Developer"
         }
     ],
+    "extra": {
+        "asset-installer-paths": {
+            "npm-asset-library": "vendor/npm",
+            "bower-asset-library": "vendor/bower"
+        }
+    },
     "repositories": [
-        {
-            "type": "vcs",
-            "url":  "uniconstructor@github.com:uniconstructor/easycast-plugins.git"
-        },
-        {
-            "type": "vcs",
-            "url":  "git@github.com:uniconstructor/galleria.git"
-        },
-        {
-            "type": "vcs",
-            "url":  "git@github.com:uniconstructor/jcarousel.git"
-        },
         {
             "type": "vcs",
             "url":  "git@github.com:uniconstructor/Yii-Conditional-Validator.git"
@@ -36,34 +34,46 @@
         },
         {
             "type": "vcs",
-            "url":  "git@github.com:uniconstructor/yii-smspilot.git"
-        },
-        {
-            "type": "vcs",
             "url":  "git@github.com:uniconstructor/libphonenumberValidator.git"
         },
         {
             "type": "vcs",
             "url":  "git@github.com:uniconstructor/sweekit.git"
+        },
+        {
+            "type": "vcs",
+            "url":  "git@github.com:cybercog/yii2-cockpit-bridge.git"
+        },
+        {
+            "type": "composer",
+            "url":  "http://packages.phundament.com"
         }
     ],
+    "scripts": {
+        
+    },
     "require": {
         "php": ">=5.4.0",
+        "fxp/composer-asset-plugin": "~1.0.1",
         "yiisoft/yii": "1.1.16",
-        "uniconstructor/easycast-plugins": "*",
-        "mikemix/efullcalendar": "*",
+        "yiisoft/yii2": "~2.0.0",
+        "yiisoft/yii2-mongodb": "~2.0.0",
+        "yiisoft/yii2-imagine": "~2.0.0",
+        "yiisoft/yii2-bootstrap": "~2.0.0",
+        "omnilight/yii2-cockpit-bridge": "*",
+        "clevertech/yii-booster": "4.0.1",
+        "mikemix/efullcalendar": "dev-master",
         "yiiext/imperavi-redactor-widget": "*",
-        "z_bodya/yii-gallery-manager": "*",
-        "uniconstructor/galleria": "*",
-        "uniconstructor/jcarousel": "*",
-        "select2/select2": "*",
         "uniconstructor/Yii-Conditional-Validator": "*",
         "uniconstructor/simpleWorkflow": "*",
-        "uniconstructor/yii-smspilot": "*",
         "giggsey/libphonenumber-for-php": "*",
         "uniconstructor/libphonenumberValidator":"*",
-        "clevertech/yii-booster": "3.1.1",
-        "clevertech/yii-booster": "4.0.1",
-        "uniconstructor/sweekit":"*"
+        "uniconstructor/sweekit": "*"
+    },
+    "require-dev": {
+        "yiisoft/yii2-codeception": "*",
+        "yiisoft/yii2-debug": "*",
+        "yiisoft/yii2-gii": "*",
+        "yiisoft/yii2-faker": "*"
     }
 }
