@@ -95,7 +95,7 @@ class ECAlert extends CWidget
     
     /**
      * Получить CSS-класс alert-сообщения по его типу
-     * @param string $type
+     * @param string $type - тип сообщения
      * @return string
      */
     protected function getAlertClasses($type=null)
