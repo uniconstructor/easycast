@@ -1,10 +1,11 @@
 <?php
-// EasyCast dev index
+// EasyCast development version index
+// 
+// install Composer autoloader
+require(__DIR__ . '/protected/vendor/autoload.php');
 
-// change the following paths if necessary
-$yii    = dirname(__FILE__).'/protected/vendor/yiisoft/yii/framework/yiilite.php';
-$config = dirname(__FILE__).'/protected/config/dev.php';
-
+// путь к основному классу Yii объединяющий первую и вторую версии
+require(__DIR__ . '/protected/components/Yii.php');
 
 define('YII_EASYCAST_CONFIG_DB_CONNECTION_STRING', 'mysql:host=localhost;dbname=easycast');
 define('YII_EASYCAST_CONFIG_DB_LOGIN', 'root');
@@ -17,6 +18,11 @@ defined('YII_DEBUG') or define('YII_DEBUG', true);
 // specify how many levels of call stack should be shown in each log message
 defined('YII_TRACE_LEVEL') or define('YII_TRACE_LEVEL', 3);
 
+// путь к конфигурации Yii 2.x
+$yii2Config = require(__DIR__ . '/protected/config/yii2/dev.php');
+//print_r($yii2Config);die;
+new yii\web\Application($yii2Config); // Do NOT call run()
+
 set_error_handler(function($errno, $errstr, $errfile, $errline, $errcontext){
     $info = array(
         'errno' => $errno,
@@ -28,6 +34,6 @@ set_error_handler(function($errno, $errstr, $errfile, $errline, $errcontext){
     throw new Exception(print_r($info, true));
 });
 
-require_once($yii);
-
-Yii::createWebApplication($config)->run();
+// путь к конфигурации Yii 1.x
+$yii1Config = __DIR__ . '/protected/config/dev.php';
+Yii::createWebApplication($yii1Config)->run();
