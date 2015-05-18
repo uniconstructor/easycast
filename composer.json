@@ -71,6 +71,9 @@
         "uniconstructor/sweekit": "*"
     },
     "require-dev": {
+        "codeception/codeception": "2.0.13",
+        "phpunit/phpunit": "4.6.6",
+        "phpunit/phpunit-selenium": "1.4.2",
         "yiisoft/yii2-codeception": "*",
         "yiisoft/yii2-debug": "*",
         "yiisoft/yii2-gii": "*",
