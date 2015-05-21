@@ -144,16 +144,23 @@ class SiteController extends Controller
         {
             if ( Yii::app()->request->isAjaxRequest )
             {
-                if ( ( defined('YII_DEBUG') and YII_DEBUG === true ) OR Yii::app()->user->checkAccess('Admin') )
+                if ( ( defined('YII_DEBUG') AND YII_DEBUG === true ) OR Yii::app()->user->checkAccess('Admin') )
                 {
-                    echo $error['message'];
+                    print_r($error);
+                    Yii::app()->end();
                 }else
                 {
                     Yii::app()->end();
                 }
             }else
             {
-                $this->render('error', $error);
+                if ( ( defined('YII_DEBUG') AND YII_DEBUG === true ) OR Yii::app()->user->checkAccess('Admin') )
+                {
+                    CVarDumper::dump($error, 10, true);
+                }else
+                {
+                    $this->render('error', $error);
+                }
             }
         }
     }
