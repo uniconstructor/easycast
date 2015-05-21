@@ -37,7 +37,7 @@ class CockpitAdapter extends CApplicationComponent
         $user = $cockpit->module("auth")->authenticate($this->user);
         $cockpit->module("auth")->setUser($user);
         // готовый компонент сохраняем для последующего использования
-        //$this->cockpit &= $cockpit;
+        $this->cockpit = $cockpit;
     }
     
     /**
