@@ -1,5 +1,12 @@
 <?php
 
+// Dependency Injection класс, необходимый для работы cockpit
+use yii\di;
+use yii\di\Instance;
+use yii\di\Container;
+use yii\di\ServiceLocator;
+use omnilight\cockpit\Cockpit;
+
 /**
  * Контроллер главной страницы админки
  * 
@@ -192,6 +199,16 @@ class AdminController extends Controller
 	    $mailComposer = Yii::app()->getModule('mailComposer');
 	    echo $mailComposer::getMessage($action, $params);
 	}
+    
+    /**
+     * Админка cockpit
+     */
+    public function actionCockpit()
+    {
+        $cockpit = 'cockpit';
+        $cockpit = Instance::ensure($cockpit, Cockpit::className(), Yii::$app);
+        $cockpit->run();
+    }
 	
 	/**
 	 * 
