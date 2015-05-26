@@ -2,7 +2,7 @@
     "name": "uniconstructor/easycast",
     "type": "project",
     "license": "proprietary",
-    "description": "Основной репозиторий easycast.ru: содержит только код проекта easycast.",
+    "description": "Основной репозиторий easycast.ru: содержит только код проекта.",
     "config": {
         "vendor-dir": "protected/vendor",
         "process-timeout": 1800
@@ -49,6 +49,10 @@
             "url":  "git@github.com:uniconstructor/yii2-cockpit-bridge.git"
         },
         {
+            "type": "vcs",
+            "url":  "git@github.com:uniconstructor/cockpit-i18n.git"
+        },
+        {
             "type": "composer",
             "url":  "http://packages.phundament.com"
         }
@@ -66,6 +70,7 @@
         "yiisoft/yii2-bootstrap": "~2.0.0",
         "yiisoft/yii2-swiftmailer": "*",
         "aheinze/cockpit": "*",
+        "aheinze/cockpit-i18n": "*",
         "omnilight/yii2-cockpit-bridge": "*",
         "clevertech/yii-booster": "4.0.1",
         "mikemix/efullcalendar": "dev-master",
