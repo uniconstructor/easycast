@@ -8,3 +8,8 @@ RewriteCond %{REQUEST_FILENAME} !-d
 
 # otherwise forward it to index.php
 RewriteRule . index.php
+
+# deny access to system files
+<Files ~ "\.(sqlite|SQLITE|sdb|SDB|s3db|S3DB|db|DB|json|JSON|md|MD|lexy\.php)$">
+  Deny from all
+</Files>
