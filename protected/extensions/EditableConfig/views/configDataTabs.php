@@ -1,5 +1,0 @@
-<?php
-/**
- * 
- */
-/* @var $this ConfigData */

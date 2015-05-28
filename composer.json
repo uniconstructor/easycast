@@ -1,14 +1,16 @@
 {
-    "name": "uniconstructor/easycast",
+    "name": "uniconstructor/easycast2",
     "type": "project",
     "license": "proprietary",
-    "description": "Основной репозиторий easycast.ru: содержит только код проекта.",
+    "description": "EasyCast работающий на Yii Framework 2.x",
     "config": {
-        "vendor-dir": "protected/vendor",
+        "vendor-dir": "vendor",
+        "optimize-autoloader": true,
+        "cache-files-maxsize": "1000MiB",
         "process-timeout": 1800
     },
     "minimum-stability": "dev",
-    "homepage": "https://github.com/uniconstructor/easycast",
+    "homepage": "https://github.com/uniconstructor/easycast2",
     "authors": [
         {
             "name": "Frost",
@@ -24,22 +26,6 @@
         }
     },
     "repositories": [
-        {
-            "type": "vcs",
-            "url":  "git@github.com:uniconstructor/Yii-Conditional-Validator.git"
-        },
-        {
-            "type": "vcs",
-            "url":  "git@github.com:uniconstructor/simpleWorkflow.git"
-        },
-        {
-            "type": "vcs",
-            "url":  "git@github.com:uniconstructor/libphonenumberValidator.git"
-        },
-        {
-            "type": "vcs",
-            "url":  "git@github.com:uniconstructor/sweekit.git"
-        },
         {
             "type": "vcs",
             "url":  "git@github.com:cybercog/yii2-cockpit-bridge.git"
@@ -60,10 +46,23 @@
     "scripts": {
         
     },
+    "archive": {
+        "exclude": [
+            "README.md",
+            "readme.md",
+            "empty.file",
+            ".DS_Store",
+            
+            "/nbproject",
+            "/.gitignore",
+            "/.gitattributes",
+            "/composer.json",
+            "/composer.lock"
+        ]
+    },
     "require": {
         "php": ">=5.4.0",
         "fxp/composer-asset-plugin": "~1.0.1",
-        "yiisoft/yii": "1.1.16",
         "yiisoft/yii2": "~2.0.0",
         "yiisoft/yii2-mongodb": "~2.0.0",
         "yiisoft/yii2-imagine": "~2.0.0",
@@ -72,21 +71,16 @@
         "aheinze/cockpit": "*",
         "aheinze/cockpit-i18n": "*",
         "omnilight/yii2-cockpit-bridge": "*",
-        "clevertech/yii-booster": "4.0.1",
-        "mikemix/efullcalendar": "dev-master",
-        "yiiext/imperavi-redactor-widget": "*",
-        "uniconstructor/Yii-Conditional-Validator": "*",
-        "uniconstructor/simpleWorkflow": "*",
+        "clevertech/yii-booster": "~4.0.1",
         "giggsey/libphonenumber-for-php": "*",
-        "uniconstructor/libphonenumberValidator":"*",
-        "uniconstructor/sweekit": "*"
+        "kop/yii2-monolog": "*"
     },
     "require-dev": {
-        "codeception/codeception": "2.0.13",
+        "codeception/codeception": "~2.0.13",
         "codeception/specify": "*",
         "codeception/verify": "*",
-        "phpunit/phpunit": "4.6.6",
-        "phpunit/phpunit-selenium": "1.4.2",
+        "phpunit/phpunit": "~4.6.6",
+        "phpunit/phpunit-selenium": "~1.4.2",
         "yiisoft/yii2-codeception": "*",
         "yiisoft/yii2-debug": "*",
         "yiisoft/yii2-gii": "*",
