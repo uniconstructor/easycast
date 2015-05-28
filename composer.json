@@ -5,6 +5,8 @@
     "description": "Основной репозиторий easycast.ru: содержит только код проекта.",
     "config": {
         "vendor-dir": "protected/vendor",
+        "optimize-autoloader": true,
+        "cache-files-maxsize": "1000MiB",
         "process-timeout": 1800
     },
     "minimum-stability": "dev",
@@ -60,8 +62,22 @@
     "scripts": {
         
     },
+    "archive": {
+        "exclude": [
+            "README.md",
+            "readme.md",
+            "empty.file",
+            ".DS_Store",
+            
+            "/nbproject",
+            "/.gitignore",
+            "/.gitattributes",
+            "/composer.json",
+            "/composer.lock"
+        ]
+    },
     "require": {
-        "php": ">=5.4.0",
+        "php": "~5.4.0",
         "fxp/composer-asset-plugin": "~1.0.1",
         "yiisoft/yii": "1.1.16",
         "yiisoft/yii2": "~2.0.0",
@@ -72,7 +88,7 @@
         "aheinze/cockpit": "*",
         "aheinze/cockpit-i18n": "*",
         "omnilight/yii2-cockpit-bridge": "*",
-        "clevertech/yii-booster": "4.0.1",
+        "clevertech/yii-booster": "~4.0.1",
         "mikemix/efullcalendar": "dev-master",
         "yiiext/imperavi-redactor-widget": "*",
         "uniconstructor/Yii-Conditional-Validator": "*",
@@ -82,11 +98,11 @@
         "uniconstructor/sweekit": "*"
     },
     "require-dev": {
-        "codeception/codeception": "2.0.13",
+        "codeception/codeception": "~2.0.13",
         "codeception/specify": "*",
         "codeception/verify": "*",
-        "phpunit/phpunit": "4.6.6",
-        "phpunit/phpunit-selenium": "1.4.2",
+        "phpunit/phpunit": "~4.6.6",
+        "phpunit/phpunit-selenium": "~1.4.2",
         "yiisoft/yii2-codeception": "*",
         "yiisoft/yii2-debug": "*",
         "yiisoft/yii2-gii": "*",
