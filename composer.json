@@ -36,6 +36,10 @@
         },
         {
             "type": "vcs",
+            "url":  "git@github.com:uniconstructor/cockpit.git"
+        },
+        {
+            "type": "vcs",
             "url":  "git@github.com:uniconstructor/cockpit-i18n.git"
         },
         {
@@ -77,9 +81,8 @@
         "yiisoft/yii2-bootstrap": "*",
         "yiisoft/yii2-swiftmailer": "*",
         "yiisoft/yii2-jui": "~2.0.0",
-        "aheinze/cockpit": "*",
+        "aheinze/cockpit": "dev-embed",
         "aheinze/cockpit-i18n": "*",
-        "omnilight/yii2-cockpit-bridge": "*",
         "udokmeci/yii2-phone-validator" : "dev-master",
         "kop/yii2-monolog": "*",
         "bryglen/yii2-aws": "*",

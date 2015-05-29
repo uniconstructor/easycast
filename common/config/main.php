@@ -1,6 +1,12 @@
 <?php
 return [
     'vendorPath' => dirname(dirname(__DIR__)) . '/vendor',
+    'aliases'    => [
+        '@assets'    => '@app/web/assets',
+        '@runtime'   => '@app/runtime',
+        '@data'      => '@runtime/data',
+        '@cockpit'   => '@vendor/aheinze/cockpit',
+    ],
     'components' => [
         'cache' => [
             'class' => 'yii\caching\FileCache',
