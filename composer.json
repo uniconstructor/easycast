@@ -72,7 +72,7 @@
         "php": ">=5.4.0",
         "fxp/composer-asset-plugin": "~1.0.1",
         "yiisoft/yii2": "~2.0.0",
-        "yiisoft/yii2-mongodb": "~2.0.0",
+        "yiisoft/yii2-mongodb": "*",
         "yiisoft/yii2-imagine": "~2.0.0",
         "yiisoft/yii2-bootstrap": "*",
         "yiisoft/yii2-swiftmailer": "*",

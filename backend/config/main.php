@@ -21,7 +21,7 @@ return [
             'identityClass' => 'common\models\User',
             'identityCookie' => [
                 'name' => '_backendIdentity',
-                'path' => '/admin',
+                'path' => '/backend',
                 'httpOnly' => true,
             ],
             'enableAutoLogin' => true,
@@ -36,7 +36,7 @@ return [
         'session' => [
             'name' => 'BACKENDSESSID',
             'cookieParams' => [
-                'path' => '/admin',
+                'path' => '/backend',
             ],
         ],
         'errorHandler' => [

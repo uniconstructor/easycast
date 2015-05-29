@@ -1,4 +1,4 @@
-Options FollowSymLinks
+Options +FollowSymLinks
 AddDefaultCharset utf-8
 
 # Mod_Autoindex
