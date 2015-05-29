@@ -39,6 +39,14 @@
             "url":  "git@github.com:uniconstructor/cockpit-i18n.git"
         },
         {
+            "type": "vcs",
+            "url":  "git@github.com:bryglen/yii2-aws.git"
+        },
+        {
+            "type": "vcs",
+            "url":  "git@github.com:kop/yii2-monolog.git"
+        },
+        {
             "type": "composer",
             "url":  "http://packages.phundament.com"
         }
@@ -66,14 +74,16 @@
         "yiisoft/yii2": "~2.0.0",
         "yiisoft/yii2-mongodb": "~2.0.0",
         "yiisoft/yii2-imagine": "~2.0.0",
-        "yiisoft/yii2-bootstrap": "~2.0.0",
+        "yiisoft/yii2-bootstrap": "*",
         "yiisoft/yii2-swiftmailer": "*",
+        "yiisoft/yii2-jui": "~2.0.0",
         "aheinze/cockpit": "*",
         "aheinze/cockpit-i18n": "*",
         "omnilight/yii2-cockpit-bridge": "*",
-        "clevertech/yii-booster": "~4.0.1",
         "giggsey/libphonenumber-for-php": "*",
-        "kop/yii2-monolog": "*"
+        "kop/yii2-monolog": "*",
+        "bryglen/yii2-aws": "*",
+        "kartik-v/yii2-widgets": "*"
     },
     "require-dev": {
         "codeception/codeception": "~2.0.13",
