@@ -76,6 +76,7 @@ class SiteController extends Controller
 
     public function actionIndex()
     {
+        $this->layout = '@themes/easycast/layouts/landing';
         return $this->render('index');
     }
 

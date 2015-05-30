@@ -19,6 +19,16 @@ return [
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
+        'view' => [
+            'theme' => [
+                'pathMap' => [
+                    '@app/views'   => '@app/themes/easycast',
+                    //'@app/modules' => '@app/themes/easycast/modules',
+                    //'@app/widgets' => '@app/themes/easycast/widgets',
+                ],
+                'baseUrl' => '@web/themes/easycast',
+            ],
+        ],
     ],
     'params' => $params,
 ];
