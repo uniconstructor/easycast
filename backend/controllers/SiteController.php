@@ -5,6 +5,7 @@ use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use common\models\LoginForm;
+use common\actions\RenderRegionAction;
 use yii\filters\VerbFilter;
 
 /**

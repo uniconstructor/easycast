@@ -12,6 +12,7 @@ use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
+use common\actions\RenderRegionAction;
 
 /**
  * Site controller
@@ -38,6 +39,11 @@ class SiteController extends Controller
                         'allow' => true,
                         'roles' => ['@'],
                     ],
+                    [
+                        'actions' => ['region'],
+                        'allow' => true,
+                        'roles' => ['*'],
+                    ],
                 ],
             ],
             'verbs' => [
@@ -61,6 +67,9 @@ class SiteController extends Controller
             'captcha' => [
                 'class' => 'yii\captcha\CaptchaAction',
                 'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
+            ],
+            'region' => [
+                'class' => 'common\actions\RenderRegionAction',
             ],
         ];
     }

@@ -17,6 +17,7 @@ return [
             'enableStrictParsing' => false,
             'rules' => [
                 'module/<module:\w+>/<controller:\w+>/<action:\w+>' => '<module>/<controller>/<action>',
+                '<controller:\w+>/<action:\w+>' => '<controller>/<action>',
             ],
         ],
     ],
