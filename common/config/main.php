@@ -1,4 +1,7 @@
 <?php
+
+$extensions = require(dirname(dirname(__DIR__)) . '/vendor/yiisoft/extensions.php');
+
 return [
     'vendorPath' => dirname(dirname(__DIR__)) . '/vendor',
     'aliases'    => [
@@ -8,9 +11,10 @@ return [
         '@themes'    => '@app/themes',
         '@cockpit'   => '@vendor/aheinze/cockpit',
     ],
+    'extensions' => $extensions,
     'components' => [
         'cache' => [
-            'class' => 'yii\caching\FileCache',
+            'class' => 'yii\caching\DummyCache',
         ],
         'urlManager' => [
             'enablePrettyUrl' => true,
@@ -25,13 +29,10 @@ return [
             'bundles' => [
                 'yii\web\JqueryAsset' => [],
                 'yii\bootstrap\BootstrapPluginAsset' => [],
-                //'yii\bootstrap\BootstrapThemeAsset' => [
-                //    'sourcePath' => '@app/static',
-                //    'css' => [
-                //        YII_ENV_DEV ? 'css/bootstrap-theme.css' : 'css/bootstrap-theme.min.css',
-                //    ],
-                //],
             ],
         ],
+    ],
+    'controllerMap' => [
+        'page' => 'common\components\PageController',
     ],
 ];

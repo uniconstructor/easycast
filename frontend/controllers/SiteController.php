@@ -13,6 +13,7 @@ use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use common\actions\RenderRegionAction;
+use common\behaviors\ActionSetBehavior;
 
 /**
  * Site controller
@@ -71,14 +72,29 @@ class SiteController extends Controller
             'region' => [
                 'class' => 'common\actions\RenderRegionAction',
             ],
+            'index' => [
+                'class'  => 'common\actions\RenderRegionAction',
+                'layout' => '@themes/easycast/layouts/landing',
+                'region' => 'page-index-default',
+            ],
+            'indexUser' => [
+                'class'  => 'common\actions\RenderRegionAction',
+                'layout' => '@themes/easycast/layouts/landing',
+                'region' => 'page-index-user',
+            ],
+            'indexCustomer' => [
+                'class'  => 'common\actions\RenderRegionAction',
+                'layout' => '@themes/easycast/layouts/landing',
+                'region' => 'page-index-customer',
+            ],
         ];
     }
 
-    public function actionIndex()
+    /*public function actionIndex1()
     {
         $this->layout = '@themes/easycast/layouts/landing';
         return $this->render('index');
-    }
+    }*/
 
     public function actionLogin()
     {
