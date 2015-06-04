@@ -6,6 +6,7 @@ use Yii;
 use yii\base\Action;
 use yii\base\UserException;
 use yii\web\NotFoundHttpException;
+use yii\helpers\Html;
 
 /**
  * Действие контроллера отображающее один регион cockpit
@@ -37,7 +38,7 @@ class RenderRegionAction extends Action
     /**
      * @var string
      */
-    public $view;
+    public $view = '@common/views/region.php';
     /**
      * @var string
      */
@@ -56,6 +57,10 @@ class RenderRegionAction extends Action
      */
     public function init()
     {
+        if ( $this->layout )
+        {
+            $this->controller->layout = $this->layout;
+        }
         parent::init();
     }
 
@@ -66,8 +71,14 @@ class RenderRegionAction extends Action
      */
     public function run()
     {
-        $slug         = Yii::$app->request->getQueryParam('region');
-        $regionData = Yii::$app->request->getQueryParam('data', $this->regionData);
+        if ( ! $slug = $this->region )
+        {
+            $slug = Yii::$app->request->getQueryParam('region', $this->region);
+        }
+        if ( ! $regionData = $this->regionData )
+        {
+            $regionData = Yii::$app->request->getQueryParam('data', $this->regionData);
+        }
         
         if ( ! $slug OR ! $region = \cockpit('regions:get_region_by_slug', $slug) )
         {
@@ -79,14 +90,20 @@ class RenderRegionAction extends Action
             'region' => $region,
             'html'   => $html,
         ];
+        $viewData = [
+            'name' => $region['name'],
+            'data' => $regionData,
+        ];
         switch ( $this->render )
         {// отображаем регион в зависимости от настроек вывода
             case 'raw':     return $html;
             case 'content': return $this->controller->renderContent($html);
-            case 'layout':  return $this->controller->render($this->view, $data);
+            case 'layout':  return $this->controller->render($this->view, $viewData);
             case 'partial': return $this->controller->renderPartial($this->view, $data);
             case 'ajax':    return $this->controller->renderAjax($this->view, $data);
-            case 'file':    return $this->controller->renderFile($this->view, $data);
+            case 'file':
+                return $this->controller->renderFile($this->view, $viewData);
+            break;
         }
         Yii::trace('Unknown render method used');
         return $html;

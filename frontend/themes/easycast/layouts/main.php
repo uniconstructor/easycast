@@ -20,8 +20,8 @@ $this->beginPage();
 ?>
 <!DOCTYPE html>
 <html lang="<?= Yii::$app->language ?>">
-<?php region('layout-head', ['view' => $this]); ?>
-<?php region('layout-body', ['view' => $this, 'content' => $content]); ?>
+<?php \region('layout-head', ['view' => &$this]); ?>
+<?php \region('layout-body', ['view' => &$this, 'content' => $content]); ?>
 </html>
 <?php
 $this->endPage();

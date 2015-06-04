@@ -1,12 +1,13 @@
 <?php
 return [
     'components' => [
-        'db' => [
+        'olddb' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=localhost;dbname=yii2advanced',
+            'dsn' => 'mysql:host=localhost;dbname=easycast',
             'username' => 'root',
-            'password' => '',
+            'password' => 'root',
             'charset' => 'utf8',
+            'tablePrefix' => 'bgl_',
         ],
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',

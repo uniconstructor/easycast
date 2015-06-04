@@ -11,4 +11,17 @@ define('COCKPIT_CONFIG_PATH', \Yii::getAlias('@environments/'.YII_ENV.'/backend/
 if ( ! defined('COCKPIT_EMBEDED') )
 {
     require(\Yii::getAlias('@vendor/aheinze/cockpit/bootstrap.php'));
+    // @todo вынести в отдельный модуль
+    $pageCollection = cockpit('collections:get_collection_by_slug', 'yii-controller-actions');
+    if ( $pageCollection AND $actions = $pageCollection->find()->toArray() )
+    {
+        $customUrlRules = array();
+        foreach ( $actions as $action )
+        {
+            if ( isset($action['path']) AND $action['path'] )
+            {
+                \Yii::$app->urlManager->rules[$action['path']] = 'page/'.$action['name'];
+            }
+        }
+    }
 }

@@ -86,7 +86,8 @@
         "udokmeci/yii2-phone-validator" : "dev-master",
         "kop/yii2-monolog": "*",
         "bryglen/yii2-aws": "*",
-        "kartik-v/yii2-widgets": "*"
+        "kartik-v/yii2-widgets": "*",
+        "vova07/yii2-fileapi-widget": "*"
     },
     "require-dev": {
         "codeception/codeception": "~2.0.13",
