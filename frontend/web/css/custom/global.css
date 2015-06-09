@@ -2427,7 +2427,8 @@ section.roles-offer .box img {
 section.roles-offer .box span.name {
 	font-size: 19px;
 	font-weight: 400;
-	margin-left: 75px;
+	/* margin-left: 75px; */
+        margin-left: 64px;
 	position: relative;
 	top: 8px;
 }
