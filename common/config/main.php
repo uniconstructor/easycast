@@ -27,8 +27,16 @@ return [
         ],
         'assetManager' => [
             'bundles' => [
-                'yii\web\JqueryAsset' => [],
-                'yii\bootstrap\BootstrapPluginAsset' => [],
+                'yii\bootstrap\BootstrapAsset' => [
+                    'jsOptions' => [
+                        'position' => yii\web\View::POS_HEAD,
+                    ],
+                ],
+                'yii\bootstrap\BootstrapPluginAsset' => [
+                    'jsOptions' => [
+                        'position' => yii\web\View::POS_HEAD,
+                    ],
+                ],
                 'yii\web\JqueryAsset' => [
                     'jsOptions' => [
                         'position' => yii\web\View::POS_HEAD,
