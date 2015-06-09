@@ -36,10 +36,6 @@ class QUserMedia extends CWidget
         {
             foreach ( $records  as $record )
             {
-                if ( $record->type === 'youtube' AND ! $record->externalid )
-                {
-                    continue;
-                }
                 $items[] = array('video' => $record->link);
             }
         }

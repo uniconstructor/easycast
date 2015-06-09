@@ -195,15 +195,15 @@ class Video extends SWActiveRecord
 	        {// запоминаем того кто загрузил видео
                 $this->uploaderid = Yii::app()->user->id;
 	        }
-	        if ( ! $this->type )
-	        {// определяем тип видео
-	            $this->type = $this->defineVideoType($this->link);
-	        }
-	        if ( ! $this->externalid )
-	        {// определяем id видео на портале, чтобы потом генерировать правильные ссылки на него
-                $this->externalid = $this->extractExternalId();
-	        }
 	    }
+        if ( ! $this->type OR $this->type === 'link' )
+        {// определяем тип видео
+            $this->type = $this->defineVideoType($this->link);
+        }
+        if ( ! $this->externalid )
+        {// определяем id видео на портале, чтобы потом генерировать правильные ссылки на него
+            $this->externalid = $this->extractExternalId();
+        }
 	    return parent::beforeSave();
 	}
 	
@@ -582,12 +582,19 @@ class Video extends SWActiveRecord
 	protected function getYoutubeId($url)
 	{
 	    $url     = trim($url);
-	    $pattern = "/^(?:http(?:s)?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:(?:watch)?\?(?:.*&)?v(?:i)?=|(?:embed|v|vi|user)\/))([^\?&\"'>]+)/";
-	    preg_match($pattern, $url, $matches);
-	    if ( isset($matches[1]) )
+	    parse_str(parse_url($url, PHP_URL_QUERY), $urlVars);
+	    
+	    if ( isset($urlVars['v']) )
 	    {
-	        return $matches[1];
-	    }
+	        return $urlVars['v'];
+	    }else
+        {
+            preg_match("#(?<=v=)[a-zA-Z0-9-]+(?=&)|(?<=v\/)[^&\n]+(?=\?)|(?<=v=)[^&\n]+|(?<=youtu.be/)[^&\n]+#", $url, $matches);
+            if ( isset($matches[1]) )
+            {
+                return $matches[1];
+            }
+        }
 	    // регулярные выражения не справились:
         $message = "Не удалось извлечь адрес видео из URL:{$url}\n";
         Yii::log($message, CLogger::LEVEL_ERROR, 'application.video'); 
