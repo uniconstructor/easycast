@@ -30,6 +30,10 @@ class QUserMedia extends CWidget
         $videoCriteria = new CDbCriteria();
         $videoCriteria->compare('objecttype', 'questionary');
         $videoCriteria->compare('objectid', $this->questionary->id);
+        if ( ! Yii::app()->user->checkAccess('Admin') )
+        {
+            $videoCriteria->compare('visible', 1);
+        }
         $videoCriteria->addInCondition('type', array('youtube'));
         
         if ( $this->displayVideo AND $records = Video::model()->findAll($videoCriteria) )
