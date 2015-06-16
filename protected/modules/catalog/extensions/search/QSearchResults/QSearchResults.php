@@ -48,7 +48,7 @@ class QSearchResults extends CWidget
      * @var int - id объекта, к которому привязаны критерии поиска
      * @todo заготовка для будущего рефакторинга
      */
-    public $objectId    = 1;
+    public $objectId    = 0;
     /**
      * @var CActiveRecord - модель к которой привязаны критерии и результаты поиска
      *                      Может быть вичислена на основе objectType и objectId или задана вручную
@@ -66,6 +66,10 @@ class QSearchResults extends CWidget
      */
     public function init()
     {
+        $cs = Yii::app()->clientScript;
+        $cs->registerCoreScript('jquery');
+        $cs->registerCoreScript('bbq');
+        $cs->registerCoreScript('history');
         // подключаем библиотеку sweekit, чтобы отображадось видео в загружаемых по AJAX анкетах
         Yii::app()->getClientScript()->registerSweelixScript('shadowbox');
         // эти классы нужны для отображения результатов поиска, 
@@ -88,7 +92,6 @@ class QSearchResults extends CWidget
         $this->assembler = Yii::createComponent($config);
         
         // подключаем стили galleria, чтобы выводить фотографии участника через AJAX
-        $cs = Yii::app()->clientScript;
         $galleriaAssets = Yii::app()->assetManager->publish(Yii::app()->basePath.'/extensions/galleria/assets');
         $cs->registerCssFile($galleriaAssets.'/themes/classic/galleria.classic.css');
         $cs->registerScriptFile($galleriaAssets.'/galleria.min.js');
@@ -104,6 +107,10 @@ class QSearchResults extends CWidget
         if ( is_object($this->searchObject) )
         {// объект поиска уже задан - извлекать его не требуется
             $this->objectId = $this->searchObject->id;
+            if ( $this->searchObject instanceof EventVacancy )
+            {
+                $this->objectType = 'vacancy';
+            }
             return;
         }
         if ( ! $this->objectType OR ! $this->objectId )
@@ -112,7 +119,6 @@ class QSearchResults extends CWidget
             $this->searchObject = $this->section;
             return;
         }
-        
         switch ( $this->objectType )
         {// получаем объект, к которому привязаны результаты поиска
             case 'section':
@@ -170,13 +176,14 @@ class QSearchResults extends CWidget
      */
     public function run()
     {
+        $criteria  = new CDbCriteria();
+        $emptyText = $this->getAjaxMessage('noData');
+        
         if ( ! $this->data or empty($this->data) )
         {// не указаны критерии поиска
-            $emptyText    = $this->getAjaxMessage('noData');
             $dataProvider = new CArrayDataProvider(array());
         }elseif ( ! $criteria = $this->assembler->getCriteria() )
         {// не указаны критерии поиска
-            $emptyText    = $this->getAjaxMessage('noData');
             $dataProvider = new CArrayDataProvider(array());
         }else
         {// все данные есть, получаем результаты поиска
@@ -184,6 +191,10 @@ class QSearchResults extends CWidget
             if ( ! Yii::app()->user->checkAccess('Admin') )
             {// отложенные, неподтвержденные и скрытые анкеты видны только админам
                 $criteria->addCondition("`t`.`status` NOT IN ('delayed', 'draft', 'unconfirmed') AND `t`.`visible` = 1");
+            }
+            if ( $this->objectId != 1 AND $this->objectType === 'section' )
+            {
+                $criteria->mergeWith(CatalogSection::model()->findByPk($this->objectId)->getSearchCriteria());
             }
             $criteria->order = '`rating` DESC';
             
@@ -198,6 +209,7 @@ class QSearchResults extends CWidget
             ));
         }
         $this->printCss3Grid($dataProvider, $emptyText);
+        //$this->printSafeGrid($dataProvider, $emptyText);
     }
     
     /**
@@ -233,11 +245,13 @@ class QSearchResults extends CWidget
             'descriptionOnly'  => true,
             'listViewOptions' => array(
                 'ajaxUpdate'   => 'search_results_data',
-                'id'           => 'search_results_data',
                 'ajaxUrl'      => Yii::app()->createUrl($this->route, $this->routeParams),
                 'template'     => "{summary}{items}{pager}",
                 'emptyText'    => $emptyText,
             ),
+            'htmlOptions' => [
+                'id' => 'search_results_data',
+            ],
             'options' => array(
                 'headerClass' => ' ',
                 'textClass'   => ' ',
@@ -264,7 +278,6 @@ class QSearchResults extends CWidget
                 $params['searchObjectId'] = $this->searchObject->id;
             }
         }
-        
         return $params;
     }
      

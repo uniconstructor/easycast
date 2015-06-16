@@ -19,7 +19,7 @@ class CatalogData extends CWidget
     /**
      * @var string - id активной в данной момент вкладки
      */
-    public $tab = null;
+    public $tab;
     /**
      * @var array - условия формы поиска (если они есть) 
      */
@@ -28,11 +28,11 @@ class CatalogData extends CWidget
     /**
      * @var CatalogSection|null
      */
-    protected $section = null;
+    protected $section;
     /**
      * @var string - скрипты для запоминания активной вкладки в сессии при переключении вкладок
      */
-    protected $_tabScripts = null;
+    protected $_tabScripts;
     /**
      * @var string
      */
@@ -51,17 +51,14 @@ class CatalogData extends CWidget
             Yii::getPathOfAlias('catalog.extensions.CatalogData.assets') . DIRECTORY_SEPARATOR);
         Yii::app()->clientScript->registerCssFile($this->_assetUrl.'/catalog.css');
         
-        if ( $section = CatalogSection::model()->findByPk($this->sectionid) )
-        {
-            $this->section = $section;
-        }else
+        if ( ! $this->section = CatalogSection::model()->findByPk($this->sectionid) )
         {
             $this->section = CatalogSection::model()->findByPk(1);
         }
-        if ( $activeTab = CatalogModule::getNavigationParam('tab') )
-        {
-            $tab = $activeTab;
-        }
+        //if ( $activeTab = CatalogModule::getNavigationParam('tab') )
+        //{
+        //    $tab = $activeTab;
+        //}
     }
     
     /**
@@ -130,7 +127,7 @@ class CatalogData extends CWidget
             );
         }else
         {// раздел содержит анкеты
-            $criteria = $this->section->scope->getCombinedCriteria();
+            $criteria = $this->section->getSearchCriteria();
             $dataProvider = new CActiveDataProvider('Questionary', array(
                     'criteria'   => $criteria,
                     'pagination' => array('pageSize' => self::MAX_SECTION_ITEMS),
@@ -199,7 +196,6 @@ class CatalogData extends CWidget
             //$this->_tabScripts .= $this->getTabNavigationUpdate('search_tab');
             // $this->getSearchFormLoadScript();
         }
-        
         return $tab;
     }
     
@@ -242,7 +238,6 @@ class CatalogData extends CWidget
             case 'users':
                 // в разделе содержатся участники
                 $view     = '/_user';
-                $template = "{summary}{items}{pager}";
             break;
             case 'sections':
                 // в разделе содержаться другие разделы
@@ -251,10 +246,9 @@ class CatalogData extends CWidget
                 return $this->widget('ext.ECMarkup.EServiceList.EServiceList', array(), true);
             break;
         }
-        
         return $this->widget('bootstrap.widgets.TbThumbnails', array(
             'dataProvider'    => $dataProvider,
-            'template'        => $template,
+            'template'        => "{summary}{items}{pager}",
             'itemView'        => $view,
             'ajaxUpdate'      => $tabName.'_tab',
             'id'              => $tabName.'_tab',

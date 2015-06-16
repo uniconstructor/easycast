@@ -21,11 +21,9 @@
         <?php 
         // форма поиска
         $this->widget('catalog.extensions.search.SearchFilters.SearchFilters', array(
-            'section' => $this->section,
+            'section'    => $this->section,
+            'dataSource' => 'session',
         ));
         ?>
     </div>
 </div>
-<?php 
-
-?>

@@ -156,13 +156,9 @@ class CatalogController extends Controller
 	    $objectId = Yii::app()->request->getParam('searchObjectId', 1);
 	    $section  = CatalogSection::model()->findByPk($objectId);
 	    
-	    if ( ! $section AND $objectId > 0 )
+	    if ( ! $section AND $objectId )
 	    {// попытка поискать в несуществующем разделе
 	        throw new CException('Section not found');
-	    }else
-	    {// просто передан 0 вместо id раздела: getParam не ловит такие вещи. так что установим
-	        // поиск по всей базе принудительно
-	        $section = CatalogSection::model()->findByPk(1);
 	    }
 	    if ( $formData = Yii::app()->request->getPost('data') )
 	    {// переданы данные для поиска - делаем из них нормальный массив
