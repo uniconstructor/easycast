@@ -11,9 +11,15 @@ return [
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
     'controllerNamespace' => 'frontend\controllers',
+    'modules' => [
+        'user' => [
+            // following line will restrict access to admin page
+            'as frontend' => 'dektrium\user\filters\FrontendFilter',
+        ],
+    ],
     'components' => [
         'user' => [
-            'identityClass' => 'common\models\User',
+            'identityClass'   => 'common\models\User',
             'enableAutoLogin' => true,
         ],
         'errorHandler' => [
