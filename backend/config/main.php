@@ -15,7 +15,12 @@ return [
     'basePath' => dirname(__DIR__),
     'controllerNamespace' => 'backend\controllers',
     'bootstrap' => ['log'],
-    'modules' => [],
+    'modules' => [
+        'user' => [
+            // following line will restrict access to admin page
+            'as backend' => 'dektrium\user\filters\BackendFilter',
+        ],
+    ],
     'components' => [
         'user' => [
             'identityClass' => 'common\models\User',
