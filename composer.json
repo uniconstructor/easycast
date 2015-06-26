@@ -87,7 +87,9 @@
         "kop/yii2-monolog": "*",
         "bryglen/yii2-aws": "*",
         "kartik-v/yii2-widgets": "*",
-        "vova07/yii2-fileapi-widget": "*"
+        "vova07/yii2-fileapi-widget": "*",
+        "dektrium/yii2-user": "dev-master",
+        "dektrium/yii2-rbac": "dev-master"
     },
     "require-dev": {
         "codeception/codeception": "~2.0.13",
