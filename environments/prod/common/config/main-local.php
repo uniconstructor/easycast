@@ -9,6 +9,10 @@ return [
             'charset' => 'utf8',
             'tablePrefix' => 'bgl_',
         ],
+        'mongodb' => [
+            'class' => '\yii\mongodb\Connection',
+            'dsn'   => 'mongodb://'.$_SERVER['MONGO_ENDPOINT'].':27017/easycast',
+        ],
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
             'viewPath' => '@common/mail',
