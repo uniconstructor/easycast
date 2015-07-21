@@ -28,11 +28,11 @@ class ECResponsiveFooter extends CWidget
     public function run()
     {
         $this->render('footer');
-        if ( ! Yii::app()->user->checkAccess('Admin') AND $this->analytics AND ! YII_DEBUG )
+        if ( Yii::app()->user->isGuest AND $this->analytics AND ! YII_DEBUG )
         {// счетчик Яндекса
             $this->render('yandexCounter');
         }
-        if ( ! Yii::app()->user->checkAccess('Admin') AND ! YII_DEBUG )
+        if ( Yii::app()->user->isGuest AND ! YII_DEBUG )
         {// скрипт онлайн-консультанта (для всех кроме админов)
             //$this->render('zopim');
         }
