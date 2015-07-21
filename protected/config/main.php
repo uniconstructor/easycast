@@ -259,6 +259,7 @@ return array(
                 'a07' => 'site/tmpsale/current/a07',
                 'a08' => 'site/tmpsale/current/a08',
                 'a09' => 'site/tmpsale/current/a09',
+                'hr'  => 'site/tmpsale/current/hr',
             ),
             'showScriptName' => false,
         ),
@@ -304,7 +305,7 @@ return array(
                     'class' => 'ext.sweekit.behaviors.SwAjaxBehavior',
                 ),
             ),
-            // включаем защиту от XSS-атак
+            // включаем защиту от CSRF-атак
             'enableCsrfValidation'   => true,
             // включаем защиту от подмены cookie
             'enableCookieValidation' => true,
@@ -546,7 +547,7 @@ return array(
         // телефон по умолчанию, для всех вопросов по сайту (используем телефон техподдержки пользователей)
         'adminPhone'      => '+7(968)590-88-00',
         // телефон для заказчиков (прямой, круглосуточный)
-        'customerPhone'   => '+7(495)227-5-226',
+        'customerPhone'   => '8(800)707-07-87',
         // телефон для участников (техподдержка пользователей)
         'userPhone'       => '+7(968)590-88-00',
         // почта по умолчанию для сбора всех вопросов и отправки технических писем
