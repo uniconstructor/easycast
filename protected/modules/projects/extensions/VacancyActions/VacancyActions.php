@@ -99,7 +99,7 @@ class VacancyActions extends CWidget
             case 'normal':
                 if ( ! $this->questionaryId )
                 {// берем id текущего пользователя, если он не задан вручную
-                    $this->questionaryId = Yii::app()->getModule('questionary')->getCurrentQuestionaryId();
+                    $this->questionaryId = Yii::app()->user->questionary->id;
                 }
             break;
             case 'token':
@@ -169,7 +169,7 @@ class VacancyActions extends CWidget
         {
             if ( Yii::app()->user->checkAccess('Admin') )
             {// не показываем админам кнопки подачи заявок,
-                if ( $this->questionaryId != Yii::app()->getModule('user')->user()->questionary->id AND
+                if ( $this->questionaryId != Yii::app()->user->questionary->id AND
                      $this->vacancy->isAvailableForUser($this->questionaryId) )
                 {// если только это не кнопка подачи заявки от имени другого участника
                     // и этому участнику эта роль доступна
