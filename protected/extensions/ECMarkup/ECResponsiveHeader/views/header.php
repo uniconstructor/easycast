@@ -10,8 +10,8 @@
     <div class="main-nav row-fluid">
         <div class="span3 text-center">
             <div class="main-contacts" style="text-align:left;">
-                &nbsp;<i class="icon-phone"></i>&nbsp;+7(495)227-5-226 (Заказчикам)<br>
-                &nbsp;<i class="icon-phone"></i>&nbsp;&nbsp;<?= Yii::app()->params['customerPhone']; ?> (Пользователям)<br>
+                &nbsp;<i class="icon-phone"></i>&nbsp;&nbsp;<?= Yii::app()->params['customerPhone']; ?> (Заказчикам)<br>
+                &nbsp;<i class="icon-phone"></i>&nbsp;+7(495)227-5-226 (Пользователям)<br>
                 &nbsp;<i class="icon-envelope"></i>&nbsp;mail@easycast.ru
             </div>
         </div>
