@@ -89,7 +89,8 @@
         "kartik-v/yii2-widgets": "*",
         "vova07/yii2-fileapi-widget": "*",
         "dektrium/yii2-user": "dev-master",
-        "dektrium/yii2-rbac": "dev-master"
+        "dektrium/yii2-rbac": "dev-master",
+        "guzzlehttp/guzzle": "~6.0.2"
     },
     "require-dev": {
         "codeception/codeception": "~2.0.13",
