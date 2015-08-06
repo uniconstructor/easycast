@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Модель для работы сзагруженными видеофайлами и ссылками на видео
+ * Модель для работы с загруженными видеофайлами и ссылками на видео
  *
  * Таблица '{{video}}':
  * @property integer $id
@@ -437,7 +437,7 @@ class Video extends SWActiveRecord
 	    {
 	        return 'file';
 	    }
-	    if ( mb_stristr($link, 'youtube.com') )
+	    if ( mb_stristr($link, 'youtube.com') OR mb_stristr($link, 'youtu.be') )
 	    {
 	        return 'youtube';
 	    }elseif ( mb_stristr($link, 'vk.com') OR mb_stristr($link, 'vkontakte.ru') )
@@ -467,6 +467,10 @@ class Video extends SWActiveRecord
         {
             case 'youtube':
                 $this->externalid = $this->getYoutubeId($this->link);
+                if ( mb_stristr($this->link, 'youtu.be') OR mb_stristr($this->link, 'm.youtube.com') )
+                {// заменяем короткую ссылку или ссылку на мобильную версию стандартной
+                    $this->link = 'https://youtube.com/watch?v='.$this->externalid;
+                }
             break;
         }
         return $this->externalid;
@@ -508,7 +512,7 @@ class Video extends SWActiveRecord
 	    switch ( $this->type )
 	    {
 	        case 'youtube':
-	            return 'http://www.youtube.com/embed/'.$this->externalid.'?rel=0';
+	            return 'https://www.youtube.com/embed/'.$this->externalid.'?rel=0';
             break;
 	        case 'file':
 	            /* @var $s3 Aws\S3\S3Client */
@@ -581,18 +585,20 @@ class Video extends SWActiveRecord
 	 */
 	protected function getYoutubeId($url)
 	{
-	    $url     = trim($url);
-	    parse_str(parse_url($url, PHP_URL_QUERY), $urlVars);
+        $urlVars = [];
+	    parse_str(parse_url(trim($url), PHP_URL_QUERY), $urlVars);
 	    
 	    if ( isset($urlVars['v']) )
-	    {
+	    {// извлекаем id видео из параметров URL
 	        return $urlVars['v'];
 	    }else
-        {
-            preg_match("#(?<=v=)[a-zA-Z0-9-]+(?=&)|(?<=v\/)[^&\n]+(?=\?)|(?<=v=)[^&\n]+|(?<=youtu.be/)[^&\n]+#", $url, $matches);
-            if ( isset($matches[1]) )
+        {// извлекаем ID видео при помощи регулярных выражений
+            $pattern = "#(?<=v=)[a-zA-Z0-9-]+(?=&)|(?<=v\/)[^&\n]+(?=\?)|(?<=v=)[^&\n]+|(?<=youtu.be/)[^&\n]+#";
+            $matches = [];
+            preg_match($pattern, trim($url), $matches);
+            if ( isset($matches[0]) )
             {
-                return $matches[1];
+                return $matches[0];
             }
         }
 	    // регулярные выражения не справились:
