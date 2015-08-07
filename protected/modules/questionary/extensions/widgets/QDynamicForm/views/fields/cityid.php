@@ -21,6 +21,8 @@ echo $form->select2Row($model, 'cityid', array(
         'asDropDownList' => false,
         'options' => array(
             'minimumInputLength' => 1,
+            'placeholderOption'  => 4400,
+            'placeholder'        => 'Москва',
             'ajax' => array(
                 'url'      => Yii::app()->createUrl('//site/geoLookup'),
                 // варинты списка приходят в формате JSON
