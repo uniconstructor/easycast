@@ -249,15 +249,23 @@ class Questionary extends CActiveRecord
             // passportdate, formattedBirthDate,  passportorg
             // array('passportserial, passportnum', 'length', 'max' => 10),
             // array('voicetimbre, addchar, parodist, twin, vocaltype, sporttype, extremaltype, trick, skill', 'safe'),
+            // @todo пропустить через trim все остальные поля
+            array('birthdate, gender, height, weight, wearsize, looktype, haircolor, eyecolor,
+                physiquetype, titsize, chestsize, waistsize, hipsize, striptype,
+                striplevel, singlevel, wearsize, firstname, lastname, galleryid, city', 
+                'filter', 'filter' => 'trim',
+            ),
             array('userid, isactor, isamateuractor, hasfilms, isemcee, istvshowmen,
                         isstatist, ismassactor,
                         isparodist, istwin, ismodel, isphotomodel, ispromomodel, isdancer,
                         hasawards, isstripper, issinger,
                         ismusician, issportsman, isextremal, isathlete, hasskills, hastricks,
                         haslanuages, hasinshurancecard, countryid, nativecountryid,
-                        shoessize, rating, hastatoo, 
-                        istheatreactor, ismediaactor, ownerid, currentcountryid, visible',
-                'numerical', 'integerOnly' => true),
+                        shoessize, rating, hastatoo,
+                        istheatreactor, ismediaactor, ownerid, currentcountryid, visible,
+                        height, weight, chestsize, waistsize, hipsize, cityid',
+                'numerical', 'integerOnly' => true
+            ),
             array('firstname, lastname, middlename, city, cityid, inshurancecardnum', 'length', 'max' => 128),
         
             array('mobilephone, homephone, addphone, inn', 'length', 'max' => 32),
@@ -269,12 +277,6 @@ class Questionary extends CActiveRecord
             array('gender, height, weight, wearsize, looktype, haircolor, eyecolor,
                 physiquetype, titsize, chestsize, waistsize, hipsize, striptype,
                 striplevel, singlevel, wearsize', 'safe',
-            ),
-            // @todo пропустить через trim все остальные поля
-            array('birthdate, gender, height, weight, wearsize, looktype, haircolor, eyecolor,
-                physiquetype, titsize, chestsize, waistsize, hipsize, striptype,
-                striplevel, singlevel, wearsize, firstname, lastname, gender, galleryid, city', 
-                'filter', 'filter' => 'trim',
             ),
             // проверка даты через фильтр
             array('birthdate', 'ext.YiiConditionalValidator',

@@ -669,7 +669,7 @@ class QDynamicFormModel extends CFormModel
             ),*/ 
         );
         
-        $integerOnly = array(/*'cityid',*/ 'isactor', 'isamateuractor', 'hasfilms', 'isemcee', 'istvshowmen',
+        $integerOnly = array('cityid', 'isactor', 'isamateuractor', 'hasfilms', 'isemcee', 'istvshowmen',
             'isstatist', 'ismassactor', 'isparodist', 'istwin', 'ismodel', 'isphotomodel', 'ispromomodel', 
             'isdancer', 'hasawards', 'isstripper', 'issinger', 'ismusician', 'issportsman', 'isextremal', 
             'isathlete', 'hasskills', 'hastricks','haslanuages', 'hasinshurancecard', 'countryid', 
