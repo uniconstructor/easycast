@@ -494,7 +494,6 @@ class Questionary extends CActiveRecord
         Yii::import('ext.galleryManager.models.*');
         Yii::import('questionary.extensions.behaviors.QManageDefaultValuesBehavior');
         Yii::import('questionary.extensions.behaviors.QManageScalarValueBehavior');
-        Yii::import('questionary.extensions.behaviors.QScalarRules');
         
         return array(
             // сохранение и получение скалярных полей анкеты
