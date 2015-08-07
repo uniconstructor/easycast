@@ -150,7 +150,7 @@ class EventVacancy extends CActiveRecord
 	}
 	
 	/**
-	 * Получить список полей, без которыз нельзя подать ни одну заявку при регистрации
+	 * Получить список полей, без которых нельзя подать ни одну заявку при регистрации
 	 *
 	 * @return QUserField[]
 	 *
@@ -167,6 +167,7 @@ class EventVacancy extends CActiveRecord
 	        'mobilephone',
 	        'photo',
 	        'policyagreed',
+            'cityid',
 	    );
 	    $criteria = new CDbCriteria();
 	    $criteria->addInCondition('name', $names);
