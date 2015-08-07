@@ -267,12 +267,12 @@ class Questionary extends CActiveRecord
             array('privatecomment, admincomment, moderationcomment', 'length', 'max' => 4095),
             // @todo добавить индивидуальную проверку для каждого типа поля
             array('gender, height, weight, wearsize, looktype, haircolor, eyecolor,
-                physiquetype, titsize, chestsize, waistsize, hipsize, striptype
+                physiquetype, titsize, chestsize, waistsize, hipsize, striptype,
                 striplevel, singlevel, wearsize', 'safe',
             ),
             // @todo пропустить через trim все остальные поля
             array('birthdate, gender, height, weight, wearsize, looktype, haircolor, eyecolor,
-                physiquetype, titsize, chestsize, waistsize, hipsize, striptype
+                physiquetype, titsize, chestsize, waistsize, hipsize, striptype,
                 striplevel, singlevel, wearsize, firstname, lastname, gender, galleryid, city', 
                 'filter', 'filter' => 'trim',
             ),
