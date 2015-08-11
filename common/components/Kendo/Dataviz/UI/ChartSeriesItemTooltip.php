@@ -93,4 +93,3 @@ class ChartSeriesItemTooltip extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -44,4 +44,3 @@ class StockChartNavigatorCategoryAxisItemTitleMargin extends \Kendo\Serializable
 //<< Properties
 }
 
-?>

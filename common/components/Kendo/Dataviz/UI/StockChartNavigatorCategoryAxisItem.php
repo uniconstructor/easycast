@@ -256,4 +256,3 @@ body of the chart.
 //<< Properties
 }
 
-?>

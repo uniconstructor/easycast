@@ -138,4 +138,3 @@ the proxy should set the "Content-Disposition" header to inline; filename="<file
 //<< Properties
 }
 
-?>

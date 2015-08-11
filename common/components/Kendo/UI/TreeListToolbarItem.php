@@ -29,5 +29,3 @@ This class can be used to get a reference to the button (after TreeList initiali
 
 //<< Properties
 }
-
-?>

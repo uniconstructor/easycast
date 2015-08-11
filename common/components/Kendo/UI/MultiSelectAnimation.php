@@ -26,4 +26,3 @@ class MultiSelectAnimation extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -25,6 +25,3 @@ class HierarchicalDataSourceSchemaModel extends \Kendo\Data\DataSourceSchemaMode
 //>> Properties
 //<< Properties
 }
-
-?>
-

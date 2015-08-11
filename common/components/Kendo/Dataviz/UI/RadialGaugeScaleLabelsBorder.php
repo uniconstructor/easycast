@@ -44,4 +44,3 @@ class RadialGaugeScaleLabelsBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

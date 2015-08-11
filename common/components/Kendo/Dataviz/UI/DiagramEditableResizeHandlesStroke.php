@@ -35,4 +35,3 @@ class DiagramEditableResizeHandlesStroke extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

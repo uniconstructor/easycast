@@ -102,4 +102,3 @@ class StockChartValueAxisItemNotesLabel extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

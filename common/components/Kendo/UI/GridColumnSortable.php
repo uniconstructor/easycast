@@ -22,4 +22,3 @@ class GridColumnSortable extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

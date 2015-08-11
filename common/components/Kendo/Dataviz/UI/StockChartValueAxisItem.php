@@ -213,4 +213,3 @@ values increase from right to left and from top to bottom.
 //<< Properties
 }
 
-?>

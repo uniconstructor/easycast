@@ -44,4 +44,3 @@ class ChartSeriesItemLabelsFromPadding extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -25,5 +25,3 @@ class ComboBoxAnimation extends \Kendo\SerializableObject {
 
 //<< Properties
 }
-
-?>

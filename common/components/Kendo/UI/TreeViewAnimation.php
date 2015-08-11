@@ -26,4 +26,3 @@ class TreeViewAnimation extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

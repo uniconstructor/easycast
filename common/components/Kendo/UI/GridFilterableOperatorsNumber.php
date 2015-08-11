@@ -62,4 +62,3 @@ class GridFilterableOperatorsNumber extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

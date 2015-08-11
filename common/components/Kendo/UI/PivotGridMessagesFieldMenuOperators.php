@@ -62,4 +62,3 @@ class PivotGridMessagesFieldMenuOperators extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

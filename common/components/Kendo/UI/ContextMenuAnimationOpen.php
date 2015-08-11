@@ -26,4 +26,3 @@ class ContextMenuAnimationOpen extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

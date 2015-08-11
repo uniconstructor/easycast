@@ -62,4 +62,3 @@ class MapLayerDefaultsBubble extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -26,4 +26,3 @@ class MapLayerTooltipAnimation extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

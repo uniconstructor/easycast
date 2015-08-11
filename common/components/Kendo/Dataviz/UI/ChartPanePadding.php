@@ -44,4 +44,3 @@ class ChartPanePadding extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

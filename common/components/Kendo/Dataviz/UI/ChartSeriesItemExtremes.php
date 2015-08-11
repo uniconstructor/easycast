@@ -57,4 +57,3 @@ class ChartSeriesItemExtremes extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -39,4 +39,3 @@ class NotificationTemplate extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

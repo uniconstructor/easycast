@@ -26,4 +26,3 @@ class ChartValueAxisItemLabelsRotation extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

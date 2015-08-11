@@ -135,4 +135,3 @@ If the labels are normally on the left side of the scale, mirroring the scale wi
 //<< Properties
 }
 
-?>

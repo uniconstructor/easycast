@@ -17,4 +17,3 @@ class DiagramConnectionHover extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

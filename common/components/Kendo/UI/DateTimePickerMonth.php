@@ -26,4 +26,3 @@ class DateTimePickerMonth extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

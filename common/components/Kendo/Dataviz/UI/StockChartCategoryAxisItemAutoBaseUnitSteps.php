@@ -62,4 +62,3 @@ class StockChartCategoryAxisItemAutoBaseUnitSteps extends \Kendo\SerializableObj
 //<< Properties
 }
 
-?>

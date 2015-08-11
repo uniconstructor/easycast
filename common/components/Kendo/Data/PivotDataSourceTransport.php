@@ -26,4 +26,3 @@ class PivotDataSourceTransport extends \Kendo\Data\DataSourceTransport {
 //<< Properties
 }
 
-?>

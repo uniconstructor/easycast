@@ -17,4 +17,3 @@ class ChartSeriesDefaultsOverlay extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

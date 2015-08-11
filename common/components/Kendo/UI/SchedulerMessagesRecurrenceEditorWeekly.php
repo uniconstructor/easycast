@@ -35,4 +35,3 @@ class SchedulerMessagesRecurrenceEditorWeekly extends \Kendo\SerializableObject 
 //<< Properties
 }
 
-?>

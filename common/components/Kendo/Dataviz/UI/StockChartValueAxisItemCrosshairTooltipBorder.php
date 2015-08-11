@@ -26,4 +26,3 @@ class StockChartValueAxisItemCrosshairTooltipBorder extends \Kendo\SerializableO
 //<< Properties
 }
 
-?>

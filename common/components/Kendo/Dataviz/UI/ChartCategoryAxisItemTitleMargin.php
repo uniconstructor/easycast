@@ -44,4 +44,3 @@ class ChartCategoryAxisItemTitleMargin extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

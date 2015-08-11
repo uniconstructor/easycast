@@ -35,4 +35,3 @@ class LinearGaugePointerTrackBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

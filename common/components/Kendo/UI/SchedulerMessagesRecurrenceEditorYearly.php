@@ -43,5 +43,3 @@ class SchedulerMessagesRecurrenceEditorYearly extends \Kendo\SerializableObject 
 
 //<< Properties
 }
-
-?>

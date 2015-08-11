@@ -35,4 +35,3 @@ class DataSourceGroupItem extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -144,4 +144,3 @@ A diagram can have in general disconnected pieces, known as components, which ca
 //<< Properties
 }
 
-?>

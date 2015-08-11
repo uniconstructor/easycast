@@ -25,5 +25,3 @@ class ColorPickerTileSize extends \Kendo\SerializableObject {
 
 //<< Properties
 }
-
-?>

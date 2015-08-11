@@ -44,4 +44,3 @@ class SparklineSeriesItemHighlight extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

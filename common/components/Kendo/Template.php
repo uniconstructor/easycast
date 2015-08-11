@@ -13,4 +13,3 @@ class Template extends JavaScriptFunction {
         return "kendo.template($('\\#".$this->value."').html())";
     }
 }
-?>

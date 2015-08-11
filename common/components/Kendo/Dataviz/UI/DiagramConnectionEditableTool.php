@@ -251,4 +251,3 @@ class DiagramConnectionEditableTool extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

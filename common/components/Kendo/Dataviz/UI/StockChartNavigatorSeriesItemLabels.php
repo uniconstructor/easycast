@@ -111,4 +111,3 @@ class StockChartNavigatorSeriesItemLabels extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

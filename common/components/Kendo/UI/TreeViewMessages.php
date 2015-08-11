@@ -35,4 +35,3 @@ class TreeViewMessages extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

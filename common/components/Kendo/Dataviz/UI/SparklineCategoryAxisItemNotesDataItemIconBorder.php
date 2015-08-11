@@ -26,4 +26,3 @@ class SparklineCategoryAxisItemNotesDataItemIconBorder extends \Kendo\Serializab
 //<< Properties
 }
 
-?>

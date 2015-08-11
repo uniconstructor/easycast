@@ -17,4 +17,3 @@ class DiagramConnectionDefaultsHoverStroke extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

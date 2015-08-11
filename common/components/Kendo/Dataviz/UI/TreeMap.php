@@ -135,4 +135,3 @@ data source is fired. By default the widget will bind to the data source specifi
 //<< Properties
 }
 
-?>

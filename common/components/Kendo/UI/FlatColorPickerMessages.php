@@ -26,4 +26,3 @@ class FlatColorPickerMessages extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

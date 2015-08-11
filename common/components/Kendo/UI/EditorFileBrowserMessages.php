@@ -98,4 +98,3 @@ class EditorFileBrowserMessages extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

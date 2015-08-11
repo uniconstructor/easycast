@@ -26,4 +26,3 @@ class StockChartNavigatorSeriesItemTooltipBorder extends \Kendo\SerializableObje
 //<< Properties
 }
 
-?>

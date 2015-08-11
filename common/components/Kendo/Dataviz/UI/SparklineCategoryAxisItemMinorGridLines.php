@@ -65,4 +65,3 @@ grid lines is not set to true.
 //<< Properties
 }
 
-?>

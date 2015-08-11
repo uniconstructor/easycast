@@ -17,4 +17,3 @@ class PivotConfiguratorSortable extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

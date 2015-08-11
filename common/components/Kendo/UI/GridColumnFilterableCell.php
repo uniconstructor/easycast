@@ -113,4 +113,3 @@ The function receives an object argument with two fields:
 //<< Properties
 }
 
-?>

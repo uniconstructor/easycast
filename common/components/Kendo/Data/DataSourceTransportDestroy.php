@@ -65,4 +65,3 @@ sorting, filtering, paging and grouping.Refer to the jQuery.ajax documentation f
 //<< Properties
 }
 
-?>

@@ -80,4 +80,3 @@ class GridMessagesCommands extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

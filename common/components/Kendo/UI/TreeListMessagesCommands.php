@@ -80,4 +80,3 @@ class TreeListMessagesCommands extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

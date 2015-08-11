@@ -44,4 +44,3 @@ class StockChartPlotArea extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -596,4 +596,3 @@ its resize handle. In this case the column will assume the smallest possible wid
     }
 }
 
-?>

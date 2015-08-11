@@ -112,4 +112,3 @@ class ChartXAxisItemTitle extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

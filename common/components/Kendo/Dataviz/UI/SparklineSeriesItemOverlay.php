@@ -17,4 +17,3 @@ class SparklineSeriesItemOverlay extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

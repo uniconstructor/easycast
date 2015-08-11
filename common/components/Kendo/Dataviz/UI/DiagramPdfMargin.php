@@ -44,4 +44,3 @@ class DiagramPdfMargin extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

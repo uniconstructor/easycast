@@ -53,4 +53,3 @@ class EditorImageBrowser extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

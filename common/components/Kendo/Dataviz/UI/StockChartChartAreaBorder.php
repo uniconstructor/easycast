@@ -35,4 +35,3 @@ class StockChartChartAreaBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

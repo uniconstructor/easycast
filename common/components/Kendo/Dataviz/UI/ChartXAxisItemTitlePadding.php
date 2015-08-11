@@ -44,4 +44,3 @@ class ChartXAxisItemTitlePadding extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

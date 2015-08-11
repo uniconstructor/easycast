@@ -26,4 +26,3 @@ class StockChartNavigatorSelect extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

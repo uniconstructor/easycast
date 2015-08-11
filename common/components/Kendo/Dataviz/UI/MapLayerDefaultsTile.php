@@ -57,4 +57,3 @@ class MapLayerDefaultsTile extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

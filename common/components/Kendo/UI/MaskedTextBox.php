@@ -93,4 +93,3 @@ class MaskedTextBox extends \Kendo\UI\Widget {
 //<< Properties
 }
 
-?>

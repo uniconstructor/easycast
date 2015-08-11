@@ -26,4 +26,3 @@ class DatePickerAnimationOpen extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

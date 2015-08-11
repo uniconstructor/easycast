@@ -17,4 +17,3 @@ class TreeListColumnFilterable extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

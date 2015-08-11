@@ -118,5 +118,3 @@ In case you want to use an icon from the Kendo UI theme sprite background image,
     }
 
 }
-
-?>

@@ -54,4 +54,3 @@ class PivotDataSource extends \Kendo\Data\DataSource {
 //<< Properties
 }
 
-?>

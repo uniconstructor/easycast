@@ -62,4 +62,3 @@ class ChartYAxisItemMinorGridLines extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

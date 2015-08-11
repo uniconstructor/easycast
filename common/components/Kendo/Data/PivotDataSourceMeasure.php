@@ -25,5 +25,3 @@ class PivotDataSourceMeasure extends \Kendo\SerializableObject {
 
 //<< Properties
 }
-
-?>

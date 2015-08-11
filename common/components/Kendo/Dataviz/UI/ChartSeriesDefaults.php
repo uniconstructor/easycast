@@ -220,4 +220,3 @@ class ChartSeriesDefaults extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

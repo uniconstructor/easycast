@@ -111,4 +111,3 @@ class ChartSeriesItemLabelsFrom extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

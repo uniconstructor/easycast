@@ -26,4 +26,3 @@ class MapMarkerTooltipAnimation extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

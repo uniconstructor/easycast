@@ -49,4 +49,3 @@ class ChartSeriesDefaultsNotes extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

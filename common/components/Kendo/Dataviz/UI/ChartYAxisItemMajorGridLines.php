@@ -63,4 +63,3 @@ class ChartYAxisItemMajorGridLines extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

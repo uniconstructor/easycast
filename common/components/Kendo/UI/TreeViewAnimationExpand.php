@@ -28,4 +28,3 @@ The supported effects are "expandVertical" and "fadeIn".
 //<< Properties
 }
 
-?>

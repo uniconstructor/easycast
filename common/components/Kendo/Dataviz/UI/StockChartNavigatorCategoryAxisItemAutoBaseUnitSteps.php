@@ -71,4 +71,3 @@ class StockChartNavigatorCategoryAxisItemAutoBaseUnitSteps extends \Kendo\Serial
 //<< Properties
 }
 
-?>

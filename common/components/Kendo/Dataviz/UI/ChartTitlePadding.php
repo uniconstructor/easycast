@@ -44,4 +44,3 @@ class ChartTitlePadding extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -62,4 +62,3 @@ class SparklineSeriesItemMarkers extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

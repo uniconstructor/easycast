@@ -17,4 +17,3 @@ class StockChartSeriesDefaultsStack extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

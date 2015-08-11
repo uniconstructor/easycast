@@ -45,4 +45,3 @@ class ChartXAxisItemLine extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

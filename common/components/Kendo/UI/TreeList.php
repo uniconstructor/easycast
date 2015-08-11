@@ -410,4 +410,3 @@ By default the column menu is not enabled.Can be set to a JavaScript object whic
 //<< Properties
 }
 
-?>

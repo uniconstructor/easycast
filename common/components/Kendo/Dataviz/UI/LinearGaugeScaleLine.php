@@ -44,4 +44,3 @@ class LinearGaugeScaleLine extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

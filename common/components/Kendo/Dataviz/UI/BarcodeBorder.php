@@ -35,4 +35,3 @@ class BarcodeBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

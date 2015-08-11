@@ -26,4 +26,3 @@ class GridMessages extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

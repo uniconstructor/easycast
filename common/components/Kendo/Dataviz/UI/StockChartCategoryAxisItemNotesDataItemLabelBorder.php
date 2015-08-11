@@ -35,4 +35,3 @@ class StockChartCategoryAxisItemNotesDataItemLabelBorder extends \Kendo\Serializ
 //<< Properties
 }
 
-?>

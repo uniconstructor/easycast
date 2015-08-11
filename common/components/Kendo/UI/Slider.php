@@ -148,4 +148,3 @@ increase and decrease buttons of a Slider.
 //<< Properties
 }
 
-?>

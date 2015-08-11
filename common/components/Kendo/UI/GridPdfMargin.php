@@ -44,4 +44,3 @@ class GridPdfMargin extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

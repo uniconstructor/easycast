@@ -172,4 +172,3 @@ Setting the categoryAxis.labels.format option will override the date formats.See
 //<< Properties
 }
 
-?>

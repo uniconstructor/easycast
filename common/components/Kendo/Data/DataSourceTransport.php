@@ -74,4 +74,3 @@ callbacks which will handle push notifications (data pushed from the server).
 //<< Properties
 }
 
-?>

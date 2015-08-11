@@ -35,4 +35,3 @@ class StockChartNavigatorSeriesItemLine extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

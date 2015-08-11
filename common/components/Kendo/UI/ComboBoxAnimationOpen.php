@@ -25,5 +25,3 @@ class ComboBoxAnimationOpen extends \Kendo\SerializableObject {
 
 //<< Properties
 }
-
-?>

@@ -44,4 +44,3 @@ class StockChartValueAxisItemPlotBand extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

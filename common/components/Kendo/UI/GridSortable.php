@@ -26,4 +26,3 @@ class GridSortable extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -98,4 +98,3 @@ class GanttMessagesEditor extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

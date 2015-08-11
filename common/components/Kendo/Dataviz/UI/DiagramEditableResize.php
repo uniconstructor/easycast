@@ -17,4 +17,3 @@ class DiagramEditableResize extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

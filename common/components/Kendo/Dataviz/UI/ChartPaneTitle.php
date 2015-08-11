@@ -94,4 +94,3 @@ class ChartPaneTitle extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

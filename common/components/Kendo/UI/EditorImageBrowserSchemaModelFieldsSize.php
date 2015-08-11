@@ -31,4 +31,3 @@ class EditorImageBrowserSchemaModelFieldsSize extends \Kendo\SerializableObject 
 //<< Properties
 }
 
-?>

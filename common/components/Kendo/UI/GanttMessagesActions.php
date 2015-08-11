@@ -53,4 +53,3 @@ class GanttMessagesActions extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

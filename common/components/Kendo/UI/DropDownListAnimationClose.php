@@ -26,4 +26,3 @@ class DropDownListAnimationClose extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

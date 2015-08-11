@@ -49,4 +49,3 @@ class GridColumnCommandItem extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

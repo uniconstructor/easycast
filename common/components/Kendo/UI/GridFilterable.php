@@ -44,4 +44,3 @@ class GridFilterable extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

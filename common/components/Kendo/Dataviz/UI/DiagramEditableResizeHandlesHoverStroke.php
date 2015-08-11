@@ -35,4 +35,3 @@ class DiagramEditableResizeHandlesHoverStroke extends \Kendo\SerializableObject 
 //<< Properties
 }
 
-?>

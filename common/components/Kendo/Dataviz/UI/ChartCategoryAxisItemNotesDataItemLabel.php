@@ -111,4 +111,3 @@ class ChartCategoryAxisItemNotesDataItemLabel extends \Kendo\SerializableObject 
 //<< Properties
 }
 
-?>

@@ -26,4 +26,3 @@ class PivotDataSourceTransportConnection extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

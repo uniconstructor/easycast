@@ -156,4 +156,3 @@ A negative value will move the legend upwards from its current position.
 //<< Properties
 }
 
-?>

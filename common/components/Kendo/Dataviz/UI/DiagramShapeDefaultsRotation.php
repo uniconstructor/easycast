@@ -17,4 +17,3 @@ class DiagramShapeDefaultsRotation extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

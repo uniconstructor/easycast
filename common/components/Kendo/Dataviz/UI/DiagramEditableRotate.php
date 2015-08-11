@@ -26,4 +26,3 @@ class DiagramEditableRotate extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

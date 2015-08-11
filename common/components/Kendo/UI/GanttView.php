@@ -154,4 +154,3 @@ class GanttView extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

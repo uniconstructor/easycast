@@ -464,4 +464,3 @@ with a gantt task.
 //<< Properties
 }
 
-?>

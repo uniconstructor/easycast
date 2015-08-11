@@ -26,4 +26,3 @@ class EditorFileBrowserSchemaModel extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

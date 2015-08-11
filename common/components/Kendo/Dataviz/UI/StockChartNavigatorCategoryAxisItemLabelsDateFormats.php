@@ -53,4 +53,3 @@ class StockChartNavigatorCategoryAxisItemLabelsDateFormats extends \Kendo\Serial
 //<< Properties
 }
 
-?>

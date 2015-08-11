@@ -57,4 +57,3 @@ class StockChartValueAxisItemNotesDataItemIcon extends \Kendo\SerializableObject
 //<< Properties
 }
 
-?>

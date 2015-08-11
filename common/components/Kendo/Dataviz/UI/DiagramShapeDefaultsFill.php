@@ -35,4 +35,3 @@ class DiagramShapeDefaultsFill extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

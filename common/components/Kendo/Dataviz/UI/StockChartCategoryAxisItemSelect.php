@@ -57,4 +57,3 @@ a value larger than the last category index (date).
 //<< Properties
 }
 
-?>

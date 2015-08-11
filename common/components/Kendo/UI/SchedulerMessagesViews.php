@@ -44,4 +44,3 @@ class SchedulerMessagesViews extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

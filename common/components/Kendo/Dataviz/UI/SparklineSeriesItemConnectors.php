@@ -35,4 +35,3 @@ class SparklineSeriesItemConnectors extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

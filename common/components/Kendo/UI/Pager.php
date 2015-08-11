@@ -162,4 +162,3 @@ A special all value is supported. It sets the page size to the total number of r
 //<< Properties
 }
 
-?>

@@ -44,4 +44,3 @@ class MapLayerDefaultsBing extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

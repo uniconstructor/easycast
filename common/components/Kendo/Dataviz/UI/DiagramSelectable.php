@@ -26,4 +26,3 @@ class DiagramSelectable extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

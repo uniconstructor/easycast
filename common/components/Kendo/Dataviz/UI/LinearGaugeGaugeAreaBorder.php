@@ -35,4 +35,3 @@ class LinearGaugeGaugeAreaBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

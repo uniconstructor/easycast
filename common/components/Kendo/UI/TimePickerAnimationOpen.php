@@ -26,4 +26,3 @@ class TimePickerAnimationOpen extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

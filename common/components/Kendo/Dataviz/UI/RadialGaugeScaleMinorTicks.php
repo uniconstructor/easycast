@@ -46,4 +46,3 @@ This is the length of the line in pixels that is drawn to indicate the tick on t
 //<< Properties
 }
 
-?>

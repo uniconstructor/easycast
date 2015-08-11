@@ -308,4 +308,3 @@ That is, the last category in the range will not be included in the selection.If
 //<< Properties
 }
 
-?>

@@ -17,4 +17,3 @@ class DiagramConnectionDefaultsStartCapFill extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -49,4 +49,3 @@ class TreeListColumnCommandItem extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -26,4 +26,3 @@ class SparklineSeriesItemNotesIconBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

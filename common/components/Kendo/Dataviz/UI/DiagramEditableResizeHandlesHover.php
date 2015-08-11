@@ -26,4 +26,3 @@ class DiagramEditableResizeHandlesHover extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

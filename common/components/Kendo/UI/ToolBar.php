@@ -114,4 +114,3 @@ class ToolBar extends \Kendo\UI\Widget {
 //<< Properties
 }
 
-?>

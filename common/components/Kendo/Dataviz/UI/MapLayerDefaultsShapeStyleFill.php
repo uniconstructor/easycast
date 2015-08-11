@@ -27,4 +27,3 @@ Accepts a valid CSS color string, including hex and rgb.
 //<< Properties
 }
 
-?>

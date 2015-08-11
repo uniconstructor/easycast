@@ -26,4 +26,3 @@ class ChartSeriesItemMarkersBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

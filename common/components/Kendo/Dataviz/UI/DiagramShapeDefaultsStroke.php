@@ -35,4 +35,3 @@ class DiagramShapeDefaultsStroke extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

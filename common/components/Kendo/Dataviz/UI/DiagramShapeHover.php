@@ -17,4 +17,3 @@ class DiagramShapeHover extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

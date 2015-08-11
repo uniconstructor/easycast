@@ -35,4 +35,3 @@ class GridGroupable extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

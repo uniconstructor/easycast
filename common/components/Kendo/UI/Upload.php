@@ -225,4 +225,3 @@ Canceling the event will prevent the upload.
 //<< Properties
 }
 
-?>

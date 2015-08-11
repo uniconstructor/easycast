@@ -44,4 +44,3 @@ class StockChartNavigatorCategoryAxisItemPlotBand extends \Kendo\SerializableObj
 //<< Properties
 }
 
-?>

@@ -35,4 +35,3 @@ class EditorToolItem extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

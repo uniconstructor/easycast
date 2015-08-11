@@ -89,4 +89,3 @@ class DiagramConnectionDefaults extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

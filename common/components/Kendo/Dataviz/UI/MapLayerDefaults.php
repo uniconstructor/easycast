@@ -53,4 +53,3 @@ class MapLayerDefaults extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

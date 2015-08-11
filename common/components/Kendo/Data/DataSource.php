@@ -259,4 +259,3 @@ odata version 4 and "signalr".
 //<< Properties
 }
 
-?>

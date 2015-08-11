@@ -44,4 +44,3 @@ class ChartAreaMargin extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

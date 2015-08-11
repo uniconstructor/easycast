@@ -17,4 +17,3 @@ class DiagramConnectionSelection extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -26,4 +26,3 @@ class TreeListSortable extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -35,4 +35,3 @@ class SparklineSeriesItemTargetBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

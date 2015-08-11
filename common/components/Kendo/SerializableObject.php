@@ -64,5 +64,3 @@ abstract class SerializableObject implements Serializable {
         return $this;
     }
 }
-
-?>

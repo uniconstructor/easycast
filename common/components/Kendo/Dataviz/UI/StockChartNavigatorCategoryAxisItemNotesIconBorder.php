@@ -26,4 +26,3 @@ class StockChartNavigatorCategoryAxisItemNotesIconBorder extends \Kendo\Serializ
 //<< Properties
 }
 
-?>

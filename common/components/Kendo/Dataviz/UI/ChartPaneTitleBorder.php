@@ -35,4 +35,3 @@ class ChartPaneTitleBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

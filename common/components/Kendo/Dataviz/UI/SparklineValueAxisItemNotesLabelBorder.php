@@ -35,4 +35,3 @@ class SparklineValueAxisItemNotesLabelBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

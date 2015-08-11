@@ -44,4 +44,3 @@ class BarcodeTextMargin extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

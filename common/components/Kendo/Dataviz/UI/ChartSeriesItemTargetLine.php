@@ -17,4 +17,3 @@ class ChartSeriesItemTargetLine extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -35,4 +35,3 @@ class StockChartNavigatorCategoryAxisItemNotesLine extends \Kendo\SerializableOb
 //<< Properties
 }
 
-?>

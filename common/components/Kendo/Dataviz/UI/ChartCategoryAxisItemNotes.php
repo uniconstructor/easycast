@@ -67,4 +67,3 @@ class ChartCategoryAxisItemNotes extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

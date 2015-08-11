@@ -17,4 +17,3 @@ class MapControlsZoom extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

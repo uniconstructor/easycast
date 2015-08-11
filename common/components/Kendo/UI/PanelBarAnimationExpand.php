@@ -27,4 +27,3 @@ class PanelBarAnimationExpand extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

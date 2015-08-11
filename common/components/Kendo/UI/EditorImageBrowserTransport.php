@@ -63,4 +63,3 @@ If function is assigned, the current path and image name will be provided.
 //<< Properties
 }
 
-?>

@@ -62,4 +62,3 @@ class SparklineChartArea extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

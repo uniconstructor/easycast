@@ -31,4 +31,3 @@ class EditorFileBrowserSchemaModelFieldsSize extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

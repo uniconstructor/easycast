@@ -35,4 +35,3 @@ class ChartCategoryAxisItemTitleBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

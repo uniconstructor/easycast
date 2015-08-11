@@ -44,4 +44,3 @@ class StockChartNavigatorPaneTitleMargin extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

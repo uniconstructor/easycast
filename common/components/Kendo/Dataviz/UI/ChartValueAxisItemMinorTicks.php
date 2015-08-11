@@ -62,4 +62,3 @@ class ChartValueAxisItemMinorTicks extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

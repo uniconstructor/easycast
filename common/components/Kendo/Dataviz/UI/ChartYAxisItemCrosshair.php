@@ -53,4 +53,3 @@ class ChartYAxisItemCrosshair extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

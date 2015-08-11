@@ -143,4 +143,3 @@ class NumericTextBox extends \Kendo\UI\Widget {
 //<< Properties
 }
 
-?>

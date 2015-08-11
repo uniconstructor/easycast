@@ -221,4 +221,3 @@ The axis will be rendered in the first (default) pane if not set.
 //<< Properties
 }
 
-?>

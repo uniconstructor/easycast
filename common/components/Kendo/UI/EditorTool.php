@@ -71,4 +71,3 @@ class EditorTool extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

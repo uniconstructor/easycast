@@ -98,4 +98,3 @@ class ChartTitle extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -110,4 +110,3 @@ class GridPageableMessages extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

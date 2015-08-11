@@ -26,4 +26,3 @@ class SparklineCategoryAxisItemCrosshairTooltipBorder extends \Kendo\Serializabl
 //<< Properties
 }
 
-?>

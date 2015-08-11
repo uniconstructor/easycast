@@ -51,4 +51,3 @@ tick labels.
 //<< Properties
 }
 
-?>

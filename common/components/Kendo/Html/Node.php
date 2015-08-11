@@ -6,4 +6,3 @@ interface Node {
     public function render();
 }
 
-?>

@@ -231,4 +231,3 @@ If placeholder function is not provided the widget will clone dragged item, remo
 //<< Properties
 }
 
-?>

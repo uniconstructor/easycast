@@ -179,4 +179,3 @@ class PanelBarItem extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

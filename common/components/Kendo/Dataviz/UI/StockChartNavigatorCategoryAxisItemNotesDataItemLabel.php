@@ -111,4 +111,3 @@ class StockChartNavigatorCategoryAxisItemNotesDataItemLabel extends \Kendo\Seria
 //<< Properties
 }
 
-?>

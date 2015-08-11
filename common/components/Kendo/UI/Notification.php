@@ -142,4 +142,3 @@ The "default" setting takes into consideration the applied position settings and
 //<< Properties
 }
 
-?>

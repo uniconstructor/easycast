@@ -53,4 +53,3 @@ class StockChartValueAxisItemMajorGridLines extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

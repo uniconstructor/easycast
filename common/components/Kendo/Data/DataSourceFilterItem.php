@@ -54,4 +54,3 @@ class DataSourceFilterItem extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

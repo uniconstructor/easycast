@@ -139,4 +139,3 @@ class TimePicker extends \Kendo\UI\Widget {
 //<< Properties
 }
 
-?>

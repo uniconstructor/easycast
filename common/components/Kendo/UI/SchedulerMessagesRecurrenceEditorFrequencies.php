@@ -53,4 +53,3 @@ class SchedulerMessagesRecurrenceEditorFrequencies extends \Kendo\SerializableOb
 //<< Properties
 }
 
-?>

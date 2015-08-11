@@ -58,4 +58,3 @@ class ChartSeriesItemNotes extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

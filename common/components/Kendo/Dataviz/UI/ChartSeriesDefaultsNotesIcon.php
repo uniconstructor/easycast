@@ -57,4 +57,3 @@ class ChartSeriesDefaultsNotesIcon extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

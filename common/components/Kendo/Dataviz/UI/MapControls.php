@@ -35,4 +35,3 @@ class MapControls extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

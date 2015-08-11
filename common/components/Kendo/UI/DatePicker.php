@@ -191,4 +191,3 @@ The following settings are available for the start value:
 //<< Properties
 }
 
-?>

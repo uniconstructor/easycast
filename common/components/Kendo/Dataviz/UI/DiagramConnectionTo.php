@@ -26,4 +26,3 @@ class DiagramConnectionTo extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

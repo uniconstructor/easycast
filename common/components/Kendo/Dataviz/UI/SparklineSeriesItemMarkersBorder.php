@@ -26,4 +26,3 @@ class SparklineSeriesItemMarkersBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

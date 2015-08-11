@@ -44,4 +44,3 @@ class SchedulerPdfMargin extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

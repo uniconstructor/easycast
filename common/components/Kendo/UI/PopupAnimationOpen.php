@@ -26,4 +26,3 @@ class PopupAnimationOpen extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

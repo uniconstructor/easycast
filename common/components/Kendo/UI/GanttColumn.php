@@ -64,4 +64,3 @@ custom number format, standard date format or a custom date format.
 //<< Properties
 }
 
-?>

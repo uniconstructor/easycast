@@ -41,4 +41,3 @@ Ranges from 0 (completely transparent) to 1 (completely opaque).
 //<< Properties
 }
 
-?>

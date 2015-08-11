@@ -176,4 +176,3 @@ See visual.
 //<< Properties
 }
 
-?>

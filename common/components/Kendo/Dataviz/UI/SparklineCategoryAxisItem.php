@@ -271,4 +271,3 @@ either baseUnit is set to "fit" or baseUnitStep is set to "auto".This option is 
 //<< Properties
 }
 
-?>

@@ -26,4 +26,3 @@ class QRCodeBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

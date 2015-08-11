@@ -7,4 +7,3 @@ class PivotDataSourceTransportRead extends \Kendo\Data\DataSourceTransportRead {
 //<< Properties
 }
 
-?>

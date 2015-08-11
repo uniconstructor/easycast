@@ -26,4 +26,3 @@ class DataSourceSortItem extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

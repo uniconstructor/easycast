@@ -153,4 +153,3 @@ class DiagramConnectionDefaultsEditableToolButton extends \Kendo\SerializableObj
 //<< Properties
 }
 
-?>

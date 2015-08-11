@@ -62,4 +62,3 @@ class StockChartNavigatorCategoryAxisItemMajorGridLines extends \Kendo\Serializa
 //<< Properties
 }
 
-?>

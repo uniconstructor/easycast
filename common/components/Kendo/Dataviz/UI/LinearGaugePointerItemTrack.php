@@ -53,4 +53,3 @@ class LinearGaugePointerItemTrack extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

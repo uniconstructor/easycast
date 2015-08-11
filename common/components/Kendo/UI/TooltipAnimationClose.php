@@ -26,4 +26,3 @@ class TooltipAnimationClose extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

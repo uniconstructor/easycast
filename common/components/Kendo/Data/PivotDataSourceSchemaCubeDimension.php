@@ -15,5 +15,3 @@ class PivotDataSourceSchemaCubeDimension extends \Kendo\SerializableObject {
         return $this->setProperty('caption', $value);
     }
 }
-
-?>

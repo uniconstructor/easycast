@@ -17,4 +17,3 @@ class MapControlsAttribution extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

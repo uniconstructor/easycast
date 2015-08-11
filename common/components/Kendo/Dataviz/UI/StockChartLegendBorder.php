@@ -35,4 +35,3 @@ class StockChartLegendBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

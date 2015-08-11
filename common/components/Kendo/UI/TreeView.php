@@ -330,4 +330,3 @@ This event has been introduced in internal builds after 2014.2.828.
 //<< Properties
 }
 
-?>

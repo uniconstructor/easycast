@@ -44,4 +44,3 @@ class ChartYAxisItemPlotBand extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

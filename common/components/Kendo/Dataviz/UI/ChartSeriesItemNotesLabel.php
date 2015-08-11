@@ -102,4 +102,3 @@ class ChartSeriesItemNotesLabel extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

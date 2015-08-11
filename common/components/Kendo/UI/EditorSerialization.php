@@ -36,4 +36,3 @@ or as presentational (b / i / u / font) tags. Used for outputting content for le
 //<< Properties
 }
 
-?>

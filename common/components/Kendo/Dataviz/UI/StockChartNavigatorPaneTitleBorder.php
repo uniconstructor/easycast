@@ -35,4 +35,3 @@ class StockChartNavigatorPaneTitleBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

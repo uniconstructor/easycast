@@ -44,4 +44,3 @@ class StockChartNavigatorCategoryAxisItemLabelsPadding extends \Kendo\Serializab
 //<< Properties
 }
 
-?>

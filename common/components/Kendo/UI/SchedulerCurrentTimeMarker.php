@@ -26,4 +26,3 @@ class SchedulerCurrentTimeMarker extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

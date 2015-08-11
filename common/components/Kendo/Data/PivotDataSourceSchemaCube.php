@@ -11,5 +11,3 @@ class PivotDataSourceSchemaCube extends \Kendo\SerializableObject {
         return $this->add('measures', func_get_args());
     }
 }
-
-?>

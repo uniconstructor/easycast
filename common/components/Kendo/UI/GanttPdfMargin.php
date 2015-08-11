@@ -44,4 +44,3 @@ class GanttPdfMargin extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

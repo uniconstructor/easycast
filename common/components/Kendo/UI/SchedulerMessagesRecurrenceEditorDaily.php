@@ -26,4 +26,3 @@ class SchedulerMessagesRecurrenceEditorDaily extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

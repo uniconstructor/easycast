@@ -140,4 +140,3 @@ The default options for all pie series. For more details see the series options.
 //<< Properties
 }
 
-?>

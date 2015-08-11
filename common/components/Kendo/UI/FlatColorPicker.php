@@ -84,4 +84,3 @@ false for this, the widget will update only when ENTER is pressed.
 //<< Properties
 }
 
-?>

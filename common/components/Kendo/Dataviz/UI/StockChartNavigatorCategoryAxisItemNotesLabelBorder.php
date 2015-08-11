@@ -35,4 +35,3 @@ class StockChartNavigatorCategoryAxisItemNotesLabelBorder extends \Kendo\Seriali
 //<< Properties
 }
 
-?>

@@ -35,4 +35,3 @@ class StockChartNavigatorSeriesItemHighlightBorder extends \Kendo\SerializableOb
 //<< Properties
 }
 
-?>

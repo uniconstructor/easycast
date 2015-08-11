@@ -35,4 +35,3 @@ class ChartSeriesItemHighlightLine extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

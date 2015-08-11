@@ -25,5 +25,3 @@ class PivotDataSourceRow extends \Kendo\SerializableObject {
 
 //<< Properties
 }
-
-?>

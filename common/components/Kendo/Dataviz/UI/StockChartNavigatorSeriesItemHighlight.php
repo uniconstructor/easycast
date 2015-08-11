@@ -53,4 +53,3 @@ class StockChartNavigatorSeriesItemHighlight extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -44,4 +44,3 @@ class ChartCategoryAxisItemLabelsPadding extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

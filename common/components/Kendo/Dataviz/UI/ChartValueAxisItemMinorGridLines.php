@@ -71,4 +71,3 @@ class ChartValueAxisItemMinorGridLines extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -57,4 +57,3 @@ class ChartYAxisItemNotesIcon extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

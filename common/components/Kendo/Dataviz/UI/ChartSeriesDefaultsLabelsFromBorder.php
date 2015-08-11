@@ -35,4 +35,3 @@ class ChartSeriesDefaultsLabelsFromBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -26,4 +26,3 @@ class MenuAnimationClose extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -26,4 +26,3 @@ class DiagramShapeEditable extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

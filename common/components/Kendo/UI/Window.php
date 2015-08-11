@@ -345,4 +345,3 @@ has been clicked on a window with static content.
 //<< Properties
 }
 
-?>

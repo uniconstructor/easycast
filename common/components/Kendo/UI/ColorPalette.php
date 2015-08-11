@@ -62,5 +62,3 @@ It can be a string with comma-separated colors in hex representation, an array o
 
 //<< Properties
 }
-
-?>

@@ -28,4 +28,3 @@ Accepts a valid CSS color string or object with detailed configuration.
 //<< Properties
 }
 
-?>

@@ -26,4 +26,3 @@ class MapLayerTooltipAnimationClose extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

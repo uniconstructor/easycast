@@ -44,4 +44,3 @@ class ChartValueAxisItemLine extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

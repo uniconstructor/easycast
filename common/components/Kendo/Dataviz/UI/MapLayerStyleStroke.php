@@ -46,4 +46,3 @@ The following dash types are supported:
 //<< Properties
 }
 
-?>

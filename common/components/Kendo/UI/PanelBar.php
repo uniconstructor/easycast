@@ -173,4 +173,3 @@ are available:
 //<< Properties
 }
 
-?>

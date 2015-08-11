@@ -17,4 +17,3 @@ class GridAllowCopy extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

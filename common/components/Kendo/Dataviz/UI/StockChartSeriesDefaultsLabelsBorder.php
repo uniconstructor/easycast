@@ -35,4 +35,3 @@ class StockChartSeriesDefaultsLabelsBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

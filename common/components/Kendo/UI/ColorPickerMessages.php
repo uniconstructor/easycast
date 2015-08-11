@@ -25,5 +25,3 @@ class ColorPickerMessages extends \Kendo\SerializableObject {
 
 //<< Properties
 }
-
-?>

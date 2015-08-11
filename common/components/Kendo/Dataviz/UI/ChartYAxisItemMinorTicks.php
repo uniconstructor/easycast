@@ -62,4 +62,3 @@ class ChartYAxisItemMinorTicks extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

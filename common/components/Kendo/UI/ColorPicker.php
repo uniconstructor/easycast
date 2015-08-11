@@ -175,5 +175,3 @@ original value.
 
 //<< Properties
 }
-
-?>

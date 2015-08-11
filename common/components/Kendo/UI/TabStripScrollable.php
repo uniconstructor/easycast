@@ -17,4 +17,3 @@ class TabStripScrollable extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

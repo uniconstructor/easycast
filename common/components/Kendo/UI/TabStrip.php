@@ -261,4 +261,3 @@ A fade animation is highly recommended with any of the non-default tab position 
 //<< Properties
 }
 
-?>

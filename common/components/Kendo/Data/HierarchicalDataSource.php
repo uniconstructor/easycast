@@ -7,4 +7,3 @@ class HierarchicalDataSource extends \Kendo\Data\DataSource {
 //<< Properties
 }
 
-?>

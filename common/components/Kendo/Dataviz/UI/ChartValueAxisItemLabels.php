@@ -153,4 +153,3 @@ Every n-th label is rendered where n is the step
 //<< Properties
 }
 
-?>

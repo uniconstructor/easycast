@@ -44,4 +44,3 @@ class ChartLegendPadding extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

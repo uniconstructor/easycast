@@ -93,4 +93,3 @@ class ChartValueAxisItemCrosshairTooltip extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

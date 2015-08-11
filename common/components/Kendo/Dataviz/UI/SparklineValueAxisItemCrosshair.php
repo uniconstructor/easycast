@@ -62,4 +62,3 @@ class SparklineValueAxisItemCrosshair extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

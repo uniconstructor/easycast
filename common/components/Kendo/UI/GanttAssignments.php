@@ -44,4 +44,3 @@ class GanttAssignments extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

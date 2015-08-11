@@ -26,4 +26,3 @@ class ChartSeriesItemExtremesBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

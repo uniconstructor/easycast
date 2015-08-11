@@ -44,4 +44,3 @@ class SparklinePlotArea extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -35,4 +35,3 @@ class DiagramEditableSelectStroke extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

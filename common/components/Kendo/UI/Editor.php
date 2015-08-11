@@ -260,4 +260,3 @@ and a contenteditable iframe is generated.
 //<< Properties
 }
 
-?>

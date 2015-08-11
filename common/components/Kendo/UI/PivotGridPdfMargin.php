@@ -44,4 +44,3 @@ class PivotGridPdfMargin extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

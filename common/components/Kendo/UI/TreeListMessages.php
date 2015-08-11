@@ -53,4 +53,3 @@ class TreeListMessages extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

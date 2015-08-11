@@ -44,4 +44,3 @@ class TreeListPdfMargin extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

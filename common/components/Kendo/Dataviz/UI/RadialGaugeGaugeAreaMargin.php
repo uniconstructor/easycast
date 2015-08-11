@@ -44,4 +44,3 @@ class RadialGaugeGaugeAreaMargin extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

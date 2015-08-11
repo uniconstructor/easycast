@@ -17,4 +17,3 @@ class StockChartNavigatorSeriesItemOverlay extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

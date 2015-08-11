@@ -26,4 +26,3 @@ class MapMarkerDefaultsTooltipAnimationClose extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

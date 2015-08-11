@@ -44,4 +44,3 @@ class ChartPlotAreaPadding extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

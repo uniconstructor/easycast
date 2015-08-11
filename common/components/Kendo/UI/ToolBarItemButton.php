@@ -153,4 +153,3 @@ class ToolBarItemButton extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

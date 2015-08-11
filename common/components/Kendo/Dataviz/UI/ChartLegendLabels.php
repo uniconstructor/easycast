@@ -66,4 +66,3 @@ class ChartLegendLabels extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

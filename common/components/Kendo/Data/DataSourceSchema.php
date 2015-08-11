@@ -85,4 +85,3 @@ return the total number of data items for the response.
 //<< Properties
 }
 
-?>

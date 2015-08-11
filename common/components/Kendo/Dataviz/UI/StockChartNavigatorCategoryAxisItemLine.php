@@ -44,4 +44,3 @@ class StockChartNavigatorCategoryAxisItemLine extends \Kendo\SerializableObject 
 //<< Properties
 }
 
-?>

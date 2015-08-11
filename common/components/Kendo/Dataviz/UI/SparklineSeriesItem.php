@@ -327,4 +327,3 @@ For example line series will be on top with bar and area following below.
 //<< Properties
 }
 
-?>

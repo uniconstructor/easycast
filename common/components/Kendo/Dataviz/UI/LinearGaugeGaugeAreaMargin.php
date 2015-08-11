@@ -44,4 +44,3 @@ class LinearGaugeGaugeAreaMargin extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

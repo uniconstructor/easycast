@@ -98,4 +98,3 @@ class TreeListFilterableMessages extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

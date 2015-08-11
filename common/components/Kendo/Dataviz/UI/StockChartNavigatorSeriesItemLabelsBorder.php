@@ -35,4 +35,3 @@ class StockChartNavigatorSeriesItemLabelsBorder extends \Kendo\SerializableObjec
 //<< Properties
 }
 
-?>

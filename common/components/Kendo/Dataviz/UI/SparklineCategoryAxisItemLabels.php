@@ -161,4 +161,3 @@ It uses the global culture by default.
 //<< Properties
 }
 
-?>

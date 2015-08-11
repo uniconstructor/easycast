@@ -117,4 +117,3 @@ class ResponsivePanel extends \Kendo\UI\Widget {
 //<< Properties
 }
 
-?>

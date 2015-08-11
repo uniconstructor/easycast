@@ -644,4 +644,3 @@ That way all users would see the same dates and times no matter their configured
     }
 }
 
-?>

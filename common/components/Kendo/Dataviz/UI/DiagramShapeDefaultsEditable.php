@@ -44,4 +44,3 @@ class DiagramShapeDefaultsEditable extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

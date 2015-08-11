@@ -53,4 +53,3 @@ class StockChartNavigatorCategoryAxisItemNotesDataItem extends \Kendo\Serializab
 //<< Properties
 }
 
-?>

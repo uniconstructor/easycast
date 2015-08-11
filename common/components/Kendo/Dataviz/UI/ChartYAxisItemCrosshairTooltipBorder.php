@@ -35,4 +35,3 @@ class ChartYAxisItemCrosshairTooltipBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -17,4 +17,3 @@ class DiagramPannable extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

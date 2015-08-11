@@ -17,4 +17,3 @@ class MapLayerTooltipContent extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

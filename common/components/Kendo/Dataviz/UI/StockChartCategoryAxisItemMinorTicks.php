@@ -63,4 +63,3 @@ on the chart.
 //<< Properties
 }
 
-?>

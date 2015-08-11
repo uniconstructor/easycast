@@ -463,4 +463,3 @@ and is about to render it.
 //<< Properties
 }
 
-?>

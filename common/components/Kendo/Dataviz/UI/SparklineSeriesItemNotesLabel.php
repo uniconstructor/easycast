@@ -102,4 +102,3 @@ class SparklineSeriesItemNotesLabel extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

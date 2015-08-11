@@ -44,4 +44,3 @@ class RadialGaugeScaleLabelsPadding extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

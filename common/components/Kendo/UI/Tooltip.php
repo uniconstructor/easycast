@@ -224,4 +224,3 @@ will disable all animations in the widget.
 //<< Properties
 }
 
-?>

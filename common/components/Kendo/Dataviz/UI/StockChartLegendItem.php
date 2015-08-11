@@ -31,4 +31,3 @@ class StockChartLegendItem extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

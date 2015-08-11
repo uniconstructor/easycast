@@ -35,4 +35,3 @@ class MapLayerDefaultsShape extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

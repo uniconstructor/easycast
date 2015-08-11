@@ -8,4 +8,3 @@ class EditorFileBrowserSchema extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

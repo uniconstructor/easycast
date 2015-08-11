@@ -62,4 +62,3 @@ class StockChartNavigatorCategoryAxisItemMajorTicks extends \Kendo\SerializableO
 //<< Properties
 }
 
-?>

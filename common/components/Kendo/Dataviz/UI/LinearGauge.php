@@ -68,4 +68,3 @@ If it is not supported by the browser, the Gauge will switch to the first availa
     }
 }
 
-?>

@@ -44,4 +44,3 @@ class StockChartNavigatorCategoryAxisItemCrosshairTooltipPadding extends \Kendo\
 //<< Properties
 }
 
-?>

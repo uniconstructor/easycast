@@ -53,4 +53,3 @@ class ChartYAxisItemLabelsDateFormats extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

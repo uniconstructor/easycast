@@ -26,4 +26,3 @@ class SparklineTooltipBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

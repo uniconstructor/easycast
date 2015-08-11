@@ -26,4 +26,3 @@ class MultiSelectAnimationClose extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

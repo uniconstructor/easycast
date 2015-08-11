@@ -26,4 +26,3 @@ class TreeListFilterable extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -17,4 +17,3 @@ class GridScrollable extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

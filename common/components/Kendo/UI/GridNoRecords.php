@@ -30,4 +30,3 @@ class GridNoRecords extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

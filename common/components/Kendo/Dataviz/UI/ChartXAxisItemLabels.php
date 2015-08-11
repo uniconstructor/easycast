@@ -170,4 +170,3 @@ class ChartXAxisItemLabels extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

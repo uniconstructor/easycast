@@ -211,5 +211,3 @@ Could be any pointer/mouse/touch event, also several, separated by spaces.
 
 //<< Properties
 }
-
-?>

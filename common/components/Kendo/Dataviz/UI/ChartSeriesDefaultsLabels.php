@@ -134,4 +134,3 @@ class ChartSeriesDefaultsLabels extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

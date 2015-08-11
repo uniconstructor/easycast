@@ -62,4 +62,3 @@ class StockChartChartArea extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

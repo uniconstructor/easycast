@@ -17,4 +17,3 @@ class DiagramEditableDrag extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

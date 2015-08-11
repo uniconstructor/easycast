@@ -260,4 +260,3 @@ class DiagramEditableTool extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

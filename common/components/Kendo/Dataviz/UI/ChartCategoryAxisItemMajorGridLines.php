@@ -62,4 +62,3 @@ class ChartCategoryAxisItemMajorGridLines extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

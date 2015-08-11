@@ -136,4 +136,3 @@ The gauge is rendered clockwise(0 degrees are the 180 degrees in the polar coord
 //<< Properties
 }
 
-?>

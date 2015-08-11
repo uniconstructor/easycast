@@ -26,4 +26,3 @@ class MapLayerTooltipAnimationOpen extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

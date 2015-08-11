@@ -44,4 +44,3 @@ class StockChartNavigatorCategoryAxisItemTitlePadding extends \Kendo\Serializabl
 //<< Properties
 }
 
-?>

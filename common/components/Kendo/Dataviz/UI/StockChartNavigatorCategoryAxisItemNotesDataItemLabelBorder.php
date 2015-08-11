@@ -35,4 +35,3 @@ class StockChartNavigatorCategoryAxisItemNotesDataItemLabelBorder extends \Kendo
 //<< Properties
 }
 
-?>

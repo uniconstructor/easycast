@@ -129,4 +129,3 @@ class SparklineSeriesItemLabels extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -33,5 +33,3 @@ The widget will pass the selected value(s) in the valueMapper function. In turn,
 
 //<< Properties
 }
-
-?>

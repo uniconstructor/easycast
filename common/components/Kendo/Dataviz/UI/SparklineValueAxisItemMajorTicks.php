@@ -62,4 +62,3 @@ class SparklineValueAxisItemMajorTicks extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

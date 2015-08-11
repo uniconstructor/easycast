@@ -26,4 +26,3 @@ class DiagramShapeHoverFill extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

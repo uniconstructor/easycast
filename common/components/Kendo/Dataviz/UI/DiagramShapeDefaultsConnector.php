@@ -31,4 +31,3 @@ class DiagramShapeDefaultsConnector extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

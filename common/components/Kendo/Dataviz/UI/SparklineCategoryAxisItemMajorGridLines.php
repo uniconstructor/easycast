@@ -62,4 +62,3 @@ class SparklineCategoryAxisItemMajorGridLines extends \Kendo\SerializableObject 
 //<< Properties
 }
 
-?>

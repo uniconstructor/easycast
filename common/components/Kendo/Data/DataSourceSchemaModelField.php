@@ -40,4 +40,3 @@ class DataSourceSchemaModelField extends \Kendo\SerializableObject {
     }
 }
 
-?>

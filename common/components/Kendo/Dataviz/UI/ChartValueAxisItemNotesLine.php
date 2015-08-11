@@ -35,4 +35,3 @@ class ChartValueAxisItemNotesLine extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

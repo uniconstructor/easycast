@@ -66,4 +66,3 @@ For example [0, 0] is top left and [1, 1] is bottom right.
 //<< Properties
 }
 
-?>

@@ -53,4 +53,3 @@ class DiagramLayoutGrid extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -44,4 +44,3 @@ class SparklineCategoryAxisItemPlotBand extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

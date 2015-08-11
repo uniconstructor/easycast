@@ -35,4 +35,3 @@ class ChartSeriesItemHighlightBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

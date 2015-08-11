@@ -35,4 +35,3 @@ class StockChartSeriesItemTarget extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -20,4 +20,3 @@ class SchedulerToolbarItem extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

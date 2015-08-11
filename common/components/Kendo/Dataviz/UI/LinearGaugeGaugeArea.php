@@ -56,4 +56,3 @@ horizontal gauge is 200px.
 //<< Properties
 }
 
-?>

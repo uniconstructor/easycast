@@ -208,4 +208,3 @@ The data item field should be a number.
 //<< Properties
 }
 
-?>

@@ -26,4 +26,3 @@ class DiagramConnectionPoint extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

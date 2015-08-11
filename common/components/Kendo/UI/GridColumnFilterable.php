@@ -75,4 +75,3 @@ class GridColumnFilterable extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

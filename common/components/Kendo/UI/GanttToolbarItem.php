@@ -52,4 +52,3 @@ This class can be used to obtain reference to the button after Gantt initializat
 //<< Properties
 }
 
-?>

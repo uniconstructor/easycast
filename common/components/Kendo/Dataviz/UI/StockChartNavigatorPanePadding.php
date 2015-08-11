@@ -44,4 +44,3 @@ class StockChartNavigatorPanePadding extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

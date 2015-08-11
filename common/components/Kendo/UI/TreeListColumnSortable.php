@@ -21,5 +21,3 @@ class TreeListColumnSortable extends \Kendo\SerializableObject {
 
 //<< Properties
 }
-
-?>

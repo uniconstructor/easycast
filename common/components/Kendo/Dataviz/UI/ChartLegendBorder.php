@@ -35,4 +35,3 @@ class ChartLegendBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

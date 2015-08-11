@@ -114,4 +114,3 @@ Any valid CSS color string will work here, including hex and rgb.
 //<< Properties
 }
 
-?>

@@ -35,4 +35,3 @@ class LinearGaugeScaleLabelsBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

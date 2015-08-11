@@ -26,4 +26,3 @@ class StockChartLegendInactiveItems extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -62,4 +62,3 @@ class StockChartSeriesItemMarkers extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

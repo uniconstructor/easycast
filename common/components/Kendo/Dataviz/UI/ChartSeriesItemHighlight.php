@@ -82,4 +82,3 @@ By default chart series highlighting is enabled.
 //<< Properties
 }
 
-?>

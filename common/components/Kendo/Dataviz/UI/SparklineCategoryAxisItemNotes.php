@@ -53,4 +53,3 @@ class SparklineCategoryAxisItemNotes extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

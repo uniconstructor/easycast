@@ -27,4 +27,3 @@ The supported effects are fadeOut and collapseVertical.
 //<< Properties
 }
 
-?>

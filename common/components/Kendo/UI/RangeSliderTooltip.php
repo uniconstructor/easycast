@@ -49,4 +49,3 @@ the RangeSlider tick labels.
 //<< Properties
 }
 
-?>

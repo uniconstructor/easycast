@@ -97,4 +97,3 @@ In case the element has width or height of zero, a default value of 200 pixels w
 //<< Properties
 }
 
-?>

@@ -80,4 +80,3 @@ class ChartSeriesItemMarkers extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

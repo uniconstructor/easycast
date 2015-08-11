@@ -48,4 +48,3 @@ class ChartLegendInactiveItemsLabels extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

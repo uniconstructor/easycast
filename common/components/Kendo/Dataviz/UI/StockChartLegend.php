@@ -120,4 +120,3 @@ upwards from the current position.
 //<< Properties
 }
 
-?>

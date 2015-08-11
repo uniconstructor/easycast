@@ -26,4 +26,3 @@ class StockChartCategoryAxisItemCrosshairTooltipBorder extends \Kendo\Serializab
 //<< Properties
 }
 
-?>

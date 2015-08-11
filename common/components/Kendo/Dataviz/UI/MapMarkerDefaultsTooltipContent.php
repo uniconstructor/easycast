@@ -17,4 +17,3 @@ class MapMarkerDefaultsTooltipContent extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

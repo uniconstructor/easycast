@@ -57,4 +57,3 @@ class ChartSeriesItemOutliers extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

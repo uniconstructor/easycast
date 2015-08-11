@@ -27,4 +27,3 @@ Normal direction is down for "zoom out", up for "zoom in".
 //<< Properties
 }
 
-?>

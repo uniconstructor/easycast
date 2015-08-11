@@ -7,4 +7,3 @@ class PivotDataSourceTransportDiscover extends \Kendo\Data\DataSourceTransportRe
 //<< Properties
 }
 
-?>

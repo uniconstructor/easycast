@@ -80,4 +80,3 @@ class ToolBarItemMenuButton extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

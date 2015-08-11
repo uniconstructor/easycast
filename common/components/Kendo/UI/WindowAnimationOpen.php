@@ -26,4 +26,3 @@ class WindowAnimationOpen extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

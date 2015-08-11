@@ -13,4 +13,3 @@ class JavaScriptFunction {
         return $this->value;
     }
 }
-?>

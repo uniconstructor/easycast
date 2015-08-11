@@ -45,4 +45,3 @@ not the grid lines.
 //<< Properties
 }
 
-?>

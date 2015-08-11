@@ -26,4 +26,3 @@ class DiagramConnectionStroke extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

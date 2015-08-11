@@ -107,4 +107,3 @@ Template variables:
 //<< Properties
 }
 
-?>

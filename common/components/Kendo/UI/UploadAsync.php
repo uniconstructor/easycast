@@ -85,4 +85,3 @@ This option will be ignored if the browser doesn't support File API.
 //<< Properties
 }
 
-?>

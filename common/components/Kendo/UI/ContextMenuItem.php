@@ -133,4 +133,3 @@ class ContextMenuItem extends \Kendo\UI\NavigationalItem {
 //<< Properties
 }
 
-?>

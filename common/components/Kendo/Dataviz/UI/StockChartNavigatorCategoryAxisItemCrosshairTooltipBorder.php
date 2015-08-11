@@ -35,4 +35,3 @@ class StockChartNavigatorCategoryAxisItemCrosshairTooltipBorder extends \Kendo\S
 //<< Properties
 }
 
-?>

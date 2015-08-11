@@ -96,4 +96,3 @@ abstract class Widget extends \Kendo\SerializableObject{
 
 }
 
-?>

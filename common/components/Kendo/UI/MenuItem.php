@@ -134,4 +134,3 @@ class MenuItem extends \Kendo\UI\NavigationalItem {
 //<< Properties
 }
 
-?>

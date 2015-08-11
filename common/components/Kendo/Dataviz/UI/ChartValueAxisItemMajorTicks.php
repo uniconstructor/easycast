@@ -53,4 +53,3 @@ class ChartValueAxisItemMajorTicks extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -44,4 +44,3 @@ class StockChartSeriesItemLine extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

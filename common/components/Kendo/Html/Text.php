@@ -14,4 +14,3 @@ class Text implements Node {
     }
 }
 
-?>

@@ -53,4 +53,3 @@ class ChartYAxisItemNotesDataItem extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

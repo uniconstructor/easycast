@@ -80,4 +80,3 @@ class DiagramConnectionEditableToolMenuButton extends \Kendo\SerializableObject 
 //<< Properties
 }
 
-?>

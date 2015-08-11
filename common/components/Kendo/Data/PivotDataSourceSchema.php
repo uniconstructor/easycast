@@ -90,5 +90,3 @@ return the measures schema information for the response. It is executed during t
 
 //<< Properties
 }
-
-?>

@@ -80,4 +80,3 @@ class ChartPane extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

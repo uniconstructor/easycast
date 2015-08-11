@@ -39,4 +39,3 @@ class GanttTooltip extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

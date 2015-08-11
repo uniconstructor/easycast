@@ -44,4 +44,3 @@ class LinearGaugeScaleLabelsPadding extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

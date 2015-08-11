@@ -17,4 +17,3 @@ class ChartLegendInactiveItems extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

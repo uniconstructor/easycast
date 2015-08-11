@@ -116,4 +116,3 @@ class GridFilterableMessages extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

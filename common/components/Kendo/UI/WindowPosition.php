@@ -26,4 +26,3 @@ class WindowPosition extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -53,4 +53,3 @@ class SparklineValueAxisItemNotesDataItem extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

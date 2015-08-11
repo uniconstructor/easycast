@@ -26,4 +26,3 @@ class MapMarkerDefaults extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

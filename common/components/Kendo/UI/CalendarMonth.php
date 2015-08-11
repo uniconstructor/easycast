@@ -27,5 +27,3 @@ class CalendarMonth extends \Kendo\SerializableObject {
 
 //<< Properties
 }
-
-?>

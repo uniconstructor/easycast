@@ -44,4 +44,3 @@ class ChartTooltipPadding extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -26,4 +26,3 @@ class DiagramEditableRotateThumbFill extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

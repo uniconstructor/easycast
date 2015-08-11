@@ -27,4 +27,3 @@ is closed. Options include "fadeOut".
 //<< Properties
 }
 
-?>

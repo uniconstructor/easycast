@@ -548,4 +548,3 @@ class EditorMessages extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

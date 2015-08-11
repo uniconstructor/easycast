@@ -75,4 +75,3 @@ class DiagramShapeDefaultsContent extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

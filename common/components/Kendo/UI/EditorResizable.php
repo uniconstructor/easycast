@@ -44,4 +44,3 @@ class EditorResizable extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

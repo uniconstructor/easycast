@@ -331,4 +331,3 @@ Cancelling the event will prevent the user action.
 //<< Properties
 }
 
-?>

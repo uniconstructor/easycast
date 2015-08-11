@@ -54,4 +54,3 @@ The data item format value could be any valid kendo format.
 //<< Properties
 }
 
-?>

@@ -25,5 +25,3 @@ class ColorPaletteTileSize extends \Kendo\SerializableObject {
 
 //<< Properties
 }
-
-?>

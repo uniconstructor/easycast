@@ -44,4 +44,3 @@ class PivotDataSourceSchemaCubeMeasure extends \Kendo\SerializableObject {
     }
 }
 
-?>

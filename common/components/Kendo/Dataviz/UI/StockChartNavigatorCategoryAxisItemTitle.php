@@ -98,4 +98,3 @@ class StockChartNavigatorCategoryAxisItemTitle extends \Kendo\SerializableObject
 //<< Properties
 }
 
-?>

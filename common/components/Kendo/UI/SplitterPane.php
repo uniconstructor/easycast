@@ -146,4 +146,3 @@ class SplitterPane extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -26,4 +26,3 @@ class SortableCursorOffset extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -35,4 +35,3 @@ class SparklineValueAxisItemTitleBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

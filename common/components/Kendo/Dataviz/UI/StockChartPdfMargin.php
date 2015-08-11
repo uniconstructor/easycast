@@ -44,4 +44,3 @@ class StockChartPdfMargin extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

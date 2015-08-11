@@ -26,4 +26,3 @@ class GridFilterableOperatorsEnums extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

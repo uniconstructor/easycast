@@ -98,4 +98,3 @@ class ListViewPageableMessages extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

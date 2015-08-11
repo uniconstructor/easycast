@@ -17,4 +17,3 @@ class GanttCurrentTimeMarker extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

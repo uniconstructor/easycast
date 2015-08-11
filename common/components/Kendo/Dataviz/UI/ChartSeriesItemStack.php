@@ -26,4 +26,3 @@ class ChartSeriesItemStack extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

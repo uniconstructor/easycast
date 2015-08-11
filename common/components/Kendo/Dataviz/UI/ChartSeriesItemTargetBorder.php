@@ -35,4 +35,3 @@ class ChartSeriesItemTargetBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

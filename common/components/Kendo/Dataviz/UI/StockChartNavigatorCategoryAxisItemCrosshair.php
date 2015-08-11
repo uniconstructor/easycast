@@ -53,4 +53,3 @@ class StockChartNavigatorCategoryAxisItemCrosshair extends \Kendo\SerializableOb
 //<< Properties
 }
 
-?>

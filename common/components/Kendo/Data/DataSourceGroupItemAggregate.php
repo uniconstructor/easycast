@@ -26,4 +26,3 @@ class DataSourceGroupItemAggregate extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -242,4 +242,3 @@ class ToolBarItem extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

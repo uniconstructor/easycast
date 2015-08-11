@@ -80,4 +80,3 @@ class GridColumnMenuMessages extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

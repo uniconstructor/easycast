@@ -44,4 +44,3 @@ class ChartTitleMargin extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

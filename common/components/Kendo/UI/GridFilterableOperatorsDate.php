@@ -62,4 +62,3 @@ class GridFilterableOperatorsDate extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

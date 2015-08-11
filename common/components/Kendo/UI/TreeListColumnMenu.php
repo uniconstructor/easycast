@@ -44,4 +44,3 @@ class TreeListColumnMenu extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

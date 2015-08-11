@@ -26,4 +26,3 @@ class ChartCategoryAxisItemNotesDataItemIconBorder extends \Kendo\SerializableOb
 //<< Properties
 }
 
-?>

@@ -80,4 +80,3 @@ class SchedulerMessagesRecurrenceEditor extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

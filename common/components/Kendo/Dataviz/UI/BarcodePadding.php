@@ -44,4 +44,3 @@ class BarcodePadding extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

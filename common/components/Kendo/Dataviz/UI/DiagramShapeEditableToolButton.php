@@ -153,4 +153,3 @@ class DiagramShapeEditableToolButton extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

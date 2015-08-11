@@ -17,4 +17,3 @@ class DiagramConnectionEndCapFill extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

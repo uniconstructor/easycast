@@ -132,4 +132,3 @@ class TabStripItem extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

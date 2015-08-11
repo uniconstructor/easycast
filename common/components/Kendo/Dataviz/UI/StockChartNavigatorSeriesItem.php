@@ -280,4 +280,3 @@ A string value is interpreted as navigator.series.stack.group.
 //<< Properties
 }
 
-?>

@@ -26,4 +26,3 @@ class ChartSeriesDefaultsTooltipBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

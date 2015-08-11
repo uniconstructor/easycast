@@ -40,4 +40,3 @@ class ChartAreaBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

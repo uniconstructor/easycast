@@ -26,4 +26,3 @@ class ChartSeriesItemNegativeValues extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

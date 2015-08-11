@@ -99,4 +99,3 @@ hex and rgb.
 //<< Properties
 }
 
-?>

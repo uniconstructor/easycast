@@ -44,4 +44,3 @@ class ChartLegendMargin extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

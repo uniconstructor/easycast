@@ -40,4 +40,3 @@ class DiagramShapeConnector extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

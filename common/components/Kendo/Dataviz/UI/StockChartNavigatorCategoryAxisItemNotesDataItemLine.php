@@ -35,4 +35,3 @@ class StockChartNavigatorCategoryAxisItemNotesDataItemLine extends \Kendo\Serial
 //<< Properties
 }
 
-?>

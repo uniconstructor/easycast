@@ -35,4 +35,3 @@ class UploadFile extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

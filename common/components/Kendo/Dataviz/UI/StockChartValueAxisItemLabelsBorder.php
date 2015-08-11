@@ -36,4 +36,3 @@ hex and rgb.
 //<< Properties
 }
 
-?>

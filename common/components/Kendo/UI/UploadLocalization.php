@@ -107,4 +107,3 @@ class UploadLocalization extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

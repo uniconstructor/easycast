@@ -53,4 +53,3 @@ class ChartPlotArea extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

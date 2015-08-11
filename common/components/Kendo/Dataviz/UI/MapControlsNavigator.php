@@ -17,4 +17,3 @@ class MapControlsNavigator extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

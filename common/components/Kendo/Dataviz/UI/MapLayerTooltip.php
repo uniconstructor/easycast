@@ -122,4 +122,3 @@ By default the tooltip will display the target element title attribute content.
 //<< Properties
 }
 
-?>

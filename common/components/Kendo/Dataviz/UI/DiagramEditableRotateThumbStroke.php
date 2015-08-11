@@ -35,4 +35,3 @@ class DiagramEditableRotateThumbStroke extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

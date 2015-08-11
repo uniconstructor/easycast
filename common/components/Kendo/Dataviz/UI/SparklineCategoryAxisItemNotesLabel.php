@@ -102,4 +102,3 @@ class SparklineCategoryAxisItemNotesLabel extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

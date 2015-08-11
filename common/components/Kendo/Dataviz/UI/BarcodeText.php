@@ -44,4 +44,3 @@ class BarcodeText extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

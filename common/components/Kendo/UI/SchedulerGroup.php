@@ -26,4 +26,3 @@ class SchedulerGroup extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

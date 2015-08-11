@@ -26,4 +26,3 @@ class ChartCategoryAxisItemSelectMousewheel extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

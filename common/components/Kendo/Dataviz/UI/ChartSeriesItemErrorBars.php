@@ -76,4 +76,3 @@ class ChartSeriesItemErrorBars extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -17,4 +17,3 @@ class DiagramEditableDragSnap extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

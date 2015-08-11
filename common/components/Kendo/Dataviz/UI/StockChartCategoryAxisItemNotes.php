@@ -53,4 +53,3 @@ class StockChartCategoryAxisItemNotes extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

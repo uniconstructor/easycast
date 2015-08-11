@@ -35,4 +35,3 @@ class StockChartCategoryAxisItemLabelsBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

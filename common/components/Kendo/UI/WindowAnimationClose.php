@@ -26,4 +26,3 @@ class WindowAnimationClose extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

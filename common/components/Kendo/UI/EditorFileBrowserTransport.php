@@ -53,4 +53,3 @@ class EditorFileBrowserTransport extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

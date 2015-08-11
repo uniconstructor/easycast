@@ -26,4 +26,3 @@ class DropDownListAnimation extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

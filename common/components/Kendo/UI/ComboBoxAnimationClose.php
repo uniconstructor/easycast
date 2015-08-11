@@ -25,5 +25,3 @@ class ComboBoxAnimationClose extends \Kendo\SerializableObject {
 
 //<< Properties
 }
-
-?>

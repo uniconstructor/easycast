@@ -128,4 +128,3 @@ Template variables:
 //<< Properties
 }
 
-?>

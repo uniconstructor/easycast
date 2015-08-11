@@ -116,4 +116,3 @@ class TreeViewItem extends \Kendo\UI\NavigationalItem {
 //<< Properties
 }
 
-?>

@@ -71,4 +71,3 @@ class ChartCategoryAxisItemAutoBaseUnitSteps extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

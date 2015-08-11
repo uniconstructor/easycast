@@ -44,4 +44,3 @@ class ChartValueAxisItemCrosshairTooltipPadding extends \Kendo\SerializableObjec
 //<< Properties
 }
 
-?>

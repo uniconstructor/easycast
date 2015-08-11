@@ -53,4 +53,3 @@ class SparklineValueAxisItemMajorGridLines extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

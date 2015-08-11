@@ -35,4 +35,3 @@ class SparklineSeriesDefaultsLabelsBorder extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

@@ -110,4 +110,3 @@ class PagerMessages extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

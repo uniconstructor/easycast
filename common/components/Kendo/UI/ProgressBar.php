@@ -130,4 +130,3 @@ class ProgressBar extends \Kendo\UI\Widget {
 //<< Properties
 }
 
-?>

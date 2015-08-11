@@ -179,4 +179,3 @@ class SchedulerMessages extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

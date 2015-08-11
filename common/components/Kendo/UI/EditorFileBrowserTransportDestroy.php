@@ -57,4 +57,3 @@ Refer to the jQuery.ajax documentation for further info.
 //<< Properties
 }
 
-?>

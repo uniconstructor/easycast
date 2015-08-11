@@ -35,4 +35,3 @@ class DiagramConnectionEndCapStroke extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>

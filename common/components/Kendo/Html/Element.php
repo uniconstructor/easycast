@@ -81,4 +81,3 @@ class Element implements Node {
     }
 }
 
-?>

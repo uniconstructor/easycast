@@ -187,4 +187,3 @@ its parent horizontally. You can also switch off the screen boundary detection c
 //<< Properties
 }
 
-?>

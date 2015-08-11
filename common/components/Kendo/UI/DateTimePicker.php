@@ -209,4 +209,3 @@ settings are available for the depth value:
 //<< Properties
 }
 
-?>

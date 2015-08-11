@@ -26,4 +26,3 @@ class TooltipAnimation extends \Kendo\SerializableObject {
 //<< Properties
 }
 
-?>
