@@ -16,7 +16,7 @@ use yii\web\AssetBundle;
 class AppAsset extends AssetBundle
 {
     public $basePath = '@webroot';
-    public $baseUrl = '@web';
+    public $baseUrl  = '@web';
     public $css = [
         //'css/site.css',
         //'css/bootstrap.min.css',
@@ -27,6 +27,7 @@ class AppAsset extends AssetBundle
         'https://cdnjs.cloudflare.com/ajax/libs/Swiper/3.0.6/css/swiper.min.css',
     ];
     public $js = [
+        'js/custom/require.js',
         'https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js',
         'https://oss.maxcdn.com/respond/1.4.2/respond.min.js',
         'js/custom/icheck.min.js',
