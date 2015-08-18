@@ -16,23 +16,14 @@ return [
     'controllerNamespace' => 'backend\controllers',
     'bootstrap' => ['log'],
     'modules' => [
-        'user' => [
-            // following line will restrict access to admin page
-            'as backend' => 'dektrium\user\filters\BackendFilter',
-        ],
+        
     ],
     'components' => [
         'user' => [
-            'identityClass' => 'common\models\User',
-            'identityCookie' => [
-                'name' => '_backendIdentity',
-                'path' => '/backend',
-                'httpOnly' => true,
-            ],
             'enableAutoLogin' => true,
         ],
         'request' => [
-            'csrfParam' => '_backendCSRF',
+            'csrfParam'  => '_backendCSRF',
             'csrfCookie' => [
                 'httpOnly' => true,
                 'path' => '/backend',

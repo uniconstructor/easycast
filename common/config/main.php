@@ -13,11 +13,7 @@ return [
     ],
     'extensions' => $extensions,
     'modules' => [
-        // GUI для управления пользователями
-        'user' => [
-            'class' => 'dektrium\user\Module',
-            'enableUnconfirmedLogin' => true,
-        ],
+        
     ],
     'components' => [
         'cache' => [
@@ -69,7 +65,7 @@ return [
         ],
     ],
     'controllerMap' => [
-        'page'            => 'common\components\PageController',
+        'page'            => 'common\controllers\PageController',
         'mongodb-migrate' => 'yii\mongodb\console\controllers\MigrateController',
     ],
 ];
