@@ -138,8 +138,7 @@ class VacancyActions extends CWidget
         //$this->buttons = $this->member->getAllowedStatuses();
         foreach ( $this->buttons as $id => $buttonType )
         {// оставляем только те кнопки, на которые есть права, и для которых не нужно указывать доп. данные
-            if ( ( $this->vacancy->needMoreDataFromUser($this->questionary) OR Yii::app()->user->isGuest ) AND
-                   $buttonType === 'addApplication' )
+            if ( ! $this->isAjaxButton($buttonType) AND $buttonType === 'addApplication' )
             {
                 $this->buttons[$id] = 'addApplicationData';
                 if ( ! $this->vacancy->event->isExpired() )
@@ -206,6 +205,28 @@ class VacancyActions extends CWidget
     protected function isUserAction($type)
     {
         return in_array($type, array('addApplication', 'addApplicationData', 'removeApplication'));
+    }
+    
+    /**
+     * 
+     * @param type $buttonType
+     * @return bool
+     */
+    protected function isAjaxButton($buttonType)
+    {
+        if ( Yii::app()->user->isGuest )
+        {
+            return false;
+        }
+        if ( $this->vacancy->needMoreDataFromUser($this->questionary) )
+        {
+            return false;
+        }
+        if ( $this->vacancy->event->project->id == 403 )
+        {// подача заявки на роль на стороннем ресурсе
+            return false;
+        }
+        return true;
     }
     
     /**
