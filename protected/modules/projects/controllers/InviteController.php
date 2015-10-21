@@ -119,6 +119,7 @@ class InviteController extends Controller
                 'externalUrl' => $externalUrl,
                 'project'     => $invite->event->project,
             ));
+            return;
         }
         $this->render('tokenInvite', array('invite' => $invite, 'key' => $key));
     }
