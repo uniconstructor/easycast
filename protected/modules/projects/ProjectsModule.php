@@ -88,6 +88,10 @@ class ProjectsModule extends CWebModule
 	        // @todo записать ошибку в лог
 	        return false;
 	    }
+        if ( ! $invite->event )
+        {// @todo записать ошибку в лог
+            return false;
+        }
 	    if ( $invite->event->timestart <= time() AND ! $invite->event->nodates )
 	    {// если событие уже прошло и мероприятие имеет конкретную дату - то не отсылаем на него приглашение
 	        // чтобы не было драмы и вопросов в стиле "почему вы приглашаете меня на уже прошедшее мероприятие?"
