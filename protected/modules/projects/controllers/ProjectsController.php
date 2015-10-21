@@ -45,9 +45,9 @@ class ProjectsController extends Controller
 	    
 	    // исключаем из списка проектов черновики
 	    $criteria = new CDbCriteria();
-	    $criteria->scopes = array(
-	        'withStatus' => array($statuses),
-	    );
+        $criteria->addInCondition(Project::model()->getTableAlias(true).".`status`", $statuses);
+        $criteria->addNotInCondition(Project::model()->getTableAlias(true).".`id`", Project::cloakedIds());
+        
 	    if ( Yii::app()->getModule('user')->getViewMode() === 'customer' )
 	    {// для заказчиков отображаем лучшие проекты по рейтингу
 	        $criteria->scopes[] = 'bestRated';
@@ -95,6 +95,10 @@ class ProjectsController extends Controller
 	    }else
 	    {// отображаем проект
 	        $project = $this->loadProjectModel($projectId);
+	    }
+        if ( Yii::app()->user->isGuest AND $project->isCloaked() AND $project->status == swProject::FINISHED )
+	    {// завершенные скрытые проекты не показываются никому кроме админов
+	        throw new CHttpException(404, 'Проект не найден');
 	    }
 	    
 	    $this->render('view', array(
