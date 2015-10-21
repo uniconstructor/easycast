@@ -69,8 +69,8 @@ if ( in_array('finished', $model->getAllowedStatuses()) )
         ),
     );
 }
-if ( $model->status === EventVacancy::STATUS_ACTIVE )
-{// предоставить доступ
+if ( true )
+{// предоставить доступ (сейчас разрешаем предоставлять доступ к черновикам и закрытым ролям)
     $this->menu[] = array(
         'label' => 'Предоставить доступ',
         'url'   => array('/admin/customerInvite/create',
