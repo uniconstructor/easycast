@@ -81,12 +81,15 @@ class SearchFilterHelper extends CWidget
         $beforeSendJs  = "$('#{$this->getButtonId($type)}').prop('disabled', true); ";
         $successJs     = "$('#{$this->getResultId($type)}').html(data);";
         $completeJs    = "$('#{$this->getButtonId($type)}').prop('disabled', false); ";
+        $ajaxData      = array(
+            'vacancyId'     => $this->vacancyId,
+            'questionaryId' => $this->questionaryId,
+        );
         
         switch ( $type )
         {
             case 'check':
                 $url   = Yii::app()->createUrl($this->checkUrl);
-                $type  = 'primary';
                 $label = 'Вычислить соответствие критериям';
                 $buttonOptions = array(
                     'id'    => $this->getButtonId($type),
@@ -96,7 +99,6 @@ class SearchFilterHelper extends CWidget
             break;
             case 'invite':
                 $url   = Yii::app()->createUrl($this->forceInviteUrl);
-                $type  = 'default';
                 $label = 'Выслать приглашение этому участнику';
                 $buttonOptions = array(
                     'id'      => $this->getButtonId($type),
@@ -108,7 +110,6 @@ class SearchFilterHelper extends CWidget
             break;
             case 'subscribe': 
                 $url   = Yii::app()->createUrl($this->forceSubscribeUrl);
-                $type  = 'default';
                 $label = 'Подать заявку от этого участника';
                 $buttonOptions = array(
                     'id'      => $this->getButtonId($type),
@@ -136,7 +137,7 @@ class SearchFilterHelper extends CWidget
                 // включить кнопку обратно после выполнения запроса
                 'complete'   => "function (jqXHR, settings) { {$completeJs} }",
                 // собираем введенные данные формы перед отправкой
-                'data'       => new CJavaScriptExpression("$('#{$this->getFormId()}').serialize()"),
+                'data'       => new CJavaScriptExpression(" $('#{$this->getFormId()}').serialize();"),
             ),
             'htmlOptions' => $buttonOptions,
         ));
