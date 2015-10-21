@@ -250,7 +250,7 @@ class Questionary extends CActiveRecord
             // array('passportserial, passportnum', 'length', 'max' => 10),
             // array('voicetimbre, addchar, parodist, twin, vocaltype, sporttype, extremaltype, trick, skill', 'safe'),
             // @todo пропустить через trim все остальные поля
-            array('birthdate, gender, height, weight, wearsize, looktype, haircolor, eyecolor,
+            array('birthdate, gender, wearsize, looktype, haircolor, eyecolor,
                 physiquetype, titsize, chestsize, waistsize, hipsize, striptype,
                 striplevel, singlevel, wearsize, firstname, lastname, galleryid, city', 
                 'filter', 'filter' => 'trim',
