@@ -31,8 +31,9 @@ Yii::app()->clientScript->registerMetaTag('noindex', 'robots');
             <?php 
             // ссылка на сторонний ресурс (в новом окне)
             echo CHtml::link('Подать заявку', $externalUrl, array(
-                'class' => 'btn btn-large btn-info',
-                'ref'   => 'nofollow',
+                'class'  => 'btn btn-large btn-info',
+                'ref'    => 'nofollow',
+                'target' => '_blank',
             ));
             ?>
         </div>
