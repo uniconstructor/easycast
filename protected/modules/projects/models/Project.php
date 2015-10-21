@@ -223,6 +223,14 @@ class Project extends SWActiveRecord
 	{
 		return parent::model($className);
 	}
+    
+    /**
+     * 
+     */
+    public static function cloakedIds()
+    {
+        return array(315, 307, 305, 302, 306, 301, 295, 264, 265); // публичные слушания
+    }
 
 	/**
 	 * @return string the associated database table name
@@ -583,6 +591,13 @@ class Project extends SWActiveRecord
     	            'withStatus' => array($visibleStatuses),
     	        ),
 	        ),
+            // скрываем из общего списка те проекты которые не хотим показывать в общем доступе
+            'exceptCloaked'  => array(
+                'scopes' => array(
+                    'exceptId' => array($this->getCloakedIds()),
+                ),
+            ),
+            
 	    );
 	    return CMap::mergeArray($timestampScopes, $modelScopes);
 	}
@@ -1025,6 +1040,64 @@ class Project extends SWActiveRecord
 	    }
 	    return $tbPhotos;
 	}
+    
+    /**
+     * @return bool
+     */
+    public function hasBanner()
+    {
+        if ( ! $this->getBannerUrl() )
+        {
+            return false;
+        }
+        return true;
+    }
+    
+    /**
+     * 
+     * @return string
+     */
+    public function getBannerUrl()
+    {
+        if ( ! $this->hasConfig('banner') )
+        {
+            return null;
+        }
+        return $this->getConfig('banner');
+    }
+    
+    /**
+     * 
+     * @return Config|null
+     */
+    public function getBannerObject()
+    {
+        if ( ! $this->hasConfig('banner') )
+        {
+            return null;
+        }
+        return $this->getConfigValueObject('banner');
+    }
+    
+    /**
+     * @return bool - true для проектов которые мы не хотим показывать в общем доступе
+     */
+    public function isCloaked()
+    {
+        if ( in_array((int)$this->id, $this->getCloakedIds()) )
+        {
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * @return array
+     */
+    public function getCloakedIds()
+    {
+        return self::cloakedIds();
+    }
 	
 	/**
 	 * Действия, выполняемые при запуске проекта
