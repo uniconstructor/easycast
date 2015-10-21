@@ -32,7 +32,7 @@ $this->breadcrumbs = array(
                     'invite' => $invite
                 ));
                 // настройки оповещений участника (по типам проекта)
-                if ( isset($invite->questionary) AND $invite->questionary instanceof Questionary )
+                if ( isset($invite->questionary) AND ( $invite->questionary instanceof Questionary ) )
                 {/* @var $config Config */
                     $config = $invite->questionary->getConfigObject('projectTypesBlackList');
                     $accordionConfig = array(
