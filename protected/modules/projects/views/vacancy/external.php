@@ -2,19 +2,24 @@
 /**
  * Страница для регистрации на стороннем ресурсе (перенаправление трафика)
  */
-/* @var $this        VacancyController */
-/* @var $vacancy     EventVacancy */
-/* @var $questionary Questionary */
+/* @var $this        VacancyController|InviteController */
+/* @var $project     Project */
 
 // запрет индексации поисковиками
 Yii::app()->clientScript->registerMetaTag('noindex', 'robots');
+
+if ( $project->hasBanner() )
+{// выводим баннер до основного содержимого, чтобы он располагался по во всю ширину страницы
+    $bannerImage = CHtml::image($project->getBannerUrl(), CHtml::encode($project->name), array('style' => 'max-width:100%;'));
+    echo CHtml::tag('div', array('class' => 'row-fluid text-center'), $bannerImage);
+}
 ?>
 <div class="page-alternate">
     <div class="container">
         <div class="row">
             <div class="span12">
                 <div class="title-page">
-                    <h1 class="title">Регистрация заявки через официальный сайт проекта</h1>
+                    <h1 class="title">Регистрация участия в проекте "<?= strip_tags($project->name); ?>"</h1>
                     <h4 class="intro-description">
                         <?php 
                         $this->widget('ext.ECMarkup.ECAlert.ECAlert', array(
