@@ -124,7 +124,7 @@ class SearchFilterHelper extends CWidget
         }
         // выводим виджет кнопки
         $this->widget('bootstrap.widgets.TbButton', array(
-            'buttonType'  => 'ajaxSubmit',
+            'buttonType'  => TbButton::BUTTON_AJAXBUTTON,
             'size'        => 'large',
             'label'       => $label,
             'url'         => $url,
@@ -137,7 +137,12 @@ class SearchFilterHelper extends CWidget
                 // включить кнопку обратно после выполнения запроса
                 'complete'   => "function (jqXHR, settings) { {$completeJs} }",
                 // собираем введенные данные формы перед отправкой
-                'data'       => new CJavaScriptExpression(" $('#{$this->getFormId()}').serialize();"),
+                //'data'       => new CJavaScriptExpression(" $('#{$this->getFormId()}').serialize();"),
+                'data'       => array(
+                    'vacancyId'     => "js:function() {return $('#vacancyId').val();}",
+                    'questionaryId' => "js:function() {return $('#questionaryId').val();}",
+                    Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken,
+                ),
             ),
             'htmlOptions' => $buttonOptions,
         ));
