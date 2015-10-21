@@ -90,8 +90,8 @@ class ProjectController extends Controller
         $id      = Yii::app()->request->getParam('id', 0);
         $project = $this->loadModel($id);
         
-        $bannerUrl = $project->getConfig('banner');
-        $banner    = $project->getConfigValueObject('banner');
+        $bannerUrl = $project->getBannerUrl();
+        $banner    = $project->getBannerObject();
         
         if ( is_object($banner) AND $bannerUrl )
         {
