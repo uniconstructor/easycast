@@ -108,7 +108,8 @@ if ( in_array('finished', $model->getAllowedStatuses()) )
         ),
     );
 }
-if ( $model->status == ProjectEvent::STATUS_ACTIVE )
+//if ( $model->status == ProjectEvent::STATUS_ACTIVE )
+if ( true )
 {// предоставить доступ
     $this->menu[] = array('label' => 'Предоставить доступ',
         'url' => array('/admin/customerInvite/create', 'objectId' => $model->id, 'objectType' => 'event'),
