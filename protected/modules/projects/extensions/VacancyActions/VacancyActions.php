@@ -99,7 +99,7 @@ class VacancyActions extends CWidget
             case 'normal':
                 if ( ! $this->questionaryId )
                 {// берем id текущего пользователя, если он не задан вручную
-                    $this->questionaryId = Yii::app()->user->questionary->id;
+                    $this->questionaryId = Yii::app()->user->questionaryId;
                 }
             break;
             case 'token':
