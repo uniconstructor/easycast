@@ -110,6 +110,15 @@ class MemberProcessor extends CWidget
         if ( $this->customerInvite )
         {
             $this->vacancy = $this->customerInvite->vacancy;
+            $data = $this->customerInvite->loadData();
+            if ( isset($data['statuses']) )
+            {
+                $this->statuses = $data['statuses'];
+                foreach ( $this->statuses as $enabledStatus )
+                {
+                    $this->$enabledStatus = 1;
+                }
+            }
         }
         if ( ! $this->vacancy )
         {
