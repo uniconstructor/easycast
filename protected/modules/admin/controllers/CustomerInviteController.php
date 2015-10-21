@@ -82,7 +82,6 @@ class CustomerInviteController extends Controller
 		// AJAX validation
 		$this->performAjaxValidation($model);
 		
-		
 		$objectType      = Yii::app()->request->getParam('objectType');
 		$objectId        = Yii::app()->request->getParam('objectId', 0);
 		if ( ! $objectType )
@@ -187,7 +186,7 @@ class CustomerInviteController extends Controller
 	    // Определяем куда создается приглашение
 	    if ( ! $objectType = Yii::app()->request->getParam('objectType') )
 	    {
-	        throw new CHttpException(400, 'Не передан объект для которого ');
+	        throw new CHttpException(400, 'Не передан объект для которого создается приглашение');
 	    }
 	    $objectId = Yii::app()->request->getParam('objectId', 0);
 		$model = new CustomerInvite('search');
