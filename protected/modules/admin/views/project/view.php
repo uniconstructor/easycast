@@ -50,7 +50,8 @@ if ( $model->swIsNextStatus(Project::STATUS_FINISHED) )
         ),
     );
 }
-if ( $model->swIsStatus(Project::STATUS_ACTIVE) )
+//if ( $model->swIsStatus(Project::STATUS_ACTIVE) )
+if ( true )
 {// предоставить доступ
     $this->menu[] = array('label' => 'Предоставить доступ',
         'url' => array('/admin/customerInvite/create', 'objectId' => $model->id, 'objectType' => 'project'),
