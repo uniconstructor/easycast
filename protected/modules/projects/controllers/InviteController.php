@@ -115,7 +115,10 @@ class InviteController extends Controller
         {// сбор заявок для проектов, регистрация на которые проходит только на официальном сайте
             // (проект "Шоу Я": функционал требовался перед окончательным переходом сайта на вторую версию)
             $externalUrl  = 'http://xn----0tbps2b.xn--p1ai/?utm_source=easycast_ru&utm_medium=cpc&utm_campaign=easycast_ru';
-            $this->render('/vacancy/external', array('externalUrl' => $externalUrl));
+            $this->render('/vacancy/external', array(
+                'externalUrl' => $externalUrl,
+                'project'     => $invite->event->project,
+            ));
         }
         $this->render('tokenInvite', array('invite' => $invite, 'key' => $key));
     }
