@@ -100,7 +100,7 @@ class InviteController extends Controller
     {
         $inviteId = Yii::app()->request->getParam('id', 0);
         /* @var $invite EventInvite */
-        $invite   = $this->loadModel($inviteId, '');
+        $invite   = $this->loadModel($inviteId, 'EventInvite');
         if ( ! $key = Yii::app()->request->getParam('key', '') )
         {
             throw new CHttpException(404, 'Ссылка недействительна');
@@ -111,6 +111,12 @@ class InviteController extends Controller
         }
         // ключ подошел - значит участник зашел по ссылке. попробуем его залогинить.
         Yii::app()->getModule('user')->forceLogin($invite->questionary->user);
+        if ( $invite->event->project->id == 403 )
+        {// сбор заявок для проектов, регистрация на которые проходит только на официальном сайте
+            // (проект "Шоу Я": функционал требовался перед окончательным переходом сайта на вторую версию)
+            $externalUrl  = 'http://xn----0tbps2b.xn--p1ai/?utm_source=easycast_ru&utm_medium=cpc&utm_campaign=easycast_ru';
+            $this->render('/vacancy/external', array('externalUrl' => $externalUrl));
+        }
         $this->render('tokenInvite', array('invite' => $invite, 'key' => $key));
     }
     

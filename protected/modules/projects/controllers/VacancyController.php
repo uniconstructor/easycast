@@ -119,7 +119,15 @@ class VacancyController extends Controller
     {
         // id роли на которую подается заявка
         $vid     = Yii::app()->request->getParam('vid', 0);
+        /** @var $vacancy EventVacancy */
         $vacancy = $this->loadModel($vid);
+        if ( $vacancy->event->project->id == 403 )
+        {// сбор заявок для проектов, регистрация на которые проходит только на официальном сайте
+            // (проект "Шоу Я": функционал требовался перед окончательным переходом сайта на вторую версию)
+            $externalUrl  = 'http://xn----0tbps2b.xn--p1ai/?utm_source=easycast_ru&utm_medium=cpc&utm_campaign=easycast_ru';
+            $this->render('/vacancy/external', array('externalUrl' => $externalUrl));
+            return;
+        }
         // если отбор на роль или мероприятие завершен - сообщим об этом
         if ( $vacancy->status === EventVacancy::STATUS_FINISHED OR $vacancy->event->isExpired() )
         {// отбор завершен - сообщим об этом
