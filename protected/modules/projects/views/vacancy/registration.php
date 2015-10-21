@@ -38,8 +38,8 @@ if ( $bannerUrl )
             {
                 echo $greeting;
                 echo CHtml::tag('div', array('class' => 'well'), $bannerImage);
-            }*/
-            /*$this->widget('ext.FlipCountDown.FlipCountDown', array(
+            }
+            $this->widget('ext.FlipCountDown.FlipCountDown', array(
                 'beforeUnixTime' => $model->vacancy->getConfig(''),
                 'settings'       => array('size' => 'lg'),
             ));*/
@@ -64,16 +64,5 @@ if ( $bannerUrl )
     </div>
 </div>
 <div class="row-fluid text-center">
-    <?php
-    // FIXME значение в настройку
-    if ( in_array((int)$model->vacancy->id, array(1017, 1018)) )
-    {
-        $partnerUrl = 'http://ma.lifestylegroup.ru';
-        $image      = CHtml::image('https://s3.amazonaws.com/temp.easycast.ru/social/banner.png', '', array(
-            'style' => 'max-width: 100%;',
-        ));
-        echo '<h4 class="intro-description">Информационный партнер</h4>';
-        echo CHtml::link($image, $partnerUrl);
-    }
-    ?>
+    
 </div>
