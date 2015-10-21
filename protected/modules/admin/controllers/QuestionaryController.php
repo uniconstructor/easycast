@@ -204,7 +204,8 @@ class QuestionaryController extends Controller
                 $questionaryId = $user->questionary->id;
             }else
             {// @todo обработать ошибку
-                Yii::app()->end();
+                //Yii::app()->end();
+                return;
             }
         }
         // загружаем модели из базы
@@ -217,7 +218,7 @@ class QuestionaryController extends Controller
             // письмо с приглашением  будет составлено и отправлено участнику автоматически
             $invite = new EventInvite();
             $invite->questionaryid = $questionary->id;
-            $invite->eventid       = $invite->eventid;
+            $invite->eventid       = $vacancy->eventid;
             $invite->save();
         }else
         {// используем существующее приглашение
@@ -229,7 +230,7 @@ class QuestionaryController extends Controller
             // отправляем письмо с приглашением (вне очереди)
             Yii::app()->getComponent('ecawsapi')->sendMail($email, $subject, $message);
         }
-        Yii::app()->end();
+        //Yii::app()->end();
     }
     
     /**
@@ -250,7 +251,8 @@ class QuestionaryController extends Controller
                 $questionaryId = $user->questionary->id;
             }else
             {// @todo обработать ошибку
-                Yii::app()->end();
+                return;
+                //Yii::app()->end();
             }
         }
         // загружаем модели из базы
@@ -268,7 +270,7 @@ class QuestionaryController extends Controller
             // @todo проверить результат сохранения
             $member->save();
         }
-        Yii::app()->end();
+        //Yii::app()->end();
     }
     
     /**
