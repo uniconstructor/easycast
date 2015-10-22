@@ -229,7 +229,7 @@ class Project extends SWActiveRecord
      */
     public static function cloakedIds()
     {
-        return array(315, 307, 305, 302, 306, 301, 295, 264, 265); // публичные слушания
+        return array(345, 333, 315, 307, 305, 302, 306, 301, 295, 264, 265, 158); // публичные слушания
     }
 
 	/**
